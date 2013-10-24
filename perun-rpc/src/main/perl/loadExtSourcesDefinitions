@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Load external source definitions.
+------------------------------------
+Available options:
+ --help        | -h prints this help
+ 
+};
+}
+
+my ($groupId, $groupName, $voId, $voShortName, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;}) || die help(); 
+
+my $agent = Perun::Agent->new();
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+
+$extSourcesAgent->loadExtSourcesDefinitions();
+
+printMessage("External sources definitions have been successfully updated", $batch);

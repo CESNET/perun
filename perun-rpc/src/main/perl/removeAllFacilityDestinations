@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes all facility destinations. Facility id or facility name and service id are required.
+----------------------------------------------------------------------------
+Available options:
+ --facilityId   | -f facility id 
+ --facilityName | -F facility name
+ --facilityType | -t facility type
+ --serviceId    | -s service id
+ --batch        | -b batch
+ --help         | -h prints this help
+
+};
+}
+
+my ($facilityId, $facilityName, $facilityType, $serviceId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "facilityId|f=i" => \$facilityId, 
+ "facilityName|F=s" => \$facilityName,
+ "facilityType|t=s" => \$facilityType,
+ "serviceId|s=i" => \$serviceId) || die help(); 
+
+# Check options
+unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
+unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
+
+my $agent = Perun::Agent->new();
+
+unless($facilityId) {
+    my $facilitiesAgent = $agent->getFacilitiesAgent;
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId=$facility->getId;
+}
+
+my $servicesAgent = $agent->getServicesAgent;
+
+$servicesAgent->removeAllDestinations(facility => $facilityId, service => $serviceId);
+    
+printMessage("All destinations removed from the facility Id:".$facilityId." and service Id:".$serviceId, $batch);

@@ -1,0 +1,63 @@
+package cz.metacentrum.perun.core.impl.modules.attributes;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+
+import org.apache.commons.codec.binary.Base64;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+
+/**
+ * @author Michal Stava <stavamichal@gmail.com>
+ * @version $Id$
+ */
+public class urn_perun_user_attribute_def_def_userCertificates extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+
+  public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+    try {
+      HashMap<String,String> certs = (HashMap<String,String>) attribute.getValue();
+      
+      if (certs != null) {
+        for (String certDN : certs.keySet()) {
+          String cert = certs.get(certDN);
+          
+          // Remove --- BEGIN --- and --- END ----
+          String certWithoutBegin = cert.replaceFirst("-----BEGIN CERTIFICATE-----", "");
+          String rawCert = certWithoutBegin.replaceFirst("-----END CERTIFICATE-----", "");
+                     
+          X509Certificate.getInstance(Base64.decodeBase64(rawCert.getBytes()));
+          
+        }
+      }
+    } catch (CertificateException e) {
+      throw new WrongAttributeValueException(attribute, user, "Wrong format, certificate must be in PEM format prepended by -----BEGIN CERTIFICATE----- and appended by -----END CERTIFICATE-----.", e);
+    }
+    
+  }
+
+  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+    return new Attribute(attribute);
+  }
+  
+  public AttributeDefinition getAttributeDefinition() {
+      AttributeDefinition attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+      attr.setFriendlyName("userCertificates");
+      attr.setType(LinkedHashMap.class.getName());
+      attr.setDescription("Hash map for all users full certificates.");
+      return attr;
+  }
+}

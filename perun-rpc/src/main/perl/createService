@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates a service. Service name and owner id are required fields.
+--------------------------------------
+Available options:
+ --serviceName  | -S service name
+ --ownerId      | -o owner id
+ --batch        | -b batch
+ --help         | -h prints this help
+ 
+};
+}
+
+my ($serviceName, $ownerId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "serviceName|S=s" => \$serviceName,"ownerId|o=i" => \$ownerId) || die help(); 
+
+# Check options
+unless (defined($serviceName)) { die "ERROR: serviceName is required \n";}
+unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $servicesAgent = $agent->getServicesAgent;
+
+my $service = Perun::beans::Service->new;
+$service->setName($serviceName);
+
+$service = $servicesAgent->createService(service => $service, owner => $ownerId);
+
+printMessage("Service Id:".$service->getId." successfully created", $batch);

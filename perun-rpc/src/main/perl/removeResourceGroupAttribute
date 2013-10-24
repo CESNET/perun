@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes selected attribute from the resource-group. Group id or group name and VO, resource id and attribute id are required fields.  
+--------------------------------------
+Available options:
+ --groupId        | -g group id
+ --groupName      | -G group name
+ --voId           | -v vo id
+ --voShortName    | -V vo short name
+ --resourceId     | -r resource id
+ --attributeId    | -a attribute id
+ --attributeName  | -A attribute name including namespace
+ --batch          | -b batch
+ --help           | -h prints this help
+
+};
+}
+
+my ($groupId, $groupName, $voId, $voShortName, $resourceId, $attributeId, $attributeName, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+   "groupId|g=i" => \$groupId,
+   "groupName|G=s" => \$groupName,
+   "voId|v=i" => \$voId,
+   "voShortName|V=s" => \$voShortName,
+   "resourceId|r=i" => \$resourceId,
+   "attributeName|A=s" => \$attributeName,
+   "attributeId|a=i" => \$attributeId) || die help(); 
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
+unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+unless(defined($groupId)) {
+    unless (defined($voId)) {
+        my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+        $voId = $vo->getId;
+  }
+
+  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+  $groupId = $group->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+if (!defined($attributeId)) {
+  my $attribute =  $attributesAgent->getAttribute(group => $groupId, resource => $resourceId, attributeName => $attributeName);
+  $attributeId = $attribute->getId;
+}
+
+$attributesAgent->removeAttribute(group => $groupId, resource => $resourceId, attribute => $attributeId);
+    
+printMessage("Attribute Id:$attributeId removed from the group Id:$groupId", $batch);

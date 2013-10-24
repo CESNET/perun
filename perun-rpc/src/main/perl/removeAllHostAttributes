@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes all attributes from the host. Host id is required.
+-------------------------------------------------
+Available options:
+ --hostId   | -H host id 
+ --batch    | -b batch
+ --help     | -h prints this help
+
+};
+}
+
+my ($hostId, $hostName, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "hostId|H=i" => \$hostId) || die help(); 
+
+# Check options
+unless (defined($hostId)) { die "ERROR: hostId is required \n";}
+
+my $agent = Perun::Agent->new();
+
+#unless($hostId) {
+    #my $hostsAgent = $agent->getHostsAgent;
+    #my $host = $hostsAgent->getHostByName(name => $hostName);
+    #$hostId=$host->getId;
+#}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+$attributesAgent->removeAllAttributes(host => $hostId);
+    
+printMessage("All attributes removed from the host Id:$hostId", $batch);

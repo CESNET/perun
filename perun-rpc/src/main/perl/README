@@ -1,0 +1,13 @@
+Testovani Perun v3 - nastaveni prostredi
+
+V prostredi MetaCentra staci nahrat modul perunv3. Nasledne staci spustit prikaz perunv3.
+
+Pro jina prostredi je nutne nastavit:
+- Enviromentalni promennou PERUN_URL: Adresa serveru se servletem perun-rpc
+- Pokud nepouzivame GSSAPI, pak je nutne nastavit PERUN_USER - login/pass
+- Knihovny (adresar lib) zahrnout do cest s perlovymi moduly (napr. pridanim cesty do enviromentalni promenne PERL5LIB nebo zkopirovani do adresare, kde se perlove moduly hledaji).
+- Skripty (adresar bin) zahrnout do enviromentalni promenne PATH.
+
+Prerekvizity:
+Jsou potreba tyto perlove moduly: JSON::XS a LWP::Authen::Negotiate pri pouziti GSSAPI (Debian: liblwp-authen-negotiate-perl, libjson-any-perl, jinak standardne dostupne na CPAN).
+

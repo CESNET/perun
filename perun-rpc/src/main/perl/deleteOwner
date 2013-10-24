@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Deletes an owner. Owner id is required.
+--------------------------------------
+Available options:
+ --ownerId  | -o owner id
+ --batch    | -b batch
+ --help     | -h prints this help
+ 
+};
+}
+
+my ($ownerId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "ownerId|o=i" => \$ownerId) || die help(); 
+
+# Check options
+unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $ownersAgent = $agent->getOwnersAgent;
+
+$ownersAgent->deleteOwner(owner => $ownerId);
+
+printMessage("Owner Id:$ownerId successfully deleted", $batch);

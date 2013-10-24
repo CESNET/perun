@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes all attributes from the member. Member id is required.
+--------------------------------------
+Available options:
+ --memberId  | -m member id 
+ --batch     | -b batch
+ --help      | -h prints this help
+
+};
+}
+
+my ($memberId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "memberId|m=i" => \$memberId) || die help(); 
+
+# Check options
+unless (defined($memberId)) { die "ERROR: memberId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+
+$attributesAgent->removeAllAttributes(member => $memberId);
+    
+printMessage("All attributes removed from the member Id:".$memberId, $batch);

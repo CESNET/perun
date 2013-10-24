@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+return qq{
+Find users by attribute.
+------------------------
+Available options:
+ --attributeName   | -a attribute name
+ --attributeValue  | -w attribute value
+ --orderByName     | -n  order by user's name
+ --batch           | -b batch
+ --help            | -h prints this help
+
+};
+}
+
+my ($attributeName, $attributeValue, $sortingFunction, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "attributeName|a=s" => \$attributeName, "attributeValue|w=s" => \$attributeValue,
+ "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ) || die help();
+
+# Check options
+unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
+unless (defined($attributeValue)) { die "ERROR: attributeValue is required \n";}
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+my @users = $usersAgent->getUsersByAttribute(attributeName => $attributeName, attributeValue => $attributeValue);
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ID','Name');
+
+foreach my $user (sort $sortingFunction @users) {
+   my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
+  $table->addRow($user->getId, $name);
+}
+
+print tableToPrint($table, $batch);

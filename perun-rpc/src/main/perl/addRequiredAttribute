@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Adds required attribute. Service and attribute are required fields.
+--------------------------------------
+Available options:
+ --serviceId     | -s service id
+ --attributeId   | -a attribute id
+ --attributeName | -A attribute name including namespace
+ --batch         | -b batch
+ --help          | -h prints this help
+ 
+};
+}
+
+my ($serviceId, $attributeId, $attributeName, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "serviceId|s=i" => \$serviceId,
+ "attributeName|A=s" => \$attributeName, 
+ "attributeId|a=i" => \$attributeId) || die help(); 
+
+# Check options
+unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
+unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
+
+my $agent = Perun::Agent->new();
+my $servicesAgent = $agent->getServicesAgent;
+my $attributesAgent = $agent->getAttributesAgent;
+
+if (!defined($attributeId)) {
+  my $attribute =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+  $attributeId = $attribute->getId;
+}
+
+$servicesAgent->addRequiredAttribute(service => $serviceId, attribute => $attributeId);
+
+printMessage("Attribute Id:$attributeId successfully assigned to the service Id:$serviceId", $batch);

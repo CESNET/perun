@@ -1,0 +1,1010 @@
+/* ==================== GUI CONTENT  ========================== */
+
+/* apply a natural box layout model to all elements
+*, *:before, *:after {
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+ */
+
+.mainPanel{
+    min-height:600px;
+    min-width:960px;
+    height: 100%;
+}
+
+/* Header */
+.perun-header {
+    width: 100%;
+    min-width: 960px;
+    height: 64px;
+    max-height: 64px;
+}
+
+.perun-header-link {
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    word-wrap: break-word;
+}
+
+.logged-user-info {
+    position: absolute !important;
+    top: 5px !important;
+    right: 0px !important;
+}
+.logged-user-info td {
+    padding-right: 5px !important;
+}
+
+/* header devel background */
+.develbg {
+    background-image:url("img/devel.png");
+}
+
+/* now managing widget */
+.now-managing {
+    font-size: 1.35em;
+    padding-left: 10px;
+}
+
+/* Message widget */
+#perun-status {
+    position:absolute;
+    top:-200px;
+    padding:10px 2%;
+    border:1px solid #0050a8;
+    color:#ffffff;
+    font-weight:bold;
+    background-color: #0077fb;
+    text-align:center;
+    width:40%;
+    margin:5px 27%;
+}
+
+/* Footer */
+.perunFooter{
+    background-color:#ccc;
+    width:100%;
+}
+
+/* MAIN CONTENT TAB PANEL*/
+
+.mainTabPanel{
+    border-top: 1px solid #cccccc !important;
+}
+
+table.perun-tabPanelItem{
+    border-spacing:0px !important;
+}
+
+.gwt-TabLayoutPanelTab{
+    margin-top:8px !important;
+    padding: 4px 2px 4px 2px !important;
+    position:relative;
+}
+
+.mainTabPanel .gwt-TabLayoutPanelContentContainer {
+    border-bottom: 0px !important;
+}
+
+.mainTabPanel .gwt-TabLayoutPanel {
+
+}
+
+/* ABSOLUTE PANEL wrapper around all GUI tabs */
+.gwt-TabLayoutPanelContent {
+    padding: 0px !important;
+}
+
+/* Wrapper around standard tab content */
+.tab-content {
+    margin: 0px !important;
+    /* Firefox */
+    width: -moz-calc(100% - 10px) !important;
+    /* WebKit */
+    width: -webkit-calc(100% - 10px) !important;
+    /* Opera */
+    width: -o-calc(100% - 10px) !important;
+    /* Standard */
+    width: calc(100% - 10px) !important;
+    /* Firefox */
+    height: -moz-calc(100% - 5px) !important;
+    /* WebKit */
+    height: -webkit-calc(100% - 5px) !important;
+    /* Opera */
+    height: -o-calc(100% - 5px) !important;
+    /* Standard */
+    height: calc(100% - 5px) !important;
+}
+
+/* Fix display when no tab is present in tab panel */
+.mainTabPanel .gwt-TabLayoutPanelTabs {
+    height: 40px;
+}
+
+/* SUB CONTENT TAB PANEL */
+
+.smallTabPanel{
+
+}
+
+.smallTabPanel .gwt-TabLayoutPanelTabs {
+    background-color:#dddddd !important;
+    height: 35px;
+    width: 100%;
+    border: 0px !important;
+    padding-top: 5px !important;
+    padding-left: 2px !important;
+}
+.smallTabPanel .gwt-TabLayoutPanelTab {
+    height:24px !important;
+    background-color:#aaaaaa !important;
+    padding-top: 6px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    margin-top: 8px !important;
+    font-weight:bold !important;
+    border: 0px !important;
+    border-radius: 0px !important;
+}
+.smallTabPanel .gwt-TabLayoutPanelTab-selected {
+    background-color:#fff !important;
+}
+
+.smallTabPanel .gwt-TabLayoutPanelContentContainer{
+    /*border-bottom: #cccccc 1px solid !important;*/
+    border: 0px !important;
+}
+
+.smallTabPanel .gwt-TabLayoutPanelContent {
+    padding: 0px !important;
+    left: 5px !important;
+    border: 0px !important;
+    /* Firefox */
+    width: -moz-calc(100% - 10px) !important;
+    /* WebKit */
+    width: -webkit-calc(100% - 10px) !important;
+    /* Opera */
+    width: -o-calc(100% - 10px) !important;
+    /* Standard */
+    width: calc(100% - 10px) !important;
+}
+
+.smallTabPanelWithBorder .gwt-TabLayoutPanelContentContainer {
+    border-left: 1px solid #cccccc !important;
+    border-bottom: 1px solid #cccccc !important;
+    border-right: 1px solid #cccccc !important;
+    border-top: 0px !important;
+}
+
+/* TAB PANEL TABS WIDGETS */
+
+.tabPanelTitle{
+    font-size:10pt;
+    margin:4px;
+    font-weight:bold;
+}
+
+.tabPanelCloseButton{
+    font-size:9px !important;
+    width:22px !important;
+    height:22px !important;
+    margin:2px 0 2px 15px !important;
+    padding:1px !important;
+}
+
+/* ============ MAIN MENU STYLES ========================== */
+
+.menuStackPanel .gwt-StackPanelItem {
+    position:relative !important;
+    height: 43px !important;
+    padding:0px !important;
+    vertical-align: top !important;
+    border-color: #CCCCCC !important;
+}
+
+.menuStackPanel {
+    border-color: #CCCCCC !important;
+}
+
+.stackPanelHeaderLink{
+    position:relative;
+    margin:0px;
+    padding:0px !important;
+    overflow: hidden;
+    height: 43px;
+}
+
+.stackPanelHeaderLink .menu-label{
+    width: 148px !important;
+    /*display:block !important;*/
+    position: absolute !important;
+    height: 43px !important;
+    line-height: 43px !important;
+    top: 0px !important;
+    left: 0px !important;
+    padding-left: 54px !important;
+    z-index: 1;
+}
+
+.stackPanelHeaderLink img {
+    position:relative;
+    z-index:0;
+    left:10px;
+    top:5px;
+}
+
+.stackPanelHeaderLink a,.stackPanelHeaderLink a:visited, .stackPanelHeaderLink a:hover {
+    color: #000;
+    text-decoration:none;
+    display:block;
+    width:140px;
+    float: right;
+}
+
+.stackPanelHeaderImage {
+    float:left;
+}
+
+.mainMenuActive {
+    font-weight: bolder !important;
+}
+.mainMenuNotActive {
+    color:grey;
+}
+.mainMenuItems td {
+    padding-top: 3px;
+    padding-left: 3px;
+}
+.mainMenuItems {
+    border-collapse: collapse;
+}
+.mainMenuSplitter {
+    border-bottom: #cccccc 1px solid;
+}
+
+/* ================= OVERLAY TAB PANEL ================== */
+/* like createGroup, createVo, addMember, addManager etc. */
+
+/* overlay tab */
+.tab-overlay{
+    position: absolute;
+    background-color: white;
+    left: 0;
+    top: -10000px;
+    z-index: 10;
+    /* free space around tab contents */
+    padding: 45px 15px 10px 15px;
+    max-width: 92%;
+    max-height:980px;
+    border: 1px solid #CCC;
+    border-top-width: 0px;
+    border-radius: 0px 0px 5px 5px;
+    box-shadow: 0px 0px 19px #414141;
+}
+/* different size for large tabs */
+.tab-overlay-large{
+    width: 90% !important;
+    left: 3% !important;
+}
+
+/* overlay tab title */
+.tab-overlay-title {
+    position:absolute;
+    top:5px;
+    font-size: 1.35em;
+    left:5px;
+    margin: 10px;
+}
+
+/* overlay tab top close button */
+.tab-overlay-close-button{
+    position:absolute;
+    top:12px;
+    right:15px;
+    z-index: 1;
+}
+
+/* LIGHT - FlexTable styles */
+.inputFormFlexTable td {
+    text-align: left;
+    vertical-align: middle;
+    padding-bottom: 10px;
+    padding-top: 5px;
+}
+.inputFormFlexTable td.itemName {
+    font-weight: bolder;
+    text-wrap: avoid;
+    padding-right: 10px;
+}
+
+.inputFormInlineComment {
+    font-style: italic;
+    color: grey;
+}
+
+/* DARK - FlexTable styles */
+.inputFormFlexTableDark td {
+    text-align: left;
+    vertical-align: middle;
+    padding: 7px;
+}
+.inputFormFlexTableDark td.itemName {
+    font-weight: bolder;
+    text-wrap: avoid;
+    padding-right: 10px !important;
+    /*background: #d5d5d5;*/
+    background: #ccc;
+    border: 1px solid white;
+    text-align: left;
+    vertical-align: middle;
+}
+
+table.inputFormFlexTableDark {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ======== TAB MENU ========== */
+
+/* Buttons position */
+.tabMenu {
+    vertical-align: middle;
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+/* Widget content alignment */
+.tabMenu span {
+    vertical-align: middle;
+}
+.tabMenu div {
+    vertical-align: middle;
+}
+.tabMenu img {
+    vertical-align: middle;
+}
+.tabMenu input {
+    vertical-align: middle;
+}
+.tabMenu label {
+    vertical-align: middle;
+}
+.tabMenu select {
+    vertical-align: middle;
+}
+/* first button */
+.tabMenu-first {
+    padding-left: 0px !important;
+}
+/* last button */
+.tabMenu-last {
+    padding-right: 0px !important;
+}
+
+/* ============ CUSTOM WIDGET STYLES =============== */
+
+/* Ajax loader image */
+
+.serverResponseLabelError {
+    color: red;
+}
+
+/* Perun table - attributes widgets */
+.PerunAttributeTableBorder {
+    /*border:1px solid #d5d5d5;*/
+}
+.PerunAttributeTableBorder tr, .PerunAttributeTableBorder td {
+    padding: 2px !important;
+}
+
+.PerunAttributeControllButton{
+    padding: 2px !important;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+}
+
+/* PerunTable checkbox header */
+.GPBYFDEFD input, th .GPBYFDEIG .GPBYFDEGG input, th .GPBYFDEHG .GPBYFDEFG input {
+    position:relative;
+}
+
+/* Checkboxes style */
+.gwt-CheckBox, .gwt-CheckBox input {
+    vertical-align: middle;
+    margin-right: 10px;
+
+}
+
+/* GUI Listboxes with objects */
+select {
+    max-width: 250px;
+}
+
+/* SUGGEST BOX popup - fix visibility on inner tabs */
+.gwt-SuggestBoxPopup {
+    z-index: 11;
+}
+
+.gwt-Button {
+    border-radius: 2px !important;
+}
+
+/* Style all input-text as gwt-Textbox */
+input[type=text], input[type=password] {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #999999 #CCCCCC #CCCCCC;
+    border-image: none;
+    border-right: 1px solid #CCCCCC;
+    border-style: solid;
+    border-width: 1px;
+    font-family: Arial Unicode MS,Arial,sans-serif;
+    font-size: small;
+    padding: 5px 4px;
+}
+
+/* input-text in CellTables is 100% width by default */
+.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text] {
+    display: block;
+    width: 100%;
+}
+
+/* Extended text box error text padding */
+.input-status-error-padding {
+    padding-top: 5px;
+}
+/* Extended text box error text padding */
+.input-text-error-border {
+    border-color: red !important;
+    border-image: none;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/* Propagations table */
+
+.propagationTable {
+    table-layout: fixed;
+    width: 100%;
+    display:inline-table;
+    word-wrap: break-word;
+    line-height: 1.4em;
+}
+.propagationTablePadding {
+    padding-bottom: 1em;
+}
+.green {
+    background: #C4FFCB !important;
+    padding: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+.green:hover, {
+    background: #9CFFA7 !important;
+    padding: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+.red {
+    background: #FFC4C4 !important;
+    padding: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+.red:hover {
+    background: #FC7272 !important;
+    padding: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+.notdetermined, .notdetermined:hover {
+    padding: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+/* Confirm and AlertBox */
+
+.gwt-DialogBox {
+    width: 400px;
+}
+
+.gwt-DialogBox .Caption {
+    background: #F1F1F1;
+    padding: 4px 8px 4px 4px;
+    cursor: default;
+    font-family: Arial Unicode MS, Arial, sans-serif;
+    font-weight: bold;
+    border-bottom: 1px solid #bbbbbb;
+    border-top: 1px solid #D2D2D2;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogContent {
+    z-index: 12;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+.gwt-DialogBox .dialogMiddleCenter {
+    padding: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    background: white;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogBottomCenter {
+    background: url(images/hborder.png) repeat-x 0px -2945px;
+    -background: url(images/hborder_ie6.png) repeat-x 0px -2144px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogMiddleLeft {
+    background: url(images/vborder.png) repeat-y -31px 0px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogMiddleRight {
+    background: url(images/vborder.png) repeat-y -32px 0px;
+    -background: url(images/vborder_ie6.png) repeat-y -32px 0px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogTopLeftInner {
+    width: 10px;
+    height: 8px;
+    zoom: 1;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogTopRightInner {
+    width: 12px;
+    zoom: 1;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogBottomLeftInner {
+    width: 10px;
+    height: 12px;
+    zoom: 1;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogBottomRightInner {
+    width: 12px;
+    height: 12px;
+    zoom: 1;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogTopLeft {
+    background: url(images/circles.png) no-repeat -20px 0px;
+    -background: url(images/circles_ie6.png) no-repeat -20px 0px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogTopRight {
+    background: url(images/circles.png) no-repeat -28px 0px;
+    -background: url(images/circles_ie6.png) no-repeat -28px 0px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogBottomLeft {
+    background: url(images/circles.png) no-repeat 0px -36px;
+    -background: url(images/circles_ie6.png) no-repeat 0px -36px;
+    z-index: 12;
+}
+.gwt-DialogBox .dialogBottomRight {
+    background: url(images/circles.png) no-repeat -8px -36px;
+    -background: url(images/circles_ie6.png) no-repeat -8px -36px;
+    z-index: 12;
+}
+html>body .gwt-DialogBox {
+    z-index: 12;
+}
+* html .gwt-DialogBox .dialogTopLeftInner {
+    width: 10px;
+    overflow: hidden;
+    z-index: 12;
+}
+* html .gwt-DialogBox .dialogTopRightInner {
+    width: 12px;
+    overflow: hidden;
+    z-index: 12;
+}
+* html .gwt-DialogBox .dialogBottomLeftInner {
+    width: 10px;
+    height: 12px;
+    overflow: hidden;
+    z-index: 12;
+}
+* html .gwt-DialogBox .dialogBottomRightInner {
+    width: 12px;
+    height: 12px;
+    overflow: hidden;
+    z-index: 12;
+}
+.cw-DialogBox {
+    z-index: 12;
+}
+.gwt-PopupPanelGlass{
+    z-index: 11;
+}
+
+/* AlertBox content */
+.alert-box-image {
+    padding-right: 10px;
+}
+.alert-box-table td {
+    text-align: left;
+    vertical-align: top;
+    padding-top: 10px;
+}
+.alert-box-table td.itemName {
+    font-weight: bolder;
+    vertical-align: middle;
+    padding-right: 10px;
+}
+
+/* Custom button widget formatting */
+.customButtonText {
+    padding-left:10px;
+    padding-right:5px;
+    padding-bottom:0px;
+    vertical-align:middle;
+}
+.customButtonImage {
+    vertical-align:middle;
+    opacity: 1.0;
+}
+.customButtonImageDisabled {
+    vertical-align:middle;
+    opacity: 0.5;
+}
+
+/* Gui log widget */
+.log{
+    color:#333 !important;
+    border: 1px solid #333;
+    position:absolute !important;
+    z-index:1000;
+    bottom:-210px;
+    background-color:#fff;
+    left:0px;
+    width:100%;
+    height:200px;
+    opacity:0.85;
+    -moz-opacity:0.85;
+}
+.log-error {
+    border-color: red;
+    background-color: #FDEEEE;
+}
+.log-success {
+    border-color: green;
+    background-color: #EBFFE9;
+}
+.log-changed {
+    border-color: yellow;
+    background-color: #FCFB97;
+}
+
+/* Help widget in Tabs */
+.helpWidgetWrapper{
+    width:400px;
+    overflow:visible !important;
+    height:100%;
+}
+
+.helpWidgetButton{
+    cursor:pointer;
+
+}
+.helpWidget{
+    width:380px;
+    left:0px;
+    top:0px;
+    height:100%;
+    background-color: white;
+    border-left: 5px solid #178bff;
+    padding:10px;
+    opacity:0.8;
+}
+
+.helpWidget ul{
+    padding: 0px 0px 0px 18px;
+    margin:10px 0;
+}
+
+/* BORDER TABLE - used to display application form items when configuring form */
+.borderTable {
+    border-collapse:collapse;
+}
+
+.borderTable td, .borderTable th{
+    border-bottom: 1px solid #cccccc;
+    padding: 6px;
+}
+
+.noBorder, .noBorder th, .noBorder td{
+    border-width:0px;
+}
+
+/* APPLICATION */
+
+.applicationFormLabel{
+    text-align: left;
+    vertical-align: middle;
+    padding:3px 10px;
+    max-width: 300px;
+}
+.applicationFormWidget{
+    text-align: left;
+    vertical-align: middle;
+    padding:3px 10px;
+}
+.applicationFormHelp{
+    color: #777;
+    padding:3px 10px;
+    margin: 0px 0 8px 0;
+    text-align: left;
+    line-height: 160%;
+    vertical-align: middle;
+}
+.applicationFormCheck{
+    padding:3px 10px;
+    text-align: left;
+    vertical-align: middle;
+    min-width: 100px;
+}
+
+.input-status-ok{
+    font-weight:bold;
+    color:#4a8b00;
+}
+
+.input-status-error{
+    font-weight:bold;
+    color:#d1200f;
+}
+
+.input-status-loading{
+    font-weight:bold;
+    color:#0468cc;
+}
+
+/* ================ GWT CELL TABLE aka PERUN TABLE ================ */
+
+/* Perun cell Table style */
+.perun-table {
+    display:inline-table;
+    width:100%;
+}
+.perun-tableScrollPanel {
+    overflow-y: auto;
+}
+
+/* GWT TABLE CELL STYLES */
+.GPBYFDEAE, .GPBYFDEOC, .GPBYFDEAD, .GPBYFDEBD, .GPBYFDECE, .GPBYFDEID, .GPBYFDEKD, .GPBYFDEHD, .GPBYFDEOC {
+    border: 0px !important; /* disable borders */
+}
+
+/* Display all cells with padding */
+/* min height of all rows is based on rows with checkboxes */
+.GPBYFDEPC td, .GPBYFDEPD td {
+    min-height: 22px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.GPBYFDEPC td div, .GPBYFDEPD td div {
+    height: 100%;
+    width: 100%;
+    min-height: 22px;
+    line-height: 22px;
+}
+
+.GPBYFDEPC td div > *, .GPBYFDEPD td div > * {
+    width: auto;
+    height: auto;
+}
+
+.GPBYFDEPC td div > *.customClickableTextCell, .GPBYFDEPD td div > *.customClickableTextCell {
+    min-height: 22px;
+    line-height: 22px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+
+.GPBYFDEPC td div a.customClickableTextCell, .GPBYFDEPD td div a.customClickableTextCell {
+
+    display: block;
+    min-height: 22px;
+    line-height: 22px;
+    position: relative;
+    left: -15px;
+    top: 0px;
+
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    height: 100% !important;
+
+    /* Firefox */
+    width: -moz-calc(100% + 15px) !important;
+    /* WebKit */
+    width: -webkit-calc(100% + 15px) !important;
+    /* Opera */
+    width: -o-calc(100% + 15px) !important;
+    /* Standard */
+    width: calc(100% + 15px) !important;
+
+}
+
+a.customClickableTextCell:hover {
+    text-decoration: none;
+}
+
+/* header row cell */
+.GPBYFDEFD {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+
+/* GWT GRID TABLE STYLES*/
+.GPBYFDEDG, .GPBYFDEEG, .GPBYFDEEH, .GPBYFDEBG, .GPBYFDEDG, .GPBYFDEEH, .GPBYFDEKG {
+    border: 0px !important; /* disable borders */
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+}
+
+/* GWT TABLE ROW STYLES */
+
+/* odd row */
+.GPBYFDEPC {}
+/* even row */
+.GPBYFDEPD {}
+
+/* GWT TABLE STYLE */
+.GPBYFDEGE {
+
+}
+
+/* COLOR STYLES for ROWS and CELLS */
+
+.rowlightgreen, .rowlightgreen td {
+    background: #E0FFC2;
+}
+.rowlightgreen:hover, .rowlightgreen:hover td {
+    background: #D6FFAD;
+}
+.rowgreen, .rowgreen td {
+    background: #C4FFCB !important;
+}
+.rowgreen:hover, .rowgreen:hover td {
+    background: #9CFFA7 !important;
+}
+.rowdarkgreen, .rowdarkgreen td {
+    background: #8CE696 !important;
+}
+.rowdarkgreen:hover, .rowdarkgreen:hover td {
+    background: #78C280 !important;
+}
+.rowlightyellow, .rowlightyellow td {
+    background: #FFFFCC;
+}
+.rowlightyellow:hover, .rowlightyellow:hover td  {
+    background: #FFFFAD;
+}
+.rowyellow, .rowyellow td {
+    background: #F5FA75 !important;
+}
+.rowyellow:hover, .rowyellow:hover td {
+    background: #E2E831 !important;
+}
+.roworange, .roworange td{
+    background: #FCE3BB !important;
+}
+.roworange:hover, .roworange:hover td {
+    background: #FCC772 !important;
+}
+.rowred, .rowred td {
+    background: #FFC4C4 !important;
+}
+.rowred:hover, .rowred:hover td {
+    background: #FC7272 !important;
+}
+.notDetermined .notDetermined:hover {
+    background: #ffffff !important;
+}
+
+/* CUSTOM CELLS STYLES */
+
+.customClickableTextCell{
+    color:#06C;
+    cursor:pointer;
+}
+.customClickableCellIcon {
+    vertical-align: middle;
+    padding: 0px 5px;
+}
+
+/* FIX COLORING OF SELECTED ROWS WHEN RECOLORED */
+.GALD-WOKD .customClickableTextCell, .GPBYFDEBE .customClickableTextCell, .GPBYFDEBE .customClickableTextCell a,tr .GPBYFDEBE, tr .GPBYFDEBE td, .GEATBOKCOC .customClickableTextCell,.GEATBOKCAD .customClickableTextCell, .GEATBOKCCE .customClickableTextCell {
+    color:#fff !important;
+    background: none repeat scroll 0 0 #628CD5 !important;
+}
+
+.hyperlink-active{
+    font-weight:bold;
+}
+
+/* ============ CUSTOM STYLES ================ */
+.pointer, tr.pointer, td.pointer, .pointer tr, .pointer td {
+    cursor: pointer !important;
+}
+
+.border {
+    border: 1px solid #CCCCCC;
+}
+
+/* Headings styles */
+.subsection-heading {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* Member status widget */
+.member-status td {
+    padding: 0px 5px;
+}
+
+/* MembershipExpiration widget */
+.membership-expiration td {
+    padding: 0px !important;
+}
+.membership-expiration td.change {
+    padding-left: 10px !important;
+}
+
+.statisticsTable {
+    border-collapse:collapse;
+    width:350px;
+}
+
+.statisticsTable td, .statisticsTable th{
+    border: 1px solid #aaa;
+    padding: 6px;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: bold;
+    color: #777777;
+    margin: 40px 0px 70px;
+    text-align: center;
+}
+
+h3 {
+    margin: 10px;
+    font-size: 1.35em;
+    text-decoration: underline;
+}
+
+/* TODO - REMOVE - Tables used on user detail page */
+.userDetailTable{
+    border-collapse:collapse;
+}
+
+.userDetailTable td, .userDetailTable th{
+    border: 1px solid #aaa;
+    padding: 6px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.disclosurePanelHeader{
+    color:#0066CC;
+}
+
+.centeredTable td, .centeredTable td * {
+    vertical-align: middle;
+    text-align: center;
+}

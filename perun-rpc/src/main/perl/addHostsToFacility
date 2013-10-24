@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Adds facility hosts. Facility and hosts are required fields.
+--------------------------------------
+Available options:
+ --facilityId   | -f facility id
+ --facilityName | -F facility name
+ --facilityType | -t facilityType
+ --hosts        | -H list Of Hosts
+ --batch        | -b batch
+ --help         | -h prints this help
+ 
+};
+}
+
+my ($facilityId, $facilityName, $facilityType, @hosts, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch, 
+"facilityId|f=i" => \$facilityId,
+"facilityName|F=s" => \$facilityName, 
+"facilityType|t=s" => \$facilityType, 
+'hosts|H=s@{1,}' => \@hosts) or die help(); 
+
+# Check options
+unless (defined($facilityId) || (defined($facilityName) && defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType are required \n";}
+unless (@hosts) { die "ERROR: hosts are required \n";}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+unless($facilityId) {
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId=$facility->getId;
+}
+
+
+
+$facilitiesAgent->addHosts(facility => $facilityId,hostnames => \@hosts );
+
+printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);

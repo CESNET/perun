@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable); 
+
+sub help {
+return qq{
+Tool prints list of Facility Manager. Facility is required field.
+------------------------------
+Available options:
+ --facilityId   | -f facility id
+ --facilityName | -F facility name
+ --facilityType | -t facility type
+ --orderById    | -i order by Manager's identifier
+ --orderByName  | -n  order by Manager's name
+ --batch        | -b batch
+ --help         | -h prints this help
+};
+}
+
+my ($facilityId, $userId, $facilityName, $facilityType, $sortingFunction, $batch);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+ "facilityId|f=i" => \$facilityId,
+ "facilityName|F=s" => \$facilityName,
+ "facilityType|t=s" => \$facilityType,
+ "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+ "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getLastName", 1) },
+ "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+unless (defined($facilityId) or (defined($facilityName) and (defined($facilityType)))) { die "ERROR: facilityId or facilityName is required \n";}
+
+unless($facilityId) {
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId = $facility->getId;
+}
+
+my @richUsers = $facilitiesAgent->getRichAdmins(facility => $facilityId, pageSize => 0, pageNum => 0);
+unless(@richUsers) { printMessage "No manager found", $batch; exit 0; }
+
+#output
+printTable($sortingFunction, @richUsers);

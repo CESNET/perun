@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Updates user. User id is required.
+--------------------------------------
+Available options:
+ --userId      | -u user id 
+ --firstName   | -f first name for update
+ --lastName    | -n family name for update
+ --middleName  | -d middle name for update
+ --titleBefore | -t title used before the name for update
+ --titleAfter  | -T title used after the name for update
+ --batch       | -b batch
+ --help        | -h prints this help
+
+};
+}
+
+my ($userId, $firstName, $lastName, $middleName, $titleBefore, $titleAfter, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "userId|u=i" => \$userId, "firstName|f=s" => \$firstName, 
+ "lastName|n=s" => \$lastName, "middleName|d=s" => \$middleName,
+ "titleBefore|t=s" => \$titleBefore, "titleAfter|T=s" => \$titleAfter) || die help(); 
+
+# Check options
+unless (defined($userId)) { die "ERROR: userId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+my $user = $usersAgent->getUserById(id => $userId);
+
+if (defined($firstName)) {
+  unless ($firstName !~ /^\s*$/) { die "ERROR: firstName cannot be empty string\n";}
+  $user->setFirstName($firstName);
+}
+
+if (defined($lastName)) {
+  unless ($lastName !~ /^\s*$/) { die "ERROR: lastName cannot be empty string\n";}
+  $user->setLastName($lastName);
+}
+
+if (defined($middleName)) {
+  $user->setMiddleName($middleName);
+}
+
+if (defined($titleBefore)) {
+  $user->setTitleBefore($titleBefore);
+}
+
+if (defined($titleAfter)) {
+  $user->setTitleAfter($titleAfter);
+}
+
+$user = $usersAgent->updateUser(user => $user);
+
+printMessage("User Id:$userId successfully updated", $batch);

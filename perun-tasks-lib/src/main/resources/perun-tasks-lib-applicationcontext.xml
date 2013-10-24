@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
+
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.taskslib"/>  
+    
+    <!-- DAOs -->
+    <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
+      <property name="dataSource" ref="dataSource"/> 
+    </bean>
+    
+    <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
+      <property name="dataSource" ref="dataSource"/> 
+    </bean>  
+    
+    <bean id="execServiceDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDaoJdbc">
+      <property name="dataSource" ref="dataSource"/> 
+    </bean>
+    
+    <bean id="execServiceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDenialDaoJdbc">
+      <property name="dataSource" ref="dataSource"/> 
+    </bean>
+    
+    <bean id="execServiceDependencyDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDependencyDaoJdbc">
+      <property name="dataSource" ref="dataSource"/> 
+    </bean>
+
+</beans>

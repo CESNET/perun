@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes all attributes from the resource-group. Group id or group name and VO and resource id are required fields. 
+-------------------------------------------------
+Available options:
+ --groupId      | -g group id
+ --groupName    | -G group name
+ --voId         | -v vo id
+ --voShortName  | -V vo short name
+ --resourceId   | -r resource id
+ --batch        | -b batch
+ --help         | -h prints this help
+
+};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $resourceId);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+   "groupId|g=i" => \$groupId,
+   "groupName|G=s" => \$groupName,
+   "resourceId|r=i" => \$resourceId,
+   "voId|v=i" => \$voId,
+   "voShortName|V=s" => \$voShortName) || die help(); 
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+unless(defined($groupId)) {
+    unless (defined($voId)) {
+        my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+        $voId = $vo->getId;
+  }
+
+  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+  $groupId = $group->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+$attributesAgent->removeAllAttributes(group => $groupId, resource => $resourceId);
+    
+printMessage("All attributes removed from the resource-group Ids: $resourceId-$groupId", $batch);

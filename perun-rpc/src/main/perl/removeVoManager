@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes Vo Manager. User id and Vo id or vo short name are required fields.
+------------------------------------
+Available options:
+ --userId      | -u user id
+ --voId        | -v vo id
+ --voShortName | -V vo short name
+ --batch       | -b batch
+ --help        | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($voId, $voShortName, $userId);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, 
+ "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
+ "userId|u=i" => \$userId) || die help(); 
+
+# Check options
+unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+
+if (!defined($voId)) {
+  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+  $voId = $vo->getId;
+}
+  
+$vosAgent->removeAdmin(vo => $voId, user => $userId);
+
+printMessage("Manager (user) Id:$userId successfully removed from the Vo Id:$voId", $batch);

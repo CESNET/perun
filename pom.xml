@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- PERUN -->
+    <groupId>cz.metacentrum</groupId>
+    <artifactId>perun</artifactId>
+    <version>3.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <!-- PERUN MODULES -->
+    <modules>
+        <module>perun-beans</module>
+        <module>perun-auditparser</module>
+        <module>perun-core</module>
+	<module>perun-cabinet</module>
+        <module>perun-tasks-lib</module>
+        <module>perun-controller</module>
+        <module>perun-rpc-lib</module>
+        <module>perun-registrar-lib</module>
+        <module>perun-ldapc</module>
+        <module>perun-notification</module>
+        <module>perun-rpc</module>
+        <module>perun-dispatcher</module>
+        <module>perun-engine</module>
+        <module>perun-web-gui</module>
+        <!--
+        <module>perun-voot</module>
+        -->
+    </modules>
+
+    <!-- common environmental and version properties-->
+    <properties>
+
+        <!-- USE UTF-8 in whole project -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- by default we build devel version of perun and do tests -->
+        <perun.build.type>devel</perun.build.type>
+        <maven.test.skip>false</maven.test.skip>
+
+        <!-- perun configuration files location -->
+        <perun.conf>/etc/perunv3</perun.conf>
+        <perun.jdbc>file:${perun.conf}/jdbc.properties</perun.jdbc>
+        <perun.ldapc>file:${perun.conf}/ldapc.properties</perun.ldapc>
+        <perun.log>/var/log/perunv3</perun.log>
+
+        <!-- libraries versions -->
+        <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
+        <junit.version>4.11</junit.version>
+        <log4j.version>1.5.8</log4j.version>
+
+    </properties>
+
+    <!-- DEFAULT MAVEN BUILD SETTINGS
+
+     - child modules inherits settings (e.g. version, encoding), not plugin usage itself
+     - to explicitly use one of listed plugins in module just specify groupId and artifactId in it's plugins section for each plugin
+     - child module can override any setting of plugin by defining value in child module (or it's profile)
+     - beware, that default action on plugins configurations, executions etc. is MERGE !!
+     - if merged values are defined in both (parent and child module), than module value if used
+
+    -->
+    <build>
+
+        <!-- by default we build + install artifact in local repository -->
+        <defaultGoal>install</defaultGoal>
+
+        <!-- Common plugin settings is inherited by child modules -->
+        <pluginManagement>
+
+            <plugins>
+
+                <!-- mvn clean - cleans output folder (target) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+
+                <!-- mvn compile - compile as Java 1.7 app in UTF-8 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                        <verbose>false</verbose>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+
+                <!-- mvn install - build artifact and install it in local repository (.m2 folder) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+
+                <!-- mvn javadoc - creates javadoc from source (we do append spring javadoc if found) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9</version>
+                    <configuration>
+                        <detectLinks/>
+                        <links>
+                            <link>http://static.springsource.org/spring/docs/3.0.x/javadoc-api/</link>
+                        </links>
+                    </configuration>
+                </plugin>
+
+                <!-- mvn source:jar - packages sources -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                </plugin>
+
+                <!-- mvn jar:jar - creates final jar -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <!-- mvn jar:jar - creates final war -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <!-- mvn shade - creates shaded jar (1 jar containing e.g. core + spring) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>2.1</version>
+                </plugin>
+
+                <!-- plugin used to apply jUnit tests settings in maven and to generate report (target/surefire-reports)-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.15</version>
+                    <configuration>
+                        <!-- disable logging for maven's tests / Test in you IDE will log normally -->
+                        <argLine>-Dlog4j.configuration=</argLine>
+                        <testFailureIgnore>false</testFailureIgnore>
+                        <skip>false</skip>
+                    </configuration>
+                </plugin>
+
+                <!-- Copy dependencies plug-in -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.8</version>
+                </plugin>
+
+                <!-- Executing plug-in: mvn exec:java -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                </plugin>
+
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.maven.plugins
+                                        </groupId>
+                                        <artifactId>
+                                            maven-antrun-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.7,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>run</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.gmaven
+                                        </groupId>
+                                        <artifactId>
+                                            gmaven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.4,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>compile</goal>
+                                            <goal>testCompile</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.mojo
+                                        </groupId>
+                                        <artifactId>
+                                            gwt-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.5.1,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>i18n</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.maven.plugins
+                                        </groupId>
+                                        <artifactId>
+                                            maven-war-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.4,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>exploded</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+
+        </pluginManagement>
+
+    </build>
+
+    <!-- DEFAULT MAVEN DEPENDENCY SETTINGS
+
+     - child modules inherits settings (e.g. version, scope), not dependency itself
+     - to explicitly use one of listed dependencies in module just specify groupId and artifactId in it's dependencies section
+     - child module can override any setting by defining value in child module (or it's profile)
+     - beware, that default action on dependency configuration is MERGE !!
+     - if merged values are defined in both (parent and child module), than module value if used
+
+    -->
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- DB -->
+
+           <dependency>
+               <groupId>postgresql</groupId>
+               <artifactId>postgresql</artifactId>
+               <!--<version>8.4-702.jdbc4</version>-->
+               <version>9.1-901.jdbc4</version>
+            </dependency>
+
+            <!-- FIXME - so far we run against oracle DB, but will be only Postgres soon -->
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc5</artifactId>
+                <version>11.1.0.7.0</version>
+            </dependency>
+
+            <!-- FIXME - needed in compile scope for running in local tomcat (mvn jetty:run on perun-rpc) and tests, so include it  -->
+            <!-- FIXME - produciton profile overrides it by setting scope to "provided" -->
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-dbcp</artifactId>
+                <version>7.0.28</version>
+            </dependency>
+
+            <!-- SPRING -->
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
+                <exclusions>
+                    <!-- Exclude Commons Logging in favor of SLF4j -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${org.springframework.version}</version>
+                <exclusions>
+                    <!-- Exclude Commons Logging in favor of SLF4j -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${org.springframework.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- TESTS -->
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- LOGGING -->
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <!-- OTHERS -->
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.6.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>1.7.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>1.7.4</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Perun project info -->
+    <name>perun</name>
+    <description>Users, Groups, Services and Resources Management System</description>
+
+    <organization>
+        <name>MetaCentrum</name>
+        <url>http://www.metacentrum.cz/</url>
+    </organization>
+
+    <inceptionYear>2010</inceptionYear>
+
+    <url>https://projekty.ics.muni.cz/perunv3/trac</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/CESNET/perun.git</connection>
+        <url>scm:git:https://github.com/CESNET/perun.git</url>
+        <developerConnection>scm:git:https://github.com/CESNET/perun.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+</project>

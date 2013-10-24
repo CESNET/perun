@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage printTable getSortingFunction); 
+
+sub help {
+return qq{
+Prints list of users.
+------------------------------
+Available options:
+ --facilityId   | -f  facility identifier
+ --facilityName | -F  facility name
+ --facilityType | -t  facility type
+ --orderById    | -i  order by user's identifier
+ --orderByName  | -n  order by user's name
+ --batch        | -b  batch
+ --help         | -h  prints this help
+};
+}
+
+our $batch;
+my ($facilityId, $facilityName, $facilityType, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "facilityId|f=i" => \$facilityId,
+           "facilityName|F=s" => \$facilityName,
+           "facilityType|t=s" => \$facilityType,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
+           "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+#options check
+unless(defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required\n";} 
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+
+unless($facilityId) {
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId = $facility->getId;
+}
+
+my @users = $facilitiesAgent->getAllowedUsers(facility => $facilityId);
+unless(@users) { printMessage "No users found", $batch; exit 0; }
+
+#output
+printTable($sortingFunction, @users);

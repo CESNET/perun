@@ -1,0 +1,22 @@
+#!/bin/bash
+PERUNTMP="`mktemp -d`"
+PERUNBIN="${PERUNTMP}/perunv3/bin"
+PERUNLIB="${PERUNTMP}/perunv3/lib"
+mkdir $PERUNTMP/perunv3 
+mkdir $PERUNBIN
+mkdir $PERUNLIB
+cp `find . -maxdepth 1 -type f` $PERUNBIN
+rm ${PERUNBIN}/perunv3.tar.gz 2>/dev/null
+rm ${PERUNBIN}/maketar
+rm ${PERUNBIN}/Makefile
+mv ${PERUNBIN}/README ${PERUNTMP}/perunv3
+chmod 0755 ${PERUNBIN}/*
+chmod 0644 ${PERUNTMP}/perunv3/README
+mkdir ${PERUNLIB}/Perun
+cp `find ./Perun -maxdepth 1 -name "*.pm" -type f` ${PERUNLIB}/Perun
+chmod 0644 ${PERUNLIB}/Perun/*
+mkdir ${PERUNLIB}/Perun/beans
+cp `find ./Perun/beans -maxdepth 1 -name "*.pm" -type f` ${PERUNLIB}/Perun/beans
+chmod 0644 ${PERUNLIB}/Perun/beans/*
+tar -czf perunv3.tar.gz -C ${PERUNTMP} perunv3
+rm -rf $PERUNTMP

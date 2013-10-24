@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Deletes an facility. Facility id or facility name is required.
+--------------------------------------------------------------
+Available options:
+ --facilityId   | -f facility id
+ --facilityName | -F facility name
+ --facilityType | -t facility Type
+ --batch        | -b batch
+ --help         | -h prints this help
+ 
+};
+}
+
+my ($facilityId, $facilityName, $facilityType, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "facilityId|f=i" => \$facilityId,
+ "facilityType|t=s" => \$facilityType, 
+ "facilityName|F=s" => \$facilityName) || die help(); 
+
+# Check options
+unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+unless($facilityId) {
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId = $facility->getId;
+}
+
+$facilitiesAgent->deleteFacility(facility => $facilityId);
+
+printMessage("Facility Id:$facilityId successfully deleted", $batch);
+

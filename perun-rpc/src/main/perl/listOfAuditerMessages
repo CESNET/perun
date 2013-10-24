@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage printTable getSortingFunction); 
+
+sub help {
+return qq{
+Prints list of auditer messages
+---------------------------
+Available options:
+ --limit n		 | -l n limit results to the n number of lines (20 by default)
+ --batch       | -b  batch
+ --help        | -h  prints this help
+};
+}
+
+my ($limit, $batch) ;
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "limit|l=i" => \$limit, 
+           "batch|b" => \$batch) || die help;
+
+unless(defined $limit) { $limit = 20; };
+
+my $agent = Perun::Agent->new();
+
+my $auditAgent = $agent->getAuditMessagesAgent;
+my @msgs = $auditAgent->getMessages(count => $limit);
+
+#output
+my $sortingFunction = getSortingFunction('getId', 0, 1);
+printTable $sortingFunction, @msgs;

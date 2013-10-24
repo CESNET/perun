@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+    <context:property-placeholder location="${perun.jdbc}, ${perun.ldapc}"/>
+    
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
+
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
+    
+    <!-- Properties Bean -->
+    <!--
+    <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+        	<list>
+	            <value>classpath:ldapc.properties</value>
+            </list>
+        </property>
+    </bean>
+    -->
+    <!-- These beans are for define ldapTemplate -->
+    <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="url" value="${ldap.url}" />
+        <property name="base" value="${ldap.base}" />
+        <property name="userDn" value="${ldap.userDn}" />
+        <property name="password" value="${ldap.password}" />
+    </bean>
+    <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+        <constructor-arg ref="contextSource" />
+    </bean>
+    <!--
+    <bean id="ldapConnectorImpl" class="cz.metacentrum.perun.ldapc.processor.impl.LdapConnectorImpl" scope="singleton">
+        <property name="ldapTemplate" ref="ldapTemplate"/>
+    </bean>
+    -->
+</beans>

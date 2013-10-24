@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates a owner. Owner name is required fields.
+--------------------------------------
+Available options:
+ --ownerName     | -O owner name
+ --ownerContact  | -c owner contact
+ --ownerType     | -t owner type (administrative, technical)
+ --batch         | -b batch
+ --help          | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($ownerName, $ownerContact, $ownerType);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+            "batch|b" => \$batch,
+            "ownerName|O=s" => \$ownerName,
+            "ownerContact|c=s" => \$ownerContact,
+            "ownerType|t=s" => \$ownerType,
+           ) || die help(); 
+
+# Check options
+unless($ownerName) { die "ERROR: ownerName is required \n";}
+unless($ownerType) { die "ERROR: ownerType is required \n";}
+
+my $agent = Perun::Agent->new();
+my $ownersAgent = $agent->getOwnersAgent;
+
+my $owner=Perun::beans::Owner->new;
+$owner->setName($ownerName);
+$owner->setType($ownerType);
+$owner->setContact($ownerContact) if defined $ownerContact;
+
+$owner = $ownersAgent->createOwner(owner => $owner);
+
+printMessage("Owner Id:".$owner->getId." successfully created", $batch);

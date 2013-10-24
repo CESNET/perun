@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates an attribute. Attribute name, namespace and type are required fields.
+--------------------------------------
+Available options:
+ --attributeName       | -N attribute friendly name
+ --attributeNameSpace  | -n namespace
+ --attributeType       | -t attribute type (integer/string/array/hash)
+ --attributeDsc        | -d description 
+ --batch               | -b batch
+ --help                | -h prints this help
+ 
+};
+}
+
+my ($attributeName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "attributeName|N=s" => \$attributeName,"attributeNameSpace|n=s" => \$attributeNameSpace,
+ "attributeType|t=s" => \$attributeType,"attributeDsc|d=s" => \$attributeDsc) || die help(); 
+
+# Check options
+unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
+unless (defined($attributeNameSpace)) { die "ERROR: attributeNameSpace is required \n";}
+unless (defined($attributeType)) { die "ERROR: attributeType is required \n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+
+my $attribute = Perun::beans::AttributeDefinition->new;
+$attribute->setFriendlyName($attributeName);
+$attribute->setNamespace($attributeNameSpace);
+$attribute->setType($attributeType);
+$attribute->setDescription($attributeDsc) if (defined($attributeDsc));
+
+$attribute = $attributesAgent->createAttribute(attribute => $attribute);
+
+printMessage("Attribute Id:".$attribute->getId." successfully created", $batch);

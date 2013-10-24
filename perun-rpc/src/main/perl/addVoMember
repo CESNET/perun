@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Term::ReadKey;
+use Perun::Common qw(printMessage tableToPrint); 
+
+sub help {
+return qq{
+Adds a Vo member. Search string and vo id or vo short name are required fields.
+Searches the users in all assigned external sources using search string.
+------------------------------------
+Available options:
+ --voId         | -v vo id
+ --voShortName  | -V vo short name
+ --searchString | -p string to search in assigned external sources
+ --batch        | -b batch
+ --help         | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($voId, $voShortName, $searchString);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
+ "searchString|p=s" => \$searchString) || die help(); 
+
+# There can be PERUN_BATCH env set, so check it
+$batch = $batch || $ENV{'PERUN_BATCH'};
+
+# Check options
+unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
+unless (defined($searchString)) {die "ERROR: searchString is required\n";}
+unless ($searchString !~ /^\s*$/) { die "ERROR: searchString cannot be empty string\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $membersAgent = $agent->getMembersAgent;
+
+if (!defined($voId)) {
+  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+  $voId = $vo->getId;
+}
+  
+my @candidates = $vosAgent->findCandidates('vo' => $voId, 'searchString' => $searchString);
+
+if (scalar(@candidates) <= 0) { print STDERR "No new candidates matching the searchString found or the candidate is already Vo member\n"; exit 1; }
+
+if ((scalar(@candidates) > 1) && $batch) {
+  die "ERROR: More than one candidate for the searchString '$searchString' in the batch mode\n";
+}
+
+# We are not in the batch mode, so there can be more then one matching user for the searchString, let the user select
+my $candidate;
+if (!$batch) {
+  my $table = Text::ASCIITable->new();
+  $table->setCols("Candidate\nnumber",'name','login in the external source', 'external source');
+
+  my $i = 0;
+  foreach my $tmpCandidate (@candidates) {
+    $i++;
+    my $candidateName = $tmpCandidate->getFirstName;
+    $candidateName .= " " . $tmpCandidate->getMiddleName if ($tmpCandidate->getMiddleName);
+    $candidateName .= " " . $tmpCandidate->getLastName;
+		
+		my $userExtSourceLogins = $tmpCandidate->getUserExtSource->getLogin;
+		my $userExtSourceNames = $tmpCandidate->getUserExtSource->getExtSource->getName;
+		
+		foreach my $aues (@{$tmpCandidate->getAdditionalUserExtSources}) {
+			$userExtSourceLogins .= "\n" . $aues->getLogin;
+			my $auesExtSource = $aues->getExtSource;
+			bless($auesExtSource, 'Perun::beans::ExtSource');
+			$userExtSourceNames .= "\n" . $auesExtSource->getName;
+		}
+    $table->addRow($i, $candidateName, $userExtSourceLogins, $userExtSourceNames);
+  }
+  print tableToPrint($table, $batch);
+  
+  print "\nEnter the candidate number (empty string to exit): ";
+  my $candidateNumber = <>;
+  chomp($candidateNumber);
+	# Exit if empty string was provided
+  unless($candidateNumber !~ /^\s*$/) { exit 0 };
+
+  if (($candidateNumber !~ /^\d*$/) || ($candidateNumber <= 0 || $candidateNumber > $i)) { 
+      die "Candidate number must be in the range 1-$i\n";
+  } else { 
+      # Get the selected candidate
+      $candidate=$candidates[$candidateNumber-1];
+  }
+} else {
+  # Get the first one, it should be only one
+  $candidate = $candidates[0];
+}
+
+my $member = $membersAgent->createMember(vo => $voId, candidate => $candidate);
+$member = $membersAgent->validateMember(member => $member->getId);
+
+printMessage("New member with Id:" . $member->getId . " successfully created", $batch);

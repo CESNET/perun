@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Deletes an user. User id is required.
+--------------------------------------
+Available options:
+ --userId   | -u user id
+ --batch      | -b batch
+ --force      | -f force
+ --help       | -h prints this help
+ 
+};
+}
+
+my ($userId, $batch, $force);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "userId|m=i" => \$userId, "force|f" => \$force) || die help(); 
+
+# Check options
+unless (defined($userId)) { die "ERROR: userId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+if(defined($force)) {
+  $usersAgent->deleteUser(user => $userId, force => 1);
+} else {
+  $usersAgent->deleteUser(user => $userId);
+}
+
+printMessage("User Id:$userId successfully deleted", $batch);

@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+return qq{
+Prints list of Attributes required for Service. Service is required field.
+----------------------------------------------------
+Available options:
+ --serviceId   | -s  Service idetifier 
+ --serviceName | -S  Service name 
+ --orderById   | -i  order by numeric ID
+ --orderByName | -n  order by name 
+ --batch       | -b  batch
+ --help        | -h  prints this help
+ 
+};
+}
+
+
+my ($serviceId, $serviceName, $sortingFunction, $batch);
+GetOptions ("help|h" => sub { print help; exit 0;} ,
+            "batch|b" => \$batch, 
+            "serviceId|s=i" => \$serviceId,
+            "serviceName|S=s" => \$serviceName,
+            "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help; 
+
+my $agent = Perun::Agent->new();
+my $serviceAgent = $agent->getServicesAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless(defined $serviceId) {
+  unless(defined $serviceName) { die "ERROR: Service specification required\n"; }
+  my $service = $serviceAgent->getServiceByName(name => $serviceName);
+  $serviceId = $service->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+my @attributes = $attributesAgent->getRequiredAttributesDefinition(service => $serviceId);
+unless(@attributes) { printMessage "No Attribute found", $batch; exit 0; }
+
+
+my $table = Text::ASCIITable->new();
+$table->setCols('Id','namespace','friendlyName', 'type');
+
+for my $attribute (sort $sortingFunction @attributes) {
+  $table->addRow($attribute->getId, $attribute->getNamespace, $attribute->getFriendlyName, $attribute->getType);
+}
+
+print tableToPrint($table, $batch);
+

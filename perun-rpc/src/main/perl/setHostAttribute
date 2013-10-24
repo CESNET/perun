@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+use Switch;
+
+sub help {
+return qq{
+Sets the host attribute. Host id and attribute value and attribute id or name are required.
+---------------------------------------------------------------
+Available options:
+ --hostId          | -H host id 
+ --attributeId     | -a attribute id
+ --attributeName   | -A attribute name including namespace
+ --attributeValue  | -w attribute value
+ --batch           | -b batch
+ --help            | -h prints this help
+
+};
+}
+
+my ($hostId, $hostName, $attributeId, $attributeName, @attributeValue);
+our $batch;
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "hostId|H=i" => \$hostId,
+ "attributeId|a=i" => \$attributeId, 
+ "attributeName|A=s" => \$attributeName, 
+ 'attributeValue|w=s@{1,}' => \@attributeValue) || die help(); 
+
+# Check options
+unless (defined($hostId)) { die "ERROR: hostId is required \n";}
+unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
+unless (@attributeValue) { die "ERROR: attributeValue is required \n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+my $attributeDefinition;
+
+if (!defined($attributeId)) {
+  $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+} else {
+  $attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+}
+
+# Get the attribute definition and create the attribute
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
+
+$attribute->setValueFromArray(@attributeValue);
+
+$attributesAgent->setAttribute(host => $hostId, attribute => $attribute);
+
+printMessage("Attribute Id:".$attribute->getId." set for the host Id:$hostId", $batch);

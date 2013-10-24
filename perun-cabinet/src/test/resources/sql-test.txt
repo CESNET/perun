@@ -1,0 +1,58 @@
+-- CATEGORY --
+
+INSERT INTO `perun-cabinet-db`.`CATEGORY` (
+`id` ,
+`name` ,
+`rank` 
+)
+VALUES (
+NULL , 'Publikace bodované v RIVu', '2'
+), (
+NULL , 'Publikace nebodované v RIVu', '1,5'
+);
+
+--end of CATEGORY
+
+-- author --
+
+INSERT INTO `perun-cabinet-db`.`AUTHOR` (
+`id` ,
+`firstName` ,
+`lastName` ,
+`userId` 
+)
+VALUES (
+NULL , 'Pepa', 'Becher', '1'
+), (
+NULL , 'Zdeněk', 'Žluťoučký', '2'
+);
+
+-- end of authors
+
+-- begin of REPORT
+
+INSERT INTO `perun-cabinet-db`.`REPORT` (
+`id` ,
+`publicationId` ,
+`userId` ,
+`createdBy` ,
+`createdDate` 
+)
+VALUES (
+NULL , '2', '1', '1', '2011-11-05 19:49:59'
+);
+
+-- end of REPORT --
+
+-- begin OWNER --
+
+INSERT INTO `perun-cabinet-db`.`OWNER` (
+`id` ,
+`name` ,
+`contact` 
+)
+VALUES (
+NULL , 'CESNET', 'foo@bar'
+);
+
+-- end OWNER --

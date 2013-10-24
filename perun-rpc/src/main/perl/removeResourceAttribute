@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes selected attribute from the resource. Resource id and attribute id are required.
+--------------------------------------
+Available options:
+ --resourceId   | -r resource id 
+ --attributeId  | -a attribute id
+ --batch        | -b batch
+ --help         | -h prints this help
+
+};
+}
+
+my ($resourceId, $attributeId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "resourceId|r=i" => \$resourceId, "attributeId|a=i" => \$attributeId) || die help(); 
+
+# Check options
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
+unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+
+$attributesAgent->removeAttribute(resource => $resourceId, attribute => $attributeId);
+    
+printMessage("Attribute Id:$attributeId removed from the resource Id:$resourceId", $batch);

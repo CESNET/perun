@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Deletes a group. Group id or group name together with vo id or vo short name are required fields.
+------------------------------------
+Available options:
+ --groupId     | -g group id
+ --groupName   | -G group name
+ --voId        | -v vo id
+ --voShortName | -V vo short name
+ --force       | -f removes all members and deletes all subgroups
+ --batch       | -b batch
+ --help        | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $force);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName, 
+ "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
+ "force|f" => \$force) || die help(); 
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+if (!defined($groupId)) {
+  if (!defined($voId)) {
+    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+    $voId = $vo->getId;
+  }
+  
+  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+  $groupId = $group->getId;
+}
+
+if(defined($force)) {
+  my $forcevalue=1;
+  $groupsAgent->deleteGroup(group => $groupId, forceDelete => $forcevalue);
+} else {
+  $groupsAgent->deleteGroup(group => $groupId);
+}
+
+printMessage("Group Id:$groupId successfully deleted", $batch);

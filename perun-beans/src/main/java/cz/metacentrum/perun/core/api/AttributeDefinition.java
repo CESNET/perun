@@ -1,0 +1,204 @@
+package cz.metacentrum.perun.core.api;
+
+import cz.metacentrum.perun.core.api.Auditable;
+import cz.metacentrum.perun.core.api.BeansUtils;
+
+/**
+ * This class represents definition of attribute. All attributes comes from some definition. 
+ * Attribute definition is attribute without connection to some object. 
+ * TODO
+ *
+ *
+ *
+ * @author Slavek Licehammer <glory@ics.muni.cz>
+ * @version $Id$
+ */
+public class AttributeDefinition extends Auditable implements Comparable<AttributeDefinition> {
+
+        /**
+         * Attribute name, <strong>excluding</strong> the whole namespace.
+         */
+        private String friendlyName;
+
+        /**
+         * Attribute namespace, including the whole namespace, will be also used by the perl scripts.
+         */
+        private String namespace;
+
+        /**
+         * Attribute description
+         */
+        private String description;
+
+        /**
+         * Type of attribute's value. It's a name of java class. "Java.lang.String" for expample. (To get this use something like <em>String.class.getName()</em>)
+         */
+        private String type;
+        
+        /**
+         * Attribute name, that is displayed in GUI.
+         */
+        private String displayName;
+        
+        /**
+         * If the user in session has also right to write this attribute
+         */
+        private boolean writable;
+    
+        public AttributeDefinition() {
+            this.writable = false;
+        }
+
+        /**
+         * Copy constructor. New attribute will be exactly the same as attribute from parameter.
+         * 
+         * @param attributeDefinition attribute to copy
+         */
+        public AttributeDefinition(AttributeDefinition attributeDefinition) {
+          super(attributeDefinition.getId(), attributeDefinition.getCreatedAt(), attributeDefinition.getCreatedBy(), 
+                  attributeDefinition.getModifiedAt(), attributeDefinition.getModifiedBy(), attributeDefinition.getCreatedByUid(), attributeDefinition.getModifiedByUid());
+          this.friendlyName = attributeDefinition.getFriendlyName();
+          this.namespace = attributeDefinition.getNamespace();
+          this.description = attributeDefinition.getDescription();
+          this.type = attributeDefinition.getType();
+          this.displayName = attributeDefinition.getDisplayName();
+          this.writable = attributeDefinition.getWritable();
+        }
+
+
+        /**
+         * Returns the whole attribute name including namespace
+         * 
+         * @return attribute namespace + friendly name
+         */
+        public String getName() {
+                return namespace + ":" + friendlyName;
+        }
+
+        public String getFriendlyName() {
+                return friendlyName;
+        }
+
+        public void setFriendlyName(String friendlyName) {
+                this.friendlyName = friendlyName;
+        }
+
+        public String getNamespace() {
+                return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+                this.namespace = namespace;
+        }
+
+        public String getType() {
+                //return this.value.getClass().getName();
+                return type;
+        }
+
+        public void setDescription(String description) {
+                this.description = description;
+        }
+
+        public String getDescription() {
+                return description;
+        }
+
+        public String getDisplayName() {
+               return displayName;
+        }
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+             
+        public boolean getWritable() {
+                return writable;
+        }
+        
+        public void setWritable(boolean writable) {
+                this.writable = writable;
+        }
+        
+        /**
+         * Get the first part from the friendlyName if the friendlyName contains parameter friendlyName = name:param. Otherwise returns firendlyName.
+         */
+        public String getBaseFriendlyName() {
+          String[] friendlyNames = friendlyName.split(":");
+          
+          return friendlyNames[0];
+        }
+        
+        /**
+         * Returns parameter of the friendly name, e.g. fiendlyName=name:param.
+         */
+        public String getFriendlyNameParameter() {
+          int index = friendlyName.indexOf(':');
+          
+          if (index != -1 && index < friendlyName.length()-1) {
+            return friendlyName.substring(index+1);
+          } else return "";
+        }
+        
+        /**
+         * Returns name of the entity from the attribute name (urn:perun:[entity]:attribute-def). e.g. member, facility, user, ...
+         */
+        public String getEntity() {
+          if (namespace != null && namespace.length() > 0) {
+            String pattern = "urn:perun:(.+?):.+";
+            return namespace.replaceAll(pattern, "$1");
+          } else return "";
+        }
+        
+        public int compareTo(AttributeDefinition attribute) {
+                if(attribute == null) return 1;
+                if(this.friendlyName == null) return attribute.friendlyName == null ? 0 : -1;
+                return friendlyName.compareTo(attribute.friendlyName);
+        }
+
+        public void setType(String type) {
+                this.type = type;
+        }
+
+        @Override
+        public int hashCode() {
+                int hash = 7;
+                hash = 53 * hash + getId();
+                hash = 53 * hash + (friendlyName == null ? 0 : friendlyName.hashCode());
+                return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+                if(obj == null) return false;
+
+                if (!(obj instanceof AttributeDefinition)) return false;
+
+                final AttributeDefinition other = (AttributeDefinition) obj;
+
+                if (this.getId() != other.getId()) return false;
+                if(this.friendlyName == null ? other.friendlyName != null : !this.friendlyName.equals(other.friendlyName)) return false;
+
+                return true;
+        }
+
+        @Override
+        public String serializeToString() {
+		return this.getClass().getSimpleName() +":[" +
+		"id=<" + getId() + ">" +
+		", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
+		", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
+		", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
+		']';
+        }
+        
+        @Override
+        public String toString() {
+                return this.getClass().getSimpleName()+":[" +
+                "id='" + getId() + '\'' +
+                ", friendlyName='" + friendlyName + '\'' +
+                ", namespace='" + namespace + '\'' +
+                ", type='" + type + '\'' +
+                ']';
+        }
+}

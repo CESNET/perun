@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+
+sub help {
+return qq{
+Prints list of users.
+------------------------------
+Available options:
+ --orderById    | -i  order by user's identifier
+ --orderByName  | -n  order by user's name
+ --batch        | -b  batch
+ --help         | -h  prints this help
+};
+}
+
+my ($batch, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
+           "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+
+my @users = $usersAgent->getUsers();
+unless(@users) { printMessage "No users found", $batch; exit 0; }
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ID','Name');
+
+foreach my $user (sort $sortingFunction @users) {
+   my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
+  $table->addRow($user->getId, $name);
+}
+
+print tableToPrint($table, $batch);

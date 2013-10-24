@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <servlet>
+        <servlet-name>api</servlet-name>
+        <servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
+    </servlet>
+    <!-- Spring -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+        	classpath:perun-controller-applicationcontext.xml
+        	classpath:perun-beans.xml
+        	classpath:perun-datasources.xml
+        	classpath:perun-synchronizers.xml
+        	classpath:perun-cabinet-applicationContext.xml
+        	classpath:perun-registrar-lib-applicationcontext.xml
+        	classpath:perun-notification-applicationcontext.xml
+        	classpath:perun-notification-applicationcontext-scheduling.xml
+        </param-value>
+    </context-param>
+   
+    <listener>
+      <description>ServletContextListener</description>
+      <listener-class>cz.metacentrum.perun.rpc.Main</listener-class>
+    </listener>
+
+    <servlet-mapping>
+        <servlet-name>api</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- allows multiple context-path mappings for this webapp -->
+    <filter>
+        <filter-name>contextPathFilter</filter-name>
+        <filter-class>cz.metacentrum.perun.rpc.ContextPathFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>contextPathFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

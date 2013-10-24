@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates a facility. Facility name and type are required fields.
+--------------------------------------
+Available options:
+ --facilityName  | -F facility name
+ --facilityType  | -t facility type
+ --batch         | -b batch
+ --help          | -h prints this help
+ 
+};
+}
+
+my ($facilityName, $facilityType, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "facilityName|F=s" => \$facilityName,"facilityType|t=s" => \$facilityType) || die help(); 
+
+# Check options
+unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
+unless (defined($facilityType)) { die "ERROR: facilityType is required \n";}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+my $facility=Perun::beans::Facility->new;
+$facility->setName($facilityName);
+$facility->setType($facilityType);
+
+$facility = $facilitiesAgent->createFacility(facility => $facility);
+
+printMessage("Facility Id:".$facility->getId." successfully created", $batch);

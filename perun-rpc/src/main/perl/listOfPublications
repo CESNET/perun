@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+return qq{
+Prints list of publications.
+------------------------------
+Available options:
+ --orderById    | -i  order by identifier of publication
+ --orderByName  | -n  order by title of publication 
+ --batch        | -b  batch
+ --help         | -h  prints this help
+};
+}
+
+our $batch;
+my ($sortingFunction);
+
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getTitle", 1) } ,
+           "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $cabinetAgent = $agent->getCabinetAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getTitle", 1); }
+
+my @publications = $cabinetAgent->findPublicationsByGUIFilter();
+unless (@publications) { printMessage "No publications found", $batch; exit 0; }
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ID','Name', 'Rank','Year', 'Cathegory ID', 'Locked' );
+
+foreach my $publication (sort $sortingFunction @publications) {
+    my @authors = $publication->getAuthors; 
+  
+    $table->addRow($publication->getId, $publication->getTitle, $publication->getRank, $publication->getYear, $publication->getCathegortId, $publication->getLocked);
+    foreach my $author (@authors) {
+        $table->addRow($author->getFirstName, $author->getLastName);
+        my @authorships = $author->getAuthorships;
+        foreach my $authorship (@authorships) {
+            if ($publication->getId == $authorship->getPublicationId) {
+                $table->addRow($authorship->getCreatedDate);
+            }
+        } 
+    } 
+}
+
+print tableToPrint($table, $batch);

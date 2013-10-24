@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+
+sub help {
+return qq{
+Tool prints list of Resources where the Group is assigned to. Group is required fields.
+------------------------------
+Available options:
+ --groupId     | -g  Group identifier
+ --orderById   | -i  order by numeric Id (default)
+ --batch       | -b  batch
+ --help        | -h  prints this help
+};
+}
+
+my ($groupId, $batch, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "groupId|g=i" => \$groupId,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+           "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless(defined $groupId) { die "ERROR: Group specification required.\n"; }
+
+my $resourcesAgent = $agent->getResourcesAgent;
+my @resources = $resourcesAgent->getAssignedResources(group => $groupId);
+unless(@resources) { printMessage "No Group's Resources found", $batch; exit 0; }
+
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ID','Name', 'Facility ID');
+
+foreach my $resource (sort $sortingFunction @resources) {
+  my $facility = $resourcesAgent->getFacility(resource => $resource->getId);
+  $table->addRow($resource->getId, $resource->getName, $facility->getId);
+}
+
+print tableToPrint($table, $batch);

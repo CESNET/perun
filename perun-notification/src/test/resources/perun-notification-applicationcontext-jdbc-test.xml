@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+
+    <!-- DataSource implementation -->
+    <!--<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">-->
+        <!--<property name="driverClassName" value="oracle.jdbc.OracleDriver"/>-->
+        <!--<property name="url" value="${jdbc.url}"/>-->
+        <!--<property name="username" value="${jdbc.username}"/>-->
+        <!--<property name="password" value="${jdbc.password}"/>-->
+    <!--</bean>-->
+
+    <!-- IMPORTANT: Fill DB properties from TEST configuration files and override property placeholder from perun-core -->
+    <context:property-placeholder location='${perun.jdbc}, file:${perun.conf}/perun-notification-test.properties' order="0"/>
+
+    <bean id="dataSource2" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="org.h2.Driver"/>
+        <property name="url" value='${notif.test.db.url}'/>
+        <property name="username" value='${notif.test.db.name}'/>
+        <property name="password" value='${notif.test.db.pass}'/>
+    </bean>
+
+    <import resource="classpath:perun-beans.xml"/>
+    <import resource="classpath:perun-datasources.xml"/>
+    <import resource="classpath:perun-transaction-manager.xml"/>
+
+
+</beans>

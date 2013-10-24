@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+
+sub help {
+return qq{
+Tool prints list of VO ExtSources. Vo is required fields.
+---------------------------------
+Available options:
+ --voId        | -v  VO idetifier
+ --voShortName | -V  VO short name 
+ --orderById   | -i  order by ExtSource identifier
+ --orderByName | -n  order by ExtSource name
+ --batch       | -b  batch
+ --help        | -h  prints this help
+};
+}
+
+my ($voId, $voShortName, $batch, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "voId|v=i" => \$voId,
+           "voShortName|V=s" => \$voShortName,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") },
+           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
+           "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless(defined $voId) {
+  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+  my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+  $voId = $vo->getId;
+}
+
+my $extSourceAgent = $agent->getExtSourcesAgent;
+my @sources = $extSourceAgent->getVoExtSources(vo => $voId);
+unless(@sources) { printMessage "No ExternalSources found", $batch; exit 0; }
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ID','Name', 'Type');
+
+foreach my $source (sort $sortingFunction @sources) {
+  $table->addRow($source->getId, $source->getName, $source->getType);
+}
+
+print tableToPrint($table, $batch);

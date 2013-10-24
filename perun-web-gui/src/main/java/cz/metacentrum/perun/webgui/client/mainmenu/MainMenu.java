@@ -1,0 +1,621 @@
+package cz.metacentrum.perun.webgui.client.mainmenu;
+
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.VirtualOrganization;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.attributestabs.AttributeDefinitionsTabItem;
+import cz.metacentrum.perun.webgui.tabs.cabinettabs.PublicationsTabItem;
+import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
+import cz.metacentrum.perun.webgui.tabs.facilitiestabs.*;
+import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilitiesSelectTabItem;
+import cz.metacentrum.perun.webgui.tabs.groupstabs.*;
+import cz.metacentrum.perun.webgui.tabs.perunadmintabs.OwnersTabItem;
+import cz.metacentrum.perun.webgui.tabs.perunadmintabs.*;
+import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicesTabItem;
+import cz.metacentrum.perun.webgui.tabs.userstabs.*;
+import cz.metacentrum.perun.webgui.tabs.vostabs.*;
+import cz.metacentrum.perun.webgui.widgets.AdvancedStackPanel;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Class for main left menu - contains sections: Perun admin, VO admin, Group admin, Facility admin, User
+ * Contains MainMenuItems
+ *
+ * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @version $Id$
+ */
+public class MainMenu {
+
+    private AdvancedStackPanel menuStackPanel = new AdvancedStackPanel();
+    private PerunWebSession session = PerunWebSession.getInstance();
+
+    private Map<Integer, MainMenuSection> sectionsMap = new HashMap<Integer, MainMenuSection>();
+    private Map<Integer, Integer> sectionsIds = new HashMap<Integer, Integer>();
+
+    static public final int PERUN_ADMIN = 0;
+    static public final int VO_ADMIN = 1;
+    static public final int GROUP_ADMIN = 2;
+    static public final int FACILITY_ADMIN = 3;
+    static public final int USER = 4;
+    static public final int MENU_WIDTH = 203;
+
+    /**
+     * New menu instance
+     */
+    public MainMenu(){
+
+        menuStackPanel.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            public void onSelectionChange(SelectionChangeEvent event) {
+
+                int menuPosition = menuStackPanel.getSelectedIndex();
+                for(int i = 0; i < 5; i++){
+                    if(sectionsIds.containsKey(i)){
+                        if(sectionsIds.get(i) == menuPosition)
+                        {
+                            // THIS ENSURE ALL LINKS IN MENU ARE ALWAYS CURRENT WHEN MENU IS OPENED
+                            updateHeaders();
+                            updateLinks(i);
+
+                            // IF NO TAB IS OPENED - OPEN ITS DEFAULT PAGE
+                            if (session.getTabManager().getActiveTab() == null) {
+                                // skip for perun admin menu
+                                if (PERUN_ADMIN != i) {
+                                    MainMenuSection menuSec = sectionsMap.get(i);
+                                    if (menuSec != null) {
+                                        session.getTabManager().addTab(menuSec.getTabItem());
+                                    }
+                                }
+                            }
+
+                            return;
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+
+    /**
+     * This MUST be called when GUI is loading
+     */
+    public void prepare(){
+
+        // Clears previous
+        this.sectionsMap.clear();
+        this.sectionsIds.clear();
+        this.menuStackPanel.clear();
+
+        // Stack panel settings
+        menuStackPanel.setWidth(MENU_WIDTH+"px");
+        menuStackPanel.addStyleName("menuStackPanel");
+
+        LargeIcons iconsLarge = LargeIcons.INSTANCE;
+        int i = 0;
+
+        // SECTION PERUN ADMIN
+        if(session.isPerunAdmin())
+        {
+            MainMenuSection perunAdmin = new MainMenuSection("Perun admin", new VosTabItem(), iconsLarge.perunIcon(), PERUN_ADMIN);
+
+            this.sectionsMap.put(PERUN_ADMIN, perunAdmin);
+            this.sectionsIds.put(PERUN_ADMIN, i);
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    buildPerunAdminMenu();
+                }
+            });
+            i++;
+            menuStackPanel.add(perunAdmin.getWidget(), perunAdmin.getHeader(), true);
+        }
+
+        // SECTION VO ADMIN
+        if(session.isVoAdmin() || session.isPerunAdmin())
+        {
+            MainMenuSection voAdmin = new MainMenuSection("VO manager", new VosSelectTabItem(), iconsLarge.buildingIcon(), VO_ADMIN);
+            this.sectionsMap.put(VO_ADMIN, voAdmin);
+            this.sectionsIds.put(VO_ADMIN, i);
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    buildVoAdminMenu();
+                }
+            });
+
+            i++;
+            menuStackPanel.add(voAdmin.getWidget(), voAdmin.getHeader(), true);
+        }
+
+        // SECTION GROUP ADMIN
+        if(session.isGroupAdmin() || session.isVoAdmin() || session.isPerunAdmin())
+        {
+            MainMenuSection groupAdmin = new MainMenuSection("Group manager", new GroupsTabItem(null), iconsLarge.groupIcon(), GROUP_ADMIN);
+
+            this.sectionsMap.put(GROUP_ADMIN, groupAdmin);
+            this.sectionsIds.put(GROUP_ADMIN, i);
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    buildGroupAdminMenu();
+                }
+            });
+
+            i++;
+            menuStackPanel.add(groupAdmin.getWidget(), groupAdmin.getHeader(), true);
+        }
+
+        // SECTION FACILITY ADMIN
+        if(session.isFacilityAdmin() || session.isPerunAdmin())
+        {
+            MainMenuSection facilityAdmin = new MainMenuSection("Facility manager", new FacilitiesSelectTabItem(), iconsLarge.databaseServerIcon(), FACILITY_ADMIN);
+
+            this.sectionsMap.put(FACILITY_ADMIN, facilityAdmin);
+            this.sectionsIds.put(FACILITY_ADMIN, i);
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    buildFacilityAdminMenu();
+                }
+            });
+
+            i++;
+            menuStackPanel.add(facilityAdmin.getWidget(), facilityAdmin.getHeader(), true);
+        }
+
+        // SECTION USER - ALWAYS
+        MainMenuSection user = new MainMenuSection("User", null, iconsLarge.userGrayIcon(), USER);
+        this.sectionsMap.put(USER, user);
+        this.sectionsIds.put(USER, i);
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+            public void execute() {
+                buildUserMenu();
+            }
+        });
+        i++;
+        menuStackPanel.add(user.getWidget(), user.getHeader(), true);
+
+    }
+
+    /**
+     * Open menu by role WITHOUT any refresh
+     *
+     * @param role menu to open
+     * @return true if menu present and opened
+     */
+    public boolean openMenu(int role) {
+        return openMenu(role, false);
+    }
+
+    /**
+     * Open menu by role WITH possibility of updating links
+     *
+     * @param role menu to open
+     * @param update TRUE if links should be updated, false otherwise
+     * @return true if opened, false otherwise
+     */
+    public boolean openMenu(int role, boolean update) {
+
+        if(!sectionsMap.containsKey(role)){
+            return false;
+        }
+        menuStackPanel.showStack(this.sectionsIds.get(role));
+        if (update) {
+            updateHeaders();
+            updateLinks(role);
+        }
+        return true;
+
+    }
+
+    /**
+     * Get whole menu widget
+     *
+     * @return menu widget
+     */
+    public Widget getWidget()
+    {
+        return this.menuStackPanel;
+    }
+
+    /**
+     * Updates text in menu section headers
+     */
+    private void updateHeaders(){
+
+        // for all sections
+        for(Map.Entry<Integer, MainMenuSection> entry : sectionsMap.entrySet()){
+            MainMenuSection section = entry.getValue();
+            menuStackPanel.setStackText(sectionsIds.get(entry.getKey()), section.getHeader(), true);
+        }
+    }
+
+    /**
+     * Update links in menu sections by role
+     * @param role menu to update
+     */
+    public void updateLinks(int role) {
+
+        // update the section's links
+        switch (role) {
+            case PERUN_ADMIN: buildPerunAdminMenu();
+            case VO_ADMIN: buildVoAdminMenu();
+            case GROUP_ADMIN: buildGroupAdminMenu();
+            case FACILITY_ADMIN: buildFacilityAdminMenu();
+            case USER: buildUserMenu();
+        }
+
+    }
+
+    /**
+     * Update link is all menu sections
+     */
+    public void updateLinks() {
+
+        // menu links
+        buildPerunAdminMenu();
+        buildVoAdminMenu();
+        buildGroupAdminMenu();
+        buildFacilityAdminMenu();
+        buildUserMenu();
+        updateHeaders();
+
+    }
+
+    /**
+     * Rebuild whole VO ADMIN menu
+     */
+    private void buildVoAdminMenu()
+    {
+        MainMenuSection menu = sectionsMap.get(VO_ADMIN);
+        if(menu == null) return;
+        menu.clear();
+
+        VirtualOrganization vo = session.getActiveVo();
+        TabItemWithUrl detail = null;
+        TabItemWithUrl admins = null;
+        TabItemWithUrl groups = null;
+        TabItemWithUrl members = null;
+        TabItemWithUrl resources = null;
+        TabItemWithUrl extsources = null;
+        TabItemWithUrl settings = null;
+        TabItemWithUrl applications = null;
+        TabItemWithUrl applicationForm = null;
+        TabItemWithUrl propagations = null;
+        String voName = "VO overview";
+
+        if(vo != null){
+            voName = vo.getName();
+            detail = new VoDetailTabItem(session.getActiveVo());
+            admins = new VoManagersTabItem(session.getActiveVo());
+            groups = new VoGroupsTabItem(session.getActiveVo());
+            members = new VoMembersTabItem(session.getActiveVo());
+            resources = new VoResourcesTabItem(session.getActiveVo());
+            extsources = new VoExtSourcesTabItem(session.getActiveVo());
+            settings = new VoSettingsTabItem(session.getActiveVo());
+            applications = new VoApplicationsTabItem(session.getActiveVo());
+            applicationForm = new VoApplicationFormSettingsTabItem(session.getActiveVo());
+            propagations = new VoFacilitiesPropagationsTabItem(session.getActiveVo());
+        }
+        menuStackPanel.setStackText(sectionsIds.get(VO_ADMIN), menu.getHeader(), true);
+
+        menu.addItem(new MainMenuItem("Select VO", new VosSelectTabItem(), SmallIcons.INSTANCE.buildingIcon()));
+        menu.addSplitter();
+
+        menu.addItem(new MainMenuItem(voName, detail, SmallIcons.INSTANCE.buildingIcon()));
+        menu.addItem(new MainMenuItem("Members", members, SmallIcons.INSTANCE.userGreenIcon()));
+        menu.addItem(new MainMenuItem("Groups", groups, SmallIcons.INSTANCE.groupIcon()));
+        menu.addItem(new MainMenuItem("Resources", resources, SmallIcons.INSTANCE.serverGroupIcon()));
+        menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
+
+        menu.setDisplayAdvanced(getAdvancedStateFromBrowser(VO_ADMIN+"", menu));
+
+        if (menu.isDisplayAdvanced()) {
+            menu.addItem(new MainMenuItem("Application form", applicationForm, SmallIcons.INSTANCE.applicationFormIcon()));
+            menu.addItem(new MainMenuItem("Settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
+            menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
+            menu.addItem(new MainMenuItem("External sources", extsources, SmallIcons.INSTANCE.worldIcon()));
+            menu.addItem(new MainMenuItem("Facilities states", propagations, SmallIcons.INSTANCE.arrowRightIcon()));
+            menu.addAdvancedLink(vo != null);
+        } else {
+            menu.addAdvancedLink(vo != null);
+        }
+
+    }
+
+    /**
+     * Rebuild whole PERUN ADMIN menu
+     */
+    private void buildPerunAdminMenu()
+    {
+        MainMenuSection menu = sectionsMap.get(PERUN_ADMIN);
+        if(menu == null) return;
+        menu.clear();
+        menu.addItem(new MainMenuItem("Virtual organizations", new VosTabItem(), SmallIcons.INSTANCE.buildingIcon()));
+        menu.addItem(new MainMenuItem("Facilities", new FacilitiesTabItem(), SmallIcons.INSTANCE.databaseServerIcon()));
+        menu.addItem(new MainMenuItem("Services", new ServicesTabItem(), SmallIcons.INSTANCE.trafficLightsIcon()));
+        menu.addItem(new MainMenuItem("Attributes", new AttributeDefinitionsTabItem(), SmallIcons.INSTANCE.attributesDisplayIcon()));
+        menu.addItem(new MainMenuItem("Users", new UsersTabItem(), SmallIcons.INSTANCE.userGrayIcon()));
+        menu.addItem(new MainMenuItem("Publications", new PublicationsTabItem(), SmallIcons.INSTANCE.booksIcon()));
+        menu.addItem(new MainMenuItem("Owners", new OwnersTabItem(), SmallIcons.INSTANCE.userSilhouetteIcon()));
+        menu.addItem(new MainMenuItem("External sources", new ExtSourcesTabItem(), SmallIcons.INSTANCE.worldIcon()));
+        menu.addItem(new MainMenuItem("Propagations", new PropagationsTabItem(), SmallIcons.INSTANCE.arrowRightIcon()));
+        menu.addItem(new MainMenuItem("Searcher", new SearcherTabItem(), SmallIcons.INSTANCE.magnifierIcon()));
+        menu.addItem(new MainMenuItem("Audit log", new AuditLogTabItem(), SmallIcons.INSTANCE.reportEditIcon()));
+        menu.addItem(new MainMenuItem("Statistics", new StatisticsTabItem(), SmallIcons.INSTANCE.statisticsIcon()));
+
+    }
+
+    /**
+     * Rebuild whole GROUP ADMIN menu
+     */
+    private void buildGroupAdminMenu()
+    {
+        MainMenuSection menu = sectionsMap.get(GROUP_ADMIN);
+        if(menu == null) return;
+        Group group = session.getActiveGroup();
+        menu.clear();
+
+        TabItemWithUrl detail = null;
+        TabItemWithUrl members = null;
+        TabItemWithUrl admins = null;
+        TabItemWithUrl subgroups = null;
+        TabItemWithUrl resources = null;
+        TabItemWithUrl settings = null;
+        TabItemWithUrl applications = null;
+        TabItemWithUrl applicationForm = null;
+        String groupName = "Group overview";
+
+        if(group != null){
+            groupName = group.getName();
+            detail = new GroupDetailTabItem(group);
+            members =  new GroupMembersTabItem(group);
+            resources = new GroupResourcesTabItem(group);
+            settings = new GroupSettingsTabItem(group);
+            if (!group.isCoreGroup()) {
+                // DO NOT allow applications for members/admins groups
+                applications = new GroupApplicationsTabItem(group);
+                applicationForm = new GroupApplicationFormSettingsTabItem(group);
+                admins = new GroupManagersTabItem(group);
+                subgroups = new SubgroupsTabItem(group);
+            }
+        }
+
+        menu.addItem(new MainMenuItem("Select group", new GroupsTabItem(session.getActiveVo()), SmallIcons.INSTANCE.groupIcon()));
+        menu.addSplitter();
+
+        menuStackPanel.setStackText(sectionsIds.get(GROUP_ADMIN), menu.getHeader(), true);
+
+        menu.addItem(new MainMenuItem(groupName, detail, SmallIcons.INSTANCE.groupIcon()));
+        menu.addItem(new MainMenuItem("Members", members, SmallIcons.INSTANCE.userGreenIcon()));
+        menu.addItem(new MainMenuItem("Subgroups", subgroups, SmallIcons.INSTANCE.groupGoIcon()));
+        menu.addItem(new MainMenuItem("Resources", resources, SmallIcons.INSTANCE.serverGroupIcon()));
+        menu.addItem(new MainMenuItem("Applications", applications , SmallIcons.INSTANCE.applicationFromStorageIcon()));
+
+        menu.setDisplayAdvanced(getAdvancedStateFromBrowser(GROUP_ADMIN+"", menu));
+
+        if (menu.isDisplayAdvanced()) {
+            menu.addItem(new MainMenuItem("Application form", applicationForm , SmallIcons.INSTANCE.applicationFormIcon()));
+            menu.addItem(new MainMenuItem("Settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
+            menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
+            menu.addAdvancedLink(group != null);
+        } else {
+            menu.addAdvancedLink(group != null);
+        }
+
+    }
+
+    /**
+     * Rebuild whole FACILITY ADMIN menu
+     */
+    private void buildFacilityAdminMenu()
+    {
+        MainMenuSection menu = sectionsMap.get(FACILITY_ADMIN);
+        if(menu == null) return;
+
+        menu.clear();
+
+        Facility facility = session.getActiveFacility();
+
+        TabItemWithUrl detail = null;
+        TabItemWithUrl resources = null;
+        TabItemWithUrl admins = null;
+        TabItemWithUrl propagation = null;
+        TabItemWithUrl status = null;
+        TabItemWithUrl destinations = null;
+        TabItemWithUrl settings = null;
+        TabItemWithUrl hosts = null;
+        TabItemWithUrl allowedGroups = null;
+        TabItemWithUrl owners = null;
+        TabItemWithUrl allPropagations = new FacilitiesPropagationsTabItem();
+        String facilityName = "Facility overview";
+
+        if(facility != null){
+            facilityName = facility.getName();
+            detail = new FacilityDetailTabItem(facility);
+            resources = new FacilityResourcesTabItem(facility);
+            admins = new FacilityManagersTabItem(facility);
+            propagation = new FacilityPropagationTabItem(facility);
+            status = new FacilityStatusTabItem(facility);
+            destinations = new FacilityDestinationsTabItem(facility);
+            settings = new FacilitySettingsTabItem(facility);
+            hosts = new FacilityHostsTabItem(facility);
+            allowedGroups = new FacilityAllowedGroupsTabItem(facility);
+            owners = new FacilityOwnersTabItem(facility);
+        }
+
+        menu.addItem(new MainMenuItem("Select facility", new FacilitiesSelectTabItem(), SmallIcons.INSTANCE.databaseServerIcon()));
+        menu.addSplitter();
+
+        menu.addItem(new MainMenuItem(facilityName, detail, SmallIcons.INSTANCE.databaseServerIcon()));
+        menu.addItem(new MainMenuItem("Resources", resources, SmallIcons.INSTANCE.serverGroupIcon()));
+        menu.addItem(new MainMenuItem("Allowed groups", allowedGroups, SmallIcons.INSTANCE.groupIcon()));
+        menu.addItem(new MainMenuItem("Propagation status", status, SmallIcons.INSTANCE.serverInformationIcon()));
+        menu.addItem(new MainMenuItem("Services propagation", propagation, SmallIcons.INSTANCE.arrowRightIcon()));
+        menu.addItem(new MainMenuItem("Services settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
+
+        menu.setDisplayAdvanced(getAdvancedStateFromBrowser(FACILITY_ADMIN+"", menu));
+
+        if (menu.isDisplayAdvanced()) {
+            menu.addItem(new MainMenuItem("Services destinations", destinations, SmallIcons.INSTANCE.serverGoIcon()));
+            menu.addItem(new MainMenuItem("Hosts", hosts, SmallIcons.INSTANCE.serverIcon()));
+            menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
+            menu.addItem(new MainMenuItem("Owners", owners, SmallIcons.INSTANCE.userSilhouetteIcon()));
+            menu.addItem(new MainMenuItem("All facilities states", allPropagations, SmallIcons.INSTANCE.arrowRightIcon()));
+            menu.addAdvancedLink(facility != null);
+        } else {
+            menu.addAdvancedLink(facility != null);
+        }
+
+    }
+
+    /**
+     * Rebuild whole USER menu
+     */
+    private void buildUserMenu()
+    {
+
+        MainMenuSection menu = sectionsMap.get(USER);
+        if(menu == null) return;
+
+        // !! menu link must lead always only to "OWN ROLE" of logged user !!
+        User user = session.getActiveUser();
+
+        menu.clear();
+
+        TabItemWithUrl changer = null;
+        TabItemWithUrl detail = null;
+        //TabItemWithUrl settings = null;
+        TabItemWithUrl applications = null;
+        TabItemWithUrl publications = null;
+        TabItemWithUrl services = null;
+
+        if (user != null) {
+            detail = new SelfDetailTabItem(user);
+            //	settings = new SelfSettingsTabItem(session, user);
+            if (!user.isServiceUser()) {
+                // publications can be reported by normal people only
+                publications = new UsersPublicationsTabItem(user);
+            }
+            applications = new SelfApplicationsTabItem(user);
+            if (session.getEditableUsers().size() > 1) {
+                services = new SelfServiceUsersTabItem(user);
+            }
+        } else {
+            detail = new IdentitySelectorTabItem();
+        }
+
+        if (session.isPerunAdmin()) {
+            // display user changer for PerunAdmin
+            changer = new IdentitySelectorTabItem();
+            menu.addItem(new MainMenuItem("Identity selector", changer, SmallIcons.INSTANCE.userGrayIcon()));
+        }
+
+        menu.setTabItem(detail);
+        menu.addItem(new MainMenuItem("My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
+        //menu.addItem(new MainMenuItem(session, "Settings", settings, SmallIcons.INSTANCE.cogIcon()));
+        menu.addItem(new MainMenuItem("My publications", publications, SmallIcons.INSTANCE.booksIcon()));
+        menu.addItem(new MainMenuItem("My applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
+
+        if (!user.isServiceUser()) {
+            menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));
+        } else {
+            menu.addItem(new MainMenuItem("Associated users", services, SmallIcons.INSTANCE.userRedIcon()));
+        }
+
+        menuStackPanel.setStackText(sectionsIds.get(USER), menu.getHeader(), true);
+
+    }
+
+    /**
+     * Shows/hides advance items in all menus
+     *
+     * @param advanced TRUE = show / FALSE = hide
+     */
+    public void showAdvanced(boolean advanced) {
+
+        for(Map.Entry<Integer, MainMenuSection> entry : sectionsMap.entrySet()) {
+            saveAdvancedStateToBrowser(entry.getKey()+"", advanced);
+            entry.getValue().setDisplayAdvanced(advanced);
+            updateLinks(entry.getKey());
+        }
+
+    }
+
+    /**
+     * Safely stores "advanced view" state to browser memory
+     *
+     * @param menu menu to save advanced view for
+     * @param displayAdvanced TRUE = display advanced / FALSE = hide advanced
+     */
+    public void saveAdvancedStateToBrowser(String menu, boolean displayAdvanced) {
+
+        try {
+            Storage storage = Storage.getLocalStorageIfSupported();
+            if (storage != null) {
+                storage.setItem("urn:perun:gui:preferences:menu-"+menu, String.valueOf(displayAdvanced));
+            }
+        } catch (Exception ex) {
+            // storage is blocked but supported
+        }
+
+    }
+
+    /**
+     * Safely retrieve "advanced view" state from browser memory
+     * for selected menu section
+     *
+     * @param menu menu to get advanced view state for
+     * @return advanced view state if stored / JsonUtils.isExtendedInfoVisible() otherwise
+     */
+    public boolean getAdvancedStateFromBrowser(String menu, MainMenuSection section) {
+
+        try {
+            Storage storage = Storage.getLocalStorageIfSupported();
+            if (storage != null) {
+
+                // we must also write so we could get an error if storage is supported but size set to 0.
+                storage.setItem("urn:perun:gui:preferences:localStorageCheck", "checked");
+
+                String value = storage.getItem("urn:perun:gui:preferences:menu-"+menu);
+                if (value != null && !value.isEmpty()) {
+                    return Boolean.parseBoolean(value);
+                } else {
+                    return JsonUtils.isExtendedInfoVisible();
+                }
+            }
+        } catch (Exception ex) {
+            // storage is blocked but supported
+        }
+
+        return section.isDisplayAdvanced();
+
+    }
+
+    /**
+     * Set different default tab, which is opened when section opens
+     * and no tab is opened in gui
+     *
+     * @param role menu to set default tab to.
+     * @param item tab to set
+     */
+    public void setMenuTabItem(int role, TabItemWithUrl item) {
+
+        if(!sectionsMap.containsKey(role)) return;
+
+        MainMenuSection menuSection = sectionsMap.get(role);
+        menuSection.setTabItem(item);
+
+    }
+
+}

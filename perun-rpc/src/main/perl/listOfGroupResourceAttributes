@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+
+sub help {
+return qq{
+Prints list of Attributes defined for Resource-Group. Group id or group name and VO and resource Id are required fields.
+---------------------------------------------------
+Available options:
+ --groupId     | -g group id
+ --groupName   | -G group name
+ --voId        | -v vo id
+ --voShortName | -V vo short name
+ --resourceId  | -r resource id
+ --orderById   | -i  order by numeric Id
+ --orderByName | -n  order by Name 
+ --batch       | -b  batch
+ --help        | -h  prints this help
+};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $resourceId, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+           "groupId|g=i" => \$groupId,
+           "groupName|G=s" => \$groupName,
+           "voId|v=i" => \$voId,
+           "voShortName|V=s" => \$voShortName, 
+           "resourceId|r=i" => \$resourceId,
+           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "batch|b" => \$batch) || die help;
+
+#options check
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+unless(defined($groupId)) {
+    unless (defined($voId)) {
+        my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+        $voId = $vo->getId;
+  }
+
+  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+  $groupId = $group->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+my @attributes = $attributesAgent->getAttributes(group => $groupId, resource => $resourceId);
+unless(@attributes) { printMessage "No Attribute found", $batch; exit 0;}
+
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('attribute Id','attribute friendly name','namespace', 'value');
+
+foreach my $attribute (sort $sortingFunction @attributes) {
+  $table->addRow($attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar);
+}
+
+print tableToPrint($table, $batch);

@@ -1,0 +1,149 @@
+package cz.metacentrum.perun.core.impl.modules.attributes;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
+
+/**
+ *
+ * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ * @version $Id$
+ */
+public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
+
+  @Override
+  public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+    Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+    Attribute gidAttribute;
+    try {
+      gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+    } catch(AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
+    gidAttribute.setValue(attribute.getValue());
+    try {
+      sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeValue(sess, resource, gidAttribute);
+    } catch(WrongAttributeValueException ex) {
+      throw new WrongAttributeValueException(attribute, ex.getMessage(), ex);
+    } catch(WrongReferenceAttributeValueException ex) {
+      throw new WrongReferenceAttributeValueException(attribute, ex.getReferenceAttribute(), ex);
+    }
+
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+    Attribute attribute = new Attribute(attributeDefinition);
+
+    Attribute unixGIDNamespaceAttribute;
+    try {
+      unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+    } catch(WrongReferenceAttributeValueException ex) {
+      return attribute;
+    }
+    Attribute gidAttribute;
+    try {
+      gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+    } catch(AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
+
+    try {
+      sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeValue(sess, resource, gidAttribute);
+      //check passed, we can use value from this physical attribute
+      attribute.setValue(gidAttribute.getValue());
+      return attribute;
+    } catch(WrongAttributeValueException ex) { 
+      //Physical attribute have wrong value, let's find a new one
+      gidAttribute.setValue(null);
+      gidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, resource, gidAttribute);
+      attribute.setValue(gidAttribute.getValue());
+      return attribute;
+    } catch(WrongReferenceAttributeValueException ex) {
+      return attribute;
+    }
+  }
+
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+    Attribute attribute = new Attribute(attributeDefinition);
+
+    Attribute unixGIDNamespaceAttribute;
+    try {
+      unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+    } catch(WrongReferenceAttributeValueException ex) {
+      return attribute;
+    }
+
+    try {
+      Attribute gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+      attribute = Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
+      return attribute;
+    } catch(WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    } catch(AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
+  }
+
+  @Override
+  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+    Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+
+    try {
+      Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue()));
+      gidAttribute.setValue(attribute.getValue());
+      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, gidAttribute);
+    } catch(WrongAttributeValueException ex) {
+        throw new InternalErrorException(ex);
+    } catch(AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+    Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+
+    try {
+      AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+      sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupGidAttribute);
+    } catch (AttributeNotExistsException ex) {
+      throw new InternalErrorException(ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<String>();
+    strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
+    strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+    return strongDependencies;
+  }
+
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);
+    attr.setFriendlyName("unixGID");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Unix GID");
+    return attr;
+  }
+}

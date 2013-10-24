@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes required attribute from the service. Service id and attribute id are required.
+--------------------------------------
+Available options:
+ --serviceId    | -s service id 
+ --attributeId  | -a attribute id
+ --batch        | -b batch
+ --help         | -h prints this help
+
+};
+}
+
+my ($serviceId, $attributeId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "serviceId|s=i" => \$serviceId, "attributeId|a=i" => \$attributeId) || die help(); 
+
+# Check options
+unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
+unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $servicesAgent = $agent->getServicesAgent;
+
+$servicesAgent->removeRequiredAttribute(service => $serviceId, attribute => $attributeId);
+    
+printMessage("Attribute Id:$attributeId removed from the service Id:$serviceId", $batch);
