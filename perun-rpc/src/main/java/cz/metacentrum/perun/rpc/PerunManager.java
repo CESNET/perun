@@ -118,6 +118,13 @@ public enum PerunManager {
 	  public ManagerMethod getMethod(String methodName) {
 		  return RegistrarManagerMethod.valueOf(methodName);
 	  }
+  },
+
+  notificationManager{
+	  @Override
+	  public ManagerMethod getMethod(String methodName) {
+		  return NotificationManagerMethod.valueOf(methodName);
+	  }
   };
    
   protected abstract ManagerMethod getMethod(String methodName) throws IllegalArgumentException;
