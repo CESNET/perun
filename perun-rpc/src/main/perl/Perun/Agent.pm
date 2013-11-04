@@ -22,7 +22,6 @@ use Perun::ServicesAgent;
 use Perun::FacilitiesAgent;
 use Perun::AttributesAgent;
 use Perun::ResourcesAgent;
-use Perun::SldsAgent;
 use Perun::OwnersAgent;
 use Perun::ControlPanel;
 use Perun::AuthzResolverAgent;
@@ -35,7 +34,7 @@ use Perun::CabinetAgent;
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _sldsAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent);
 
 use constant {
   AUTHENTICATION_FAILED => "Authentication failed",
@@ -250,17 +249,6 @@ sub getAttributesAgent
     }
 
     return $self->{_attributesAgent};
-}
-
-sub getSldsAgent
-{
-    my $self = shift;
-
-    if (!$self->{_sldsAgent}) {
-        $self->{_sldsAgent} = Perun::SldsAgent->new($self);
-    }
-
-    return $self->{_sldsAgent};
 }
 
 sub getOwnersAgent

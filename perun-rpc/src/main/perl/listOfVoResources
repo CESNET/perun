@@ -46,12 +46,11 @@ unless(@resources) { printMessage "No Resources found", $batch; exit 0; }
 
 #output
 my $table = Text::ASCIITable->new();
-$table->setCols('ID','Name', 'Facility ID', 'SLD ID');
+$table->setCols('ID','Name', 'Facility ID');
 
 foreach my $resource (sort $sortingFunction @resources) {
   my $facility = $resourcesAgent->getFacility(resource => $resource->getId);
-  my $sld = $resourcesAgent->getSld(resource => $resource->getId);
-  $table->addRow($resource->getId, $resource->getName, $facility->getId, $sld->getId);
+  $table->addRow($resource->getId, $resource->getName, $facility->getId);
 }
 
 print tableToPrint($table, $batch);
