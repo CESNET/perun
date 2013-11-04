@@ -33,16 +33,6 @@ sub deleteResource
     return Perun::Common::callManagerMethod('deleteResource', '', @_);
 }
 
-sub getSld
-{
-    return Perun::Common::callManagerMethod('getSld', 'Sld', @_);
-}
-
-sub setSld
-{
-    return Perun::Common::callManagerMethod('getSld', '', @_);
-}
-
 sub getFacility
 {
     return Perun::Common::callManagerMethod('getFacility', 'Facility', @_);

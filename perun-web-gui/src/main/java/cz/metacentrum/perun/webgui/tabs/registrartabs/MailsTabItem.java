@@ -108,7 +108,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 					group = jso.cast();
 				}
 			};
-            new GetEntityById(PerunEntity.GROUP, groupId, events3);
+            new GetEntityById(PerunEntity.GROUP, groupId, events3).retrieveData();
 		} else {
 			new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId, events2).retrieveData();
 		}
