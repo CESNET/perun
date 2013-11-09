@@ -444,9 +444,10 @@ public class ApplicationFormGui implements EntryPoint{
 						if (groupName != null && !groupName.isEmpty()) {
                             // Do NOT display application to Group if not member of VO
                             //prepareGui(PerunEntity.GROUP, "INITIAL");
+
                             RootLayoutPanel panel = RootLayoutPanel.get();
                             panel.clear();
-                            panel.add(getErrorWidget(error));
+                            panel.add(getCustomErrorWidget(error, ApplicationMessages.INSTANCE.mustBeVoMemberFirst()));
 
 						} else {
 							prepareGui(PerunEntity.VIRTUAL_ORGANIZATION, "INITIAL");
@@ -613,7 +614,7 @@ public class ApplicationFormGui implements EntryPoint{
 		
 		String text = "<h2>Request timeout exceeded.</h2>";
 		if (error != null) {
-			text = error.getErrorInfo();										
+			text = error.getErrorInfo();
 		}
 		FlexTable ft = new FlexTable();
 		ft.setSize("100%", "300px");
@@ -622,9 +623,20 @@ public class ApplicationFormGui implements EntryPoint{
 		ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 		
 		return ft;
-		
-		
+
 	}
+
+    private FlexTable getCustomErrorWidget(PerunError error, String customText) {
+
+        FlexTable ft = new FlexTable();
+        ft.setSize("100%", "300px");
+        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: </h2>" + customText);
+        ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+        ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+
+        return ft;
+
+    }
 
     private FlexTable getFooter() {
 
