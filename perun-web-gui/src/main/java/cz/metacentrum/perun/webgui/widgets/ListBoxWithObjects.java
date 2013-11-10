@@ -92,18 +92,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 } else if (value.beanName == "ExecService") {
 	 	return value.service.name + " " + value.execServiceType;
 	 } else if (value.beanName == "AttributeDefinition") {
-	 	
-		try{
-			var key = value.namespace+':'+value.friendlyName+"_name";
-			key = key.replace(/:/g, "_").replace(/-/g, "_");
-			// instance
-			var instance = @cz.metacentrum.perun.webgui.client.resources.AttributesConstants::INSTANCE;
-			return instance.@cz.metacentrum.perun.webgui.client.resources.AttributesConstants::getString(Ljava/lang/String;)(key);
-		}catch(e)
-		{
-			return value.friendlyName;
-		}	
-			
+	 	return value.displayName;
 	 } else if (value.beanName == "Sld") {
 	 	return "(" + value.id + ") " + value.name
 	 } else if (value.beanName == "Publication") {

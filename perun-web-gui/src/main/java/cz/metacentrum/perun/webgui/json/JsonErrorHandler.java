@@ -212,7 +212,7 @@ public class JsonErrorHandler {
                 }
             }
             if (a != null) {
-                String attrName = a.getTranslatedName();
+                String attrName = a.getDisplayName();
                 String attrValue = a.getValue();
                 text += "<strong>Attribute:&nbsp;</strong>"+attrName+"<br /><strong>Value:&nbsp;</strong>"+attrValue;
             } else {
@@ -229,7 +229,7 @@ public class JsonErrorHandler {
             Attribute a2 = error.getReferenceAttribute();
 
             if (a != null) {
-                String attrName = a.getTranslatedName();
+                String attrName = a.getDisplayName();
                 String attrValue = a.getValue();
                 String entity = a.getEntity();
                 text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;"+attrName + " ("+entity+")";
@@ -239,7 +239,7 @@ public class JsonErrorHandler {
             }
 
             if (a2 != null) {
-                String attrName = a2.getTranslatedName();
+                String attrName = a2.getDisplayName();
                 String attrValue = a2.getValue();
                 String entity = a2.getEntity();
                 text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;"+attrName + " ("+entity+")";
@@ -315,7 +315,7 @@ public class JsonErrorHandler {
         } else if ("AttributeAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
             if (error.getAttribute() != null) {
-                return "Attribute <i>"+error.getAttribute().getTranslatedName()+"</i> is already set as required by service.";
+                return "Attribute <i>"+error.getAttribute().getDisplayName()+"</i> is already set as required by service.";
             } else {
                 return "Attribute is already set as required by service.";
             }
@@ -327,7 +327,7 @@ public class JsonErrorHandler {
         } else if ("AttributeNotAssignedException".equalsIgnoreCase(errorName)) {
 
             if (error.getAttribute() != null) {
-                return "Attribute <i>"+error.getAttribute().getTranslatedName()+"</i> is already NOT required by service.";
+                return "Attribute <i>"+error.getAttribute().getDisplayName()+"</i> is already NOT required by service.";
             } else {
                 return "Attribute is already NOT required by service.";
             }

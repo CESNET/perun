@@ -46,7 +46,7 @@ public class PerunAttributeDescriptionCell extends AbstractSafeHtmlCell<cz.metac
 	
 
 	protected static void generateCode(SafeHtmlBuilder sb, Attribute attr) {
-		sb.appendHtmlConstant(attr.getTranslatedDescription());
+		sb.appendHtmlConstant(attr.getDescription());
 	}
 		
 	/**
