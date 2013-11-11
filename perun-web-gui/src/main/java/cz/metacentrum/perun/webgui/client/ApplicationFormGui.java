@@ -442,12 +442,14 @@ public class ApplicationFormGui implements EntryPoint{
 					// not member of VO - load initial
 					if (error.getName().equalsIgnoreCase("MemberNotExistsException")) {
 						if (groupName != null && !groupName.isEmpty()) {
-                            // Do NOT display application to Group if not member of VO
-                            //prepareGui(PerunEntity.GROUP, "INITIAL");
 
-                            RootLayoutPanel panel = RootLayoutPanel.get();
-                            panel.clear();
-                            panel.add(getCustomErrorWidget(error, ApplicationMessages.INSTANCE.mustBeVoMemberFirst()));
+                            // load application to group for NOT vo members
+                            prepareGui(PerunEntity.GROUP, "INITIAL");
+
+                            // Do NOT display application to Group if not member of VO
+                            //RootLayoutPanel panel = RootLayoutPanel.get();
+                            //panel.clear();
+                            //panel.add(getCustomErrorWidget(error, ApplicationMessages.INSTANCE.mustBeVoMemberFirst()));
 
 						} else {
 							prepareGui(PerunEntity.VIRTUAL_ORGANIZATION, "INITIAL");

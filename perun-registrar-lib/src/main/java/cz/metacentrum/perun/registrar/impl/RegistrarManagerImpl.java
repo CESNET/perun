@@ -1373,8 +1373,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 } catch (MemberNotExistsException ex) {
                     // user is not member of vo
                     if (group != null) {
+                        // FIXME - we do allow users to apply to group before they become VO members
                         // user must be member of VO to post initial application for group
-                        throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
+                        //throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
                     } else {
                         // not member of VO - check for unprocessed applications
                         regs.clear();

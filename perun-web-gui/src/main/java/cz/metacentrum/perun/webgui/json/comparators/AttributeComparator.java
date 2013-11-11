@@ -58,7 +58,7 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 	 */
 	private int compareByName(Attribute o1, Attribute o2) {
 		Collator customCollator = Collator.getInstance();
-		return customCollator.compare(o1.getTranslatedName(),o2.getTranslatedName());
+		return customCollator.compare(o1.getDisplayName(),o2.getDisplayName());
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 	 */
 	private int compareByDescription(Attribute o1, Attribute o2) {
 		Collator customCollator = Collator.getInstance();
-		return customCollator.compare(o1.getTranslatedDescription(),o2.getTranslatedDescription());
+		return customCollator.compare(o1.getDescription(),o2.getDescription());
 	}
 	
 }

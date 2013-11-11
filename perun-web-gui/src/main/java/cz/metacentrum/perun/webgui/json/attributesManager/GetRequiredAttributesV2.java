@@ -14,7 +14,6 @@ import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.resources.AttributesConstants;
 import cz.metacentrum.perun.webgui.client.resources.Collator;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
@@ -58,7 +57,6 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// Json callback events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private AttributesConstants translation = AttributesConstants.INSTANCE;
 	private boolean checkable = true;
 
 	/**
@@ -222,22 +220,9 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 
 				Collator customCollator = Collator.getInstance();
 				
-				String key1 = o1.getName() + "_name";
-				key1 = key1.replace(":", "_").replace("-", "_");
-				String key2 = o2.getName() + "_name";
-				key2 = key2.replace(":", "_").replace("-", "_");
-				
-				try {
-				key1 = translation.getString(key1);
-				} catch (MissingResourceException ex) {
-					key1 = o1.getFriendlyName();
-				}
-				try {
-					key2 = translation.getString(key2);
-				} catch (MissingResourceException ex) {
-					key2=o2.getFriendlyName();
-				}
-				
+				String key1 = o1.getDisplayName();
+				String key2 = o2.getDisplayName();
+
 				return customCollator.compare(key1, key2);
 				
 			}

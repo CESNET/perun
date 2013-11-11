@@ -775,7 +775,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                     if (a.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
                         if (a.getValueAsObject() != null) {
                             // name
-                            innerTable.setHTML(rowCount, 0, "<strong>"+a.getTranslatedName()+"</strong>");
+                            innerTable.setHTML(rowCount, 0, "<strong>"+a.getDisplayName()+"</strong>");
                             // value
                             innerTable.setHTML(rowCount, 1, a.getValue());
                             // change password

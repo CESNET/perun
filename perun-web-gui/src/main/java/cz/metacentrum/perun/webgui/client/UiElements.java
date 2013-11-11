@@ -298,7 +298,7 @@ public class UiElements {
     static public void cantSaveAttributeValueDialogBox(Attribute object){
 
         String text = "";
-        String name = object.getTranslatedName();
+        String name = object.getDisplayName();
         if (object.getType().equalsIgnoreCase("java.lang.String")) {
             text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongString(name);
         } else if (object.getType().equalsIgnoreCase("java.lang.Integer")) {
@@ -407,7 +407,7 @@ public class UiElements {
                     items = items.concat("<li>"+f.getName()+" ("+f.getType()+")"+"</li>");
                 } else if (go.getObjectType().equalsIgnoreCase("Attribute") || go.getObjectType().equalsIgnoreCase("AttributeDefinition")) {
                     Attribute a = go.cast();
-                    items = items.concat("<li>"+a.getTranslatedName()+"</li>");
+                    items = items.concat("<li>"+a.getDisplayName()+"</li>");
                 } else if (go.getObjectType().equalsIgnoreCase("ExecService")) {
                     ExecService e = go.cast();
                     items = items.concat("<li>"+e.getService().getName()+" ("+e.getType()+")</li>");

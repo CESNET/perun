@@ -60,12 +60,12 @@ public class UpdateAttribute {
         // new events
         JsonCallbackEvents newEvents = new JsonCallbackEvents(){
             public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Updating attribute definition: " + attributeDefinition.getTranslatedName() + " failed.");
+                session.getUiElements().setLogErrorText("Updating attribute definition: " + attributeDefinition.getDisplayName() + " failed.");
                 events.onError(error);
             };
 
             public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Attribute definition: "+ attributeDefinition.getTranslatedName() +" successfully updated.");
+                session.getUiElements().setLogSuccessText("Attribute definition: "+ attributeDefinition.getDisplayName() +" successfully updated.");
                 events.onFinished(jso);
             };
 

@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import cz.metacentrum.perun.webgui.client.resources.AttributesConstants;
-
-import java.util.MissingResourceException;
 
 /**
  * OverlayType for Attribute Definition object
@@ -182,86 +179,6 @@ public class AttributeDefinition extends JavaScriptObject {
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
-	/**
-	 * Return translated FriendlyName
-	 * 
-	 * (if no translation exists, return 
-	 * same value as getFriendlyName()).
-	 * 
-	 * @return translated friendlyName
-	 */
-	public final String getTranslatedName() {
-
-        try {
-            if ("user".equalsIgnoreCase(getEntity()) && "login-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_user_attribute_def_def_login_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else if ("user".equalsIgnoreCase(getEntity()) && "uid-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_user_attribute_def_def_uid_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else if ("group".equalsIgnoreCase(getEntity()) && "unixGroupName-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_group_attribute_def_def_unixGroupName_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else if ("resource".equalsIgnoreCase(getEntity()) && "unixGroupName-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_resource_attribute_def_def_unixGroupName_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else if ("group".equalsIgnoreCase(getEntity()) && "unixGID-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_group_attribute_def_def_unixGID_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else if ("resource".equalsIgnoreCase(getEntity()) && "unixGID-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_resource_attribute_def_def_unixGID_namespace_name();
-                return key+= " "+getFriendlyNameParameter().toUpperCase();
-            } else {
-                String key = getName() + "_name";
-                key = key.replace(":", "_").replace("-", "_");
-                return AttributesConstants.INSTANCE.getString(key);
-            }
-        } catch(MissingResourceException ex) {
-            return getFriendlyName() + "";
-        }
-		
-	}
-	
-	/**
-	 * Return translated Description
-	 * 
-	 * (if no translation exists, return 
-	 * same value as getDescription()).
-	 * 
-	 * @return translated Description
-	 */
-	public final String getTranslatedDescription() {
-
-        try {
-            if ("user".equalsIgnoreCase(getEntity()) && "login-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_user_attribute_def_def_login_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+".";
-            } else if ("user".equalsIgnoreCase(getEntity()) && "uid-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_user_attribute_def_def_uid_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+".";
-            } else if ("group".equalsIgnoreCase(getEntity()) && "unixGroupName-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_group_attribute_def_def_unixGroupName_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+".";
-            } else if ("resource".equalsIgnoreCase(getEntity()) && "unixGroupName-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_resource_attribute_def_def_unixGroupName_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+". "+AttributesConstants.INSTANCE.when_resource_is_group_on_facility();
-            } else if ("group".equalsIgnoreCase(getEntity()) && "unixGID-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_group_attribute_def_def_unixGID_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+".";
-            } else if ("resource".equalsIgnoreCase(getEntity()) && "unixGID-namespace".equalsIgnoreCase(getBaseFriendlyName())) {
-                String key = AttributesConstants.INSTANCE.urn_perun_resource_attribute_def_def_unixGID_namespace_description();
-                return key+= " "+getFriendlyNameParameter().toUpperCase()+". "+AttributesConstants.INSTANCE.when_resource_is_group_on_facility();
-            } else {
-                String key = getName() + "_description";
-                key = key.replace(":", "_").replace("-", "_");
-                return AttributesConstants.INSTANCE.getString(key);
-            }
-        } catch(MissingResourceException ex) {
-            return getDescription() + "";
-        }
-		
-	}
 	
 	/**
 	 * Compares to another object

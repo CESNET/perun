@@ -15,9 +15,6 @@ import java.util.Comparator;
  */
 
 public class TableSorter<T> {
-	
-	// translation for attr names
-	AttributesConstants translation = AttributesConstants.INSTANCE;
 
 	/**
 	 * Returns sorted list of objects
