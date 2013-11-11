@@ -90,31 +90,9 @@ public class GeneralObject extends JavaScriptObject {
             } else if (this.beanName == "ExecService") {
                 return this.service.name + " (" + this.execServiceType+")";
             } else if (this.beanName == "AttributeDefinition") {
-
-                try{
-                    var key = this.namespace+':'+this.friendlyName+"_name";
-                    key = key.replace(/:/g, "_").replace(/-/g, "_");
-                    // instance
-                    var instance = @cz.metacentrum.perun.webgui.client.resources.AttributesConstants::INSTANCE;
-                    return instance.@cz.metacentrum.perun.webgui.client.resources.AttributesConstants::getString(Ljava/lang/String;)(key);
-                }catch(e)
-                {
-                    return this.friendlyName;
-                }
-
+                return this.displayName;
             } else if (this.beanName == "Attribute") {
-
-                try{
-                    var key = this.namespace+':'+this.friendlyName+"_name";
-                    key = key.replace(/:/g, "_").replace(/-/g, "_");
-                    // instance
-                    var instance = @cz.metacentrum.perun.webgui.client.resources.AttributesConstants::INSTANCE;
-                    return instance.@cz.metacentrum.perun.webgui.client.resources.AttributesConstants::getString(Ljava/lang/String;)(key);
-                }catch(e)
-                {
-                    return this.friendlyName;
-                }
-
+                return this.displayName;
             } else if (this.beanName == "Publication") {
                 return this.title;
             } else if (this.beanName == "ApplicationMail") {
