@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
+ * @version $Id: $
  */
 public class ModulesUtilsBlImpl implements ModulesUtilsBl {
     
@@ -523,6 +523,9 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
     if (!match.matches()) {
         throw new WrongAttributeValueException(attribute, "Bad shell attribute format " + shell);
+    }
+    if(!shell.startsWith("/")) {
+        throw new WrongAttributeValueException(attribute, "Shell " + shell + " doesnt start with /");
     }
 
   }
