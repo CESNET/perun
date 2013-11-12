@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -33,9 +29,6 @@ import java.util.logging.Logger;
  */
 public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
-    /**
-     * Gets the value of the attribute
-     */
     public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
         Attribute attr = new Attribute(attributeDefinition);
         try {
