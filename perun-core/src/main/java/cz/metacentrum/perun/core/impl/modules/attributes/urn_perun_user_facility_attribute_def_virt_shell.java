@@ -41,7 +41,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         try {
             Attribute a = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
             if (a.getValue() != null) {
-                attr.setValue(a.getValue());
+                Utils.copyAttributeToVirtualAttributeWithValue(a, attr);
                 return attr;
             }
         } catch (WrongAttributeAssignmentException ex) {
@@ -51,8 +51,8 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         }
 
         try {
-            List<String> facilityShells = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":shells").getValue();
-            List<String> userPrefferedShells = ((List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells"));
+            Attribute facilityShells = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
+            Attribute userPrefferedShells = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells"));
             List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             Set<String> resourcesShells = new HashSet<String>();
             
@@ -60,16 +60,16 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
                 resourcesShells.addAll((List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells"));
             }
             if (userPrefferedShells != null)
-            for (String pShell : userPrefferedShells) {
+            for (String pShell : (List<String>)userPrefferedShells.getValue()) {
                 if (resourcesShells.contains(pShell)) {
-                    attr.setValue(pShell);
+                    Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedShells, attr);
                     return attr;
                 }
             }
             if (facilityShells != null)
-            for (String fShell : facilityShells) {
+            for (String fShell : (List<String>)facilityShells.getValue()) {
                 if (resourcesShells.contains(fShell)) {
-                    attr.setValue(fShell);
+                    Utils.copyAttributeToVirtualAttributeWithValue(facilityShells, attr);
                     return attr;
                 }
             }
