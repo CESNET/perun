@@ -15,7 +15,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     <import resource="classpath:perun-transaction-manager.xml"/>
 
     <!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
+	<tx:annotation-driven transaction-manager="springTransactionManager"/>
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
