@@ -871,19 +871,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Application approveApplication(PerunSession sess, int appId) throws PerunException {
 
+        Application app;
         try {
-            Application app = approveApplicationInternal(sess, appId);
-            Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
-            // validate member async when all changes are commited
-            perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
-            return app;
+             app = approveApplicationInternal(sess, appId);
         } catch (AlreadyMemberException ex) {
-            // case when user joined identity after sending initial application
-            // and former user was already memmber of VO
-            throw new InternalErrorException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+            // case when user joined identity after sending initial application and former user was already member of VO
+            throw new AlreadyMemberException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+        } catch (MemberNotExistsException ex) {
+            throw new MemberNotExistsException("To approve application user must already be member of VO.", ex);
         }
+
+        Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
+
+        try {
+        // validate member async when all changes are commited
+        perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
+        } catch (Exception ex) {
+            // we skip any exception thrown from here
+            log.error("Exception when validating {} after approving application {}.", member, app);
+        }
+
+        return app;
 
     }
 
@@ -896,8 +907,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
      * @return updated application
      * @throws PerunException
      */
-    @Transactional(rollbackFor = Exception.class)
-    private Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
+    public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
 
         Application app = getApplicationById(appId);
         Member member = null;
