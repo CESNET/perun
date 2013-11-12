@@ -14,7 +14,7 @@
         <module>perun-beans</module>
         <module>perun-auditparser</module>
         <module>perun-core</module>
-	<module>perun-cabinet</module>
+        <module>perun-cabinet</module>
         <module>perun-tasks-lib</module>
         <module>perun-controller</module>
         <module>perun-rpc-lib</module>
@@ -277,11 +277,11 @@
 
             <!-- DB -->
 
-           <dependency>
-               <groupId>postgresql</groupId>
-               <artifactId>postgresql</artifactId>
-               <!--<version>8.4-702.jdbc4</version>-->
-               <version>9.1-901.jdbc4</version>
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <!--<version>8.4-702.jdbc4</version>-->
+                <version>9.1-901.jdbc4</version>
             </dependency>
 
             <!-- FIXME - so far we run against oracle DB, but will be only Postgres soon -->
