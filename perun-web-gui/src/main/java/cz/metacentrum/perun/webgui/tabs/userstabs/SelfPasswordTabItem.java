@@ -256,10 +256,12 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
             row++;
             // perun admin doesn't need to know old password
             // if service user, we can always change password without knowing old
-            if (!session.isPerunAdmin() && !session.getUser().isServiceUser()) {
-                layout.setHTML(row, 0, "Old password: ");
-                layout.setWidget(row, 1, oldPass);
-                row++;
+            if (!session.isPerunAdmin()) {
+                if (!user.isServiceUser()) {
+                    layout.setHTML(row, 0, "Old password: ");
+                    layout.setWidget(row, 1, oldPass);
+                    row++;
+                }
             }
             layout.setHTML(row, 0, "New password:");
             layout.setWidget(row, 1, newPass);
