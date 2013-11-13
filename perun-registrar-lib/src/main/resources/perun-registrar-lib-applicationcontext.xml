@@ -14,7 +14,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     <import resource="classpath:perun-beans.xml"/>
     <import resource="classpath:perun-transaction-manager.xml"/>
 
-   <!-- Enable @Transactional support -->
+    <!-- Enable @Transactional support -->
     <tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
     <!-- Enable @AspectJ support -->
@@ -32,7 +32,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <property name="dataSource" ref="dataSource"/>
         <property name="shibDisplayNameVar" value="Shib-Person-displayName"/>
     </bean>
-    
+
     <bean id="mailManager" class="cz.metacentrum.perun.registrar.impl.MailManagerImpl" init-method="initialize">
         <property name="dataSource" ref="dataSource"/>
         <property name="mailSender" ref="mailSender" />
