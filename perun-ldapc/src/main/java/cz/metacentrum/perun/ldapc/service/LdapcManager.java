@@ -4,8 +4,6 @@ import cz.metacentrum.perun.rpclib.api.RpcCaller;
 
 public interface LdapcManager {
   
-  static final String CONSUMERNAME = "ldapcConsumer";
-  
   /**
    * Start processing incommming events from Perun Auditer.
    */

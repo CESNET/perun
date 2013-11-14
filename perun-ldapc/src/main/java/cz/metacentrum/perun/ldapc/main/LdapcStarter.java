@@ -27,6 +27,11 @@ public class LdapcStarter {
     this.ldapcManager = springCtx.getBean("ldapcManager", LdapcManager.class); 
   } 
 
+  /**
+   * Main method of ldapc
+   * 
+   * @param args (no expecting args, everything is in spring) 
+   */
   public static void main(String[] args) {
     System.out.println("Starting Perun-Ldapc...");
     
@@ -43,7 +48,7 @@ public class LdapcStarter {
       // Sets RPC Caller
       ldapcStarter.ldapcManager.setRpcCaller(rpcCaller);
       
-      // Start processing events
+      // Start processing events (run method in EventProcessorImpl)
       ldapcStarter.ldapcManager.startProcessingEvents();   
     } catch (Exception e) {
       log.error(e.toString(), e);

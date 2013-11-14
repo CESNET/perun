@@ -2,13 +2,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-">
-    <context:property-placeholder location="${perun.jdbc}, ${perun.ldapc}"/>
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <!-- Use in initialize script -->
+    <!-- -DldapPropertyFile=/etc/perunv3/filename -->  
+    <context:property-placeholder 
+        ignore-resource-not-found="true" ignore-unresolvable="true" 
+        location="${perun.jdbc}, file:${perun.conf.custom}/jdbc.properties, ${perun.ldapc}, file:${perun.conf.custom}/perun-ldapc.properties"/>
     
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
@@ -17,15 +21,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
     
     <!-- Properties Bean -->
-    <!--
-    <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-        	<list>
-	            <value>classpath:ldapc.properties</value>
-            </list>
-        </property>
-    </bean>
-    -->
+   <bean id="ldapcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+       <property name="locations">
+           <list>
+               <value>file:${perun.conf}/perun-ldapc.properties</value>
+               <value>file:${perun.conf.custom}/perun-ldapc.properties</value>
+           </list>
+       </property>
+       <property name="ignoreResourceNotFound">
+           <value>true</value>
+       </property>
+   </bean>
     <!-- These beans are for define ldapTemplate -->
     <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
         <property name="url" value="${ldap.url}" />
@@ -36,9 +42,5 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
         <constructor-arg ref="contextSource" />
     </bean>
-    <!--
-    <bean id="ldapConnectorImpl" class="cz.metacentrum.perun.ldapc.processor.impl.LdapConnectorImpl" scope="singleton">
-        <property name="ldapTemplate" ref="ldapTemplate"/>
-    </bean>
-    -->
+    
 </beans>
