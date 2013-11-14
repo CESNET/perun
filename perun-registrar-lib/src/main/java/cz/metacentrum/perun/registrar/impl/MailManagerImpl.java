@@ -1048,7 +1048,7 @@ public class MailManagerImpl implements MailManager {
                     // only namespace "meta", "egi-ui",...
                     String namespace = m2.group(1);
 
-                    // search through form items
+                    // if user not known -> search through form items to get login
                     for (ApplicationFormItemData d : data) {
                         ApplicationFormItem item = d.getFormItem();
                         if (item != null) {
@@ -1065,24 +1065,25 @@ public class MailManagerImpl implements MailManager {
                         }
                     }
 
-                    // if not found, try to get attribute
-                    if (newValue.isEmpty()) {
-                        try {
-                            if (app.getUser() != null) {
+                    // if user exists, try to get login from attribute instead of application
+                    // since we do no allow to overwrite login by application
+                    try {
+                        if (app.getUser() != null) {
                             List<Attribute> logins = attrManager.getLogins(registrarSession, app.getUser());
                             for (Attribute a : logins) {
-                                 if (a.getFriendlyNameParameter().equalsIgnoreCase(namespace)) {
-                                     if (a.getValue() != null) {
-                                         newValue = BeansUtils.attributeValueToString(a);
-                                         break;
-                                     }
-                                 }
+                                // replace only correct namespace
+                                if (a.getFriendlyNameParameter().equalsIgnoreCase(namespace)) {
+                                    if (a.getValue() != null) {
+                                        newValue = BeansUtils.attributeValueToString(a);
+                                        break;
+                                    }
+                                }
                             }
-                            }
-                        } catch (Exception ex) {
-                            log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \""+namespace+"\" for mail. {}", ex);
                         }
+                    } catch (Exception ex) {
+                        log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \""+namespace+"\" for mail. {}", ex);
                     }
+
                 }
 
                 // substitute {login-namespace} with actual value or empty string
