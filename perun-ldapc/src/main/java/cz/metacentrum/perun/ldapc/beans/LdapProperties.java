@@ -48,4 +48,8 @@ public class LdapProperties {
         }
         return instance;
     }
+
+    public void setLdapcProperties(Properties ldapcProperties) {
+        this.ldapcProperties = ldapcProperties;
+    }
 }
