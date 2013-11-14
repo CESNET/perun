@@ -74,7 +74,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   private AuditerConsumer auditerConsumer;
   private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
   private boolean running = false;
-  private LdapProperties ldapProperties = LdapProperties.getInstance();
+  private LdapProperties ldapProperties = new LdapProperties();
   
   //PATTERNS (used for searching in messages)
   //Common patterns
@@ -117,6 +117,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    */
   public void run() {
     
+    if(ldapProperties.getLdapcProperties() == null) throw new RuntimeException("LdapcProperties is not autowired correctly!");
      
     //Get instance of auditerConsumer and set runnig to true
     try {
