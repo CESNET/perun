@@ -164,6 +164,12 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
             try {
                 rpcServerAnswer = conn.getInputStream();
             } catch (IOException ex) {
+                try {
+                    PerunAuthenticatorImpl.getPerunAuthenticator().unRegisterAuthenticationForURL(new URL(rtURL));
+                    PerunAuthenticatorImpl.getPerunAuthenticator().registerAuthenticationForURL(new URL(rtURL), new RTAuthenticator().getPasswordAuthentication());
+                } catch(MalformedURLException e) {
+                    log.error("Malformed URL when unregistering and registering Authenticator for url {}", rtURL, e); 
+                }
                 throw new InternalErrorException("Answer from RT server failed.", ex);
             }
 
