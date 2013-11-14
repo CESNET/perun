@@ -12,7 +12,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.resources.AttributesConstants;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.comparators.AttributeComparator;
@@ -63,9 +62,6 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
-	private AttributesConstants translation = AttributesConstants.INSTANCE;
-
 
 	/**
 	 * Creates new instance of callback

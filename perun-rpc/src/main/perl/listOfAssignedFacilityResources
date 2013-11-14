@@ -49,11 +49,10 @@ unless(@resources) { printMessage "No Resources assigned", $batch; exit 0; }
 
 #output
 my $table = Text::ASCIITable->new();
-$table->setCols('ID','Name','SLD');
+$table->setCols('ID','Name');
 
 foreach my $resource (sort $sortingFunction @resources) {
-  my $sld = $resourceAgent->getSld(resource => $resource->getId);
-  $table->addRow($resource->getId, $resource->getName, $sld->getId);
+  $table->addRow($resource->getId, $resource->getName);
 }
 
 print tableToPrint($table, $batch);

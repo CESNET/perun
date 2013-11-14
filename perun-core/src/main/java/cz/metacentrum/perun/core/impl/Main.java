@@ -61,29 +61,46 @@ public class Main {
         }
         this.writer = new BufferedWriter(openForFile(fileName));
         
+        int LastMessageBeforeInitializingData = perun.getAuditer().getLastMessageId();
+        System.err.println("Last message id before starting initializing: " + LastMessageBeforeInitializingData + '\n');
         vosLdifToWriter();
         groupsLdifToWriter();
         usersLdifToWriter();
+        int LastMessageAfterInitializingData = perun.getAuditer().getLastMessageId();
+        System.err.println("Last message id after initializing: " + LastMessageAfterInitializingData + '\n');
+        perun.getAuditer().setLastProcessedId("ldapcConsumer", LastMessageAfterInitializingData);
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length == 0 || args.length > 1) {
-            System.out.println(badUsage());
+        if(args.length == 0 || args.length > 2) {
+            System.out.println(badUsage(null));
             System.out.println(help());
         } else if(args[0].equals("-h") || args[0].equals("--help")) {
             System.out.println(help());
         } else if(args[0].equals("-v")) {
             System.out.println(version());
         } else if(args[0].equals("-g")) {
-            Main main = new Main(null);
-            writer.flush();
+            Main main;
+            if(args[1] != null && args[1].length() != 0) {
+                main = new Main(args[1]);
+            } else {
+                main = new Main(null);
+            }
+            writer.close();
+        } else {      
+            System.out.println(badUsage(args[0]));
+            System.out.println(help());
         }
     }
        
-    private static String badUsage() {      
+    private static String badUsage(String badArgument) {      
         StringBuilder sb = new StringBuilder();
-        sb.append("Bad usage. Wrong argument or more/less than 1 arguments (not supported).");
+        sb.append("Bad usage. Wrong argument or less than 1 or more than 2 arguments (not supported).");
         sb.append('\n');
+        if(badArgument != null) {
+            sb.append("Bad argument is '" + badArgument + "'.");
+            sb.append('n');
+        }
         return sb.toString();
     }
     
@@ -93,7 +110,7 @@ public class Main {
         sb.append('\n');
         sb.append("-h | --help =>  help");
         sb.append('\n');
-        sb.append("-g          =>  generate ldifs");
+        sb.append("-g          =>  generate ldifs (second argument can be path to the file for generating ldif)");
         sb.append('\n');
         sb.append("-v          =>  version");
         sb.append('\n');
@@ -124,8 +141,8 @@ public class Main {
             if (fileName != null) return new PrintWriter(fileName);
             else return new OutputStreamWriter(System.out);
         } catch (FileNotFoundException ex) {
-            System.out.println("# File you specify not exist! All data will be send on standard output.");
-            return new OutputStreamWriter(System.out);
+            System.out.println("# File you specify not exist and can't be created! Script will be canceled now!");
+            throw new RuntimeException("File with ldif can't be created.", ex);
         }
     }
 

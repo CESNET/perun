@@ -47,7 +47,7 @@ public class PerunAttributeNameCell extends AbstractSafeHtmlCell<cz.metacentrum.
 
 	protected static void generateCode(SafeHtmlBuilder sb, Attribute attr) {
 		sb.appendHtmlConstant("<span title=\""+attr.getName()+"\"><strong>");
-		sb.appendHtmlConstant(attr.getTranslatedName());
+		sb.appendHtmlConstant(attr.getDisplayName());
 		sb.appendHtmlConstant("</strong></span>");
 	}
 		
