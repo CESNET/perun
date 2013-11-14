@@ -244,6 +244,14 @@ public interface RegistrarManager {
     Application approveApplication(PerunSession session, int appId) throws PerunException;
 
     /**
+     * Approves an application in one transaction.
+     *
+     * @param session who approves the application
+     * @param appId application id
+     */
+    Application approveApplicationInternal(PerunSession session, int appId) throws PerunException;
+
+    /**
      * Manually rejects an application. Expected to be called as a result of direct VO administrator action in the web UI.
      * 
      * @param session who rejects the application
