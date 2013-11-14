@@ -49,8 +49,8 @@ public class LdapConnectorImpl implements LdapConnector {
 
   @Autowired
   private LdapTemplate ldapTemplate;
-  
-  private LdapProperties ldapProperties = new LdapProperties();
+  @Autowired
+  private LdapProperties ldapProperties;
   private String ldapAttributeName = null;
   
   private Pattern userIdPattern = Pattern.compile("[0-9]+");

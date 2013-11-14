@@ -69,12 +69,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   private LdapConnector ldapConnector;
   @Autowired
   private LdapcManager ldapcManager;
+  @Autowired 
+  private LdapProperties ldapProperties;
   
   //Other variables
   private AuditerConsumer auditerConsumer;
   private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
   private boolean running = false;
-  private LdapProperties ldapProperties = new LdapProperties();
   
   //PATTERNS (used for searching in messages)
   //Common patterns

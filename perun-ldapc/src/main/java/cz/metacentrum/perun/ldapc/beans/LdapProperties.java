@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LdapProperties {
     
-    @Autowired
     private Properties ldapcProperties;
-    
     private String ldapConsumerName;
     private String ldapBase;
     private String ldapLoginNamespace;
     
-    public LdapProperties() {
+    @Autowired
+    public LdapProperties(Properties ldapcProperties) {
+        this.ldapcProperties=ldapcProperties;
     }
 
     public Properties getLdapcProperties() {

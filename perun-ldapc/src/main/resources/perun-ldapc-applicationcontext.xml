@@ -19,6 +19,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 
     <!-- Scans for @Repository, @Service and @Component -->
     <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
+    <context:annotation-config/>
     
     <!-- Properties Bean -->
    <bean id="ldapcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -32,6 +33,10 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
            <value>true</value>
        </property>
    </bean>
+   <bean id="ldapProperties" class="cz.metacentrum.perun.ldapc.beans.LdapProperties">
+        <constructor-arg ref="ldapcProperties" />
+    </bean>
+    
     <!-- These beans are for define ldapTemplate -->
     <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
         <property name="url" value="${ldap.url}" />
