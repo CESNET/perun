@@ -259,6 +259,19 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <constructor-arg ref="dataSource" />
     </bean>
 
+    <!-- Properties Bean for perun-core -->
+    <bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>file:${perun.conf}/perun.properties</value>
+                <value>file:${perun.conf.custom}/perun.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
+        </property>
+    </bean>
+
     <import resource="classpath:perun-core-trace-log.xml"/>
     
 </beans>

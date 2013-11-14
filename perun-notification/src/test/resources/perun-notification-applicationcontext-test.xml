@@ -19,7 +19,11 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="locations">
             <list>
                 <value>file:${perun.conf}/perun-notification-test.properties</value>
+                <value>file:${perun.conf.custom}/perun-notification-test.properties</value>
             </list>
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
         </property>
     </bean>
 
