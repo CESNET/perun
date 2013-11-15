@@ -41,7 +41,7 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
       attr.setFriendlyName("preferredShell");
       attr.setType(List.class.getName());
-      attr.setDescription("User preferred shells, ordered by user.");
+      attr.setDescription("User preferred shells, ordered by user's personal preferrences.");
       return attr;
   }
 }

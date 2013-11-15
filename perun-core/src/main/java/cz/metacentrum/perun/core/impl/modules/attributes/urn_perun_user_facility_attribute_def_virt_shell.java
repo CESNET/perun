@@ -32,9 +32,9 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
     public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
         Attribute attr = new Attribute(attributeDefinition);
         try {
-            Attribute a = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
-            if (a.getValue() != null) {
-                Utils.copyAttributeToVirtualAttributeWithValue(a, attr);
+            Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
+            if (attribute.getValue() != null) {
+                Utils.copyAttributeToVirtualAttributeWithValue(attribute, attr);
                 return attr;
             }
         } catch (WrongAttributeAssignmentException ex) {
@@ -52,14 +52,14 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
             for (Resource resource : resources) {
                 resourcesShells.addAll((List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells"));
             }
-            if (userPrefferedShells != null)
+            if (userPrefferedShells.getValue() != null)
             for (String pShell : (List<String>)userPrefferedShells.getValue()) {
                 if (resourcesShells.contains(pShell)) {
                     Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedShells, attr);
                     return attr;
                 }
             }
-            if (facilityShells != null)
+            if (facilityShells.getValue() != null)
             for (String fShell : (List<String>)facilityShells.getValue()) {
                 if (resourcesShells.contains(fShell)) {
                     Utils.copyAttributeToVirtualAttributeWithValue(facilityShells, attr);
@@ -75,7 +75,6 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         } catch (WrongAttributeAssignmentException ex) {
             throw new InternalErrorException(ex);
         }
-        attr = new Attribute(attributeDefinition);
         return attr;
 
     }
@@ -104,7 +103,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
         attr.setFriendlyName("shell");
         attr.setType(String.class.getName());
-        attr.setDescription("Computed Shell from user preferences");
+        attr.setDescription("Computed Shell from user preferrences");
         return attr;
     }
 }
