@@ -25,6 +25,7 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     List<String> pshell = (List<String>) attribute.getValue();
     
+    if (pshell != null)
     for(String shell : pshell){
     //Can be null, if not need to check format
         if(shell != null){
