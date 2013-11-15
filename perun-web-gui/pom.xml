@@ -200,6 +200,11 @@
 
             <id>production</id>
 
+            <properties>
+                <perun.build.type>production</perun.build.type>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+
             <build>
 
                 <plugins>
