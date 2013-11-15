@@ -68,7 +68,7 @@ public class Main {
         usersLdifToWriter();
         int LastMessageAfterInitializingData = perun.getAuditer().getLastMessageId();
         System.err.println("Last message id after initializing: " + LastMessageAfterInitializingData + '\n');
-        perun.getAuditer().setLastProcessedId("ldapConsumer", LastMessageAfterInitializingData);
+        perun.getAuditer().setLastProcessedId("ldapcConsumer", LastMessageAfterInitializingData);
     }
 
     public static void main(String[] args) throws Exception {

@@ -14,7 +14,7 @@
         <module>perun-beans</module>
         <module>perun-auditparser</module>
         <module>perun-core</module>
-	<module>perun-cabinet</module>
+        <module>perun-cabinet</module>
         <module>perun-tasks-lib</module>
         <module>perun-controller</module>
         <module>perun-rpc-lib</module>
@@ -42,7 +42,7 @@
         <!-- perun configuration files location -->
         <perun.conf>/etc/perunv3</perun.conf>
         <perun.jdbc>file:${perun.conf}/jdbc.properties</perun.jdbc>
-        <perun.ldapc>file:${perun.conf}/ldapc.properties</perun.ldapc>
+        <perun.ldapc>file:${perun.conf}/perun-ldapc.properties</perun.ldapc>
         <perun.log>/var/log/perunv3</perun.log>
 
         <!-- libraries versions -->
@@ -277,11 +277,11 @@
 
             <!-- DB -->
 
-           <dependency>
-               <groupId>postgresql</groupId>
-               <artifactId>postgresql</artifactId>
-               <!--<version>8.4-702.jdbc4</version>-->
-               <version>9.1-901.jdbc4</version>
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <!--<version>8.4-702.jdbc4</version>-->
+                <version>9.1-901.jdbc4</version>
             </dependency>
 
             <!-- FIXME - so far we run against oracle DB, but will be only Postgres soon -->

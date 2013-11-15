@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.springframework.ldap.InvalidAttributeValueException;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapAttribute;
@@ -47,7 +49,9 @@ public class LdapConnectorImpl implements LdapConnector {
 
   @Autowired
   private LdapTemplate ldapTemplate;
-  private static String ldapAttributeName;
+  @Autowired
+  private LdapProperties ldapProperties;
+  private String ldapAttributeName = null;
   
   private Pattern userIdPattern = Pattern.compile("[0-9]+");
   
@@ -74,16 +78,9 @@ public class LdapConnectorImpl implements LdapConnector {
     attributes.put("perunVoId", String.valueOf(group.getVoId()));
     if(group.getDescription() != null) attributes.put("description", group.getDescription());
     if(group.getParentGroupId() != null) {
-        attributes.put("perunParentGroup", "perunGroupId=" + group.getParentGroupId().toString() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz");
+        attributes.put("perunParentGroup", "perunGroupId=" + group.getParentGroupId().toString() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
         attributes.put("perunParentGroupId", group.getParentGroupId().toString());
     }
-    
-   //Debug Info
-   try {
-    log.debug("There is perunUniqueName  fo group " + group + " with value: " + String.valueOf(attributes.get("perunUniqueGroupName").get()));
-   } catch (NamingException ex) {
-       log.debug("ERROR - naming exception was catched." + ex.getStackTrace());
-   }
     
    // Create the entry 
     try {
@@ -95,7 +92,7 @@ public class LdapConnectorImpl implements LdapConnector {
   }
   
   public void addGroupAsSubGroup(Group group, Group parentGroup) throws InternalErrorException {
-    //TODO THIS METHOD IS NOT IMPLEMENTED CORRECTLY
+    //This method has the same implemenation like 'addGroup'
     addGroup(group);
   }
 
@@ -104,7 +101,7 @@ public class LdapConnectorImpl implements LdapConnector {
     List<String> uniqueUsersIds = new ArrayList<String>();
     uniqueUsersIds = this.getAllUniqueMembersInGroup(group.getId(), group.getVoId());
     for(String s: uniqueUsersIds) {
-        Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz");
+        Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
         ModificationItem memberOfItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOf);
         this.updateUserWithUserId(s, new ModificationItem[] {memberOfItem});
     }
@@ -117,31 +114,57 @@ public class LdapConnectorImpl implements LdapConnector {
     }
   }
   
-  public void updateGroup(Group group, ModificationItem[] modificationItems) throws InternalErrorException {
+  public void updateGroup(Group group, ModificationItem[] modificationItems) {
       ldapTemplate.modifyAttributes(getGroupDN(String.valueOf(group.getVoId()), String.valueOf(group.getId())), modificationItems);
       log.debug("Entry modified in LDAP: Group {}.", group);
   }
   
+  //-----------------------------MEMBER MODIFICATION METHODS--------------------
+  
   public void addMemberToGroup(Member member, Group group) throws InternalErrorException {
-     Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People,dc=perun,dc=cesnet,dc=cz");
+     Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
      ModificationItem uniqueMemberItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, uniqueMember);   
      this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
      if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
-     Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz");
+     Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
      ModificationItem memberOfItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOf);
      this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
   }
 
   public void removeMemberFromGroup(Member member, Group group) throws InternalErrorException {
-    Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People,dc=perun,dc=cesnet,dc=cz");
+    Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
     ModificationItem uniqueMemberItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, uniqueMember);   
     this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
     if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
-    Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz");
+    Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
     ModificationItem memberOfItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOf);
     this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
   }
 
+  public boolean isAlreadyMember(Member member, Group group) {
+    Object o = ldapTemplate.lookup(getUserDN(String.valueOf(member.getUserId())), new UserMemberOfContextMapper());
+    String[] memberOfInformation = (String []) o;
+    if(memberOfInformation != null) {
+        for(String s: memberOfInformation) {
+            if(s.equals("perunGroupId="+group.getId()+",perunVoId="+group.getVoId()+"," + ldapProperties.getLdapBase())) return true;
+        }
+    }
+    return false;
+  }
+  
+  public List<String> getAllUniqueMembersInGroup(int groupId, int voId) {
+    List<String> uniqueMembers = new ArrayList<String>();
+    Object o = ldapTemplate.lookup(getGroupDN(String.valueOf(voId), String.valueOf(groupId)), new GroupUniqueMemberOfContextMapper());
+    String[] uniqueGroupInformation = (String []) o;
+    if(uniqueGroupInformation != null) {
+      for(String s: uniqueGroupInformation) {
+          Matcher userIdMatcher = userIdPattern.matcher(s);
+          if(userIdMatcher.find()) uniqueMembers.add(s.substring(userIdMatcher.start(), userIdMatcher.end()));
+      }
+    }  
+    return uniqueMembers;
+  }
+  
   //--------------------------VO MODIFICATION METHODS---------------------------
   
   public void createVo(Vo vo) throws InternalErrorException {
@@ -178,14 +201,24 @@ public class LdapConnectorImpl implements LdapConnector {
     }  
   }
   
-  public void updateVo(Vo vo, ModificationItem[] modificationItems) throws InternalErrorException {
+  public void updateVo(Vo vo, ModificationItem[] modificationItems) {
     ldapTemplate.modifyAttributes(getVoDNByVoId(String.valueOf(vo.getId())), modificationItems);  
     log.debug("Entry modified in LDAP: Vo {}.", vo);
   }
   
-  public void updateVo(int voId, ModificationItem[] modificationItems) throws InternalErrorException {
+  public void updateVo(int voId, ModificationItem[] modificationItems) {
     ldapTemplate.modifyAttributes(getVoDNByVoId(String.valueOf(voId)), modificationItems);  
     log.debug("Entry modified in LDAP: Vo {}.", voId);
+  }
+    
+  public String getVoShortName(int voId) throws InternalErrorException {
+    Object o = ldapTemplate.lookup(getVoDNByVoId(String.valueOf(voId)), new VoShortNameContextMapper());
+    String[] voShortNameInformation = (String []) o;
+    String voShortName = null;
+    if(voShortNameInformation == null || voShortNameInformation[0] == null) throw new InternalErrorException("There is no shortName in ldap for vo with id=" + voId);
+    if(voShortNameInformation.length != 1) throw new InternalErrorException("There is not exactly one short name of vo with id=" +  voId + " in ldap. Count of shortnames is " + voShortNameInformation.length);
+    voShortName = voShortNameInformation[0];
+    return voShortName;
   }
 
   //-----------------------USER MODIFICATION METHODS----------------------------
@@ -223,9 +256,6 @@ public class LdapConnectorImpl implements LdapConnector {
     } 
   }
   
-  //IMPORTANT
-  //We dont need delete member of this user from groups, it will depend on messages removeFrom Group
-  //TRY TO TEST IF MESSAGES COME IN SERIALIZE FORM, FIRST MEMBER, LAST USER deleted
   public void deleteUser(User user) throws InternalErrorException {
     try {
         ldapTemplate.unbind(getUserDN(String.valueOf(user.getId()))); 
@@ -235,53 +265,30 @@ public class LdapConnectorImpl implements LdapConnector {
     }     
   }
   
-  public void updateUser(User user, ModificationItem[] modificationItems) throws InternalErrorException {
+  public void updateUser(User user, ModificationItem[] modificationItems) {
      this.updateUserWithUserId(String.valueOf(user.getId()), modificationItems);
   }
   
-  public void updateUsersCertSubjects(String userId, String[] certSubjects) throws InternalErrorException {
+  public void updateUsersCertSubjects(String userId, String[] certSubjects) {
       DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
       context.setAttributeValues("userCertificateSubject", certSubjects);
       ldapTemplate.modifyAttributes(context);  
       log.debug("Entry modified in LDAP: UserId {}.", userId);
   }
   
-  public void updateUserWithUserId(String userId, ModificationItem[] modificationItems) throws InternalErrorException {
+  public void updateUserWithUserId(String userId, ModificationItem[] modificationItems) {
      ldapTemplate.modifyAttributes(getUserDN(userId), modificationItems);  
      log.debug("Entry modified in LDAP: UserId {}.", userId);
   }
   
-  //----------------------------UTILITY METHODS---------------------------------
-  
-  public boolean isAlreadyMember(Member member, Group group) throws InternalErrorException {
-    Object o = ldapTemplate.lookup(getUserDN(String.valueOf(member.getUserId())), new UserMemberOfContextMapper());
-    String[] memberOfInformation = (String []) o;
-    if(memberOfInformation != null) {
-        for(String s: memberOfInformation) {
-            if(s.equals("perunGroupId="+group.getId()+",perunVoId="+group.getVoId()+",dc=perun,dc=cesnet,dc=cz")) return true;
-        }
-    }
-    return false;
-  }
-  
-  public Attributes getAllUsersAttributes(User user) throws InternalErrorException {
+  public Attributes getAllUsersAttributes(User user) {
     Object o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserAttributesContextMapper());
     Attributes attrs = null;
     if(o != null) attrs = (Attributes) o;
     return attrs;
   }
   
-  public String getVoShortName(int voId) throws InternalErrorException {
-    Object o = ldapTemplate.lookup(getVoDNByVoId(String.valueOf(voId)), new VoShortNameContextMapper());
-    String[] voShortNameInformation = (String []) o;
-    String voShortName = null;
-    if(voShortNameInformation == null || voShortNameInformation[0] == null) throw new InternalErrorException("There is no shortName in ldap for vo with id=" + voId);
-    if(voShortNameInformation.length != 1) throw new InternalErrorException("There is not exactly one short name of vo with id=" +  voId + " in ldap. Count of shortnames is " + voShortNameInformation.length);
-    voShortName = voShortNameInformation[0];
-    return voShortName;
-  }
-  
-  public boolean userExist(User user) throws InternalErrorException {
+  public boolean userExist(User user) {
     Object o = null;
     try {
         o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserPerunUserIdContextMapper());
@@ -292,9 +299,10 @@ public class LdapConnectorImpl implements LdapConnector {
   }
   
   public boolean userAttributeExist(User user, String ldapAttributeName) throws InternalErrorException {
+    if(ldapAttributeName == null) throw new InternalErrorException("ldapAttributeName can't be null.");
     Object o = null;
     try {
-        this.ldapAttributeName = ldapAttributeName;
+        setLdapAttributeName(ldapAttributeName);
         o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserPerunUserAttributeContextMapper());
     } catch (NameNotFoundException ex) {
         return false;    
@@ -303,7 +311,7 @@ public class LdapConnectorImpl implements LdapConnector {
     return true;
   }
   
-  public boolean userPasswordExists(User user) throws InternalErrorException {
+  public boolean userPasswordExists(User user) {
     Object o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserAttributesContextMapper());
     Attributes attrs = null;
     if(o != null) attrs = (Attributes) o;
@@ -314,20 +322,45 @@ public class LdapConnectorImpl implements LdapConnector {
     }
     return false;
   }
+
+  //------------------GETTERS AND SETTERS---------------
   
-  public List<String> getAllUniqueMembersInGroup(int groupId, int voId) throws InternalErrorException {
-    List<String> uniqueMembers = new ArrayList<String>();
-    Object o = ldapTemplate.lookup(getGroupDN(String.valueOf(voId), String.valueOf(groupId)), new GroupUniqueMemberOfContextMapper());
-    String[] uniqueGroupInformation = (String []) o;
-    if(uniqueGroupInformation != null) {
-      for(String s: uniqueGroupInformation) {
-          Matcher userIdMatcher = userIdPattern.matcher(s);
-          if(userIdMatcher.find()) uniqueMembers.add(s.substring(userIdMatcher.start(), userIdMatcher.end()));
-      }
-    }  
-    return uniqueMembers;
+  /**
+   * Setter for ldapTemplate. (use autowire from spring)
+   * 
+   * @param ldapTemplate 
+   */
+  public void setLdapTemplate(LdapTemplate ldapTemplate) {
+    this.ldapTemplate = ldapTemplate;
+  }
+
+  /**
+   * Setter for ldapAttributeName
+   * 
+   * @return ldapAttributeName
+   */
+  public String getLdapAttributeName() {
+    return ldapAttributeName;
+  }
+
+  /**
+   * Getter for ldapAttributeName
+   * 
+   * @param ldapAttributeName  ldapAttributeName
+   */
+  public void setLdapAttributeName(String ldapAttributeName) {
+    this.ldapAttributeName = ldapAttributeName;
   }
   
+  //------------------PRIVATE METHODS-------------------
+
+  /**
+   * Get Group DN using VoId and GroupId.
+   * 
+   * @param voId vo id 
+   * @param groupId group id
+   * @return DN in String
+   */
   private String getGroupDN(String voId, String groupId) {
     return new StringBuffer()
     .append("perunGroupId=")
@@ -337,13 +370,25 @@ public class LdapConnectorImpl implements LdapConnector {
     .toString();
   }
   
+  /**
+   * Get Vo DN using VoId.
+   * 
+   * @param voId vo id
+   * @return DN in String
+   */
   private String getVoDNByVoId(String voId) {
     return new StringBuffer()
     .append("perunVoId=")
     .append(voId)
     .toString();  
-  }
+  }  
   
+  /**
+   * Get Vo DN using Vo shortName (o).
+   * 
+   * @param voShortName the value of attribute 'o' in ldap
+   * @return DN in String
+   */
   private String getVoDNByShortName(String voShortName) {
     return new StringBuffer()
     .append("o=")
@@ -351,6 +396,12 @@ public class LdapConnectorImpl implements LdapConnector {
     .toString();
   }
   
+  /**
+   * Get User DN using user id.
+   * 
+   * @param userId user id
+   * @return DN in String
+   */
   private String getUserDN(String userId) {
     return new StringBuffer()
     .append("perunUserId=")
@@ -358,12 +409,13 @@ public class LdapConnectorImpl implements LdapConnector {
     .append(",ou=People")
     .toString();
   }
-
-  public void setLdapTemplate(LdapTemplate ldapTemplate) {
-    this.ldapTemplate = ldapTemplate;
-  }
   
-  private static class UserMemberOfContextMapper implements ContextMapper {
+  /**
+   * User attribute 'memberOf' context Mapper 
+   * 
+   * Context mapper is used for choosing concrete attribute.
+   */
+  private class UserMemberOfContextMapper implements ContextMapper {
     public String[] mapFromContext(Object ctx) {
         DirContextAdapter context = (DirContextAdapter)ctx;
         String[] s=context.getStringAttributes("memberOf");
@@ -371,7 +423,12 @@ public class LdapConnectorImpl implements LdapConnector {
     }
   }
   
-  private static class UserAttributesContextMapper implements ContextMapper {
+  /**
+   * All user's attributes context mapper.
+   * 
+   * Context mapper is used for choosing concrete attributes.
+   */
+  private class UserAttributesContextMapper implements ContextMapper {
     public Attributes mapFromContext(Object ctx) {
         DirContextAdapter context = (DirContextAdapter)ctx;
         Attributes attrs=context.getAttributes();
@@ -379,23 +436,25 @@ public class LdapConnectorImpl implements LdapConnector {
     }
   }
   
-  private static class VoShortNameContextMapper implements ContextMapper {
-    public String[] mapFromContext(Object ctx) {
-        DirContextAdapter context = (DirContextAdapter) ctx;
-        String[] s = context.getStringAttributes("o");
-        return s;
-    }    
-  }
-  
-  private static class UserPerunUserAttributeContextMapper implements ContextMapper {
+  /**
+   * User attribute 'any' context Mapper (the name of attribute is in variable 'ldapAttributeName'
+   * 
+   * Context mapper is used for choosing concrete attribute.
+   */
+  private class UserPerunUserAttributeContextMapper implements ContextMapper {
     public String mapFromContext(Object ctx) {
       DirContextAdapter context = (DirContextAdapter)ctx;
-      String s=context.getStringAttribute(ldapAttributeName);
+      String s=context.getStringAttribute(getLdapAttributeName());
       return s;
     }
   }
   
-  private static class UserPerunUserIdContextMapper implements ContextMapper {
+  /**
+   * User attribute 'perunUserId' context Mapper
+   * 
+   * Context mapper is used for choosing concrete attribute.
+   */
+  private class UserPerunUserIdContextMapper implements ContextMapper {
     public String mapFromContext(Object ctx) {
       DirContextAdapter context = (DirContextAdapter)ctx;
       String s=context.getStringAttribute("perunUserId");
@@ -403,7 +462,25 @@ public class LdapConnectorImpl implements LdapConnector {
     }    
   }
   
-  private static class GroupUniqueMemberOfContextMapper implements ContextMapper {
+  /**
+   * Vo attribute 'o' (shortName) context Mapper 
+   * 
+   * Context mapper is used for choosing concrete attribute.
+   */
+  private class VoShortNameContextMapper implements ContextMapper {
+    public String[] mapFromContext(Object ctx) {
+        DirContextAdapter context = (DirContextAdapter) ctx;
+        String[] s = context.getStringAttributes("o");
+        return s;
+    }    
+  }
+  
+  /**
+   * Group attribute 'uniqueMembeOf' context Mapper
+   * 
+   * Context mapper is used for choosing concrete attribute.
+   */
+  private class GroupUniqueMemberOfContextMapper implements ContextMapper {
     public String[] mapFromContext(Object ctx) {
       DirContextAdapter context = (DirContextAdapter)ctx;
       String[] s=context.getStringAttributes("uniqueMember");

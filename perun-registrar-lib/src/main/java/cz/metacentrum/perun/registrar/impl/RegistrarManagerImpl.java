@@ -119,6 +119,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Autowired PerunBl perun;
 	@Autowired MailManager mailManager;
+    private RegistrarManager registrarManager;
 	private PerunSession registrarSession;
 	private SimpleJdbcTemplate jdbc;
 	private boolean useMailManager = false;  // for production compatibility, default is false
@@ -137,6 +138,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new SimpleJdbcTemplate(dataSource);
 	}
+
+    public void setRegistrarManager(RegistrarManager registrarManager) {
+        this.registrarManager = registrarManager;
+    }
 
 	public void setShibDisplayNameVar(String shibDisplayNameVar) {
 		this.shibDisplayNameVar = shibDisplayNameVar;
@@ -871,12 +876,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Application approveApplication(PerunSession sess, int appId) throws PerunException {
 
         Application app;
         try {
-             app = approveApplicationInternal(sess, appId);
+             app = registrarManager.approveApplicationInternal(sess, appId);
         } catch (AlreadyMemberException ex) {
             // case when user joined identity after sending initial application and former user was already member of VO
             throw new AlreadyMemberException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
@@ -888,7 +892,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         try {
         // validate member async when all changes are commited
-        perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
+            perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
         } catch (Exception ex) {
             // we skip any exception thrown from here
             log.error("Exception when validating {} after approving application {}.", member, app);
@@ -907,6 +911,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
      * @return updated application
      * @throws PerunException
      */
+    @Transactional(rollbackFor = Exception.class)
     public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
 
         Application app = getApplicationById(appId);
