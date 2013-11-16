@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Papperwing
+ *@author Jakub Peschel <410368@mail.muni.cz>
  */
 public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
@@ -50,25 +50,26 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
             Set<String> resourcesShells = new HashSet<String>();
             
             for (Resource resource : resources) {
-                resourcesShells.addAll((List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells"));
+                List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells").getValue();
+                if (resourcesShellsForTest != null) resourcesShells.addAll(resourcesShellsForTest);
             }
-            if (userPrefferedShells.getValue() != null)
-            for (String pShell : (List<String>)userPrefferedShells.getValue()) {
-                if (resourcesShells.contains(pShell)) {
-                    Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedShells, attr);
-                    return attr;
+            
+            if (userPrefferedShells.getValue() != null){
+                for (String pShell : (List<String>)userPrefferedShells.getValue()) {
+                    if (resourcesShells.contains(pShell)) {
+                        Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedShells, attr);
+                        return attr;
+                    }
                 }
             }
-            if (facilityShells.getValue() != null)
-            for (String fShell : (List<String>)facilityShells.getValue()) {
-                if (resourcesShells.contains(fShell)) {
-                    Utils.copyAttributeToVirtualAttributeWithValue(facilityShells, attr);
-                    return attr;
+            if (facilityShells.getValue() != null){
+                for (String fShell : (List<String>)facilityShells.getValue()) {
+                    if (resourcesShells.contains(fShell)) {
+                        Utils.copyAttributeToVirtualAttributeWithValue(facilityShells, attr);
+                        return attr;
+                    }
                 }
             }
-
-
-
 
         } catch (AttributeNotExistsException ex) {
             throw new InternalErrorException(ex);
