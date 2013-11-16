@@ -33,6 +33,8 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
                }else{
                     sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
                 }
+           }else{
+                throw new WrongAttributeValueException("shell cannot be null");
             }
         }
     }
