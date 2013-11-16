@@ -27,12 +27,13 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
     
     if (pshell != null){
         for(String shell : pshell){
-    //Can be null, if not need to check format
             if(shell != null){
-                if(shell.isEmpty())throw new WrongAttributeValueException("shell cannot be empty");
-                    else{
+                if(shell.isEmpty()){
+                    throw new WrongAttributeValueException("shell cannot be empty");
+                }
+                else{
                     sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
-                    }
+                }
             }
         }
     }
