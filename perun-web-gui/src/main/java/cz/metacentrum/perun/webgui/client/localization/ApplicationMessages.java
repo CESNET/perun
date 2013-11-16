@@ -70,7 +70,7 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Error occurred when processing your application.")
 	String errorWhileCreatingApplication();
 
-    @DefaultMessage("Empty passwords are not allowed! Application was not saved. You must fill new application to re-try.")
+    @DefaultMessage("Login/password reservation failed in external system. Your application was not saved. Please contact support to resolve this issue before new application submission.")
     String errorWhileCreatingApplicationMessage();
 
 	@DefaultMessage("VO administrator has been notified about all errors.")

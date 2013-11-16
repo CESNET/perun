@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -548,7 +549,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // exceptions to send to vo admin with new app created email
         List<Exception> exceptions = new ArrayList<Exception>();
-        boolean emptyPasswordException = false;
+        boolean applicationNotCreated = false;
 
         try {
 
@@ -647,18 +648,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                             // reserve password
                                             perun.getUsersManagerBl().reservePassword(registrarSession, login, loginNamespace, pass);
                                             log.debug("Password for login: {} in namespace: {} successfully reserved in external system.", login, loginNamespace);
-                                        } catch (EmptyPasswordRuntimeException ex) {
-                                            log.error("Password for login: {} can't be empty: "+ ex, login);
-                                            throw ex; // re-throw
                                         } catch (Exception ex) {
+                                            // login reservation fail must cause rollback !!
                                             log.error("Unable to reserve password for login: {} in namespace: {} in external system. Exception: " + ex, login, loginNamespace);
-                                            exceptions.add(ex);
+                                            throw new ApplicationNotCreatedException("Application was not created. Reason: Unable to reserve password for login: "+login+" in namespace: "+loginNamespace+" in external system. Please contact support to fix this issue before new application submission.", login, loginNamespace);
                                         }
                                         break; // use first pass with correct namespace
                                     }
                                 }
                             }
-                        } catch (EmptyPasswordRuntimeException ex) {
+                        } catch (ApplicationNotCreatedException ex) {
                             throw ex; // re-throw
                         } catch (Exception ex) {
                             // unable to book login
@@ -693,8 +692,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 }
             }
 
-        } catch (EmptyPasswordRuntimeException ex) {
-            emptyPasswordException = true; // prevent action in finally block
+        } catch (ApplicationNotCreatedException ex) {
+            applicationNotCreated = true; // prevent action in finally block
             throw ex; // re-throw
         } catch (Exception ex) {
             // any exception during app creation process => add it to list
@@ -704,7 +703,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         } finally {
 
             // process rest only if it was not exception related to PASSWORDS creation
-            if (!emptyPasswordException) {
+            if (!applicationNotCreated) {
 
                 // use or don't use new mail manager
                 if (useMailManager == true) {
