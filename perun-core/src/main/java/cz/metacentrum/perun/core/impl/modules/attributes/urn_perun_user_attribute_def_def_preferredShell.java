@@ -30,8 +30,7 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
             if(shell != null){
                 if(shell.isEmpty()){
                     throw new WrongAttributeValueException("shell cannot be empty");
-                }
-                else{
+               }else{
                     sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
                 }
             }
