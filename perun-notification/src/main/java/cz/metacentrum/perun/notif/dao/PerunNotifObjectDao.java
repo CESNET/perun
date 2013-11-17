@@ -19,7 +19,7 @@ public interface PerunNotifObjectDao {
      * @param object
      * @throws InternalErrorException
      */
-    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
 
     /**
      * Update object in db and returns newly loaded Object from db

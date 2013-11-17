@@ -37,9 +37,10 @@ public interface PerunNotifTemplateDao {
 
     /**
      * Saves perunNotifReceiver
+     * @return 
      * @param receiver
      */
-    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
 
     /**
      * Updates perunNotifReceiver
@@ -60,9 +61,10 @@ public interface PerunNotifTemplateDao {
     /**
      * Saves data about transaction to db, not dependencies
      * @param template
+     * @return 
      * @throws InternalErrorException
      */
-    public void savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException;
+    public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException;
 
     /**
      * Removes perunNotifReceiver by id
@@ -82,7 +84,7 @@ public interface PerunNotifTemplateDao {
      * Save perunNotifTemplateMessage to db
      * @param message
      */
-    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
 
     /**
      * Update perunNotifTemplateMessage in db

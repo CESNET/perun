@@ -73,10 +73,12 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
     }
 
     @Override
-    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
-        perunNotifObjectDao.savePerunNotifObject(object);
+        PerunNotifObject perunNotifObject = perunNotifObjectDao.savePerunNotifObject(object);
 
         perunNotifRegexManager.addObjectToCache(object);
+        
+        return perunNotifObject;
     }
 }
