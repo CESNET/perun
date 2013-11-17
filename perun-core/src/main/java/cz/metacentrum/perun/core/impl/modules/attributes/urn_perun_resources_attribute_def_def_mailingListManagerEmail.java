@@ -5,11 +5,14 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 
 /**
  *
@@ -27,4 +30,12 @@ public class urn_perun_resources_attribute_def_def_mailingListManagerEmail {
         
     }
     
+    public AttributeDefinition getAttributeDefinition() {
+      AttributeDefinition attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+      attr.setFriendlyName("mailingListManagerEmail");
+      attr.setType(String.class.getName());
+      attr.setDescription("Email of owner of mailing list");
+      return attr;
+    }
 }
