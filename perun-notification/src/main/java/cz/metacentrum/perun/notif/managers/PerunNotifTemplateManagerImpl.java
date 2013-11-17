@@ -413,15 +413,13 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
     }
 
     @Override
-    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
 
-        PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.savePerunNotifReceiver(receiver);
+        perunNotifTemplateDao.savePerunNotifReceiver(receiver);
 
         //Propagating new receiver to template
         PerunNotifTemplate template = allTemplatesById.get(receiver.getTemplateId());
         template.addReceiver(receiver);
-        
-        return perunNotifReceiver;
     }
 
     @Override
@@ -459,9 +457,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
     }
 
     @Override
-    public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+    public void savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
 
-        PerunNotifTemplate perunNotifTemplate = perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
+        perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
 
         if (template.getMatchingRegexs() != null) {
             for (PerunNotifRegex regex : template.getMatchingRegexs()) {
@@ -485,8 +483,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
                 list.add(template);
             }
         }
-        
-        return perunNotifTemplate;
     }
 
     @Override
@@ -583,17 +579,15 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
     }
 
     @Override
-    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
 
-        PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.savePerunNotifTemplateMessage(message);
+        perunNotifTemplateDao.savePerunNotifTemplateMessage(message);
 
         PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
         template.addPerunNotifTemplateMessage(message);
 
         StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
         insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
-        
-        return perunNotifTemplateMessage;
     }
 
     @Override

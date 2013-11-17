@@ -37,10 +37,11 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	savePerunNotifObject { 
 
 		@Override
-		public PerunNotifObject call(ApiCaller ac, Deserializer parms) throws PerunException {	
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {	
 			ac.stateChangingCheck();
 			
-			return ac.getNotificationManager().savePerunNotifObject(ac.getPerunNotifObjectById(parms.readInt("object")));
+			ac.getNotificationManager().savePerunNotifObject(ac.getPerunNotifObjectById(parms.readInt("object")));
+			return null;
 		}
 
 	},
@@ -95,9 +96,10 @@ public enum NotificationManagerMethod implements ManagerMethod {
         savePerunNotifReceiver { 
 
 		@Override
-		public PerunNotifReceiver call(ApiCaller ac, Deserializer parms) throws PerunException {	
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {	
 			ac.stateChangingCheck();
-			return ac.getNotificationManager().savePerunNotifReceiver(ac.getPerunNotifReceiverById(parms.readInt("receiver")));
+			ac.getNotificationManager().savePerunNotifReceiver(ac.getPerunNotifReceiverById(parms.readInt("receiver")));
+			return null;
 		}
 	},
         updatePerunNotifReceiver { 
@@ -140,10 +142,11 @@ public enum NotificationManagerMethod implements ManagerMethod {
         savePerunNotifRegex { 
 
 		@Override
-		public PerunNotifRegex call(ApiCaller ac, Deserializer parms) throws PerunException {	
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {	
 			ac.stateChangingCheck();
                             
-			return ac.getNotificationManager().savePerunNotifRegex(ac.getPerunNotifRegexById(parms.readInt("regex")));
+			ac.getNotificationManager().savePerunNotifRegex(ac.getPerunNotifRegexById(parms.readInt("regex")));
+			return null;
 		}
 	},
         updatePerunNotifRegex { 
@@ -201,10 +204,11 @@ public enum NotificationManagerMethod implements ManagerMethod {
         savePerunNotifTemplateMessage { 
 
 		@Override
-		public PerunNotifTemplateMessage call(ApiCaller ac, Deserializer parms) throws PerunException {	
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {	
 			ac.stateChangingCheck();
                             
-			return ac.getNotificationManager().savePerunNotifTemplateMessage(ac.getPerunNotifTemplateMessageById(parms.readInt("message")));
+			ac.getNotificationManager().savePerunNotifTemplateMessage(ac.getPerunNotifTemplateMessageById(parms.readInt("message")));
+			return null;
 		}
 	},
         updatePerunNotifTemplateMessage { 
@@ -247,10 +251,11 @@ public enum NotificationManagerMethod implements ManagerMethod {
         savePerunNotifTemplate { 
 
 		@Override
-		public PerunNotifTemplate call(ApiCaller ac, Deserializer parms) throws PerunException {	
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {	
 			ac.stateChangingCheck();
                             
-			return ac.getNotificationManager().savePerunNotifTemplate(ac.getPerunNotifTemplateById(parms.readInt("template")));
+			ac.getNotificationManager().savePerunNotifTemplate(ac.getPerunNotifTemplateById(parms.readInt("template")));
+			return null;
 		}
 	},
         updatePerunNotifTemplate { 

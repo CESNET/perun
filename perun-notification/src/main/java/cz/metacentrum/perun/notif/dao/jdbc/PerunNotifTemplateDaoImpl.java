@@ -45,13 +45,11 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
     }
 
     @Override
-    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) throws InternalErrorException {
+    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) throws InternalErrorException {
 
         int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
         this.getJdbcTemplate().update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)", newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(), templateMessages.getLocale().toString(), templateMessages.getSubject());
         templateMessages.setId(newPerunNotifTemplateMessageId);
-        
-        return templateMessages;
     }
 
     @Override
@@ -82,14 +80,12 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
     }
 
     @Override
-    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
 
         int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
 
         this.getJdbcTemplate().update("insert into pn_receiver (id, target, type_of_receiver, template_id) values (?, ?, ?, ?)", newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId());
         receiver.setId(newPerunNotifReceiverId);
-        
-        return receiver;
     }
 
     public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
@@ -123,14 +119,12 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
     }
 
     @Override
-    public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException {
+    public void savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException {
 
         int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
 
         this.getJdbcTemplate().update("insert into pn_template(id, primary_properties, notify_trigger, youngest_message_time, oldest_message_time, locale, sender) values (?, ?, ?, ?, ?, ?, ?)", newPerunNotifTemplateId, template.getSerializedPrimaryProperties(), template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(), template.getLocale(), template.getSender());
         template.setId(newPerunNotifTemplateId);
-        
-        return template;
     }
 
     @Override

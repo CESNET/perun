@@ -47,7 +47,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
     }
 
     @Override
-    public PerunNotifRegex saveInternals(PerunNotifRegex regex) throws InternalErrorException {
+    public void saveInternals(PerunNotifRegex regex) throws InternalErrorException {
 
         logger.debug("Saving regex internals to db: {}", regex);
         int newPerunNotifRegexId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_id_seq");
@@ -55,8 +55,6 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 
         regex.setId(newPerunNotifRegexId);
         logger.debug("Regex saved to db, id created: {}", regex);
-        
-        return regex;
     }
 
     @Override

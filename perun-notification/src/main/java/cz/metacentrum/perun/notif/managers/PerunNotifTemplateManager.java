@@ -73,9 +73,8 @@ public interface PerunNotifTemplateManager {
     /**
      * Save perunNotifReceiver
      * @param receiver
-     * @return
      */
-    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
 
     /**
      * Updates perunNotifReceiver
@@ -88,10 +87,9 @@ public interface PerunNotifTemplateManager {
     /**
      * Saves perunNotifTemplate to db. Receivers in template will be saved
      * @param template
-     * @return 
      * @throws InternalErrorException
      */
-    public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
+    public void savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
 
     /**
      *update template
@@ -117,10 +115,9 @@ public interface PerunNotifTemplateManager {
 
     /**
      * Save perunNotifTemplateMessage to db
-     * @return 
      * @param message
      */
-    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
 
     /**
      * Update perunNotifTemplateMessage in db

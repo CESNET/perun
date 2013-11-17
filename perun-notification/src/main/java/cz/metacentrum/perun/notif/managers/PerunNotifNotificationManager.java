@@ -33,10 +33,9 @@ public interface PerunNotifNotificationManager {
     /**
      * Saves PerunNotifObject to db and creates id
      * @param object
-     * @return
      * @throws InternalErrorException
      */
-    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
 
     /**
      * Updates perunNotifObject in db
@@ -77,10 +76,9 @@ public interface PerunNotifNotificationManager {
      * Saves PerunNotifReceiver to db and crates id
      *
      * @param receiver
-     * @return
      * @throws InternalErrorException
      */
-    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
 
     /**
      * Updates receiver in db
@@ -112,10 +110,9 @@ public interface PerunNotifNotificationManager {
     /**
      * Saves perunNotifRegex to db and creates id, also saves relation between regex and object
      * @param regex
-     * @return 
      * @throws InternalErrorException
      */
-    public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
+    public void savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
 
     /**
      * Updates PerunNotifRegex in db, also updates relation between regex and objects
@@ -157,10 +154,9 @@ public interface PerunNotifNotificationManager {
     /**
      * Saves perunNotifTemplateMessage to db and creates id
      * @param message
-     * @return 
      * @throws InternalErrorException
      */
-    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
 
     /**
      * Update perunNotifTemplateMessage in db.
@@ -192,10 +188,9 @@ public interface PerunNotifNotificationManager {
     /**
      * Saves PerunNotifTemplate to db and saves all relations to db
      * @param template
-     * @return 
      * @throws InternalErrorException
      */
-    public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
+    public void savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
 
     /**
      * Method will update perunNotifTemplate, also update relations, but not deletes them

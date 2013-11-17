@@ -38,9 +38,9 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
     }
 
     @Override
-    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
-        return perunNotifObjectManager.savePerunNotifObject(object);
+        perunNotifObjectManager.savePerunNotifObject(object);
     }
 
     @Override
@@ -61,9 +61,9 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
     }
 
     @Override
-    public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+    public void savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
 
-        return perunNotifTemplateManager.savePerunNotifReceiver(receiver);
+        perunNotifTemplateManager.savePerunNotifReceiver(receiver);
     }
 
     @Override
@@ -84,8 +84,8 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
     }
 
     @Override
-    public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
-        return perunNotifRegexManager.savePerunNotifRegex(regex);
+    public void savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+        perunNotifRegexManager.savePerunNotifRegex(regex);
     }
 
     @Override
@@ -106,9 +106,9 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
     }
 
     @Override
-    public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+    public void savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
 
-        return perunNotifTemplateManager.savePerunNotifTemplate(template);
+        perunNotifTemplateManager.savePerunNotifTemplate(template);
     }
 
     @Override
@@ -124,8 +124,8 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
     }
 
     @Override
-    public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
-        return perunNotifTemplateManager.savePerunNotifTemplateMessage(message);
+    public void savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+        perunNotifTemplateManager.savePerunNotifTemplateMessage(message);
     }
 
     @Override

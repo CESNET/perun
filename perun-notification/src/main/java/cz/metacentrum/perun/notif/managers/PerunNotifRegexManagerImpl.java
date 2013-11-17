@@ -88,9 +88,9 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
         return perunNotifRegexDao.getPerunNotifRegexById(id);
     }
 
-    public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+    public void savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
 
-        PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
+        perunNotifRegexDao.saveInternals(regex);
 
         for (PerunNotifObject object : regex.getObjects()) {
             if (object.getId() == null) {
@@ -101,8 +101,6 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
         }
 
         allRegex.add(regex);
-        
-        return perunNotifRegex;
     }
 
     public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
