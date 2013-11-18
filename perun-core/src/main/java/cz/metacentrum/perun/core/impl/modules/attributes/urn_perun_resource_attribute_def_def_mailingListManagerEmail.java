@@ -18,7 +18,7 @@ import java.util.ArrayList;
  *
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
-public class urn_perun_resources_attribute_def_def_mailingListManagerEmail {
+public class urn_perun_resource_attribute_def_def_mailingListManagerEmail {
     
     public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException{
         if (attribute.getValue() == null) {
