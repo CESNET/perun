@@ -45,7 +45,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 
         try {
             Attribute facilityShells = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
-            Attribute userPrefferedShells = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells"));
+            Attribute userPrefferedShells = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"));
             List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             Set<String> resourcesShells = new HashSet<String>();
             
@@ -53,23 +53,34 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
                 List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells").getValue();
                 if (resourcesShellsForTest != null) resourcesShells.addAll(resourcesShellsForTest);
             }
-            
+            System.out.println("preferred" + (List<String>)userPrefferedShells.getValue());
+            System.out.println("facility" + (List<String>)facilityShells.getValue());
+            System.out.println("resource" + (Set<String>)resourcesShells);
+            System.out.println("konec mockovaných objectů");
             if (userPrefferedShells.getValue() != null){
                 for (String pShell : (List<String>)userPrefferedShells.getValue()) {
+                    System.out.println((List<String>)userPrefferedShells.getValue());
+                    System.out.println(pShell);
                     if (resourcesShells.contains(pShell)) {
-                        Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedShells, attr);
+                        Utils.copyAttributeToViAttributeWithoutValue(userPrefferedShells, attr);
+                        attr.setValue(pShell);
+                        System.out.println((String)attr.getValue());
                         return attr;
                     }
                 }
             }
+            System.out.println("došel jsem přes preferred");
             if (facilityShells.getValue() != null){
                 for (String fShell : (List<String>)facilityShells.getValue()) {
                     if (resourcesShells.contains(fShell)) {
-                        Utils.copyAttributeToVirtualAttributeWithValue(facilityShells, attr);
+                        Utils.copyAttributeToViAttributeWithoutValue(facilityShells, attr);
+                        attr.setValue(fShell);
+                        System.out.println((String)attr.getValue());
                         return attr;
                     }
                 }
             }
+            System.out.println("prošel jsem ke konci");
 
         } catch (AttributeNotExistsException ex) {
             throw new InternalErrorException(ex);
