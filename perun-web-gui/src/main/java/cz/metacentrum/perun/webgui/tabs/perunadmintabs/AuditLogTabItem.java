@@ -9,10 +9,12 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.auditMessagesManager.GetAuditMessages;
 import cz.metacentrum.perun.webgui.model.AuditMessage;
 import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -24,7 +26,7 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-public class AuditLogTabItem implements TabItem, TabItemWithUrl{
+public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -68,9 +70,11 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl{
 		TabMenu menu = new TabMenu();
 		mainTab.add(menu);
 		mainTab.setCellHeight(menu, "30px");
-	
-		// retrieve messages
-		final GetAuditMessages call = new GetAuditMessages();
+
+        CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshAuditMessages());
+
+        // retrieve messages
+		final GetAuditMessages call = new GetAuditMessages(JsonCallbackEvents.disableButtonEvents(refreshButton));
 		call.setCount(count);
 		CellTable<AuditMessage> table = call.getTable();
 
@@ -82,8 +86,8 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl{
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(sp, 350, this);
 		
-		// refresh button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshAuditMessages(), new ClickHandler() {
+		// refresh button action
+		refreshButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (JsonUtils.checkParseInt(tb.getText())) {
                     call.clearTable();
@@ -94,23 +98,24 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl{
                     JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
                 }
             }
-        }));
-		
+        });
+        menu.addWidget(refreshButton);
+
 		// enter key = refresh on count text box
 		tb.addKeyPressHandler(new KeyPressHandler() {
-			public void onKeyPress(KeyPressEvent event) {
-				if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
-					if (JsonUtils.checkParseInt(tb.getText())) {
-						call.clearTable();
-						count = Integer.parseInt(tb.getText());
-						call.setCount(count);
-						call.retrieveData();
-					} else {
-						JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
-					}
-				}
-			}
-		});
+            public void onKeyPress(KeyPressEvent event) {
+                if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if (JsonUtils.checkParseInt(tb.getText())) {
+                        call.clearTable();
+                        count = Integer.parseInt(tb.getText());
+                        call.setCount(count);
+                        call.retrieveData();
+                    } else {
+                        JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
+                    }
+                }
+            }
+        });
 		
 		// add textbox into menu
 		menu.addWidget(new HTML("<strong>Number of messages: </strong>"));
@@ -163,7 +168,7 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl{
 	public void open()
 	{
         session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Auditlog", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Audit log", getUrlWithParameters());
 	}
 	
 	public boolean isAuthorized() {

@@ -310,8 +310,8 @@ public class SetNewAttributeTabItem implements TabItem {
         // add table to the page
         mainTab.add(sp);
 
-        saveButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(attrDef, table, saveButton);
+        //saveButton.setEnabled(false);
+        //JsonUtils.addTableManagedButton(attrDef, table, saveButton);
 
         this.contentWidget.setWidget(mainTab);
 
