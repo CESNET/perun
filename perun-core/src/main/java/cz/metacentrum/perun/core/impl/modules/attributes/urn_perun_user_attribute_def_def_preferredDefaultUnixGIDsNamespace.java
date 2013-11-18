@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -17,12 +13,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
- * @author Papperwing
+ * @author Jakub Peschel <410368@mail.muni.cz>
  */
 public class urn_perun_user_attribute_def_def_preferredDefaultUnixGIDsNamespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
     
