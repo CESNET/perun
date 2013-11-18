@@ -110,7 +110,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
         */
 
-        CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+        final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
                 session.getTabManager().reloadTab(tab);
             }
@@ -138,12 +138,15 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         final GetFacilityState callback = new GetFacilityState(0, 0, new JsonCallbackEvents(){
             public void onLoadingStart(){
                 im.loadingStart();
+                cb.setProcessing(true);
             }
             public void onError(PerunError error){
                 im.loadingError(error);
+                cb.setProcessing(false);
             }
             public void onFinished(JavaScriptObject jso) {
                 im.loadingFinished();
+                cb.setProcessing(false);
                 content.clear();
                 content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
                 ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);

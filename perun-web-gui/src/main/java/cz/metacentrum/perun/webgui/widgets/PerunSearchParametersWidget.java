@@ -81,8 +81,8 @@ public class PerunSearchParametersWidget extends Composite {
 			}
 		});
 		
-		ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
-		ftf.setColSpan(0, 0, 4);
+		//ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
+		//ftf.setColSpan(0, 0, 4);
 		
 		// prepare list of attr defs
 		GetAttributesDefinitionV2 req = new GetAttributesDefinitionV2(new JsonCallbackEvents(){
@@ -187,8 +187,8 @@ public class PerunSearchParametersWidget extends Composite {
 
         ft.clear();
 
-        ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
-        ft.getFlexCellFormatter().setColSpan(0, 0, 4);
+        //ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
+        //ft.getFlexCellFormatter().setColSpan(0, 0, 4);
 
         int row = 1;
         for(Map.Entry<ListBoxWithObjects<AttributeDefinition>, TextBox> entry : inputs.entrySet())

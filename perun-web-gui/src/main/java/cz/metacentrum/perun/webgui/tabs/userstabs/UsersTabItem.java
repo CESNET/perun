@@ -69,14 +69,26 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-		this.users = new FindCompleteRichUsers("", null);
+
+        CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+
+		this.users = new FindCompleteRichUsers("", JsonCallbackEvents.disableButtonEvents(searchButton),null);
 
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+        // HORIZONTAL MENU
+        TabMenu tabMenu = new TabMenu();
+
+        // search textbox
+        TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                startSearching(text);
+                searchString = text;
+            }
+        }, searchButton);
 
 		// get the table
 		final CellTable<User> table = users.getTable(new FieldUpdater<User, String>() {
@@ -86,14 +98,6 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-		// search textbox
-		TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                startSearching(text);
-                searchString = text;
-            }
-        }, ButtonTranslation.INSTANCE.searchUsers());
 
 		// if some text has been searched before
 		if(!searchString.equals(""))
@@ -125,20 +129,24 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 		b1.setTitle("List of all users in Perun");
         */
 
-		CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(), ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon(), new ClickHandler(){
+		final CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(), ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon());
+        withoutVoButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				GetCompleteRichUsers callback = new GetCompleteRichUsers(null, new JsonCallbackEvents(){
 					public void onLoadingStart() {
                         users.clearTable();
 						table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
+                        withoutVoButton.setProcessing(true);
 					}
 					public void onFinished(JavaScriptObject jso) {
                         users.setList(JsonUtils.<User>jsoAsList(jso));
                         users.sortTable();
                         table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+                        withoutVoButton.setProcessing(false);
 					}
                     public void onError(PerunError error){
                         table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
+                        withoutVoButton.setProcessing(false);
                     }
 				});
                 callback.getWithoutVo(true);
