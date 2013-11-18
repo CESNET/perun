@@ -59,6 +59,8 @@ public class MailManagerImpl implements MailManager {
     private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
     private static final String URN_GROUP_TO_EMAIL = "urn:perun:group:attribute-def:def:toEmail";
     private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
+    private static final String URN_VO_LANGUAGE_EMAIL = "urn:perun:vo:attribute-def:def:notificationsDefLang";
+    private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -367,13 +369,42 @@ public class MailManagerImpl implements MailManager {
                 // set FROM
                 setFromMailAddress(message, app);
 
+                // set language independent on user's preferred language.
+                lang = new Locale("en");
+                try {
+                    if (app.getGroup() == null) {
+                        // VO
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    } else {
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("Error when resolving notification default language: {}", ex);
+                }
+
+                MailText mt2 = mail.getMessage(lang);
+                String mailText2 = "";
+                String mailSubject2 = "";
+                if (mt2.getText() != null && !mt2.getText().isEmpty()) {
+                    mailText2 = mt2.getText();
+                }
+                if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
+                    mailSubject2 = mt2.getSubject();
+                }
+
 				// substitute common strings
-				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+				mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
+				mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
 				
 				// set subject and text
-				message.setSubject(mailSubject);
-				message.setText(mailText);
+				message.setSubject(mailSubject2);
+				message.setText(mailText2);
 
 				// send message to all VO or Group admins
 				List<String> toEmail = getToMailAddresses(app);

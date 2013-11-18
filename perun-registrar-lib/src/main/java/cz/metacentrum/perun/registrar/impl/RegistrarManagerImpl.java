@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
     private static final String FRIENDLY_NAME_GROUP_FROM_EMAIL = "fromEmail";
     private static final String NAMESPACE_GROUP_FROM_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
     private static final String URN_GROUP_FROM_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
+
+    private static final String DISPLAY_NAME_VO_LANGUAGE_EMAIL = "Notification default language";
+    private static final String FRIENDLY_NAME_VO_LANGUAGE_EMAIL = "notificationsDefLang";
+    private static final String NAMESPACE_VO_LANGUAGE_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
+    private static final String URN_VO_LANGUAGE_EMAIL = NAMESPACE_VO_LANGUAGE_EMAIL  + ":" + FRIENDLY_NAME_VO_LANGUAGE_EMAIL;
+
+    private static final String DISPLAY_NAME_GROUP_LANGUAGE_EMAIL = "Notification default language";
+    private static final String FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL = "notificationsDefLang";
+    private static final String NAMESPACE_GROUP_LANGUAGE_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
+    private static final String URN_GROUP_LANGUAGE_EMAIL = NAMESPACE_GROUP_LANGUAGE_EMAIL + ":" +  FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL;
 
     private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
@@ -224,6 +235,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
             attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_FROM_EMAIL);
             attrDef.setNamespace(NAMESPACE_GROUP_FROM_EMAIL);
             attrDef.setDescription("Email address used as \"from\" in mail notifications.");
+            attrDef.setType(String.class.getName());
+            attrManager.createAttribute(registrarSession, attrDef);
+        }
+        try {
+            attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
+        } catch (AttributeNotExistsException ex) {
+            // create attr if not exists
+            AttributeDefinition attrDef = new AttributeDefinition();
+            attrDef.setDisplayName(DISPLAY_NAME_VO_LANGUAGE_EMAIL);
+            attrDef.setFriendlyName(FRIENDLY_NAME_VO_LANGUAGE_EMAIL);
+            attrDef.setNamespace(NAMESPACE_VO_LANGUAGE_EMAIL);
+            attrDef.setDescription("Default language used for application notifications to VO administrators.");
+            attrDef.setType(String.class.getName());
+            attrManager.createAttribute(registrarSession, attrDef);
+        }
+        try {
+            attrManager.getAttributeDefinition(registrarSession, URN_GROUP_LANGUAGE_EMAIL);
+        } catch (AttributeNotExistsException ex) {
+            // create attr if not exists
+            AttributeDefinition attrDef = new AttributeDefinition();
+            attrDef.setDisplayName(DISPLAY_NAME_GROUP_LANGUAGE_EMAIL);
+            attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL);
+            attrDef.setNamespace(NAMESPACE_GROUP_LANGUAGE_EMAIL);
+            attrDef.setDescription("Default language used for application notifications to Group administrators.");
             attrDef.setType(String.class.getName());
             attrManager.createAttribute(registrarSession, attrDef);
         }
@@ -882,9 +917,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
             app = registrarManager.approveApplicationInternal(sess, appId);
         } catch (AlreadyMemberException ex) {
             // case when user joined identity after sending initial application and former user was already member of VO
-            throw new AlreadyMemberException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+            throw new RegistrarException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
         } catch (MemberNotExistsException ex) {
-            throw new MemberNotExistsException("To approve application user must already be member of VO.", ex);
+            throw new RegistrarException("To approve application user must already be member of VO.", ex);
         }
 
         Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
