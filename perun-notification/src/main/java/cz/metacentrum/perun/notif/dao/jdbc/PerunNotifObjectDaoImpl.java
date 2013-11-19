@@ -27,7 +27,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
     private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectDao.class);
 
     @Override
-    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
         logger.debug("Saving PerunNotifObject: {} to db.", object);
         int newPerunNotifObjectId = Utils.getNewId(this.getJdbcTemplate(), "pn_object_id_seq");
@@ -35,6 +35,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 
         object.setId(newPerunNotifObjectId);
         logger.debug("PerunNotifObject saved to db. Object: {}", object);
+        return object;
     }
 
     @Override

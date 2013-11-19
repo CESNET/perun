@@ -22,9 +22,9 @@ public interface PerunNotifObjectManager {
     /**
      * Saves paerunNotifObject
      * @param object
-     * @return
+     * @return perunNotifObject with new id set
      */
-    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
 
     /**
      * Method returns perunNotifObject by id

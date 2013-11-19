@@ -17,9 +17,10 @@ public interface PerunNotifObjectDao {
     /**
      * Saves object to db and creates unique id which sets to object
      * @param object
+     * @return perunNotifObject with new id set
      * @throws InternalErrorException
      */
-    public void savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+    public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
 
     /**
      * Update object in db and returns newly loaded Object from db
