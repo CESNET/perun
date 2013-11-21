@@ -20,9 +20,10 @@ public interface PerunNotifRegexDao {
 	/**
 	 * Saves regex to db and creates new id using sequence, saves only basic attributes, not collections
 	 * @param regex
+         * @return perunNotifRegex with new id set
 	 * @throws InternalErrorException
 	 */
-	public void saveInternals(PerunNotifRegex regex) throws InternalErrorException;
+	public PerunNotifRegex saveInternals(PerunNotifRegex regex) throws InternalErrorException;
 
     /**
      * Gets perunNotifRegex by id, entity also contains related PerunNotifObject

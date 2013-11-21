@@ -28,9 +28,10 @@ public interface PerunNotifRegexManager {
     /**
      * Save perunNotifRegex to db, saves only regex and relations to object, not objects if they dont exists
      * @param regex
+     * @return perunNotifRegex with new id set
      * @throws InternalErrorException
      */
-    public void savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
+    public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
 
     /**
      * Updates perunNotifRegex and relations between objects and regex, not objects themselves
