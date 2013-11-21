@@ -1,2 +1,2 @@
 # see man gitattributes
-*.java ident
+#*.java ident
