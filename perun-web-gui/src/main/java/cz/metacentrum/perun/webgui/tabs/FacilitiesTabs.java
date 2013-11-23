@@ -9,7 +9,7 @@ import java.util.Map;
  * Pages, which are in facility admin part of menu
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 3e399fce015f85ec33b7c1fe7e57eb0e0567b171 $
  */
 public class FacilitiesTabs {
 
@@ -107,6 +107,11 @@ public class FacilitiesTabs {
 
         if (tab.equals(DestinationResultsTabItem.URL)) {
             session.getTabManager().addTab(DestinationResultsTabItem.load(parameters), open);
+            return true;
+        }
+
+        if (tab.equals(CreateFacilityTabItem.URL)) {
+            session.getTabManager().addTab(CreateFacilityTabItem.load(parameters), open);
             return true;
         }
 		

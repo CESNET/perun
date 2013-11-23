@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * Contains some of the prepared columns
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: a0e8489e10c074eae0d9a8f9f57426109fed0e98 $
  */
 public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 {

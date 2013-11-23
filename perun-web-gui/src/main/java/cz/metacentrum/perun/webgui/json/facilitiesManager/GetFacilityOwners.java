@@ -24,7 +24,7 @@ import java.util.Comparator;
  * Ajax query to get all facility owners
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 9a36d0278e8d44666dbc40ddacdde585d192a992 $
  */
 public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner> {
 
@@ -84,6 +84,8 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
 		
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
+
+        loaderImage.setEmptyResultMessage("Facility has no owners.");
 
 		// Sorting
 		ListHandler<Owner> columnSortHandler = new ListHandler<Owner>(dataProvider.getList());

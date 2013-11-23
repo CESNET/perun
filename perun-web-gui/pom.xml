@@ -193,6 +193,15 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Drag and Drop library
+        <dependency>
+            <groupId>com.googlecode.gwtquery.bundles</groupId>
+            <artifactId>gquery-dnd-bundle</artifactId>
+            <version>1.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+        -->
+
     </dependencies>
 
     <profiles>
@@ -252,5 +261,14 @@
         </profile>
 
     </profiles>
+
+    <!-- uncomment for drag and drop
+    <repositories>
+        <repository>
+            <id>plugins</id>
+            <url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
+        </repository>
+    </repositories>
+    -->
 
 </project>

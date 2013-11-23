@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Ajax query to get VO/GROUP/FACILITY admins
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 9a01144eeae23b02c6b0591020c774f8f70e6ded $
  */
 public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTable<User> {
 
@@ -161,6 +161,14 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 		
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            loaderImage.setEmptyResultMessage("VO has no managers.");
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            loaderImage.setEmptyResultMessage("Group has no managers.");
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            loaderImage.setEmptyResultMessage("Facility has no managers.");
+        }
 
 		// Sorting
 		ListHandler<User> columnSortHandler = new ListHandler<User>(dataProvider.getList());

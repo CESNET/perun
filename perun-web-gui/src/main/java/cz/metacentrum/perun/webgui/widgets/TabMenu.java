@@ -20,7 +20,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * action buttons above tables
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 1bc44c081d1159259692e7e4f8bca2d8b3aa2e2f $
  */
 public class TabMenu extends Composite {
 
@@ -264,6 +264,7 @@ public class TabMenu extends Composite {
     public static CustomButton getPredefinedButton(ButtonType type, String title, ClickHandler clickAction) {
 
         CustomButton b = new CustomButton();
+
         // icon first
         b.setIcon(getButtonIconByType(type));
         // then text
@@ -276,6 +277,10 @@ public class TabMenu extends Composite {
 
         if (clickAction != null) {
             b.addClickHandler(clickAction);
+        }
+
+        if (ButtonType.CONTINUE.equals(type)) {
+            b.setImageAlign(true);
         }
 
         return b;

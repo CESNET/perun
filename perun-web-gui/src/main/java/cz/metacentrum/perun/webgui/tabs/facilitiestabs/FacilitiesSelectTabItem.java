@@ -30,7 +30,7 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 284f60eb4bbb4a0c9e69bae0e60abf2e6b596f1b $
  */
 public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 
@@ -78,13 +78,11 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 		});
 
         // add new facility button
-        if (session.isPerunAdmin()) {
-            tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new CreateFacilityTabItem());
-                }
-            }));
-        }
+        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTab(new CreateFacilityTabItem());
+            }
+        }));
 
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
 
@@ -93,6 +91,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
         if (session.isPerunAdmin()) {
             tabMenu.addWidget(deleteButton);
         }
+
         deleteButton.addClickHandler(new ClickHandler() {
             @Override
 			public void onClick(ClickEvent event) {

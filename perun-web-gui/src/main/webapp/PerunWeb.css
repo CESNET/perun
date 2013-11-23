@@ -646,6 +646,12 @@ html>body .gwt-DialogBox {
     padding-bottom:0px;
     vertical-align:middle;
 }
+.customButtonTextLeft {
+    padding-left:5px;
+    padding-right:10px;
+    padding-bottom:0px;
+    vertical-align:middle;
+}
 .customButtonImage {
     vertical-align:middle;
     opacity: 1.0;
@@ -1007,4 +1013,24 @@ h3 {
 .centeredTable td, .centeredTable td * {
     vertical-align: middle;
     text-align: center;
+}
+
+.wizardFooter {
+    height: 50px;
+    width: 100%;
+    border-top: 1px solid #ccc;
+}
+
+#centered-wrapper-outer {
+    display: table; width: 100%; height: 100%; position:relative; text-align:center;
+}
+#centered-wrapper-inner {
+    display: table-cell; vertical-align:middle; position: absolute; top:50%; left:50%;
+}
+#centered-content {
+    position: relative; top:-50%; left:-50%; margin: auto;
+}
+
+.border-right {
+    border-right: 1px solid #ccc;
 }

@@ -163,6 +163,12 @@ input[type=text] {
   padding-bottom:0px;
   vertical-align:middle;
 }
+.customButtonTextLeft {
+    padding-left:5px;
+    padding-right:10px;
+    padding-bottom:0px;
+    vertical-align:middle;
+}
 .customButtonImage {
    vertical-align:middle;
    opacity: 1.0;

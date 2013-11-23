@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 07555b0435c8dd9899c882fa307417a3edffd6ad $
  */
 
 public class GetServices implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {
@@ -310,4 +310,9 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
     public void setOracle(MultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
+
+    public MultiSelectionModel<Service> getSelectionModel() {
+        return this.selectionModel;
+    }
+
 }
