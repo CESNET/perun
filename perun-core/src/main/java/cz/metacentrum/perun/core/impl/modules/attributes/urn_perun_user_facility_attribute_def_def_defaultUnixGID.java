@@ -38,7 +38,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
      */
     public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
         Integer gid = (Integer) attribute.getValue();
-        if(gid == null) throw new WrongAttributeValueException(attribute, user, facility, "Attribute value is null.");  
+        if(gid == null) return;
 
         Attribute namespaceAttribute;
         try {
@@ -96,34 +96,6 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 
     }
 
-    @Override
-    /**
-     * Fills the new GID for the user at the specified facility. Gets the first resource from facility (on which the user have acesss) which have filled attribute unixGID and fill with this value.
-     */
-    public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
-      Attribute attribute = new Attribute(attributeDefinition);
-
-      List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
-      try {
-        for(Resource resource : allowedResources) {
-          List<AttributeDefinition> resourceRequiredAttributesDefinitions = sess.getPerunBl().getAttributesManagerBl().getResourceRequiredAttributesDefinition(sess, resource);
-
-          //if this attribute is not required by the services on the resource, skip the resource
-          if(!resourceRequiredAttributesDefinitions.contains(new AttributeDefinition(attributeDefinition))) continue;
-
-          Attribute unixGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_VIRT + ":unixGID");
-          if(unixGidAttribute.getValue() != null) {
-            attribute.setValue(unixGidAttribute.getValue());
-            return attribute;
-          }
-        }
-      } catch(AttributeNotExistsException ex) {
-        throw new ConsistencyErrorException(ex);
-      }
-
-      return attribute;
-    }
-    
     @Override
     public List<String> getDependencies() {
       List<String> dependencies = new ArrayList<String>();
