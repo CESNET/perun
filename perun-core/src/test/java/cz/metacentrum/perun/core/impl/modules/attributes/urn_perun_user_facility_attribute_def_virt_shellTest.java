@@ -29,7 +29,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
     private static urn_perun_user_facility_attribute_def_virt_shell classInstance;
     private static PerunSessionImpl session;
     private static Attribute preffered;
-    private static Attribute def_def_shell;
+    private static Attribute defDefShell;
     private static Attribute facilityShell;
     private static List<String> resourceShell;
     private static List<String> listOfMntPts;
@@ -45,7 +45,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
         classInstance = new urn_perun_user_facility_attribute_def_virt_shell();
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         preffered = new Attribute();
-        def_def_shell = new Attribute();
+        defDefShell = new Attribute();
         facilityShell = new Attribute();
         resourceShell = new ArrayList();
         listOfMntPts = new ArrayList<String>();
@@ -76,7 +76,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
     public void getAttributeValueTest() throws Exception{
         System.out.println("urn_perun_user_facility_attribute_def_virt_shell.GetAttributeValue()");
         
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(def_def_shell);
+        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(defDefShell);
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells"))).thenReturn(facilityShell);
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"))).thenReturn(preffered);
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells")).getValue()).thenReturn(resourceShell);

@@ -63,7 +63,6 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
                     if (resourcesShells.contains(fShell)) {
                         Utils.copyAttributeToViAttributeWithoutValue(facilityShells, attr);
                         attr.setValue(fShell);
-                        System.out.println((String)attr.getValue());
                         return attr;
                     }
                 }
@@ -87,12 +86,12 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
     }
 
     public List<String> getStrongDependencies() {
-        List<String> StrongDependencies = new ArrayList<String>();
-        StrongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
-        StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
-        StrongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells");
-        StrongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
-        return StrongDependencies;
+        List<String> strongDependencies = new ArrayList<String>();
+        strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
+        strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
+        strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells");
+        strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
+        return strongDependencies;
     }
 
     public AttributeDefinition getAttributeDefinition() {

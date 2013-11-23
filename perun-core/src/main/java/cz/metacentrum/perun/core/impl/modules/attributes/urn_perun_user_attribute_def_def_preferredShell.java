@@ -13,8 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michal Šťava   <stava.michal@gmail.com>
@@ -26,15 +24,15 @@ public class urn_perun_user_attribute_def_def_preferredShell extends UserAttribu
     
     if (pshell != null){
         for(String shell : pshell){
-            if(shell != null){
-                if(shell.isEmpty()){
+           if(shell != null){
+               if(shell.isEmpty()){
                     throw new WrongAttributeValueException("shell cannot be empty");
                }else{
                     sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
-                }
+               }
            }else{
-                throw new WrongAttributeValueException("shell cannot be null");
-            }
+                throw new WrongAttributeValueException(attribute, user, "shell cannot be empty");
+           }
         }
     }
   }
