@@ -13,31 +13,37 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
+ * @author Jakub Peschel <410368@mail.muni.cz>
  */
-public class urn_perun_user_attribute_def_def_preferredShell extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_preferredShells extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-    String shell = (String) attribute.getValue();
+    List<String> pshell = (List<String>) attribute.getValue();
     
-    //Can be null, if not, need to check format
-    if(shell != null && !shell.isEmpty()) {
-        sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
+    if (pshell != null){
+        for(String shell : pshell){
+           if(shell != null){
+               if(shell.isEmpty()){
+                    throw new WrongAttributeValueException(attribute, user, "shell cannot be empty string");
+               }else{
+                    sess.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
+               }
+           }else{
+               throw new WrongAttributeValueException(attribute, user, "shell cannot be null");
+           }
+        }
     }
-     
   }
   
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-      attr.setFriendlyName("preferredShell");
-      attr.setType(String.class.getName());
-      attr.setDescription("User preferred shell, choosed automatic if it is allowed.");
+      attr.setFriendlyName("preferredShells");
+      attr.setType(List.class.getName());
+      attr.setDescription("User preferred shells, ordered by user's personal preferrences.");
       return attr;
   }
 }
+
