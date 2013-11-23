@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * Class with main method to get some special action or write version.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class Main {
 

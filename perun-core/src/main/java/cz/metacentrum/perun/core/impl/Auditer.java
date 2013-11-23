@@ -50,7 +50,6 @@ import net.jcip.annotations.GuardedBy;
  * When transaction ends, transaction manager must call method flush in this clas for the ending transaction.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class Auditer {
 
