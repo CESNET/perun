@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -86,6 +87,21 @@ public interface ModulesUtilsBl {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	Integer getCommonGIDOfResourcesWithSameNameInSameNamespace(PerunSessionImpl sess, List<Resource> resourcesWithSameGroupNameInSameNamespace, String nameOfAttribute, Integer commonGID) throws InternalErrorException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if list of gids in arguments is free in the namespace
+	 *
+	 * @param sess
+	 * @param attribute list of unixGIDs-namespace attribute with value
+	 * @param user handler of atribute
+	 *
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 */
+	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * If there are commong GID in the list of groups, get it.
