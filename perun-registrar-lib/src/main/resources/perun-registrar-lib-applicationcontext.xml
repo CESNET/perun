@@ -40,6 +40,16 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     </bean>
 
     <!-- Properties Bean -->
-    <util:properties id="registrarProperties" location="file:${perun.conf}/perun-registrar-lib.properties" />
+    <bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>file:${perun.conf}/perun-registrar-lib.properties</value>
+                <value>file:${perun.conf.custom}/perun-registrar-lib.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
+        </property>
+    </bean>
 
 </beans>

@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
@@ -63,8 +62,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
-    @Resource( name = "registrarProperties" )
-    private Properties registrarProperties;
+    @Autowired private Properties registrarProperties;
 	private PerunSession registrarSession;
 	private SimpleJdbcTemplate jdbc;
 	private MailSender mailSender;
@@ -113,8 +111,8 @@ public class MailManagerImpl implements MailManager {
 				throw new PrivilegeException(sess, "addMail");				
 			}
 		}
-		
-	    int id = Utils.getNewId(jdbc, "APPLICATION_MAILS_ID_SEQ");
+
+        int id = Utils.getNewId(jdbc, "APPLICATION_MAILS_ID_SEQ");
 		mail.setId(id);
 		
 		jdbc.update("insert into application_mails(id, form_id, app_type, mail_type, send) values (?,?,?,?,?)",

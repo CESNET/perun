@@ -59,7 +59,11 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="locations">
             <list>
                 <value>file:${perun.conf}/perun-cabinet.properties</value>
+                <value>file:${perun.conf.custom}/perun-cabinet.properties</value>
             </list>
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
         </property>
     </bean>
 

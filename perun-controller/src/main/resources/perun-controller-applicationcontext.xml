@@ -12,18 +12,18 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
     <!-- Perun Tasks Lib -->
     <import resource="classpath:perun-tasks-lib-applicationcontext.xml"/>
-    
+
     <import resource="classpath:perun-datasources.xml"/>
-    
+
     <import resource="classpath:perun-transaction-manager.xml"/>
-    
+
     <!-- Enable @Transactional support -->
-     <tx:annotation-driven transaction-manager="springTransactionManager"/>
-     
+    <tx:annotation-driven transaction-manager="springTransactionManager"/>
+
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
-    
+
     <!-- Scans for @Repository, @Service and @Component -->
     <context:component-scan base-package="cz.metacentrum.perun.controller"/>
-      
+
 </beans>

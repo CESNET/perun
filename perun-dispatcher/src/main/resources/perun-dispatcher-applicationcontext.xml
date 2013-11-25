@@ -12,7 +12,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
 ">
-    <context:property-placeholder location="${perun.jdbc}"/>
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="${perun.jdbc}, file:${perun.conf.custom}/jdbc.properties"/>
 
     <!-- Enable @Transactional support -->
     <tx:annotation-driven/>
@@ -51,7 +51,11 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="locations">
         	<list>
 	            <value>file:${perun.conf}/perun-dispatcher.properties</value>
+                <value>file:${perun.conf.custom}/perun-dispatcher.properties</value>
             </list>
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
         </property>
     </bean>
     
