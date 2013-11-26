@@ -78,16 +78,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   private boolean running = false;
   
   //All parsable and useable objects
-  Resource resource = null;
-  Member member = null;
-  Group group = null;
-  Group parentGroup = null;
-  Vo vo = null;
-  User user = null;
-  User serviceUser = null;
-  cz.metacentrum.perun.core.api.Attribute attribute = null;
-  AttributeDefinition attributeDef = null;
-  UserExtSource userExtSource = null;
+  Resource resource;
+  Member member;
+  Group group;
+  Group parentGroup;
+  Vo vo;
+  User user;
+  User serviceUser;
+  cz.metacentrum.perun.core.api.Attribute attribute;
+  AttributeDefinition attributeDef;
+  UserExtSource userExtSource;
   
   //PATTERNS (used for searching in messages)
   //Common patterns
@@ -263,7 +263,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     }   
     
     //Fill perunBeans
-    fillPerunBeans(listOfBeans);
+    emptyAndFillPerunBeans(listOfBeans);
     
     //Log debug data for looking in messages
     log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + this.member + '/' + this.group + '/' + this.parentGroup + '/' + this.vo + '/' 
@@ -1004,8 +1004,22 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * 
    * @throws InternalErrorException If there is some inconsistence in number of one type's objects.
    */
-  private void fillPerunBeans(List<PerunBean> listOfBeans) throws InternalErrorException {
+  private void emptyAndFillPerunBeans(List<PerunBean> listOfBeans) throws InternalErrorException {    
+    //First null all usefull objects
+    resource = null;
+    member = null;
+    group = null;
+    parentGroup = null;
+    vo = null;
+    user = null;
+    serviceUser = null;
+    attribute = null;
+    attributeDef = null;
+    userExtSource = null;
+    
+    //If there is no usefull object, exit method
     if(listOfBeans == null) return;
+
     for(PerunBean perunBean: listOfBeans) {
         if(perunBean instanceof Group) {
             if(this.group == null) this.group = (Group) perunBean;
