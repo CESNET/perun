@@ -77,6 +77,18 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
   private boolean running = false;
   
+  //All parsable and useable objects
+  Resource resource = null;
+  Member member = null;
+  Group group = null;
+  Group parentGroup = null;
+  Vo vo = null;
+  User user = null;
+  User serviceUser = null;
+  cz.metacentrum.perun.core.api.Attribute attribute = null;
+  AttributeDefinition attributeDef = null;
+  UserExtSource userExtSource = null;
+  
   //PATTERNS (used for searching in messages)
   //Common patterns
   private Pattern deletedPattern = Pattern.compile(" deleted.$");
@@ -249,28 +261,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             else log.debug("There is unknow object which is null");
         }
     }   
-
-    //Create all needed objects for parsing
-    Resource resource = null;
-    Member member = null;
-    Group group = null;
-    Group parentGroup = null;
-    Vo vo = null;
-    User user = null;
-    User serviceUser = null;
-    cz.metacentrum.perun.core.api.Attribute attribute = null;
-    AttributeDefinition attributeDef = null;
-    UserExtSource userExtSource = null;
     
     //Fill perunBeans
-    fillPerunBeans(listOfBeans, group, parentGroup, vo, resource, member, user, serviceUser, attributeDef, attribute, userExtSource);
+    fillPerunBeans(listOfBeans);
     
     //Log debug data for looking in messages
-    log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + member + '/' + group + '/' + parentGroup + '/' + vo + '/' 
-            + resource + '/' + user + '/' + attribute + '/' + attributeDef + '/' + userExtSource);
+    log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + this.member + '/' + this.group + '/' + this.parentGroup + '/' + this.vo + '/' 
+            + this.resource + '/' + this.user + '/' + this.attribute + '/' + this.attributeDef + '/' + this.userExtSource);
     
     //If service user is the only one user in message, so behavior will be same for him like for any other user!
-    if(serviceUser != null && user == null) user = serviceUser;
+    if(this.serviceUser != null && this.user == null) this.user = this.serviceUser;
     
     //------------------------------------------------------------------
     //-----------------OPERATIONS ON FILLED OBJECTS---------------------
@@ -278,13 +278,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     //Choose first possible solution for existing objects. 
     
     // 1) IF GROUP AND MEMBER WERE FOUND, TRY TO WORK WITH GROUP-MEMBER SPECIFIC OPERATIONS
-    if(group != null && member != null) {
+    if(this.group != null && this.member != null) {
         // 1.1) ONLY FOR VALID MEMBER WE ADD HIM TO THE GROUP IN LDAP
-        if(member.getStatus().equals(Status.VALID)) {
+        if(this.member.getStatus().equals(Status.VALID)) {
             Matcher addedTo = addedToPattern.matcher(msg);
             
             if(addedTo.find()) {
-                if(!ldapConnector.isAlreadyMember(member, group)) ldapConnector.addMemberToGroup(member, group);
+                if(!ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.addMemberToGroup(this.member, this.group);
             }
         }
         // 1.2) MEMBER WILL BE REMOVED FROM GROUP
@@ -292,56 +292,56 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         Matcher totallyRemovedFrom = totallyRemovedFromPatter.matcher(msg);
         
         if(totallyRemovedFrom.find()) {
-            if(ldapConnector.isAlreadyMember(member, group)) ldapConnector.removeMemberFromGroup(member, group);
+            if(ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.removeMemberFromGroup(this.member, this.group);
         } 
         
     // 2) IF 2 GROUPS WERE FOUND, TRY TO WORK WITH PARENTGROUP-SUBGROUP SPECIFIC OPERATIONS
-    } else if(group != null && parentGroup != null) {
+    } else if(this.group != null && this.parentGroup != null) {
         Matcher newSubGroup = subGroupPattern.matcher(msg);
         
         // 2.1) ADD GROUP AS SUBGROUP TO PARENTGROUP
         if(newSubGroup.find()) {
-            ldapConnector.addGroupAsSubGroup(group, parentGroup);
+            ldapConnector.addGroupAsSubGroup(this.group, this.parentGroup);
         }
         
     // 3) IF GROUP AND RESOURCE WERE FOUND, TRY TO WORK WITH GROUP-RESOURCE SPECIFIC OPERATIONS    
-    } else if(group != null && resource != null) {
+    } else if(this.group != null && this.resource != null) {
         Matcher assigned = assignGroupToResource.matcher(msg);
         Matcher removed = removeGroupFromResource.matcher(msg);
         
         // 3.1) ADD NEW RESOURCE FOR GROUP IN LDAP
         if(assigned.find()) {
-            updateGroupAttribute("assignedToResourceId", String.valueOf(resource.getId()), DirContext.ADD_ATTRIBUTE, group);
+            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.ADD_ATTRIBUTE, this.group);
         // 3.2) REMOVE RESOURCE FROM GROUP IN LDAP
         } else if(removed.find()) {
-            updateGroupAttribute("assignedToResourceId", String.valueOf(resource.getId()), DirContext.REMOVE_ATTRIBUTE, group);
+            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.REMOVE_ATTRIBUTE, this.group);
         }
     
     // 4) IF ONLY GROUP WERE FOUND, TRY TO WORK WITH GROUP SPECIFIC OPERATIONS
-    } else if(group != null) {
+    } else if(this.group != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher newGroup = newGroupPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         
         // 4.1) GROUP WILL BE DELTED
         if(deleted.find()){
-            ldapConnector.removeGroup(group);
+            ldapConnector.removeGroup(this.group);
         // 4.2) GROUP WILL BE CREATED
         } else if(newGroup.find()) {
-            ldapConnector.addGroup(group);
+            ldapConnector.addGroup(this.group);
         // 4.3) GROUP WILL BE UPDATED
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-            replaceList.add(new Pair("cn",group.getName()));
-            replaceList.add(new Pair("perunUniqueGroupName", ldapConnector.getVoShortName(group.getVoId()) + ":" + group.getName()));
-            if(group.getDescription() != null) replaceList.add(new Pair("description", group.getDescription()));
+            replaceList.add(new Pair("cn",this.group.getName()));
+            replaceList.add(new Pair("perunUniqueGroupName", ldapConnector.getVoShortName(this.group.getVoId()) + ":" + this.group.getName()));
+            if(this.group.getDescription() != null) replaceList.add(new Pair("description", this.group.getDescription()));
             attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
-            updateGroupAttributes(attributes, group);
+            updateGroupAttributes(attributes, this.group);
         }
         
     // 5) IF MEMBER WAS FOUND, TRY TO WORK WITH MEMBER SPECIFIC OPERATIONS (! RPC CALLING used there !)
-    } else if(member != null) {
+    } else if(this.member != null) {
         Matcher validated = validatedPattern.matcher(msg);
         Matcher otherStateOfMember = otherStateOfMemberPattern.matcher(msg);
         
@@ -349,7 +349,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         if(validated.find()) {
             List<Group> memberGroups = new ArrayList<Group>();
             try {
-                memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), member);
+                memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), this.member);
             } catch (MemberNotExistsException e) {
                 //IMPORTATNT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted
             } catch (PrivilegeException e) {
@@ -358,13 +358,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 throw e;
             }
             for(Group g: memberGroups) {
-                if(!ldapConnector.isAlreadyMember(member, g)) ldapConnector.addMemberToGroup(member, g);
+                if(!ldapConnector.isAlreadyMember(this.member, g)) ldapConnector.addMemberToGroup(this.member, g);
             }
         // 5.2) MEMBER STATE WAS CHANGED TO OTHER STATE THAN VALIDATE
         } else if(otherStateOfMember.find()) {
             List<Group> memberGroups = new ArrayList<Group>();
             try {
-                memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), member);
+                memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), this.member);
             } catch (MemberNotExistsException e) {
                 //IMPORTATNT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted
             } catch (PrivilegeException e) {
@@ -373,128 +373,128 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 throw e;
             }
             for(Group g: memberGroups) {
-                if(ldapConnector.isAlreadyMember(member, g)) ldapConnector.removeMemberFromGroup(member, g);
+                if(ldapConnector.isAlreadyMember(this.member, g)) ldapConnector.removeMemberFromGroup(this.member, g);
             }
         }
         
     // 6) IF VO WAS FOUND, TRY TO WORK WITH VO SPECIFIC OPERATIONS
-    } else if(vo != null) {
+    } else if(this.vo != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher created = createdPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         
         // 6.1) VO WILL BE DELETED
         if(deleted.find()) {
-            ldapConnector.deleteVo(vo);
+            ldapConnector.deleteVo(this.vo);
         // 6.2) VO WILL BE CREATED
         } else if(created.find()) {
-            ldapConnector.createVo(vo);
+            ldapConnector.createVo(this.vo);
         // 6.3) VO WILL BE UPDATED
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-            replaceList.add(new Pair("description",vo.getName()));
+            replaceList.add(new Pair("description",this.vo.getName()));
             attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
-            updateVoAttributes(attributes, vo);
+            updateVoAttributes(attributes, this.vo);
         }
         
     // 7) IF USER AND USEREXTSOURCE WERE FOUND, TRY TO WORK WITH USER-USEREXTSOURCE SPECIFIC OPERATIONS (LIKE SET EXT LOGINS FOR IDP EXTSOURCES)
-    } else if(user != null && userExtSource != null) {
+    } else if(this.user != null && this.userExtSource != null) {
         Matcher addExtSource = addUserExtSource.matcher(msg);
         Matcher removeExtSource = removeUserExtSource.matcher(msg);
         
         // 7.1) ADD ATTRIBUTE WITH IDP EXTSOURCE
         if(addExtSource.find()) {
-            if(userExtSource.getExtSource() != null && userExtSource.getExtSource().getType() != null) {
+            if(this.userExtSource.getExtSource() != null && this.userExtSource.getExtSource().getType() != null) {
                 String extLogin;
-                if(userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
-                    extLogin = userExtSource.getLogin();
+                if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+                    extLogin = this.userExtSource.getLogin();
                     if(extLogin == null) extLogin = "";
                     updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.ADD_ATTRIBUTE, user);
                 }
             }
         // 7.2) REMOVE ATTRIBUTE WITH IDP EXTSOURCE
         } else if(removeExtSource.find()) {
-            if(userExtSource.getExtSource() != null && userExtSource.getExtSource().getType() != null) {
+            if(this.userExtSource.getExtSource() != null && this.userExtSource.getExtSource().getType() != null) {
                 String extLogin;
-                if(userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
-                    extLogin = userExtSource.getLogin();
+                if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+                    extLogin = this.userExtSource.getLogin();
                     if(extLogin == null) extLogin = "";
-                    updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.REMOVE_ATTRIBUTE, user);
+                    updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
             }
         }
         
     // 8) IF USER AND ATTRIBUTE WERE FOUND, TRY TO WORK WITH USER-ATTR SPECIFIC OPERATIONS (LIKE SET USER ATTRIBUTES)
-    } else if(user != null && attribute != null) {
+    } else if(this.user != null && this.attribute != null) {
         Matcher set = setPattern.matcher(msg);
         
         // 8.1) SOME USER ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
         if(set.find()) {
-            Matcher uidMatcher = userUidNamespace.matcher(attribute.getName());
-            Matcher loginMatcher = userLoginNamespace.matcher(attribute.getName());
+            Matcher uidMatcher = userUidNamespace.matcher(this.attribute.getName());
+            Matcher loginMatcher = userLoginNamespace.matcher(this.attribute.getName());
             //USER PREFERREDMAIL WILL BE SET
-            if(attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
+            if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
                 //this mean change of attribute preferredMail in User
-                if(attribute.getValue() != null) {
-                    updateUserAttribute("preferredMail", (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);
-                    updateUserAttribute("mail", (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);                    
+                if(this.attribute.getValue() != null) {
+                    updateUserAttribute("preferredMail", (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);
+                    updateUserAttribute("mail", (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);                    
                 } else {
-                    if(ldapConnector.userAttributeExist(user, "preferredMail")) {
-                        updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
+                        updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
-                    if(ldapConnector.userAttributeExist(user, "mail")) {
-                        updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "mail")) {
+                        updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
                 }           
             //USER ORGANIZATION WILL BE SET
-            } else if(attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
-                if(attribute.getValue() != null) {
-                    updateUserAttribute("o", (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);
+            } else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
+                if(this.attribute.getValue() != null) {
+                    updateUserAttribute("o", (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, this.user);
                 } else {
-                    if(ldapConnector.userAttributeExist(user, "o")) {
-                        updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "o")) {
+                        updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
                 }
             //USER CERT DNS WILL BE SET (it is only attribute where for set is special method)
-            } else if(attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
+            } else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
                 Map<String, String> certDNsMap = new HashMap<String, String>();
-                if(attribute.getValue() != null) certDNsMap = (Map) attribute.getValue();
+                if(this.attribute.getValue() != null) certDNsMap = (Map) this.attribute.getValue();
                 else certDNsMap = null;
                 
                 if(certDNsMap == null || certDNsMap.isEmpty()) {
-                    if(ldapConnector.userAttributeExist(user, "userCertificateSubject")) {
-                        updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
+                        updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
                 } else {
-                    Set<String> certSubjects =((Map) attribute.getValue()).keySet();
+                    Set<String> certSubjects =((Map) this.attribute.getValue()).keySet();
                     String[] subjectsArray = Arrays.copyOf(certSubjects.toArray(), certSubjects.toArray().length, String[].class);
-                    ldapConnector.updateUsersCertSubjects(String.valueOf(user.getId()), subjectsArray);
+                    ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
                 }
             //USER UID NUMBER WILL BE SET
             } else if(uidMatcher.find()) {
-                if(attribute.getValue() != null) {
-                    updateUserAttribute("uidNumber;x-ns-" + attribute.getFriendlyNameParameter(), String.valueOf((Integer) attribute.getValue()), DirContext.REPLACE_ATTRIBUTE, user);
+                if(this.attribute.getValue() != null) {
+                    updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), DirContext.REPLACE_ATTRIBUTE, this.user);
                 } else {
-                    if(ldapConnector.userAttributeExist(user, "uidNumber;x-ns-" + attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("uidNumber;x-ns-" + attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter())) {
+                        updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
                 }
             //USER LOGIN WILL BE SET
             } else if(loginMatcher.find()) {
-                if(attribute.getValue() != null) {
-                    updateUserAttribute("login;x-ns-" + attribute.getFriendlyNameParameter(), (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);
+                if(this.attribute.getValue() != null) {
+                    updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, this.user);
                     //if login is from loginNamespace (eg. EINFRA) (new value), then userPassword must be set or modified
-                    if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("userPassword", "{SASL}" + attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), DirContext.REPLACE_ATTRIBUTE, user);
+                    if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
+                        updateUserAttribute("userPassword", "{SASL}" + this.attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), DirContext.REPLACE_ATTRIBUTE, this.user);
                     }
                 } else {
-                    if(ldapConnector.userAttributeExist(user, "login;x-ns-" + attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("login;x-ns-" + attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attribute.getFriendlyNameParameter())) {
+                        updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
                     }
-                    if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(attribute.getFriendlyNameParameter())) {
-                        if(ldapConnector.userAttributeExist(user, "userPassword")) {    
-                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, user);
+                    if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
+                        if(ldapConnector.userAttributeExist(this.user, "userPassword")) {    
+                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                         }
                     }
                 }
@@ -502,70 +502,69 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         }
         
     // 9) IF USER AND ATTRIBTUE DEFINITION WERE FOUND, TRY TO WORK WITH USER-ATTRDEF SPECIFIC OPERATIONS
-    } else if(user != null && attributeDef != null) {
+    } else if(this.user != null && attributeDef != null) {
         Matcher remove = removePattern.matcher(msg);
         // 9.1) REMOVE SPECIFIC USER ATTRIBUTE
-        if(remove.find() &&  ldapConnector.userExist(user)) {
-            Matcher uidMatcher = userUidNamespace.matcher(attributeDef.getName());
-            Matcher loginMatcher = userLoginNamespace.matcher(attributeDef.getName());
-            if(attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
-                if(ldapConnector.userAttributeExist(user, "preferredMail")) {
-                    updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, user);
+        if(remove.find() &&  ldapConnector.userExist(this.user)) {
+            Matcher uidMatcher = userUidNamespace.matcher(this.attributeDef.getName());
+            Matcher loginMatcher = userLoginNamespace.matcher(this.attributeDef.getName());
+            if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
+                if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
+                    updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
-                if(ldapConnector.userAttributeExist(user, "mail")) {
-                    updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, user);
-                    
+                if(ldapConnector.userAttributeExist(this.user, "mail")) {
+                    updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
                 //TODO: organization (user) will not exists
                 
-            } else if(attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
-                if(ldapConnector.userAttributeExist(user, "o")) {
-                    updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, user);
+            } else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
+                if(ldapConnector.userAttributeExist(this.user, "o")) {
+                    updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
-            } else if(attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
-                if(ldapConnector.userAttributeExist(user, "userCertificateSubject")) {
-                    updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, user);
+            } else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
+                if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
+                    updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
             } else if(uidMatcher.find()) {
-                if(ldapConnector.userAttributeExist(user, "uidNumber;x-ns-" + attributeDef.getFriendlyNameParameter())) {
-                    updateUserAttribute("uidNumber;x-ns-" + attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, user);
+                if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
+                    updateUserAttribute("uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
             } else if(loginMatcher.find()) {
-                if(ldapConnector.userAttributeExist(user, "login;x-ns-" + attributeDef.getFriendlyNameParameter())) {
-                    updateUserAttribute("login;x-ns-" + attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, user);
+                if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
+                    updateUserAttribute("login;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
                 }
-                if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(attributeDef.getFriendlyNameParameter())) {
-                        if(ldapConnector.userPasswordExists(user)) {    
-                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, user);
+                if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attributeDef.getFriendlyNameParameter())) {
+                        if(ldapConnector.userPasswordExists(this.user)) {    
+                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, this.user);
                         }
                 }
             }
         }
     // 10) IF ONLY USER WAS FOUND, TRY TO WORK WITH USER SPECIFIC OPERATIONS
-    } else if(user != null) {
+    } else if(this.user != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher created = createdPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         Matcher removedAllAttrs = allAttrsRemovedPattern.matcher(msg);
         // 10.1) DELETE USER
         if(deleted.find()) {
-            ldapConnector.deleteUser(user);
+            ldapConnector.deleteUser(this.user);
         // 10.2) CREATE USER
         } else if(created.find()) {                 
-            ldapConnector.createUser(user);
+            ldapConnector.createUser(this.user);
         // 10.3) UPDATE USER
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-            replaceList.add(new Pair("sn",user.getLastName()));
-            replaceList.add(new Pair("cn", user.getFirstName() + " " + user.getLastName()));
-            replaceList.add(new Pair("givenName", user.getFirstName()));
+            replaceList.add(new Pair("sn",this.user.getLastName()));
+            replaceList.add(new Pair("cn", this.user.getFirstName() + " " + this.user.getLastName()));
+            replaceList.add(new Pair("givenName", this.user.getFirstName()));
             attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
-            updateUserAttributes(attributes, user);
+            updateUserAttributes(attributes, this.user);
         // 10.4) REMOVE ALL USER ATTRIBUTES
         } else if(removedAllAttrs.find()) {
-            if(ldapConnector.userExist(user)) {
-                Attributes usersAttrs = ldapConnector.getAllUsersAttributes(user);
+            if(ldapConnector.userExist(this.user)) {
+                Attributes usersAttrs = ldapConnector.getAllUsersAttributes(this.user);
                 List<ModificationItem> listOfItems = new ArrayList<ModificationItem>();
                 if(usersAttrs != null) {
                     NamingEnumeration<? extends Attribute> attributesEnumeration;
@@ -586,7 +585,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 }
                 if(!listOfItems.isEmpty()) {
                     ModificationItem[] items = Arrays.copyOf(listOfItems.toArray(), listOfItems.toArray().length, ModificationItem[].class);
-                    ldapConnector.updateUser(user, items);
+                    ldapConnector.updateUser(this.user, items);
                 }
             }
         }
@@ -1005,38 +1004,38 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * 
    * @throws InternalErrorException If there is some inconsistence in number of one type's objects.
    */
-  private void fillPerunBeans(List<PerunBean> listOfBeans, Group group, Group parentGroup, Vo vo, Resource resource, Member member, User user, User serviceUser, AttributeDefinition attributeDef, cz.metacentrum.perun.core.api.Attribute attribute, UserExtSource userExtSource) throws InternalErrorException {
+  private void fillPerunBeans(List<PerunBean> listOfBeans) throws InternalErrorException {
     if(listOfBeans == null) return;
     for(PerunBean perunBean: listOfBeans) {
         if(perunBean instanceof Group) {
-            if(group == null) group = (Group) perunBean;
-            else parentGroup = (Group) perunBean;
+            if(this.group == null) this.group = (Group) perunBean;
+            else this.parentGroup = (Group) perunBean;
         } else if(perunBean instanceof Member) {
-            if(member == null) member = (Member) perunBean;
+            if(this.member == null) this.member = (Member) perunBean;
             else throw new InternalErrorException("More than one member come to method parseMessages!");
         } else if(perunBean instanceof Vo) {
-            if(vo == null) vo = (Vo) perunBean;
+            if(this.vo == null) this.vo = (Vo) perunBean;
             else throw new InternalErrorException("More than one vo come to method parserMessages!");
         } else if(perunBean instanceof User) {
             User u = (User) perunBean;
             if(u.isServiceUser()) {
-                if(serviceUser == null) serviceUser = u;
+                if(this.serviceUser == null) this.serviceUser = u;
                 else throw new InternalErrorException("More than one serviceUser come to method parseMessages!");
             } else {
-                if(user == null) user = u;
+                if(this.user == null) this.user = u;
                 else throw new InternalErrorException("More than one user come to method parseMessages!");
             }
         } else if(perunBean instanceof AttributeDefinition && perunBean instanceof cz.metacentrum.perun.core.api.Attribute) {
-            if(attribute == null) attribute = (cz.metacentrum.perun.core.api.Attribute) perunBean;
+            if(this.attribute == null) this.attribute = (cz.metacentrum.perun.core.api.Attribute) perunBean;
             else throw new InternalErrorException("More than one attribute come to method parseMessages!");
         } else if(perunBean instanceof AttributeDefinition ) {
-            if(attributeDef == null) attributeDef = (AttributeDefinition) perunBean;
+            if(this.attributeDef == null) this.attributeDef = (AttributeDefinition) perunBean;
             else throw new InternalErrorException("More than one attribute come to method parseMessages!");
         } else if(perunBean instanceof UserExtSource) {
-            if(userExtSource == null) userExtSource = (UserExtSource) perunBean;
+            if(this.userExtSource == null) this.userExtSource = (UserExtSource) perunBean;
             else throw new InternalErrorException("More than one userExtSource come to method parseMessages!");
         } else if(perunBean instanceof Resource) {
-            if(resource == null) resource = (Resource) perunBean;
+            if(this.resource == null) this.resource = (Resource) perunBean;
             else throw new InternalErrorException("More than one Resource come to method parseMessages!");
         }
     }    
