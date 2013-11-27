@@ -588,7 +588,64 @@ public class MailManagerImpl implements MailManager {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
 				
-			} else {
+			} else if (MailType.APP_ERROR_VO_ADMIN.equals(type)) {
+
+                SimpleMailMessage message = new SimpleMailMessage();
+
+                // set FROM
+                setFromMailAddress(message, app);
+
+                // set language independent on user's preferred language.
+                lang = new Locale("en");
+                try {
+                    if (app.getGroup() == null) {
+                        // VO
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    } else {
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("Error when resolving notification default language: {}", ex);
+                }
+
+                MailText mt2 = mail.getMessage(lang);
+                String mailText2 = "";
+                String mailSubject2 = "";
+                if (mt2.getText() != null && !mt2.getText().isEmpty()) {
+                    mailText2 = mt2.getText();
+                }
+                if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
+                    mailSubject2 = mt2.getSubject();
+                }
+
+                // substitute common strings
+                mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
+                mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
+
+                // set subject and text
+                message.setSubject(mailSubject2);
+                message.setText(mailText2);
+
+                // send message to all VO or Group admins
+                List<String> toEmail = getToMailAddresses(app);
+
+                for (String email : toEmail) {
+                    message.setTo(email);
+                    try {
+                        mailSender.send(message);
+                        log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {}", message.getTo());
+                    } catch (MailException ex) {
+                        log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
+                    }
+                }
+
+            } else {
 				log.error("[MAIL MANAGER] Sending mail type: {} is not supported.", type);
 			}
 

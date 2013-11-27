@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.registrar.impl;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASSWORD;
@@ -579,8 +578,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     @Override
-    @Transactional(rollbackFor = EmptyPasswordRuntimeException.class)
     public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+
+        // using this to init inner transaction
+        // all minor exceptions inside are catched, if not, it's ok to throw them
+        Application app = this.registrarManager.createApplicationInternall(session, application, data);
+
+        // try to verify (or even auto-approve) application
+        try {
+            tryToVerifyApplication(session, app);
+        } catch (Exception ex) {
+            log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
+            throw ex;
+        }
+
+        return data;
+
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = ApplicationNotCreatedException.class)
+    public Application createApplicationInternall(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
 
         // exceptions to send to vo admin with new app created email
         List<Exception> exceptions = new ArrayList<Exception>();
@@ -718,15 +737,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 module.createApplication(session, application, data);
             }
 
-            // 4) try to verify application
-            if (tryToVerifyApplication(session, application) == false) {
-                if (useMailManager == true) {
-                    getMailManager().sendMessage(application, MailType.MAIL_VALIDATION, null, null);
-                } else {
-                    log.error("[REGISTRAR] Unable to send MAIL_VALIDATION mail, because new way of sending is disabled");
-                }
-            }
-
         } catch (ApplicationNotCreatedException ex) {
             applicationNotCreated = true; // prevent action in finally block
             throw ex; // re-throw
@@ -745,11 +755,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
                     getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, exceptions);
                 }
-
                 // if there were exceptions, throw some to let know GUI about it
                 if (!exceptions.isEmpty()) {
-                    InternalErrorException ex = new InternalErrorException("Your application (ID="+ application.getId()+
-                            ") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to Perun administartos.");
+                    RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
+                            ") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to Perun administrators.");
                     log.error("New application {} created with errors {}. This is case of PerunException {}", new Object[] {application, exceptions, ex.getErrorId()});
                     throw ex;
                 }
@@ -760,7 +769,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         }
 
         // return stored data
-        return data;
+        return application;
 
     }
 
@@ -1136,6 +1145,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
                     // old login found in same namespace => unreserve new login from KDC
                     perun.getUsersManagerBl().deletePassword(registrarSession, pair.getRight(), pair.getLeft());
+                    log.debug("[REGISTRAR] Unreserving new login: "+pair.getRight()+" in namespace: "+pair.getLeft()+" since user already have login: "+a.getValue()+" in same namespace.");
                     found = true;
                     break;
                 }
@@ -1757,12 +1767,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
         for (String loa : loas) {
             if (!"1".equals(loa)) allValidated = false;
         }
+
         if (allValidated) {
             // mark VERIFIED
             markApplicationVerified(app.getId());
             // try to APPROVE if auto approve
             tryToAutoApproveApplication(sess, app);
+        } else {
+            // send request validation notification
+            if (useMailManager == true) {
+                getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+            } else {
+                log.error("[REGISTRAR] Unable to send MAIL_VALIDATION mail, because new way of sending is disabled.");
+            }
         }
+
         return allValidated;
 
     }
@@ -1806,9 +1825,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) return;
 
         String appState = jdbc.queryForObject("select state from application where id=?", String.class, app.getId());
-        if (AppState.VERIFIED.toString().equals(appState)) {
-            // with registrar session, since only VO admin can approve application
-            approveApplication(registrarSession, app.getId());
+
+        try {
+            if (AppState.VERIFIED.toString().equals(appState)) {
+                // with registrar session, since only VO admin can approve application
+                approveApplication(registrarSession, app.getId());
+            }
+        } catch (Exception ex) {
+
+            // switch between new and old mail manager
+            if (useMailManager==true) {
+                ArrayList<Exception> list = new ArrayList<Exception>();
+                list.add(ex);
+                getMailManager().sendMessage(app, MailType.APP_ERROR_VO_ADMIN, null, list);
+            } else {
+                log.error("[REGISTRAR] Unable to send APP_APPROVED_USER mail, because new way of sending is disabled");
+            }
+
+            throw ex;
         }
 
     }
