@@ -128,72 +128,72 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
-	@Autowired PerunBl perun;
-	@Autowired MailManager mailManager;
+    @Autowired PerunBl perun;
+    @Autowired MailManager mailManager;
     private RegistrarManager registrarManager;
-	private PerunSession registrarSession;
-	private SimpleJdbcTemplate jdbc;
-	private boolean useMailManager = false;  // for production compatibility, default is false
-	private AttributesManager attrManager;
-	private MembersManager membersManager;
-	private UsersManager usersManager;
-	private VosManager vosManager;
+    private PerunSession registrarSession;
+    private SimpleJdbcTemplate jdbc;
+    private boolean useMailManager = false;  // for production compatibility, default is false
+    private AttributesManager attrManager;
+    private MembersManager membersManager;
+    private UsersManager usersManager;
+    private VosManager vosManager;
 
-	// federation attribute name constants
-	private String shibDisplayNameVar = "displayName";
-	private String shibCommonNameVar = "cn";
-	private String shibFirstNameVar = "givenName";
-	private String shibLastNameVar = "sn";
-	private String shibLoAVar = "loa";
+    // federation attribute name constants
+    private String shibDisplayNameVar = "displayName";
+    private String shibCommonNameVar = "cn";
+    private String shibFirstNameVar = "givenName";
+    private String shibLastNameVar = "sn";
+    private String shibLoAVar = "loa";
 
-	public void setDataSource(DataSource dataSource) {
-		this.jdbc = new SimpleJdbcTemplate(dataSource);
-	}
+    public void setDataSource(DataSource dataSource) {
+        this.jdbc = new SimpleJdbcTemplate(dataSource);
+    }
 
     public void setRegistrarManager(RegistrarManager registrarManager) {
         this.registrarManager = registrarManager;
     }
 
-	public void setShibDisplayNameVar(String shibDisplayNameVar) {
-		this.shibDisplayNameVar = shibDisplayNameVar;
-	}
+    public void setShibDisplayNameVar(String shibDisplayNameVar) {
+        this.shibDisplayNameVar = shibDisplayNameVar;
+    }
 
-	public void setShibCommonNameVar(String shibCommonNameVar) {
-		this.shibCommonNameVar = shibCommonNameVar;
-	}
+    public void setShibCommonNameVar(String shibCommonNameVar) {
+        this.shibCommonNameVar = shibCommonNameVar;
+    }
 
-	public void setShibFirstNameVar(String shibFirstNameVar) {
-		this.shibFirstNameVar = shibFirstNameVar;
-	}
+    public void setShibFirstNameVar(String shibFirstNameVar) {
+        this.shibFirstNameVar = shibFirstNameVar;
+    }
 
-	public void setShibLastNameVar(String shibLastNameVar) {
-		this.shibLastNameVar = shibLastNameVar;
-	}
+    public void setShibLastNameVar(String shibLastNameVar) {
+        this.shibLastNameVar = shibLastNameVar;
+    }
 
-	public void setShibLoAVar(String shibLoAVar) {
-		this.shibLoAVar = shibLoAVar;
-	}
+    public void setShibLoAVar(String shibLoAVar) {
+        this.shibLoAVar = shibLoAVar;
+    }
 
-	protected void initialize() throws PerunException {
+    protected void initialize() throws PerunException {
 
-		// gets session for a system principal "perunRegistrar"
-		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
-				ExtSourcesManager.EXTSOURCE_INTERNAL,
-				ExtSourcesManager.EXTSOURCE_INTERNAL);
-		registrarSession = perun.getPerunSession(pp);
+        // gets session for a system principal "perunRegistrar"
+        final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
+                ExtSourcesManager.EXTSOURCE_INTERNAL,
+                ExtSourcesManager.EXTSOURCE_INTERNAL);
+        registrarSession = perun.getPerunSession(pp);
 
-		// set managers
-		this.attrManager = perun.getAttributesManager();
-		this.membersManager = perun.getMembersManager();
-		this.usersManager = perun.getUsersManager();
-		this.vosManager = perun.getVosManager();
+        // set managers
+        this.attrManager = perun.getAttributesManager();
+        this.membersManager = perun.getMembersManager();
+        this.usersManager = perun.getUsersManager();
+        this.vosManager = perun.getVosManager();
 
-		// check necessary attributes
-		try {
-			attrManager.getAttributeDefinition(registrarSession, URN_VO_FROM_EMAIL);
-		} catch (AttributeNotExistsException ex) {
-			// create attr if not exists
-			AttributeDefinition attrDef = new AttributeDefinition();
+        // check necessary attributes
+        try {
+            attrManager.getAttributeDefinition(registrarSession, URN_VO_FROM_EMAIL);
+        } catch (AttributeNotExistsException ex) {
+            // create attr if not exists
+            AttributeDefinition attrDef = new AttributeDefinition();
             attrDef.setDisplayName(DISPLAY_NAME_VO_FROM_EMAIL);
             attrDef.setFriendlyName(FRIENDLY_NAME_VO_FROM_EMAIL);
             attrDef.setNamespace(NAMESPACE_VO_FROM_EMAIL);
@@ -1003,91 +1003,111 @@ public class RegistrarManagerImpl implements RegistrarManager {
         // FOR INITIAL APPLICATION
         if (AppType.INITIAL.equals(app.getType())) {
 
-            // put application data into Candidate
-            final Map<String, String> attributes = new HashMap<String, String>();
-            jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
-                    + "and i.dst_attr is not null and d.value is not null and app_id=?",
-                    new RowMapper<Object>() {
-                        @Override
-                        public Object mapRow(ResultSet rs, int i) throws SQLException {
-                            attributes.put(rs.getString("dst_attr"), rs.getString("value"));
-                            return null;
-                        }
-                    }, appId);
-
-            // CHECK ON LOGINS
-            // we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
-            Iterator<Map.Entry<String,String>> iter = attributes.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<String,String> entry = iter.next();
-                if(entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:")){
-                    iter.remove();
-                }
-            }
-
-            Candidate candidate = new Candidate();
-            candidate.setAttributes(attributes);
-
-            log.debug("Retrieved candidate from DB {}", candidate);
-
-            // first try to parse display_name if not null and not empty
-            if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
-                    !attributes.get(URN_USER_DISPLAY_NAME).isEmpty()) {
-                // parse
-                Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
-                if (commonName.get("titleBefore") != null
-                        && !commonName.get("titleBefore").isEmpty()) {
-                    candidate.setTitleBefore(commonName.get("titleBefore"));
-                }
-                if (commonName.get("firstName") != null
-                        && !commonName.get("firstName").isEmpty()) {
-                    candidate.setFirstName(commonName.get("firstName"));
-                }
-                if (commonName.get("middleName") != null
-                        && !commonName.get("middleName").isEmpty()) {
-                    candidate.setMiddleName(commonName.get("middleName"));
-                }
-                if (commonName.get("lastName") != null
-                        && !commonName.get("lastName").isEmpty()) {
-                    candidate.setLastName(commonName.get("lastName"));
-                }
-                if (commonName.get("titleAfter") != null
-                        && !commonName.get("titleAfter").isEmpty()) {
-                    candidate.setTitleAfter(commonName.get("titleAfter"));
-                }
-            }
-
-            // if names are separated, used them after
-            for (String attrName : attributes.keySet()) {
-                // if value not null or empty - set to candidate
-                if (attributes.get(attrName) != null
-                        && !attributes.get(attrName).isEmpty()) {
-                    if (URN_USER_TITLE_BEFORE.equals(attrName)) {
-                        candidate.setTitleBefore(attributes.get(attrName));
-                    } else if (URN_USER_TITLE_AFTER.equals(attrName)) {
-                        candidate.setTitleAfter(attributes.get(attrName));
-                    } else if (URN_USER_FIRST_NAME.equals(attrName)) {
-                        candidate.setFirstName(attributes.get(attrName));
-                    } else if (URN_USER_LAST_NAME.equals(attrName)) {
-                        candidate.setLastName(attributes.get(attrName));
-                    } else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
-                        candidate.setMiddleName(attributes.get(attrName));
-                    }
-                }
-            }
-
-            // free reserved logins so they can be set as attributes
-            jdbc.update("delete from application_reserved_logins where app_id=?", appId);
-
             if (app.getGroup() != null) {
+
+                // free reserved logins so they can be set as attributes
+                jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+
                 // add new member of VO as member of group (for group applications)
                 // !! MUST BE MEMBER OF VO !!
                 member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
-                perun.getGroupsManager().addMember(registrarSession, app.getGroup(), member);
+
+                // store all attributes (but not logins)
                 storeApplicationAttributes(app);
+
+                // unreserve new duplicite logins and get purely new logins back
+                logins = unreserveNewLoginsFromSameNamespace(logins, app.getUser());
+
+                // store purely new logins to user
+                storeApplicationLoginAttributes(app);
+
+                for (Pair<String, String> pair : logins) {
+                    // LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
+                    // left = namespace, right = login
+                    perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+                }
+
+                perun.getGroupsManager().addMember(registrarSession, app.getGroup(), member);
+
                 log.debug("Member {} added to Group {}.",member, app.getGroup());
 
             } else {
+
+                // put application data into Candidate
+                final Map<String, String> attributes = new HashMap<String, String>();
+                jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
+                        + "and i.dst_attr is not null and d.value is not null and app_id=?",
+                        new RowMapper<Object>() {
+                            @Override
+                            public Object mapRow(ResultSet rs, int i) throws SQLException {
+                                attributes.put(rs.getString("dst_attr"), rs.getString("value"));
+                                return null;
+                            }
+                        }, appId);
+
+                // DO NOT STORE LOGINS THROUGH CANDIDATE
+                // we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
+                Iterator<Map.Entry<String,String>> iter = attributes.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<String,String> entry = iter.next();
+                    if(entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:")){
+                        iter.remove();
+                    }
+                }
+
+                Candidate candidate = new Candidate();
+                candidate.setAttributes(attributes);
+
+                log.debug("Retrieved candidate from DB {}", candidate);
+
+                // first try to parse display_name if not null and not empty
+                if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
+                        !attributes.get(URN_USER_DISPLAY_NAME).isEmpty()) {
+                    // parse
+                    Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
+                    if (commonName.get("titleBefore") != null
+                            && !commonName.get("titleBefore").isEmpty()) {
+                        candidate.setTitleBefore(commonName.get("titleBefore"));
+                    }
+                    if (commonName.get("firstName") != null
+                            && !commonName.get("firstName").isEmpty()) {
+                        candidate.setFirstName(commonName.get("firstName"));
+                    }
+                    if (commonName.get("middleName") != null
+                            && !commonName.get("middleName").isEmpty()) {
+                        candidate.setMiddleName(commonName.get("middleName"));
+                    }
+                    if (commonName.get("lastName") != null
+                            && !commonName.get("lastName").isEmpty()) {
+                        candidate.setLastName(commonName.get("lastName"));
+                    }
+                    if (commonName.get("titleAfter") != null
+                            && !commonName.get("titleAfter").isEmpty()) {
+                        candidate.setTitleAfter(commonName.get("titleAfter"));
+                    }
+                }
+
+                // if names are separated, used them after
+                for (String attrName : attributes.keySet()) {
+                    // if value not null or empty - set to candidate
+                    if (attributes.get(attrName) != null
+                            && !attributes.get(attrName).isEmpty()) {
+                        if (URN_USER_TITLE_BEFORE.equals(attrName)) {
+                            candidate.setTitleBefore(attributes.get(attrName));
+                        } else if (URN_USER_TITLE_AFTER.equals(attrName)) {
+                            candidate.setTitleAfter(attributes.get(attrName));
+                        } else if (URN_USER_FIRST_NAME.equals(attrName)) {
+                            candidate.setFirstName(attributes.get(attrName));
+                        } else if (URN_USER_LAST_NAME.equals(attrName)) {
+                            candidate.setLastName(attributes.get(attrName));
+                        } else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
+                            candidate.setMiddleName(attributes.get(attrName));
+                        }
+                    }
+                }
+
+                // free reserved logins so they can be set as attributes
+                jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
                 // create member and user
                 log.debug("Trying to make member from candidate {}", candidate);
@@ -1104,12 +1124,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 }
                 log.info("Member " + member.getId() + " created for: " + app.getCreatedBy() + " / " + app.getExtSourceName());
 
-                // store login attributes intentionally missed inside candidate object
+                // unreserve new login if user already have login in same namespace
+                // also get back purely new logins
+                logins = unreserveNewLoginsFromSameNamespace(logins, u);
+
+                // store purely new logins to user
                 storeApplicationLoginAttributes(app);
+
+                for (Pair<String, String> pair : logins) {
+                    // LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
+                    // left = namespace, right = login
+                    perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, u, pair.getRight(), pair.getLeft());
+                }
 
                 // log
                 perun.getAuditer().log(sess, "{} created for approved {}.", member, app);
-
 
             }
 
@@ -1121,11 +1150,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
             member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
 
-            // SET or MERGE attributes from application
             storeApplicationAttributes(app);
 
             // extend user's membership
             membersManager.extendMembership(registrarSession, member);
+
+            // unreserve new logins, if user already have login in same namespace
+            // also get back logins, which are purely new
+            logins = unreserveNewLoginsFromSameNamespace(logins, app.getUser());
+
+            // store purely new logins from application
+            storeApplicationLoginAttributes(app);
+
+            // validate purely new logins in KDC
+            for (Pair<String, String> pair : logins) {
+                // left = namespace, right = login
+                perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+            }
 
             // log
             perun.getAuditer().log(sess, "Membership extended for {} in {} for approved {}.", member, app.getVo(), app);
@@ -1133,30 +1174,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
         }
 
         // CONTINUE FOR BOTH APP TYPES
-
-        // validate logins in external system if any was reserved + create user ext sources for them
-        User user = perun.getUsersManagerBl().getUserByMember(registrarSession, member);
-
-        List<Attribute> loginAttrs = perun.getAttributesManagerBl().getLogins(registrarSession, user);
-
-        for (Pair<String, String> pair : logins) {
-            boolean found = false;
-            for (Attribute a : loginAttrs) {
-                if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
-                    // old login found in same namespace => unreserve new login from KDC
-                    perun.getUsersManagerBl().deletePassword(registrarSession, pair.getRight(), pair.getLeft());
-                    log.debug("[REGISTRAR] Unreserving new login: "+pair.getRight()+" in namespace: "+pair.getLeft()+" since user already have login: "+a.getValue()+" in same namespace.");
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                // LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
-                // left = namespace, right = login
-                perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, user, pair.getRight(), pair.getLeft());
-            }
-
-        }
 
         // call registrar module
         RegistrarModule module;
@@ -1902,13 +1919,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
             log.error("[REGISTRAR] Application form is null when getting it's registrar module.");
             throw new NullPointerException("Application form is null when getting it's registrar module.");
         }
-        if (form.getModuleClassName() == null) {
+        if (form.getModuleClassName() == null || form.getModuleClassName().trim().equals("")) {
             // module not set
             return module;
         }
 
         try {
-            log.debug("Attemping to instantiate class {}...", MODULE_PACKAGE_PATH + form.getModuleClassName());
+            log.debug("Attempting to instantiate class {}...", MODULE_PACKAGE_PATH + form.getModuleClassName());
             module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
         } catch (Exception ex) {
             log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
@@ -1928,9 +1945,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
      *
      * User and Member must already exists !!
      *
-     * This should be called only for
-     *  - EXTENSION
-     *  - Group INITIAL (if already VO member exception)
+     * !! LOGIN ATTRIBUTES ARE SKIPPED BY THIS METHOD AND MUST BE
+     * SET LATER BY storeApplicationLoginAttributes() METHOD !!
+     * !! USE unreserveNewLoginsFromSameNamespace() BEFORE DOING SO !!
      *
      * @param app Application to process attributes for
      * @throws PerunException
@@ -1963,13 +1980,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     continue;
                 }
 
-                // FIXME - když neexistuje hodnota, bude a=null nebo a.value=null ?
-                // CHECK ON LOGINS
+                // NEVER STORE LOGINS THIS WAY TO PREVENT ACCIDENTAL OVERWRITE
                 if (a != null && "login-namespace".equals(a.getBaseFriendlyName())) {
-                    if (a.getValue() != null && !((String)a.getValue()).isEmpty()) {
-                        // Never store new value if original value WAS NOT EMPTY !!
-                        continue;
-                    }
+                    continue;
                 }
 
                 // if attribute exists
@@ -2010,15 +2023,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     /**
-     * Store login values from application data as user attributes
+     * Store only login attributes from application to user.
      *
-     * New values are set only if old are empty to preven overwrite when joining identities.
+     * New values are set only if old are empty to prevent overwrite when joining identities.
      * Empty new values are skipped.
      *
      * User must already exists !!
-     *
-     * This should be called only for
-     *  - VO INITIAL application after creating member in VO
      *
      * @param app Application to process attributes for
      * @throws PerunException
@@ -2067,6 +2077,43 @@ public class RegistrarManagerImpl implements RegistrarManager {
             // set them if not empty (user)
             attrManager.setAttributes(registrarSession, user, attributes);
         }
+
+    }
+
+    /**
+     * Unreserve new login/password from KDC if user already have login in same namespace
+     *
+     * !! must be called before setting new attributes from application !!
+     *
+     * @param logins list of all new logins/namespaces pairs passed by application
+     * @param user user to check logins for
+     *
+     * @return List of login/namespace pairs which are purely new and can be set to user and validated in KDC
+     */
+    private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws PerunException {
+
+        List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
+
+        List<Attribute> loginAttrs = perun.getAttributesManagerBl().getLogins(registrarSession, user);
+
+        for (Pair<String, String> pair : logins) {
+            boolean found = false;
+            for (Attribute a : loginAttrs) {
+                if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
+                    // old login found in same namespace => unreserve new login from KDC
+                    perun.getUsersManagerBl().deletePassword(registrarSession, pair.getRight(), pair.getLeft());
+                    log.debug("[REGISTRAR] Unreserving new login: "+pair.getRight()+" in namespace: "+pair.getLeft()+" since user already have login: "+a.getValue()+" in same namespace.");
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // login is purely new
+                result.add(pair);
+            }
+        }
+
+        return result;
 
     }
 
