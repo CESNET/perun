@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes selected hosts and destinations from the facility. Facility id (or name and type) and one or more host name are required fields.
+------------------------------------
+Available options:
+ --hosts        | -H list Of Host names
+ --facilityId   | -f facility id
+ --facilityName | -F facility name
+ --facilityType | -t facility type
+ --batch        | -b batch
+ --help         | -h prints this help
+ 
+};
+}
+
+my (@hosts, $facilityId, $facilityName, $facilityType, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch,
+'hosts|H=s@{1,}' => \@hosts,
+"facilityId|f=i" => \$facilityId,
+"facilityType|t=s" => \$facilityType,
+"facilityName|F=s" => \$facilityName) || die help(); 
+
+# Check options
+unless (@hosts) { die "ERROR: hosts are required \n";}
+unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType is required\n";}
+
+my $agent = Perun::Agent->new();
+my $hostsAgent = $agent->getHostsAgent;
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $servicesAgent = $agent->getServicesAgent;
+
+unless($facilityId) {
+    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+    $facilityId = $facility->getId;
+}
+
+my @allhosts = $facilitiesAgent->getHosts(facility => $facilityId);
+unless(@allhosts) { printMessage "No host found", $batch; exit 0;}
+
+my ($fhost,$rhost,@rhosts,@rdests);
+foreach $fhost (@allhosts) {
+    foreach $rhost (@hosts) {
+        if ($fhost->getHostname eq $rhost) { 
+            push(@rhosts,$fhost->getId);
+            push(@rdests,$fhost->getHostname);
+        }
+    }      
+}
+
+# zruseni Hosts
+$facilitiesAgent->removeHosts(hosts => \@rhosts, facility => $facilityId);
+printMessage("Hosts: @hosts successfully removed from the facility Id:$facilityId", $batch);
+
+# zruseni Destinations
+my @services = $servicesAgent->getAssignedServices(facility => $facilityId); 
+my ($destination,$service);
+my $typ="host";
+
+foreach $destination (@rdests) {
+    foreach $service (@services) {
+        eval {
+            $servicesAgent->removeDestination(facility => $facilityId, service => $service->getId, destination => $destination, type => $typ);
+            printMessage("Destination:$destination removed from the facility Id:$facilityId and service:".$service->getName, $batch);
+        };
+    }
+} 
