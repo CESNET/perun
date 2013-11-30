@@ -341,7 +341,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
       throw new PrivilegeException(sess, "createFacility");
     }
 
