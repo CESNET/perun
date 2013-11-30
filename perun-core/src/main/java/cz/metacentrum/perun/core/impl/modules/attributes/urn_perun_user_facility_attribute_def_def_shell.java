@@ -42,9 +42,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
     public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
         String shell = (String) attribute.getValue();
 
-        if (shell == null) {
-            throw new WrongAttributeValueException(attribute, "Shell cannot be null.");
-        }
+        if (shell == null) return;
 
         session.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
 
@@ -57,64 +55,6 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
         if (!allowedShells.contains(shell)) {
             throw new WrongAttributeValueException(attribute, user, facility, "Such shell is not allowed at specified facility for the user.");
         }
-    }
-
-    @Override
-    /**
-     * Fills the shell at specified facility for the user. If the user has an account 
-     * at the facility some shell from allowed is filled. If no shells are allowed
-     * the exception is thrown.
-     */
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        Attribute attr = new Attribute(attribute);
-        List<Resource> availableResources;
-        availableResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
-
-        //preferredShell for user
-        Attribute preferredShellAttr;
-        try {
-            preferredShellAttr = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredShell");
-        } catch (AttributeNotExistsException ex) {
-            throw new ConsistencyErrorException("PreferredShell of user " + user + " could not be obtained", ex);
-        }
-        String preferredShell = (String) preferredShellAttr.getValue();
-        
-        //If there exists preferredShell, try to find it first
-        if (preferredShell != null) {
-            for (Resource r: availableResources) {
-                Attribute resourceShellsAttr;
-                try {
-                    resourceShellsAttr = session.getPerunBl().getAttributesManagerBl().getAttribute(session, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
-                } catch (AttributeNotExistsException ex) {
-                    throw new ConsistencyErrorException("shells of resource " + r.getId() + " could not be obtained", ex);
-                }
-                if(resourceShellsAttr.getValue() != null) {
-                    List<String> listOfShells = (List<String>) resourceShellsAttr.getValue();
-                    if(listOfShells.contains(preferredShell)) {
-                         attr.setValue(preferredShell);
-                         return attr;
-                    }
-                }
-            }
-        }
-        
-        //if there not exists preferredShell or its not allowed, take first default on available resources
-        for (Resource r : availableResources) {
-            Attribute resourceAttr;
-            try {
-                resourceAttr = session.getPerunBl().getAttributesManagerBl().getAttribute(session, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultShell");
-            } catch (AttributeNotExistsException ex) {
-                throw new ConsistencyErrorException("defaultShell of resource " + r.getId() + " could not be obtained", ex);
-            }
-            if (resourceAttr.getValue() != null) {
-                attr.setValue(resourceAttr.getValue());
-                return attr;
-            }
-        }
-        
-        // nothing to fill
-        return attr;
-
     }
 
     /**
