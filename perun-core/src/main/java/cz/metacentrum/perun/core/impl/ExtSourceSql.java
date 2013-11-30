@@ -99,7 +99,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
     log.debug("Searching for '{}' in external source 'url:{}'", new Object[] {searchString, (String) getAttributes().get("url")});
 
     try {
-      if (this.con == null || !this.con.isValid(0)) {
+      if (this.con == null || (Compatibility.isOracle() && !this.con.isValid(0))) {
         if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
           this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), 
               (String) getAttributes().get("user"), (String) getAttributes().get("password"))).createConnection();
