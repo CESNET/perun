@@ -77,9 +77,12 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 
     public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
         try {
-            return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attribute);
+            Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
+            return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
         } catch (WrongAttributeAssignmentException ex) {
             throw new ConsistencyErrorException(ex);
+        } catch (AttributeNotExistsException ex) {
+            throw new InternalErrorException(ex);
         } catch (WrongAttributeValueException ex) {
             throw new InternalErrorException(ex);
         }
