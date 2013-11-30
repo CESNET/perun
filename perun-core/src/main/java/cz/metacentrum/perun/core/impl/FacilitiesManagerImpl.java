@@ -366,7 +366,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       jdbc.update("insert into authz (authorized_group_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
     } catch (DataIntegrityViolationException e) {
       throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the facility " + facility, e, group, facility);
-    } catch (RuntimeException e) {
+    } catch (org.springframework.jdbc.UncategorizedSQLException e) {
       throw new InternalErrorException(e);
     }
   }
