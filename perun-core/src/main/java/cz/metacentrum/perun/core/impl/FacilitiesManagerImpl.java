@@ -353,7 +353,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
     try {
       jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
-    } catch (DataIntegrityViolationException e) {
+    } catch (org.springframework.jdbc.UncategorizedSQLException e) {
       throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the facility " + facility, e, user, facility);
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
