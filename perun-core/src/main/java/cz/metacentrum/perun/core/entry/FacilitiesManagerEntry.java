@@ -46,6 +46,9 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -251,6 +254,23 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
     getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
 
     getFacilitiesManagerBl().removeOwner(sess, facility, owner);
+  }
+  
+  public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
+      Utils.checkPerunSession(sess);
+      
+      getFacilitiesManagerBl().checkFacilityExists(sess, sourceFacility);
+      getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
+      
+      // Authorization - facility admin of the both facilities required
+      if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceFacility)) {
+          throw new PrivilegeException(sess, "copyOwners");
+      }
+      if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+          throw new PrivilegeException(sess, "copyOwners");
+      }
+        
+      getFacilitiesManagerBl().copyOwners(sess, sourceFacility, destinationFacility);
   }
 
   public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
@@ -639,6 +659,40 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	  return getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(sess, user);
   }
+  
+    public void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+        Utils.checkPerunSession(sess);
+
+        getFacilitiesManagerBl().checkFacilityExists(sess, sourceFacility);
+        getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
+        
+        // Authorization - facility admin of the both facilities required
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceFacility)) {
+            throw new PrivilegeException(sess, "copyManager");
+        }
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+            throw new PrivilegeException(sess, "copyManager");
+        }
+        
+        getFacilitiesManagerBl().copyManagers(sess, sourceFacility, destinationFacility);
+    }
+    
+    public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+        Utils.checkPerunSession(sess);
+
+        getFacilitiesManagerBl().checkFacilityExists(sess, sourceFacility);
+        getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
+        
+        // Authorization - facility admin of the both facilities required
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceFacility)) {
+            throw new PrivilegeException(sess, "copyManager");
+        }
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+            throw new PrivilegeException(sess, "copyManager");
+        }
+        
+        getFacilitiesManagerBl().copyAttributes(sess, sourceFacility, destinationFacility);
+    }
 
   
   /**
