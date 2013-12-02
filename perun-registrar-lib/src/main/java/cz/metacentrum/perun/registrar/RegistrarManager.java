@@ -186,7 +186,7 @@ public interface RegistrarManager {
      * @param data data
      * @return stored app data
      */
-    Application createApplicationInternall(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
+    Application createApplicationInternal(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
 
     /**
      * Delete application by Id. Application must be in state: NEW or REJECTED.

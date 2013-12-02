@@ -582,7 +582,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // using this to init inner transaction
         // all minor exceptions inside are catched, if not, it's ok to throw them
-        Application app = this.registrarManager.createApplicationInternall(session, application, data);
+        Application app = this.registrarManager.createApplicationInternal(session, application, data);
 
         // try to verify (or even auto-approve) application
         try {
@@ -599,7 +599,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     @Override
     @Transactional(rollbackFor = ApplicationNotCreatedException.class)
-    public Application createApplicationInternall(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+    public Application createApplicationInternal(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
 
         // exceptions to send to vo admin with new app created email
         List<Exception> exceptions = new ArrayList<Exception>();
