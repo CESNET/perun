@@ -10,7 +10,7 @@ import java.util.Map;
  * Overlay type for registrar: ApplicationMail
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 3b0bbaa8f147a16871b90dc879936200a03c19e2 $
  */
 
 public class ApplicationMail extends JavaScriptObject {
@@ -204,6 +204,8 @@ public class ApplicationMail extends JavaScriptObject {
             return ObjectTranslation.INSTANCE.applicationMailTypeAppApprovedUser();
         } else if ("APP_REJECTED_USER".equalsIgnoreCase(type)) {
             return ObjectTranslation.INSTANCE.applicationMailTypeAppRejectedUser();
+        } else if ("APP_ERROR_VO_ADMIN".equalsIgnoreCase(type)) {
+            return ObjectTranslation.INSTANCE.applicationMailTypeAppErrorVoAdmin();
         } else {
             return "";
         }
@@ -218,7 +220,8 @@ public class ApplicationMail extends JavaScriptObject {
         APP_CREATED_VO_ADMIN,
         MAIL_VALIDATION,
         APP_APPROVED_USER,
-        APP_REJECTED_USER
+        APP_REJECTED_USER,
+        APP_ERROR_VO_ADMIN
     }
 
 }

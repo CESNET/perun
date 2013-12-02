@@ -60,6 +60,8 @@ public class MailManagerImpl implements MailManager {
     private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
     private static final String URN_GROUP_TO_EMAIL = "urn:perun:group:attribute-def:def:toEmail";
     private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
+    private static final String URN_VO_LANGUAGE_EMAIL = "urn:perun:vo:attribute-def:def:notificationsDefLang";
+    private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -369,13 +371,42 @@ public class MailManagerImpl implements MailManager {
                 // set FROM
                 setFromMailAddress(message, app);
 
+                // set language independent on user's preferred language.
+                lang = new Locale("en");
+                try {
+                    if (app.getGroup() == null) {
+                        // VO
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    } else {
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("Error when resolving notification default language: {}", ex);
+                }
+
+                MailText mt2 = mail.getMessage(lang);
+                String mailText2 = "";
+                String mailSubject2 = "";
+                if (mt2.getText() != null && !mt2.getText().isEmpty()) {
+                    mailText2 = mt2.getText();
+                }
+                if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
+                    mailSubject2 = mt2.getSubject();
+                }
+
 				// substitute common strings
-				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+				mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
+				mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
 				
 				// set subject and text
-				message.setSubject(mailSubject);
-				message.setText(mailText);
+				message.setSubject(mailSubject2);
+				message.setText(mailText2);
 
 				// send message to all VO or Group admins
 				List<String> toEmail = getToMailAddresses(app);
@@ -559,7 +590,64 @@ public class MailManagerImpl implements MailManager {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
 				
-			} else {
+			} else if (MailType.APP_ERROR_VO_ADMIN.equals(type)) {
+
+                SimpleMailMessage message = new SimpleMailMessage();
+
+                // set FROM
+                setFromMailAddress(message, app);
+
+                // set language independent on user's preferred language.
+                lang = new Locale("en");
+                try {
+                    if (app.getGroup() == null) {
+                        // VO
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    } else {
+                        Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
+                        if (a != null && a.getValue() != null) {
+                            lang = new Locale(BeansUtils.attributeValueToString(a));
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("Error when resolving notification default language: {}", ex);
+                }
+
+                MailText mt2 = mail.getMessage(lang);
+                String mailText2 = "";
+                String mailSubject2 = "";
+                if (mt2.getText() != null && !mt2.getText().isEmpty()) {
+                    mailText2 = mt2.getText();
+                }
+                if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
+                    mailSubject2 = mt2.getSubject();
+                }
+
+                // substitute common strings
+                mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
+                mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
+
+                // set subject and text
+                message.setSubject(mailSubject2);
+                message.setText(mailText2);
+
+                // send message to all VO or Group admins
+                List<String> toEmail = getToMailAddresses(app);
+
+                for (String email : toEmail) {
+                    message.setTo(email);
+                    try {
+                        mailSender.send(message);
+                        log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {}", message.getTo());
+                    } catch (MailException ex) {
+                        log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
+                    }
+                }
+
+            } else {
 				log.error("[MAIL MANAGER] Sending mail type: {} is not supported.", type);
 			}
 
@@ -1050,7 +1138,7 @@ public class MailManagerImpl implements MailManager {
                     // only namespace "meta", "egi-ui",...
                     String namespace = m2.group(1);
 
-                    // search through form items
+                    // if user not known -> search through form items to get login
                     for (ApplicationFormItemData d : data) {
                         ApplicationFormItem item = d.getFormItem();
                         if (item != null) {
@@ -1067,24 +1155,25 @@ public class MailManagerImpl implements MailManager {
                         }
                     }
 
-                    // if not found, try to get attribute
-                    if (newValue.isEmpty()) {
-                        try {
-                            if (app.getUser() != null) {
+                    // if user exists, try to get login from attribute instead of application
+                    // since we do no allow to overwrite login by application
+                    try {
+                        if (app.getUser() != null) {
                             List<Attribute> logins = attrManager.getLogins(registrarSession, app.getUser());
                             for (Attribute a : logins) {
-                                 if (a.getFriendlyNameParameter().equalsIgnoreCase(namespace)) {
-                                     if (a.getValue() != null) {
-                                         newValue = BeansUtils.attributeValueToString(a);
-                                         break;
-                                     }
-                                 }
+                                // replace only correct namespace
+                                if (a.getFriendlyNameParameter().equalsIgnoreCase(namespace)) {
+                                    if (a.getValue() != null) {
+                                        newValue = BeansUtils.attributeValueToString(a);
+                                        break;
+                                    }
+                                }
                             }
-                            }
-                        } catch (Exception ex) {
-                            log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \""+namespace+"\" for mail. {}", ex);
                         }
+                    } catch (Exception ex) {
+                        log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \""+namespace+"\" for mail. {}", ex);
                     }
+
                 }
 
                 // substitute {login-namespace} with actual value or empty string

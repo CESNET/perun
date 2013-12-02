@@ -11,7 +11,7 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
  * for registration process (messages to user and vo admins)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: f3f9f50457a664e0e523f437310788b01e9539bd $
  */
 public class ApplicationMail {
 	
@@ -47,7 +47,12 @@ public class ApplicationMail {
     	/**
     	 * Notification to user when application is rejected
     	 */
-    	APP_REJECTED_USER;
+    	APP_REJECTED_USER,
+
+        /**
+         * Notification to VO administrator if auto approved application ends with error and is not approved.
+         */
+        APP_ERROR_VO_ADMIN;
     	
     }
     
