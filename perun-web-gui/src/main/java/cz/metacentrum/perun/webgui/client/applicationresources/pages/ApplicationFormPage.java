@@ -415,12 +415,12 @@ public class ApplicationFormPage extends ApplicationPage {
 			bodyContents.clear();
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-            if (error.getName().equalsIgnoreCase("EmptyPasswordRuntimeException")) {
-                // empty password - application WAS NOT SAVED
+            if (error.getName().equalsIgnoreCase("ApplicationNotCreatedException")) {
+                // application WAS NOT SAVED
                 ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
                         "<p><strong>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage() + "</strong></p>");
             } else {
-                // some error - application WAS SAVED
+                // some minor error - application WAS SAVED
                 ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
                         "<p><strong>" + ApplicationMessages.INSTANCE.voAdministratorWasNotified() + "</strong>"+
                         "<p>" + ApplicationMessages.INSTANCE.ifEmailProvidedCheckInbox() + "</p>");
