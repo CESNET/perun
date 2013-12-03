@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
@@ -590,6 +591,21 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertNotNull(admins);
                 assertTrue(admins.size() > 0);
         }
+        
+        @Test(expected = AlreadyAdminException.class)
+         public void addAdminWithTwoSameUsers() throws Exception {
+                 System.out.println(FACILITIES_MANAGER + ".addAdminWithTwoSameUsers()");
+                 
+                 final Member member = setUpMember(facAdminsVo);
+                 User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+  
+                 facilitiesManagerEntry.addAdmin(sess, facility, u);
+                 final List<User> admins = facilitiesManagerEntry.getAdmins(sess, facility);
+                 assertNotNull(admins);
+                 assertTrue(admins.size() > 0);
+                  
+                 facilitiesManagerEntry.addAdmin(sess, facility, u);
+         }
         
         @Test
         public void addAdminWithGroup() throws Exception {
