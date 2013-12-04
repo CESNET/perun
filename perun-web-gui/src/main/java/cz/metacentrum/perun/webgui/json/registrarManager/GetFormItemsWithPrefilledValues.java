@@ -3,12 +3,10 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -172,8 +170,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
             ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.duplicateRegistrationAttemptExceptionText());
 
             if (Location.getParameter("targetnew") != null) {
-                int index = Location.getQueryString().indexOf("targetnew=");
-                Location.replace(Location.getQueryString().substring(index+10));
+                Location.replace(Location.getParameter("targetnew"));
             }
 
         } else if (error.getName().equalsIgnoreCase("ExtendMembershipException")) {
@@ -189,8 +186,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
                 // redirect if possible
                 if (Location.getParameter("targetexisting") != null) {
-                    int index = Location.getQueryString().indexOf("targetexisting=");
-                    Location.replace(URL.decode(Location.getQueryString().substring(index + 15)));
+                    Location.replace(Location.getParameter("targetexisting"));
                 }
 
             }
