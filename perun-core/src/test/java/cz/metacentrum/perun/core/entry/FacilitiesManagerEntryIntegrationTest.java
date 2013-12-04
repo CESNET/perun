@@ -16,6 +16,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -728,6 +731,86 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             assertTrue(facilities.contains(facility));
         }
         
+        @Test
+        public void copyManagers() throws Exception {
+            System.out.println(FACILITIES_MANAGER + ".copyManagers");
+            
+            // add user as admin in facility
+            final Member member = setUpMember(facAdminsVo);
+            User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+            facilitiesManagerEntry.addAdmin(sess, facility, u);
+            
+            // set up second facility
+            Facility newFacility = new Facility();
+            newFacility.setName("FacilitiesManagerTestSecondFacility");
+            newFacility.setType("testingSecondFacility");
+            Facility secondFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
+
+            // copy admins
+            facilitiesManagerEntry.copyManagers(sess, facility, secondFacility);
+            
+            // check
+            List<User> admins = facilitiesManagerEntry.getAdmins(sess, secondFacility);
+            assertNotNull(admins);
+            assertTrue(admins.contains(u));
+        }
+        
+        @Test
+        public void copyOwners() throws Exception {
+            System.out.println(FACILITIES_MANAGER + ".copyOwners");
+            
+            // set up second facility
+            Facility newFacility = new Facility();
+            newFacility.setName("FacilitiesManagerTestSecondFacility");
+            newFacility.setType("testingSecondFacility");
+            Facility secondFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
+
+            // copy owners
+            facilitiesManagerEntry.copyOwners(sess, facility, secondFacility);
+            
+            // check
+            List<Owner> owners = facilitiesManagerEntry.getOwners(sess, secondFacility);
+            assertNotNull(owners);
+            assertTrue(owners.contains(owner));
+        }
+        
+        @Test
+        public void copyAttributes() throws Exception {
+            System.out.println(FACILITIES_MANAGER + ".copyAttributes");
+            
+            // set up second facility
+            Facility newFacility = new Facility();
+            newFacility.setName("FacilitiesManagerTestSecondFacility");
+            newFacility.setType("testingSecondFacility");
+            Facility secondFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
+            
+            // add first attribute to source
+            Attribute firstAttribute = setUpAttribute1();
+            perun.getAttributesManager().setAttribute(sess, facility, firstAttribute);
+            
+            // add second attribute to both
+            Attribute secondAttribute = setUpAttribute2();
+            perun.getAttributesManager(). setAttribute(sess, facility, secondAttribute);
+            perun.getAttributesManager().setAttribute(sess, secondFacility, secondAttribute);
+            
+            // add third attribute to destination
+            Attribute thirdAttribute = setUpAttribute3();
+            perun.getAttributesManager().setAttribute(sess, secondFacility, thirdAttribute);
+            
+            // copy
+            facilitiesManagerEntry.copyAttributes(sess, facility, secondFacility);
+            
+            // tests
+            List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondFacility);
+            assertNotNull(destinationAttributes);
+            assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, facility).size()) == 1);
+            assertTrue(destinationAttributes.contains(firstAttribute));
+            assertTrue(destinationAttributes.contains(secondAttribute));
+            assertTrue(destinationAttributes.contains(thirdAttribute));
+        }
+        
+        
+        
   
 	// PRIVATE METHODS -------------------------------------------------------
 
@@ -795,5 +878,41 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return group;
 
 	}
+        
+        private Attribute setUpAttribute1() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+                attrDef.setDescription("Test attribute description");
+                attrDef.setFriendlyName("testingAttribute");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value");
+                return attribute;
+        }
+        
+        private Attribute setUpAttribute2() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+                attrDef.setDescription("Test attribute2 description");
+                attrDef.setFriendlyName("testingAttribute2");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value for second attribute");
+                return attribute;
+        }
+        
+        private Attribute setUpAttribute3() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+                attrDef.setDescription("Test attribute3 description");
+                attrDef.setFriendlyName("testingAttribute3");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value for third attribute");
+                return attribute;
+        }
 
 }
