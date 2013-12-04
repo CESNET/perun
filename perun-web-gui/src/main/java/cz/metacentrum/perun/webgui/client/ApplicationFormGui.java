@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.applicationresources.ApplicationFormLeftMenu;
@@ -46,7 +47,7 @@ import java.util.ArrayList;
  * @version $Id$
  */
 
-public class ApplicationFormGui implements EntryPoint{
+public class ApplicationFormGui implements EntryPoint {
 
 	/**
 	 * Perun web session
@@ -58,6 +59,8 @@ public class ApplicationFormGui implements EntryPoint{
 	 */
 	private static VirtualOrganization vo;
 	private static Group group;
+    private String voName = null;
+    private String groupName = null;
     private HTML voContact = new HTML("");
 	
 	/**
@@ -168,10 +171,36 @@ public class ApplicationFormGui implements EntryPoint{
 	public void loadVo(final JsonCallbackEvents events)
 	{
 		// get vo by short name
-		String shortName = Location.getParameter("vo");
-		final String groupName = Location.getParameter("group");
-		
-		Initialize req = new Initialize(shortName, groupName, new JsonCallbackEvents(){
+        if (Location.getParameter("targetexisting") == null && Location.getParameter("targetextended") == null && Location.getParameter("targetnew") == null) {
+            // if no redirect, then easy way
+            voName = Location.getParameter("vo");
+            groupName = Location.getParameter("group");
+
+        } else if (Location.getParameter("targetexisting") != null || Location.getParameter("targetextended") != null || Location.getParameter("targetnew") != null) {
+
+            // fix for running on local devel
+            int position = 1;
+            if (Location.getParameter("gwt.codesvr") != null) {
+                position++;
+            }
+
+            String vo = Location.getQueryString().replace("?", "&").split("&")[position];
+            if (vo.startsWith("vo=")) {
+                // set vo name
+                voName = vo.replace("vo=", "");
+            }
+
+            position++;
+
+            String group = Location.getQueryString().replace("?", "&").split("&")[position];
+            if (group.startsWith("group=")) {
+                // set group name
+                groupName = group.replace("group=", "");
+            }
+
+        }
+
+		Initialize req = new Initialize(voName, groupName, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
 				
 				JsArray<Attribute> list = JsonUtils.jsoAsArray(jso);
@@ -385,8 +414,6 @@ public class ApplicationFormGui implements EntryPoint{
 	
 	private void isUserMemberOfVo() {
 		
-		final String groupName = Location.getParameter("group");
-		
 		// CHECK USER IF PRESENT
 		if(session.getUser() != null) {
 			
@@ -471,7 +498,7 @@ public class ApplicationFormGui implements EntryPoint{
 			
 		}
 		
-		// UNKNOW USER - LOAD INITIAL
+		// UNKNOWN USER - LOAD INITIAL
 		if (groupName != null && !groupName.isEmpty()) {
 			prepareGui(PerunEntity.GROUP, "INITIAL");
 		} else {
@@ -517,7 +544,6 @@ public class ApplicationFormGui implements EntryPoint{
 			ValidateEmail request = new ValidateEmail(verifyI, verifyM, new JsonCallbackEvents(){
 				@Override
 				public void onLoadingStart() {
-					
 					verifContent.clear();
 					verifContent.add(new AjaxLoaderImage());
 				}

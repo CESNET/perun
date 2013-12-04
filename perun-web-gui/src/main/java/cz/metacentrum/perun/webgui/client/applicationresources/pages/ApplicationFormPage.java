@@ -369,11 +369,11 @@ public class ApplicationFormPage extends ApplicationPage {
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			bodyContents.add(ft);
-			
-			String target = Location.getParameter("targetnew");
-			if (target != null && !target.isEmpty()) {
-				Location.replace(Location.getParameter("targetnew"));
-			}
+
+            if (Location.getParameter("targetnew") != null) {
+                int index = Location.getQueryString().indexOf("targetnew=");
+                Location.replace(Location.getQueryString().substring(index+10));
+            }
 			
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
 			
@@ -388,16 +388,16 @@ public class ApplicationFormPage extends ApplicationPage {
 			
 			if (autoApproval) {
 				// automatically extended
-				String target = Location.getParameter("targetextended");
-				if (target != null && !target.isEmpty()) {
-					Location.replace(Location.getParameter("targetextended"));
-				}
+                if (Location.getParameter("targetextended") != null) {
+                    int index = Location.getQueryString().indexOf("targetextended=");
+                    Location.replace(Location.getQueryString().substring(index+15));
+                }
 			} else {
 				// TODO - only when user have valid account
-				String target = Location.getParameter("targetexisting");
-				if (target != null && !target.isEmpty()) {
-					Location.replace(Location.getParameter("targetexisting"));
-				}
+                if (Location.getParameter("targetexisting") != null) {
+                    int index = Location.getQueryString().indexOf("targetexisting=");
+                    Location.replace(Location.getQueryString().substring(index+15));
+                }
 			}
 			
 		}
