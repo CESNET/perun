@@ -38,28 +38,30 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
             }
             
             Attribute facilityUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-            Attribute userPrefferedUGIDs = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs"));
+            Attribute userPrefferedUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs");
             List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             String namespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace").getValue();
-            Set<Integer> resourcesUGIDs = new HashSet<>();
+            Set<String> resourcesUGIDs = new HashSet<>();
             
             for (Resource resource : resources) {
-                List<Integer> resourcesShellsForTest = (List<Integer>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
+                List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
                 if (resourcesShellsForTest != null) resourcesUGIDs.addAll(resourcesShellsForTest);
             }
             
             if (userPrefferedUGIDs.getValue() != null){
-                for (Integer pUGID : (List<Integer>)userPrefferedUGIDs.getValue()) {
+                for (String pUGID : (List<String>)userPrefferedUGIDs.getValue()) {
                     if (resourcesUGIDs.contains(pUGID)) {
-                        Utils.copyAttributeToVirtualAttributeWithValue(userPrefferedUGIDs, attr);
+                        Utils.copyAttributeToViAttributeWithoutValue(userPrefferedUGIDs, attr);
+                        attr.setValue(new Integer(pUGID));
                         return attr;
                     }
                 }
             }
             if (facilityUGIDs.getValue() != null){
-                for (Integer fUGID : (List<Integer>)facilityUGIDs.getValue()) {
+                for (String fUGID : (List<String>)facilityUGIDs.getValue()) {
                     if (resourcesUGIDs.contains(fUGID)) {
-                        Utils.copyAttributeToVirtualAttributeWithValue(facilityUGIDs, attr);
+                        Utils.copyAttributeToViAttributeWithoutValue(facilityUGIDs, attr);
+                        attr.setValue(new Integer(fUGID));
                         return attr;
                     }
                 }
@@ -77,10 +79,15 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
     
     public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
         try {
-            return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attribute);
+            Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
+            return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
+
+         
         } catch (WrongAttributeAssignmentException ex) {
             throw new ConsistencyErrorException(ex);
         } catch (WrongAttributeValueException ex) {
+            throw new InternalErrorException(ex);
+        } catch (AttributeNotExistsException ex) {
             throw new InternalErrorException(ex);
         }
     }

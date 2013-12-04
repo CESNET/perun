@@ -132,6 +132,21 @@ public interface ModulesUtilsBl {
   void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;  
 
   /**
+   * Check if list of gids in arguments is free in the namespace
+   * 
+   * @param sess
+   * @param attribute group or resource list of unixGIDs-namespace attribute with value
+   * @param gid
+   * 
+   * @throws InternalErrorException
+   * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
+   * @throws WrongAttributeAssignmentException
+   * @throws AttributeNotExistsException
+   * @throws WrongAttributeValueException 
+   */
+  void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;  
+  
+  /**
    * Return true if i have right on any of groups or resources to WRITE the attribute
    * 
    * @param sess
