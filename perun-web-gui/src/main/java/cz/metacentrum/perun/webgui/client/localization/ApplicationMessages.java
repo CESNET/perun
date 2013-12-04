@@ -144,6 +144,9 @@ public interface ApplicationMessages extends Messages {
 	
 	@DefaultMessage("<h2>VO does not have application form defined.</h2>")
 	String noFormDefined();
+
+    @DefaultMessage("<h2>You are already member of VO.</h2>")
+    String alreadyVoMember();
 	
 	@DefaultMessage("Membership in group {0} cannot be extended. It last as long as membership in VO {1}.")
 	String groupMembershipCantBeExtended(String groupName, String voName);

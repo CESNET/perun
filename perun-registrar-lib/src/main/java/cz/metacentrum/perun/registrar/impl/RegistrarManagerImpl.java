@@ -1462,8 +1462,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 } catch (MemberNotExistsException ex) {
                     // user is not member of vo
                     if (group != null) {
-                        // user must be member of VO to post initial application for group
-                        // FIXME - we allow users to apply for group now
+                        // not member of VO - check for unprocessed applications to Group
+                        regs.clear();
+                        regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+                                new SingleColumnRowMapper<Integer>(Integer.class),
+                                AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
+                        regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+                                new SingleColumnRowMapper<Integer>(Integer.class),
+                                AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+                        if (!regs.isEmpty()) {
+                            // user have unprocessed application for group - can't post more
+                            throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+                        }
                         //throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
                     } else {
                         // not member of VO - check for unprocessed applications
