@@ -689,5 +689,74 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
                         ac.getFacilityById(parms.readInt("facility")));
             }
         }
+    },
+
+  /*#
+   * Copy owners from source facility to destination facility.
+   * You must be facility manager of both.
+   *
+   * @param srcFacility Facility JSON object
+   * @param destFacility Facility JSON object
+   *
+   * @return null
+   */
+    copyOwners {
+
+        @Override
+        public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            ac.getFacilitiesManager().copyOwners(ac.getSession(),
+                    parms.read("srcFacility", Facility.class),
+                    parms.read("destFacility", Facility.class));
+
+            return null;
+
+        }
+    },
+
+    /*#
+     * Copy managers from source facility to destination facility.
+     * You must be facility manager of both.
+     *
+     * @param srcFacility Facility JSON object
+     * @param destFacility Facility JSON object
+     *
+     * @return null
+     */
+    copyManagers {
+
+        @Override
+        public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            ac.getFacilitiesManager().copyManagers(ac.getSession(),
+                    parms.read("srcFacility", Facility.class),
+                    parms.read("destFacility", Facility.class));
+
+            return null;
+
+        }
+    },
+
+    /*#
+     * Copy attributes (settings) from source facility to destination facility.
+     * You must be facility manager of both.
+     *
+     * @param srcFacility Facility JSON object
+     * @param destFacility Facility JSON object
+     *
+     * @return null
+     */
+    copyAttributes {
+
+        @Override
+        public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            ac.getFacilitiesManager().copyAttributes(ac.getSession(),
+                    parms.read("srcFacility", Facility.class),
+                    parms.read("destFacility", Facility.class));
+
+            return null;
+
+        }
     };
 }
