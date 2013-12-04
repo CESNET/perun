@@ -371,8 +371,7 @@ public class ApplicationFormPage extends ApplicationPage {
 			bodyContents.add(ft);
 
             if (Location.getParameter("targetnew") != null) {
-                int index = Location.getQueryString().indexOf("targetnew=");
-                Location.replace(Location.getQueryString().substring(index+10));
+                Location.replace(Location.getParameter("targetnew"));
             }
 			
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
@@ -389,14 +388,12 @@ public class ApplicationFormPage extends ApplicationPage {
 			if (autoApproval) {
 				// automatically extended
                 if (Location.getParameter("targetextended") != null) {
-                    int index = Location.getQueryString().indexOf("targetextended=");
-                    Location.replace(Location.getQueryString().substring(index+15));
+                    Location.replace(Location.getParameter("targetextended"));
                 }
 			} else {
 				// TODO - only when user have valid account
                 if (Location.getParameter("targetexisting") != null) {
-                    int index = Location.getQueryString().indexOf("targetexisting=");
-                    Location.replace(Location.getQueryString().substring(index+15));
+                    Location.replace(Location.getParameter("targetexisting"));
                 }
 			}
 			

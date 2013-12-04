@@ -9,7 +9,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.applicationresources.ApplicationFormLeftMenu;
@@ -168,37 +167,10 @@ public class ApplicationFormGui implements EntryPoint {
 	/**
 	 * Loads the VO by the parameter
 	 */
-	public void loadVo(final JsonCallbackEvents events)
-	{
-		// get vo by short name
-        if (Location.getParameter("targetexisting") == null && Location.getParameter("targetextended") == null && Location.getParameter("targetnew") == null) {
-            // if no redirect, then easy way
-            voName = Location.getParameter("vo");
-            groupName = Location.getParameter("group");
+	public void loadVo(final JsonCallbackEvents events) {
 
-        } else if (Location.getParameter("targetexisting") != null || Location.getParameter("targetextended") != null || Location.getParameter("targetnew") != null) {
-
-            // fix for running on local devel
-            int position = 1;
-            if (Location.getParameter("gwt.codesvr") != null) {
-                position++;
-            }
-
-            String vo = Location.getQueryString().replace("?", "&").split("&")[position];
-            if (vo.startsWith("vo=")) {
-                // set vo name
-                voName = vo.replace("vo=", "");
-            }
-
-            position++;
-
-            String group = Location.getQueryString().replace("?", "&").split("&")[position];
-            if (group.startsWith("group=")) {
-                // set group name
-                groupName = group.replace("group=", "");
-            }
-
-        }
+		voName = Location.getParameter("vo");
+        groupName = Location.getParameter("group");
 
 		Initialize req = new Initialize(voName, groupName, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
@@ -598,8 +570,8 @@ public class ApplicationFormGui implements EntryPoint {
 			return;
 			
 		}
-		
-		// application form page
+
+        // application form page
 		ApplicationFormPage formPage = new ApplicationFormPage(vo, group, applicationType);
 		// even user "not yet in perun" can have some applications sent (therefore display by session info)
 		UsersApplicationsPage appsPage = new UsersApplicationsPage();
