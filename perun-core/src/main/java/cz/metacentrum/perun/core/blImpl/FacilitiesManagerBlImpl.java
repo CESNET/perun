@@ -51,6 +51,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -67,11 +68,12 @@ import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import java.util.logging.Level;
 
 /**
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: 06cc5cdfde3a9dd9563615972210f27a03614ea4 $
  */
 public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
@@ -163,6 +165,16 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
   public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
     getFacilitiesManagerImpl().removeOwner(sess, facility, owner);
+  }
+
+  public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException {
+    for (Owner owner: getOwners(sess, sourceFacility)) {
+        try {
+            addOwner(sess, destinationFacility, owner);
+        } catch (OwnerAlreadyAssignedException ex) {
+            // we can ignore the exception in this particular case, user can be owner in both of the facilities
+        }
+    }
   }
 
   public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException {
@@ -319,6 +331,17 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
       throw new InternalErrorException("Group " + group + " shouldn't have any members");
     } catch (GroupAlreadyAssignedException e) {
       // We can silently ignore this exception, it doesn't have any influence on the functionality.
+    }
+    
+    //set creator as Facility manager
+    if(sess.getPerunPrincipal().getUser() != null) {
+      try {
+        addAdmin(sess, facility, sess.getPerunPrincipal().getUser());
+      } catch(AlreadyAdminException ex) {
+        throw new ConsistencyErrorException("Add manager to newly created Facility failed because there is particular manager already assigned", ex);
+      }
+    } else {
+      log.error("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
     }
 
     return facility;
@@ -783,4 +806,38 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws InternalErrorException{
       return this.getFacilitiesManagerImpl().getAssignedUsers(sess, facility,service);
   }
+
+  public void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException {
+      for (User admin: getDirectAdmins(sess, sourceFacility)) {
+          try {
+              addAdmin(sess, destinationFacility, admin);
+          } catch (AlreadyAdminException ex) {
+              // we can ignore the exception in this particular case, user can be admin in both of the facilities
+          }
+      }
+      
+      for (Group adminGroup: getAdminGroups(sess, sourceFacility)) {
+          try {
+              addAdmin(sess, destinationFacility, adminGroup);
+          } catch (AlreadyAdminException ex) {
+              // we can ignore the exception in this particular case, group can be admin in both of the facilities
+          }
+      }
+  }
+
+    public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+        List<Attribute> sourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceFacility);
+        List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationFacility);
+
+        // create intersection of destination and source attributes
+        List<Attribute> intersection = new ArrayList<>();
+        intersection.addAll(destinationAttributes);
+        intersection.retainAll(sourceAttributes);
+
+        // delete all common attributes from destination facility
+        getPerunBl().getAttributesManagerBl().removeAttributes(sess, destinationFacility, intersection);
+        // add all attributes from source facility to destination facility
+        getPerunBl().getAttributesManagerBl().setAttributes(sess, destinationFacility, sourceAttributes);
+    }
+    
 }
