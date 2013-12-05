@@ -27,7 +27,7 @@ import java.util.Comparator;
  * Ajax query to get all rich destinations for selected facility or service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 96e0726384e9a35f4ffab2d462ea9dc1600c6644 $
  */
 
 public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {
@@ -103,6 +103,12 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
+
+        if (showFac) {
+            loaderImage.setEmptyResultMessage("Service has no destination.");
+        } else {
+            loaderImage.setEmptyResultMessage("Facility has no service destination.");
+        }
 
 		// Sorting
 		ListHandler<Destination> columnSortHandler = new ListHandler<Destination>(dataProvider.getList());
@@ -429,6 +435,8 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
             dataProvider.flush();
             dataProvider.refresh();
 		}
+
+        loaderImage.loadingFinished();
 		
 	}
 

@@ -267,6 +267,30 @@ public class UiElements {
     }
 
     /**
+     * Generates standardized alert box for error messages based on passed params
+     * It's used for GUI internal events, not for errors from RPC.
+     *
+     * @param header
+     * @param text
+     */
+    static public void generateAlert(String header, String text, ClickHandler handler) {
+
+        FlexTable layout = new FlexTable();
+
+        layout.setWidget(0, 0, new HTML("<p>"+new Image(LargeIcons.INSTANCE.errorIcon())));
+        layout.setHTML(0, 1, "<p>"+text);
+
+        layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+        layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+        layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+        Confirm c = new Confirm(header, layout, handler, true);
+        c.setNonScrollable(true);
+        c.show();
+
+    }
+
+    /**
      * Generates standardized info box for info messages based on passed params
      * It's used for GUI internal events, not for errors from RPC.
      *

@@ -13,9 +13,10 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Custom GWT widget for ajax loader image.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 67ed94e30cb88ef5798a46940f7bd07d2d260404 $
  */
-public class AjaxLoaderImage extends Composite{
+public class AjaxLoaderImage extends Composite {
+
 	static public final String IMAGE_URL = "img/ajax-loader.gif";
 	static public final String SMALL_IMAGE_URL = "img/ajax-loader-small.gif";
 	
@@ -23,6 +24,9 @@ public class AjaxLoaderImage extends Composite{
 	private final String ERROR = WidgetTranslation.INSTANCE.requestTimeout();
 	private final String RESPOND_ERROR = WidgetTranslation.INSTANCE.serverRespondedWithError();
 	private final String CLICK_TO_SEARCH = WidgetTranslation.INSTANCE.emptySearch();
+
+    // Text displayed on empty result
+    private String result = NO_DATA;
 	
 	final private SimplePanel loaderPanel = new SimplePanel();
 	
@@ -83,7 +87,7 @@ public class AjaxLoaderImage extends Composite{
 	{
 		Scheduler.get().scheduleDeferred(new Command() { 
 			public void execute() {
-				loaderPanel.setWidget(getMessage(NO_DATA));
+				loaderPanel.setWidget(getMessage(result));
 			}
 		});
 		return this;
@@ -151,6 +155,19 @@ public class AjaxLoaderImage extends Composite{
 		});
 		return this;
 	}
+
+    /**
+     * Sets empty result message
+     *
+     * @param result
+     */
+    public void setEmptyResultMessage(String result) {
+        if (result == null) {
+            this.result = NO_DATA;
+        } else {
+            this.result = result;
+        }
+    }
 	
 	
 	/**
@@ -166,7 +183,7 @@ public class AjaxLoaderImage extends Composite{
 			return new HTML("<p><strong>" + text + "</strong></p>");
 		}
 		
-		return new HTML("<h2>" + text + "</h2>");
+		return new HTML("<h2 class=\"now-managing\">" + text + "</h2>");
 	}
 	
 }

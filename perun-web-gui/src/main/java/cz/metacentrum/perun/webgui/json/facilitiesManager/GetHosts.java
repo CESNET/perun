@@ -24,7 +24,7 @@ import java.util.Comparator;
  * Ajax query to get hosts from facility (cluster)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: b2703d8a44931c4844f237ae91048ffb55fe901a $
  */
 public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
 	// Session
@@ -97,6 +97,8 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
 		
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
+
+        loaderImage.setEmptyResultMessage("Facility has no hosts.");
 
 		// Sorting
 		ListHandler<Host> columnSortHandler = new ListHandler<Host>(dataProvider.getList());
