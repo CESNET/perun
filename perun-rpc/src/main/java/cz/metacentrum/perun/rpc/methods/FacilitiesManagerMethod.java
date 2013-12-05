@@ -704,10 +704,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
         @Override
         public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
 
             ac.getFacilitiesManager().copyOwners(ac.getSession(),
-                    parms.read("srcFacility", Facility.class),
-                    parms.read("destFacility", Facility.class));
+                    ac.getFacilityById(parms.readInt("srcFacility")),
+                    ac.getFacilityById(parms.readInt("destFacility")));
 
             return null;
 
@@ -727,10 +728,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
         @Override
         public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
 
             ac.getFacilitiesManager().copyManagers(ac.getSession(),
-                    parms.read("srcFacility", Facility.class),
-                    parms.read("destFacility", Facility.class));
+                    ac.getFacilityById(parms.readInt("srcFacility")),
+                    ac.getFacilityById(parms.readInt("destFacility")));
 
             return null;
 
@@ -750,10 +752,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
         @Override
         public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
 
             ac.getFacilitiesManager().copyAttributes(ac.getSession(),
-                    parms.read("srcFacility", Facility.class),
-                    parms.read("destFacility", Facility.class));
+                    ac.getFacilityById(parms.readInt("srcFacility")),
+                    ac.getFacilityById(parms.readInt("destFacility")));
 
             return null;
 
