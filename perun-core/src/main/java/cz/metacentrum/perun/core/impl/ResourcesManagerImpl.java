@@ -45,7 +45,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 /**
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: 7a518311bfc5616bc7c7addd63ecd50b5de50583 $
  */
 public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
@@ -595,8 +595,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
     public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
         try {
-            return jdbc.query("select " + resourceMappingSelectQuery + " from resource join " +
-                    "tags_resources on resources.id=tag_resources.resource_id " +
+            return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
+                    "tags_resources on resources.id=tags_resources.resource_id " +
                     "where tags_resources.tag_id=?",
                     RESOURCE_MAPPER, resourceTag.getId());
         } catch (EmptyResultDataAccessException e) {
@@ -622,7 +622,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
         try {
             return jdbc.query("select " + resourceTagMappingSelectQuery + " from tags_resources join " +
-                    "resources on resources.id=tag_resources.resource_id " +
+                    "resources on resources.id=tags_resources.resource_id " +
                     "where tags_resources.resource_id=?",
                     RESOURCE_TAG_MAPPER, resource.getId());
         } catch (EmptyResultDataAccessException e) {
