@@ -3,33 +3,35 @@ package cz.metacentrum.perun.webgui.json.resourcesManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.ResourceTag;
 
 /**
- * Ajax query for deleting resource
+ * Ajax query for creating resource tag in VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id: $
  */
-
-public class DeleteResource {
+public class CreateResourceTag {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "resourcesManager/deleteResource";
+	final String JSON_URL = "resourcesManager/createResourceTag";
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int resourceId = 0;
+	private String tagName;
+    private int voId;
 
 	/**
 	 * Creates a new request
 	 */
-	public DeleteResource() {
+	public CreateResourceTag() {
 	}
 
 	/**
@@ -37,7 +39,7 @@ public class DeleteResource {
 	 *
 	 * @param events Custom events
 	 */
-	public DeleteResource(JsonCallbackEvents events) {
+	public CreateResourceTag(JsonCallbackEvents events) {
 		this.events = events;
 	}
 
@@ -51,10 +53,15 @@ public class DeleteResource {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(resourceId == 0){
-			errorMsg += "Wrong parameter 'resource ID'";
+		if(tagName == null || tagName.isEmpty()){
+			errorMsg += "Wrong parameter 'resource tag name'.</br>";
 			result = false;
 		}
+
+        if(voId == 0){
+            errorMsg += "Wrong parameter 'VO ID'.";
+            result = false;
+        }
 
 		if(errorMsg.length()>0){
             UiElements.generateAlert("Parameter error", errorMsg);
@@ -64,13 +71,15 @@ public class DeleteResource {
 	}
 
 	/**
-	 * Attempts to delete resource, it first tests the values and then submits them
+	 * Attempts to delete resource tag, it first tests the values and then submits them
 	 * 
-	 * @param resourceId ID of resource to be deleted
+	 * @param tagName Resource tag name
+     * @param voId ID of VO to create resource tag for
 	 */
-	public void deleteResource(final int resourceId) {
+	public void createResourceTag(final String tagName, final int voId) {
 
-		this.resourceId = resourceId;
+		this.tagName = tagName;
+        this.voId = voId;
 
 		// test arguments
 		if(!this.testDeleting()){
@@ -80,12 +89,12 @@ public class DeleteResource {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting resource: " + resourceId + " failed.");
+				session.getUiElements().setLogErrorText("Creating resource tag failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Resource " + resourceId + " deleted.");
+				session.getUiElements().setLogSuccessText("Resource tag created.");
 				events.onFinished(jso);
 			};
 
@@ -105,9 +114,17 @@ public class DeleteResource {
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
+
 		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("resource", new JSONNumber(resourceId));
-		return jsonQuery;
+        JSONObject jsonTag = new JSONObject();
+        jsonTag.put("id", null);
+        jsonTag.put("tagName", new JSONString(tagName));
+        jsonTag.put("voId", new JSONNumber(voId));
+
+		jsonQuery.put("resourceTag", jsonTag);
+        jsonQuery.put("vo", new JSONNumber(voId));
+
+        return jsonQuery;
 	}
 
 }

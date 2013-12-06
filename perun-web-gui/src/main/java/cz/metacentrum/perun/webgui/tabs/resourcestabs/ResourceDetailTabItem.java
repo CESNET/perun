@@ -189,6 +189,9 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
         tabPanel.add(new ResourceAssignedGroupsTabItem(r), "Assigned groups");
         tabPanel.add(new ResourceAssignedServicesTabItem(r), "Assigned services");
         tabPanel.add(new ResourceSettingsTabItem(r, null), "Service settings");
+        if (session.isVoAdmin(r.getVoId())) {
+            tabPanel.add(new ResourceTagsTabItem(r), "Tags");
+        }
 
         // Resize must be called after page fully displays
         Scheduler.get().scheduleDeferred(new Command() {

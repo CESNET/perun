@@ -451,6 +451,9 @@ public class UiElements {
                 } else if (go.getObjectType().equalsIgnoreCase("Author")) {
                     Author aut = go.cast();
                     items = items.concat("<li>"+aut.getDisplayName()+"</li>");
+                } else if (go.getObjectType().equalsIgnoreCase("ResourceTag")) {
+                    ResourceTag tag = go.cast();
+                    items = items.concat("<li>"+tag.getName()+"</li>");
                 } else {
                     items = items.concat("<li>"+go.getName()+"</li>");
                 }
