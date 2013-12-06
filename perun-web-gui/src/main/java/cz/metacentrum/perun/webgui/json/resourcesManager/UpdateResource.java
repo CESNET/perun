@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.Resource;
  * Update resource details
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 6f992a4341026e85889ee2b9164ce2b873f64bb0 $
  */
 public class UpdateResource {
 
@@ -61,7 +61,6 @@ public class UpdateResource {
 		newResource.put("description", oldResource.get("description"));
 		newResource.put("voId", oldResource.get("voId"));
 		newResource.put("facilityId", oldResource.get("facilityId"));
-		newResource.put("sldId", oldResource.get("sldId"));
 		newResource.put("beanName", oldResource.get("beanName"));
 		newResource.put("createdAt", oldResource.get("createdAt"));
 		newResource.put("createdBy", oldResource.get("createdBy"));

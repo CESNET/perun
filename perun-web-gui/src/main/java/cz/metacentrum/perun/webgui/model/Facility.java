@@ -8,7 +8,7 @@ import com.google.gwt.core.client.JsArray;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: bfaf1fec627c3c6c09c686c6589b721ab3c0a6b4 $
  */
 public class Facility extends JavaScriptObject {
 
@@ -23,9 +23,17 @@ public class Facility extends JavaScriptObject {
 		return this.name;
 	}-*/;
 
+    public final native void setName(String newName) /*-{
+        this.name = newName;
+    }-*/;
+
 	public final native String getType() /*-{
 		return this.type;
 	}-*/;
+
+    public final native void setType(String type) /*-{
+        this.type = type;
+    }-*/;
 
     /**
      * !! FOR RICH FACILITY ONLY !!

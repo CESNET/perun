@@ -31,7 +31,7 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 1e3169b84c18f7c8da4a14adac69d26925d8da05 $
  */
 public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 
@@ -140,6 +140,32 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
         });
         dp.add(cb);
         cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+
+
+        /* uncomment for editing facility name
+        also change other button right position from 5 to 50.
+
+        final JsonCallbackEvents events = new JsonCallbackEvents(){
+            public void onFinished(JavaScriptObject jso){
+                new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+                    public void onFinished(JavaScriptObject jso){
+                        facility = jso.cast();
+                        draw();
+                    }
+                }).retrieveData();
+            }
+        };
+
+        CustomButton change = new CustomButton("", ButtonTranslation.INSTANCE.editFacilityDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+        change.addClickHandler(new ClickHandler(){
+            public void onClick(ClickEvent event) {
+                // prepare confirm content
+                session.getTabManager().addTabToCurrentTab(new EditFacilityDetailsTabItem(facility, events));
+            }
+        });
+        dp.add(change);
+        change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+        */
 
         dp.add(menu);
         vp.add(dp);

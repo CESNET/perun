@@ -7,7 +7,7 @@ import com.google.gwt.i18n.client.Messages;
  * Translations for buttons
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: c7243aabccd0a29f77580b056d6c4684ba108e5e $
  */
 public interface ButtonTranslation extends Messages {
 
@@ -539,6 +539,12 @@ public interface ButtonTranslation extends Messages {
 
     @DefaultMessage("Filter facilities by name or owner")
     String filterFacilities();
+
+    @DefaultMessage("Edit facility details")
+    String editFacilityDetails();
+
+    @DefaultMessage("Save changes in facility details")
+    String saveFacilityDetails();
 
     @DefaultMessage("Finish configuration of facility")
     String finishFacilityConfiguration();
