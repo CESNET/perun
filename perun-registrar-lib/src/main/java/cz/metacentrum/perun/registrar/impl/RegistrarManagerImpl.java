@@ -1753,14 +1753,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
             for (ApplicationFormItemData item : data) {
                 if ("urn:perun:user:attribute-def:core:displayName".equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
-                    break;
+                    if (name != null && !name.isEmpty()) break;
                 } else if ("urn:perun:user:attribute-def:core:lastName".equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
-                    break;
+                    if (name != null && !name.isEmpty()) break;
                 }
             }
 
-            if (!name.isEmpty()) {
+            if (name != null && !name.isEmpty()) {
                 return usersManager.findUsersByName(registrarSession, name);
             } else {
                 return result;
