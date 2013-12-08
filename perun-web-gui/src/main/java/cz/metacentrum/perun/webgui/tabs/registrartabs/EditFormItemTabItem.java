@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: ff645a4c253a4f54bdd15e6f1d9bdd255e6647ba $
  */
 public class EditFormItemTabItem implements TabItem{
 
@@ -383,6 +383,10 @@ public class EditFormItemTabItem implements TabItem{
             boolean checked = itemApplicationTypes.contains(type.toString());
             cb.setValue(checked);
             applicationTypesCheckBoxes.add(cb);
+        }
+
+        if (item.getType().equals("VALIDATED_EMAIL")) {
+            regexTextBox.setEnabled(false);
         }
 
         // sizes
