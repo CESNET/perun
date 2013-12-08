@@ -18,7 +18,7 @@ import cz.metacentrum.perun.webgui.model.RTMessage;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: c69bb36a4235fae205475e4c12f55a79ea65c628 $
  */
 public class SendMessageToRt {
 
@@ -135,6 +135,7 @@ public class SendMessageToRt {
 
 		// create request
 		JsonPostClient request = new JsonPostClient(sendEvents);
+        request.setHidden(true);
 		request.sendData(JSON_URL, jsonQuery);
 
 		return true;
