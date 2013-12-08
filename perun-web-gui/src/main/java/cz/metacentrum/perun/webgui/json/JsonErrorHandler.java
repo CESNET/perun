@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -22,7 +23,7 @@ import java.util.Set;
  * Class for handling Error objects returned from RPC server
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: e56daef542e2a1710c3d6ccb41bbb421ffcdaa80 $
  */
 public class JsonErrorHandler {
 
@@ -107,9 +108,6 @@ public class JsonErrorHandler {
 
             public void onClick(ClickEvent event) {
 
-                // request itself
-                SendMessageToRt msg = new SendMessageToRt();
-
                 String text = error.getErrorId() + " - " + error.getName() + "\n";
                 text += error.getErrorInfo() + "\n\n";
                 text += "Request: " + request + "\n";
@@ -118,6 +116,37 @@ public class JsonErrorHandler {
                 text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
                 text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion()+ "\n\n";
                 text += "Message: " + messageTextBox.getText();
+
+                final String finalText = text;
+
+                // request itself
+                SendMessageToRt msg = new SendMessageToRt(new JsonCallbackEvents(){
+                    @Override
+                    public void onError(PerunError error){
+
+                        FlexTable layout = new FlexTable();
+
+                        TextArea scrollPanel = new TextArea();
+                        scrollPanel.setText(finalText);
+
+                        layout.setWidget(0, 0, new HTML("<p>"+new Image(LargeIcons.INSTANCE.errorIcon())));
+                        layout.setHTML(0, 1, "<p>Reporting errors is not working at the moment. We are sorry for inconvenience. <p>Please send following text to <strong>perun@cesnet.cz</strong>.");
+
+                        layout.getFlexCellFormatter().setColSpan(1, 0, 2);
+                        layout.setWidget(1, 0, scrollPanel);
+
+                        scrollPanel.setSize("350px", "150px");
+
+                        layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+                        layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+                        layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+                        Confirm c = new Confirm("Error report is not working", layout, true);
+                        c.setNonScrollable(true);
+                        c.show();
+
+                    };
+                });
 
                 msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR "+error.getErrorId()+": "+request, text);
 
