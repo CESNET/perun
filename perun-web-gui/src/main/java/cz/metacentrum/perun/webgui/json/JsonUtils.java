@@ -579,9 +579,11 @@ public class JsonUtils {
 	 * @return
 	 */
 	public native static boolean isValidEmail(String email) /*-{
-    	var reg1 = /(@.*@)|(\.\.)|(@\.)|(\.@)|(^\.)/; // not valid
-   		var reg2 = /^.+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,3}|[0-9]{1,3})(\]?)$/; // valid
-    	return !reg1.test(email) && reg2.test(email);
+    	//var reg1 = /(@.*@)|(\.\.)|(@\.)|(\.@)|(^\.)/; // not valid
+   		//var reg2 = /^.+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,3}|[0-9]{1,3})(\]?)$/; // valid
+    	//return !reg1.test(email) && reg2.test(email);
+        var reg4 = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        return reg4.test(email);
 	}-*/;
 	
 	/**
