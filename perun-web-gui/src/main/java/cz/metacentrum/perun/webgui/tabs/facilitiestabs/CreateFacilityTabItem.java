@@ -928,10 +928,10 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
             if (selectedServices == null || selectedServices.isEmpty()) {
                 services.addItem("No service available");
             } else {
-                services.addItem("All");
                 for (Service s : selectedServices) {
                     services.addItem(s);
                 }
+                services.addAllOption();
             }
 
             cellFormatter.setColSpan(0, 0, 2);
@@ -974,8 +974,16 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                             request.addDestinationByHosts(services.getAllObjects());
                         } else {
                             // default
-                            AddDestinationsForAllServices request = new AddDestinationsForAllServices(facility.getId(), JsonCallbackEvents.refreshTableEvents(callback));
-                            request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()));
+                            // FIXME - there are no services on facility at the moment, use list of services
+                            for (int i=0; i<services.getAllObjects().size(); i++) {
+                                if (i == services.getAllObjects().size()-1) {
+                                    AddDestination request = new AddDestination(facility.getId(), services.getAllObjects().get(i).getId(), JsonCallbackEvents.refreshTableEvents(callback));
+                                    request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()));
+                                } else {
+                                    AddDestination request = new AddDestination(facility.getId(), services.getAllObjects().get(i).getId());
+                                    request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()));
+                                }
+                            }
                         }
                     } else {
                         // selected one
