@@ -499,4 +499,169 @@ public class Utils {
         copyTo.setValueModifiedBy(copyFrom.getValueModifiedBy());
         return copyTo;
     }
+    
+    /**
+     * Method generates strings by pattern.
+     * The pattern is string with square brackets, e.g. "a[1-3]b". Then the content of the brackets
+     * are distributed, so the list is [a1b, a2b, a3c].
+     * Multibrackets are aslo allowed. For example "a[00-01]b[90-91]c" generates [a00b90c, a00b91c, a01b90c, a01b91c].
+     * 
+     * @param pattern
+     * @return list of all generated strings
+     */
+    public static List<String> generateStringsByPattern(String pattern) {
+        List<String> result = new ArrayList<String>();
+        
+        // get chars between the brackets
+        List<String> values = new ArrayList<String>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
+        // get content of the brackets
+        List<String> generators = new ArrayList<String>();
+        Pattern generatorPattern = Pattern.compile("\\[([^\\]]*)\\]");
+        Matcher m = generatorPattern.matcher(pattern);
+        while (m.find()) {
+            generators.add(m.group(1));
+        }
+        
+        // if values strings contain square brackets, wrong syntax, abort
+        for (String value: values) {
+            if (value.contains("]") || (value.contains("["))) {
+                result.add(pattern);
+                return result;
+            }
+        }
+        
+        // if generators strings contain square brackets, wrong syntax, abort
+        for (String generator: generators) {
+            if (generator.contains("]") || (generator.contains("["))) {
+                result.add(pattern);
+                return result;
+            }
+        }
+        
+        // list, that contains list for each generator, with already generated numbers
+        List<List<String>> listOfGenerated = new ArrayList<List<String>>();
+        
+        Pattern rangePattern = Pattern.compile("(\\d*)-(\\d*)");
+        for (String range: generators) {
+            m = rangePattern.matcher(range);
+            if (m.find()) {
+                String start = m.group(1);
+                String end = m.group(2);
+                int startNumber;
+                int endNumber;
+                try {
+                    startNumber = Integer.parseInt(start);
+                    endNumber = Integer.parseInt(end);
+                } catch (NumberFormatException ex) {
+                    // wrong format of the range -> skip this range (brackets)
+                    continue;
+                }
+                
+                // find out, how many zeros are before start number
+                int zerosInStart = 0;
+                int counter = 0;
+                while ( (start.charAt(counter) == '0') && (counter < start.length()-1) ) {
+                    zerosInStart++;
+                    counter++;
+                }
+                
+                String zeros = new String(new char[zerosInStart]).replace("\0", "0"); // replicate zeros
+                int oldNumberOfDigits = numberOfDigits(startNumber);
+                
+                // list of already generated numbers
+                List<String> generated = new ArrayList<String>();
+                while (endNumber >= startNumber) {
+                    // keep right number of zeros before number
+                    if (numberOfDigits(startNumber) == oldNumberOfDigits +1) {
+                        if (!zeros.isEmpty()) zeros = zeros.substring(1);
+                    }
+                    generated.add(zeros + startNumber);
+                    oldNumberOfDigits = numberOfDigits(startNumber);
+                    startNumber++;
+                }
+                
+                listOfGenerated.add(generated);
+                
+            } else {
+                // range is not in the format number-number -> abort
+                result.add(pattern);
+                return result;
+            }
+        }
+        
+        // add values among the generated numbers as one item lists
+        List<List<String>> listOfGeneratorsAndValues = new ArrayList<List<String>>();
+        int index = 0;
+        
+        for (List<String> list : listOfGenerated) {
+            if (index < values.size()) {
+                List<String> listWithValue = new ArrayList<>();
+                listWithValue.add(values.get(index));
+                listOfGeneratorsAndValues.add(listWithValue);
+                index++;
+            }
+            listOfGeneratorsAndValues.add(list);
+        }
+        
+        // complete list with remaining values
+        for (int i = index; i < values.size(); i++) {
+             List<String> listWithValue = new ArrayList<>();
+             listWithValue.add(values.get(i));
+             listOfGeneratorsAndValues.add(listWithValue);
+        }
+        
+        // generate all posibilities
+        return allPosibilities(listOfGeneratorsAndValues);
+    }
+    
+    /**
+     * Method counts number of digits in the given integer.
+     * @param number
+     * @return count of digits
+     */
+    private static int numberOfDigits(int number) {
+        if (number == 0) {
+            return 1;
+        }
+        
+        int digits = 0;
+        while (number != 0) {
+            digits++;
+            number = number / 10;
+        }
+        return digits;
+    }
+    
+    /**
+     * Method generates all posibilities of joining of strings.
+     * Example: input: [[a,b],[c,d]], output: [ac,ad,bc,bd] 
+     * @param lists list of lists, which will be joined
+     * @return all joined strings
+     */
+    private static List<String> allPosibilities(List<List<String>> lists) {
+        if (lists.size() == 0) {
+            // this should not happen
+            return new ArrayList<>();
+        }
+        if (lists.size() == 1) {
+            return lists.get(0);
+        }
+        List<String> result = new ArrayList<String>();
+        
+        List<String> list = lists.remove(0);
+        // get recursively all posibilities without first list
+        List<String> posibilities = allPosibilities(lists);
+        
+        // join all strings from first list with the others
+        for (String item: list) {
+            if (posibilities.isEmpty()) {
+                result.add(item);
+            } else {
+                for (String itemToConcat : posibilities) {
+                    result.add(item + itemToConcat);
+                }
+            }
+        }
+        return result;
+    }
 }
