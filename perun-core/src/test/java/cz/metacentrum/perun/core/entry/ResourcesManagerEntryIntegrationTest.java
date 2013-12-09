@@ -7,26 +7,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourcesManager;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
@@ -42,7 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 9d63b2ad68112c8a312d8fefd2c9eae09a78d168 $
  */
 
 public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
@@ -818,29 +804,71 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		// shouldn't find VO
 
 	}
-        
-        @Test
-	public void updateResource() throws Exception {
-		System.out.println("ResourcesManager.updateResource");
 
-                vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-                
-		Resource resourceToUpdate = resourcesManager.createResource(sess, resource, vo, facility);
-		resourceToUpdate.setName("TESTNAME1");
-		resource.setDescription("TESTDESC1");
-		final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
-                assertEquals(resourceToUpdate, updatedResource1);
-                
-                resourceToUpdate.setName("TESTNAME2");
-		final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
-                assertEquals(resourceToUpdate, updatedResource2);
-                
-                resource.setDescription("TESTDESC3");
-		final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
-                assertEquals(resourceToUpdate, updatedResource3);
-	}
+    @Test
+    public void updateResource() throws Exception {
+        System.out.println("ResourcesManager.updateResource");
+
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+
+        Resource resourceToUpdate = resourcesManager.createResource(sess, resource, vo, facility);
+        resourceToUpdate.setName("TESTNAME1");
+        resource.setDescription("TESTDESC1");
+        final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
+        assertEquals(resourceToUpdate, updatedResource1);
+
+        resourceToUpdate.setName("TESTNAME2");
+        final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
+        assertEquals(resourceToUpdate, updatedResource2);
+
+        resource.setDescription("TESTDESC3");
+        final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
+        assertEquals(resourceToUpdate, updatedResource3);
+    }
+
+
+    @Test
+    public void getAllResourcesTagsForResource() throws Exception {
+        System.out.println("ResourcesManager.getAllResourcesTagsForResource");
+
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+        ResourceTag tag = setUpResoruceTag();
+
+        resourcesManager.assignResourceTagToResource(sess, tag, resource);
+        List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+        assertTrue("Created tag is not returned from resource", tags.contains(tag));
+
+    }
+
+    @Test
+    public void getAllResourcesTagsForVo() throws Exception {
+        System.out.println("ResourcesManager.getAllResourcesTagsForVo");
+
+        vo = setUpVo();
+        ResourceTag tag = setUpResoruceTag();
+        List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForVo(sess, vo);
+        assertTrue("Created tag is not returned from VO", tags.contains(tag));
+
+    }
+
+    @Test
+    public void getAllResourcesByResourceTag() throws Exception {
+        System.out.println("ResourcesManager.getAllResourcesByResourceTag");
+
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+        ResourceTag tag = setUpResoruceTag();
+
+        resourcesManager.assignResourceTagToResource(sess, tag, resource);
+        List<Resource> resources = perun.getResourcesManager().getAllResourcesByResourceTag(sess, tag);
+        assertTrue("Resource with tag is not returned by same tag", resources.contains(resource));
+
+    }
 
 	// PRIVATE METHODS -----------------------------------------------------------
 
@@ -852,6 +880,15 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		return returnedVo;
 
 	}
+
+    private ResourceTag setUpResoruceTag() throws Exception {
+
+        ResourceTag tag = new ResourceTag(0, "ResourceManagerTestResourceTag", vo.getId());
+        tag = perun.getResourcesManager().createResourceTag(sess, tag, vo);
+        assertNotNull("unable to create testing ResourceTag", tag);
+        return tag;
+
+    }
 
 	private Member setUpMember(Vo vo) throws Exception {
 
