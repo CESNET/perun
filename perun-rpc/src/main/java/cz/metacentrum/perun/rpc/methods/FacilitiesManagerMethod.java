@@ -397,14 +397,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       Facility facility = ac.getFacilityById(parms.readInt("facility"));
 
       List<String> hostnames = parms.readList("hostnames", String.class);
-      List<Host> hosts = new ArrayList<Host>();
-      for(String hostname : hostnames) {
-        Host host = new Host();
-        host.setHostname(hostname);
-        hosts.add(host);
-      }
-
-      return ac.getFacilitiesManager().addHosts(ac.getSession(), hosts, facility);
+     
+      return ac.getFacilitiesManager().addHosts(ac.getSession(), facility, hostnames);
     }
   },
   
