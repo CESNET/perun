@@ -571,6 +571,23 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     return hosts;
   }
 
+  public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws InternalErrorException, HostExistsException {
+    // generate hosts by pattern
+    List<Host> generatedHosts = new ArrayList<Host>();
+    for (String host : hosts) {
+        List<String> listOfStrings = Utils.generateStringsByPattern(host);
+        List<Host> listOfHosts = new ArrayList<Host>();
+        for (String hostName : listOfStrings) {
+            Host newHost = new Host();
+            newHost.setHostname(hostName);
+            listOfHosts.add(newHost);
+        }
+        generatedHosts.addAll(listOfHosts);
+    }
+    // add generated hosts
+    return addHosts(sess, generatedHosts, facility);
+  }
+
   public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostAlreadyRemovedException {
     for(Host host : hosts) {  
       // Remove hosts attributes
