@@ -54,7 +54,11 @@ public class RichResource extends JavaScriptObject {
     }-*/;
 
     public final ArrayList<ResourceTag> getResourceTags() {
-        return JsonUtils.jsoAsList(getResourceTagsInternal());
+        if (getResourceTagsInternal() != null) {
+            return JsonUtils.jsoAsList(getResourceTagsInternal());
+        } else {
+            return new ArrayList<ResourceTag>();
+        }
     }
 
     public final native JsArray<ResourceTag> getResourceTagsInternal() /*-{

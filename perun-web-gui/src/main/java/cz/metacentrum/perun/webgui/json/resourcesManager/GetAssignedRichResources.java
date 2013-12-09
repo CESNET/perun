@@ -165,6 +165,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
         // TODO - sorting
         table.addColumn(tagsColumn, "Tags");
+        table.setColumnWidth(tagsColumn, "200px");
 
         table.addDescriptionColumn(tableFieldUpdater);
 
@@ -206,7 +207,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         list.add(object);
         oracle.add(object.getName());
         for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add("tag:"+rt.getName());
+            oracle.add(rt.getName()+" (tag)");
         }
         dataProvider.flush();
         dataProvider.refresh();
@@ -284,7 +285,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         list.add(index, object);
         oracle.add(object.getName());
         for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add("tag:"+rt.getName());
+            oracle.add(rt.getName()+" (tag)");
         }
         dataProvider.flush();
         dataProvider.refresh();
@@ -304,7 +305,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         for (RichResource r : list) {
             oracle.add(r.getName());
             for (ResourceTag rt : r.getResourceTags()) {
-                oracle.add("tag:"+rt.getName());
+                oracle.add(rt.getName()+" (tag)");
             }
         }
         dataProvider.flush();
@@ -337,8 +338,8 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 					list.add(res);
 				}
                 for (ResourceTag r : res.getResourceTags()) {
-                    // remove "tag:"
-                    if (r.getName().startsWith(filter.substring(4).trim())) {
+                    // remove " (tag)" after tag name
+                    if (r.getName().startsWith(filter.substring(0, filter.length()-6).trim())) {
                         list.add(res);
                         break;
                     }

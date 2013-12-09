@@ -196,7 +196,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         list.add(object);
         oracle.add(object.getName());
         for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add("tag:"+rt.getName());
+            oracle.add(rt.getName()+" (tag)");
         }
         dataProvider.flush();
         dataProvider.refresh();
@@ -274,7 +274,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         list.add(index, object);
         oracle.add(object.getName());
         for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add("tag:"+rt.getName());
+            oracle.add(rt.getName()+" (tag)");
         }
         dataProvider.flush();
         dataProvider.refresh();
@@ -294,7 +294,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         for (RichResource r : list) {
             oracle.add(r.getName());
             for (ResourceTag rt : r.getResourceTags()) {
-                oracle.add("tag:"+rt.getName());
+                oracle.add(rt.getName()+" (tag)");
             }
         }
         dataProvider.flush();
@@ -327,8 +327,8 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 					list.add(res);
 				}
                 for (ResourceTag r : res.getResourceTags()) {
-                    // remove "tag:"
-                    if (r.getName().startsWith(filter.substring(4).trim())) {
+                    // remove " (tag)" from tag name
+                    if (r.getName().startsWith(filter.substring(0, filter.length()-6).trim())) {
                         list.add(res);
                         break;
                     }

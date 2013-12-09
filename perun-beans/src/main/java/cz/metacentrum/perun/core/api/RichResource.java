@@ -3,17 +3,21 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Object which represents RichResource
  *
  * @author  Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 1508935453da8317cac7768aaec515faee248a3a $
  */
 
 public class RichResource extends Resource {
 
     private Vo vo;
     private Facility facility;
+    private List<ResourceTag> resourceTags;
 
     /**
      * Constructs a new instance.
@@ -64,8 +68,50 @@ public class RichResource extends Resource {
         return this.facility;
     }
 
+    /**
+     * Returns list of associated ResourceTags with this resource
+     *
+     * @return List<ResourcesTag> associated with resource
+     */
+    public List<ResourceTag> getResourceTags() {
+        return resourceTags;
+    }
+
+    /**
+     * Set list of associated ResourceTags with this resource
+     *
+     * @param resourceTags ResourceTags associated with resource
+     */
+    public void setResourceTags(List<ResourceTag> resourceTags) {
+        this.resourceTags = resourceTags;
+    }
+
+    /**
+     * Add ResourceTag to Resource (used to fill in from SQL)
+     *
+     * @param tag ResourceTag to add
+     */
+    public void addResourceTag(ResourceTag tag) {
+        if (resourceTags == null) {
+            this.resourceTags = new ArrayList<ResourceTag>();
+        }
+        if (tag != null && !resourceTags.contains(tag)) {
+            this.resourceTags.add(tag);
+        }
+    }
+
     @Override
     public String serializeToString() {
+
+        String tags = "\\0";
+        if (getResourceTags() != null && !getResourceTags().isEmpty()) {
+            ArrayList<String> list = new ArrayList<String>();
+            for (ResourceTag t : getResourceTags()) {
+                list.add(t.serializeToString());
+            }
+            tags = list.toString();
+        }
+
         return this.getClass().getSimpleName() +":[" +
                 "id=<" + getId() + ">" +
                 ", voId=<" + getVoId() + ">" +
@@ -74,6 +120,7 @@ public class RichResource extends Resource {
                 ", description=<" + (super.getDescription() == null ? "\\0" : BeansUtils.createEscaping(super.getDescription())) + ">" +
                 ", facility=<" + (getFacility() == null ? "\\0" : getFacility().serializeToString()) + ">" +
                 ", vo=<" + (getVo() == null ? "\\0" : getVo().serializeToString()) + ">" +
+                ", resourceTags=<" + tags + ">" +
                 ']';
     }
 
@@ -87,6 +134,7 @@ public class RichResource extends Resource {
                 + "', description='" + super.getDescription()
                 + "', facility='" + getFacility()
                 + "', vo='" + getVo()
+                + "', resourceTags='" + getResourceTags()
                 + "']";
     }
 
