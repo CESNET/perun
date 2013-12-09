@@ -622,7 +622,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
         try {
             return jdbc.query("select " + resourceTagMappingSelectQuery + " from tags_resources join " +
-                    "resources on resources.id=tags_resources.resource_id " +
+                    "res_tags on tags_resources.tag_id=res_tags.id " +
                     "where tags_resources.resource_id=?",
                     RESOURCE_TAG_MAPPER, resource.getId());
         } catch (EmptyResultDataAccessException e) {
