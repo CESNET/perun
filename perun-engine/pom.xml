@@ -139,6 +139,11 @@
     <dependencies>
 
         <!-- PERUN -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-beans</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>cz.metacentrum.perun</groupId>

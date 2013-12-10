@@ -3,32 +3,25 @@ package cz.metacentrum.perun.taskslib.model;
 import java.io.Serializable;
 
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * @author Michal Karm Babacek
  */
-public class ExecService implements Serializable {
+public class ExecService extends PerunBean implements Serializable {
 	private static final long serialVersionUID = 3257568390917667126L;
 
 	public static enum ExecServiceType {
 		GENERATE, SEND
 	}
 
-	private int id;
 	private int defaultDelay;
 	private int defaultRecurrence = 5;
 	private boolean enabled;
 	private Service service;
 	private String script;
 	private ExecServiceType execServiceType;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public int getDefaultDelay() {
 		return defaultDelay;
@@ -70,15 +63,15 @@ public class ExecService implements Serializable {
 		this.execServiceType = execServiceType;
 	}
 
-    public String getBeanName(){
-        return this.getClass().getSimpleName();
-    }
+        public String getBeanName(){
+                return this.getClass().getSimpleName();
+        }
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result + getId();
 		return result;
 	}
 
@@ -103,18 +96,39 @@ public class ExecService implements Serializable {
 	public Service getService() {
 		return service;
 	}
-
+/*
 	@Override
 	public String toString() {
 		String toBeReturned = null;
 		if(service != null && execServiceType != null) {
-			toBeReturned = "ExecService:[id:"+id+", name:"+service.getName()+", type:"+execServiceType.toString()+"]";
+			toBeReturned = "ExecService:[id:"+getId()+", name:"+service.getName()+", type:"+execServiceType.toString()+"]";
 		} else {
-			toBeReturned = "ExecService:[id:"+id+", name:null, type:null]";
+			toBeReturned = "ExecService:[id:"+getId()+", name:null, type:null]";
 		}
 		return toBeReturned;
 	}
-	
-	
+*/      
+        @Override
+        public String serializeToString() {
+            return this.getClass().getSimpleName() +":[" +
+                    "id=<" + getId() + ">" +
+                    ", name=<" + (service == null ? "\\0" : BeansUtils.createEscaping(service.getName())) + ">" +
+                    ", type=<" + (execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString()))+ ">" +
+                    ", service=<" + (getService()== null ? "\\0" : getService().serializeToString()) + ">" +
+                    ']';
+        }
 
+        @Override
+        public String toString() {
+            String serviceName = null;
+            if(service != null && service.getName() != null) serviceName = service.getName();
+            String exSrvType = null;
+            if(execServiceType != null) exSrvType = execServiceType.toString();
+            return getClass().getSimpleName() + ":["
+                    + "id='" + getId()
+                    + "', name='" + serviceName
+                    + "', type='" + exSrvType
+                    + "', service='" + getService()
+                    + "']";
+        }
 }

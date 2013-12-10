@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.taskslib.model.ExecService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -89,6 +90,9 @@ public class AuditParserTest {
         private ResourceTag resourceTag1 = new ResourceTag(5, "cosi" , 2);
         private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
         
+        private ExecService exService1 = new ExecService();
+        private ExecService exService2 = new ExecService();
+        
         @Before
         public void setUp() throws Exception {
             member.setMembershipType(MembershipType.DIRECT);
@@ -119,7 +123,13 @@ public class AuditParserTest {
             owners.add(owner1);
             owners.add(owner2);
             richFacility = new RichFacility(facility, owners);
-            candidate.setAdditionalUserExtSources(userExtSources);
+            candidate.setAdditionalUserExtSources(userExtSources);        
+            exService1.setId(10);
+            exService1.setService(service);
+            exService1.setExecServiceType(ExecService.ExecServiceType.GENERATE);
+            exService2.setId(20);
+            exService2.setService(null);
+            exService2.setExecServiceType(null);
         }
     
         @Test
@@ -470,6 +480,12 @@ public class AuditParserTest {
             List<PerunBean> authorship2InList = AuditParser.parseLog(authorship2.serializeToString());
             assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());
             assertEquals(authorship2.toString(), ((Authorship) authorship2InList.get(0)).toString());
+            
+            //FOR EXECSERVICE
+            List<PerunBean> execService1InList = AuditParser.parseLog(exService1.serializeToString());
+            List<PerunBean> execService2InList = AuditParser.parseLog(exService2.serializeToString());
+            assertEquals(exService1.toString(), ((ExecService) execService1InList.get(0)).toString());
+            assertEquals(exService2.toString(), ((ExecService) execService2InList.get(0)).toString());
         }
         
         @Test
@@ -502,6 +518,7 @@ public class AuditParserTest {
             assertEquals(vo.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(vo.serializeToString())));
             assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
             assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
+            assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
         }   
         
         @Test
@@ -515,11 +532,11 @@ public class AuditParserTest {
                             owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
                             attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
                             richResource.serializeToString() + richUser.serializeToString() + richFacility.serializeToString() +
-                            resourceTag1.serializeToString();
+                            resourceTag1.serializeToString() + exService1.serializeToString();
             
             List<PerunBean> perunBeans = new ArrayList<PerunBean>();
             perunBeans = AuditParser.parseLog(bigLog);
-            assertEquals(21, perunBeans.size());
+            assertEquals(22, perunBeans.size());
             assertTrue(perunBeans.contains(user));
             assertTrue(perunBeans.contains(attribute1));
             assertTrue(perunBeans.contains(attributeDefinition1));
@@ -541,6 +558,7 @@ public class AuditParserTest {
             assertTrue(perunBeans.contains(richUser));
             assertTrue(perunBeans.contains(richFacility));
             assertTrue(perunBeans.contains(resourceTag1));
+            assertTrue(perunBeans.contains(exService1));
         }
           
                 private AttributeDefinition getAttributeDefinition1() {

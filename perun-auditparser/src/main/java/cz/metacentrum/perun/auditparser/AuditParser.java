@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.taskslib.model.ExecService;
+import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,6 +64,7 @@ public class AuditParser {
                 else if(p.getLeft().equals("Vo")) perunBean = createVo(p.getRight());
                 else if(p.getLeft().equals("Authorship")) perunBean = createAuthorship(p.getRight());
                 else if(p.getLeft().equals("ResourceTag")) perunBean = createResourceTag(p.getRight());
+                else if(p.getLeft().equals("ExecService")) perunBean = createExecService(p.getRight());
                 else loger.debug("Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" + p.getLeft());
                 if(perunBean != null) listPerunBeans.add(perunBean);
             } catch (RuntimeException e) {
@@ -465,6 +468,29 @@ public class AuditParser {
         resourceTag.setTagName(BeansUtils.eraseEscaping(beanAttr.get("tagName")));
         return resourceTag;
     }
+    
+    private static ExecService createExecService(Map<String, String> beanAttr) {
+        if(beanAttr==null) return null;
+        ExecService execService = new ExecService();
+        execService.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+        Service service;
+        if(beanAttr.get("service").equals("\\0")) service = null;
+        else {
+            List<Pair<String, Map<String, String>>> serviceList = beansToMap(beanAttr.get("service"));
+            service = createService(serviceList.get(0).getRight());
+        }
+        execService.setService(service);
+        ExecService.ExecServiceType exType;
+        if(beanAttr.get("type").equals("\\0")) exType = null;
+        else {
+            String type = beanAttr.get("type");
+            if(type.equals("GENERATE")) exType = ExecServiceType.GENERATE;
+            else if(type.equals("SEND")) exType = ExecServiceType.SEND;
+            else exType = null;
+        }
+        execService.setExecServiceType(exType);
+        return execService;
+     }
     
     //--------------------------------------------------------------------------
     //------------------------RICH BEANS CREATORS-------------------------------
