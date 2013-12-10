@@ -676,6 +676,25 @@ public enum ServicesManagerMethod implements ManagerMethod {
     },
     
     /*#
+     * Defines service destination for all hosts using theirs hostnames.
+     * 
+     * @param service int Service ID
+     * @param facility int Facility ID
+     * @return List<Destinations> Added destinations
+     */
+    addDestinationsDefinedByHostsOnFacility {
+        
+      @Override
+      public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
+        ac.stateChangingCheck();
+
+        return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
+            ac.getServiceById(parms.readInt("service")),
+            ac.getFacilityById(parms.readInt("facility")));
+      }
+    },
+
+    /*#
      * Removes an destination from a facility and service.
      * @param service int Service ID
      * @param facility int Facility ID
