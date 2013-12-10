@@ -811,7 +811,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
             jdbc.update("delete from application where id=?", app.getId());
 
         } else {
-            throw new InternalErrorException("Only applications in NEW or REJECTED state can be deleted.");
+            throw new RegistrarException("Only applications in NEW or REJECTED state can be deleted.");
         }
 
     }
@@ -855,15 +855,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // only VERIFIED applications can be rejected
         if (AppState.APPROVED.equals(app.getState())) {
-            throw new InternalErrorException("Once approved applications can't be rejected !");
+            throw new RegistrarException("Once approved applications can't be rejected !");
         } else if (AppState.REJECTED.equals(app.getState())) {
-            throw new InternalErrorException("Once rejected applications can't be rejected !");
+            throw new RegistrarException("Once rejected applications can't be rejected !");
         }
 
         // mark as rejected
         int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
         if (result == 0) {
-            throw new InternalErrorException("Application with ID="+appId+" not found.");
+            throw new RegistrarException("Application with ID="+appId+" not found.");
         } else if (result > 1) {
             throw new ConsistencyErrorException("More than one application is stored under ID="+appId+".");
         }
@@ -972,13 +972,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // only VERIFIED applications can be approved
         if (!AppState.VERIFIED.equals(app.getState())) {
-            throw new InternalErrorException("Only applications in state VERIFIED can be approved. Please verify application manually before approval.");
+            throw new RegistrarException("Only applications in state VERIFIED can be approved. Please verify application manually before approval.");
         }
 
         // mark as APPROVED
         int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.APPROVED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
         if (result == 0) {
-            throw new InternalErrorException("Application with ID="+appId+" not found.");
+            throw new RegistrarException("Application with ID="+appId+" not found.");
         } else if (result > 1) {
             throw new ConsistencyErrorException("More than one application is stored under ID="+appId+".");
         }
@@ -1118,7 +1118,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 app.setUser(u);
                 result = jdbc.update("update application set user_id=? where id=?", member.getUserId(), appId);
                 if (result == 0) {
-                    throw new InternalErrorException("User ID hasn't been associated with the application " + appId + ", because the application was not found!");
+                    throw new RegistrarException("User ID hasn't been associated with the application " + appId + ", because the application was not found!");
                 } else if (result > 1) {
                     throw new ConsistencyErrorException("User ID hasn't been associated with the application " + appId + ", because more than one application exists under the same ID.");
                 }
@@ -1439,7 +1439,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                         List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
                         if (g.contains(group)) {
                             // user is member of group - can't post more initial applications
-                            throw new InternalErrorException("You are already member of group: "+group.getName());
+                            throw new RegistrarException("You are already member of group: "+group.getName());
                         } else {
                             // user isn't member of group
                             regs.clear();
@@ -1457,7 +1457,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                         }
                     } else {
                         // user is member of vo, can't post more initial applications
-                        throw new InternalErrorException("You are already member of VO: "+vo.getName());
+                        throw new RegistrarException("You are already member of VO: "+vo.getName());
                     }
                 } catch (MemberNotExistsException ex) {
                     // user is not member of vo
@@ -1526,10 +1526,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (AppType.EXTENSION.equals(appType)) {
 
             if (user == null) {
-                throw new InternalErrorException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
+                throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
             }
             if (form.getGroup() != null) {
-                throw new InternalErrorException("Membership in group can't be extended by application. It last as long as VO membership.");
+                throw new RegistrarException("Membership in group can't be extended by application. It last as long as VO membership.");
             }
 
             Member member = membersManager.getMemberByUser(sess, vo, user);
