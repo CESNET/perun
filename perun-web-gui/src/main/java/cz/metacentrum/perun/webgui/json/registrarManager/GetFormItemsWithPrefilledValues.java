@@ -232,8 +232,9 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
         } else if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && "EXTENSION".equalsIgnoreCase(type) && Location.getParameter("targetexisting") != null) {
 
             // FIXME - this is probably not good, since it prevents vo extension when targetexisting is specified.
-            int index = Location.getQueryString().indexOf("targetexisting=");
-            Location.replace(Location.getQueryString().substring(index+15));
+            if (Location.getParameter("targetexisting") != null) {
+                Location.replace(Location.getParameter("targetexisting"));
+            }
 
             // when there are no application form items
             FlexTable ft = new FlexTable();
