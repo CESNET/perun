@@ -33,7 +33,7 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 5a3fd18e8a537aa8201159988ee4701463f0acba $
  */
 public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
@@ -132,18 +132,12 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		// CALLBACKS
 		final GetCompleteRichMembers members;
 		final FindCompleteRichMembers findMembers;
-		
-		if (session.isVoAdmin(group.getVoId())){
-            // search through whole VO, if VO admin of parent
-            members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null);
-            findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
-		} else {
-            // search through parent group members only
-            members =  new GetCompleteRichMembers(PerunEntity.GROUP_PARENT, groupId, null);
-            findMembers = new FindCompleteRichMembers(PerunEntity.GROUP_PARENT, groupId, "", null);
-		}
-		
-		// ADD
+
+        // search through whole VO
+        members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null);
+        findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
+
+        // ADD
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedMemberToGroup());
 		// close tab event
 		final TabItem tab = this;
