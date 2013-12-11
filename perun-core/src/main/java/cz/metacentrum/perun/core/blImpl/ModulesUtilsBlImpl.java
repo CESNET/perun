@@ -402,8 +402,6 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
                     //If facilityGIDNamespace exists and is not null, save to the hashSet of gidNamespaces
                     if(facilityGIDNamespace.getValue() != null) {
                         gidNamespaces.add((String) facilityGIDNamespace.getValue());
-                    } else {
-                      throw new WrongReferenceAttributeValueException(unixGroupNameNamespace, facilityGIDNamespace, "Facility has groupNameNamespace set, but gidNamespace not set.");
                     }
                 }
             }
