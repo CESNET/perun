@@ -129,8 +129,6 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
                   Attribute facilityGIDNamespace = session.getPerunBl().getAttributesManagerBl().getAttribute(session, facilityOfResource, A_F_unixGID_namespace);
                   if(facilityGIDNamespace.getValue() != null) {
                       gidNamespace = (String) facilityGIDNamespace.getValue();
-                  } else {
-                      throw new WrongReferenceAttributeValueException(attribute, facilityGIDNamespace, "Facility has groupNameNamespace set, but gidNamespace not set.");
                   }
               }
           }
