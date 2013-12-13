@@ -4851,8 +4851,8 @@ public interface SmallIcons extends ClientBundle{
     //@Source("icons/16x16/other_phone.png")
     //ImageResource otherPhoneIcon();
 
-    //@Source("icons/16x16/package.png")
-    //ImageResource packageIcon();
+    @Source("icons/16x16/package.png")
+    ImageResource packageIcon();
 
     //@Source("icons/16x16/package_add.png")
     //ImageResource packageAddIcon();
