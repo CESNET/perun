@@ -4,8 +4,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz> 
- * @version $Id$
+ * @version $Id: 26b5b8dd2fce7ccc999c2dad2a4869687aabbb5b $
  */
 public class CreateService {
 
@@ -56,17 +56,17 @@ public class CreateService {
 		String errorMsg = "";
 
 		if(serviceName.length() == 0){
-			errorMsg += "You must fill in the parameter 'Name'.\n";
+			errorMsg += "You must fill in the parameter 'Name'.</br>";
 			result = false;
 		}
 
 		if(ownerId == 0){
-			errorMsg += "You must pick the parameter 'Owner'.\n";
+			errorMsg += "You must pick the parameter 'Owner'.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

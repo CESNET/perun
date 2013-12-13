@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.servicestabs;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -9,31 +8,22 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.ownersManager.GetOwners;
-import cz.metacentrum.perun.webgui.json.servicesManager.CreateService;
-import cz.metacentrum.perun.webgui.model.Owner;
-import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.json.servicesManager.CreateServicePackage;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
-import java.util.ArrayList;
-
 /**
- * Tab with create service form
+ * Tab which create service package
  *
  * ! USE AS INNER TAB ONLY !
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: 2c28db5156c81eff2d4965c74884bb988ed81203 $
+ * @version $Id: $
  */
-public class CreateServiceTabItem implements TabItem {
+public class CreateServicePackageTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -48,12 +38,12 @@ public class CreateServiceTabItem implements TabItem {
 	/**
 	 * Title widget
 	 */
-	private Label titleWidget = new Label("Create service");
+	private Label titleWidget = new Label("Create service package");
 
 	/**
 	 * Tab with create service form
      */
-	public CreateServiceTabItem(){}
+	public CreateServicePackageTabItem(){}
 	
 	public boolean isPrepared(){
 		return true;
@@ -64,22 +54,37 @@ public class CreateServiceTabItem implements TabItem {
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
 
-        final ExtendedTextBox serviceName = new ExtendedTextBox();
-        final ListBoxWithObjects<Owner> ownersDropDown = new ListBoxWithObjects<Owner>();
+        final ExtendedTextBox packageName = new ExtendedTextBox();
+        final ExtendedTextBox packageDescription = new ExtendedTextBox();
 
         final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
             @Override
             public boolean validateTextBox() {
-                if (serviceName.getTextBox().getText().trim().isEmpty()) {
-                    serviceName.setError("Name can't be empty");
+                if (packageName.getTextBox().getText().trim().isEmpty()) {
+                    packageName.setError("Name can't be empty");
                     return false;
                 } else {
-                    serviceName.setOk();
+                    packageName.setOk();
                     return true;
                 }
             }
         };
-        serviceName.setValidator(validator);
+        packageName.setValidator(validator);
+
+        final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
+            @Override
+            public boolean validateTextBox() {
+                if (packageDescription.getTextBox().getText().trim().isEmpty()) {
+                    packageDescription.setError("Description can't be empty");
+                    return false;
+                } else {
+                    packageDescription.setOk();
+                    return true;
+                }
+            }
+        };
+        packageDescription.setValidator(validator);
+
 
         // prepares layout
         FlexTable layout = new FlexTable();
@@ -93,21 +98,21 @@ public class CreateServiceTabItem implements TabItem {
 
         // fill form
         layout.setHTML(0, 0, "Name:");
-        layout.setWidget(0, 1, serviceName);
-        layout.setHTML(1, 0, "Owner:");
-        layout.setWidget(1, 1, ownersDropDown);
+        layout.setWidget(0, 1, packageName);
+        layout.setHTML(1, 0, "Description:");
+        layout.setWidget(1, 1, packageDescription);
 
         for (int i=0; i<layout.getRowCount(); i++) {
             cellFormatter.addStyleName(i, 0, "itemName");
         }
 
         // create button
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService());
+        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createServicePackage());
         createButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                if (validator.validateTextBox()) {
-                    CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                    request.createService(serviceName.getTextBox().getText().trim(), ownersDropDown.getSelectedObject().getId());
+                if (validator.validateTextBox() && validator2.validateTextBox()) {
+                    CreateServicePackage request = new CreateServicePackage(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+                    request.createServicePackage(packageName.getTextBox().getText().trim(), packageDescription.getTextBox().getText().trim());
                 }
             }
         });
@@ -123,35 +128,6 @@ public class CreateServiceTabItem implements TabItem {
 
         menu.addWidget(createButton);
         menu.addWidget(cancelButton);
-
-		// get owners
-		final GetOwners owners = new GetOwners(new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				ownersDropDown.clear();
-                // convert
-                ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
-				own = new TableSorter<Owner>().sortByName(own);
-				// check
-				if (own.isEmpty() || own == null) {
-					ownersDropDown.addItem("No owners available");
-					return;
-				}
-                createButton.setEnabled(true);
-				// process
-				for (int i=0; i<own.size(); i++){
-					ownersDropDown.addItem(own.get(i));
-				}
-			}
-            public void onLoadingStart() {
-                createButton.setEnabled(false);
-                ownersDropDown.clear();
-                ownersDropDown.addItem("Loading...");
-            }
-            public void onError(PerunError error) {
-                createButton.setEnabled(false);
-            }
-        });
-		owners.retrieveData();
 
         vp.add(layout);
         vp.add(menu);
@@ -172,7 +148,7 @@ public class CreateServiceTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override

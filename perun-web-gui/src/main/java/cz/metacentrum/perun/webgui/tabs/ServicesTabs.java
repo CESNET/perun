@@ -9,7 +9,7 @@ import java.util.Map;
  * Services tabs
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: ce6928c7673d51842b12995f38f6ce3e196ae858 $
  */
 public class ServicesTabs {
 
@@ -58,6 +58,10 @@ public class ServicesTabs {
         }
         if (tab.equals(ViewExecServiceTabItem.URL)) {
             session.getTabManager().addTab(ViewExecServiceTabItem.load(parameters), open);
+            return true;
+        }
+        if (tab.equals(ServicePackagesTabItem.URL)) {
+            session.getTabManager().addTab(ServicePackagesTabItem.load(parameters), open);
             return true;
         }
 		
