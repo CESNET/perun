@@ -34,6 +34,7 @@ public class CustomButton extends Button {
     private Image processingImage = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
     private Image backupImage;
     private String backupText;
+    private boolean imageRight = false;
 
 	/**
 	 * Creates a new button
@@ -120,7 +121,13 @@ public class CustomButton extends Button {
             image.getElement().removeClassName("customButtonImage");
             image.getElement().addClassName("customButtonImageDisabled");
         }
-		DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
+
+        if (imageRight) {
+            DOM.appendChild(getElement(), image.getElement());
+        } else {
+            DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
+        }
+
 	}
 
     /**
@@ -148,7 +155,12 @@ public class CustomButton extends Button {
             this.text = text;
             Element span = DOM.createElement("span");
             span.setInnerText(text);
-            span.addClassName("customButtonText");
+
+            if (imageRight) {
+                span.addClassName("customButtonTextLeft");
+            } else {
+                span.addClassName("customButtonText");
+            }
             DOM.insertChild(getElement(), span, 0);
 
         }
@@ -212,6 +224,16 @@ public class CustomButton extends Button {
 
         }
 
+    }
+
+    /**
+     * Set TRUE if image should be right of button text
+     *
+     * @param right TRUE = image on right / FALSE = image on left (default)
+     */
+    public void setImageAlign(boolean right) {
+        imageRight = right;
+        this.setText(this.getText());
     }
 
 }

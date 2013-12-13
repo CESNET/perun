@@ -310,4 +310,9 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
     public void setOracle(MultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
+
+    public MultiSelectionModel<Service> getSelectionModel() {
+        return this.selectionModel;
+    }
+
 }
