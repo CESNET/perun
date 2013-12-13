@@ -385,10 +385,6 @@ public class EditFormItemTabItem implements TabItem{
             applicationTypesCheckBoxes.add(cb);
         }
 
-        if (item.getType().equals("VALIDATED_EMAIL")) {
-            regexTextBox.setEnabled(false);
-        }
-
         // sizes
         shortNameTextBox.setWidth("200px");
         federationAttributes.setWidth("200px");
@@ -490,17 +486,20 @@ public class EditFormItemTabItem implements TabItem{
             ftf.setStyleName(row, 1, "inputFormInlineComment");
             ftf.setColSpan(row, 1, 2);
 
-            row++;
+            if (item.getType().equals("VALIDATED_EMAIL")) {
 
-            Label regexLabel = new Label("Regular expression:");
-            ft.setWidget(row, 0, regexLabel);
-            ft.setWidget(row, 1, regexTextBox);
-            ftf.setColSpan(row, 1, 2);
+                row++;
+                Label regexLabel = new Label("Regular expression:");
+                ft.setWidget(row, 0, regexLabel);
+                ft.setWidget(row, 1, regexTextBox);
+                ftf.setColSpan(row, 1, 2);
 
-            row++;
-            ft.setHTML(row, 1, "Regular expression used for item value validation (before submitting by user).");
-            ftf.setStyleName(row, 1, "inputFormInlineComment");
-            ftf.setColSpan(row, 1, 2);
+                row++;
+                ft.setHTML(row, 1, "Regular expression used for item value validation (before submitting by user).");
+                ftf.setStyleName(row, 1, "inputFormInlineComment");
+                ftf.setColSpan(row, 1, 2);
+
+            }
 
         }
 
