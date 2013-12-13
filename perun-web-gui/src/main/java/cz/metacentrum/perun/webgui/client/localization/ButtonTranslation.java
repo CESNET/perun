@@ -613,6 +613,17 @@ public interface ButtonTranslation extends Messages {
     @DefaultMessage("Remove selected dependent services")
     String deleteSelectedExecServices();
 
+    /* SERVICE PACKAGES */
+
+    @DefaultMessage("Create new service package in Perun")
+    String createServicePackage();
+
+    @DefaultMessage("Delete selected service packages from Perun")
+    String deleteSelectedServicePackages();
+
+    @DefaultMessage("Save changes in services packages")
+    String saveChangesInServicesPackages();
+
     /* ======= TITLES FOR DISABLED BUTTONS =============== */
 
     @DefaultMessage("Click to logout from Perun GUI")

@@ -10,44 +10,45 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
- * Ajax query which deletes service from Perun
+ * Ajax query which deletes services packages from Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 0c31e40db57650523e086c9c2bfccd6facf87c69 $
+ * @version $Id:$
  */
-public class DeleteService {
+
+public class DeleteServicePackage {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "servicesManager/deleteService";
+	final String JSON_URL = "servicesManager/deleteServicesPackage";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int serviceId = 0;
+	private int packageId = 0;
 
 	/**
 	 * Creates a new request
 	 */
-	public DeleteService() {}
+	public DeleteServicePackage() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
 	 * @param events custom events
 	 */
-	public DeleteService(final JsonCallbackEvents events) {
+	public DeleteServicePackage(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
 	 * Attempts to delete a service, tests values first
 	 * 
-	 * @param serviceId id of service to be deleted
+	 * @param packageId id of service to be deleted
 	 */
-	public void deleteService(final int serviceId)
+	public void deleteServicePackage(final int packageId)
 	{
 
-		this.serviceId = serviceId;
+		this.packageId = packageId;
 
 		// test arguments
 		if(!this.testDeleting()){
@@ -57,12 +58,12 @@ public class DeleteService {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting service: " + serviceId + " failed.");
+				session.getUiElements().setLogErrorText("Deleting service package: " + packageId + " failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service : " + serviceId + " deleted !");
+				session.getUiElements().setLogSuccessText("Service package: " + packageId + " deleted !");
 				events.onFinished(jso);
 			};
 
@@ -82,18 +83,18 @@ public class DeleteService {
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testDeleting() {
-
+	private boolean testDeleting()
+	{
 		boolean result = true;
 		String errorMsg = "";
 
-		if(serviceId == 0){
-			errorMsg += "Wrong parameter 'Service ID'.";
+		if(packageId == 0){
+			errorMsg += "Wrong parameter 'Service package ID'.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+            UiElements.generateAlert("Parameter Error", errorMsg);
 		}
 
 		return result;
@@ -106,11 +107,11 @@ public class DeleteService {
 	 */
 	private JSONObject prepareJSONObject() {
 
-		JSONNumber service = new JSONNumber(serviceId);
+		JSONNumber packageId = new JSONNumber(this.packageId);
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("service", service);
+		jsonQuery.put("servicesPackage", packageId);
 		return jsonQuery;
 	}
 
