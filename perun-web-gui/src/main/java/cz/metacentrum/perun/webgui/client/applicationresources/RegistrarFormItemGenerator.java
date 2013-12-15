@@ -25,6 +25,7 @@ import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.ItemTexts;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,8 @@ import java.util.Map;
  * Creates GWT widgets from the ApplicationFormItems
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @version $Id: $
  */
 
 public class RegistrarFormItemGenerator {
@@ -204,7 +206,7 @@ public class RegistrarFormItemGenerator {
 				}
 				
 				// missing?
-				valid = (!(item.isRequired() && strValueBox.getValue().equals("")));
+				valid = (!(item.isRequired() && getValue().equals("")));
 				if(!valid && !item.getType().equalsIgnoreCase("FROM_FEDERATION_SHOW")){
 					// from_federation_show can be valid when empty
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));					
@@ -413,6 +415,10 @@ public class RegistrarFormItemGenerator {
 		if(item.getType().equals("SELECTIONBOX")){
 			return generateListBox();
 		}
+
+        if(item.getType().equals("CHECKBOX")){
+            return generateCheckBox();
+        }
 		
 		if(item.getType().equals("COMBOBOX")){
 			return generateComboBox();
@@ -704,6 +710,95 @@ public class RegistrarFormItemGenerator {
 
         return lbox;
 	}
+
+    /**
+     * Generates the checkboxes widget
+     * @return
+     */
+    private Widget generateCheckBox() {
+
+        FlexTable ft = new FlexTable();
+        ft.setCellSpacing(5);
+
+        // parse options
+        String options = getOptions();
+        Map<String,String> boxContents = parseSelectionBox(options);
+        final Map<CheckBox, String> boxValueMap = new HashMap<CheckBox, String>();
+
+        int i = 0;
+        for(final Map.Entry<String, String> entry : boxContents.entrySet()){
+
+            final CheckBox checkbox = new CheckBox(entry.getValue());
+            boxValueMap.put(checkbox, entry.getKey());
+
+            checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+
+                    // rebuild value
+                    strValue = "";
+                    for(Map.Entry<CheckBox, String> innerEntry : boxValueMap.entrySet()) {
+                        if (innerEntry.getKey().getValue()) {
+                            // put in selected values
+                            strValue += innerEntry.getValue()+", ";
+                        }
+                    }
+                    if (strValue.length() > 2) {
+                        strValue = strValue.substring(0, strValue.length()-2);
+                    }
+
+                    inputChecker.isValid(true);
+
+                    // update
+                    if (validationTrigger == null) return;
+                    validationTrigger.triggerValidation();
+
+                }
+            });
+
+            inputChecker = new FormInputChecker() {
+
+                private boolean valid = true;
+
+                @Override
+                public boolean isValid(boolean forceNewValidation) {
+
+                    // if not new, don't force
+                    if(!forceNewValidation) return valid;
+
+                    if (item.isRequired() && strValue.isEmpty()) {
+                        statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
+                        valid = false;
+                        return valid;
+                    } else {
+                        // if not required any value is good
+                        statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+                        valid = true;
+                        return true;
+                    }
+
+                }
+
+                @Override
+                public boolean isValidating() {
+                    return false;
+                }
+
+                @Override
+                public boolean useDefaultOkMessage() {
+                    return true;
+                }
+            };
+
+            // fill widget
+            ft.setWidget(i, 0, checkbox);
+            i++;
+
+        }
+
+        return ft;
+
+    }
 	
 	/**
 	 * Generates the combobox
@@ -1009,12 +1104,13 @@ public class RegistrarFormItemGenerator {
 	 * 
 	 * @return
 	 */
-	public String getValue()
-	{
-		if(strValueBox == null) return strValue.trim();
+	public String getValue() {
+
+        if(strValueBox == null) return strValue.trim();
 		
 		return strValueBox.getValue().trim();
-	}
+
+    }
 	
 	/**
 	 * Returns the form item
