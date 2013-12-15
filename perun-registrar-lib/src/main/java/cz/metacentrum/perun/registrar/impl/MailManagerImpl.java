@@ -1015,8 +1015,8 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains("{appDetailUrlFed}")) {
 			String text = getPropertyFromConfiguration("perunGuiFederation");
             // MUST USE "?" malformed URL while redirecting - GUI now can handle this
-			if (text!=null && !text.isEmpty()) text = text+"?vo/appdetail?id="+app.getId();
-			mailText = mailText.replace("{appDetailUrlFed}", text);
+            if (text!=null && !text.isEmpty()) text = text+"?vo/appdetail?id="+app.getId();
+            mailText = mailText.replace("{appDetailUrlFed}", text);
 		}
 		// replace appDetail for vo admin
 		if (mailText.contains("{appDetailUrlKerb}")) {
