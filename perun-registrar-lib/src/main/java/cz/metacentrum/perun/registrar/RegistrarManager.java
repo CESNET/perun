@@ -244,7 +244,7 @@ public interface RegistrarManager {
      * @throws PrivilegeException if not authorized 
      * @throws InternalErrorException other reasons
      */
-    Application verifyApplication(PerunSession sess, int appId) throws PrivilegeException, InternalErrorException;
+    Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException;
     
     /**
      * Manually approves an application. Expected to be called as a result of direct VO administrator action in the web UI.
