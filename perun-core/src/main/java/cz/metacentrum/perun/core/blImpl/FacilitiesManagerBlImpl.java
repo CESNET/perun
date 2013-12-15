@@ -535,16 +535,33 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostExistsException {
+    // generate hosts by pattern
+    List<Host> generatedHosts = new ArrayList<Host>();
+    for (Host host: hosts) {
+        List<String> listOfStrings = Utils.generateStringsByPattern(host.getHostname());
+        if (host.getHostname().equals(listOfStrings.get(0))) {
+            // if the pattern has no occurance
+            generatedHosts.add(host);
+        } else {
+            List<Host> listOfHosts = new ArrayList<Host>();
+            for (String hostName : listOfStrings) {
+                Host newHost = new Host();
+                newHost.setHostname(hostName);
+                listOfHosts.add(newHost);
+            }
+            generatedHosts.addAll(listOfHosts);
+        }
+    }
     //check if hosts not exist in cluster
     List<Host> alreadyAssignedHosts = getHosts(sess, facility);
     
     //Facility.type (v)host can have only one Host
     if(facility.getType().equals(FacilitiesManager.HOSTTYPE) || facility.getType().equals(FacilitiesManager.VIRTUALHOSTTYPE)) {
-      if(hosts.size() > 1) throw new HostExistsException("Facility of type (v)host can have only one host");
+      if(generatedHosts.size() > 1) throw new HostExistsException("Facility of type (v)host can have only one host");
       switch(alreadyAssignedHosts.size()) {
         case 0: break;
         case 1: 
-                if(!hosts.isEmpty()) throw new HostExistsException("Facility of type (v)host can have only one host");
+                if(!generatedHosts.isEmpty()) throw new HostExistsException("Facility of type (v)host can have only one host");
                 break;
         default:
                 throw new ConsistencyErrorException("Facility of type (v)host can have only one host. " + facility + " now have " + alreadyAssignedHosts.size() + "hosts: " + alreadyAssignedHosts);
@@ -554,17 +571,17 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     Set<String> alreadyAssignedHostnames = new HashSet<String>();
     Set<String> newHostnames = new HashSet<String>();
     for(Host h : alreadyAssignedHosts) alreadyAssignedHostnames.add(h.getHostname());
-    for(Host h : hosts) newHostnames.add(h.getHostname());
+    for(Host h : generatedHosts) newHostnames.add(h.getHostname());
     newHostnames.retainAll(alreadyAssignedHostnames);
     if(!newHostnames.isEmpty()) throw new HostExistsException(newHostnames.toString());
     
-    for(Host host : hosts) {
+    for(Host host : generatedHosts) {
       host = getFacilitiesManagerImpl().addHost(sess, host, facility);
     }
     
-    getPerunBl().getAuditer().log(sess, "Hosts {} added to cluster {}", hosts, facility);
+    getPerunBl().getAuditer().log(sess, "Hosts {} added to cluster {}", generatedHosts, facility);
     
-    return hosts;
+    return generatedHosts;
   }
 
   public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostAlreadyRemovedException {
