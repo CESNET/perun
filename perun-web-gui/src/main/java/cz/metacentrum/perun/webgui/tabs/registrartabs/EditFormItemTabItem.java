@@ -192,7 +192,7 @@ public class EditFormItemTabItem implements TabItem{
         vp.add(ft);
 
         // values for selection and combobox
-        if ("SELECTIONBOX".equalsIgnoreCase(item.getType())|| "COMBOBOX".equalsIgnoreCase(item.getType())) {
+        if ("SELECTIONBOX".equalsIgnoreCase(item.getType())|| "COMBOBOX".equalsIgnoreCase(item.getType()) || "CHECKBOX".equalsIgnoreCase(item.getType())) {
 
             boxItemTable.setStyleName("inputFormFlexTable");
             boxItemTable.setWidth("550px");
@@ -205,14 +205,14 @@ public class EditFormItemTabItem implements TabItem{
 
             boxRow++;
 
-            Label boxContentLabel = new Label("Selectionbox / Combobox options:");
+            Label boxContentLabel = new Label("Selectionbox / Combobox / Checkbox options:");
             boxItemTable.setWidget(boxRow, 0, boxContentLabel);
             boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
             boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
 
             boxRow++;
 
-            HTML comment = new HTML("Define possible options for selection in SELECTIONBOX or COMBOBOX widget. Empty options are not used.");
+            HTML comment = new HTML("Define possible options for selection in SELECTIONBOX, COMBOBOX, CHECKBOX widget. Empty options are not used.");
             comment.setStyleName("inputFormInlineComment");
             boxItemTable.setWidget(boxRow, 0, comment);
             boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
@@ -486,7 +486,7 @@ public class EditFormItemTabItem implements TabItem{
             ftf.setStyleName(row, 1, "inputFormInlineComment");
             ftf.setColSpan(row, 1, 2);
 
-            if (item.getType().equals("VALIDATED_EMAIL")) {
+            if (!item.getType().equals("VALIDATED_EMAIL")) {
 
                 row++;
                 Label regexLabel = new Label("Regular expression:");

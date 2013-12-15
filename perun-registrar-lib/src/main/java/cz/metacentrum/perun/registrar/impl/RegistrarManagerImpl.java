@@ -817,9 +817,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     @Override
-    public Application verifyApplication(PerunSession sess, int appId) throws PrivilegeException, InternalErrorException {
+    public Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException {
 
         Application app = getApplicationById(appId);
+        if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
         if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
             if (app.getGroup() != null) {
@@ -842,6 +843,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     public Application rejectApplication(PerunSession sess, int appId, String reason) throws PerunException {
 
         Application app = getApplicationById(appId);
+        if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
+
         // authz
         if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
             if (app.getGroup() != null) {
@@ -1201,9 +1204,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     @Override
     public Application getApplicationById(PerunSession sess, int appId) throws PerunException {
 
-
         // get application
         Application app = getApplicationById(appId);
+        if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
         // authz ex post
         if (app.getGroup() == null) {

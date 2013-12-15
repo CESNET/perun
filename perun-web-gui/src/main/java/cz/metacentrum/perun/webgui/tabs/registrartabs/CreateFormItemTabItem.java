@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * !! USE IN INNER TAB ONLY !!
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: d6dc172b2a7cbfa25ca94ba0f964bc6c9b6f508c $
  */
 public class CreateFormItemTabItem implements TabItem{
 
@@ -52,7 +52,7 @@ public class CreateFormItemTabItem implements TabItem{
 	/**
 	 * Input types
 	 */
-	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
+	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
 	
 	/**
 	 * Cropping length in select box after which item to add item
