@@ -43,6 +43,8 @@ import cz.metacentrum.perun.core.api.exceptions.NumberNotInRangeException;
 import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.LinkedHashSet;
 /**
  * Utilities.
@@ -498,5 +500,28 @@ public class Utils {
         copyTo.setValueModifiedAt(copyFrom.getValueModifiedAt());
         copyTo.setValueModifiedBy(copyFrom.getValueModifiedBy());
         return copyTo;
+    }
+    
+    /**
+     * Checks an occurance of the pattern in the file.
+     * The pattern must equal one of the line of the file.
+     * 
+     * @param pattern string to compare
+     * @param filePath the path + file name
+     * @return true if the pattern has an occurance in the file at some line
+     * @throws FileNotFoundException if the file does not exist
+     * @throws IOException 
+     */
+    public static boolean patternIsInFile(String pattern, String filePath) throws FileNotFoundException, IOException {
+        BufferedReader br = new BufferedReader(new FileReader(filePath));
+        String line = br.readLine();
+        boolean match = false;
+        while ((line != null) && (match == false)) {
+                if (pattern.equals(line)) {
+                    match = true;
+                }
+                line = br.readLine();
+        }
+        return match;        
     }
 }

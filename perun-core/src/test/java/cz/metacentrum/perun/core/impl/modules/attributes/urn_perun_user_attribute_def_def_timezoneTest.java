@@ -34,19 +34,13 @@ public class urn_perun_user_attribute_def_def_timezoneTest {
 
         Attribute attributeToCheck = new Attribute();
 
-        attributeToCheck.setValue("+01");
+        attributeToCheck.setValue("Europe/Prague");
         classInstance.checkAttributeValue(session, user, attributeToCheck);
 
-        attributeToCheck.setValue("-12");
+        attributeToCheck.setValue("Africa/Johannesburg");
         classInstance.checkAttributeValue(session, user, attributeToCheck);
 
-        attributeToCheck.setValue("+00");
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
-
-        attributeToCheck.setValue("-00");
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
-
-        attributeToCheck.setValue("+12");
+        attributeToCheck.setValue("Jamaica");
         classInstance.checkAttributeValue(session, user, attributeToCheck);
     }
 
@@ -55,17 +49,7 @@ public class urn_perun_user_attribute_def_def_timezoneTest {
         System.out.println("testCheckAttributeValueWithWrongValue()");
 
         Attribute attributeToCheck = new Attribute();
-        attributeToCheck.setValue("+13");
-
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
-    }
-    
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueWithWrongValue2() throws Exception {
-        System.out.println("testCheckAttributeValueWithWrongValue2()");
-
-        Attribute attributeToCheck = new Attribute();
-        attributeToCheck.setValue("12");
+        attributeToCheck.setValue("123");
 
         classInstance.checkAttributeValue(session, user, attributeToCheck);
     }
