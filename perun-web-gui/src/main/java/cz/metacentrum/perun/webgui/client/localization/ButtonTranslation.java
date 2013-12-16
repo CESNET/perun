@@ -295,14 +295,32 @@ public interface ButtonTranslation extends Messages {
     @DefaultMessage("Remove selected VO managers")
     String removeManagerFromVo();
 
-   @DefaultMessage("Add new group manager")
+    @DefaultMessage("Add group as new VO manager")
+    String addManagerGroupToVo();
+
+    @DefaultMessage("Add selected groups as VO`s managers")
+    String addSelectedManagersGroupToVo();
+
+    @DefaultMessage("Remove selected groups from VO managers")
+    String removeManagerGroupFromVo();
+
+    @DefaultMessage("Add new group manager")
     String addManagerToGroup();
 
-    @DefaultMessage("Add selected users as VO`s managers")
+    @DefaultMessage("Add selected users as groups managers")
     String addSelectedManagersToGroup();
 
     @DefaultMessage("Remove selected group managers")
     String removeManagerFromGroup();
+
+    @DefaultMessage("Add group as new group manager")
+    String addManagerGroupToGroup();
+
+    @DefaultMessage("Add selected groups as groups managers")
+    String addSelectedManagersGroupToGroup();
+
+    @DefaultMessage("Remove selected groups from group managers")
+    String removeManagerGroupFromGroup();
 
     @DefaultMessage("Add new facility manager")
     String addManagerToFacility();
@@ -312,6 +330,15 @@ public interface ButtonTranslation extends Messages {
 
     @DefaultMessage("Remove selected facility managers")
     String removeManagerFromFacility();
+
+    @DefaultMessage("Add new group as facility manager")
+    String addManagerGroupToFacility();
+
+    @DefaultMessage("Add selected groups as facility managers")
+    String addSelectedManagersGroupToFacility();
+
+    @DefaultMessage("Remove selected groups from facility managers")
+    String removeManagerGroupFromFacility();
 
     /* USERS */
 

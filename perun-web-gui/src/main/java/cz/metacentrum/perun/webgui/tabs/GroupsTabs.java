@@ -9,7 +9,7 @@ import java.util.Map;
  * Groups
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: ec60c9c53ef0fc8492a859893e10daef9914f272 $
  */
 public class GroupsTabs {
 
@@ -34,12 +34,6 @@ public class GroupsTabs {
 		}
 		// if active
 		boolean open = ("1".equals(parameters.get("active")));
-					
-				
-		if (tab.equals(AddGroupManagerTabItem.URL)) {
-			session.getTabManager().addTab(AddGroupManagerTabItem.load(parameters), open);
-			return true;
-		}
 		
 		if (tab.equals(GroupSettingsTabItem.URL)) {
 			session.getTabManager().addTab(GroupSettingsTabItem.load(parameters), open);

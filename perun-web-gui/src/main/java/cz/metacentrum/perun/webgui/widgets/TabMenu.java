@@ -8,6 +8,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -26,9 +27,9 @@ public class TabMenu extends Composite {
 
     // menu content
     private FlexTable menu = new FlexTable();
-    private int cellsCount = 0;
     private static ButtonTranslation translation = ButtonTranslation.INSTANCE;
     private static SmallIcons icons = SmallIcons.INSTANCE;
+    private int cellCount = 0;
 
     /**
      * Constructor for tab menu
@@ -43,36 +44,45 @@ public class TabMenu extends Composite {
      * @param widget
      */
     public void addWidget(Widget widget){
-
-        // set style
-        menu.getFlexCellFormatter().addStyleName(0, cellsCount, "tabMenu");
-        if (cellsCount == 0) {
-            // set first and last
-            menu.getFlexCellFormatter().addStyleName(0, cellsCount, "tabMenu-first");
-            menu.getFlexCellFormatter().addStyleName(0, cellsCount, "tabMenu-last");
-        } else if (cellsCount > 0) {
-            // move last from previous to this
-            menu.getFlexCellFormatter().removeStyleName(0, cellsCount-1, "tabMenu-last");
-            menu.getFlexCellFormatter().addStyleName(0, cellsCount, "tabMenu-last");
-        }
-
-        menu.setWidget(0, cellsCount, widget);
-
-        cellsCount++;
-
+        addWidget(cellCount, widget);
     }
 
     /**
      * Method which adds any kind of widget into TabMenu on specific position
      * (replace any content on this position)
      *
-     * @param widget
+     * @param position position in menu starting from 0
+     * @param widget widget to put in menu
      */
     public void addWidget(int position, Widget widget){
 
-        menu.setWidget(0, position, widget);
-        // TODO - better handling
+        if (position <= cellCount) {
+            menu.setWidget(0, position, widget);
+            if (position == cellCount) {
+                cellCount++; // if new
+                setStyles();
+            }
+        } else {
+            // TODO not allowed
+        }
 
+    }
+
+    /**
+     * Method to set proper CSS styles to menu widget.
+     * Should be called after any widget content change
+     */
+    private void setStyles() {
+
+        // set proper last item tag
+        for (int i=0; i < cellCount; i++) {
+            if (i == 0) menu.getFlexCellFormatter().addStyleName(0, i, "tabMenu-first");
+            menu.getFlexCellFormatter().addStyleName(0, i, "tabMenu");
+            menu.getFlexCellFormatter().removeStyleName(0, i, "tabMenu-last");
+            if (i == cellCount-1) {
+                menu.getFlexCellFormatter().addStyleName(0, i, "tabMenu-last");
+            }
+        }
     }
 
     /**

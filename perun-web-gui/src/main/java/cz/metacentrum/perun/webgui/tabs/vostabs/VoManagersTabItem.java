@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.tabs.vostabs;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -15,11 +17,14 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -32,9 +37,9 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 0c2d0786c3c7f2b51bcb8f9ee9a114e1a220fcfe $
  */
-public class VoManagersTabItem implements TabItem, TabItemWithUrl{
+public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -53,8 +58,8 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl{
 	
 	// data
 	private VirtualOrganization vo;
-	//
 	private int voId;
+    private int selectedDropDownIndex = 0;
 
 	/**
 	 * Creates a tab instance
@@ -95,29 +100,78 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.setSize("100%", "100%");
 
 		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
+		final TabMenu menu = new TabMenu();
 
-		// members request
-		final GetRichAdminsWithAttributes admins = new GetRichAdminsWithAttributes(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
+        final ListBox box = new ListBox();
+        box.addItem("Users");
+        box.addItem("Groups");
+        box.setSelectedIndex(selectedDropDownIndex);
 
-		// Events for reloading when finished
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
+        final ScrollPanel sp = new ScrollPanel();
+        sp.addStyleName("perun-tableScrollPanel");
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToVo(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(voId), true);
+        // request
+        final GetRichAdminsWithAttributes admins = new GetRichAdminsWithAttributes(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
+        final GetAdminGroups adminGroups = new GetAdminGroups(PerunEntity.VIRTUAL_ORGANIZATION, voId);
+
+        box.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+
+                if (box.getSelectedIndex() == 0) {
+                    selectedDropDownIndex = 0;
+                    sp.setWidget(fillContentUsers(admins, menu));
+                } else {
+                    selectedDropDownIndex = 1;
+                    sp.setWidget(fillContentGroups(adminGroups, menu));
+                }
+
             }
         });
-		menu.addWidget(addButton);
+
+        if (selectedDropDownIndex == 0) {
+            sp.setWidget(fillContentUsers(admins, menu));
+        } else {
+            sp.setWidget(fillContentGroups(adminGroups, menu));
+        }
+
+        menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
+        menu.addWidget(3, box);
+
+        session.getUiElements().resizePerunTable(sp, 350, this);
+
+		// add menu and the table to the main panel
+		firstTabPanel.add(menu);
+		firstTabPanel.setCellHeight(menu, "30px");
+		firstTabPanel.add(sp);
+
+		this.contentWidget.setWidget(firstTabPanel);
+		
+		return getWidget();
+	}
+
+    private Widget fillContentUsers(final GetRichAdminsWithAttributes admins, TabMenu menu) {
+
+        admins.clearTableSelectedSet();
+
+        // Events for reloading when finished
+        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
+
+        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToVo(), new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
+            }
+        });
+        menu.addWidget(0, addButton);
 
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromVo());
-		menu.addWidget(removeButton);
+        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromVo());
+        menu.addWidget(1, removeButton);
         removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<User> adminsForRemoving = admins.getTableSelectedList();
+            public void onClick(ClickEvent event) {
+                final ArrayList<User> adminsForRemoving = admins.getTableSelectedList();
                 String text = "Following users won't be VO managers anymore.";
-				UiElements.showDeleteConfirm(adminsForRemoving, text, new ClickHandler() {
+                UiElements.showDeleteConfirm(adminsForRemoving, text, new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {
                         // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
@@ -132,8 +186,8 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl{
                         }
                     }
                 });
-			}
-		});
+            }
+        });
 
         // get the table
         CellTable<User> table;
@@ -147,25 +201,70 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl{
             table = admins.getTable();
         }
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
-
-		// add menu and the table to the main panel
-		firstTabPanel.add(menu);
-		firstTabPanel.setCellHeight(menu, "30px");
-		firstTabPanel.add(sp);
+        // add a class to the table and wrap it into scroll panel
+        table.addStyleName("perun-table");
 
         removeButton.setEnabled(false);
         JsonUtils.addTableManagedButton(admins, table, removeButton);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+        return table;
 
-		this.contentWidget.setWidget(firstTabPanel);
-		
-		return getWidget();
-	}
+    }
+
+    private Widget fillContentGroups(final GetAdminGroups adminGroups, TabMenu menu) {
+
+        adminGroups.clearTableSelectedSet();
+
+        // Events for reloading when finished
+        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(adminGroups);
+
+        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToVo(), new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new AddVoManagerGroupTabItem(vo, events), true);
+            }
+        });
+        menu.addWidget(0, addButton);
+
+
+        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerGroupFromVo());
+        menu.addWidget(1, removeButton);
+        removeButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                final ArrayList<Group> adminsForRemoving = adminGroups.getTableSelectedList();
+                String text = "Members of following groups won't be VO managers anymore.";
+                UiElements.showDeleteConfirm(adminsForRemoving, text, new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent clickEvent) {
+                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+                        for (int i=0; i<adminsForRemoving.size(); i++ ) {
+                            RemoveAdmin request;
+                            if(i == adminsForRemoving.size() - 1) {
+                                request = new RemoveAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                            } else {
+                                request = new RemoveAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(removeButton));
+                            }
+                            request.removeAdminGroup(voId, adminsForRemoving.get(i).getId());
+                        }
+                    }
+                });
+            }
+        });
+
+        // get the table
+        CellTable<Group> table = adminGroups.getTable(new FieldUpdater<Group, String>() {
+                public void update(int i, Group grp, String s) {
+                    session.getTabManager().addTab(new GroupDetailTabItem(grp));
+                }
+            });
+
+        // add a class to the table and wrap it into scroll panel
+        table.addStyleName("perun-table");
+
+        removeButton.setEnabled(false);
+        JsonUtils.addTableManagedButton(adminGroups, table, removeButton);
+
+        return table;
+    }
 
 	public Widget getWidget() {
 		return this.contentWidget;

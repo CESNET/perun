@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -35,9 +34,9 @@ import java.util.Map;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: c9103388cea74cc079e1a408a09442ac2cdbb81a $
  */
-public class AddVoManagerTabItem implements TabItem, TabItemWithUrl{
+public class AddVoManagerTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -260,7 +259,7 @@ public class AddVoManagerTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.administratorIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -296,17 +295,9 @@ public class AddVoManagerTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
+	public void open() {
 	}
 
-	
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId)) {
@@ -316,23 +307,5 @@ public class AddVoManagerTabItem implements TabItem, TabItemWithUrl{
 		}
 
 	}
-	
-	
-	public final static String URL = "add-manager";
-	
-	public String getUrl()
-	{
-		return URL;
-	}
-	
-	public String getUrlWithParameters()
-	{
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
-	}
-	
-	static public AddVoManagerTabItem load(Map<String, String> parameters)
-	{
-		int voId = Integer.parseInt(parameters.get("id"));
-		return new AddVoManagerTabItem(voId);
-	}
+
 }

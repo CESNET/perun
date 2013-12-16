@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 0414f62c24d92793accb99a4c248bcdbac7e0d8d $
  */
 public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 
@@ -369,6 +369,10 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
     public void setVoId(int voId) {
         this.voId = voId;
+    }
+
+    public MultiSelectionModel<Group> getSelectionModel() {
+        return this.selectionModel;
     }
 	
 }
