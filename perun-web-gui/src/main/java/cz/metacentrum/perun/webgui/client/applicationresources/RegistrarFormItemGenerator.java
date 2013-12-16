@@ -25,7 +25,6 @@ import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.ItemTexts;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -729,6 +728,12 @@ public class RegistrarFormItemGenerator {
         for(final Map.Entry<String, String> entry : boxContents.entrySet()){
 
             final CheckBox checkbox = new CheckBox(entry.getValue());
+            // pre-fill
+            for (String s : prefilledValue.split("\\|")) {
+                if (entry.getKey().trim().equals(s.trim())) {
+                    checkbox.setValue(true);
+                }
+            }
             boxValueMap.put(checkbox, entry.getKey());
 
             checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -740,11 +745,11 @@ public class RegistrarFormItemGenerator {
                     for(Map.Entry<CheckBox, String> innerEntry : boxValueMap.entrySet()) {
                         if (innerEntry.getKey().getValue()) {
                             // put in selected values
-                            strValue += innerEntry.getValue()+", ";
+                            strValue += innerEntry.getValue()+"|";
                         }
                     }
-                    if (strValue.length() > 2) {
-                        strValue = strValue.substring(0, strValue.length()-2);
+                    if (strValue.length() > 1) {
+                        strValue = strValue.substring(0, strValue.length()-1);
                     }
 
                     inputChecker.isValid(true);
