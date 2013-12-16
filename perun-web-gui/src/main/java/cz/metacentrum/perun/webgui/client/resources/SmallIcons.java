@@ -15,7 +15,7 @@ import com.google.gwt.resources.client.ImageResource;
  * Instead, generate it with gen.php file.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: d60e235558452e517d696da9965d2a882b81ef55 $
  */
 public interface SmallIcons extends ClientBundle{
 	public static final SmallIcons INSTANCE =  GWT.create(SmallIcons.class);
@@ -6417,8 +6417,8 @@ public interface SmallIcons extends ClientBundle{
     //@Source("icons/16x16/tag_green.png")
     //ImageResource tagGreenIcon();
 
-    //@Source("icons/16x16/tag_orange.png")
-    //ImageResource tagOrangeIcon();
+    @Source("icons/16x16/tag_orange.png")
+    ImageResource tagOrangeIcon();
 
     //@Source("icons/16x16/tag_pink.png")
     //ImageResource tagPinkIcon();

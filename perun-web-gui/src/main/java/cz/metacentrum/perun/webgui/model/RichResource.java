@@ -1,13 +1,17 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+
+import java.util.ArrayList;
 
 /**
  * Overlay type for RichResource object from Perun
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 07542163d18a16dd6f45b1046eac22b7cf1164ca $
  */
 public class RichResource extends JavaScriptObject {
 
@@ -47,6 +51,18 @@ public class RichResource extends JavaScriptObject {
 
     public final native int getVoId() /*-{
         return this.voId;
+    }-*/;
+
+    public final ArrayList<ResourceTag> getResourceTags() {
+        if (getResourceTagsInternal() != null) {
+            return JsonUtils.jsoAsList(getResourceTagsInternal());
+        } else {
+            return new ArrayList<ResourceTag>();
+        }
+    }
+
+    public final native JsArray<ResourceTag> getResourceTagsInternal() /*-{
+        return this.resourceTags;
     }-*/;
 	
 	/**

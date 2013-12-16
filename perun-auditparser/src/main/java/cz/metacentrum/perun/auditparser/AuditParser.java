@@ -602,6 +602,18 @@ public class AuditParser {
             facility = createFacility(facilityMap.get(0).getRight());
         }
         richResource.setFacility(facility);
+        //Parse and get List of ResourceTags
+        List<ResourceTag> tags = new ArrayList<ResourceTag>();
+        if(beanAttr.get("resourceTags").equals("\\0")) tags = null;
+        else {
+            List<Pair<String, Map<String, String>>> tagsList = beansToMap(beanAttr.get("resourceTags"));
+            for(Pair<String, Map<String, String>> p: tagsList) {
+                ResourceTag tag = createResourceTag(p.getRight());
+                tags.add(tag);
+            }
+        }
+        richResource.setResourceTags(tags);
+
         return richResource;
     }
 }

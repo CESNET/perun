@@ -11,12 +11,14 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetResources;
+import cz.metacentrum.perun.webgui.json.resourcesManager.GetRichResources;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.RichResource;
@@ -31,7 +33,7 @@ import java.util.ArrayList;
  * !!! USE ONLY AS INNER TAB !!!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: d38362804030ea2bda04ec76fd91a3e4660757d2 $
  */
 public class AssignGroupTabItem implements TabItem {
 
@@ -85,17 +87,16 @@ public class AssignGroupTabItem implements TabItem {
         TabMenu menu = new TabMenu();
 
         // callback
-        final GetResources callback = new GetResources(group.getVoId());
+        final GetRichResources callback = new GetRichResources(group.getVoId());
         callback.setEvents(new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
                 for (RichResource rr : resources) {
-                    Resource r = rr.cast();
-                    callback.removeFromTable(r);
+                    callback.removeFromTable(rr);
                 }
             }
         });
-        CellTable<Resource> table = callback.getTable();
+        CellTable<RichResource> table = callback.getTable();
 
         // close tab event
         final TabItem tab = this;
@@ -105,7 +106,7 @@ public class AssignGroupTabItem implements TabItem {
         assignButton.addClickHandler(new ClickHandler(){
             @Override
             public void onClick(ClickEvent event) {
-                final ArrayList<Resource> toAssign = callback.getTableSelectedList();
+                final ArrayList<RichResource> toAssign = callback.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(toAssign)) {
                     // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
                     for (int i=0; i<toAssign.size(); i++) {
@@ -129,6 +130,13 @@ public class AssignGroupTabItem implements TabItem {
                 session.getTabManager().closeTab(tab, false);
             }
         }));
+
+        // filter box
+        menu.addFilterWidget(new SuggestBox(callback.getOracle()), new PerunSearchEvent() {
+            public void searchFor(String text) {
+                callback.filterTable(text);
+            }
+        }, ButtonTranslation.INSTANCE.filterResources());
 
         assignButton.setEnabled(false);
         JsonUtils.addTableManagedButton(callback, table, assignButton);

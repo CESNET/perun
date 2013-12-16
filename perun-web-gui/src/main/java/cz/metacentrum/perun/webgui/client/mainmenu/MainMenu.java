@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: d920bf2e62f7824e8cc846be39b41dc4b0ec67ff $
  */
 public class MainMenu {
 
@@ -293,6 +293,7 @@ public class MainMenu {
         TabItemWithUrl applications = null;
         TabItemWithUrl applicationForm = null;
         TabItemWithUrl propagations = null;
+        TabItemWithUrl tags = null;
         String voName = "VO overview";
 
         if(vo != null){
@@ -307,6 +308,7 @@ public class MainMenu {
             applications = new VoApplicationsTabItem(session.getActiveVo());
             applicationForm = new VoApplicationFormSettingsTabItem(session.getActiveVo());
             propagations = new VoFacilitiesPropagationsTabItem(session.getActiveVo());
+            tags = new VoResourcesTagsTabItem(session.getActiveVo());
         }
         menuStackPanel.setStackText(sectionsIds.get(VO_ADMIN), menu.getHeader(), true);
 
@@ -323,6 +325,7 @@ public class MainMenu {
 
         if (menu.isDisplayAdvanced()) {
             menu.addItem(new MainMenuItem("Application form", applicationForm, SmallIcons.INSTANCE.applicationFormIcon()));
+            menu.addItem(new MainMenuItem("Resource tags", tags, SmallIcons.INSTANCE.tagOrangeIcon()));
             menu.addItem(new MainMenuItem("Settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
             menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
             menu.addItem(new MainMenuItem("External sources", extsources, SmallIcons.INSTANCE.worldIcon()));

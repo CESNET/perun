@@ -3,13 +3,17 @@ package cz.metacentrum.perun.core.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -40,7 +44,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import java.util.Map;
-import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  *
@@ -64,6 +67,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
             "res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
 
     private SimpleJdbcTemplate jdbc;
+    private JdbcTemplate temp;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
@@ -114,10 +118,37 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
         }
     };
 
+    protected static final RichResourceExtractor RICH_RESOURCE_WITH_TAGS_EXTRACTOR = new RichResourceExtractor();
+
+    private static class RichResourceExtractor implements ResultSetExtractor<List<RichResource>> {
+
+        public List<RichResource> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            Map<Integer, RichResource> map = new HashMap<Integer, RichResource>();
+            RichResource myObject;
+            while (rs.next()) {
+                // fetch from map by ID
+                Integer id = rs.getInt("resources_id");
+                myObject = map.get(id);
+                if(myObject == null){
+                    // if not preset, put in map
+                    myObject = RICH_RESOURCE_MAPPER.mapRow(rs, rs.getRow());
+                    map.put(id, myObject);
+                }
+                // fetch each resource tag and add it to rich resource
+                ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
+                if (tag.getId() != 0) {
+                    // add only if exists
+                    myObject.addResourceTag(tag);
+                }
+            }
+            return new ArrayList<RichResource>(map.values());
+        }
+    }
 
     public ResourcesManagerImpl(DataSource perunPool) {
         this.jdbc = new SimpleJdbcTemplate(perunPool);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+        this.temp = new JdbcTemplate(perunPool);
 
         // Initialize resources manager
         this.initialize();
@@ -136,9 +167,25 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     @Override
     public RichResource getRichResourceById(PerunSession sess, int id) throws InternalErrorException, ResourceNotExistsException {
         try {
-            return jdbc.queryForObject("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-                    FacilitiesManagerImpl.facilityMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
-                    + "join facilities on resources.facility_id=facilities.id  where resources.id=?", RICH_RESOURCE_MAPPER, id);
+            List<RichResource> rich = temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+                    FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id "
+                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, id);
+
+            if (rich != null && rich.size()>1) {
+                throw new ConsistencyErrorException("There are more than one Resources under ID="+id);
+            } else if (rich != null && rich.isEmpty()) {
+                throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
+            }
+            if (rich != null && rich.size() == 1) {
+                if (rich.get(0) != null) {
+                    // return correct data
+                    return rich.get(0);
+                } else {
+                    throw new InternalErrorException("RichResource with ID="+id+" in null.");
+                }
+            }
+            // not correct data
+            throw new InternalErrorException("Response from SQL RowExttractor is null.");
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotExistsException(e);
         } catch(RuntimeException ex) {
@@ -368,10 +415,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     public List<RichResource> getAssignedRichResources(PerunSession sess, Group group) throws InternalErrorException {
 
         try {
-            return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-                    FacilitiesManagerImpl.facilityMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
+            return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+                    FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources join vos on resources.vo_id=vos.id "
                     + "join facilities on resources.facility_id=facilities.id join groups_resources on "
-                    + "resources.id=groups_resources.resource_id where groups_resources.group_id=?", RICH_RESOURCE_MAPPER, group.getId());
+                    + "resources.id=groups_resources.resource_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_resources.group_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, group.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
@@ -382,11 +429,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     @Override
     public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException {
         try  {
-            return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-                    FacilitiesManagerImpl.facilityMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
+            return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+                    FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources join vos on resources.vo_id=vos.id "
                     + "join facilities on resources.facility_id=facilities.id join groups_resources on "
                     + "resources.id=groups_resources.resource_id join groups on groups_resources.group_id=groups.id "
-                    + "join groups_members on groups.id=groups_members.group_id where groups_members.member_id=?", RICH_RESOURCE_MAPPER, member.getId());
+                    + "join groups_members on groups.id=groups_members.group_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_members.member_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
@@ -446,9 +493,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     @Override
     public List<RichResource> getRichResources(PerunSession sess, Vo vo) throws InternalErrorException {
         try {
-            return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-                    FacilitiesManagerImpl.facilityMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
-                    + "join facilities on resources.facility_id=facilities.id where resources.vo_id=?", RICH_RESOURCE_MAPPER, vo.getId());
+            return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+                    FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id "
+                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.vo_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, vo.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -53,6 +54,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private static SimpleJdbcTemplate jdbc;
+  private static JdbcTemplate temp;
 
   // Part of the SQL script used for getting the Facility object
   public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, facilities.type as facilities_type,"
@@ -107,6 +109,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
   public FacilitiesManagerImpl(DataSource perunPool) {
     jdbc = new SimpleJdbcTemplate(perunPool);
+    temp = new JdbcTemplate(perunPool);
   }
 
   public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException {
@@ -302,9 +305,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   @Override
   public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
-      return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
-              + facilityMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on "
-              + "resources.facility_id=facilities.id where resources.facility_id=?", ResourcesManagerImpl.RICH_RESOURCE_MAPPER, facility.getId());
+      return temp.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
+              + facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on "
+              + "resources.facility_id=facilities.id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.facility_id=?", ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId());
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
@@ -344,7 +347,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
   /**
    * {@inheritDoc}
-   * @see FacilitiesManagerImplAPI#checkFacilityExists(PerunSession,Facility)
+   * @see FacilitiesManagerImplApi#checkFacilityExists(PerunSession,Facility)
    */
   public void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException {
     if(!facilityExists(sess, facility)) throw new FacilityNotExistsException("Facility: " + facility);

@@ -8,10 +8,8 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedRichResources;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.RichResource;
@@ -24,7 +22,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 7e5208348414ad5569075f95f12ebc7b85da4d1d $
  */
 public class MemberResourcesTabItem implements TabItem {
 
@@ -94,6 +92,12 @@ public class MemberResourcesTabItem implements TabItem {
                 }
             }
         });
+
+        menu.addFilterWidget(new SuggestBox(resourcesCall.getOracle()), new PerunSearchEvent() {
+            public void searchFor(String text) {
+                resourcesCall.filterTable(text);
+            }
+        }, ButtonTranslation.INSTANCE.filterResources());
 
         // JsonUtils.addTableManagedButton(resourcesCall, table, removeButton);
         table.addStyleName("perun-table");

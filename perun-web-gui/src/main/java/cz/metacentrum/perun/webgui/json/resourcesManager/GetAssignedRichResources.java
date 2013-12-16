@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.ResourceTag;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
@@ -26,7 +27,7 @@ import java.util.Comparator;
  * Ajax query to get assigned rich resources for group or member
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: dc9a1803499cfa4bd819fc91338d7081e33b7e02 $
  */
 public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
 
@@ -142,6 +143,30 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         });
         table.addColumn(facilityColumn, "Facility - Type");
 
+        // TAGS COLUMN
+        Column<RichResource, String> tagsColumn = JsonUtils.addColumn(
+                new JsonUtils.GetValue<RichResource, String>() {
+                    public String getValue(RichResource object) {
+
+                        ArrayList<ResourceTag> tags = object.getResourceTags();
+                        if (tags != null && !tags.isEmpty()) {
+                            String s = "";
+                            tags = new TableSorter<ResourceTag>().sortByName(tags);
+                            for (ResourceTag tag : tags) {
+                                s += tag.getName() + ", ";
+                            }
+                            s = s.substring(0, s.length()-2);
+                            return s;
+                        } else {
+                            return "";
+                        }
+                    }
+                }, tableFieldUpdater);
+
+        // TODO - sorting
+        table.addColumn(tagsColumn, "Tags");
+        table.setColumnWidth(tagsColumn, "200px");
+
         table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
@@ -181,6 +206,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     public void addToTable(RichResource object) {
         list.add(object);
         oracle.add(object.getName());
+        for (ResourceTag rt : object.getResourceTags()) {
+            oracle.add(rt.getName()+" (tag)");
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -256,6 +284,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     public void insertToTable(int index, RichResource object) {
         list.add(index, object);
         oracle.add(object.getName());
+        for (ResourceTag rt : object.getResourceTags()) {
+            oracle.add(rt.getName()+" (tag)");
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -273,6 +304,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         this.list.addAll(list);
         for (RichResource r : list) {
             oracle.add(r.getName());
+            for (ResourceTag rt : r.getResourceTags()) {
+                oracle.add(rt.getName()+" (tag)");
+            }
         }
         dataProvider.flush();
         dataProvider.refresh();
@@ -294,14 +328,22 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 			}	
 		}
 		if (filter.equalsIgnoreCase("")) {
-			setList(fullBackup);
+            list.clear();
+            list.addAll(fullBackup);
 		} else {
-            getList().clear();
+            list.clear();
 			for (RichResource res : fullBackup){
-				// store facility by filter
+				// store resource by filter
 				if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-					addToTable(res);
+					list.add(res);
 				}
+                for (ResourceTag r : res.getResourceTags()) {
+                    // remove " (tag)" after tag name
+                    if (r.getName().startsWith(filter.substring(0, filter.length()-6).trim())) {
+                        list.add(res);
+                        break;
+                    }
+                }
 			}
 			if (getList().isEmpty()) {
 				loaderImage.loadingFinished();

@@ -113,6 +113,7 @@ public class AuditParserTest {
             richUser = new RichUser(user, userExtSources, listOfAttributes);
             richResource.setFacility(facility);
             richResource.setVo(vo);
+            richResource.addResourceTag(resourceTag1);
             List<Owner> owners = new ArrayList<Owner>();
             owners.add(owner);
             owners.add(owner1);
@@ -441,6 +442,7 @@ public class AuditParserTest {
             RichResource richResource = new RichResource(resource);
             richResource.setFacility(null);
             richResource.setVo(null);
+            richResource.addResourceTag(resourceTag1);
             List<PerunBean> richResourceInList = AuditParser.parseLog(richResource.serializeToString());
             assertEquals(richResource.toString(), ((RichResource) richResourceInList.get(0)).toString());
             assertEquals(richResource.getFacility(), ((RichResource) richResourceInList.get(0)).getFacility());
@@ -471,8 +473,8 @@ public class AuditParserTest {
         }
         
         @Test
-        public void serializeToStringEqualsToSTring() throws Exception {
-            System.out.println(CLASS_NAME + ":serializeToStringEqualsToSTring()");
+        public void serializeToStringEqualsToString() throws Exception {
+            System.out.println(CLASS_NAME + ":serializeToStringEqualsToString()");
             assertEquals(user.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(user.serializeToString())));
             assertEquals(attribute1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(attribute1.serializeToString())));
             Attribute testAttribute3 = new Attribute(attribute3);
