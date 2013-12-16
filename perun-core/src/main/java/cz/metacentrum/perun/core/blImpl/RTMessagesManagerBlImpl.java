@@ -22,6 +22,20 @@ import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
@@ -32,6 +46,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -51,19 +66,16 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(RTMessagesManagerBlImpl.class); 
     private final String defaultQueue = "perunv3";
     
+    private Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
+    
     public RTMessagesManagerBlImpl(PerunBl perunBl) throws InternalErrorException {
         this();
         this.perunBl = perunBl;
+        rtURL = Utils.getPropertyFromConfiguration("perun.rt.url");
     }
     
     public RTMessagesManagerBlImpl() throws InternalErrorException {
         rtURL = Utils.getPropertyFromConfiguration("perun.rt.url");
-        try {
-            PerunAuthenticatorImpl.getPerunAuthenticator().registerAuthenticationForURL(new URL(rtURL), new RTAuthenticator().getPasswordAuthentication());
-        } catch(MalformedURLException ex) {
-            log.error("Wrong RT URL in configuration file: {}. {}", rtURL, ex);
-            log.error("Create authenticator for RT system failed. Perun won't be able to authenticate itself againt RT"); 
-        }
     }
     
     public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
@@ -81,135 +93,50 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
     
     public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException {
         log.debug("Parameters of rtMessage are queue='" + queue +"', subject='{}' and text='{}'", subject, text);
-        boolean sendSuccesfully = false;
-        HttpURLConnection conn = null;
+        
+        //Get Email from User who get from session
+        String email = null;
+        User user = sess.getPerunPrincipal().getUser();       
+        if(user != null) email = findUserPreferredEmail(sess, user);
+        else {
+            email = "unknown";
+            log.error("Can't get user from session.");
+        }
+        
+        //Prepare sending message
+        HttpResponse response;
+        HttpClient httpClient = new DefaultHttpClient();
+        httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+
+        StringBuilder responseMessage = new StringBuilder();
+        String ticketNumber = "0";
         try {
-            //Get Email from User who get from session
-            String email = null;
-            User user = sess.getPerunPrincipal().getUser(); 
-            if(user != null) email = findUserPreferredEmail(sess, user);
+            response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
+            BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             
-            //Enable cookies
-            CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
-
-            //Create new RT URL
-            URL url;
-            try {
-                url = new URL(rtURL);
-            } catch (MalformedURLException ex) {
-                throw new InternalErrorException("Cannot create URL of RT.", ex);
-            }
-
-            //Create URL connection to RT
-            try {
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset='utf-8'");
-                // Try Keep-Alive
-                conn.setRequestProperty("Connection", "Close");
-                // We will send output
-                conn.setDoOutput(true);
-                // Using POST
-                conn.setRequestMethod("POST");
-                log.debug("Connection opened");
-            } catch (IOException e) {
-                throw new InternalErrorException("Cannot open connection to URL of RT."); 
-            } 
-
-            //Create all required and norequred parameters
-            //TODO maybe other behaviour for nonget queue or subject
-            Map<String, String> params = new HashMap<String, String>();
-            if (email != null) params.put("Requestor", email);
-            else params.put("Requestor", "unknown");
-            if (text != null) {
-                //At REST parser, there is every new line with space count like next line for previous key
-                text = text.replace("\n", "\n ");
-                params.put("Text", text);
-            }
-            if (subject != null) params.put("Subject", subject);
-            else params.put("Subject", "Request without specific subject"); 
-            
-            //If queue is null, try to check if exist value in attribute rtVoQueue, if not, use default
-            if(queue != null) params.put("Queue", queue);
-            else {
-                Vo vo = null;
-                if(voId != 0) {  
-                    try {
-                        vo = perunBl.getVosManagerBl().getVoById(sess, voId);
-                    } catch (VoNotExistsException ex) {
-                        throw new InternalErrorException(ex);
-                    }
-                    Attribute voQueue = null;
-                    try {
-                        voQueue = perunBl.getAttributesManagerBl().getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF + ":RTVoQueue");
-                    } catch (AttributeNotExistsException ex) {
-                        throw new InternalErrorException(ex);
-                    } catch (WrongAttributeAssignmentException ex) {
-                        throw new InternalErrorException(ex);
-                    }
-                    if(voQueue.getValue() != null) {
-                        params.put("Queue", (String) voQueue.getValue());
-                    } else params.put("Queue", defaultQueue);
-                } else params.put("Queue", defaultQueue);
-            }
-            
-            params.put("id", "ticket/new");
-            
-            log.debug("Content of params in map for Queue is '{}'", params.get("Queue"));
-            
-            //Send parameters to RT server
-            this.sendParametersToRTServer(conn, params);
-
-            //Get answer from server
-            InputStream rpcServerAnswer = null;
-            try {
-                rpcServerAnswer = conn.getInputStream();
-            } catch (IOException ex) {
-                try {
-                    PerunAuthenticatorImpl.getPerunAuthenticator().unRegisterAuthenticationForURL(new URL(rtURL));
-                    PerunAuthenticatorImpl.getPerunAuthenticator().registerAuthenticationForURL(new URL(rtURL), new RTAuthenticator().getPasswordAuthentication());
-                } catch(MalformedURLException e) {
-                    log.error("Malformed URL when unregistering and registering Authenticator for url {}", rtURL, e); 
-                }
-                throw new InternalErrorException("Answer from RT server failed.", ex);
-            }
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(rpcServerAnswer));       
-            String line;
-            String sendingInformation = "";
-            String answerLine = null;
-            try {
-                while((line = reader.readLine()) != null) {
-                    if(!line.isEmpty()) {
-                        sendingInformation+= line + '\n';
-                        if(line.charAt(0)=='#') answerLine=line;
-                    }
-                }
-            } catch (IOException ex) {
-                throw new InternalErrorException("Reading from answer of RT server failed.", ex);
-            }
-            conn.disconnect();
-
-            //Code for parsing answer to get information about send, or not send and some reason   
-            //TODO maybe needs to repair
-            if(!(sendingInformation.contains("# Ticket") && sendingInformation.contains("created."))) {
-                throw new InternalErrorException(sendingInformation);                  
-            }
-            Integer ticketNumber = 0;
-            for(String str : answerLine.split(" ")) {
-                if(str.matches("^[0-9]+$")) {
-                    ticketNumber=Integer.valueOf(str);
-                    break;
+            //Reading response from RT
+            String line;    
+            while((line = bw.readLine()) != null) {
+                responseMessage.append(line);
+                responseMessage.append('\n');
+                //Matcher for ticketNumber
+                Matcher ticketNumberMatcher = this.ticketNumberPattern.matcher(line);
+                if(ticketNumberMatcher.find()) {
+                    ticketNumber = ticketNumberMatcher.group(1);
                 }
             }
-            if(ticketNumber == 0) {
-                throw new InternalErrorException("Ticket was created but number was not parsed correctly.");
-            }
-            RTMessage rtmessage = new RTMessage(email, ticketNumber);
-            sendSuccesfully = true;
-            return rtmessage;
-        } finally {
-            if(conn != null) conn.disconnect();
-            if(!sendSuccesfully) log.error("Failed to send message to RT. Queue=" + queue + ", Text={}, User={}", text, sess.getPerunPrincipal().getUser());
+        } catch (IOException ex) {
+            throw new InternalErrorException("IOException has been throw while executing http request.", ex);
+        }
+        
+        //Return message if response is ok, or throw exception with bad response
+        int ticketNum = Integer.valueOf(ticketNumber);
+        if(ticketNum != 0) {
+             RTMessage rtmessage = new RTMessage(email, ticketNum);
+             log.debug("RT message was send succesfully and the ticket has number: " + ticketNum);
+             return rtmessage;
+        } else {
+            throw new InternalErrorException("RT message was not send due to error with RT returned this message: " + responseMessage.toString());
         }
     }
     
@@ -241,67 +168,72 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
       return email;
     }
     
-    protected void sendParametersToRTServer(HttpURLConnection conn, Map<String, String> params) throws InternalErrorException {
-      StringBuilder contentAll = new StringBuilder();
-      StringBuilder content = new StringBuilder();
-      //Create POST variable content and give String content to it
-      contentAll.append("content=");
-  
-      for(Entry<String, String> entry : params.entrySet()) {
-          content.append(entry.getKey());
-          content.append(':');
-          content.append(' ');
-          content.append(entry.getValue());
-          content.append('\n');
-      }
-      try {
-        contentAll.append(URLEncoder.encode(content.toString(), "UTF-8"));
-      }catch (UnsupportedEncodingException ex) {
-          throw new InternalError("Error at endocing content to UTF-8: " + ex);
-      }
-      
-      //Get OutputStream
-      OutputStream out = null;
-      try {
-          out = conn.getOutputStream();
-      } catch (IOException ex) {
-          throw new InternalErrorException("Output data streming failed.", ex);
-      }
-      
-      // Logging the sent parameters
-      log.debug("Sending message to RT: \n {}",contentAll.toString());
-      
-      //Write data through DataOutputStream using OutputStream and flush them like content to RT
-      OutputStreamWriter writer = new OutputStreamWriter(out);  
-      try {
-          writer.write(contentAll.toString());
-          writer.flush();
-      } catch (IOException ex) {
-            throw new InternalErrorException("Data streaming failed.", ex);
-      } finally {
-            try {
-                writer.close();
-            } catch (IOException ex) {
-                throw new InternalErrorException("Data streaming close failed.", ex);
-            }
-        }  
-    }
-    
-    static class RTAuthenticator extends Authenticator {
-      
-        public PasswordAuthentication getPasswordAuthentication() {
-          
-            String username = null;
-            String password = null;
-            
-            try {
-                username = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
-                password = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
-            } catch (InternalErrorException ex) {
-                log.error("Cannot load credentials of service user for the RT from the configuration file");
-            }
-            return new PasswordAuthentication(username, password.toCharArray());
+    private HttpUriRequest prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor, String subject, String text) throws InternalErrorException {
+        //Ticket from this part is already evidet like 'new'
+        String id = "ticket/new";
+        //If there is no requestor, it is uknown requestor
+        if(requestor == null || requestor.isEmpty()) {
+            requestor = "unknown";
         }
+        //If queue is null, try to check if exist value in attribute rtVoQueue, if not, use default
+        if(queue == null || queue.isEmpty()) {
+            Vo vo = null;
+            if(voId != 0) {  
+                try {
+                    vo = perunBl.getVosManagerBl().getVoById(sess, voId);
+                } catch (VoNotExistsException ex) {
+                    throw new InternalErrorException("VoId with Id=" + voId + " not exists.", ex);
+                }
+                Attribute voQueue = null;
+                try {
+                    voQueue = perunBl.getAttributesManagerBl().getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF + ":RTVoQueue");
+                } catch (AttributeNotExistsException ex) {
+                    throw new InternalErrorException("Attribute RTVoQueue not exists.", ex);
+                } catch (WrongAttributeAssignmentException ex) {
+                    throw new InternalErrorException(ex);
+                }
+                if(voQueue.getValue() != null) {
+                    queue = (String) voQueue.getValue();
+                } else queue = defaultQueue;
+            } else queue = defaultQueue;
+        }    
+        //If subject is null or empty, use Unspecified instead
+        if(subject == null || subject.isEmpty()) subject = "(No subject)";
+        //Text can be null so if it is, put empty string
+        if(text == null) text = "";
+
+        //Prepare credentials
+        String username = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
+        String password = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
+        
+        //Prepare content of message
+        MultipartEntity entity = new MultipartEntity();
+        try {
+            entity.addPart("Content-Typ", new StringBody("application/x-www-form-urlencoded"));
+            entity.addPart("charset", new StringBody("utf-8"));
+            entity.addPart("Connection", new StringBody("Close"));            System.out.println("Tady");
+            StringBody content = new StringBody("id: " + id + '\n' +
+                                                "Queue: " + queue + '\n' +
+                                                "Requestor: " + requestor + '\n' +
+                                                "Subject: " + subject + '\n' +
+                                                "Text: " + text, 
+                                                Charset.forName("utf-8"));
+            entity.addPart("content", content);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        //Test rtURL for null
+        if(rtURL == null || rtURL.length() == 0) throw new InternalErrorException("rtURL is not prepared and is null in the moment of posting.");
+        
+        // prepare post request
+        HttpPost post = new HttpPost(rtURL);
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+
+        post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));
+        post.setEntity(entity);
+
+        return post;
     }
     
     public PerunBl getPerunBl() {
