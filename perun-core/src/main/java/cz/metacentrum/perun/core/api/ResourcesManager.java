@@ -97,8 +97,9 @@ public interface ResourcesManager {
    * @throws RelationExistsException
    * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
    * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
+   * @throws FacilityNotExistsException if facility of this resource not exists
    */
-  void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+  void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
   
   /**
    *  Deletes all resources for the VO.

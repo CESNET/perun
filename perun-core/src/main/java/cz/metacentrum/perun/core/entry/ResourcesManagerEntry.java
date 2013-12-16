@@ -127,11 +127,13 @@ public class ResourcesManagerEntry implements ResourcesManager {
     return getResourcesManagerBl().createResource(sess, resource, vo, facility);
   }
 
-  public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+  public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
     Utils.checkPerunSession(sess);
+    Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+        !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
       throw new PrivilegeException(sess, "deleteResource");
     }
 
