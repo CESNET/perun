@@ -5,6 +5,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
@@ -15,7 +16,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Ajax query which adds admin to VO or Group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 60eaaf7bd262b410113b77670ccb06656e4dc0af $
  */
 
 public class AddAdmin {
@@ -58,24 +59,23 @@ public class AddAdmin {
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAdding()
-	{
+	private boolean testAdding() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(entityId == 0){
-			errorMsg += "Wrong parameter <strong>VO/Group ID</strong>'.\n";
+			errorMsg += "Wrong parameter <strong>VO/Group/Facility ID</strong>";
 			result = false;
 		}
 
 		if(userId == 0){
-			errorMsg += "Wrong parameter <strong>User ID</strong>.\n";
+			errorMsg += "Wrong parameter <strong>User/Group ID</strong>";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while adding admin", new HTML(errorMsg), true);
-			c.show();
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -87,8 +87,7 @@ public class AddAdmin {
 	 * @param id ID of Entity, where we want to add admin
 	 * @param userId ID of Member to be admin
 	 */
-	public void addAdmin(final int id,final int userId)
-	{
+	public void addAdmin(final int id,final int userId) {
 
 		this.userId = userId;
 		this.entityId = id;
@@ -128,13 +127,58 @@ public class AddAdmin {
 
 	}
 
+    /**
+     * Attempts to add a new admin to VO/Group, it first tests the values and then submits them.
+     *
+     * @param id ID of Entity, where we want to add admin
+     * @param groupId ID of Group to be admin
+     */
+    public void addAdminGroup(final int id,final int groupId) {
+
+        this.userId = groupId;
+        this.entityId = id;
+
+        // test arguments
+        if(!this.testAdding()){
+            return;
+        }
+
+        // new events
+        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+            public void onError(PerunError error) {
+                session.getUiElements().setLogErrorText("Adding admin (Group ID: " + userId + ") failed.");
+                events.onError(error); // custom events
+            };
+
+            public void onFinished(JavaScriptObject jso) {
+                session.getUiElements().setLogSuccessText("Admin (Group ID: " + userId + ") successfully added to "+entity+": "+ entityId);
+                events.onFinished(jso);
+            };
+
+            public void onLoadingStart() {
+                events.onLoadingStart();
+            };
+        };
+
+        // sending data
+        JsonPostClient jspc = new JsonPostClient(newEvents);
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            jspc.sendData(VO_JSON_URL, prepareJSONObjectForGroup());
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            jspc.sendData(GROUP_JSON_URL, prepareJSONObjectForGroup());
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            jspc.sendData(FACILITY_JSON_URL, prepareJSONObjectForGroup());
+        }
+
+    }
+
 	/**
 	 * Prepares a JSON object
 	 * 
 	 * @return JSONObject the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
+	private JSONObject prepareJSONObject() {
 		// Whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 
@@ -149,5 +193,26 @@ public class AddAdmin {
 
 		return jsonQuery;
 	}
+
+    /**
+     * Prepares a JSON object
+     *
+     * @return JSONObject the whole query
+     */
+    private JSONObject prepareJSONObjectForGroup() {
+        // Whole JSON query
+        JSONObject jsonQuery = new JSONObject();
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            jsonQuery.put("vo", new JSONNumber(entityId));
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            jsonQuery.put("group", new JSONNumber(entityId));
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            jsonQuery.put("facility", new JSONNumber(entityId));
+        }
+        jsonQuery.put("authorizedGroup", new JSONNumber(userId));
+
+        return jsonQuery;
+    }
 
 }

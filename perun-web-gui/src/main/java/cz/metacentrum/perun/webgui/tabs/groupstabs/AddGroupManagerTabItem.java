@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -26,16 +25,17 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
- * Provides page with add admin to VO form
+ * Provides page with add admin to Group form
+ *
+ * !! USE AS INNER TAB ONLY !!
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: $
  */
-public class AddGroupManagerTabItem implements TabItem, TabItemWithUrl{
+public class AddGroupManagerTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -275,7 +275,7 @@ public class AddGroupManagerTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.administratorIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -310,15 +310,7 @@ public class AddGroupManagerTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-		if(group != null){
-			session.setActiveGroup(group);
-			return;
-		}
-		session.setActiveGroupId(groupId);
-		
+	public void open() {
 	}
 	
 	public boolean isAuthorized() {
@@ -329,24 +321,6 @@ public class AddGroupManagerTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		}
 
-	}
-	
-	public final static String URL = "add-manager";
-	
-	public String getUrl()
-	{
-		return URL;
-	}
-	
-	public String getUrlWithParameters()
-	{
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
-	}
-	
-	static public AddGroupManagerTabItem load(Map<String, String> parameters)
-	{
-		int id = Integer.parseInt(parameters.get("id"));
-		return new AddGroupManagerTabItem(id);
 	}
 
 }

@@ -81,12 +81,6 @@ public class VosTabs {
 			session.getTabManager().addTab(VoSettingsTabItem.load(parameters), open);
 			return true;
 		}
-		
-		if (tab.equals(AddVoManagerTabItem.URL))
-		{
-			session.getTabManager().addTab(AddVoManagerTabItem.load(parameters), open);
-			return true;
-		}
 
 		if (tab.equals(VoExtSourcesTabItem.URL))
 		{

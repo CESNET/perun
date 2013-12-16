@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.tabs.groupstabs;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -18,6 +20,7 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
 import cz.metacentrum.perun.webgui.model.Group;
@@ -35,7 +38,7 @@ import java.util.Map;
  * Group admins page for Group Admin
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 0671c63a5ff764b8e26bb2dc6185315705cee7de $
  */
 public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
@@ -54,11 +57,10 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
      */
     private Label titleWidget = new Label("Loading group managers");
 
-    /**
-     * Group
-     */
+    // data
     private Group group;
     private int groupId;
+    private int selectedDropDownIndex = 0;
 
     /**
      * Creates a tab instance
@@ -96,24 +98,72 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
 
-        boolean isMembersGroup = group.isCoreGroup();
+        final ListBox box = new ListBox();
+        box.addItem("Users");
+        box.addItem("Groups");
+        box.setSelectedIndex(selectedDropDownIndex);
+
+        final ScrollPanel sp = new ScrollPanel();
+        sp.addStyleName("perun-tableScrollPanel");
+
+        // menu
+        final TabMenu menu = new TabMenu();
 
         // group members
         final GetRichAdminsWithAttributes admins = new GetRichAdminsWithAttributes(PerunEntity.GROUP, groupId, null);
+        final GetAdminGroups adminGroups = new GetAdminGroups(PerunEntity.GROUP, groupId);
+
+        box.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+
+                if (box.getSelectedIndex() == 0) {
+                    selectedDropDownIndex = 0;
+                    sp.setWidget(fillContentUsers(admins, menu));
+                } else {
+                    selectedDropDownIndex = 1;
+                    sp.setWidget(fillContentGroups(adminGroups, menu));
+                }
+
+            }
+        });
+
+        if (selectedDropDownIndex == 0) {
+            sp.setWidget(fillContentUsers(admins, menu));
+        } else {
+            sp.setWidget(fillContentGroups(adminGroups, menu));
+        }
+
+        menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
+        menu.addWidget(3, box);
+
+        session.getUiElements().resizePerunTable(sp, 350, this);
+
+        vp.add(menu);
+        vp.setCellHeight(menu, "30px");
+        vp.add(sp);
+        sp.setStyleName("perun-tableScrollPanel");
+
+        this.contentWidget.setWidget(vp);
+
+        return getWidget();
+
+    }
+
+    private Widget fillContentUsers(final GetRichAdminsWithAttributes admins, TabMenu menu) {
+
+        admins.clearTableSelectedSet();
+
+        boolean isMembersGroup = group.isCoreGroup();
 
         // Events for reloading when finished
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
-
-        // menu
-        TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
 
         final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromGroup());
 
         if(!isMembersGroup){
 
-            menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
+            menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
                 }
@@ -140,12 +190,12 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
                     });
                 }
             });
-            menu.addWidget(removeButton);
+            menu.addWidget(1, removeButton);
 
         } else {
 
             // is core group
-            menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+            menu.addWidget(0, new Image(SmallIcons.INSTANCE.helpIcon()));
             Anchor a = new Anchor("<strong>To edit VO managers use VO manager section in menu.</strong>", true);
             a.addClickHandler(new ClickHandler() {
                 @Override
@@ -153,7 +203,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
                     session.getTabManager().addTab(new VoManagersTabItem(group.getVoId()));
                 }
             });
-            menu.addWidget(a);
+            menu.addWidget(1, a);
 
         }
 
@@ -173,16 +223,82 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         JsonUtils.addTableManagedButton(admins, table, removeButton);
 
         table.setStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel();
-        sp.add(table);
-        sp.setStyleName("perun-tableScrollPanel");
-        vp.add(sp);
 
-        session.getUiElements().resizePerunTable(sp, 350, this);
+        return table;
 
-        this.contentWidget.setWidget(vp);
+    }
 
-        return getWidget();
+    private Widget fillContentGroups(final GetAdminGroups admins, TabMenu menu) {
+
+        admins.clearTableSelectedSet();
+
+        boolean isMembersGroup = group.isCoreGroup();
+
+        // Events for reloading when finished
+        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
+
+        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerGroupFromGroup());
+
+        if(!isMembersGroup){
+
+            menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToGroup(), new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    session.getTabManager().addTabToCurrentTab(new AddGroupManagerGroupTabItem(group, events), true);
+                }
+            }));
+
+            removeButton.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    final ArrayList<Group> itemsToRemove = admins.getTableSelectedList();
+                    String text = "Members of following groups won't be group managers anymore.";
+                    UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent clickEvent) {
+                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+                            for (int i=0; i<itemsToRemove.size(); i++ ) {
+                                RemoveAdmin request;
+                                if (i == itemsToRemove.size() - 1) {
+                                    request = new RemoveAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                                } else {
+                                    request = new RemoveAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(removeButton));
+                                }
+                                request.removeAdminGroup(groupId, itemsToRemove.get(i).getId());
+                            }
+                        }
+                    });
+                }
+            });
+            menu.addWidget(1, removeButton);
+
+        } else {
+
+            // is core group
+            menu.addWidget(0, new Image(SmallIcons.INSTANCE.helpIcon()));
+            Anchor a = new Anchor("<strong>To edit VO managers use VO manager section in menu.</strong>", true);
+            a.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    session.getTabManager().addTab(new VoManagersTabItem(group.getVoId()));
+                }
+            });
+            menu.addWidget(1, a);
+
+        }
+
+        // get the table
+        CellTable<Group> table = admins.getTable(new FieldUpdater<Group, String>() {
+            public void update(int i, Group grp, String s) {
+                session.getTabManager().addTab(new GroupDetailTabItem(grp));
+            }
+        });
+
+        removeButton.setEnabled(false);
+        JsonUtils.addTableManagedButton(admins, table, removeButton);
+
+        table.setStyleName("perun-table");
+
+        return table;
+
     }
 
     public Widget getWidget() {
