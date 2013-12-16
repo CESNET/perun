@@ -169,14 +169,23 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
         try {
             List<RichResource> rich = temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
                     FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id "
-                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?", new RichResourceExtractor(), id);
-            if (rich != null && !rich.isEmpty()) {
+                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, id);
+
+            if (rich != null && rich.size()>1) {
+                throw new ConsistencyErrorException("There are more than one Resources under ID="+id);
+            } else if (rich != null && rich.isEmpty()) {
+                throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
+            }
+            if (rich != null && rich.size() == 1) {
                 if (rich.get(0) != null) {
+                    // return correct data
                     return rich.get(0);
+                } else {
+                    throw new InternalErrorException("RichResource with ID="+id+" in null.");
                 }
             }
-            // if not correct data, estimate that resource not exists.
-            throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
+            // not correct data
+            throw new InternalErrorException("Response from SQL RowExttractor is null.");
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotExistsException(e);
         } catch(RuntimeException ex) {
@@ -409,7 +418,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
             return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
                     FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources join vos on resources.vo_id=vos.id "
                     + "join facilities on resources.facility_id=facilities.id join groups_resources on "
-                    + "resources.id=groups_resources.resource_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_resources.group_id=?", new RichResourceExtractor(), group.getId());
+                    + "resources.id=groups_resources.resource_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_resources.group_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, group.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
@@ -424,7 +433,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
                     FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources join vos on resources.vo_id=vos.id "
                     + "join facilities on resources.facility_id=facilities.id join groups_resources on "
                     + "resources.id=groups_resources.resource_id join groups on groups_resources.group_id=groups.id "
-                    + "join groups_members on groups.id=groups_members.group_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_members.member_id=?", new RichResourceExtractor(), member.getId());
+                    + "join groups_members on groups.id=groups_members.group_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_members.member_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
@@ -486,7 +495,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
         try {
             return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
                     FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id "
-                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.vo_id=?", new RichResourceExtractor(), vo.getId());
+                    + "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.vo_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, vo.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
