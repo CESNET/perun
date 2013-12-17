@@ -30,7 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  * ServicesManager's functionality is going to be encapsulated in the Controller's
  * GeneralServiceManager.
  * 
- * @version $Id$
+ * @version $Id: 06e308cdd66f21e577d886040b22894ab12e4cc1 $
  */
 public interface ServicesManager {
   
@@ -412,20 +412,20 @@ public interface ServicesManager {
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
-   * @throws ServiceNotExistsExceptionif if the service doesn't exists in underlaying data source
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    * @throws AttributeAlreadyAssignedException if the attribute is already added
    */
   void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
 
   /**
    *  Batch version of addRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
 
   /**
    * Remove required attribute from service. 
-   * TODO If you try to remove attribute which is default for othed Required attribute ...
+   * TODO If you try to remove attribute which is default for other Required attribute ...
    * 
    * @param perunSession perunSession
    * @param service service from which the attribute will be removed
@@ -435,13 +435,13 @@ public interface ServicesManager {
    * @throws PrivilegeException if privileges are not given
    * @throws AttributeNotExistsException 
    * @throws AttributeNotAssignedException
-   * @throws ServiceNotExistsExceptionif if the service doesn't exists in underlaying data source
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    */
   void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
 
   /**
    *  Batch version of removeRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
 
@@ -453,7 +453,7 @@ public interface ServicesManager {
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws ServiceNotExistsExceptionif if the service doesn't exists in underlaying data source
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    */
   void removeAllRequiredAttributes(PerunSession perunSession, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException;
 
@@ -493,7 +493,6 @@ public interface ServicesManager {
    * @param perunSession
    * @param service
    * @param facility
-   * @param destination
    * @return list of added destinations
    * @throws PrivilegeException
    * @throws InternalErrorException

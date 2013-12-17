@@ -17,7 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
- * @version $Id$
+ * @version $Id: 9752010d5747c959710005a3e01b084f0b157fdd $
  *
  */
 public interface ExtSourcesManagerImplApi {
@@ -153,7 +153,7 @@ public interface ExtSourcesManagerImplApi {
    * Check if extSource exists in underlaying data source.
    * 
    * @param perunSession
-   * @param extSourc
+   * @param extSource
    * 
    * @throws InternalErrorException
    * @throws ExtSourceNotExistsException

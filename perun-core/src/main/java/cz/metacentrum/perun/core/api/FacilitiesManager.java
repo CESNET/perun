@@ -400,7 +400,7 @@ public interface FacilitiesManager {
    * Get facilities which have the user access on.
    * 
    * @param sess
-   * @param group
+   * @param user
    * @return
    * 
    * @throws InternalErrorException
@@ -504,7 +504,6 @@ public interface FacilitiesManager {
    * 
    * @param perunSession
    * @param host
-   * @param facility
    * 
    * @throws InternalErrorException
    * @throws HostNotExistsException
@@ -625,7 +624,6 @@ public interface FacilitiesManager {
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws FacilityNotExistsException
-   * @throws InternalErrorRuntimeException
    */
   List<User> getDirectAdmins(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 

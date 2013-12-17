@@ -37,7 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * Manages resources.
  * 
  * @author  Slavek Licehammer
- * @version $Id$
+ * @version $Id: 8abee750709dc3602bac09b9de38746ebcf7555a $
  */
 public interface ResourcesManagerBl {
 
@@ -341,7 +341,6 @@ public interface ResourcesManagerBl {
    * @param vo
 
    * @throws InternalErrorException
-   * @throws VoNotFoundException
    * @return list of resources
    */
   List<Resource> getResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
@@ -353,7 +352,6 @@ public interface ResourcesManagerBl {
    * @param vo
 
    * @throws InternalErrorException
-   * @throws VoNotFoundException
    * @return list of rich resources
    */
   List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
@@ -375,7 +373,6 @@ public interface ResourcesManagerBl {
    * @param vo
 
    * @throws InternalErrorException
-   * @throws VoNotFoundException
    * @return count fo vo resources
    */
   int getResourcesCount(PerunSession perunSession, Vo vo) throws InternalErrorException;
@@ -440,7 +437,7 @@ public interface ResourcesManagerBl {
    * Updates Resource.
    *
    * @param perunSession
-   * @param vo
+   * @param resource
    * @return returns updated Resource
    * @throws InternalErrorException
    */

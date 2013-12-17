@@ -33,7 +33,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id$
+ * @version $Id: 392235f34ef408a43997e1682f2229562a1a1e8e $
  */
 public interface AttributesManagerImplApi {
 
@@ -318,7 +318,7 @@ public interface AttributesManagerImplApi {
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    */
-  List<Attribute> getAttributes(PerunSession sess, User member, List<String> attrNames) throws InternalErrorException;
+  List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException;
   
   /**
    * Get all virtual attributes associated with the user.
@@ -933,7 +933,7 @@ public interface AttributesManagerImplApi {
    * Get user attributes which are required by services. Services are known from the resource.
    * 
    * @param sess perun session
-   * @param resource
+   * @param resourceToGetServicesFrom
    * @param user you get attributes for this user
    * @return list of user attributes which are required by services which are assigned to resource. 
    * 
@@ -1118,7 +1118,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session perun session
+    * @param sess perun session
     * @param facility 
     * @param attribute
     * @throws InternalErrorException
@@ -1130,7 +1130,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session perun session
+    * @param sess perun session
     * @param key
     * @param attribute
     * @throws InternalErrorException
@@ -1142,7 +1142,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param vo
     * @param attribute
     * @throws InternalErrorException
@@ -1154,7 +1154,7 @@ public interface AttributesManagerImplApi {
   /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param host
     * @param attribute
     * @throws InternalErrorException
@@ -1166,7 +1166,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param group
     * @param attribute
     * @throws InternalErrorException
@@ -1178,7 +1178,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param user
     * @param attribute
     * @throws InternalErrorException
@@ -1190,7 +1190,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param member
     * @param attribute
     * @throws InternalErrorException
@@ -1202,7 +1202,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param resource
     * @param group
     * @param attribute
@@ -1215,7 +1215,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param resource
     * @param attribute
     * @throws InternalErrorException
@@ -1227,7 +1227,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param resource
     * @param member
     * @param attribute
@@ -1240,7 +1240,7 @@ public interface AttributesManagerImplApi {
    /**
     * If you need to do some further work with other modules, this method do that
     * 
-    * @param session
+    * @param sess
     * @param facility
     * @param user
     * @param attribute
@@ -1532,7 +1532,6 @@ public interface AttributesManagerImplApi {
    * 
    * @param sess perun session
    * @param facility
-   * @param user
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    */
   void removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException;
@@ -1859,7 +1858,7 @@ public interface AttributesManagerImplApi {
    * Get the atributeModule for the attribute
    *
    * @param attribute get the attribute module for this attribute
-   * @see AttributesManagerImpl#getAttributesModule(String)
+   * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getAttributesModule(PerunSession,String)
    */
    Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
    

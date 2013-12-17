@@ -30,7 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
  * @author 
- * @version $Id$
+ * @version $Id: eff24970b15a720242fbb9a2ad3fa656218da7d8 $
  * @see Perun
  */
 public interface GroupsManagerImplApi {
@@ -173,7 +173,7 @@ public interface GroupsManagerImplApi {
   
   /** Return group users sorted by name.
    * 
-   * @param perunSession
+   * @param sess
    * @param group
    * 
    * @return list users sorted or empty list if there are no users on specified page
@@ -208,7 +208,7 @@ public interface GroupsManagerImplApi {
    * 
    * @param sess
    * @param group
-   * @param list of statuses, if status is null then return all members
+   * @param statuses list of statuses, if status is null then return all members
    * @param excludeStatusInsteadOfIncludeStatus does the list of statuses means exclude members or include members with these statuses
    * @return list of members
    * @throws InternalErrorException

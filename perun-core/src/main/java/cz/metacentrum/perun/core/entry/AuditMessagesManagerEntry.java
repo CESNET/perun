@@ -21,7 +21,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * AuditMessagesManager manages audit messages (logs). Entry Logic
  *
  * @author Michal Stava
- * @version $Id$
+ * @version $Id: e0ff42d45d0a4417c51b54f5e56138bff67a4c57 $
  */
 public class AuditMessagesManagerEntry implements AuditMessagesManager {
     
@@ -61,7 +61,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
   /**
    * Sets the AuditMessagesManagerBl for this instance.
    *
-   * @param AuditMessagesManagerBl The AuditMessagesManagerBl.
+   * @param auditMessagesManagerBl The AuditMessagesManagerBl.
    */
   public void setAuditMessagesManagerBl(AuditMessagesManagerBl auditMessagesManagerBl)
   {

@@ -25,7 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * an instance of Perun.
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: e2ec4e1ee4b198c394e2e09a95f589a75f31b860 $
  */
 public interface PerunBl extends Perun {
 
@@ -43,7 +43,6 @@ public interface PerunBl extends Perun {
     /**
      * Gets an internal Perun session.
      * @throws InternalErrorException raised when session cannot be created.
-     * @param actor identification of the actor, who will perform operations.
      * @return perun session
      */
     PerunSession getPerunSession() throws InternalErrorException ;

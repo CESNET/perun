@@ -28,7 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @version $Id$
+ * @version $Id: c50827739426cd0f4735f59e98597a376f23d591 $
  * @see PerunSession
  */
 public interface VosManagerImplApi {
@@ -99,7 +99,7 @@ public interface VosManagerImplApi {
    * Get list of Vo administrators.
    * If some group is administrator of the VO, all members are included in the list.
    *
-   * @param perunSession
+   * @param sess
    * @param vo
    * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.   
    * @throws InternalErrorException
@@ -120,7 +120,7 @@ public interface VosManagerImplApi {
   /**
      * Get list of group administrators of the given VO.
    *
-   * @param perunSession
+   * @param sess
    * @param vo
    * @return List of groups, who are administrators of the Vo. Returns empty list if there is no VO group admin.   
    * @throws InternalErrorException

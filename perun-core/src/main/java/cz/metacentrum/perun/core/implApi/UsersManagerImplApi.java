@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
- * @version $Id$
+ * @version $Id: 3ec9066a78c15a17e31f948efff994feb5c49563 $
  */
   /**
  * @author michalp
@@ -172,7 +172,7 @@ public interface UsersManagerImplApi {
      * @param perunSession        
      * @param user 
      * @throws InternalErrorException
-     * @throws UserAlredyRemovedException
+     * @throws UserAlreadyRemovedException
      */
     void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserAlreadyRemovedException;
       

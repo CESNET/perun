@@ -31,7 +31,6 @@ public class AuthzResolver {
    * 
    * @param sess
    * @param actionType type of action on attribute (ex.: write, read, etc...)
-   * @param role role of principal (ex.: perunadmin, groupadmin, etc...)
    * @param attrDef attribute what principal want to work with
    * @param primaryHolder primary Bean of Attribute (can't be null)
    * @param secondaryHolder secondary Bean of Attribute (can be null)

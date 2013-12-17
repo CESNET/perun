@@ -334,9 +334,9 @@ public interface ResourcesManager {
    *
    * @param perunSession
    * @param vo
-
+   *
    * @throws InternalErrorException
-   * @throws VoNotFoundException
+   * @throws VoNotExistsException
    * @throws PrivilegeException
    * @return list of resources
    */
@@ -347,9 +347,9 @@ public interface ResourcesManager {
    *
    * @param perunSession
    * @param vo
-
+   *
    * @throws InternalErrorException
-   * @throws VoNotFoundException
+   * @throws VoNotExistsException
    * @throws PrivilegeException
    * @return list of rich resources
    */
@@ -360,9 +360,9 @@ public interface ResourcesManager {
    *
    * @param perunSession
    * @param vo
-
+   *
    * @throws InternalErrorException
-   * @throws VoNotFoundException
+   * @throws VoNotExistsException
    * @throws PrivilegeException
    * @return count of vo resources
    */

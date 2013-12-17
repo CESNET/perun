@@ -31,7 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * @author Slavek Licehammer
  * @author Zora Sebestianova
  * @author 
- * @version $Id$
+ * @version $Id: 4f9b9326612ee24ce4ed36fe2cedcfa1ec0448e4 $
  */
 public interface MembersManagerBl {
 
@@ -116,7 +116,7 @@ public interface MembersManagerBl {
    * @return newly created members
    * @throws InternalErrorException
    * @throws AlreadyMemberException
-   * @see memebersManagerBl#createMember(PerunSession, Vo, Candidate, boolean)
+   * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
    */
   Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException;
 
@@ -131,7 +131,7 @@ public interface MembersManagerBl {
    * @return newly created members
    * @throws InternalErrorException
    * @throws AlreadyMemberException
-   * @see memebersManagerBl#createMember(PerunSession, Vo, Candidate, boolean)
+   * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
    */
   Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, AlreadyMemberException;
   
@@ -139,13 +139,13 @@ public interface MembersManagerBl {
    * Creates Service Member. 
    * This method creates service member and then validate it <strong> Synchronously </strong>
    * 
-   * @see memebersManagerBl#createServiceMember(PerunSession, Vo, Candidate, List<User>)
+   * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createServiceMember(PerunSession, Vo, Candidate, List<User>)
    */
   Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, AlreadyMemberException;
   
   /**
    * Creates member. Runs synchronously.
-   * @see memebersManagerBl#createMember(PerunSession, Vo, Candidate, boolean)
+   * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
    */
   Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException;
 
@@ -326,7 +326,7 @@ public interface MembersManagerBl {
    * 
    * @param sess
    * @param vo
-   * @param attrNames
+   * @param attrsNames
    * @param allowedStatuses
    * @return list of richMembers with specific attributes from Vo
    * @throws InternalErrorException
@@ -363,7 +363,7 @@ public interface MembersManagerBl {
    * 
    * @param sess
    * @param group
-   * @param attrNames
+   * @param attrsNames
    * @param allowedStatuses
    * @param lookingInParentGroup 
    * @return list of richMembers with specific attributes from group

@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
  * Manages resources.
  * 
  * @author  Slavek Licehammer
- * @version $Id$
+ * @version $Id: a040bcb30f5271c55c64195402fb420d903dea69 $
  */
 public interface ResourcesManagerImplApi {
 
@@ -404,7 +404,7 @@ public interface ResourcesManagerImplApi {
    * Updates Resource.
    *
    * @param perunSession
-   * @param vo
+   * @param resource
    * @return returns updated Resource
    * @throws InternalErrorException
    */
@@ -455,7 +455,6 @@ public interface ResourcesManagerImplApi {
    * @param perunSession
    * @param resource
    * @throws InternalErrorException
-   * @throws ResourceTagAlreadyAssignedException 
    */
   void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException;
   

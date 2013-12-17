@@ -47,7 +47,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * 
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
- * @version $Id$
+ * @version $Id: 2d955f5cad2749d5b30fe5529282bb99a4737f51 $
  * @see Perun
  */
 public interface GroupsManagerBl {
@@ -337,7 +337,6 @@ public interface GroupsManagerBl {
    * 
    * @param sess
    * @param group
-   * @param status
    * 
    * @return list of RichMembers
    * @throws InternalErrorException
@@ -530,7 +529,6 @@ public interface GroupsManagerBl {
    * 
    * @throws InternalErrorException
    * @throws  UserNotExistsException
-   * @throws InternalErrorRuntimeException
    */
   List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
   
@@ -542,7 +540,6 @@ public interface GroupsManagerBl {
    * 
    * @throws InternalErrorException
    * @throws UserNotExistsException
-   * @throws InternalErrorRuntimeException
    */
   List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
   

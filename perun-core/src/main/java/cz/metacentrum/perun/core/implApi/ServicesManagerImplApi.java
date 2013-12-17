@@ -32,7 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
  * ServicesManager's functionality is going to be encapsulated in the Controller's
  * GeneralServiceManager.
  * 
- * @version $Id$
+ * @version $Id: c5dcb1fac2ad9a529982efb64252d326a484de0d $
  */
 public interface ServicesManagerImplApi {
 
@@ -240,7 +240,7 @@ public interface ServicesManagerImplApi {
 
   /**
    *  Batch version of addRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException;
 
@@ -254,13 +254,13 @@ public interface ServicesManagerImplApi {
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws AttributeNotAssignedException
-   * @throws ServiceNotExistsExceptionif if the service doesn't exists in underlaying data source
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    */
   void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeNotAssignedException;
 
   /**
    *  Batch version of removeRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException;
 
@@ -271,7 +271,7 @@ public interface ServicesManagerImplApi {
    * @param service service from which the attributes will be removed
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-   * @throws ServiceNotExistsExceptionif if the service doesn't exists in underlaying data source
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    */
   void removeAllRequiredAttributes(PerunSession perunSession, Service service) throws InternalErrorException;
 

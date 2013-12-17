@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
  * AuditMessagesManager manages audit messages (logs).
  *
  * @author Michal Stava
- * @version $Id$
+ * @version $Id: 2a5612808194bc4627997a95e4c25889f7c64e5c $
  */
 public interface AuditMessagesManager {
     
@@ -22,7 +22,7 @@ public interface AuditMessagesManager {
     * @param perunSession 
     * @return list of audit's messages
     * @throws InternalErrorException
-    * @throws WrongAttributeValueException
+    * @throws WrongRangeOfCountException
     */
     List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException,WrongRangeOfCountException;
 
@@ -33,7 +33,7 @@ public interface AuditMessagesManager {
     * @param count Count of returned messages.
     * @return list of audit's messages
     * @throws InternalErrorException
-    * @throws WrongAttributeValueException
+    * @throws WrongRangeOfCountException
     */
     List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException,WrongRangeOfCountException;
     

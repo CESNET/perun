@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * RTMessage manager can create a new message and send it to RT like predefined service user.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
+ * @version $Id: a54b66a2708b39cffa22348c8368a34c5b467171 $
  */
 public interface RTMessagesManagerBl {
     
@@ -51,7 +51,6 @@ public interface RTMessagesManagerBl {
      * 
      * @param sess (also to get user from it)
      * @param voId id of vo, where user is member
-     * @param queue in which queue will be message send
      * @param subject subject of message
      * @param text text of message
      * @return RTMessage with information about success or not
