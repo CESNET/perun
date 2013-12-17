@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.webgui.client.passwordresetresources;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window.Location;
@@ -55,9 +53,7 @@ public class PasswordResetFormPage {
             namespace = "";
         }
 
-        final ListBox namespaces = new ListBox();
         final Label headerLabel = new Label();
-        final Label loginLabel = new Label();
 
         final ExtendedPasswordBox passBox = new ExtendedPasswordBox();
         final ExtendedPasswordBox secondPassBox = new ExtendedPasswordBox();
@@ -65,7 +61,7 @@ public class PasswordResetFormPage {
         final ExtendedTextBox.TextBoxValidator validator;
         final ExtendedTextBox.TextBoxValidator validator2;
 
-        final CustomButton resetPass = new CustomButton("Reset password", "Reset password in selected namespace", SmallIcons.INSTANCE.keyIcon());
+        final CustomButton resetPass = new CustomButton("Reset password", "Reset password in namespace: "+namespace, SmallIcons.INSTANCE.keyIcon());
 
         validator = new ExtendedTextBox.TextBoxValidator() {
             @Override
@@ -109,28 +105,19 @@ public class PasswordResetFormPage {
         ft.addStyleName("inputFormFlexTable");
         ft.getElement().setAttribute("style", "margin: auto;");
 
-        ft.setHTML(1, 0, "Namespace:");
+        ft.setHTML(1, 0, "New password:");
         ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-        ft.setWidget(1, 1, namespaces);
+        ft.setWidget(1, 1, passBox);
 
-        ft.setHTML(2, 0, "Login:");
+        ft.setHTML(2, 0, "Retype new password:");
         ft.getFlexCellFormatter().setStyleName(2, 0, "itemName");
-        ft.setWidget(2, 1, loginLabel);
+        ft.setWidget(2, 1, secondPassBox);
 
-        ft.setHTML(3, 0, "New password:");
-        ft.getFlexCellFormatter().setStyleName(3, 0, "itemName");
-        ft.setWidget(3, 1, passBox);
-
-        ft.setHTML(4, 0, "Retype new password:");
-        ft.getFlexCellFormatter().setStyleName(4, 0, "itemName");
-        ft.setWidget(4, 1, secondPassBox);
+        final FlexTable header = new FlexTable();
+        header.setWidget(0, 0, new AjaxLoaderImage());
+        header.setWidget(0, 1, headerLabel);
 
         GetLogins loginsCall = new GetLogins(session.getUser().getId(), new JsonCallbackEvents(){
-            @Override
-            public void onLoadingStart() {
-                namespaces.clear();
-                namespaces.addItem("Loading...");
-            }
             @Override
             public void onError(PerunError error) {
 
@@ -145,86 +132,54 @@ public class PasswordResetFormPage {
             }
             @Override
             public void onFinished(JavaScriptObject jso) {
-                namespaces.clear();
+                header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.keyIcon()));
                 logins = JsonUtils.jsoAsList(jso);
                 if (logins != null && !logins.isEmpty()) {
-                    namespaces.addItem("Not selected");
-                    for (String name : Utils.getSupportedPasswordNamespaces()) {
-                        boolean found = false;
-                        for (Attribute a : logins) {
-                            if (a.getFriendlyNameParameter().equalsIgnoreCase(name)) {
-                                found = true;
-                            }
-                        }
-                        if (found) {
-                            namespaces.addItem(name.toUpperCase(), name);
-                        }
-                    }
-                    if (namespaces.getItemCount() <= 1) {
-
-                        bodyContents.clear();
-                        FlexTable ft = new FlexTable();
-                        ft.setSize("100%", "300px");
-                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You don't have login in any of namespaces supported for password reset !</h2>");
-                        ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-                        ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-                        bodyContents.setWidget(ft);
-
-                    }
-
-                    if (namespace != null && !namespace.equals("")) {
-                        // select namespace from URL
-                        for (int i=0; i<namespaces.getItemCount(); i++) {
-                            if (namespaces.getValue(i).equals(namespace)) {
-                                namespaces.setSelectedIndex(i);
-                                for (Attribute a : logins) {
-                                    if (a.getFriendlyNameParameter().equals(namespace)) {
-                                        loginLabel.setText(a.getValue());
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                }
-            }
-        });
-        if (logins == null) {
-            loginsCall.retrieveData();
-        } else {
-            if (logins != null && !logins.isEmpty()) {
-                namespaces.addItem("Not selected");
-                for (String name : Utils.getSupportedPasswordNamespaces()) {
-                    boolean found = false;
                     for (Attribute a : logins) {
-                        if (a.getFriendlyNameParameter().equalsIgnoreCase(name)) {
-                            found = true;
-                        }
-                    }
-                    if (found) {
-                        namespaces.addItem(name.toUpperCase(), name);
-                    }
-                }
-            }
-        }
-
-        namespaces.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                if (namespaces.getSelectedIndex() > 0) {
-                    namespace = namespaces.getValue(namespaces.getSelectedIndex());
-                    for (Attribute a : logins) {
+                        // if have login in namespace
                         if (a.getFriendlyNameParameter().equals(namespace)) {
-                            loginLabel.setText(a.getValue());
+                            boolean found = false;
+                            for (String name : Utils.getSupportedPasswordNamespaces()) {
+                                if (a.getFriendlyNameParameter().equalsIgnoreCase(name)) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                // HAVE LOGIN AND SUPPORTED
+                                headerLabel.setText("Password reset for "+a.getValue()+"@"+namespace);
+                                return;
+                            } else {
+                                // NOT SUPPORTED
+                                bodyContents.clear();
+                                FlexTable ft = new FlexTable();
+                                ft.setSize("100%", "300px");
+                                ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Password reset in selected namespace is not supported !</h2>");
+                                ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                                ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+                                bodyContents.setWidget(ft);
+                                return;
+                            }
                         }
                     }
-                } else {
-                    namespace = "";
-                    loginLabel.setText("");
+                    // DO NOT HAVE LOGIN IN NAMESPACE
+                    bodyContents.clear();
+                    FlexTable ft = new FlexTable();
+                    ft.setSize("100%", "300px");
+
+                    if (namespace != null && !namespace.isEmpty()) {
+                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You don't have login in selected namespace !</h2>");
+                    } else {
+                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You must specify login-namespace in URL !</h2>");
+                    }
+                    ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                    ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+                    bodyContents.setWidget(ft);
                 }
+
             }
         });
+
+        loginsCall.retrieveData();
 
         resetPass.addClickHandler(new ClickHandler() {
             @Override
@@ -246,18 +201,14 @@ public class PasswordResetFormPage {
                     }
                 }), false);
 
-                if (validator.validateTextBox() && validator2.validateTextBox() && namespaces.getSelectedIndex()>0) {
+                if (validator.validateTextBox() && validator2.validateTextBox()) {
                     changepw.changePassword(session.getUser(), namespace, "", passBox.getTextBox().getText().trim());
                 }
 
             }
         });
 
-        FlexTable header = new FlexTable();
-        header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.keyIcon()));
-        header.setWidget(0, 1, headerLabel);
-
-        headerLabel.setText("Password reset");
+        headerLabel.setText("Password reset for ");
         headerLabel.setStyleName("now-managing");
 
         vp.add(header);
