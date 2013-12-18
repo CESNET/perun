@@ -37,7 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
  * ServicesManager's functionality is going to be encapsulated in the Controller's
  * GeneralServiceManager.
  * 
- * @version $Id$
+ * @version $Id: 1804b481ee5b3a22a21a4a69d1075d529893b927 $
  */
 public interface ServicesManagerBl {
 
@@ -285,7 +285,7 @@ public interface ServicesManagerBl {
 
   /**
    *  Batch version of addRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException;
 
@@ -304,7 +304,7 @@ public interface ServicesManagerBl {
 
   /**
    *  Batch version of removeRequiredAttribute
-   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,Attribute)
+   *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
    */
   void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException;
 
@@ -350,7 +350,6 @@ public interface ServicesManagerBl {
    * @param perunSession
    * @param service
    * @param facility
-   * @param destination
    * @return list of added destinations
    * @throws InternalErrorException
    * @throws DestinationAlreadyAssignedException

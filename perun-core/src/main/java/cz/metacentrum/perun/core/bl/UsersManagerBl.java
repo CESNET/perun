@@ -23,7 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
- * @version $Id$
+ * @version $Id: d3cfbca70bdb8109f77cc96ef6f36a1576aebfe1 $
  */
 public interface UsersManagerBl {
 
@@ -688,7 +688,6 @@ public interface UsersManagerBl {
    * @param sess
    * @param userLogin string representation of the userLogin
    * @param loginNamespace
-   * @param password
    * @throws InternalErrorException
    * @throws PasswordCreationFailedException
    */
@@ -701,7 +700,6 @@ public interface UsersManagerBl {
    * @param sess
    * @param user
    * @param loginNamespace
-   * @param password
    * @throws InternalErrorException
    * @throws PasswordCreationFailedException
    * @throws LoginNotExistsException
@@ -800,7 +798,7 @@ public interface UsersManagerBl {
    * For list of richUser filter all their user attributes and remove all which principal has no access to.
    * 
    * @param sess
-   * @param richUser
+   * @param richUsers
    * @return list of RichUsers with only allowed attributes
    * @throws InternalErrorException 
    */
@@ -845,10 +843,10 @@ public interface UsersManagerBl {
    */
   List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException;
   
-     /**
+  /**
    * Get User to RichUser with attributes.
    * @param sess
-   * @param user
+   * @param includedServiceUsers
    * @param attrsNames
    * @return
    * @throws InternalErrorException

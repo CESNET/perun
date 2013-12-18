@@ -133,7 +133,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
         int ticketNum = Integer.valueOf(ticketNumber);
         if(ticketNum != 0) {
              RTMessage rtmessage = new RTMessage(email, ticketNum);
-             log.debug("RT message was send succesfully and the ticket has number: " + ticketNum);
+             log.debug("RT message was send successfully and the ticket has number: " + ticketNum);
              return rtmessage;
         } else {
             throw new InternalErrorException("RT message was not send due to error with RT returned this message: " + responseMessage.toString());
@@ -211,7 +211,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
         try {
             entity.addPart("Content-Typ", new StringBody("application/x-www-form-urlencoded"));
             entity.addPart("charset", new StringBody("utf-8"));
-            entity.addPart("Connection", new StringBody("Close"));            System.out.println("Tady");
+            entity.addPart("Connection", new StringBody("Close"));
             StringBody content = new StringBody("id: " + id + '\n' +
                                                 "Queue: " + queue + '\n' +
                                                 "Requestor: " + requestor + '\n' +

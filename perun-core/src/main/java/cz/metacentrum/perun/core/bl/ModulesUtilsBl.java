@@ -20,7 +20,7 @@ import java.util.Set;
  * ModuleUtils interface.
  * There are methods for help with modules.
  * 
- * @version $Id$
+ * @version $Id: 6fb0721f4b2646969ab0daff01dd8c7d3b668597 $
  */
 public interface ModulesUtilsBl {
     
@@ -79,7 +79,7 @@ public interface ModulesUtilsBl {
    * 
    * @param sess
    * @param resourcesWithSameGroupNameInSameNamespace
-   * @param gidNamespace namespace of gid attribute
+   * @param nameOfAttribute
    * @param commonGID can be null if no commonGID exists
    * @return common GID, if no exists return null
    * 
@@ -94,7 +94,7 @@ public interface ModulesUtilsBl {
    * 
    * @param sess
    * @param groupsWithSameGroupNameInSameNamespace
-   * @param gidNamespace namespace of gid attribute
+   * @param nameOfAttribute
    * @param commonGID can bu null if no commonGID exists
    * @return common GID, if no exists return null
    * 
@@ -121,7 +121,6 @@ public interface ModulesUtilsBl {
    * 
    * @param sess
    * @param attribute group or resource unixGID-namespace attribute with value
-   * @param gid
    * 
    * @throws InternalErrorException
    * @throws WrongReferenceAttributeValueException if minGid or maxGid is null

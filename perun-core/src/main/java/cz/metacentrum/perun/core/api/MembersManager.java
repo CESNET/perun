@@ -24,7 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
- * @version $Id$
+ * @version $Id: da1630d5406d19efef10d1ff4d65f55c2f3e1793 $
  */
   public interface MembersManager {
     
@@ -171,7 +171,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
      *
      * @param perunSession
      * @param vo
-     * @param userExtSource
+     * @param userExtSources
      * @return selected user or throws MemberNotExistsException in case the requested member doesn't exists in this Vo
      * @throws InternalErrorException
      * @throws MemberNotExistsException
@@ -332,7 +332,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
      * 
      * @param sess
      * @param vo
-     * @param attrNames
+     * @param attrsNames
      * @param allowedStatuses
      * @return list of richMembers with specific attributes from Vo
      * @throws InternalErrorException
@@ -373,7 +373,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
      * 
      * @param sess
      * @param group
-     * @param attrNames
+     * @param attrsNames
      * @param allowedStatuses
      * @param lookingInParentGroup 
      * @return list of richMembers with specific attributes from group
@@ -470,10 +470,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException, VoNotExistsException, ParentGroupNotExistsException;
     
     /**
-     * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
+     * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
      * 
      * @param sess
-     * @param vo
+     * @param group
+     * @param attrsDef
      * @return
      * @throws InternalErrorException
      * @throws PrivilegeException
@@ -535,7 +536,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
      *
      * @param sess
      * @param vo
-     * @param pageNum  number of page
+     * @param status
      * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
      * @throws InternalErrorException
      * @throws PrivilegeException
@@ -623,7 +624,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
      * @return list of members
      * @throws InternalErrorException
      * @throws PrivilegeException
-     * @throws GroupNotExistException 
+     * @throws GroupNotExistsException
+     * @throws ParentGroupNotExistsException
      */
     List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException;
     

@@ -39,7 +39,7 @@ import java.util.Set;
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id$
+ * @version $Id: 0efc1792b0b54a8999441acdfb74070c15652add $
  */
 public interface AttributesManagerBl {
 
@@ -171,10 +171,8 @@ public interface AttributesManagerBl {
    * @param member to get the attributes from
    * @param attrNames  list of attributes' names
    * @param workWithUserAttributes if user attributes need to be return too
-   * @return list of member (and also if needed user) attributes 
-   * @throws PrivilegeException
+   * @return list of member (and also if needed user) attributes
    * @throws InternalErrorException
-   * @throws MemberNotExistsException 
    */
   List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException;
   
@@ -356,7 +354,7 @@ public interface AttributesManagerBl {
    * Just store the particular attribute associated with the facility, doesn't preform any value check. Core attributes can't be set this way.
    * 
    * @param sess perun session
-   * @param resource resource to set on
+   * @param facility facility to set on
    * @param attribute attribute to set
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1167,7 +1165,7 @@ public interface AttributesManagerBl {
    * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace
    * 
    * @param sess perun session
-   * @param attribute attribute to create
+   * @param attributeDefinition attribute to create
    *
    * @return attribute with set id
    *
@@ -2037,7 +2035,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Facility facility, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession,Facility,AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2068,7 +2066,6 @@ public interface AttributesManagerBl {
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws WrongAttributeValueException if the attribute value is illegal
    * @throws WrongAttributeAssignmentException if attribute is not member-resource, user, member or user-facility attribute
-   * @throws FacilityNotExistsException
    * @throws WrongReferenceAttributeValueException
    */
   void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
@@ -2110,7 +2107,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Vo vo, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2154,7 +2151,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Group group, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2182,7 +2179,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2238,7 +2235,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2267,7 +2264,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Facility facility, User user, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2307,7 +2304,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Facility facility, User user, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2333,7 +2330,7 @@ public interface AttributesManagerBl {
 
    /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Host host, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -2341,7 +2338,7 @@ public interface AttributesManagerBl {
    * Unset all attributes for the host.
    *
    * @param sess perun session
-   * @param user remove attributes from this host
+   * @param host remove attributes from this host
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    */
@@ -2360,7 +2357,7 @@ public interface AttributesManagerBl {
 
   /**
    * Batch version of removeAttribute.
-   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute)
+   * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute)
    */
   void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
