@@ -109,7 +109,7 @@ select {
 }
 
 /* Style all input-text as gwt-Textbox */
-input[type=text] {
+input[type=text], input[type=password] {
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
@@ -127,13 +127,14 @@ input[type=text] {
 /* APPLICATION */
 .applicationFormLabel{
     text-align: left;
-    vertical-align: middle;
+    line-height: 27px;   /* Match standard textbox height */
+    vertical-align: top;
     padding:3px 10px;
     max-width: 300px;
 }
 .applicationFormWidget{
     text-align: left;
-    vertical-align: middle;
+    vertical-align: text-top;
     padding:3px 10px;
 }
 .applicationFormHelp{
@@ -142,12 +143,12 @@ input[type=text] {
     margin: 0px 0 8px 0;
     text-align: left;
     line-height: 160%;
-    vertical-align: middle;
+    vertical-align: top;
 }
 .applicationFormCheck{
     padding:3px 10px;
     text-align: left;
-    vertical-align: middle;
+    vertical-align: top;
     min-width: 100px;
 }
 
@@ -180,6 +181,26 @@ input[type=text] {
 
 .gwt-ListBox {
     max-width: 250px !important;
+}
+
+/* Password textboxes */
+.appFormPasswordTable tr td:first-child {
+    padding-bottom: 5px;
+}
+/* Checkboxes */
+.appFormCheckBoxTable tr td {
+    padding-bottom: 5px;
+}
+.appFormCheckBoxTable tr td span {
+    vertical-align: middle;
+}
+.appFormCheckBoxTable tr td span input {
+    vertical-align: middle;
+}
+.appFormCheckBoxTable tr td span label {
+    vertical-align: middle;
+    min-width: 350px;
+    max-width: 550px;
 }
 
 /* ======== TAB MENU 2 ========== */
