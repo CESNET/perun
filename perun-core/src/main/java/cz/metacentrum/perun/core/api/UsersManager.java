@@ -429,6 +429,19 @@ public interface UsersManager {
   List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
   /**
+   * Get all rich resources which have the user assigned.
+   *
+   * @param sess
+   * @param user
+   * @return list of rich resources which have the user assigned
+   *
+   * @throws InternalErrorException
+   * @throws UserNotExistsException
+   * @throws PrivilegeException
+   */
+  List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+    /**
    * Returns list of users who matches the searchString, searching name, email, logins.
    * 
    * @param sess

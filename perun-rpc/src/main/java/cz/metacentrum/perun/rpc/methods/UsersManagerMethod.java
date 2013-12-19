@@ -2,15 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -655,6 +647,21 @@ public enum UsersManagerMethod implements ManagerMethod {
             } else {
                 return ac.getUsersManager().getAllowedResources(ac.getSession(), user);
             }
+        }
+    },
+
+    /*#
+     * Get all rich resources which have the user assigned.
+     *
+     * @param user int User ID
+     * @return List<RichResource> Assigned rich resources
+     */
+    getAssignedRichResources {
+
+        @Override
+        public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+            User user = ac.getUserById(parms.readInt("user"));
+            return ac.getUsersManager().getAssignedRichResources(ac.getSession(), user);
         }
     },
 

@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
  * UsersManager entry logic
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: 58a733a0cf9aad7f880616c0758787e206c1bdf9 $
  */
 public class UsersManagerEntry implements UsersManager {
 
@@ -469,7 +469,15 @@ public class UsersManagerEntry implements UsersManager {
     return getUsersManagerBl().getAllowedResources(sess, user);
   }
 
-  public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
+  public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+      Utils.checkPerunSession(sess);
+
+      //TODO Authorization
+      getUsersManagerBl().checkUserExists(sess, user);
+      return getUsersManagerBl().getAssignedRichResources(sess, user);
+   }
+
+    public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
     Utils.checkPerunSession(sess);
     
     // Probably without authorization
