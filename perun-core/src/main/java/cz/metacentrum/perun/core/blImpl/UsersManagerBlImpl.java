@@ -14,29 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
@@ -81,7 +62,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: c63575ed55b07eaa72bd664cf2424b7c6cbaebab $
  */
 public class UsersManagerBlImpl implements UsersManagerBl {
 
@@ -535,6 +516,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
     return new ArrayList<Resource>(resources);
   }
+
+  public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
+      Set<RichResource> resources = new HashSet<RichResource>();
+      List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+
+      for(Member member : members) {
+          resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedRichResources(sess, member));
+      }
+       return new ArrayList<RichResource>(resources);
+  }
   
   private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
     // try to find method in attribute module
@@ -817,7 +808,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * Method which calls external program for password reservation.
    * 
    * @param sess
-   * @param userLogin
+   * @param user
    * @param loginNamespace
    */
   public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException {
@@ -869,7 +860,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * Method which calls external program for password reservation. User and login is already known.
    * 
    * @param sess
-   * @param userLogin
+   * @param user
    * @param loginNamespace
    * @param password
    */
@@ -921,7 +912,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * Method which calls external program for password validation. User and login is already known.
    * 
    * @param sess
-   * @param userLogin
+   * @param user
    * @param loginNamespace
    */
   public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
@@ -1101,7 +1092,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * Method which calls external program for password creation. User and login is already known.
    * 
    * @param sess
-   * @param userLogin
+   * @param user
    * @param loginNamespace
    * @param password
    */
@@ -1137,7 +1128,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * @param sess
    * @param userLogin
    * @param loginNamespace
-   * @param password
    */
   public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
   PasswordDeletionFailedException {

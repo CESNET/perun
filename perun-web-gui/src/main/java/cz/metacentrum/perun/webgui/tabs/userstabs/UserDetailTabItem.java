@@ -29,6 +29,8 @@ import cz.metacentrum.perun.webgui.json.facilitiesManager.GetAssignedFacilities;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetMemberGroups;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
+import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedResources;
+import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedRichResources;
 import cz.metacentrum.perun.webgui.json.usersManager.*;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.*;
@@ -36,6 +38,7 @@ import cz.metacentrum.perun.webgui.tabs.attributestabs.SetNewAttributeTabItem;
 import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -49,7 +52,7 @@ import java.util.Map;
  * View user details
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 2940fc232606dbcee6fcee1803abda7dc53fef58 $
  */
 public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
@@ -425,10 +428,17 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 	
 	private Widget loadResources(){
-		
-		GetAllowedResources allowedResources = new GetAllowedResources(user.getId());
-		allowedResources.setCheckable(false);
-		CellTable<Resource> table = allowedResources.getTable();
+
+        cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources resources = new cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources(user.getId(), PerunEntity.USER);
+		resources.setCheckable(false);
+        CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
+            @Override
+            public void update(int index, RichResource object, String value) {
+                // show as vo admin
+                session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
+            }
+        });
+
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
@@ -436,7 +446,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
-		vp.add(sp); 
+		vp.add(sp);
 		session.getUiElements().resizeSmallTabPanel(sp, 320, this);
 		vp.setCellHeight(sp, "100%");
 		
@@ -608,6 +618,34 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					}
 				});
 
+                final ListBoxWithObjects<Resource> resList = new ListBoxWithObjects<Resource>();
+
+                GetAssignedResources res = new GetAssignedResources(member.getId(), PerunEntity.MEMBER, new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        resList.clear();
+                        ArrayList<Resource> list = JsonUtils.jsoAsList(jso);
+                        if (list == null || list.isEmpty()){
+                            resList.addItem("No resources found");
+                        } else {
+                            list = new TableSorter<Resource>().sortByName(list);
+                            resList.addNotSelectedOption();
+                            resList.addAllItems(list);
+                        }
+                    }
+                    @Override
+                    public void onError(PerunError error) {
+                        resList.clear();
+                        resList.addItem("Error while loading");
+                    }
+                    @Override
+                    public void onLoadingStart() {
+                        resList.clear();
+                        resList.addItem("Loading...");
+                    }
+                });
+                res.retrieveData();
+
                 // link to member's detail
                 Hyperlink link = new Hyperlink();
                 link.setText("View detail");
@@ -638,31 +676,46 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				entryPanel.add(table);
 				
 				// detail header
-				Widget attrHeader = new HTML("<h2>" + "Member attributes" + "</h2>");
+				Widget attrHeader = new HTML("<h2>" + "Member / Member-resource attributes" + "</h2>");
 				entryPanel.add(attrHeader);
 				entryPanel.setCellHeight(attrHeader, "30px");
 				
 				final GetAttributesV2 attributes = new GetAttributesV2();
 				attributes.getMemberAttributes(member.getId());
+
+                resList.addChangeHandler(new ChangeHandler() {
+                    @Override
+                    public void onChange(ChangeEvent event) {
+                        if (resList.getSelectedIndex() == 0) {
+                            attributes.getMemberAttributes(member.getId());
+                            attributes.retrieveData();
+                        } else {
+                            attributes.getMemberResourceAttributes(member.getId(), resList.getSelectedObject().getId());
+                            attributes.retrieveData();
+                        }
+                    }
+                });
 				
 				TabMenu menu = new TabMenu();
 
                 final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for member");
                 saveAttrButton.addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event) {
-						
-						ArrayList<Attribute> list = attributes.getTableSelectedList();
-						if (list == null || list.isEmpty()) {
-							Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-							c.show();
-							return;
-						}
-						
-						Map<String, Integer> ids = new HashMap<String,Integer>();
-						ids.put("member", member.getId());
-						
-						SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-						request.setAttributes(ids, list);
+
+                        ArrayList<Attribute> list = attributes.getTableSelectedList();
+						if (UiElements.cantSaveEmptyListDialogBox(list)) {
+
+                            Map<String, Integer> ids = new HashMap<String,Integer>();
+                            ids.put("member", member.getId());
+                            if (resList.getSelectedIndex() > 0) {
+                                ids.put("resource", resList.getSelectedObject().getId());
+                            }
+
+                            SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+                            request.setAttributes(ids, list);
+
+
+                        }
 						
 					}
 				});
@@ -671,8 +724,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for member", new ClickHandler() {
                     public void onClick(ClickEvent event) {
 
-                        Map<String, Integer> ids = new HashMap<String, Integer>();
+                        Map<String, Integer> ids = new HashMap<String,Integer>();
                         ids.put("member", member.getId());
+                        if (resList.getSelectedIndex() > 0) {
+                            ids.put("resource", resList.getSelectedObject().getId());
+                        }
                         session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
 
                     }
@@ -681,23 +737,23 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes from member");
                 removeAttrButton.addClickHandler(new ClickHandler() {
                     public void onClick(ClickEvent event) {
-
                         ArrayList<Attribute> list = attributes.getTableSelectedList();
-                        if (list == null || list.isEmpty()) {
-                            Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-                            c.show();
-                            return;
+                        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+                            Map<String, Integer> ids = new HashMap<String, Integer>();
+                            ids.put("member", member.getId());
+                            if (resList.getSelectedIndex() > 0) {
+                                ids.put("resource", resList.getSelectedObject().getId());
+                            }
+                            RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+                            request.removeAttributes(ids, list);
+
                         }
-
-                        Map<String, Integer> ids = new HashMap<String, Integer>();
-                        ids.put("member", member.getId());
-
-                        RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                        request.removeAttributes(ids, list);
-
                     }
                 });
 				menu.addWidget(removeAttrButton);
+
+                menu.addWidget(new HTML("<strong>Resource:</strong>"));
+                menu.addWidget(resList);
 
 				entryPanel.add(menu);
 				
