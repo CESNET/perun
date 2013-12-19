@@ -319,6 +319,12 @@ public class RegistrarFormItemGenerator {
 
 				}
 			});
+
+            strValueBox.addKeyUpHandler(new KeyUpHandler() {
+                public void onKeyUp(KeyUpEvent event) {
+                    DomEvent.fireNativeEvent(Document.get().createBlurEvent(), strValueBox);
+                }
+            });
 			
 		} else {
 			
@@ -591,8 +597,8 @@ public class RegistrarFormItemGenerator {
 	 */
 	private Widget generatePasswordTextBox() {
 
-        final PasswordTextBox pwdbox1 = new PasswordTextBox();
-		final PasswordTextBox pwdbox2 = new PasswordTextBox();
+        final ExtendedPasswordTextBox pwdbox1 = new ExtendedPasswordTextBox();
+		final ExtendedPasswordTextBox pwdbox2 = new ExtendedPasswordTextBox();
 		pwdbox1.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		pwdbox2.setMaxLength(TEXT_BOX_MAX_LENGTH);
 
@@ -652,15 +658,118 @@ public class RegistrarFormItemGenerator {
 				return true;
 			}
 		};
-		
-		// when keyup on box2, trigger box1
-		pwdbox2.addKeyUpHandler(new KeyUpHandler() {
-			public void onKeyUp(KeyUpEvent event) {
-                pwdbox1.fireEvent(event);
-			}
-		});
+
+        // We must manually add handlers to each box
+        // reference by strValueBox is not working with manually triggered actions
+
+        pwdbox1.addKeyUpHandler(new KeyUpHandler() {
+            public void onKeyUp(KeyUpEvent event) {
+                DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox1);
+            }
+        });
+
+        // is triggered manually by onBlur + onPaste
+        pwdbox1.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                // check validity
+                if (inputChecker.isValid(true)) {
+                    // is valid AND value not empty
+                    if (!pwdbox1.getText().equals("")) {
+                        // default OK?
+                        if (inputChecker.useDefaultOkMessage()) {
+                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+                        }
+                    } else {
+                        // input empty - clear;
+                        statusCellWrapper.clear();
+                    }
+                }
+
+                // update
+                if (validationTrigger == null) return;
+                validationTrigger.triggerValidation();
+            }
+        });
+
+        pwdbox1.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                // check validity
+                if (inputChecker.isValid(true)) {
+                    // is valid AND value not empty
+                    if (!pwdbox1.getText().equals("")) {
+                        // default OK?
+                        if (inputChecker.useDefaultOkMessage()) {
+                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+                        }
+                    } else {
+                        // input empty - clear;
+                        statusCellWrapper.clear();
+                    }
+                }
+
+                // update
+                if (validationTrigger == null) return;
+                validationTrigger.triggerValidation();
+            }
+        });
+
+        pwdbox2.addKeyUpHandler(new KeyUpHandler() {
+            public void onKeyUp(KeyUpEvent event) {
+                DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox2);
+            }
+        });
+
+        // is triggered manually by onBlur + onPaste
+        pwdbox2.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                // check validity
+                if (inputChecker.isValid(true)) {
+                    // is valid AND value not empty
+                    if (!pwdbox2.getText().equals("")) {
+                        // default OK?
+                        if (inputChecker.useDefaultOkMessage()) {
+                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+                        }
+                    } else {
+                        // input empty - clear;
+                        statusCellWrapper.clear();
+                    }
+                }
+
+                // update
+                if (validationTrigger == null) return;
+                validationTrigger.triggerValidation();
+            }
+        });
+
+        pwdbox2.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                // check validity
+                if (inputChecker.isValid(true)) {
+                    // is valid AND value not empty
+                    if (!pwdbox2.getText().equals("")) {
+                        // default OK?
+                        if (inputChecker.useDefaultOkMessage()) {
+                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+                        }
+                    } else {
+                        // input empty - clear;
+                        statusCellWrapper.clear();
+                    }
+                }
+
+                // update
+                if (validationTrigger == null) return;
+                validationTrigger.triggerValidation();
+            }
+        });
 		
 		FlexTable ft = new FlexTable();
+        ft.setStyleName("appFormPasswordTable");
 		ft.setCellPadding(0);
 		ft.setCellSpacing(0);
 		ft.setWidget(0, 0, pwdbox1);
@@ -717,8 +826,7 @@ public class RegistrarFormItemGenerator {
     private Widget generateCheckBox() {
 
         FlexTable ft = new FlexTable();
-        ft.setCellSpacing(5);
-
+        ft.setStyleName("appFormCheckBoxTable");
         // parse options
         String options = getOptions();
         Map<String,String> boxContents = parseSelectionBox(options);
@@ -1303,6 +1411,29 @@ public class RegistrarFormItemGenerator {
                         @Override
                         public void execute() {
                             ValueChangeEvent.fire(ExtendedTextBox.this, getText());
+                        }
+                    });
+                    break;
+            }
+        }
+    }
+
+    private class ExtendedPasswordTextBox extends PasswordTextBox {
+
+        public ExtendedPasswordTextBox() {
+            super();
+            sinkEvents(Event.ONPASTE);
+        }
+
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+            switch (DOM.eventGetType(event)) {
+                case Event.ONPASTE:
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            ValueChangeEvent.fire(ExtendedPasswordTextBox.this, getText());
                         }
                     });
                     break;
