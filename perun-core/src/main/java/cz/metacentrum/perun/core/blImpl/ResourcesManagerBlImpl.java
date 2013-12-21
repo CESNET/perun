@@ -50,7 +50,6 @@ import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 /**
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 3d0cfcb92f6ee8478c65b4055b7d090afdf38070 $
  */
 public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
