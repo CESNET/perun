@@ -2,8 +2,6 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -12,7 +10,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -20,15 +17,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Checks and fills shell for a specified user at the particular facility.
  *
  * @date 28.4.2011 20:51:05
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
