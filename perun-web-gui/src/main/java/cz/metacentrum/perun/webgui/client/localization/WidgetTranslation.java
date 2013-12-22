@@ -7,7 +7,7 @@ import com.google.gwt.i18n.client.Messages;
  * Translations for common widgets in GUI
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: fd846bfed0815e009836bee08fe58fc40a46caab $
  */
 public interface WidgetTranslation extends Messages {
 
@@ -64,7 +64,7 @@ public interface WidgetTranslation extends Messages {
     @DefaultMessage("Display all possible services to create destination for")
     String displayAllServicesTitle();
 
-    @DefaultMessage("Use all host`s names")
+    @DefaultMessage("Use names of all facility`s hosts")
     String useFacilityHostnames();
 
     @DefaultMessage("Use names of all hosts on facility as destinations for selected service(s)")

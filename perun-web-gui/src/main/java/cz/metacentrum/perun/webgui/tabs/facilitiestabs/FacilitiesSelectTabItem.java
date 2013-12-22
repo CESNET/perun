@@ -69,7 +69,8 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 		
 		// get RICH facilities request
 		final GetFacilities facilities = new GetFacilities(true);
-		
+        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
+
 		// retrieve data (table)
 		final CellTable<Facility> table = facilities.getTable(new FieldUpdater<Facility, String>() {
 			public void update(int index, Facility object, String value) {
@@ -80,11 +81,9 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
         // add new facility button
         tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
             public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new CreateFacilityTabItem());
+                session.getTabManager().addTab(new CreateFacilityTabItem(facilities.getList(),events));
             }
         }));
-
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
 
 		// add delete facilities button
 		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteFacilities());
