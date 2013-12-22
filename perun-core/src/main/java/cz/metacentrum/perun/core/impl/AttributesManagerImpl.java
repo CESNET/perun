@@ -105,7 +105,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * AttributesManager implementation.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: 973cf2a358f9a9a47f1f866b00060e986671e730 $
  */
 public class AttributesManagerImpl implements AttributesManagerImplApi {
 
@@ -257,13 +257,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
        * Constructor.
        * 
        * @param sess
+       * @param attributesManagerImpl
        * @param attributeHolder Facility, Resource or Member for which you want the attribute value
-       * @param useDefaultAttribute set to true, if sql query returns column named 'attr_value_default' which will be used only if attr_value is null
        */
       public AttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Object attributeHolder) {
         this(sess, attributesManagerImpl, attributeHolder, null);
       }
 
+      /**
+       * Constructor.
+       *
+       * @param sess
+       * @param attributesManagerImpl
+       * @param attributeHolder Facility, Resource or Member for which you want the attribute value
+       * @param attributeHolder2 secondary Facility, Resource or Member for which you want the attribute value
+       */
       public AttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Object attributeHolder, Object attributeHolder2) {
         this.sess = sess;
         this.attributesManagerImpl = attributesManagerImpl;
@@ -472,9 +480,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
        * Constructor.
        * 
        * @param sess
-       * @param useDefaultAttribute set to true, if sql query returns column named 'attr_value_default' which will be used only if attr_value is null
+       * @param attributesManagerImpl
+       * @param attributeDefinition
        */
-
       public ValueRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, AttributeDefinition attributeDefinition) {
         this.sess = sess;
         this.attributesManagerImpl = attributesManagerImpl;
@@ -2609,15 +2617,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param defaultAttribute attribute which value si used as default value for created attribute. If defaultAttribute is null, then no defaultAttribute will be used.
-     * @see cz.metacentrum.perun.core.api.AttributesManager#createAttribute(PerunSession,Attribute)
-     */
     public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeExistsException {
-      
-      
-      
+
       try {
         int attributeId = Utils.getNewId(jdbc, "attr_names_id_seq");
         
@@ -4069,10 +4070,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
     }
 
     /**
-     * Get the atributeModule for the attribute
+     * Get the attribute module for the attribute
      *
      * @param attribute get the attribute module for this attribute
-     * @see AttributesManagerImpl#getAttributesModule(String)
+     * @see AttributesManagerImpl#getAttributesModule(cz.metacentrum.perun.core.api.PerunSession, String)
      */
     public Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
       String moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());

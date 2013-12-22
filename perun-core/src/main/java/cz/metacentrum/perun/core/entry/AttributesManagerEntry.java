@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ActionType;
-import java.util.List;
+
+import java.util.*;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -40,13 +41,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import java.util.Iterator;
 
 /**
  * AttributesManager entry logic.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
+ * @version $Id: 0ab02810f0db6459d4729c8d7f9c4b58789e2c79 $
  */
 public class AttributesManagerEntry implements AttributesManager {
 
@@ -1314,6 +1314,29 @@ public class AttributesManagerEntry implements AttributesManager {
       return attributes;
     }
 
+    public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException {
+        Utils.checkPerunSession(sess);
+        getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        // TODO & FIXME: there should be a proper select in BL & Impl
+        for (Service s : services) {
+            getPerunBl().getServicesManagerBl().checkServiceExists(sess, s);
+            attributes.addAll(getAttributesManagerBl().getRequiredAttributes(sess, s, facility));
+        }
+        List<Attribute> result = new ArrayList<Attribute>();
+        Iterator<Attribute> attrIter = attributes.iterator();
+        //Choose to which attributes has the principal access
+        while(attrIter.hasNext()) {
+            Attribute attrNext = attrIter.next();
+            if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, facility, null)) {
+                // if allowed to read, add it to result
+                attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, facility, null));
+                result.add(attrNext);
+            }
+        }
+        return result;
+    }
+
     public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException {
       Utils.checkPerunSession(sess);
       getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2021,6 +2044,17 @@ public class AttributesManagerEntry implements AttributesManager {
         }
         getAttributesManagerBl().checkAttributesValue(sess, host, attributes);
     }
+
+    public void checkAttributeValue(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException {
+        Utils.checkPerunSession(sess);
+        getAttributesManagerBl().checkAttributeExists(sess, attribute);
+        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+        //Choose to which attributes has the principal access
+        if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attribute), group , null)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+
+        getAttributesManagerBl().checkAttributeValue(sess, group, attribute);
+    }
+
     public void checkAttributesValue(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
       Utils.checkPerunSession(sess);
       getAttributesManagerBl().checkAttributesExists(sess, attributes);
