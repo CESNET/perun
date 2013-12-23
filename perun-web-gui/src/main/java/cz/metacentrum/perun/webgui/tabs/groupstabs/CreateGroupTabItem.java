@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 3d213c316e8c236f2969dd71b1f0288cdafed6bb $
  */
 public class CreateGroupTabItem implements TabItem {
 
@@ -120,7 +120,11 @@ public class CreateGroupTabItem implements TabItem {
                         }
                     }
                 }
-                createButton.setEnabled(true);
+                if (vosGroups.getAllObjects().isEmpty()) {
+                    vosGroups.addItem("No groups found");
+                } else {
+                    createButton.setEnabled(true);
+                }
             }
             public void onLoadingStart(){
                 vosGroups.clear();
