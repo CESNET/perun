@@ -3,17 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributeRights;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -960,7 +950,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * 
 	 * @param member int Member ID
 	 * @param service int Service ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -968,14 +958,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * 
 	 * @param group int Group ID
 	 * @param service int Service ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 * 
 	 * @param service int Service ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -983,6 +973,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * 
 	 * @param facility int Facility ID
 	 * @param service int Service ID
+	 * @return List<Attribute> Required Attributes
+	 */
+    /*#
+	 * Returns required attributes.
+	 *
+	 * @param facility int Facility ID
+	 * @param services List<int> list of Service IDs
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -996,21 +993,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns required attributes.
 	 * 
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 * 
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param workWithUserAttributes int Must = 1
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1077,7 +1074,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource or facility");
 				}
-			} else if (parms.contains("resource")) {
+			} else if (parms.contains("services[]")) {
+                // get list of services
+                List<Service> services = new ArrayList<Service>();
+                List<Integer> servIds = parms.readList("services", Integer.class);
+                for (Integer id : servIds) {
+                    Service s = ac.getServiceById(id);
+                    if (!services.contains(s)) {
+                        services.add(s);
+                    }
+                }
+                if (parms.contains("facility")) {
+                    return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), services,
+                            ac.getFacilityById(parms.readInt("facility")));
+                } else {
+                    throw new RpcException(RpcException.Type.MISSING_VALUE, "facility");
+                }
+            } else if (parms.contains("resource")) {
 				if (parms.contains("member")) {
 					if (parms.contains("workWithUserAttributes")) {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
