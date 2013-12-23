@@ -381,6 +381,19 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
     getFacilitiesManagerBl().deleteFacility(sess, facility);
   }
 
+    public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException {
+        Utils.checkPerunSession(sess);
+        getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+        Utils.notNull(facility, "facility");
+        Utils.notNull(facility.getName(), "facility.name");
+
+        // Authorization
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+            throw new PrivilegeException(sess, "updateFacility");
+        }
+
+        return getFacilitiesManagerBl().updateFacility(sess, facility);
+    }
 
   public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);

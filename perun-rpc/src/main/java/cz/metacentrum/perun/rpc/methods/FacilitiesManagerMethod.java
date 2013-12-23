@@ -301,6 +301,21 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return null;
     }
   },
+
+  /*#
+   * Update a facility (facility name)
+   *
+   * @param facility Facility JSON object
+   * @return Facility updated Facility object
+   */
+  updateFacility {
+
+      @Override
+      public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
+          return ac.getFacilitiesManager().updateFacility(ac.getSession(),
+                  parms.read("facility", Facility.class));
+      }
+  },
   
   /*#
    * Returns list of all facilities owned by the owner.

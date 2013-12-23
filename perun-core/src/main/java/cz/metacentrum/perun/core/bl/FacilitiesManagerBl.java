@@ -324,7 +324,19 @@ public interface FacilitiesManagerBl {
    */
   void deleteFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
-  /**
+    /**
+     * Updates facility.
+     *
+     * @param perunSession
+     * @param facility to update
+     *
+     * @return updated facility
+     *
+     * @throws InternalErrorException
+     */
+    Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+    /**
    * Returns list of all facilities owned by the owner.
    * 
    * @param perunSession
