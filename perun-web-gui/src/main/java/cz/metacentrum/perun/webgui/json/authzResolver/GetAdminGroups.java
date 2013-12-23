@@ -140,6 +140,14 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 
 		// Set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            loaderImage.setEmptyResultMessage("VO has no groups of managers.");
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            loaderImage.setEmptyResultMessage("Group has no groups of managers.");
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            loaderImage.setEmptyResultMessage("Facility has no groups of managers.");
+        }
 		
 		// Checkbox column column
 		table.addCheckBoxColumn();

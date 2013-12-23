@@ -1035,10 +1035,15 @@ h3 {
     text-align: center;
 }
 
-.wizardFooter {
-    height: 50px;
-    width: 100%;
-    border-top: 1px solid #ccc;
+.wizardHeader {
+    height: 40px;
+}
+.wizardHeader tr td {
+    padding-right: 10px;
+    vertical-align: middle;
+}
+.margin {
+    margin: 5px !important;
 }
 
 #centered-wrapper-outer {
