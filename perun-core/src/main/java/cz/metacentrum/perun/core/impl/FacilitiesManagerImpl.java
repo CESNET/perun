@@ -152,6 +152,29 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }           
   }
 
+  public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+
+      // Get the facility stored in the DB
+      Facility dbFacility;
+      try {
+          dbFacility = this.getFacilityById(sess, facility.getId());
+      } catch (FacilityNotExistsException e) {
+          throw new InternalErrorException("Facility existence was checked at the higher level",e);
+      }
+
+      if (!dbFacility.getName().equals(facility.getName())) {
+          try {
+              jdbc.update("update facilities set name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", facility.getName(),
+                      sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), facility.getId());
+          } catch (RuntimeException e) {
+              throw new InternalErrorException(e);
+          }
+      }
+
+      return facility;
+
+  }
+
   public void deleteFacilityOwners(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
       jdbc.update("delete from facility_owners where facility_id=?", facility.getId());

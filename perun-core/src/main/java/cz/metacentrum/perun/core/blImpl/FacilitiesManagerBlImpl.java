@@ -393,7 +393,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     
     
     if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
-      throw new RelationExistsException("Facility is still used as a resouce");
+      throw new RelationExistsException("Facility is still used as a resource");
     }
 
     // remove associated attributes
@@ -411,6 +411,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     getPerunBl().getAuditer().log(sess, "Facility deleted {}.", facility);
   }
 
+  public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+      getPerunBl().getAuditer().log(sess, "{} updated.", facility);
+      return getFacilitiesManagerImpl().updateFacility(sess, facility);
+  }
 
   public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) throws InternalErrorException {
     return getFacilitiesManagerImpl().getOwnerFacilities(sess, owner);

@@ -357,6 +357,20 @@ public interface FacilitiesManager {
   void deleteFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
   /**
+   * Updates facility.
+   *
+   * @param perunSession
+   * @param facility to update
+   *
+   * @return updated facility
+   *
+   * @throws InternalErrorException
+   * @throws FacilityNotExistsException
+   * @throws PrivilegeException
+   */
+  Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException;
+
+  /**
    * Returns list of all facilities owned by the owner.
    * 
    * @param perunSession

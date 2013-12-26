@@ -231,6 +231,16 @@ public interface FacilitiesManagerImplApi {
   void deleteFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityAlreadyRemovedException;
 
   /**
+   * Updates facility in DB.
+   *
+   * @param perunSession
+   * @param facility
+   *
+   * @throws InternalErrorException
+   */
+  Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+    /**
    * Deletes all facility owners.
    * 
    * @param perunSession
