@@ -133,8 +133,7 @@ public interface ModulesUtilsBl {
    * Check if list of gids in arguments is free in the namespace
    * 
    * @param sess
-   * @param attribute group or resource list of unixGIDs-namespace attribute with value
-   * @param gid
+   * @param attribute list of unixGIDs-namespace attribute with value
    * 
    * @throws InternalErrorException
    * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
