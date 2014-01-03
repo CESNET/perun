@@ -91,7 +91,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         CellTable<VirtualOrganization> table = getVos.getTable(new FieldUpdater<VirtualOrganization, VirtualOrganization>() {
             @Override
             public void update(int i, VirtualOrganization virtualOrganization, VirtualOrganization virtualOrganization2) {
-                // close tab when VO is selected
+                session.getTabManager().addTab(new VoDetailTabItem(virtualOrganization));
                 session.getTabManager().closeTab(tab, false);
             }
         });
