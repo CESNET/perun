@@ -381,13 +381,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         attributesManagerBl.setAttributes(sess, resource, group, attributes, true);
       }
 
-      //*member *user attributes
+      // *facility * resource *member *user attributes
       Facility facility = getFacility(sess, resource);
+      List<Attribute> attributes;
+      attributes = attributesManagerBl.getAttributes(sess, facility);
+      attributes.addAll(attributesManagerBl.getAttributes(sess, resource));
       List<Member> members = getAllowedMembers(sess, resource);
       for(Member member : members) {
         User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-        List<Attribute> attributes;
-        attributes = attributesManagerBl.getRequiredAttributes(sess, service, facility, resource, user, member);
+        attributes.addAll(attributesManagerBl.getRequiredAttributes(sess, service, facility, resource, user, member));
         attributes = attributesManagerBl.fillAttributes(sess, facility, resource, user, member, attributes);
         attributesManagerBl.setAttributes(sess, facility, resource, user, member, attributes);
       }
