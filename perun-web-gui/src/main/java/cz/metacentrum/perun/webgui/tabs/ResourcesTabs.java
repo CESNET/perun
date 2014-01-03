@@ -1,7 +1,10 @@
 package cz.metacentrum.perun.webgui.tabs;
 
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.tabs.resourcestabs.*;
+import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceAssignedGroupsTabItem;
+import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceAssignedServicesTabItem;
+import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceSettingsTabItem;
 
 import java.util.Map;
 

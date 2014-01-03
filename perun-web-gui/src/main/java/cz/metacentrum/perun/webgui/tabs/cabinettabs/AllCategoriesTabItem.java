@@ -16,7 +16,10 @@ import cz.metacentrum.perun.webgui.json.cabinetManager.DeleteCategory;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllCategories;
 import cz.metacentrum.perun.webgui.json.cabinetManager.UpdateCategory;
 import cz.metacentrum.perun.webgui.model.Category;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

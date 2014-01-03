@@ -5,7 +5,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -19,6 +18,7 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,7 +54,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private PerunEntity entity; 
 	// oracle support
 	private ArrayList<RichResource> fullBackup = new ArrayList<RichResource>();
-	private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
 	 * Creates a new getResources method instance	
@@ -325,7 +325,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 				}
                 for (ResourceTag r : res.getResourceTags()) {
                     // remove " (tag)" after tag name
-                    if (r.getName().startsWith(filter.substring(0, filter.length()-6).trim())) {
+                    if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
                         list.add(res);
                         break;
                     }
@@ -340,11 +340,11 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		
 	}
 
-	public MultiWordSuggestOracle getOracle() {
+	public UnaccentMultiWordSuggestOracle getOracle() {
 		return this.oracle;
 	}
 
-	public void setOracle(MultiWordSuggestOracle oracle) {
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
 

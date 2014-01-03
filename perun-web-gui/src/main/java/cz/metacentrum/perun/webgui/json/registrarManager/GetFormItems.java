@@ -12,7 +12,10 @@ import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItem
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItemData;
 import cz.metacentrum.perun.webgui.model.ItemTexts;

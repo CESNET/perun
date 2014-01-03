@@ -17,7 +17,7 @@ import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesDefinitio
 import cz.metacentrum.perun.webgui.json.servicesManager.AddRequiredAttribute;
 import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.Service;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

@@ -21,7 +21,6 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 /**
  * Ajax query to get VO/GROUP/FACILITY admins

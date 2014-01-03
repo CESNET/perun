@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -18,6 +17,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.ServicesPackage;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCell;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 	// Table field updater
 	private FieldUpdater<ServicesPackage, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<ServicesPackage> backupList = new ArrayList<ServicesPackage>();
     private boolean checkable = true;
     private boolean editable = false;
@@ -376,12 +376,12 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
     }
 
     @Override
-    public MultiWordSuggestOracle getOracle() {
+    public UnaccentMultiWordSuggestOracle getOracle() {
         return this.oracle;
     }
 
     @Override
-    public void setOracle(MultiWordSuggestOracle oracle) {
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
 

@@ -3,7 +3,6 @@ package cz.metacentrum.perun.webgui.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetFormPage;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetLeftMenu;
@@ -13,7 +12,6 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
-import cz.metacentrum.perun.webgui.widgets.BreadcrumbsWidget;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
 
 /**

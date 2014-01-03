@@ -4,8 +4,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.localization.ObjectTranslation;
 
-import java.util.Date;
-
 /**
  * Overlay type for registrar: Application
  * 

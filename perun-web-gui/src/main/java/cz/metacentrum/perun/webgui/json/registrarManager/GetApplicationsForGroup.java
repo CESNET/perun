@@ -10,17 +10,19 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.RowStyles;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAppTypeCell;
 
@@ -59,7 +61,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 	private boolean checkable = true;
 	// oracle support
 	private ArrayList<Application> backupList = new ArrayList<Application>();
-	private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
 	 * Creates a new method instance
@@ -465,15 +467,21 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 			getList().clear();
 			for (Application app : backupList){
 				// store app by filter
-				if (app.getUser() != null) {
-					if (app.getUser().getFullName().toLowerCase().startsWith(filter.toLowerCase())) {
-						addToTable(app);
-					}
-				} else {
-					if (app.getCreatedBy().toLowerCase().startsWith(filter.toLowerCase())) {
-						addToTable(app);
-					}
-				}
+                if (app.getUser() != null) {
+                    if (Utils.unAccent(app.getUser().getLastName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                        addToTable(app);
+                        continue;
+                    } else if (Utils.unAccent(app.getUser().getFirstName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                        addToTable(app);
+                        continue;
+                    } else if (Utils.unAccent(app.getUser().getMiddleName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                        addToTable(app);
+                    }
+                } else {
+                    if (Utils.unAccent(app.getCreatedBy().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                        addToTable(app);
+                    }
+                }
 			}
 			if (getList().isEmpty()) {
 				loaderImage.loadingFinished();
@@ -484,11 +492,11 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 		
 	}
 
-	public MultiWordSuggestOracle getOracle() {
+	public UnaccentMultiWordSuggestOracle getOracle() {
 		return this.oracle;
 	}
 
-	public void setOracle(MultiWordSuggestOracle oracle) {
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
 	

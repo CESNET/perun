@@ -8,7 +8,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -197,7 +196,7 @@ public class TabMenu extends Composite {
      * @param filterEvent filtering event
      * @param title
      */
-    public MultiWordSuggestOracle addFilterWidget(SuggestBox box, final PerunSearchEvent filterEvent, final String title) {
+    public <T extends SuggestOracle> SuggestOracle addFilterWidget(SuggestBox box, final PerunSearchEvent filterEvent, final String title) {
 
         final SuggestBox suggest = box;
 
@@ -246,7 +245,7 @@ public class TabMenu extends Composite {
             }
         });
 
-        return ((MultiWordSuggestOracle)box.getSuggestOracle());
+        return box.getSuggestOracle();
 
     }
 

@@ -18,11 +18,14 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.vosManager.DeleteVo;
 import cz.metacentrum.perun.webgui.json.vosManager.GetVos;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.vostabs.CreateVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.Map;

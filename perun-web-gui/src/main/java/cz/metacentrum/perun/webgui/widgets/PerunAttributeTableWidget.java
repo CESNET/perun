@@ -12,9 +12,9 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.model.Attribute;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeNameCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeDescriptionCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeNameCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;

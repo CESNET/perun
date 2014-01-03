@@ -20,7 +20,10 @@ import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.IsLoginAvailable;
 import cz.metacentrum.perun.webgui.model.*;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.MembersTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 

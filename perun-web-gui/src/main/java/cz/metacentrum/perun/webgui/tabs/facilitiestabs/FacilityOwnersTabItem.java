@@ -21,7 +21,10 @@ import cz.metacentrum.perun.webgui.json.facilitiesManager.GetFacilityOwners;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.RemoveOwner;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.Owner;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

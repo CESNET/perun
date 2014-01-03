@@ -10,7 +10,10 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SuggestBox;
 
 /**
  *  Extended SuggestBox widget which can validate it's content
@@ -24,7 +27,7 @@ public class ExtendedSuggestBox extends Composite {
     private Label errorText = new Label();
     private SuggestBoxValidator validator;
     private SimplePanel sp = new SimplePanel();
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private SuggestBox box = new PasteSuggestBox(oracle);
 
     private static int counter = 0;
@@ -148,7 +151,7 @@ public class ExtendedSuggestBox extends Composite {
      *
      * @param oracle
      */
-    public void setSuggestOracle(MultiWordSuggestOracle oracle) {
+    public void setSuggestOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
 
@@ -157,7 +160,7 @@ public class ExtendedSuggestBox extends Composite {
      *
      * @return suggestion oracle
      */
-    public MultiWordSuggestOracle getSuggestOracle() {
+    public UnaccentMultiWordSuggestOracle getSuggestOracle() {
         return this.oracle;
     }
 
@@ -214,7 +217,7 @@ public class ExtendedSuggestBox extends Composite {
             sinkEvents(Event.ONPASTE);
         }
 
-        public PasteSuggestBox(MultiWordSuggestOracle oracle) {
+        public PasteSuggestBox(UnaccentMultiWordSuggestOracle oracle) {
             super(oracle);
             sinkEvents(Event.ONPASTE);
         }

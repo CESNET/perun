@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
-import com.google.gwt.core.client.JsArrayString;
 
 /**
  * Overlay type for Roles object

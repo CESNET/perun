@@ -23,7 +23,10 @@ import cz.metacentrum.perun.webgui.json.extSourcesManager.GetExtSources;
 import cz.metacentrum.perun.webgui.json.extSourcesManager.GetVoExtSources;
 import cz.metacentrum.perun.webgui.model.ExtSource;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

@@ -13,8 +13,8 @@ import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
-import cz.metacentrum.perun.webgui.tabs.*;
-import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.widgets.PerunStatusWidget;
 
 import java.util.ArrayList;
 import java.util.HashMap;

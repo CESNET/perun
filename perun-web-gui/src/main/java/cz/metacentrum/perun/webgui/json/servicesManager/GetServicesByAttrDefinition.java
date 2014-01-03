@@ -4,7 +4,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -16,6 +15,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 
@@ -42,7 +42,7 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 	// Table field updater
 	private FieldUpdater<Service, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<Service> backupList = new ArrayList<Service>();
     private boolean checkable = true;
     private int id = 0;
@@ -305,12 +305,12 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
     }
 
     @Override
-    public MultiWordSuggestOracle getOracle() {
+    public UnaccentMultiWordSuggestOracle getOracle() {
         return this.oracle;
     }
 
     @Override
-    public void setOracle(MultiWordSuggestOracle oracle) {
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
 }

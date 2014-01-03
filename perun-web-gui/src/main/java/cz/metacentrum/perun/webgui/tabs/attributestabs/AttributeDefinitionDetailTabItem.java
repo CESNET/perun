@@ -20,11 +20,11 @@ import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.AttributeRights;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServiceDetailTabItem;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 

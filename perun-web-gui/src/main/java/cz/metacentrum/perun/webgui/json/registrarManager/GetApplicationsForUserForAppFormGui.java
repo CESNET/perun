@@ -7,7 +7,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.RowStyles;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -20,6 +19,7 @@ import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCell;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
 
 	private boolean checkable = true;
 
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<Application> backupList = new ArrayList<Application>();
 
 	/**
@@ -469,12 +469,12 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
     }
 
     @Override
-    public MultiWordSuggestOracle getOracle() {
+    public UnaccentMultiWordSuggestOracle getOracle() {
         return this.oracle;
     }
 
     @Override
-    public void setOracle(MultiWordSuggestOracle oracle) {
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
        this.oracle = oracle;
     }
 

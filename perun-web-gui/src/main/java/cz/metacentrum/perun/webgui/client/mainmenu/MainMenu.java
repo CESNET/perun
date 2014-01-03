@@ -18,9 +18,7 @@ import cz.metacentrum.perun.webgui.tabs.attributestabs.AttributeDefinitionsTabIt
 import cz.metacentrum.perun.webgui.tabs.cabinettabs.PublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.*;
-import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilitiesSelectTabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.*;
-import cz.metacentrum.perun.webgui.tabs.perunadmintabs.OwnersTabItem;
 import cz.metacentrum.perun.webgui.tabs.perunadmintabs.*;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicePackagesTabItem;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicesTabItem;

@@ -4,7 +4,10 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
-import cz.metacentrum.perun.webgui.model.*;
+import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
 
 /**
