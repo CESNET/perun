@@ -12,7 +12,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
@@ -478,12 +477,12 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
             for (Application a : backupList){
                 // store app by filter
                 if (a.getVo() != null && a.getGroup() == null) {
-                    if (Utils.unAccent(a.getVo().getName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    if (a.getVo().getName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(a);
                     }
                 } else if (a.getVo() != null && a.getGroup() != null) {
-                    if (Utils.unAccent(a.getVo().getName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase())) ||
-                            Utils.unAccent(a.getGroup().getName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    if (a.getVo().getName().toLowerCase().startsWith(filter.toLowerCase()) ||
+                            a.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(a);
                     }
                 }

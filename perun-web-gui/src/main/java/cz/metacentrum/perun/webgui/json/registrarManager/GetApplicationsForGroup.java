@@ -15,7 +15,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
@@ -468,17 +467,17 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 			for (Application app : backupList){
 				// store app by filter
                 if (app.getUser() != null) {
-                    if (Utils.unAccent(app.getUser().getLastName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
                         continue;
-                    } else if (Utils.unAccent(app.getUser().getFirstName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    } else if (app.getUser().getFirstName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
                         continue;
-                    } else if (Utils.unAccent(app.getUser().getMiddleName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    } else if (app.getUser().getMiddleName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
                     }
                 } else {
-                    if (Utils.unAccent(app.getCreatedBy().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    if (app.getCreatedBy().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
                     }
                 }

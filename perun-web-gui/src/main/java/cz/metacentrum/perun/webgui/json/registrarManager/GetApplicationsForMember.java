@@ -15,7 +15,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
@@ -501,7 +500,7 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 			for (Application app : backupList){
 				// store app by filter
                 if (app.getGroup() != null) {
-                    if (Utils.unAccent(app.getGroup().getName().toLowerCase()).startsWith(Utils.unAccent(filter.toLowerCase()))) {
+                    if (app.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
                     }
                 }
