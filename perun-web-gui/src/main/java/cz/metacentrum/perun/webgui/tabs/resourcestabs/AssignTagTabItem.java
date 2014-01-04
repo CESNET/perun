@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.ResourceTag;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ public class AssignTagTabItem implements TabItem {
             }
         }));
 
-        menu.addFilterWidget(new SuggestBox(tags.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(tags.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 tags.filterTable(text);

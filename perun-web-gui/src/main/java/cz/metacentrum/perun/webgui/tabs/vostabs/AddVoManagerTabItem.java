@@ -22,6 +22,7 @@ import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -153,7 +154,7 @@ public class AddVoManagerTabItem implements TabItem {
         }));
 
         // search textbox
-        TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+        ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 startSearching(text);
@@ -164,7 +165,7 @@ public class AddVoManagerTabItem implements TabItem {
         // if some text has been searched before
         if(!searchString.equals(""))
         {
-            searchBox.setText(searchString);
+            searchBox.getTextBox().setText(searchString);
             startSearching(searchString);
         }
 

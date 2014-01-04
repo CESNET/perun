@@ -31,6 +31,7 @@ import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.CreateServiceMemberInVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -216,14 +217,14 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		// SEARCH FOR BUTTON
 
         final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInVo());
-		final TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
 			public void searchFor(String text) {
 				searchString = text;
 				state = State.searching;
 				searchForAction(text, findMembers, disabled, removeButton, searchButton);
 			}
 		}, searchButton);
-		searchBox.setText(searchString);
+		searchBox.getTextBox().setText(searchString);
 
 		// LIST ALL BUTTON
 		final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInVo());
@@ -231,7 +232,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
             public void onClick(ClickEvent event) {
                 state = State.listAll;
                 searchString = "";
-                searchBox.setText(searchString);
+                searchBox.getTextBox().setText(searchString);
                 listAllAction(members, disabled, removeButton, listAllButton);
             }
         });

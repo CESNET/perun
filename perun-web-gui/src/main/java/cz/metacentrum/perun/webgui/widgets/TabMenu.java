@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.widgets;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -89,24 +90,39 @@ public class TabMenu extends Composite {
      *
      * @param searchEvent event triggered when user click on search button
      * @param title displayed on button hover
+     * @return ExtendedTextBox textbox widget
      */
-    public TextBox addSearchWidget(final PerunSearchEvent searchEvent, final String title) {
+    public ExtendedTextBox addSearchWidget(final PerunSearchEvent searchEvent, final String title) {
 
-        final TextBox textBox = new TextBox();
+        final ExtendedTextBox textBox = new ExtendedTextBox();
 
         final CustomButton button = getPredefinedButton(ButtonType.SEARCH, title);
 
         // trigger search on ENTER
-        textBox.addKeyUpHandler(new KeyUpHandler() {
+        textBox.getTextBox().addKeyUpHandler(new KeyUpHandler() {
             public void onKeyUp(KeyUpEvent event) {
-                if (!textBox.getText().isEmpty()) {
+                if (!textBox.getTextBox().getText().trim().isEmpty()) {
                     button.setEnabled(true);
-                    if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
-                        searchEvent.searchFor(textBox.getText());
+                    if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                        searchEvent.searchFor(textBox.getTextBox().getText().trim());
                     }
                 } else {
                     button.setEnabled(false);
                 }
+            }
+        });
+        textBox.getTextBox().addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                // fake some meaningless KeyUpEvent
+                DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), textBox.getTextBox());
+            }
+        });
+        textBox.getTextBox().addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                // fake some meaningless KeyUpEvent
+                DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), textBox.getTextBox());
             }
         });
 
@@ -114,8 +130,8 @@ public class TabMenu extends Composite {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                if(UiElements.searchStingCantBeEmpty(textBox.getText())){
-                    searchEvent.searchFor(textBox.getText());
+                if (UiElements.searchStingCantBeEmpty(textBox.getTextBox().getText())) {
+                    searchEvent.searchFor(textBox.getTextBox().getText().trim());
                 }
             }
         });
@@ -130,7 +146,7 @@ public class TabMenu extends Composite {
         Scheduler.get().scheduleDeferred(new Command() {
             @Override
             public void execute() {
-                textBox.setFocus(true);
+                textBox.getTextBox().setFocus(true);
             }
         });
 
@@ -143,22 +159,37 @@ public class TabMenu extends Composite {
      *
      * @param searchEvent event triggered when user click on search button
      * @param button button to handle search
+     * @return ExtendedTextBox textbox widget
      */
-    public TextBox addSearchWidget(final PerunSearchEvent searchEvent, final CustomButton button) {
+    public ExtendedTextBox addSearchWidget(final PerunSearchEvent searchEvent, final CustomButton button) {
 
-        final TextBox textBox = new TextBox();
+        final ExtendedTextBox textBox = new ExtendedTextBox();
 
         // trigger search on ENTER
-        textBox.addKeyUpHandler(new KeyUpHandler() {
+        textBox.getTextBox().addKeyUpHandler(new KeyUpHandler() {
             public void onKeyUp(KeyUpEvent event) {
-                if (!textBox.getText().isEmpty()) {
+                if (!textBox.getTextBox().getText().trim().isEmpty()) {
                     button.setEnabled(true);
-                    if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
-                        searchEvent.searchFor(textBox.getText());
+                    if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                        searchEvent.searchFor(textBox.getTextBox().getText());
                     }
                 } else {
                     button.setEnabled(false);
                 }
+            }
+        });
+        textBox.getTextBox().addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                // fake some meaningless KeyUpEvent
+                DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), textBox.getTextBox());
+            }
+        });
+        textBox.getTextBox().addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                // fake some meaningless KeyUpEvent
+                DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), textBox.getTextBox());
             }
         });
 
@@ -166,8 +197,8 @@ public class TabMenu extends Composite {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                if(UiElements.searchStingCantBeEmpty(textBox.getText())){
-                    searchEvent.searchFor(textBox.getText());
+                if(UiElements.searchStingCantBeEmpty(textBox.getTextBox().getText().trim())){
+                    searchEvent.searchFor(textBox.getTextBox().getText());
                 }
             }
         });
@@ -182,7 +213,7 @@ public class TabMenu extends Composite {
         Scheduler.get().scheduleDeferred(new Command() {
             @Override
             public void execute() {
-                textBox.setFocus(true);
+                textBox.getTextBox().setFocus(true);
             }
         });
 
@@ -195,32 +226,35 @@ public class TabMenu extends Composite {
      * @param box suggest box with oracle
      * @param filterEvent filtering event
      * @param title
+     * @return T extending SuggestOracle
      */
-    public <T extends SuggestOracle> SuggestOracle addFilterWidget(SuggestBox box, final PerunSearchEvent filterEvent, final String title) {
+    public <T extends SuggestOracle> SuggestOracle addFilterWidget(ExtendedSuggestBox box, final PerunSearchEvent filterEvent, final String title) {
 
-        final SuggestBox suggest = box;
+        final ExtendedSuggestBox suggest = box;
 
         // search box on enter
-        suggest.addKeyPressHandler(new KeyPressHandler() {
+        suggest.getSuggestBox().addKeyUpHandler(new KeyUpHandler() {
             @Override
-            public void onKeyPress(KeyPressEvent event) {
-                if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
-                    filterEvent.searchFor(suggest.getText());
+            public void onKeyUp(KeyUpEvent event) {
+                if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                    filterEvent.searchFor(suggest.getSuggestBox().getText().trim());
                 } else if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ESCAPE) {
-                    suggest.hideSuggestionList();
+                    suggest.getSuggestBox().hideSuggestionList();
+                } else {
+                    suggest.getSuggestBox().showSuggestionList();
                 }
             }
         });
 
         // search box on selected
-        suggest.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+        suggest.getSuggestBox().addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 filterEvent.searchFor(event.getSelectedItem().getReplacementString());
             }
         });
 
         // search box on value changed
-        suggest.addValueChangeHandler(new ValueChangeHandler<String>() {
+        suggest.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
             public void onValueChange(ValueChangeEvent<String> event) {
 
             }
@@ -230,7 +264,7 @@ public class TabMenu extends Composite {
         CustomButton filterButton = getPredefinedButton(ButtonType.FILTER, title, new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                filterEvent.searchFor(suggest.getText());
+                filterEvent.searchFor(suggest.getSuggestBox().getText().trim());
             }
         });
 
@@ -241,7 +275,7 @@ public class TabMenu extends Composite {
         Scheduler.get().scheduleDeferred(new Command() {
             @Override
             public void execute() {
-                suggest.setFocus(true);
+                suggest.getSuggestBox().setFocus(true);
             }
         });
 

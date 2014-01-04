@@ -26,6 +26,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -136,9 +137,13 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		final GetCompleteRichMembers members;
 		final FindCompleteRichMembers findMembers;
 
+        // elements handled by callback events
+        final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInParentGroup());
+        final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
+
         // search through whole VO
-        members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null);
-        findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
+        members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null, JsonCallbackEvents.disableCheckboxEvents(disabled));
+        findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null, JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)));
 
         // ADD
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedMemberToGroup());
@@ -184,7 +189,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		final JsonCallbackEvents refreshFindMembersEvent = JsonCallbackEvents.refreshTableEvents(findMembers);
 		
 		// DISABLED CHECKBOX
-		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
 		disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
 		
 		// checkbox click handler
@@ -212,16 +216,16 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 				}
 			}
 		});
-		
+
 		// SEARCH FOR BUTTON
-		TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             public void searchFor(String text) {
                 searchString = text;
                 state = State.searching;
                 searchForAction(text, findMembers, disabled, addButton);
             }
-        }, ButtonTranslation.INSTANCE.searchMemberInParentGroup());
-		searchBox.setText(searchString);
+        }, searchButton);
+		searchBox.getTextBox().setText(searchString);
 
 		// LIST ALL BUTTON
 		// TODO - if will ever be used, table managed button must be switched between states

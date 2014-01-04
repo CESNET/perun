@@ -1228,7 +1228,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
             JsonUtils.addTableManagedButton(callback, table, removeButton);
 
             // filter box
-            menu.addFilterWidget(new SuggestBox(callback.getOracle()), new PerunSearchEvent() {
+            menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
                 public void searchFor(String text) {
                     callback.filterTable(text);
                 }

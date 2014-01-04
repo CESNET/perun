@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
             }
         }));
 
-        menu.addFilterWidget(new SuggestBox(attrDefs.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(attrDefs.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 attrDefs.filterTable(text);

@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -149,7 +150,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 
 		// filter box
-		menu.addFilterWidget(new SuggestBox(callback.getOracle()), new PerunSearchEvent() {
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 callback.filterTable(text);
             }

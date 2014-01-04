@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -79,7 +80,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         }));
 
         // filter
-        tabMenu.addFilterWidget(new SuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 getVos.filterTable(text);

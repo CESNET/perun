@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.ApplicationDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class MemberApplicationsTabItem implements TabItem {
         menu.addWidget(delete);
 
 
-        menu.addFilterWidget(new SuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 applicationsRequest.filterTable(text);

@@ -25,6 +25,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		}
 
 		// filter box
-		menu.addFilterWidget(new SuggestBox(resources.getOracle()), new PerunSearchEvent() {
+		menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 resources.filterTable(text);
             }

@@ -26,6 +26,7 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.CreateGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
         menu.addWidget(removeButton);
 
 		// filter box
-		menu.addFilterWidget(new SuggestBox(groups.getOracle()), new PerunSearchEvent() {
+		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 groups.filterTable(text);
             }

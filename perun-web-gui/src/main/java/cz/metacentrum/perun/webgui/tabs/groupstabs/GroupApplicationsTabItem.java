@@ -30,6 +30,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.ApplicationDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -237,7 +238,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// FILTER 2
         menu.addWidget(new HTML("<strong>Submitted&nbsp;by: </strong>"));
-        menu.addFilterWidget(new SuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 applicationsRequest.filterTable(text);

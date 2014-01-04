@@ -248,7 +248,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
                 final CellTable<User> table = callback.getTable();
 
                 // search textbox
-                TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+                ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
                     @Override
                     public void searchFor(String text) {
                         callback.searchFor(text);
@@ -363,7 +363,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
                 // if some text has been searched before
                 if(!searchString.equals(""))
                 {
-                    searchBox.setText(searchString);
+                    searchBox.getTextBox().setText(searchString);
                     callback.searchFor(searchString);
                 }
 

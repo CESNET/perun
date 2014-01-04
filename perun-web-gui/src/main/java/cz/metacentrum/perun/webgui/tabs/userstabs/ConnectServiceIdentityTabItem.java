@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.UsersTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
         }));
 
         // search textbox
-        TextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
+        ExtendedTextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 call.searchFor(text);

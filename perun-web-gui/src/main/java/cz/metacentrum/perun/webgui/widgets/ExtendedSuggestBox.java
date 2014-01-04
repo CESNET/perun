@@ -1,19 +1,14 @@
 package cz.metacentrum.perun.webgui.widgets;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.*;
 
 /**
  *  Extended SuggestBox widget which can validate it's content
@@ -49,6 +44,15 @@ public class ExtendedSuggestBox extends Composite {
     }
 
     /**
+     * Create ExtendedTextBox with validator
+     */
+    public ExtendedSuggestBox(UnaccentMultiWordSuggestOracle oracle) {
+        this.initWidget(sp);
+        box = new PasteSuggestBox(oracle);
+        buildWidget();
+    }
+
+    /**
      * Build widget itself
      */
     private void buildWidget() {
@@ -80,7 +84,7 @@ public class ExtendedSuggestBox extends Composite {
             }
         });
 
-        box.getElement().setClassName("suggestbox"+counter++);
+        box.getElement().setClassName("gwt-SuggestBox suggestbox"+counter++);
         setCutCopyPasteHandler("suggestbox"+counter);
 
         errorText.setVisible(false);
@@ -230,7 +234,7 @@ public class ExtendedSuggestBox extends Composite {
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
-                            ValueChangeEvent.fire(PasteSuggestBox.this, getText());
+                            DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), PasteSuggestBox.this);
                         }
                     });
                     break;

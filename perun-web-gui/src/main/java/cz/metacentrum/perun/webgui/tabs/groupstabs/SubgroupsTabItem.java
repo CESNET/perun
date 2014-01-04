@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -145,7 +146,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
         menu.addWidget(removeButton);
 
 		// filter box
-		menu.addFilterWidget(new SuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
+		menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 subgroups.filterTable(text);
             }

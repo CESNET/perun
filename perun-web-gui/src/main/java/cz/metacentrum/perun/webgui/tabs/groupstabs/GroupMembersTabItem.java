@@ -31,6 +31,7 @@ import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoMembersTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -254,11 +255,11 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		}, "Search", "Search for Group members by name, login, email");
 		searchBox.setText(searchString);
         */
-        final SuggestBox box = new SuggestBox(members.getOracle());
-        box.addValueChangeHandler(new ValueChangeHandler<String>() {
+        final ExtendedSuggestBox box = new ExtendedSuggestBox(members.getOracle());
+        box.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
-                searchString = box.getText();
+                searchString = box.getSuggestBox().getText().trim();
             }
         });
 

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.Owner;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class AddFacilityOwnerTabItem implements TabItem {
             }
         }));
 
-        tabMenu.addFilterWidget(new SuggestBox(owners.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 owners.filterTable(text);

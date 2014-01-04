@@ -35,6 +35,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.vostabs.CreateVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -239,7 +240,7 @@ public class TestDataGridTabItem implements TabItem, TabItemWithUrl {
         }
 
         // filter
-        tabMenu.addFilterWidget(new SuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 getVos.filterTable(text);

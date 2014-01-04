@@ -25,6 +25,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.CreateFacilityTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -118,7 +119,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		});
 		
 		// filter box
-		tabMenu.addFilterWidget(new SuggestBox(facilities.getOracle()), new PerunSearchEvent() {
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 facilities.filterTable(text);
             }
