@@ -869,6 +869,90 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
         assertTrue("Resource with tag is not returned by same tag", resources.contains(resource));
 
     }
+    
+    @Test
+    public void copyAttributes() throws Exception {
+        System.out.println("ResourcesManager.copyAttributes");
+
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+
+        // set up second resource
+        Resource newResource = new Resource();
+        newResource.setName("SecondResource");
+        newResource.setDescription("pro kopirovani");
+        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
+
+        // add first attribute to source
+        Attribute firstAttribute = setUpAttribute1();
+        perun.getAttributesManager().setAttribute(sess, resource, firstAttribute);
+
+        // add second attribute to both
+        Attribute secondAttribute = setUpAttribute2();
+        perun.getAttributesManager().setAttribute(sess, resource, secondAttribute);
+        perun.getAttributesManager().setAttribute(sess, secondResource, secondAttribute);
+
+        // add third attribute to destination
+        Attribute thirdAttribute = setUpAttribute3();
+        perun.getAttributesManager().setAttribute(sess, secondResource, thirdAttribute);
+
+        // copy
+        resourcesManager.copyAttributes(sess, resource, secondResource);
+
+        // tests
+        List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondResource);
+        assertNotNull(destinationAttributes);
+        assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, resource).size()) == 1);
+        assertTrue(destinationAttributes.contains(firstAttribute));
+        assertTrue(destinationAttributes.contains(secondAttribute));
+        assertTrue(destinationAttributes.contains(thirdAttribute));
+    }
+    
+    @Test
+    public void copyServices() throws Exception {
+        System.out.println("ResourcesManager.copyServices");
+        
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+        service = setUpService();
+        resourcesManager.assignService(sess, resource, service);
+        
+        // set up second resource
+        Resource newResource = new Resource();
+        newResource.setName("SecondResource");
+        newResource.setDescription("pro kopirovani");
+        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
+        
+        resourcesManager.copyServices(sess, resource, secondResource);
+        
+        //test
+        assertTrue(resourcesManager.getAssignedServices(sess, secondResource).contains(service));
+    }
+    
+    @Test
+    public void copyGroups() throws Exception {
+        System.out.println("ResourcesManager.copyGroups");
+        
+        vo = setUpVo();
+        facility = setUpFacility();
+        resource = setUpResource();
+        member = setUpMember(vo);
+        group = setUpGroup(vo, member);
+        resourcesManager.assignGroupToResource(sess, group, resource);
+        
+        // set up second resource
+        Resource newResource = new Resource();
+        newResource.setName("SecondResource");
+        newResource.setDescription("pro kopirovani");
+        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
+        
+        resourcesManager.copyGroups(sess, resource, secondResource);
+        
+        //test
+        assertTrue(resourcesManager.getAssignedGroups(sess, secondResource).contains(group));
+    }
 
 	// PRIVATE METHODS -----------------------------------------------------------
 
@@ -996,4 +1080,39 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+        private Attribute setUpAttribute1() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+                attrDef.setDescription("Test attribute description");
+                attrDef.setFriendlyName("testingAttribute");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value");
+                return attribute;
+        }
+        
+        private Attribute setUpAttribute2() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+                attrDef.setDescription("Test attribute2 description");
+                attrDef.setFriendlyName("testingAttribute2");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value for second attribute");
+                return attribute;
+        }
+        
+        private Attribute setUpAttribute3() throws Exception {
+                AttributeDefinition attrDef = new AttributeDefinition();
+                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+                attrDef.setDescription("Test attribute3 description");
+                attrDef.setFriendlyName("testingAttribute3");
+                attrDef.setType(String.class.getName());
+                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+                Attribute attribute = new Attribute(attrDef);
+                attribute.setValue("Testing value for third attribute");
+                return attribute;
+        }
 }

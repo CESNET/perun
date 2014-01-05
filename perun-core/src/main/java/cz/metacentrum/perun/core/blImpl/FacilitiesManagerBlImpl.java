@@ -173,7 +173,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
         try {
             addOwner(sess, destinationFacility, owner);
         } catch (OwnerAlreadyAssignedException ex) {
-            // we can ignore the exception in this particular case, user can be owner in both of the facilities
+            // we can ignore the exception in this particular case, owner can exists in both of the facilities
         }
     }
   }
@@ -324,8 +324,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     // Assign newly created group to resource
     try {
       perunBl.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
-    } catch (ResourceNotExistsException e) {
-      throw new ConsistencyErrorException("Assigning group to non existent resource", e);
     } catch (WrongAttributeValueException e) {
       throw new InternalErrorException("Group " + group + " shouldn't have any members");
     } catch (WrongReferenceAttributeValueException e) {
