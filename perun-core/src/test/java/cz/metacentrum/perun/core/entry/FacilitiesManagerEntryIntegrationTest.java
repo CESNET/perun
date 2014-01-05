@@ -854,7 +854,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             
             // add second attribute to both
             Attribute secondAttribute = setUpAttribute2();
-            perun.getAttributesManager(). setAttribute(sess, facility, secondAttribute);
+            perun.getAttributesManager().setAttribute(sess, facility, secondAttribute);
             perun.getAttributesManager().setAttribute(sess, secondFacility, secondAttribute);
             
             // add third attribute to destination
