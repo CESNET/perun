@@ -100,6 +100,13 @@ public class RichMember extends JavaScriptObject {
     public final native void setAttribute(Attribute attribute) /*-{
 
         if (attribute == null) return;
+        // init fields if empty
+        if (this.userAttributes == null) {
+            this.userAttributes = [];
+        }
+        if (this.memberAttributes == null) {
+            this.memberAttributes = [];
+        }
         var found = false;
         if (attribute.namespace.indexOf("urn:perun:user:") !== -1) {
 
@@ -115,7 +122,7 @@ public class RichMember extends JavaScriptObject {
                 this.userAttributes[this.userAttributes.length] = attribute;
             }
 
-        } else if (namespace.indexOf("urn:perun:member:") !== -1) {
+        } else if (attribute.namespace.indexOf("urn:perun:member:") !== -1) {
 
             // set member attribute
             for(var i in this.memberAttributes){

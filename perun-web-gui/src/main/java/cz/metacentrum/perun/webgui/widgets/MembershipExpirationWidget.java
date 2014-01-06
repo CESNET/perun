@@ -1,9 +1,15 @@
 package cz.metacentrum.perun.webgui.widgets;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.MembershipExpirationTabItem;
 
 /**
  * Custom GWT widget, which handles
@@ -45,8 +51,6 @@ public class MembershipExpirationWidget extends Composite {
             } else {
                 statusWidget.setHTML(0, 0, "<i>never</i>");
             }
-            /*
-            TODO - re-think this since there might not be any attribute
             if (expire != null && expire.isWritable()) {
                 Anchor change = new Anchor("change");
                 change.addClickHandler(new ClickHandler() {
@@ -58,7 +62,6 @@ public class MembershipExpirationWidget extends Composite {
                 statusWidget.setWidget(0, 1, change);
                 statusWidget.getFlexCellFormatter().setStyleName(0, 1, "change");
             }
-            */
         } else {
 
         }

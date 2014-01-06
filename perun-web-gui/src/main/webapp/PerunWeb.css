@@ -465,6 +465,17 @@ input[type=text], input[type=password] {
     border-width: 1px;
 }
 
+/* Date picker widget - fix align if inside inputFormFlexTable */
+.gwt-DatePicker td {
+    padding: 0px !important;
+}
+.datePickerWeekdayLabel {
+    text-align: center !important;
+}
+.datePickerWeekendLabel {
+    text-align: center !important;
+}
+
 /* Propagations table */
 
 .propagationTable {
