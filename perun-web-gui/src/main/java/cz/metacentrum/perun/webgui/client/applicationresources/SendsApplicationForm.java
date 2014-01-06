@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.client.applicationresources;
 
-import com.google.gwt.user.client.ui.Button;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 /**

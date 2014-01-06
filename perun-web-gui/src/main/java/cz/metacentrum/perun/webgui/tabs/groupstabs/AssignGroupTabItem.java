@@ -17,14 +17,13 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
-import cz.metacentrum.perun.webgui.json.resourcesManager.GetResources;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetRichResources;
 import cz.metacentrum.perun.webgui.model.Group;
-import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.RichResource;
-import cz.metacentrum.perun.webgui.tabs.*;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 
@@ -132,7 +131,7 @@ public class AssignGroupTabItem implements TabItem {
         }));
 
         // filter box
-        menu.addFilterWidget(new SuggestBox(callback.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 callback.filterTable(text);
             }

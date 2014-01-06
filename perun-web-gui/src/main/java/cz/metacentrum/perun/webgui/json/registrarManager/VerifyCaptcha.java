@@ -2,7 +2,6 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;

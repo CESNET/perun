@@ -1,10 +1,8 @@
 package cz.metacentrum.perun.webgui.widgets;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
@@ -24,7 +22,7 @@ public class ExtendedSuggestBox extends Composite {
     private Label errorText = new Label();
     private SuggestBoxValidator validator;
     private SimplePanel sp = new SimplePanel();
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private SuggestBox box = new PasteSuggestBox(oracle);
 
     private static int counter = 0;
@@ -43,6 +41,15 @@ public class ExtendedSuggestBox extends Composite {
     public ExtendedSuggestBox(SuggestBoxValidator validator) {
         this();
         this.validator = validator;
+    }
+
+    /**
+     * Create ExtendedTextBox with validator
+     */
+    public ExtendedSuggestBox(UnaccentMultiWordSuggestOracle oracle) {
+        this.initWidget(sp);
+        box = new PasteSuggestBox(oracle);
+        buildWidget();
     }
 
     /**
@@ -77,7 +84,7 @@ public class ExtendedSuggestBox extends Composite {
             }
         });
 
-        box.getElement().setClassName("suggestbox"+counter++);
+        box.getElement().setClassName("gwt-SuggestBox suggestbox"+counter++);
         setCutCopyPasteHandler("suggestbox"+counter);
 
         errorText.setVisible(false);
@@ -148,7 +155,7 @@ public class ExtendedSuggestBox extends Composite {
      *
      * @param oracle
      */
-    public void setSuggestOracle(MultiWordSuggestOracle oracle) {
+    public void setSuggestOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
 
@@ -157,7 +164,7 @@ public class ExtendedSuggestBox extends Composite {
      *
      * @return suggestion oracle
      */
-    public MultiWordSuggestOracle getSuggestOracle() {
+    public UnaccentMultiWordSuggestOracle getSuggestOracle() {
         return this.oracle;
     }
 
@@ -214,7 +221,7 @@ public class ExtendedSuggestBox extends Composite {
             sinkEvents(Event.ONPASTE);
         }
 
-        public PasteSuggestBox(MultiWordSuggestOracle oracle) {
+        public PasteSuggestBox(UnaccentMultiWordSuggestOracle oracle) {
             super(oracle);
             sinkEvents(Event.ONPASTE);
         }
@@ -227,7 +234,7 @@ public class ExtendedSuggestBox extends Composite {
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
-                            ValueChangeEvent.fire(PasteSuggestBox.this, getText());
+                            DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), PasteSuggestBox.this);
                         }
                     });
                     break;

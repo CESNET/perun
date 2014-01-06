@@ -17,7 +17,11 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationsForUser;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.UsersTabs;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -97,7 +101,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		
 		// tab menu for filtering
 		TabMenu tabMenu = new TabMenu();
-		tabMenu.addFilterWidget(new SuggestBox(req.getOracle()), new PerunSearchEvent() {
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(req.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 req.filterTable(text);

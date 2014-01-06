@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.perunadmintabs;
 
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -17,10 +18,15 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.vosManager.DeleteVo;
 import cz.metacentrum.perun.webgui.json.vosManager.GetVos;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.vostabs.CreateVoTabItem;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,9 +36,8 @@ import java.util.Map;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: ab8799750d846c5eefd97f268f58a558e7854ee0 $
  */
-
 public class VosTabItem implements TabItem, TabItemWithUrl {
 
     /**
@@ -110,7 +115,7 @@ public class VosTabItem implements TabItem, TabItemWithUrl {
         tabMenu.addWidget(removeButton);
 
         // filter
-        tabMenu.addFilterWidget(new SuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 getVos.filterTable(text);
@@ -118,7 +123,12 @@ public class VosTabItem implements TabItem, TabItemWithUrl {
         }, buttonTranslation.filterVo());
 
         // get the table with custom onclick
-        CellTable<VirtualOrganization> table = getVos.getTable();
+        CellTable<VirtualOrganization> table = getVos.getTable(new FieldUpdater<VirtualOrganization, VirtualOrganization>() {
+            @Override
+            public void update(int index, VirtualOrganization object, VirtualOrganization value) {
+                session.getTabManager().addTab(new VoDetailTabItem(object));
+            }
+        });
 
         removeButton.setEnabled(false);
         JsonUtils.addTableManagedButton(getVos, table, removeButton);

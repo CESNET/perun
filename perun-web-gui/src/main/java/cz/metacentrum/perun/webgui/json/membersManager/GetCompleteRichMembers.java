@@ -10,7 +10,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -27,8 +26,9 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
 
 import java.util.ArrayList;
 
@@ -67,7 +67,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 
     // oracle
-    private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<RichMember> backupList = new ArrayList<RichMember>();
 
     private ArrayList<PerunStatus> allowedStatuses = new ArrayList<PerunStatus>();
@@ -519,12 +519,12 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
     }
 
     @Override
-    public MultiWordSuggestOracle getOracle() {
+    public UnaccentMultiWordSuggestOracle getOracle() {
         return this.oracle;
     }
 
     @Override
-    public void setOracle(MultiWordSuggestOracle oracle) {
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
 

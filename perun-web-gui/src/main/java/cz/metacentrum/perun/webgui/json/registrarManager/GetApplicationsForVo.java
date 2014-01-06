@@ -10,7 +10,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.RowStyles;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -20,7 +19,9 @@ import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAppTypeCell;
 
@@ -59,7 +60,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	private String state = "";
 	
 	private ArrayList<Application> backupList = new ArrayList<Application>();
-	private MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 	
 	private boolean checkable = true;
 
@@ -503,9 +504,15 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 			for (Application app : backupList){
 				// store app by filter
 				if (app.getUser() != null) {
-					if (app.getUser().getFullName().toLowerCase().startsWith(filter.toLowerCase())) {
+					if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
 						addToTable(app);
-					}
+                        continue;
+					} else if (app.getUser().getFirstName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        addToTable(app);
+                        continue;
+                    } else if (app.getUser().getMiddleName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        addToTable(app);
+                    }
 				} else {
 					if (app.getCreatedBy().toLowerCase().startsWith(filter.toLowerCase())) {
                         addToTable(app);
@@ -521,11 +528,11 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 		
 	}
 
-	public MultiWordSuggestOracle getOracle() {
+	public UnaccentMultiWordSuggestOracle getOracle() {
 		return this.oracle;
 	}
 
-	public void setOracle(MultiWordSuggestOracle oracle) {
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
 	

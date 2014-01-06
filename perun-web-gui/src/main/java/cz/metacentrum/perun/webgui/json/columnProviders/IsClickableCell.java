@@ -1,12 +1,10 @@
 package cz.metacentrum.perun.webgui.json.columnProviders;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
 /**
  * Determine if cell should be clickable or not by authz
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
+ * @version $Id: 2d3d5768c7fc4334816d5ca081657a18a7e675a8 $
  */
 public interface IsClickableCell<T> {
 

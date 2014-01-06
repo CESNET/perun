@@ -20,7 +20,10 @@ import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.IsLoginAvailable;
 import cz.metacentrum.perun.webgui.model.*;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.MembersTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
@@ -245,7 +248,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
                 final CellTable<User> table = callback.getTable();
 
                 // search textbox
-                TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+                ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
                     @Override
                     public void searchFor(String text) {
                         callback.searchFor(text);
@@ -360,7 +363,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
                 // if some text has been searched before
                 if(!searchString.equals(""))
                 {
-                    searchBox.setText(searchString);
+                    searchBox.getTextBox().setText(searchString);
                     callback.searchFor(searchString);
                 }
 

@@ -14,7 +14,11 @@ import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.vosManager.GetVos;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.VosTabs;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -76,7 +80,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         }));
 
         // filter
-        tabMenu.addFilterWidget(new SuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 getVos.filterTable(text);
@@ -91,7 +95,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         CellTable<VirtualOrganization> table = getVos.getTable(new FieldUpdater<VirtualOrganization, VirtualOrganization>() {
             @Override
             public void update(int i, VirtualOrganization virtualOrganization, VirtualOrganization virtualOrganization2) {
-                // close tab when VO is selected
+                session.getTabManager().addTab(new VoDetailTabItem(virtualOrganization));
                 session.getTabManager().closeTab(tab, false);
             }
         });

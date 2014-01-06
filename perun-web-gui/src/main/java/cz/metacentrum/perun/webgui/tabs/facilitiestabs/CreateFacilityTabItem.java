@@ -22,7 +22,10 @@ import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.*;
 import cz.metacentrum.perun.webgui.json.servicesManager.*;
 import cz.metacentrum.perun.webgui.model.*;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.CreateFacilityResourceTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
@@ -1225,7 +1228,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
             JsonUtils.addTableManagedButton(callback, table, removeButton);
 
             // filter box
-            menu.addFilterWidget(new SuggestBox(callback.getOracle()), new PerunSearchEvent() {
+            menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
                 public void searchFor(String text) {
                     callback.filterTable(text);
                 }

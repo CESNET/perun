@@ -25,10 +25,11 @@ import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.widgets.*;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeNameCell;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeDescriptionCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeNameCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;

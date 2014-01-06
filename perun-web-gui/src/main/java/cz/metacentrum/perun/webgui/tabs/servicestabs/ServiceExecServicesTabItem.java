@@ -22,7 +22,10 @@ import cz.metacentrum.perun.webgui.json.generalServiceManager.DeleteExecService;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.ListExecServices;
 import cz.metacentrum.perun.webgui.model.ExecService;
 import cz.metacentrum.perun.webgui.model.Service;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.ServicesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

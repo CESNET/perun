@@ -22,7 +22,10 @@ import cz.metacentrum.perun.webgui.json.facilitiesManager.GetHosts;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.RemoveHosts;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.Host;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

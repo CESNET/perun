@@ -1,13 +1,14 @@
 package cz.metacentrum.perun.webgui.client.mainmenu;
 
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupsTabItem;
 
 /**
  * Main menu item

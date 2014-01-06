@@ -19,9 +19,13 @@ import cz.metacentrum.perun.webgui.json.resourcesManager.DeleteResource;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetRichResources;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -132,7 +136,7 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         vp.setCellHeight(menu, "30px");
 
         // filter box
-        menu.addFilterWidget(new SuggestBox(resources.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 resources.filterTable(text);
             }

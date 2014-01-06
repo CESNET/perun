@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-import cz.metacentrum.perun.webgui.widgets.cells.HyperlinkCellWithAuthz;
+import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCellWithAuthz;
 
 import java.util.Comparator;
 
@@ -45,7 +45,7 @@ public class VoColumnProvider {
     public void addIdColumn(IsClickableCell authz, int width) {
 
         // create column
-        Column<VirtualOrganization, VirtualOrganization> idColumn = JsonUtils.addColumn(new HyperlinkCellWithAuthz<VirtualOrganization>(authz, "id"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+        Column<VirtualOrganization, VirtualOrganization> idColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "id"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
             @Override
             public VirtualOrganization getValue(VirtualOrganization object) {
                 return object;
@@ -77,7 +77,7 @@ public class VoColumnProvider {
     public void addNameColumn(IsClickableCell authz, int width) {
 
         // create column
-        Column<VirtualOrganization, VirtualOrganization> nameColumn = JsonUtils.addColumn(new HyperlinkCellWithAuthz<VirtualOrganization>(authz, "name"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+        Column<VirtualOrganization, VirtualOrganization> nameColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "name"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
             @Override
             public VirtualOrganization getValue(VirtualOrganization object) {
                 return object;
@@ -103,7 +103,7 @@ public class VoColumnProvider {
     public void addShortNameColumn(IsClickableCell authz, int width) {
 
         // create column
-        Column<VirtualOrganization, VirtualOrganization> shortNameColumn = JsonUtils.addColumn(new HyperlinkCellWithAuthz<VirtualOrganization>(authz, "shortName"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+        Column<VirtualOrganization, VirtualOrganization> shortNameColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "shortName"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
             @Override
             public VirtualOrganization getValue(VirtualOrganization object) {
                 return object;

@@ -18,8 +18,12 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.servicesManager.DeleteService;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServices;
 import cz.metacentrum.perun.webgui.model.Service;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.ServicesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -116,7 +120,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 		});
         tabMenu.addWidget(deleteButton);
 
-        tabMenu.addFilterWidget(new SuggestBox(services.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 services.filterTable(text);

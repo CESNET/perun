@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.webgui.json;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 /**
  * Provides methods for handling suggestions / local filtering in tables from JsonCallbacks
@@ -21,13 +21,13 @@ public interface JsonCallbackOracle <T extends JavaScriptObject> extends JsonCal
 	/**
 	 * Get suggestion oracle
 	 */
-	MultiWordSuggestOracle getOracle();
+	UnaccentMultiWordSuggestOracle getOracle();
 	
 	/**
 	 * Set new suggestion oracle for table
-	 * 
-	 * @param oracle
-	 */
-	void setOracle(MultiWordSuggestOracle oracle);
+	 *
+     * @param oracle
+     */
+	void setOracle(UnaccentMultiWordSuggestOracle oracle);
 	
 }

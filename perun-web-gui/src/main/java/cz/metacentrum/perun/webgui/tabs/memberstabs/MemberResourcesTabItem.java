@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
@@ -93,7 +94,7 @@ public class MemberResourcesTabItem implements TabItem {
             }
         });
 
-        menu.addFilterWidget(new SuggestBox(resourcesCall.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(resourcesCall.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 resourcesCall.filterTable(text);
             }

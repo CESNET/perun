@@ -24,8 +24,8 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
 
 import java.util.ArrayList;
 

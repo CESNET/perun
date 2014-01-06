@@ -6,7 +6,6 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 
 /**
  * Custom GWT cell, which is clickable and looks like an anchor with icon

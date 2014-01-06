@@ -19,8 +19,12 @@ import cz.metacentrum.perun.webgui.json.attributesManager.DeleteAttribute;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesDefinition;
 import cz.metacentrum.perun.webgui.json.attributesManager.UpdateAttribute;
 import cz.metacentrum.perun.webgui.model.AttributeDefinition;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.AttributesTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -111,7 +115,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
         tabMenu.addWidget(deleteButton);
 
 		// filter box
-		tabMenu.addFilterWidget(new SuggestBox(attrDef.getOracle()), new PerunSearchEvent() {
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(attrDef.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 attrDef.filterTable(text);
             }

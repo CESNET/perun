@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.widgets;
 
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.RichMember;
 

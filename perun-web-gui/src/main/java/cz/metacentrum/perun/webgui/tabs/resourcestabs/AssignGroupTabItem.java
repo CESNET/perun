@@ -21,9 +21,10 @@ import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -159,7 +160,7 @@ public class AssignGroupTabItem implements TabItem {
             }
         }));
 
-        menu.addFilterWidget(new SuggestBox(voGroups.getOracle()), new PerunSearchEvent() {
+        menu.addFilterWidget(new ExtendedSuggestBox(voGroups.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 voGroups.filterTable(text);

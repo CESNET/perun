@@ -8,7 +8,10 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionModel;
@@ -31,7 +34,8 @@ import cz.metacentrum.perun.webgui.tabs.TestTabs;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.vostabs.CreateVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -236,7 +240,7 @@ public class TestDataGridTabItem implements TabItem, TabItemWithUrl {
         }
 
         // filter
-        tabMenu.addFilterWidget(new SuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+        tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 getVos.filterTable(text);

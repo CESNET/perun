@@ -14,13 +14,12 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesDefinitionWithRights;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.*;
 

@@ -18,7 +18,10 @@ import cz.metacentrum.perun.webgui.json.registrarManager.UpdateApplicationMail;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.ApplicationMail;
 import cz.metacentrum.perun.webgui.model.MailText;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.RegistrarTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 

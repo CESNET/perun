@@ -11,7 +11,11 @@ import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.UsersTabs;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -88,7 +92,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		// search textbox
-		TextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 startSearching(text);
@@ -99,7 +103,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		// if some text has been searched before
 		if(!searchString.equals(""))
 		{
-			searchBox.setText(searchString);
+			searchBox.getTextBox().setText(searchString);
 			startSearching(searchString);
 		}
 

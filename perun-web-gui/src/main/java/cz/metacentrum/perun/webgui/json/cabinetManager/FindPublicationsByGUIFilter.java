@@ -26,8 +26,8 @@ import cz.metacentrum.perun.webgui.model.Publication;
 import cz.metacentrum.perun.webgui.model.Thanks;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.cells.CustomImageResourceCell;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.cells.CustomImageResourceCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;

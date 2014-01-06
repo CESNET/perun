@@ -3,8 +3,6 @@ package cz.metacentrum.perun.webgui.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Constants;
 
-import java.util.ArrayList;
-
 /**
  * Interface to access common GUI settings like RPC URL, callback timeouts,...
  * Settings are stored in {devel,production}/resources/PerunWebConstants.properties

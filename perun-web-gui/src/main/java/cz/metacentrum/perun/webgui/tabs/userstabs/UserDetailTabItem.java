@@ -30,7 +30,6 @@ import cz.metacentrum.perun.webgui.json.groupsManager.GetMemberGroups;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedResources;
-import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedRichResources;
 import cz.metacentrum.perun.webgui.json.usersManager.*;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.*;
@@ -42,7 +41,6 @@ import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;

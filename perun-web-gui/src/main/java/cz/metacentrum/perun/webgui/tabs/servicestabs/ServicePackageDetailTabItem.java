@@ -27,6 +27,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
         vp1.setSize("100%", "100%");
 
         TabMenu menu1 = new TabMenu();
-        menu1.addFilterWidget(new SuggestBox(services.getOracle()), new PerunSearchEvent() {
+        menu1.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 services.filterTable(text);
@@ -217,7 +218,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
         vp2.setSize("100%", "100%");
 
         TabMenu menu2 = new TabMenu();
-        menu2.addFilterWidget(new SuggestBox(assignedServices.getOracle()), new PerunSearchEvent() {
+        menu2.addFilterWidget(new ExtendedSuggestBox(assignedServices.getOracle()), new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 assignedServices.filterTable(text);

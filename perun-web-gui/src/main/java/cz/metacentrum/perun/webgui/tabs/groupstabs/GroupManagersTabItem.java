@@ -25,7 +25,10 @@ import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttribute
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoManagersTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;

@@ -18,10 +18,14 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.DeleteFacility;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.GetFacilities;
 import cz.metacentrum.perun.webgui.model.Facility;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.CreateFacilityTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -115,7 +119,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		});
 		
 		// filter box
-		tabMenu.addFilterWidget(new SuggestBox(facilities.getOracle()), new PerunSearchEvent() {
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 facilities.filterTable(text);
             }

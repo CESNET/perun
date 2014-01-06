@@ -21,8 +21,8 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 
 import java.util.Map;
 
