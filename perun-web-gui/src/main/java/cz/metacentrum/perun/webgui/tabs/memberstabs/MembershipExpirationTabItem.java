@@ -13,6 +13,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.RichMember;
@@ -42,6 +43,7 @@ public class MembershipExpirationTabItem implements TabItem {
     private Label titleWidget = new Label("Loading member");
     TabPanelForTabItems tabPanel;
     private JsonCallbackEvents events = new JsonCallbackEvents();
+    private boolean changeOrNever = true; // by default change
 
     /**
      * Constructor
@@ -69,7 +71,6 @@ public class MembershipExpirationTabItem implements TabItem {
 
         final FlexTable layout = new FlexTable();
         layout.setSize("100%","100%");
-
         layout.setStyleName("inputFormFlexTable");
 
         layout.setHTML(0, 0, "Current expiration:");
@@ -99,6 +100,7 @@ public class MembershipExpirationTabItem implements TabItem {
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
                 layout.setHTML(1, 1, DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").format(picker.getValue()));
                 changeButton.setEnabled(true);
+                changeOrNever = true;
             }
         });
 
@@ -112,6 +114,20 @@ public class MembershipExpirationTabItem implements TabItem {
             picker.setValue(new Date());
         }
 
+        Anchor anchor = new Anchor("Set expiration to 'never'");
+        anchor.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                layout.setHTML(1, 1, "<i>never</i>");
+                changeOrNever = false;
+                changeButton.setEnabled(true);
+            }
+        });
+        layout.setWidget(3, 0, anchor);
+        layout.getFlexCellFormatter().setColSpan(3, 0, 2);
+        layout.getFlexCellFormatter().getElement(3, 0).setAttribute("style", "text-align: right;");
+
+
         TabMenu menu = new TabMenu();
         final TabItem tab = this;
 
@@ -120,13 +136,23 @@ public class MembershipExpirationTabItem implements TabItem {
         changeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").format(picker.getValue()));
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("member", member.getId());
-                SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
-                ArrayList<Attribute> list = new ArrayList<Attribute>();
-                list.add(expire);
-                request.setAttributes(ids, list);
+                if (changeOrNever) {
+                    expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").format(picker.getValue()));
+                    Map<String, Integer> ids = new HashMap<String, Integer>();
+                    ids.put("member", member.getId());
+                    SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
+                    ArrayList<Attribute> list = new ArrayList<Attribute>();
+                    list.add(expire);
+                    request.setAttributes(ids, list);
+                } else {
+                    Map<String, Integer> ids = new HashMap<String, Integer>();
+                    ids.put("member", member.getId());
+                    RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
+                    ArrayList<Attribute> list = new ArrayList<Attribute>();
+                    list.add(expire);
+                    request.removeAttributes(ids, list);
+                }
+
             }
         });
         menu.addWidget(changeButton);

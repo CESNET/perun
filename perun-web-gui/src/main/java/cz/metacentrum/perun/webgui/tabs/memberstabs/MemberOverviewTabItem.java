@@ -14,6 +14,7 @@ import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.widgets.MembershipExpirationWidget;
 import cz.metacentrum.perun.webgui.widgets.PerunStatusWidget;
 
 import java.util.ArrayList;
@@ -256,12 +257,9 @@ public class MemberOverviewTabItem implements TabItem {
                                 personalLayout.setHTML(9, 1, notSet);
                             }
                         } else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:membershipExpiration")) {
-                            if (!"null".equals(value)) {
-                                memberLayout.setHTML(2, 1, value);
-                            } else {
-                                memberLayout.setHTML(2, 1, "<i>never</i>");
-                            }
-
+                            // set attribute inside member
+                            member.setAttribute(a);
+                            memberLayout.setWidget(2, 1, new MembershipExpirationWidget(member));
                         } else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:sponzoredMember")) {
                             if (!"null".equals(value)) {
                                 memberLayout.setHTML(4, 1, value + " (ID of RT ticket with explanation)");
