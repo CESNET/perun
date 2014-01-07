@@ -466,6 +466,24 @@ public interface FacilitiesManagerBl {
   List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostExistsException; 
 
   /**
+   * Create hosts in Perun and add them to the Facility.
+   * Names of the hosts can be generative.
+   * The pattern is string with square brackets, e.g. "local[1-3]domain". Then the content of the brackets
+   * is distributed, so the list is [local1domain, local2domain, local3domain].
+   * Multibrackets are aslo allowed. For example "a[00-01]b[90-91]c" generates [a00b90c, a00b91c, a01b90c, a01b91c].
+   * 
+   * @param sess
+   * @param hosts list of strings with names of hosts, the name can by generative
+   * @param facility
+   *
+   * @return Hosts with ID's set.
+   * 
+   * @throws InternalErrorException
+   * @throws HostExistsException
+   */
+  List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws InternalErrorException, HostExistsException; 
+
+  /**
    * Adds host to the Facility. 
    * 
    * @param perunSession

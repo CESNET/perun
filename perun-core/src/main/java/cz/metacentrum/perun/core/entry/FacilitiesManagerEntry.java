@@ -513,6 +513,20 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
     return getFacilitiesManagerBl().addHosts(sess, hosts, facility);
   }
+  
+  public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostExistsException {
+    Utils.checkPerunSession(sess);
+
+    getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+    // Authorization
+    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+      throw new PrivilegeException(sess, "addHosts");
+    }
+
+    Utils.notNull(hosts, "hosts");
+
+    return getFacilitiesManagerBl().addHosts(sess, facility, hosts);
+  }
 
   public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostAlreadyRemovedException {
     Utils.checkPerunSession(sess);
