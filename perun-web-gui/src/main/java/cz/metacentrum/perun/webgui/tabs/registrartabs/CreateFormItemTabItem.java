@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -85,8 +85,22 @@ public class CreateFormItemTabItem implements TabItem{
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 		
 		// select widget short name
-		final TextBox shortNameTextBox = new TextBox();
+		final ExtendedTextBox shortNameTextBox = new ExtendedTextBox();
 		shortNameTextBox.setWidth("200px");
+
+        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+            @Override
+            public boolean validateTextBox() {
+                if (shortNameTextBox.getTextBox().getText().trim().isEmpty()) {
+                    shortNameTextBox.setError("Short name can't be empty.");
+                    return false;
+                } else {
+                    shortNameTextBox.setOk();
+                    return true;
+                }
+            }
+        };
+        shortNameTextBox.setValidator(validator);
 		
 		// select widget type
 		final ListBox typeListBox = new ListBox();
@@ -100,7 +114,7 @@ public class CreateFormItemTabItem implements TabItem{
 		insertAfterListBox.addItem(" - insert to the beginning - ", 0 + "");
 		for(int i = 0; i < sourceList.size(); i++){
 			ApplicationFormItem item = sourceList.get(i);
-			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, ""); // with defaul en locale
+			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, ""); // with default en locale
 			String label = gen.getFormItem().getShortname();
 			
 			// crop length
@@ -111,7 +125,6 @@ public class CreateFormItemTabItem implements TabItem{
 			// add to box
 			insertAfterListBox.addItem(label, (i + 1) + "");
 		}
-
 
         layout.setHTML(0, 0, "Short name:");
         layout.setWidget(0, 1, shortNameTextBox);
@@ -131,17 +144,14 @@ public class CreateFormItemTabItem implements TabItem{
 
             public void onClick(ClickEvent event) {
 
-                int positionToAdd = Integer.parseInt(insertAfterListBox.getValue(insertAfterListBox.getSelectedIndex()));
-                String type = typeListBox.getValue(typeListBox.getSelectedIndex());
-                String shortName = shortNameTextBox.getText().trim();
+                if (validator.validateTextBox()) {
 
-                // shortName is required item !!
-                if (shortName == null || shortName.isEmpty()) {
-                    new Confirm("Short name is empty", new HTML("ShortName is required item and can't be empty."), true).show();
-                    return;
+                    int positionToAdd = Integer.parseInt(insertAfterListBox.getValue(insertAfterListBox.getSelectedIndex()));
+                    String type = typeListBox.getValue(typeListBox.getSelectedIndex());
+                    String shortName = shortNameTextBox.getTextBox().getText().trim();
+                    createItem(shortName, type, positionToAdd);
+
                 }
-
-                createItem(shortName, type, positionToAdd);
 
             }
         }));
@@ -181,8 +191,7 @@ public class CreateFormItemTabItem implements TabItem{
 		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, events));
 		
 		events.onFinished(item);
-		
-		
+
 	}
 
 	public Widget getWidget() {
