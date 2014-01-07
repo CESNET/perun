@@ -108,11 +108,11 @@ public class RpcCallerImpl implements RpcCaller {
     // Error occured, read the Exception if it is in response
     String errorId = errDes.readString("errorId");
     if (errorId != null ) {
-      String errorClass = errDes.readString("type");
-      String errorInfo = errDes.readString("errorInfo");
-
-      String isPerunException = errDes.readString("isPerunException");
-      if (isPerunException != null && isPerunException.equals("true")) {
+      
+      String exceptionName = errDes.readString("name");
+      if (!exceptionName.equals(RpcException.class.getSimpleName())) {
+        String errorClass = errDes.readString("name");
+        String errorInfo = errDes.readString("message");
         try {
           Class<?> exceptionClass = Class.forName("cz.metacentrum.perun.core.api.exceptions." + errorClass);
 
@@ -140,6 +140,8 @@ public class RpcCallerImpl implements RpcCaller {
         }
       } else {
         // RPC Exception
+        String errorClass = errDes.readString("type");
+        String errorInfo = errDes.readString("errorInfo");
         throw new RpcException(errorClass, errorInfo);
       }
     }
