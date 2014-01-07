@@ -217,15 +217,14 @@ public class GetFormItems implements JsonCallback {
 			
 			// not yet set locale on config page
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, locale);
-			
-			// 0 = label
-			String label = "";
-			if(gen.isLabelShown()){
-				label = item.getShortname();
-			}
-			if (item.isRequired() == true) {
-				label += "*";
-			}
+
+            // 0 = label
+            String label = "";
+            label = item.getShortname();
+
+            if (item.isRequired() == true) {
+                label += "*";
+            }
 			ft.setHTML(i, 0, label);
 			
 			// 1 = type
