@@ -3,8 +3,8 @@ package cz.metacentrum.perun.webgui.json.servicesManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -23,7 +23,7 @@ public class AddDestinationsByHostsOnFacility {
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "servicesManager/addDestinationsDefinedByHostsOnCluster";
+	final String JSON_URL = "servicesManager/addDestinationsDefinedByHostsOnFacility";
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// ids
@@ -55,23 +55,23 @@ public class AddDestinationsByHostsOnFacility {
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testCreating()
-	{
+	private boolean testCreating() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(facilityId == 0){
-			errorMsg += "You must pick paramterer 'Facility'.\n";
+			errorMsg += "You must pick parameter 'Facility'.</br>";
 			result = false;
 		}
 
 		if(service == null){
-			errorMsg += "You must pick paramterer 'Service'.\n";
+			errorMsg += "You must pick parameter 'Service'.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Wrong parameter", errorMsg);
 		}
 
 		return result;
