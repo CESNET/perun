@@ -408,7 +408,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                         menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
                         menu.addWidget(3, box);
                         menu.addWidget(4, new Image(SmallIcons.INSTANCE.helpIcon()));
-                        menu.addWidget(5, new HTML("<strong>People with privilege to manage this facility in Perun. They aren't automatically \"roots\" on machine.</strong>"));
+                        menu.addWidget(5, new HTML("<strong>People with privilege to manage this facility in Perun.</strong>"));
                     }
                     @Override
                     public void onError(PerunError error) {
@@ -420,7 +420,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                         menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
                         menu.addWidget(3, box);
                         menu.addWidget(4, new Image(SmallIcons.INSTANCE.helpIcon()));
-                        menu.addWidget(5, new HTML("<strong>People with privilege to manage this facility in Perun. They aren't automatically \"roots\" on machine.</strong>"));
+                        menu.addWidget(5, new HTML("<strong>People with privilege to manage this facility in Perun.</strong>"));
                     }
                 });
                 copy.copyFacilityManagers(sourceFacility.getId(), facility.getId());

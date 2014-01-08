@@ -831,7 +831,7 @@ public class UiElements {
 		}
 		
 		// image
-		Image img = new Image("img/logo11.png");
+		Image img = new Image(PerunWebConstants.INSTANCE.logoUrl());
         layout.add(img);
         layout.setWidgetPosition(img, 10, 5);
 

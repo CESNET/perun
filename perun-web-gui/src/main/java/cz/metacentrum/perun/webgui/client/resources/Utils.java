@@ -62,9 +62,12 @@ public class Utils {
      */
     public static String getIdentityConsolidatorLink(boolean target) {
 
-        final String URL_KRB = "https://perun.metacentrum.cz/perun-identity-consolidator-krb/";
-        final String URL_FED = "https://perun.metacentrum.cz/perun-identity-consolidator-fed/";
-        final String URL_CERT = "https://perun.metacentrum.cz/perun-identity-consolidator-cert/";
+        // always use URL of machine, where GUI runs
+        String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
+
+        final String URL_KRB = baseUrl+"/perun-identity-consolidator-krb/";
+        final String URL_FED = baseUrl+"/perun-identity-consolidator-fed/";
+        final String URL_CERT = baseUrl+"/perun-identity-consolidator-cert/";
         String rpc = "";
         String link = "";
 
@@ -100,10 +103,14 @@ public class Utils {
     public static String getPasswordResetLink(String namespace) {
 
         String baseLink = "";
+
+        // always use URL of machine, where GUI runs
+        String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
+
         if (PerunWebConstants.INSTANCE.isDevel()) {
-            baseLink = "https://alcor.ics.muni.cz/perun-gui-devel/PasswordReset.html";
+            baseLink = baseUrl+"/PasswordReset.html";
         } else {
-            baseLink = "https://perun.metacentrum.cz/perun-password-reset/";
+            baseLink = baseUrl+"/perun-password-reset/";
         }
 
         if (namespace != null && !namespace.isEmpty()) {
