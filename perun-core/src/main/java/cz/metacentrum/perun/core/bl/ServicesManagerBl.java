@@ -357,6 +357,18 @@ public interface ServicesManagerBl {
   List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
   
   /**
+   * Defines service destination for all hosts using theirs hostnames.
+   * 
+   * @param perunSession
+   * @param service
+   * @param facility
+   * @return list of added destinations
+   * @throws InternalErrorException
+   * @throws DestinationAlreadyAssignedException 
+   */
+  List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
+  
+  /**
    * Removes an destination from the facility and service.
    * 
    * @param perunSession

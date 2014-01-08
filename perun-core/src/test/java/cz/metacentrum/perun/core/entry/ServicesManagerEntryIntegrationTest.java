@@ -785,6 +785,21 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertTrue("our destination should have the same destination",destinations.get(0).getDestination().equals(destination.getDestination()));
 
 	}
+        
+        @Test
+	public void addDestinationsDefinedByHostsOnFacility() throws Exception {
+		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacility");
+
+		service = setUpService();
+		facility = setUpNonClusterFacilityWithTwoHosts();
+
+		List<Destination> newDestinations = perun.getServicesManager().addDestinationsDefinedByHostsOnFacility(sess, service, facility);
+
+		assertTrue("addDestinationsDefinedByHostsOnFacility should create 2 destination",newDestinations.size() == 2);
+
+		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, service, facility);
+		assertTrue("service should have 2 destinations",destinations.size() == 2);
+	}
 
 	@Test
 	public void addDestinationsForAllServicesOnFacility() throws Exception {
@@ -1428,6 +1443,28 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		return facility;
 
 	}
+        
+        private Facility setUpNonClusterFacilityWithTwoHosts() throws Exception {
+                
+                Facility facility = new Facility();
+                facility.setName("ServicesManagerTestNonClusterFacility");
+                facility.setType(FacilitiesManager.STORAGE);
+                facility = perun.getFacilitiesManager().createFacility(sess, facility);
+                
+                // add first host
+                Host host1 = new Host();
+                host1.setHostname("testing_host_1");
+                
+                // add second host
+                Host host2 = new Host();
+                host2.setHostname("testing_host_2");
+                
+                List<Host> hosts = new ArrayList<Host>();
+                hosts.add(host1);
+                hosts.add(host2);
+                perun.getFacilitiesManager().addHosts(sess, hosts, facility);
+                return facility;
+        }
 
 	private Resource setUpResource() throws Exception {
 

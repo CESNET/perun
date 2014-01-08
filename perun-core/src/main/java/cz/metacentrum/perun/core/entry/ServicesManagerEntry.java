@@ -624,9 +624,7 @@ public class ServicesManagerEntry implements ServicesManager {
   }
 
   @Override
-  public List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession sess, Service service, Facility facility)
-      throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException,
-      ClusterNotExistsException {
+  public List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, ClusterNotExistsException {
     Utils.checkPerunSession(sess);
 
     // Authorization 
@@ -636,11 +634,26 @@ public class ServicesManagerEntry implements ServicesManager {
 
     // Check if the facility is cluster
     if (!facility.getType().equals(FacilitiesManager.CLUSTERTYPE) && !facility.getType().equals(FacilitiesManager.VIRTUALCLUSTERTYPE)) {
-      throw new ClusterNotExistsException("Facility " + facility + " is not cluster o vcluster");
+      throw new ClusterNotExistsException("Facility " + facility + " is not cluster or vcluster");
     }
     getServicesManagerBl().checkServiceExists(sess, service);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
     return getServicesManagerBl().addDestinationsDefinedByHostsOnCluster(sess, service, facility);
+  }
+  
+  @Override
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+    Utils.checkPerunSession(perunSession);
+    
+    // Auhtorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+    }
+    
+    getServicesManagerBl().checkServiceExists(perunSession, service);
+    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+    
+    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, service, facility);
   }
 }

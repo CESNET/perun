@@ -515,6 +515,23 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     return destinations;
   }
   
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException {
+      // Get all hosts
+      List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
+      List<Destination> destinations = new ArrayList<Destination>();
+      
+      for (Host host: hosts) {
+        if (host.getHostname() != null && !host.getHostname().isEmpty()) {
+          Destination destination = new Destination();
+          destination.setDestination(host.getHostname());
+          destination.setType(Destination.DESTINATIONHOSTTYPE);
+          destinations.add(this.addDestination(perunSession, service, facility, destination));
+        }  
+      }
+      
+      return destinations;
+  }
+  
   public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
     List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
     return destinations;
