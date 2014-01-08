@@ -144,4 +144,14 @@ public interface PerunWebConstants extends Constants{
     @DefaultStringArrayValue({"einfra", "einfra-services", "sitola", "egi-ui"})
     String[] getSupportedPasswordNamespaces();
 
+    /**
+     * Return URL of Perun GUI logo
+     *
+     * Value is set to config file during build
+     * (default: img/logo11.png)
+     *
+     * @return
+     */
+    String logoUrl();
+
 }
