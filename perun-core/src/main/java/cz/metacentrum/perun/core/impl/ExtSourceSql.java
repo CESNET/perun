@@ -98,6 +98,15 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
     //log.debug("Searching for '{}' using query {} in external source 'url:{}'", new Object[] {searchString, query, (String) getAttributes().get("url")});
     log.debug("Searching for '{}' in external source 'url:{}'", new Object[] {searchString, (String) getAttributes().get("url")});
 
+    // Register driver if the attribute has been defined
+    if (getAttributes().get("driver") != null) {
+      try {
+        Class.forName(getAttributes().get("driver"));
+      } catch (ClassNotFoundException e) {
+        throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
+      }
+    }
+    
     try {
       if (this.con == null || (Compatibility.isOracle() && !this.con.isValid(0))) {
         if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
