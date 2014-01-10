@@ -79,10 +79,10 @@ public class MemberAddToGroupTabItem implements TabItem {
                         if (i == list.size()-1) {
                             // last
                             AddMember request = new AddMember(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addMemberToGroup(list.get(i).getId(), memberId);
+                            request.addMemberToGroup(list.get(i), member);
                         } else {
                             AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addMemberToGroup(list.get(i).getId(), memberId);
+                            request.addMemberToGroup(list.get(i), member);
                         }
                     }
                 }

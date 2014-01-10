@@ -803,6 +803,11 @@ html>body .gwt-DialogBox {
     max-width: 550px;
 }
 
+.alreadyAdded {
+    padding: 5px;
+    background: none repeat scroll 0 0 #F3F7FB !important;
+}
+
 /* ================ GWT CELL TABLE aka PERUN TABLE ================ */
 
 /* Perun cell Table style */
