@@ -516,4 +516,8 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 
     }
 
+    public MultiSelectionModel<RichMember> getSelectionModel() {
+        return this.selectionModel;
+    }
+
 }
