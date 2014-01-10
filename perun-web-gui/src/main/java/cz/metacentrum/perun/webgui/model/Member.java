@@ -26,6 +26,19 @@ public class Member extends JavaScriptObject {
 	public final native int getUserId() /*-{
 		return this.userId;
 	}-*/;
+
+    /**
+     * Get membership type (context associated on member's retrieval)
+     *
+     * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
+     */
+    public final native String getMembershipType() /*-{
+        if (!this.membershipType) {
+            return "NOT_DETERMINED";
+        } else {
+            return this.membershipType;
+        }
+    }-*/;
 	
 	/**
 	 * Returns Perun specific type of object

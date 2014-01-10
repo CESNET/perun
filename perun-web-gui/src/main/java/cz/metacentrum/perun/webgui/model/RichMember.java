@@ -27,6 +27,17 @@ public class RichMember extends JavaScriptObject {
 	public final native int getUserId() /*-{
 		return this.userId;
 	}-*/;
+
+    public final native void setChecked(boolean value) /*-{
+        this.checked = value;
+    }-*/;
+
+    public final native boolean isChecked() /*-{
+        if(typeof this.checked === 'undefined'){
+            this.checked = false;
+        }
+        return this.checked;
+    }-*/;
 	
 	/**
 	 * Get user stored in rich member
@@ -173,6 +184,19 @@ public class RichMember extends JavaScriptObject {
 	public final native ArrayList<UserExtSource> getUserExtSources() /*-{
 		return this.userExtSources;
 	}-*/;
+
+    /**
+     * Get membership type (context associated on member's retrieval)
+     *
+     * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
+     */
+    public final native String getMembershipType() /*-{
+        if (!this.membershipType) {
+            return "NOT_DETERMINED";
+        } else {
+            return this.membershipType;
+        }
+    }-*/;
 	
 	/**
 	 * Returns Perun specific type of object

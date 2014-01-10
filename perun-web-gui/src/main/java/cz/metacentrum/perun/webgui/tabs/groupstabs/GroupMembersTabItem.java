@@ -132,6 +132,8 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		// CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, disableCheckboxEvent);
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.GROUP, groupId, "", null, disableCheckboxEvent);
+        members.setIndirectCheckable(false);
+        findMembers.setIndirectCheckable(false);
 
 		// refreshMembers
 		final JsonCallbackEvents refreshMembersEvent = JsonCallbackEvents.refreshTableEvents(members);
@@ -316,9 +318,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
         removeButton.setEnabled(false);
 
 		// get the table
-		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, String>() {
+		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, RichMember>() {
 			// when user click on a row -> open new tab
-			public void update(int index, RichMember object, String value) {
+			public void update(int index, RichMember object, RichMember value) {
 				// TODO better auth
 				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
 			}
@@ -347,9 +349,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 		ScrollPanel tableWrapper = new ScrollPanel();
 
-		CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, String>() {
+		CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
 			// when user click on a row -> open new tab
-			public void update(int index, RichMember object, String value) {
+			public void update(int index, RichMember object, RichMember value) {
 				// TODO better auth
 				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
 			}

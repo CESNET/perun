@@ -1075,3 +1075,7 @@ h3 {
 .border-right {
     border-right: 1px solid #ccc;
 }
+
+.italic {
+    font-style: italic;
+}
