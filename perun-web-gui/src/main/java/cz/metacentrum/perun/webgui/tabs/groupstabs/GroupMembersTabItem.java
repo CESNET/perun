@@ -184,7 +184,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
                                 }else{
                                     request = new RemoveMember(events);
                                 }
-                                request.removeMemberFromGroup(groupId, itemsToRemove.get(i).getId());
+                                request.removeMemberFromGroup(group, itemsToRemove.get(i));
                             }
                         }
                     });

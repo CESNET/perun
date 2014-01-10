@@ -176,7 +176,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
                                 someoneAdded = true;
                             }
                         }));
-                        request.addMemberToGroup(groupId, membersToAdd.get(i).getId());
+                        request.addMemberToGroup(group, membersToAdd.get(i));
                     }
                 }
             }

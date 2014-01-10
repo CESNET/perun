@@ -3,11 +3,13 @@ package cz.metacentrum.perun.webgui.json.groupsManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichMember;
 
 /**
  * Ajax query to add member to group
@@ -15,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
 public class AddMember {
 
 	// web session
@@ -27,6 +28,9 @@ public class AddMember {
 	// ids
 	private int memberId = 0;
 	private int groupId = 0;
+
+    private RichMember member = null;
+    private Group group = null;
 
 	/**
 	 * Creates a new request
@@ -48,8 +52,7 @@ public class AddMember {
 	 * @param groupId ID of group
 	 * @param memberId ID of VO member to be member of group
 	 */
-	public void addMemberToGroup(final int groupId,final int memberId)
-	{
+	public void addMemberToGroup(final int groupId,final int memberId) {
 
 		this.memberId = memberId;
 		this.groupId = groupId;
@@ -79,30 +82,71 @@ public class AddMember {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-	}	
+	}
+
+    /**
+     * Attempts to add member to group
+     *
+     * @param group group
+     * @param member member to be member of group
+     */
+    public void addMemberToGroup(final Group group,final RichMember member) {
+
+        this.group = group;
+        this.member = member;
+
+        this.memberId = (member != null) ? member.getId() : 0;
+        this.groupId = (group != null) ? group.getId() : 0;
+
+        // test arguments
+        if(!this.testAdding()){
+            return;
+        }
+
+        // new events
+        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+            public void onError(PerunError error) {
+                session.getUiElements().setLogErrorText("Adding member: " + member.getUser().getFullName() + " to group: " + group.getShortName() + " failed.");
+                events.onError(error);
+            };
+
+            public void onFinished(JavaScriptObject jso) {
+                session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " added to group: " + group.getShortName());
+                events.onFinished(jso);
+            };
+
+            public void onLoadingStart() {
+                events.onLoadingStart();
+            };
+        };
+
+        // sending data
+        JsonPostClient jspc = new JsonPostClient(newEvents);
+        jspc.sendData(JSON_URL, prepareJSONObject());
+    }
 
 	/**
 	 * Tests the values, if the process can continue
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAdding()
-	{
+	private boolean testAdding() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(groupId == 0){
-			errorMsg += "Wrong group parametr.\n";
+			errorMsg += "Wrong parameter 'group'.</br>";
 			result = false;
 		}
 
 		if(memberId == 0){
-			errorMsg += "Wrong member parametr.\n";
+			errorMsg += "Wrong parameter 'member'.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

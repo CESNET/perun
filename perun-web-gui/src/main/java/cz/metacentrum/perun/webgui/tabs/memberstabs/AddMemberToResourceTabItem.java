@@ -420,10 +420,10 @@ public class AddMemberToResourceTabItem implements TabItem  {
 
                     if (UiElements.cantSaveEmptyListDialogBox(assGroupCall.getTableSelectedList())) {
 
-                        final int gid = assGroupCall.getTableSelectedList().get(0).getId();
+                        final Group grp = assGroupCall.getTableSelectedList().get(0);
                         final FlexTable content = new FlexTable();
 
-                        GetAssignedResources getRes = new GetAssignedResources(gid, PerunEntity.GROUP, new JsonCallbackEvents(){
+                        GetAssignedResources getRes = new GetAssignedResources(grp.getId(), PerunEntity.GROUP, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso){
                                 ArrayList<Resource> rr = JsonUtils.jsoAsList(jso);
@@ -451,7 +451,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
                             public void onClick(ClickEvent clickEvent) {
                                 AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addToGroupButton));
                                 for (RichMember m : selectedMembers.getList()) {
-                                    request.addMemberToGroup(gid, m.getId());
+                                    request.addMemberToGroup(grp, m);
                                 }
                             }
                         }, true);

@@ -3,11 +3,13 @@ package cz.metacentrum.perun.webgui.json.groupsManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichMember;
 
 /**
  * Ajax query to remove member from group
@@ -15,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
 public class RemoveMember {
 
 	// web session
@@ -27,6 +28,8 @@ public class RemoveMember {
 	// ids
 	private int memberId = 0;
 	private int groupId = 0;
+    private RichMember member = null;
+    private Group group = null;
 
 	/**
 	 * Creates a new request
@@ -48,8 +51,7 @@ public class RemoveMember {
 	 * @param groupId id of group
 	 * @param memberId ID of member to be removed from group
 	 */
-	public void removeMemberFromGroup(final int groupId,final int memberId)
-	{
+	public void removeMemberFromGroup(final int groupId,final int memberId) {
 
 		this.memberId = memberId;
 		this.groupId = groupId;
@@ -82,30 +84,73 @@ public class RemoveMember {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-	}	
+
+	}
+
+    /**
+     * Attempts to remove member from group
+     *
+     * @param group group
+     * @param member member to be removed from group
+     */
+    public void removeMemberFromGroup(final Group group,final RichMember member) {
+
+        this.group = group;
+        this.member = member;
+
+        this.memberId = (member != null) ? member.getId() : 0;
+        this.groupId = (group != null) ? group.getId() : 0;
+
+        // test arguments
+        if(!this.testRemoving()){
+            return;
+        }
+
+        // new events
+        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+            public void onError(PerunError error) {
+                session.getUiElements().setLogErrorText("Removing member: " + member.getUser().getFullName() + " from group: " + group.getShortName() + " failed.");
+                events.onError(error);
+            };
+
+            public void onFinished(JavaScriptObject jso) {
+                session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " removed from group: " + group.getShortName());
+                events.onFinished(jso);
+            };
+
+            public void onLoadingStart() {
+                events.onLoadingStart();
+            };
+        };
+
+        // sending data
+        JsonPostClient jspc = new JsonPostClient(newEvents);
+        jspc.sendData(JSON_URL, prepareJSONObject());
+
+    }
 
 	/**
 	 * Tests the values, if the process can continue
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testRemoving()
-	{
+	private boolean testRemoving() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(groupId == 0){
-			errorMsg += "Wrong group parametr.\n";
+			errorMsg += "Wrong parameter 'group'.</br>";
 			result = false;
 		}
 
 		if(memberId == 0){
-			errorMsg += "Wrong member parametr.\n";
+			errorMsg += "Wrong parameter 'member'.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

@@ -86,10 +86,10 @@ public class MemberGroupsTabItem implements TabItem {
                         for (int i=0; i<list.size(); i++) {
                             if (i == list.size()-1) {
                                 RemoveMember request = new RemoveMember(JsonCallbackEvents.refreshTableEvents(groupsCall));
-                                request.removeMemberFromGroup(list.get(i).getId(), memberId);
+                                request.removeMemberFromGroup(list.get(i), member);
                             } else {
                                 RemoveMember request = new RemoveMember();
-                                request.removeMemberFromGroup(list.get(i).getId(), memberId);
+                                request.removeMemberFromGroup(list.get(i), member);
                             }
                         }
                     }
