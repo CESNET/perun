@@ -52,6 +52,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	private ArrayList<AttributeDefinition> fullBackup = new ArrayList<AttributeDefinition>();
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private FieldUpdater<AttributeDefinition, String> tableFieldUpdater = null;
+    private boolean editable = true; // editable by default
 
 	//	private String entity = "";  // default is to show all types of entity
 
@@ -239,8 +240,10 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 		table.addColumn(entityColumn, "Entity");
 		table.addColumn(definitionColumn, "Definition");
 		table.addColumn(typeColumn, "Type");
-        table.addColumn(displayNameColumn, "Display name");
-		table.addColumn(descriptionColumn, "Description");
+        if (editable) {
+            table.addColumn(displayNameColumn, "Display name");
+            table.addColumn(descriptionColumn, "Description");
+        }
 
 		return table;
 
@@ -369,7 +372,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
     }
 
     public void setEditable(boolean editable) {
-        //this.editable = editable;
+        this.editable = editable;
     }
 
     public void setCheckable(boolean checkable) {
