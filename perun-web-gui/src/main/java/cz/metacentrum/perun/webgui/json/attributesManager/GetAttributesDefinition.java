@@ -464,31 +464,30 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	}
 
 	public void filterTable(String filter) {
-		
-		// always clear selected items
-		selectionModel.clear();
-		
-		// store list only for first time
+
+        // store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			fullBackup.addAll(getList());
+			fullBackup.addAll(list);
 		}
 
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
 		if (filter.equalsIgnoreCase("")) {
-			setList(fullBackup);
+			list.addAll(fullBackup);
 		} else {
-			getList().clear();
 			for (AttributeDefinition attr : fullBackup){
 				// store facility by filter
 				if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
-					addToTable(attr);
+					list.add(attr);
 				}
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
 		}
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
 
 	}
 

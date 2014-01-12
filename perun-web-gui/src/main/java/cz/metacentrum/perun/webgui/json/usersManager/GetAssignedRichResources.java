@@ -304,20 +304,18 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 	public void filterTable(String filter) {
 
-		// always clear selected items
-		selectionModel.clear();
-		
 		// store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (RichResource res : getList()){
-				fullBackup.add(res);
-			}	
+			fullBackup.addAll(list);
 		}
-		if (filter.equalsIgnoreCase("")) {
-            list.clear();
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
             list.addAll(fullBackup);
 		} else {
-            list.clear();
 			for (RichResource res : fullBackup){
 				// store resource by filter
 				if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
@@ -331,13 +329,10 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
                     }
                 }
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
 		}
-		
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

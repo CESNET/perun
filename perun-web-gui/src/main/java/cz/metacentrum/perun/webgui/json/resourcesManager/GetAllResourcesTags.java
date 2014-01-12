@@ -335,7 +335,6 @@ public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<Reso
             list.addAll(fullBackup);
         } else {
             for (ResourceTag res : fullBackup){
-                // store tag by filter
                 if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
                     list.add(res);
                 }

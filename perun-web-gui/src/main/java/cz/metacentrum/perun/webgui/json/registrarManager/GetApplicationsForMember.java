@@ -484,34 +484,30 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 	public void filterTable(String filter){
 
-		// always clear selected items
-		selectionModel.clear();
-		
 		// store list only for first time
 		if (backupList.isEmpty() || backupList == null) {
-			for (Application app: getList()){
-				backupList.add(app);
-			}	
+			backupList.addAll(list);
 		}
-		if (filter.equalsIgnoreCase("")) {
-			setList(backupList);
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+			list.addAll(backupList);
 		} else {
-			getList().clear();
 			for (Application app : backupList){
 				// store app by filter
                 if (app.getGroup() != null) {
                     if (app.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(app);
+                        list.add(app);
                     }
                 }
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
 		}
-		
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

@@ -320,7 +320,8 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
         } else {
             for (Group grp : fullBackup){
                 // store facility by filter
-                if (grp.getName().toLowerCase().startsWith(text.toLowerCase())) {
+                if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
+                        grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
                     list.add(grp);
                 }
             }

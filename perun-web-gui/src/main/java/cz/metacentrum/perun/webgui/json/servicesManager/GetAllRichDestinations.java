@@ -432,7 +432,6 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 
         dataProvider.flush();
         dataProvider.refresh();
-
         loaderImage.loadingFinished();
 		
 	}

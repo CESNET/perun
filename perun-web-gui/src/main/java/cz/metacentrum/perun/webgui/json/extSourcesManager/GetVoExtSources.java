@@ -288,7 +288,6 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
         if (filter.equalsIgnoreCase("")) {
             list.addAll(fullBackup);
         } else {
-            list.clear();
             for (ExtSource src : fullBackup){
                 // store ext source if name or type matches
                 if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
@@ -300,7 +299,6 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
         dataProvider.flush();
         dataProvider.refresh();
-
         loaderImage.loadingFinished();
 
     }

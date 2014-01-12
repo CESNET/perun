@@ -230,7 +230,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
         columnProvider.addIdColumn(authz, 110);
         columnProvider.addUserIdColumn(authz, 110);
         columnProvider.addStatusColumn(authz, 20);
-        columnProvider.addNameColumn(authz, 240);
+        columnProvider.addNameColumn(authz);
         columnProvider.addOrganizationColumn(authz);
         columnProvider.addEmailColumn(authz);
         columnProvider.addLoginsColumn(authz);
@@ -321,9 +321,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
      * Called when loading successfully finishes.
      */
     public void onFinished(JavaScriptObject jso) {
-        // sorted backup
-        backupList = new TableSorter<RichMember>().sortByName(JsonUtils.<RichMember>jsoAsList(jso));
-        setList(backupList);
+        setList(new TableSorter<RichMember>().sortByName(JsonUtils.<RichMember>jsoAsList(jso)));
         session.getUiElements().setLogText("Members loaded: " + list.size());
         events.onFinished(jso);
         loaderImage.loadingFinished();
@@ -331,7 +329,6 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
     public void insertToTable(int index, RichMember object) {
         list.add(index, object);
-        backupList.add(index, object);
         oracle.add(object.getUser().getFullName());
         dataProvider.flush();
         dataProvider.refresh();
@@ -370,37 +367,30 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
     @Override
     public void filterTable(String filter) {
 
+        // save backup for the first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
         // always clear selected items
         selectionModel.clear();
         list.clear();
 
         // filter table content
         if (filter.equalsIgnoreCase("")) {
-            if (backupList.isEmpty()) {
-                // table is empty - try to reload data
-
-                // TODO - SOLVE THIS
-
-                //clearTable();
-                //retrieveData();
-                return;
-            } else {
-                // not empty, filter data
-                list.addAll(backupList);
-            }
+            list.addAll(backupList);
         } else {
             for (RichMember m : backupList){
                 // store member by filter
                 if (m.getUser().getFullName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    addToTable(m);
+                    list.add(m);
                 }
-            }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
             }
         }
         dataProvider.flush();
         dataProvider.refresh();
+        loaderImage.loadingFinished();
+
     }
 
     @Override

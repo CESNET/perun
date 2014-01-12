@@ -261,7 +261,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
         columnProvider.addIdColumn(authz, 110);
         columnProvider.addUserIdColumn(authz, 110);
         columnProvider.addStatusColumn(authz, 20);
-        columnProvider.addNameColumn(authz, 240);
+        columnProvider.addNameColumn(authz);
         columnProvider.addOrganizationColumn(authz);
         columnProvider.addEmailColumn(authz);
         columnProvider.addLoginsColumn(authz);

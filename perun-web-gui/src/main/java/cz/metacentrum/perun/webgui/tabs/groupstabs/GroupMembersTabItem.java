@@ -373,8 +373,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		
 	}
 	
-	private void setPageWidget(Widget w)
-	{
+	private void setPageWidget(Widget w) {
 		this.pageWidget.setWidget(w);
 
 	}
@@ -424,8 +423,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(group, "Members", getUrlWithParameters());
 		if(group != null){
@@ -450,14 +448,13 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 	
-	static public GroupMembersTabItem load(Map<String, String> parameters)
-	{
+	static public GroupMembersTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new GroupMembersTabItem(gid);
 	}
+
 }

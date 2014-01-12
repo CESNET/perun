@@ -463,38 +463,35 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
     @Override
     public void filterTable(String filter) {
 
-        // always clear selected items
-        selectionModel.clear();
-
         if (backupList == null || backupList.isEmpty()) {
             backupList.addAll(getList());
         }
 
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            setList(backupList);
+            list.addAll(backupList);
         } else {
-            getList().clear();
             for (Application a : backupList){
                 // store app by filter
                 if (a.getVo() != null && a.getGroup() == null) {
                     if (a.getVo().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(a);
+                        list.add(a);
                     }
                 } else if (a.getVo() != null && a.getGroup() != null) {
                     if (a.getVo().getName().toLowerCase().startsWith(filter.toLowerCase()) ||
                             a.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(a);
+                        list.add(a);
                     }
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
-            dataProvider.flush();
-            dataProvider.refresh();
         }
 
-
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
     }
 
     @Override

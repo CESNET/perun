@@ -486,47 +486,43 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 		this.state = state;
 	}
 
-	public void filterTable(String filter){
+    public void filterTable(String filter){
 
-		// always clear selected items
-		selectionModel.clear();
-		
-		// store list only for first time
-		if (backupList.isEmpty() || backupList == null) {
-			for (Application app: getList()){
-				backupList.add(app);
-			}	
-		}
-		if (filter.equalsIgnoreCase("")) {
-			setList(backupList);
-		} else {
-			getList().clear();
-			for (Application app : backupList){
-				// store app by filter
-				if (app.getUser() != null) {
-					if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
-						addToTable(app);
+        // store list only for first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(backupList);
+        } else {
+            for (Application app : backupList){
+                // store app by filter
+                if (app.getUser() != null) {
+                    if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        list.add(app);
                         continue;
-					} else if (app.getUser().getFirstName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(app);
+                    } else if (app.getUser().getFirstName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        list.add(app);
                         continue;
                     } else if (app.getUser().getMiddleName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(app);
+                        list.add(app);
                     }
-				} else {
-					if (app.getCreatedBy().toLowerCase().startsWith(filter.toLowerCase())) {
-                        addToTable(app);
-					}
-				}
-			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
-		}
-		
-	}
+                } else {
+                    if (app.getCreatedBy().toLowerCase().startsWith(filter.toLowerCase())) {
+                        list.add(app);
+                    }
+                }
+            }
+        }
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+    }
 
 	public UnaccentMultiWordSuggestOracle getOracle() {
 		return this.oracle;

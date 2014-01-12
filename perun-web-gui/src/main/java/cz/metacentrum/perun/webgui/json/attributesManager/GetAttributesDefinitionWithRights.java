@@ -369,35 +369,33 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 		return this.selectionModel;
 	}
 
-	public void filterTable(String filter) {
-		
-		// always clear selected items
-		selectionModel.clear();
-		
-		// store list only for first time
-		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (Attribute attr : getList()){
-				fullBackup.add(attr);
-			}	
-		}
-		if (filter.equalsIgnoreCase("")) {
-			setList(fullBackup);
-		} else {
-			getList().clear();
-			for (Attribute attr : fullBackup){
-				// store facility by filter
-				if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
-					addToTable(attr);
-				}
-			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
-		}
+    public void filterTable(String filter) {
 
-	}
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            fullBackup.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(fullBackup);
+        } else {
+            for (Attribute attr : fullBackup){
+                // store facility by filter
+                if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(attr);
+                }
+            }
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+
+    }
 
 	public UnaccentMultiWordSuggestOracle getOracle() {
 		return oracle;

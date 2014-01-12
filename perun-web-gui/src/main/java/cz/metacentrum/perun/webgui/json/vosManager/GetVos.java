@@ -265,31 +265,30 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 
     @Override
     public void filterTable(String filter) {
-        // always clear selected items
-        selectionModel.clear();
 
         // store list only for first time
         if (fullBackup.isEmpty() || fullBackup == null) {
-            for (VirtualOrganization vo : getList()){
-                fullBackup.add(vo);
-            }
+            fullBackup.addAll(list);
         }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            setList(fullBackup);
+            list.addAll(fullBackup);
         } else {
-            getList().clear();
             for (VirtualOrganization vo : fullBackup){
                 // store facility by filter
                 if (vo.getName().toLowerCase().startsWith(filter.toLowerCase()) || vo.getShortName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    addToTable(vo);
+                    list.add(vo);
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
-            dataProvider.flush();
-            dataProvider.refresh();
         }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
 
     }
 
