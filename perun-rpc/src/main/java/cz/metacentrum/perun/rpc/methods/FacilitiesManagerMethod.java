@@ -668,8 +668,21 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getUserById(parms.readInt("user")));
     }
   },
-
   
+  /*#
+   * Return all facilities where exists host with the specific hostname
+   * 
+   * @param hostname specific hostname
+   * @return List<Facility> Found Facilities
+   */
+  getFacilitiesByHostName {
+
+    @Override
+    public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getFacilitiesManager().getFacilitiesByHostName(ac.getSession(),
+          parms.readString("hostname"));
+    }
+  },
   
   /*#
    * Return all users which can use this facility
