@@ -60,8 +60,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Manage destinations");
-	
-	
+
 	// data
 	private Service service;
 	private int serviceId;
@@ -180,12 +179,12 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
                     }
 				}
 				ls.addAllOption();
-                addDestButton.setEnabled(true);
 				if (lastSelectedFacilityId == 0) {
                     // select all
                     ls.setItemSelected(0, true);
                 } else {
                     // was selected
+                    addDestButton.setEnabled(true);
                     refreshEvents.onFinished(null);
                 }
 			}

@@ -11,10 +11,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -28,6 +25,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -61,6 +59,8 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 	private int voId;
 
 	private VirtualOrganization vo;
+
+    private boolean somethingAdded = false;
 
 	/**
 	 * Creates a tab instance
@@ -122,37 +122,64 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		};
 		extSources.setEvents(localEvents);
 
+        final ExtendedSuggestBox box = new ExtendedSuggestBox(extSources.getOracle());
+
+        // already added
+        final SimplePanel alreadyAdded = new SimplePanel();
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        alreadyAdded.setVisible(false);
+
 		// button
-		CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
+		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
         final TabItem tab = this;
-		final JsonCallbackEvents events = JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab);
-		assignButton.addClickHandler(new ClickHandler() {
+
+        assignButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				ArrayList<ExtSource> extSourcesToAdd= extSources.getTableSelectedList();
+				final ArrayList<ExtSource> extSourcesToAdd = extSources.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(extSourcesToAdd)) {
+                    // FIXME - Should have only one callback to core
                     for (int i=0; i<extSourcesToAdd.size(); i++ ) {
-                        if (i != extSourcesToAdd.size()-1) {	                 // call json normaly
-                            AddExtSource request = new AddExtSource();
-                            request.addExtSource(voId, extSourcesToAdd.get(i).getId());
-                        } else {                                                // last change - call json with update
-                            AddExtSource request = new AddExtSource(events);
-                            request.addExtSource(voId, extSourcesToAdd.get(i).getId());
-                        }
+                        final int n = i;
+                        AddExtSource request = new AddExtSource(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                // put names to already added
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + extSourcesToAdd.get(n).getName() + ", ");
+                                // unselect added person
+                                extSources.getSelectionModel().setSelected(extSourcesToAdd.get(n), false);
+                                // clear search
+                                box.getSuggestBox().setText("");
+                                somethingAdded = true;
+                            }
+                        }));
+                        request.addExtSource(voId, extSourcesToAdd.get(i).getId());
                     }
                 }
 			}
 		});
 
+        menu.addFilterWidget(box, new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                extSources.filterTable(text);
+            }
+        }, "Filter by ext source name or type");
+
 		menu.addWidget(assignButton);
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+
+        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
+                session.getTabManager().closeTab(tab, somethingAdded);
             }
         }));
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
+
+        vp.add(alreadyAdded);
 
 		CellTable<ExtSource> table = extSources.getTable();
 
@@ -235,8 +262,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		}
 
 	}
-	
-	
+
 	public final static String URL = "add-ext-src";
 	
 	public String getUrl()
@@ -244,13 +270,11 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public AddVoExtSourceTabItem load(Map<String, String> parameters)
-	{
+	static public AddVoExtSourceTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new AddVoExtSourceTabItem(voId);
 	}

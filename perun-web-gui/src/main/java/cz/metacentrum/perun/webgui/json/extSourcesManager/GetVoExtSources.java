@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.model.ExtSource;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,8 +26,7 @@ import java.util.Comparator;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
-public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSource> {
+public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -47,6 +47,8 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
+    private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
 	 * Creates a new callback
@@ -152,6 +154,8 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
      */
     public void addToTable(ExtSource object) {
         list.add(object);
+        oracle.add(object.getName());
+        oracle.add(renameContent(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -174,6 +178,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -225,6 +230,8 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
     public void insertToTable(int index, ExtSource object) {
         list.add(index, object);
+        oracle.add(object.getName());
+        oracle.add(renameContent(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -240,6 +247,10 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
     public void setList(ArrayList<ExtSource> list) {
         clearTable();
         this.list.addAll(list);
+        for (ExtSource object : list) {
+            oracle.add(object.getName());
+            oracle.add(renameContent(object.getType()));
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -261,5 +272,46 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 		return newString;
 	}
-	
+
+    @Override
+    public void filterTable(String filter) {
+
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            fullBackup.addAll(getList());
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(fullBackup);
+        } else {
+            list.clear();
+            for (ExtSource src : fullBackup){
+                // store ext source if name or type matches
+                if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
+                        renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(src);
+                }
+            }
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+
+        loaderImage.loadingFinished();
+
+    }
+
+    @Override
+    public UnaccentMultiWordSuggestOracle getOracle() {
+        return this.oracle;
+    }
+
+    @Override
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
+    }
 }

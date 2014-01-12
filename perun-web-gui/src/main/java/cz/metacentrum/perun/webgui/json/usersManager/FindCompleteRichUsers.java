@@ -82,10 +82,10 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 	 * Creates a new request with custom events
      *
      * @param searchString
-     * @param events
      * @param attributes
+     * @param events
 	 */
-	public FindCompleteRichUsers(String searchString, JsonCallbackEvents events, ArrayList<String> attributes) {
+	public FindCompleteRichUsers(String searchString, ArrayList<String> attributes, JsonCallbackEvents events) {
 		this.events = events;
 		this.searchString = searchString;
         // if null use default
@@ -430,6 +430,10 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
             this.voId = 0;
         }
         this.withoutVo= without;
+    }
+
+    public MultiSelectionModel<User> getSelectionModel() {
+        return this.selectionModel;
     }
 
 }

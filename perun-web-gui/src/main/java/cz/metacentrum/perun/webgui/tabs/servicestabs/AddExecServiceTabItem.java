@@ -144,7 +144,7 @@ public class AddExecServiceTabItem implements TabItem {
             @Override
             public boolean validateTextBox() {
                 if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
-                    delay.setError("Delay must be number (in minutes) !");
+                    delay.setError("Delay must be a number (time in minutes) !");
                     return false;
                 } else {
                     delay.setOk();

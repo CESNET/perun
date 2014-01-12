@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.model.ExtSource;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 
@@ -25,8 +26,7 @@ import java.util.ArrayList;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @version $Id$
  */
-
-public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource> {
+public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -46,6 +46,8 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// display checkboxes
 	private boolean checkable = true;
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+    private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
 
 	/**
 	 * Creates a new callback
@@ -140,6 +142,8 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
      */
     public void addToTable(ExtSource object) {
         list.add(object);
+        oracle.add(object.getName());
+        oracle.add(renameContent(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -162,6 +166,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -213,6 +218,8 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
     public void insertToTable(int index, ExtSource object) {
         list.add(index, object);
+        oracle.add(object.getName());
+        oracle.add(renameContent(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -228,6 +235,10 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
     public void setList(ArrayList<ExtSource> list) {
         clearTable();
         this.list.addAll(list);
+        for (ExtSource object : list) {
+            oracle.add(object.getName());
+            oracle.add(renameContent(object.getType()));
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -258,5 +269,51 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	public void setEvents(JsonCallbackEvents externalEvents) {
 		events = externalEvents;
 	}
+
+    @Override
+    public void filterTable(String filter) {
+
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            fullBackup.addAll(getList());
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(fullBackup);
+        } else {
+            list.clear();
+            for (ExtSource src : fullBackup){
+                // store ext source if name or type matches
+                if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
+                        renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(src);
+                }
+            }
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+
+        loaderImage.loadingFinished();
+
+    }
+
+    @Override
+    public UnaccentMultiWordSuggestOracle getOracle() {
+        return this.oracle;
+    }
+
+    @Override
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
+    }
+
+    public MultiSelectionModel<ExtSource> getSelectionModel() {
+        return this.selectionModel;
+    }
 
 }

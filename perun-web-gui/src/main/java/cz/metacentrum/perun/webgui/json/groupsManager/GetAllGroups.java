@@ -56,7 +56,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// oracle
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
 	private ArrayList<Group> fullBackup = new ArrayList<Group>();
 	// checkable core groups
 	private boolean coreGroupsCheckable = false;

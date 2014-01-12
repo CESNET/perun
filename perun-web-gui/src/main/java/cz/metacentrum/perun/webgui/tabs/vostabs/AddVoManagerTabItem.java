@@ -59,13 +59,8 @@ public class AddVoManagerTabItem implements TabItem {
 	private int voId = 0;
 	private VirtualOrganization vo;
     private FindCompleteRichUsers users;
-	
-	// CURRENT TAB STATE
-	enum State {
-		searching, listAll		
-	}
-	
-	private State state = State.searching;
+    private boolean somebodyAdded = false;
+
 	private String searchString = "";
 	
 	final SimplePanel pageWidget = new SimplePanel();
@@ -105,7 +100,9 @@ public class AddVoManagerTabItem implements TabItem {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": add manager");
 
-        this.users = new FindCompleteRichUsers("", null);
+        final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+
+        this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
         // MAIN TAB PANEL
         VerticalPanel firstTabPanel = new VerticalPanel();
@@ -126,41 +123,58 @@ public class AddVoManagerTabItem implements TabItem {
             table = users.getTable();
         }
 
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToVo());
-        tabMenu.addWidget(addButton);
-        final TabItem tab = this;
-        addButton.addClickHandler(new ClickHandler(){
-            public void onClick(ClickEvent event) {
-                ArrayList<User> list = users.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)){
-                    for (int i=0; i<list.size(); i++) {
-                        if (i == list.size() - 1) {
-                            AddAdmin request = new AddAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addAdmin(voId, list.get(i).getId());
-                        } else {
-                            AddAdmin request = new AddAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addAdmin(voId, list.get(i).getId());
-                        }
-                    }
-                }
-            }
-        });
+        // already added
+        final SimplePanel alreadyAdded = new SimplePanel();
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        alreadyAdded.setVisible(false);
 
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab);
-            }
-        }));
+        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToVo());
+        final TabItem tab = this;
 
         // search textbox
-        ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 startSearching(text);
                 searchString = text;
             }
-        }, ButtonTranslation.INSTANCE.searchUsers());
+        }, searchButton);
+
+        tabMenu.addWidget(addButton);
+
+        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                session.getTabManager().closeTab(tab, somebodyAdded);
+            }
+        }));
+
+        addButton.addClickHandler(new ClickHandler(){
+            public void onClick(ClickEvent event) {
+                final ArrayList<User> list = users.getTableSelectedList();
+                if (UiElements.cantSaveEmptyListDialogBox(list)){
+                    for (int i=0; i<list.size(); i++) {
+                        // FIXME - Should have only one callback to core
+                        final int n = i;
+                        AddAdmin request = new AddAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                // put names to already added
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + list.get(n).getFullName() + ", ");
+                                // unselect added person
+                                users.getSelectionModel().setSelected(list.get(n), false);
+                                // clear search
+                                searchBox.getTextBox().setText("");
+                                somebodyAdded = true;
+                            }
+                        }));
+                        request.addAdmin(voId, list.get(i).getId());
+                    }
+                }
+            }
+        });
 
         // if some text has been searched before
         if(!searchString.equals(""))
@@ -202,6 +216,7 @@ public class AddVoManagerTabItem implements TabItem {
         // add menu and the table to the main panel
         firstTabPanel.add(tabMenu);
         firstTabPanel.setCellHeight(tabMenu, "30px");
+        firstTabPanel.add(alreadyAdded);
         firstTabPanel.add(sp);
 
         session.getUiElements().resizePerunTable(sp, 350, this);

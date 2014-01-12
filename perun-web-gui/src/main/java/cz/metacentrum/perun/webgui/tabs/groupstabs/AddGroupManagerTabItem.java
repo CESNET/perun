@@ -62,17 +62,10 @@ public class AddGroupManagerTabItem implements TabItem {
 	private Group group;
 	private int groupId;
 	
-	// CURRENT TAB STATE
-	enum State {
-		searching, listAll		
-	}
-	
-	// default state is search
-	State state = State.searching;
-	
 	// when searching
 	private String searchString = "";
     private FindCompleteRichUsers users;
+    private boolean somebodyAdded = false;
 	
 	/**
 	 * Creates a tab instance
@@ -121,7 +114,8 @@ public class AddGroupManagerTabItem implements TabItem {
 			return getWidget();
 		}
 
-        this.users = new FindCompleteRichUsers("", null);
+        final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+        this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
         // MAIN TAB PANEL
         VerticalPanel firstTabPanel = new VerticalPanel();
@@ -144,41 +138,55 @@ public class AddGroupManagerTabItem implements TabItem {
 
         final TabItem tab = this;
 
+        // already added
+        final SimplePanel alreadyAdded = new SimplePanel();
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        alreadyAdded.setVisible(false);
+
+        // search textbox
+        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                startSearching(text);
+                searchString = text;
+            }
+        }, searchButton);
+
         final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToGroup());
         addButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                ArrayList<User> list = users.getTableSelectedList();
+                final ArrayList<User> list = users.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(list)) {
                     for (int i = 0; i < list.size(); i++) {
-                        if (i == list.size()-1) {
-                            AddAdmin request = new AddAdmin(PerunEntity.GROUP, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addAdmin(groupId, list.get(i).getId());
-                        } else {
-                            AddAdmin request = new AddAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addAdmin(groupId, list.get(i).getId());
-                        }
+                        final int n = i;
+                        AddAdmin request = new AddAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                // put names to already added
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + list.get(n).getFullName() + ", ");
+                                // unselect added person
+                                users.getSelectionModel().setSelected(list.get(n), false);
+                                // clear search
+                                searchBox.getTextBox().setText("");
+                                somebodyAdded = true;
+                            }
+                        }));
+                        request.addAdmin(groupId, list.get(i).getId());
                     }
                 }
             }
         });
         tabMenu.addWidget(addButton);
 
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
+                session.getTabManager().closeTab(tab, somebodyAdded);
             }
         }));
-
-        // search textbox
-        ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                startSearching(text);
-                searchString = text;
-            }
-        }, ButtonTranslation.INSTANCE.searchUsers());
 
         // if some text has been searched before
         if(!searchString.equals(""))
@@ -260,12 +268,6 @@ public class AddGroupManagerTabItem implements TabItem {
 
         users.searchFor(text);
     }
-	
-	private void setPageWidget(Widget w)
-	{
-		this.pageWidget.setWidget(w);
-
-	}
 
 	public Widget getWidget() {
 		return this.contentWidget;

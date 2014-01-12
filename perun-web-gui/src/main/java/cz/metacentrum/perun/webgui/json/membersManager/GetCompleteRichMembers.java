@@ -230,9 +230,9 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
         columnProvider.addIdColumn(authz, 110);
         columnProvider.addUserIdColumn(authz, 110);
         columnProvider.addStatusColumn(authz, 20);
-        columnProvider.addNameColumn(authz);
+        columnProvider.addNameColumn(authz, 240);
         columnProvider.addOrganizationColumn(authz);
-        columnProvider.addEmailColumn(authz, 240);
+        columnProvider.addEmailColumn(authz);
         columnProvider.addLoginsColumn(authz);
 
 		return table;
