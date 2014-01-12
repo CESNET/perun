@@ -131,13 +131,13 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 		
 		Column<RichService, String> allowedColumn = JsonUtils.addColumn(new JsonUtils.GetValue<RichService, String>() {
 			public String getValue(RichService object) {
-				return "GENERATE: "+ object.getGenAllowedOnFacility()+" SEND: "+ object.getSendAllowedOnFacility();
+				return getAllowedValue(object);
 			}
 		},this.tableFieldUpdater);
 		allowedColumn.setSortable(true);
 		columnSortHandler.setComparator(allowedColumn, new Comparator<RichService>() {
 			public int compare(RichService o1, RichService o2) {
-				return ("GENERATE: "+ o1.getGenAllowedOnFacility()+" SEND: "+ o1.getSendAllowedOnFacility()).compareToIgnoreCase("GENERATE: "+ o2.getGenAllowedOnFacility()+" SEND: "+ o2.getSendAllowedOnFacility());
+				return (getAllowedValue(o1).compareToIgnoreCase(getAllowedValue(o2)));
 			}
 		});
 		
@@ -318,5 +318,23 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 	public void setEvents(JsonCallbackEvents events) {
 		this.events = events;
 	}
+
+    private String getAllowedValue(RichService object) {
+
+        String result = "GENERATE: ";
+        if (object.getGenExecService() != null) {
+            result += object.getGenAllowedOnFacility();
+        } else {
+            result += "Not determined";
+        }
+        result += " SEND: ";
+        if (object.getSendExecService() != null) {
+            result += object.getSendAllowedOnFacility();
+        } else {
+            result += "Not determined";
+        }
+        return result;
+
+    }
 
 }

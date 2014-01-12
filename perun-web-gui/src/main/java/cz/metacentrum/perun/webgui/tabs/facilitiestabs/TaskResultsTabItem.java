@@ -27,7 +27,6 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
 public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
@@ -146,8 +145,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getExecService().getService().getName(), getUrlWithParameters());
 		if(task != null) {
@@ -158,13 +156,11 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 	}
 	
 	public boolean isAuthorized() {
-
 		if (session.isFacilityAdmin(task.getFacility().getId())) {
 			return true; 
 		} else {
 			return false;
 		}
-
 	}
 	
 	public final static String URL = "taskresults";
@@ -174,18 +170,15 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId();
 	}
 	
-	static public TaskResultsTabItem load(Task task)
-	{
+	static public TaskResultsTabItem load(Task task) {
 		return new TaskResultsTabItem(task);
 	}
 	
-	static public TaskResultsTabItem load(Map<String, String> parameters)
-	{
+	static public TaskResultsTabItem load(Map<String, String> parameters) {
 		int tid = Integer.parseInt(parameters.get("id"));
 		return new TaskResultsTabItem(tid);
 	}
