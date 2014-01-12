@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.AddAdmin;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsersByIdsNotInRpc;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -170,7 +171,7 @@ public class AddVoManagerTabItem implements TabItem {
                                 somebodyAdded = true;
                             }
                         }));
-                        request.addAdmin(voId, list.get(i).getId());
+                        request.addAdmin((GeneralObject)vo.cast(), list.get(i));
                     }
                 }
             }

@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.authzResolver.AddAdmin;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsersByIdsNotInRpc;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -144,7 +145,7 @@ public class AddFacilityManagerTabItem implements TabItem {
                                 somebodyAdded = true;
                             }
                         }));
-                        request.addAdmin(facilityId, list.get(i).getId());
+                        request.addAdmin((GeneralObject)facility.cast(), list.get(i));
                     }
                 }
 			}

@@ -318,20 +318,17 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	
 	public void filterTable(String text){
 
-		// always clear selected items
-		selectionModel.clear();
-		
 		// store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (Group grp : getList()){
-				fullBackup.add(grp);
-			}	
+			fullBackup.addAll(list);
 		}
-        getList().clear();
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (text.equalsIgnoreCase("")) {
-			for (Group g : fullBackup) {
-                list.add(g);
-            }
+			list.addAll(fullBackup);
 		} else {
 			for (Group grp : fullBackup){
 				// store facility by filter
@@ -339,13 +336,10 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 					list.add(grp);
 				}
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
 		}
         dataProvider.flush();
         dataProvider.refresh();
-
+        loaderImage.loadingFinished();
 	}
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {

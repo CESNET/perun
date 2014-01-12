@@ -21,6 +21,7 @@ import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group> {
+public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -57,6 +58,9 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
     private boolean coreGroupsCheckable = true;
+    // oracle
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
+    private ArrayList<Group> fullBackup = new ArrayList<Group>();
 	
 	/**
 	 * Creates a new callback instance	
@@ -208,6 +212,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
      */
     public void addToTable(Group object) {
         list.add(object);
+        oracle.add(object.getName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -234,6 +239,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
         selectionModel.clear();
         singleSelectionModel.clear();
         dataProvider.flush();
@@ -291,6 +297,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 
     public void insertToTable(int index, Group object) {
         list.add(index, object);
+        oracle.add(object.getName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -306,6 +313,9 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
     public void setList(ArrayList<Group> list) {
         clearTable();
         this.list.addAll(list);
+        for (Group object : list) {
+            oracle.add(object.getName());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -331,6 +341,46 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
      */
     public void setCoreGroupsCheckable(boolean checkable) {
         this.coreGroupsCheckable = checkable;
+    }
+
+    public UnaccentMultiWordSuggestOracle getOracle(){
+        return this.oracle;
+    }
+
+    public void filterTable(String text){
+
+        // always clear selected items
+        selectionModel.clear();
+
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            for (Group grp : getList()){
+                fullBackup.add(grp);
+            }
+        }
+        getList().clear();
+        if (text.equalsIgnoreCase("")) {
+            for (Group g : fullBackup) {
+                list.add(g);
+            }
+        } else {
+            for (Group grp : fullBackup){
+                // store facility by filter
+                if (grp.getName().toLowerCase().startsWith(text.toLowerCase())) {
+                    list.add(grp);
+                }
+            }
+            if (getList().isEmpty()) {
+                loaderImage.loadingFinished();
+            }
+        }
+        dataProvider.flush();
+        dataProvider.refresh();
+
+    }
+
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
     }
 
 }

@@ -199,8 +199,6 @@ public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<Reso
             js.retrieveData(JSON_URL_RESOURCE, param, this);
         }
 
-
-
     }
 
     /**
@@ -324,29 +322,29 @@ public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<Reso
 
     public void filterTable(String filter) {
 
-        // always clear selected items
-        selectionModel.clear();
-
         // store list only for first time
         if (fullBackup.isEmpty() || fullBackup == null) {
-            for (ResourceTag res : getList()){
-                fullBackup.add(res);
-            }
+            fullBackup.addAll(list);
         }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            list.clear();
             list.addAll(fullBackup);
         } else {
-            list.clear();
             for (ResourceTag res : fullBackup){
                 // store tag by filter
                 if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    addToTable(res);
+                    list.add(res);
                 }
             }
         }
+
         dataProvider.flush();
         dataProvider.refresh();
+        loaderImage.loadingFinished();
 
     }
 

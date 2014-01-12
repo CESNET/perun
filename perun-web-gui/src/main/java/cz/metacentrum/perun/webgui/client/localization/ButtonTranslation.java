@@ -661,6 +661,9 @@ public interface ButtonTranslation extends Messages {
     @DefaultMessage("Remove selected dependent services")
     String deleteSelectedExecServices();
 
+    @DefaultMessage("Filter services by name")
+    String filterServices();
+
     /* SERVICE PACKAGES */
 
     @DefaultMessage("Create new service package in Perun")
@@ -671,6 +674,11 @@ public interface ButtonTranslation extends Messages {
 
     @DefaultMessage("Save changes in services packages")
     String saveChangesInServicesPackages();
+
+    /* TAGS */
+
+    @DefaultMessage("Filter resources tags by name")
+    String filterTags();
 
     /* ======= TITLES FOR DISABLED BUTTONS =============== */
 
