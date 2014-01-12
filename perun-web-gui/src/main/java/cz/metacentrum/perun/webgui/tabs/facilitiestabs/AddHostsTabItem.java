@@ -3,8 +3,6 @@ package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -19,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.facilitiesManager.AddHosts;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
@@ -83,29 +82,46 @@ public class AddHostsTabItem implements TabItem {
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-		final TextBox hosts = new TextBox();
+        final ExtendedTextArea newHosts = new ExtendedTextArea();
+        newHosts.getTextArea().setSize("335px", "150px");
+
+        final ExtendedTextArea.TextAreaValidator validator = new ExtendedTextArea.TextAreaValidator() {
+            @Override
+            public boolean validateTextArea() {
+                if (newHosts.getTextArea().getText().trim().isEmpty()) {
+                    newHosts.setError("Please enter at least one hostname to add it to facility.");
+                    return false;
+                } else {
+                    newHosts.setOk();
+                    return true;
+                }
+            }
+        };
+        newHosts.setValidator(validator);
+
+        final CustomButton addHostsButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost());
+
+        // close tab, disable button
+        final TabItem tab = this;
+
+        addHostsButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                if (validator.validateTextArea()) {
+                    String hostnames = newHosts.getTextArea().getText().trim();
+                    String hosts[] = hostnames.split("\n");
+                    // trim whitespace
+                    for (int i = 0; i< hosts.length; i++) {
+                        hosts[i] = hosts[i].trim();
+                    }
+                    AddHosts request = new AddHosts(facility.getId(), JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, tab));
+                    request.addHosts(hosts);
+                }
+            }
+        });
 
         TabMenu menu = new TabMenu();
-        final CustomButton addHostsButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost());
-	
-		// close tab, disable button
-		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, this);
-					
-		addHostsButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				String hostnames = hosts.getText().trim();
-				String hosts[] = hostnames.split(",");
-				// trim whitespace
-				for (int i = 0; i< hosts.length; i++) {
-					hosts[i] = hosts[i].trim();
-				}
-				AddHosts request = new AddHosts(facilityId, closeTabEvents);
-				request.addHosts(hosts);
-			}
-		});
 
         menu.addWidget(addHostsButton);
-        final TabItem tab = this;
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -113,30 +129,18 @@ public class AddHostsTabItem implements TabItem {
             }
         }));
 
-        addHostsButton.setEnabled(false);
-        hosts.addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                if (!hosts.getText().isEmpty()) {
-                    addHostsButton.setEnabled(true);
-                } else {
-                    addHostsButton.setEnabled(false);
-                }
-            }
-        });
-
         // layout
         FlexTable layout = new FlexTable();
+        layout.setWidth("350px");
         layout.setStyleName("inputFormFlexTable");
         FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
         layout.setHTML(0, 0, "Hostnames:");
-        layout.setWidget(0, 1, hosts);
+        layout.setWidget(1, 0, newHosts);
         cellFormatter.addStyleName(0, 0, "itemName");
 
-        cellFormatter.setColSpan(1, 0, 2);
-        layout.setHTML(1, 0, "Enter hostnames separated by comas.");
-        cellFormatter.addStyleName(1, 0, "inputFormInlineComment");
+        layout.setHTML(2, 0, "Enter one host per line. You can use \"[x-y]\" in hostname to generate hosts with numbers from x to y. This replacer can be specified multiple times in one hostname to generate MxN combinations.");
+        cellFormatter.addStyleName(2, 0, "inputFormInlineComment");
 
         vp.add(layout);
         vp.add(menu);
@@ -187,8 +191,7 @@ public class AddHostsTabItem implements TabItem {
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 	}
 
 	public boolean isAuthorized() {

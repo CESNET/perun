@@ -293,34 +293,31 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
     @Override
     public void filterTable(String filter) {
 
-        // always clear selected items
-        selectionModel.clear();
-
         // store list only for first time
         if (backupList.isEmpty() || backupList == null) {
-            for (Owner o : getList()){
-                backupList.add(o);
-            }
+            backupList.addAll(list);
         }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            getList().clear();
-            getList().addAll(backupList);
+            list.addAll(backupList);
         } else {
-            getList().clear();
             for (Owner o: backupList){
                 // store owner by filter
                 if (o.getName().toLowerCase().startsWith(filter.toLowerCase()) ||
                     o.getContact().toLowerCase().startsWith(filter.toLowerCase()) ||
                     Owner.getTranslatedType(o.getType()).toLowerCase().startsWith(Owner.getTranslatedType(filter).toLowerCase())) {
-                    getList().add(o);
+                    list.add(o);
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
-            dataProvider.flush();
-            dataProvider.refresh();
         }
+
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
 
     }
 
