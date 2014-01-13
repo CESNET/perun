@@ -392,6 +392,58 @@ public class ServicesManagerEntry implements ServicesManager {
     getServicesManagerBl().checkServiceExists(sess, service);
     getServicesManagerBl().removeAllRequiredAttributes(sess, service);
   }
+  
+  public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(services, "services");
+    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+    
+    // Authorization 
+    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+      throw new PrivilegeException(perunSession, "addDestination");
+    }
+    
+    //prepare lists of facilities
+    List<Facility> facilitiesByHostname = new ArrayList<Facility>();
+    List<Facility> facilitiesByDestination = new ArrayList<Facility>();
+    if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) || 
+            destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) || 
+            destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
+        facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(perunSession, destination.getHostNameFromDestination());
+        if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(perunSession, destination.getHostNameFromDestination());
+    
+        if(!facilitiesByHostname.isEmpty()) {
+            boolean hasRight = false;
+            for(Facility f: facilitiesByHostname) {
+                if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+                    hasRight = true;
+                    break;
+                }
+            }
+            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+        }
+
+        if(!facilitiesByDestination.isEmpty()) {
+            boolean hasRight = false;
+            for(Facility f: facilitiesByDestination) {
+                if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+                    hasRight = true;
+                    break;
+                }
+            }
+            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+        }
+    }
+    
+    for(Service s: services) {
+        getServicesManagerBl().checkServiceExists(perunSession, s);
+    }
+    Utils.notNull(destination, "destination");
+    Utils.notNull(destination.getDestination(), "destination.destination");
+    Utils.notNull(destination.getType(), "destination.type");
+    
+    return getServicesManagerBl().addDestination(perunSession, services, facility, destination);
+  }
 
   public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
     Utils.checkPerunSession(sess);
@@ -655,5 +707,38 @@ public class ServicesManagerEntry implements ServicesManager {
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
     
     return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, service, facility);
+  }
+  
+  @Override
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(services, "services");
+    
+    // Auhtorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+    }
+    
+    for(Service s: services) {
+        getServicesManagerBl().checkServiceExists(perunSession, s);
+    }
+    
+    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+    
+    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
+  }
+  
+  @Override
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException {
+    Utils.checkPerunSession(perunSession);
+    
+    // Auhtorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+    }
+    
+    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+    
+    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, facility);
   }
 }
