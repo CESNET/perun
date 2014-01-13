@@ -346,20 +346,18 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 
     @Override
     public void filterTable(String filter) {
-        // always clear selected items
-        selectionModel.clear();
 
         // store list only for first time
         if (backupList.isEmpty() || backupList == null) {
-            for (ServicesPackage s : getList()){
-                backupList.add(s);
-            }
+            backupList.addAll(list);
         }
-        getList().clear();
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            for (ServicesPackage s : backupList) {
-                list.add(s);
-            }
+            list.addAll(backupList);
         } else {
             for (ServicesPackage s : backupList){
                 // store facility by filter
@@ -367,12 +365,12 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
                     list.add(s);
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
         }
+
         dataProvider.flush();
         dataProvider.refresh();
+        loaderImage.loadingFinished();
+
     }
 
     @Override

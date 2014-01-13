@@ -52,6 +52,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	private ArrayList<AttributeDefinition> fullBackup = new ArrayList<AttributeDefinition>();
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private FieldUpdater<AttributeDefinition, String> tableFieldUpdater = null;
+    private boolean editable = true; // editable by default
 
 	//	private String entity = "";  // default is to show all types of entity
 
@@ -239,8 +240,10 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 		table.addColumn(entityColumn, "Entity");
 		table.addColumn(definitionColumn, "Definition");
 		table.addColumn(typeColumn, "Type");
-        table.addColumn(displayNameColumn, "Display name");
-		table.addColumn(descriptionColumn, "Description");
+        if (editable) {
+            table.addColumn(displayNameColumn, "Display name");
+            table.addColumn(descriptionColumn, "Description");
+        }
 
 		return table;
 
@@ -369,7 +372,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
     }
 
     public void setEditable(boolean editable) {
-        //this.editable = editable;
+        this.editable = editable;
     }
 
     public void setCheckable(boolean checkable) {
@@ -461,31 +464,30 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	}
 
 	public void filterTable(String filter) {
-		
-		// always clear selected items
-		selectionModel.clear();
-		
-		// store list only for first time
+
+        // store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			fullBackup.addAll(getList());
+			fullBackup.addAll(list);
 		}
 
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
 		if (filter.equalsIgnoreCase("")) {
-			setList(fullBackup);
+			list.addAll(fullBackup);
 		} else {
-			getList().clear();
 			for (AttributeDefinition attr : fullBackup){
 				// store facility by filter
 				if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
-					addToTable(attr);
+					list.add(attr);
 				}
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
 		}
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
 
 	}
 

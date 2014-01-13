@@ -11,25 +11,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.UsersManager;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -257,7 +244,18 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     membersManagerEntry.getMembersCount(sess, new Vo());
     // shouldn't find VO
 
-  }	
+  }
+
+  @Test
+  public void getMembersCountByStatus() throws Exception {
+    System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCountByStatus()");
+
+    final int count = membersManagerEntry.getMembersCount(sess, createdVo, Status.SUSPENDED);
+    assertTrue("testing VO should have 0 members with SUSPENDED status", count == 0);
+    final int count2 = membersManagerEntry.getMembersCount(sess, createdVo, Status.VALID);
+    assertTrue("testing VO should have 1 member with VALID status", count2 == 1);
+
+  }
 
   @Test 
   public void getMembers() throws Exception {

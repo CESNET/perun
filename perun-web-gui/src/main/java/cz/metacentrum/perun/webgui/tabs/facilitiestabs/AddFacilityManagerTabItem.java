@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.authzResolver.AddAdmin;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsersByIdsNotInRpc;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -58,6 +59,7 @@ public class AddFacilityManagerTabItem implements TabItem {
 	// data
 	private int facilityId;
 	private Facility facility;
+    private boolean somebodyAdded = false;
 	
 	/**
 	 * Creates a tab instance
@@ -90,8 +92,9 @@ public class AddFacilityManagerTabItem implements TabItem {
 	public Widget draw() {
 		
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add manager");
-		
-		this.users = new FindCompleteRichUsers("", null);
+
+        final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
@@ -104,42 +107,60 @@ public class AddFacilityManagerTabItem implements TabItem {
 		final CellTable<User> table = users.getTable();
 
         final TabItem tab = this;
+
+        // already added
+        final SimplePanel alreadyAdded = new SimplePanel();
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        alreadyAdded.setVisible(false);
+
+        // search textbox
+        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                startSearching(text);
+                searchString = text;
+            }
+        }, searchButton);
 		
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToFacility());
-		addButton.addClickHandler(new ClickHandler(){
+
+        addButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-				ArrayList<User> list = users.getTableSelectedList();
+				final ArrayList<User> list = users.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(list)){
                     // proceed
                     for (int i=0; i<list.size(); i++) {
-                        if (i == list.size() - 1) {
-                            AddAdmin request = new AddAdmin(PerunEntity.FACILITY, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addAdmin(facilityId, list.get(i).getId());
-                        } else {
-                            AddAdmin request = new AddAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addAdmin(facilityId, list.get(i).getId());
-                        }
+                        final int n = i;
+                        AddAdmin request = new AddAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                // put names to already added
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + list.get(n).getFullName() + ", ");
+                                // unselect added person
+                                users.getSelectionModel().setSelected(list.get(n), false);
+                                // clear search
+                                searchBox.getTextBox().setText("");
+                                somebodyAdded = true;
+                            }
+                        }));
+                        request.addAdmin((GeneralObject)facility.cast(), list.get(i));
                     }
                 }
 			}
 		});
+
         tabMenu.addWidget(addButton);
 
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
+                session.getTabManager().closeTab(tab, somebodyAdded);
             }
         }));
 
-		// search textbox
-		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				startSearching(text);
-				searchString = text;
-			}
-		}, ButtonTranslation.INSTANCE.searchUsers());
+
 
 		// if some text has been searched before
 		if(!searchString.equals(""))
@@ -178,6 +199,7 @@ public class AddFacilityManagerTabItem implements TabItem {
 		// add menu and the table to the main panel
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
+        firstTabPanel.add(alreadyAdded);
 		firstTabPanel.add(sp);
 
         addButton.setEnabled(false);

@@ -24,6 +24,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.Map;
 
@@ -95,7 +96,17 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
 		// get empty table
 		final ListAllRichTasksForFacility callback = new ListAllRichTasksForFacility(facility.getId());
         callback.setCheckable(false);
-		final CellTable<Task> table = callback.getTable(new FieldUpdater<Task, String>(){
+
+        final CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                callback.clearTable();
+                callback.retrieveData();
+            }
+        });
+
+        callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
+
+        final CellTable<Task> table = callback.getTable(new FieldUpdater<Task, String>(){
 			// on row click
 			public void update(int index, final Task object, String value) {
 				// show results
@@ -108,12 +119,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
 		sp.addStyleName("perun-tableScrollPanel");		
 		
 		TabMenu menu = new TabMenu();
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                callback.clearTable();
-                callback.retrieveData();
-            }
-        }));
+		menu.addWidget(refreshButton);
 		
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
@@ -163,8 +169,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Propagation status", getUrlWithParameters());
 		if(facility != null) {
@@ -191,18 +196,15 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
 	
-	static public FacilityStatusTabItem load(Facility facility)
-	{
+	static public FacilityStatusTabItem load(Facility facility) {
 		return new FacilityStatusTabItem(facility);
 	}
 	
-	static public FacilityStatusTabItem load(Map<String, String> parameters)
-	{
+	static public FacilityStatusTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityStatusTabItem(fid);
 	}

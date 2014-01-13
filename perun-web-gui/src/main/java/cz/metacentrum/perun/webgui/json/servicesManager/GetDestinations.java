@@ -378,37 +378,35 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	public void filterTable(String text){
 
-		// always clear selected items
-		selectionModel.clear();
-		
 		// store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (Destination dst : getList()){
-				fullBackup.add(dst);
-			}	
+			fullBackup.addAll(list);
 		}
-		if (text.equalsIgnoreCase("")) {
-			setList(fullBackup);
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (text.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
 		} else {
-			getList().clear();
 			for (Destination dst : fullBackup){
 				// store facility by filter
 				if (dst.getService() != null) {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getService().getName().toLowerCase().startsWith(text.toLowerCase())) {
-						addToTable(dst);
+						list.add(dst);
 					}	
 				} else {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase())) {
-						addToTable(dst);
+						list.add(dst);
 					}
 				}
 			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
 		}
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
 		
 	}
 

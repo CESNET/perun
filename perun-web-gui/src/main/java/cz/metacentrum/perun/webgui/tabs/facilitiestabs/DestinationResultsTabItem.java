@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -145,7 +146,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
                 ArrayList<RichService> list = JsonUtils.jsoAsList(jso);
                 list = new TableSorter<RichService>().sortByName(list);
                 for (RichService s : list){
-                    if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") && s.getGenExecService().isEnabled() && s.getSendExecService().isEnabled()){
+                    if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") && (s.getGenExecService() != null && s.getGenExecService().isEnabled()) && (s.getSendExecService() != null && s.getSendExecService().isEnabled())){
                         listbox.addItem(s);
                     }
                 }
@@ -178,10 +179,18 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
         });
 
         menu.addWidget(cb);
-        menu.addWidget(new HTML("<strong>Selected service: </strong>"));
+        menu.addWidget(new HTML("<strong>Service: </strong>"));
         menu.addWidget(listbox);
-        menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-        menu.addWidget(new HTML("<strong>List of all allowed services on facility (not just on destination)</strong>"));
+
+        Anchor a = new Anchor("View facility details >>");
+        a.setStyleName("pointer");
+        a.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTab(new FacilityDetailTabItem(facility));
+            }
+        });
+        menu.addWidget(a);
 
         ArrayList<String> dest = new ArrayList<String>();
         dest.add(destination);
@@ -259,13 +268,11 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
     }
 	
 	public boolean isAuthorized() {
-
 		if (session.isFacilityAdmin(facilityId) || session.isVoAdmin(voId)) {
 			return true; 
 		} else {
 			return false;
 		}
-
 	}
 	
 	public final static String URL = "dest-result";
@@ -275,13 +282,11 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?dest="+destination+"&fid="+facilityId+"&vid="+voId+"pa="+admin;
+	public String getUrlWithParameters() {
+		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?dest="+destination+"&fid="+facilityId+"&vid="+voId+"&pa="+admin;
 	}
 
-    static public DestinationResultsTabItem load(Map<String, String> parameters)
-    {
+    static public DestinationResultsTabItem load(Map<String, String> parameters) {
         String dest = parameters.get("dest");
         int facility = Integer.parseInt(parameters.get("fid"));
         int vo = Integer.parseInt(parameters.get("vid"));

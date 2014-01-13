@@ -8,7 +8,10 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
+import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -20,6 +23,7 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -98,6 +102,13 @@ public class MemberGroupsTabItem implements TabItem {
         });
         removeButton.setEnabled(false);
         menu.addWidget(removeButton);
+
+        menu.addFilterWidget(new ExtendedSuggestBox(groupsCall.getOracle()), new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                groupsCall.filterTable(text);
+            }
+        }, ButtonTranslation.INSTANCE.filterGroup());
 
         CellTable<Group> table = groupsCall.getTable(new FieldUpdater<Group, String>() {
             @Override

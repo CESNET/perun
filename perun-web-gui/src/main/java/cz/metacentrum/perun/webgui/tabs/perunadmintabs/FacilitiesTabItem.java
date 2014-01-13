@@ -86,7 +86,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		// add new facility button
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
             public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateFacilityTabItem());
+                session.getTabManager().addTab(new CreateFacilityTabItem());
             }
         }));
 
@@ -178,8 +178,6 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
-
 		return true;
 	}
 
@@ -209,13 +207,11 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public FacilitiesTabItem load(Map<String, String> parameters)
-	{
+	static public FacilitiesTabItem load(Map<String, String> parameters) {
 		return new FacilitiesTabItem();
 	}
 	

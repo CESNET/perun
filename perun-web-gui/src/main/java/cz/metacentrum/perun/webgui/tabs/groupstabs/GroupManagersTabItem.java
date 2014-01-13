@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
@@ -187,7 +188,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
                                 } else {
                                     request = new RemoveAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(removeButton));
                                 }
-                                request.removeAdmin(groupId, itemsToRemove.get(i).getId());
+                                request.removeAdmin((GeneralObject)group.cast(), itemsToRemove.get(i));
                             }
                         }
                     });
@@ -316,7 +317,6 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         return SmallIcons.INSTANCE.administratorIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -350,8 +350,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(group, "Managers", getUrlWithParameters());
         if(group != null){
@@ -372,7 +371,6 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
     }
 
-
     public final static String URL = "managers";
 
     public String getUrl()
@@ -380,14 +378,13 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
     }
 
-    static public GroupManagersTabItem load(Map<String, String> parameters)
-    {
+    static public GroupManagersTabItem load(Map<String, String> parameters) {
         int id = Integer.parseInt(parameters.get("id"));
         return new GroupManagersTabItem(id);
     }
+
 }

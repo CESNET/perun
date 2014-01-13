@@ -342,34 +342,30 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	}
 	
 	public void filterTable(String text){
-		
-		// always clear selected items
-		selectionModel.clear();
 
 		// store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (FacilityState fac : getList()){
-				fullBackup.add(fac);
-			}	
+			fullBackup.addAll(list);
 		}
-		if (text.equalsIgnoreCase("")) {
-			setList(fullBackup);
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (text.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
 		} else {
-			getList().clear();
 			for (FacilityState fac : fullBackup){
 				// store facility by filter
 				if (fac.getFacility().getName().toLowerCase().startsWith(text.toLowerCase())) {
-					addToTable(fac);
+					list.add(fac);
 				}
 			}
-            dataProvider.flush();
-            dataProvider.refresh();
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
 		}
-		
-	}
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+    }
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;

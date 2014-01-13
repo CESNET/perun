@@ -24,6 +24,7 @@ import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
@@ -193,10 +194,10 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
                         for (int i=0; i<list.size(); i++) {
                             if (i == list.size()-1) {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(jsonCallback)));
-                                request.removeAdmin(facilityId, list.get(i).getId());
+                                request.removeAdmin((GeneralObject)facility.cast(), list.get(i));
                             } else {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeAdmin(facilityId, list.get(i).getId());
+                                request.removeAdmin((GeneralObject)facility.cast(), list.get(i));
                             }
                         }
                     }

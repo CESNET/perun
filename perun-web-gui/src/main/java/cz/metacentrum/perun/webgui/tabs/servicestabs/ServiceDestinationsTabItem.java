@@ -60,8 +60,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Manage destinations");
-	
-	
+
 	// data
 	private Service service;
 	private int serviceId;
@@ -113,7 +112,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.setCellHeight(menu, "30px");
 
 		// buttons 
-		CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
+		final CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
         final CustomButton removeDestButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
 
         menu.addWidget(addDestButton);
@@ -185,15 +184,18 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
                     ls.setItemSelected(0, true);
                 } else {
                     // was selected
+                    addDestButton.setEnabled(true);
                     refreshEvents.onFinished(null);
                 }
 			}
 			public void onError(PerunError error){
 				ls.addItem("Error while loading");
+                addDestButton.setEnabled(false);
 			}
             public void onLoadingStart(){
                 ls.clear();
                 ls.addItem("Loading...");
+                addDestButton.setEnabled(false);
             }
 		};
 		final GetAssignedFacilities assignedFacilities = new GetAssignedFacilities(PerunEntity.SERVICE, serviceId, events);
@@ -205,8 +207,10 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 			public void onChange(ChangeEvent event) {
                 if (ls.getSelectedIndex() > 0) {
                     // store last selected facility id
+                    addDestButton.setEnabled(true);
                     lastSelectedFacilityId = ls.getSelectedObject().getId();
                 } else {
+                    addDestButton.setEnabled(false);
                     lastSelectedFacilityId = 0;
                 }
                 refreshEvents.onFinished(null);
@@ -217,13 +221,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		
 		addDestButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-				if (ls.getSelectedIndex() > 0) {
-					// for 1 facility
-					session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(ls.getSelectedObject()));
-				} else {
-                    UiElements.generateAlert("No facility selected", "You must select a facility first.");
-					return;
-				}	
+				session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(ls.getSelectedObject()));
 			}
 		});
 		

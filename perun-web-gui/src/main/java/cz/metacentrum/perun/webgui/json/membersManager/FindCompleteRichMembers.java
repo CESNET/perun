@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -19,16 +18,14 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.PerunStatus;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
-import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
-import cz.metacentrum.perun.webgui.json.comparators.RichMemberComparator;
+import cz.metacentrum.perun.webgui.json.columnProviders.IsClickableCell;
+import cz.metacentrum.perun.webgui.json.columnProviders.MemberColumnProvider;
 import cz.metacentrum.perun.webgui.json.keyproviders.RichMemberKeyProvider;
-import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
 
@@ -59,8 +56,9 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	// List of members
 	private ArrayList<RichMember> list = new ArrayList<RichMember>();
 	// Table field updater
-	private FieldUpdater<RichMember, String> tableFieldUpdater;
+	private FieldUpdater<RichMember, RichMember> tableFieldUpdater;
 	private boolean checkable = true;
+    private boolean indirectCheckable = true; // for backward compatibility TRUE
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
@@ -154,7 +152,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
-	public CellTable<RichMember> getEmptyTable(FieldUpdater<RichMember, String> fu) {
+	public CellTable<RichMember> getEmptyTable(FieldUpdater<RichMember, RichMember> fu) {
 		this.tableFieldUpdater = fu;
 		return this.getEmptyTable();
 	}
@@ -165,7 +163,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
      * @param fu Custom field updater
      * @return CellTable widget
      */
-    public CellTable<RichMember> getTable(FieldUpdater<RichMember, String> fu) {
+    public CellTable<RichMember> getTable(FieldUpdater<RichMember, RichMember> fu) {
         this.retrieveData();
         this.tableFieldUpdater = fu;
         return this.getEmptyTable();
@@ -209,168 +207,64 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
-		// checkbox column column
-		if (checkable) {
-			table.addCheckBoxColumn();	
-		}
-		
-		// Status column 
-		Column<RichMember, String> statusColumn = new Column<RichMember, String>(
-				new PerunStatusCell()) {
-			@Override
-			public String getValue(RichMember object) {
-				return object.getStatus();
-			}
-		};
-		// own onClick tab for changing member's status
-		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
-			public void update(int index, final RichMember object, String value) {
-				FlexTable widget = new FlexTable();
-				final ListBox lb = new ListBox(false);
-				lb.addItem("VALID", "VALID");
-				lb.addItem("INVALID", "INVALID");
-				lb.addItem("SUSPENDED", "SUSPENDED");
-				lb.addItem("EXPIRED", "EXPIRED");
-				lb.addItem("DISABLED", "DISABLED");
-				widget.setHTML(0, 0, "<strong>Status: </strong>");
-				widget.setWidget(0, 1, lb);
-				
-				// pick which one is already set
-				for (int i=0; i<lb.getItemCount(); i++) {
-					if (lb.getItemText(i).equalsIgnoreCase(object.getStatus())) {
-						lb.setSelectedIndex(i);
-					}
-				}
-				
-				Confirm conf = new Confirm("Change member's status: "+object.getUser().getFullName(), widget, true);
-				conf.setCancelButtonText("Cancel");
-				conf.setOkButtonText("Change status");
-				conf.setOkClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						SetStatus call = new SetStatus(object.getId(), new JsonCallbackEvents(){
-							public void onFinished(JavaScriptObject jso) {
-								clearTable();
-								retrieveData();
-							}
-							public void onError(PerunError error) {
-								clearTable();
-								retrieveData();
-							}
-						});
-						call.setStatus(lb.getValue(lb.getSelectedIndex()));
-					}
-				});
-				conf.show();
-			}
-		});
-		
-		// status column sortable
-		statusColumn.setSortable(true);
-		columnSortHandler.setComparator(statusColumn, new GeneralComparator<RichMember>(GeneralComparator.Column.STATUS));
-		                
-		//table.addColumn(checkBoxColumn, checkBoxHeader);
-		table.addColumn(statusColumn, "Status");
-		table.setColumnWidth(statusColumn, 20, Unit.PX);
 
-		// Create member ID column.
-		Column<RichMember, String> memberIdColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return String.valueOf(object.getId());
-					}
-				}, this.tableFieldUpdater);
-		
-		// Create User ID column.
-		Column<RichMember, String> userIdColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return String.valueOf(object.getUser().getId());
-					}
-				}, this.tableFieldUpdater);
-		
-		columnSortHandler.setComparator(memberIdColumn, new RichMemberComparator(RichMemberComparator.Column.MEMBER_ID));
-		memberIdColumn.setSortable(true);
-		
-		
-		userIdColumn.setSortable(true);
-		columnSortHandler.setComparator(userIdColumn,  new RichMemberComparator(RichMemberComparator.Column.USER_ID));
-		
-		
-		table.setColumnWidth(memberIdColumn, 110.0, Unit.PX);
-		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
-		
-		// adding columns
-		if(JsonUtils.isExtendedInfoVisible()){
-			table.addColumn(memberIdColumn, "Member ID");
-			table.addColumn(userIdColumn,  "User ID");
-		}
+        Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
+                new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
+            @Override
+            public RichMember getValue(RichMember object) {
+                // Get the value from the selection model.
+                object.setChecked(selectionModel.isSelected(object));
+                return object;
+            }
+        };
 
-		// Create organization column.
-		Column<RichMember, String> organizationColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
+        // updates the columns size
+        table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-						Attribute at = object.getAttribute("urn:perun:member:attribute-def:def:organization");
-						if (at == null || at.getValue().equalsIgnoreCase("null")) {
-							at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
-						}
-						String value = "";
+        // Add the columns
 
-						if (at != null) {
-							value = at.getValue();
-						}
-                        if (value.equalsIgnoreCase("null")) {
-                            return "";
-                        }
-						return value;
-					}
-				}, this.tableFieldUpdater);
-		
-		// Create e-mail column.
-		Column<RichMember, String> emailColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
+        // Checkbox column header
+        CheckboxCell cb = new CheckboxCell();
+        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+            public Boolean getValue() {
+                return false; //return true to see a checked checkbox.
+            }
+        };
+        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+            public void update(Boolean value) {
+                // sets selected to all, if value = true, unselect otherwise
+                for(RichMember obj : list){
+                    if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
+                        selectionModel.setSelected(obj, value);
+                    }
+                }
+            }
+        });
 
-						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-						if (at == null || at.getValue().equalsIgnoreCase("null")) {
-							at = object.getAttribute("urn:perun:member:attribute-def:def:mail");
-						}
-						String value = "";
+        if (checkable) {
+            table.addColumn(checkBoxColumn,checkBoxHeader);
+        }
 
-						if (at != null) {
-							value = at.getValue();
-							// replace "," to " " in emails
-							value = value.replace(",", " ");
-						}
+        MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
+        IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
+            @Override
+            public boolean isClickable(RichMember object) {
+                return true;
+            }
 
-						return value;
-					}
-				}, this.tableFieldUpdater);
+            @Override
+            public String linkUrl(RichMember object) {
+                return null;
+            }
+        };
 
-		// Create name column.
-		Column<RichMember, String> loginsColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return object.getUserLogins();
-					}
-				}, this.tableFieldUpdater);
-
-		organizationColumn.setSortable(true);
-		columnSortHandler.setComparator(organizationColumn, new RichMemberComparator(RichMemberComparator.Column.ORGANIZATION));
-
-		emailColumn.setSortable(true);
-		columnSortHandler.setComparator(emailColumn, new RichMemberComparator(RichMemberComparator.Column.EMAIL));
-
-		// updates the columns size
-		
-		table.setColumnWidth(emailColumn, 240, Unit.PX);
-
-		// Add the other columns.
-		table.addNameColumn(tableFieldUpdater);
-        table.addColumn(organizationColumn, "Organization");
-		table.addColumn(emailColumn, "E-mail");
-        table.addColumn(loginsColumn, "Logins");
+        columnProvider.addIdColumn(authz, 110);
+        columnProvider.addUserIdColumn(authz, 110);
+        columnProvider.addStatusColumn(authz, 20);
+        columnProvider.addNameColumn(authz);
+        columnProvider.addOrganizationColumn(authz);
+        columnProvider.addEmailColumn(authz);
+        columnProvider.addLoginsColumn(authz);
 
 		return table;
 		
@@ -516,8 +410,32 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 
     }
 
+    /**
+     * Get table selection model.
+     *
+     * @return table selection model
+     */
     public MultiSelectionModel<RichMember> getSelectionModel() {
         return this.selectionModel;
+    }
+
+    /**
+     * Set custom message to empty table.
+     *
+     * If message is null, then default text is used.
+     *
+     * @param message message to set
+     */
+    public void setCustomEmptyTableMessage(String message) {
+        if (message != null) {
+            loaderImage = new AjaxLoaderImage(true, message);
+        } else {
+            loaderImage = new AjaxLoaderImage(true, WidgetTranslation.INSTANCE.emptySearchForMembers());
+        }
+    }
+
+    public void setIndirectCheckable(boolean checkable) {
+        this.indirectCheckable = checkable;
     }
 
 }

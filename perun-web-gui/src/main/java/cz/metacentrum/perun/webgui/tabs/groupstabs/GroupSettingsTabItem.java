@@ -190,6 +190,8 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
                                 resourceDropDown.setSelected(resources.get(i), true);
                             }
                         }
+                    } else {
+                        resourceDropDown.addItem("No resources available");
                     }
                     resCallDone = true;
                 }

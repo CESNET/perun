@@ -275,20 +275,18 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
     @Override
     public void filterTable(String filter) {
-        // always clear selected items
-        selectionModel.clear();
 
         // store list only for first time
         if (backupList.isEmpty() || backupList == null) {
-            for (Service s : getList()){
-                backupList.add(s);
-            }
+            backupList.addAll(list);
         }
-        getList().clear();
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (filter.equalsIgnoreCase("")) {
-            for (Service s : backupList) {
-                list.add(s);
-            }
+            list.addAll(backupList);
         } else {
             for (Service s : backupList){
                 // store facility by filter
@@ -296,12 +294,12 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
                     list.add(s);
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
         }
+
         dataProvider.flush();
         dataProvider.refresh();
+        loaderImage.loadingFinished();
+
     }
 
     @Override

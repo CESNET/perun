@@ -326,4 +326,8 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
         return this.list;
     }
 
+    public void setEvents(JsonCallbackEvents events) {
+        this.events = events;
+    }
+
 }
