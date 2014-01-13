@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -18,17 +17,15 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.PerunStatus;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
-import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
-import cz.metacentrum.perun.webgui.json.comparators.RichMemberComparator;
+import cz.metacentrum.perun.webgui.json.columnProviders.IsClickableCell;
+import cz.metacentrum.perun.webgui.json.columnProviders.MemberColumnProvider;
 import cz.metacentrum.perun.webgui.json.keyproviders.RichMemberKeyProvider;
-import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
-import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
 
@@ -58,8 +55,9 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 	// List of members
 	private ArrayList<RichMember> list = new ArrayList<RichMember>();
 	// Table field updater
-	private FieldUpdater<RichMember, String> tableFieldUpdater;
+	private FieldUpdater<RichMember, RichMember> tableFieldUpdater;
 	private boolean checkable = true;
+    private boolean indirectCheckable = true; // for backward compatibility TRUE
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
@@ -146,7 +144,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
-	public CellTable<RichMember> getTable(FieldUpdater<RichMember, String> fu) {
+	public CellTable<RichMember> getTable(FieldUpdater<RichMember, RichMember> fu) {
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
@@ -178,178 +176,65 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
-		// checkbox column column
-		if (checkable) {
-			table.addCheckBoxColumn();	
-		}
-		
-		// Status column 
-		Column<RichMember, String> statusColumn = new Column<RichMember, String>(
-				new PerunStatusCell()) {
-			@Override
-			public String getValue(RichMember object) {
-				return object.getStatus();
-			}
-		};
-		// own onClick tab for changing member's status
-		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
-			public void update(int index, final RichMember object, String value) {
-				FlexTable widget = new FlexTable();
-				final ListBox lb = new ListBox(false);
-				lb.addItem("VALID", "VALID");
-				lb.addItem("INVALID", "INVALID");
-				lb.addItem("SUSPENDED", "SUSPENDED");
-				lb.addItem("EXPIRED", "EXPIRED");
-				lb.addItem("DISABLED", "DISABLED");
-				widget.setHTML(0, 0, "<strong>Status: </strong>");
-				widget.setWidget(0, 1, lb);
-				
-				// pick which one is already set
-				for (int i=0; i<lb.getItemCount(); i++) {
-					if (lb.getItemText(i).equalsIgnoreCase(object.getStatus())) {
-						lb.setSelectedIndex(i);
-					}
-				}
-				
-				Confirm conf = new Confirm("Change member's status: "+object.getUser().getFullName(), widget, true);
-				conf.setCancelButtonText("Cancel");
-				conf.setOkButtonText("Change status");
-				conf.setOkClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						SetStatus call = new SetStatus(object.getId(), new JsonCallbackEvents(){
-							public void onFinished(JavaScriptObject jso) {
-								clearTable();
-								retrieveData();
-							}
-							public void onError(PerunError error) {
-								clearTable();
-								retrieveData();
-							}
-						});
-						call.setStatus(lb.getValue(lb.getSelectedIndex()));
-					}
-				});
-				conf.show();
-			}
-		});
-		
-		// status column sortable
-		statusColumn.setSortable(true);
-		columnSortHandler.setComparator(statusColumn, new GeneralComparator<RichMember>(GeneralComparator.Column.STATUS));
-		                
-		//table.addColumn(checkBoxColumn, checkBoxHeader);
-		table.addColumn(statusColumn, "Status");
-		table.setColumnWidth(statusColumn, 20, Unit.PX);
 
-		// Create member ID column.
-		Column<RichMember, String> memberIdColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return String.valueOf(object.getId());
-					}
-				}, this.tableFieldUpdater);
-		
-		// Create User ID column.
-		Column<RichMember, String> userIdColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return String.valueOf(object.getUser().getId());
-					}
-				}, this.tableFieldUpdater);
-		
-		columnSortHandler.setComparator(memberIdColumn, new RichMemberComparator(RichMemberComparator.Column.MEMBER_ID));
-		memberIdColumn.setSortable(true);
-		
-		
-		userIdColumn.setSortable(true);
-		columnSortHandler.setComparator(userIdColumn,  new RichMemberComparator(RichMemberComparator.Column.USER_ID));
-		
-		
-		table.setColumnWidth(memberIdColumn, 110.0, Unit.PX);
-		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
-		
-		// adding columns
-		if(JsonUtils.isExtendedInfoVisible()){
-			table.addColumn(memberIdColumn, "Member ID");
-			table.addColumn(userIdColumn,  "User ID");
-		}
+        Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
+                new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
+            @Override
+            public RichMember getValue(RichMember object) {
+                // Get the value from the selection model.
+                object.setChecked(selectionModel.isSelected(object));
+                return object;
+            }
+        };
 
-		// Create name column.
-		Column<RichMember, String> nameColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return object.getUser().getFullName();
-					}
-				}, this.tableFieldUpdater);
+        // updates the columns size
+        table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-		// Create organization column.
-        Column<RichMember, String> organizationColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<RichMember, String>() {
-                    public String getValue(RichMember object) {
+        // Add the columns
 
-                        Attribute at = object.getAttribute("urn:perun:member:attribute-def:def:organization");
-                        if (at == null || at.getValue().equalsIgnoreCase("null")) {
-                            at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
-                        }
-                        String value = "";
-
-                        if (at != null) {
-                            value = at.getValue();
-                        }
-                        if (value.equalsIgnoreCase("null")) {
-                            return "";
-                        }
-                        return value;
+        // Checkbox column header
+        CheckboxCell cb = new CheckboxCell();
+        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+            public Boolean getValue() {
+                return false; //return true to see a checked checkbox.
+            }
+        };
+        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+            public void update(Boolean value) {
+                // sets selected to all, if value = true, unselect otherwise
+                for(RichMember obj : list){
+                    if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
+                        selectionModel.setSelected(obj, value);
                     }
-                }, this.tableFieldUpdater);
-		
-		// Create e-mail column.
-		Column<RichMember, String> emailColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
+                }
+            }
+        });
 
-						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-						if (at == null || at.getValue().equalsIgnoreCase("null")) {
-							at = object.getAttribute("urn:perun:member:attribute-def:def:mail");
-						}
-						String value = "";
+        if (checkable) {
+            table.addColumn(checkBoxColumn,checkBoxHeader);
+        }
 
-						if (at != null) {
-							value = at.getValue();
-							// replace "," to " " in emails
-							value = value.replace(",", " ");
-						}
+        MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
+        IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
+            @Override
+            public boolean isClickable(RichMember object) {
+                return true;
+            }
 
-						return value;
-					}
-				}, this.tableFieldUpdater);
+            @Override
+            public String linkUrl(RichMember object) {
+                return null;
+            }
+        };
 
-		// Create name column.
-		Column<RichMember, String> loginsColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<RichMember, String>() {
-					public String getValue(RichMember object) {
-						return object.getUserLogins();
-					}
-				}, this.tableFieldUpdater);
+        columnProvider.addIdColumn(authz, 110);
+        columnProvider.addUserIdColumn(authz, 110);
+        columnProvider.addStatusColumn(authz, 20);
+        columnProvider.addNameColumn(authz);
+        columnProvider.addOrganizationColumn(authz);
+        columnProvider.addEmailColumn(authz);
+        columnProvider.addLoginsColumn(authz);
 
-		organizationColumn.setSortable(true);
-		columnSortHandler.setComparator(organizationColumn, new RichMemberComparator(RichMemberComparator.Column.ORGANIZATION));
-
-		emailColumn.setSortable(true);
-		columnSortHandler.setComparator(emailColumn, new RichMemberComparator(RichMemberComparator.Column.EMAIL));
-
-		nameColumn.setSortable(true);
-		columnSortHandler.setComparator(nameColumn, new RichMemberComparator(RichMemberComparator.Column.USER_FULL_NAME));
-
-		// updates the columns size
-        table.setColumnWidth(emailColumn, 240, Unit.PX);
-
-		// Add the other columns.
-		table.addColumn(nameColumn, "Name");
-        table.addColumn(organizationColumn, "Organization");
-		table.addColumn(emailColumn, "E-mail");
-		table.addColumn(loginsColumn, "Logins");
 		return table;
 		
 	}
@@ -436,9 +321,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
      * Called when loading successfully finishes.
      */
     public void onFinished(JavaScriptObject jso) {
-        // sorted backup
-        backupList = new TableSorter<RichMember>().sortByName(JsonUtils.<RichMember>jsoAsList(jso));
-        setList(backupList);
+        setList(new TableSorter<RichMember>().sortByName(JsonUtils.<RichMember>jsoAsList(jso)));
         session.getUiElements().setLogText("Members loaded: " + list.size());
         events.onFinished(jso);
         loaderImage.loadingFinished();
@@ -446,7 +329,6 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
     public void insertToTable(int index, RichMember object) {
         list.add(index, object);
-        backupList.add(index, object);
         oracle.add(object.getUser().getFullName());
         dataProvider.flush();
         dataProvider.refresh();
@@ -485,37 +367,30 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
     @Override
     public void filterTable(String filter) {
 
+        // save backup for the first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
         // always clear selected items
         selectionModel.clear();
         list.clear();
 
         // filter table content
         if (filter.equalsIgnoreCase("")) {
-            if (backupList.isEmpty()) {
-                // table is empty - try to reload data
-
-                // TODO - SOLVE THIS
-
-                //clearTable();
-                //retrieveData();
-                return;
-            } else {
-                // not empty, filter data
-                list.addAll(backupList);
-            }
+            list.addAll(backupList);
         } else {
             for (RichMember m : backupList){
                 // store member by filter
                 if (m.getUser().getFullName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    addToTable(m);
+                    list.add(m);
                 }
-            }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
             }
         }
         dataProvider.flush();
         dataProvider.refresh();
+        loaderImage.loadingFinished();
+
     }
 
     @Override
@@ -545,6 +420,10 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
             }
         }
 
+    }
+
+    public void setIndirectCheckable(boolean checkable) {
+        this.indirectCheckable = checkable;
     }
 
 }

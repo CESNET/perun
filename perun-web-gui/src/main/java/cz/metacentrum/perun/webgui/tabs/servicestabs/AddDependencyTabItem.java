@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * @author Vaclav Mach <374430@mail.muni.cz> 
  * @version $Id$
  */
-
 public class AddDependencyTabItem implements TabItem {
 
 	/**
@@ -108,11 +107,15 @@ public class AddDependencyTabItem implements TabItem {
             public void onFinished(JavaScriptObject jso) {
 				listBox.clear();
                 ArrayList<ExecService> execs = JsonUtils.jsoAsList(jso);
-				execs = new TableSorter<ExecService>().sortByService(execs);
-                for (int i=0; i<execs.size(); i++){
-					listBox.addItem(execs.get(i));
-				}
-                addButton.setEnabled(true);
+				if (execs != null && execs.isEmpty()) {
+                    execs = new TableSorter<ExecService>().sortByService(execs);
+                    for (int i=0; i<execs.size(); i++){
+                        listBox.addItem(execs.get(i));
+                    }
+                    addButton.setEnabled(true);
+                } else {
+                    listBox.addItem("No exec service available");
+                }
 			}
             @Override
             public void onLoadingStart(){

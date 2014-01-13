@@ -48,7 +48,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// oracle
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
 	private ArrayList<Group> fullBackup = new ArrayList<Group>();
 
 	/**
@@ -250,35 +250,33 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
     public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
 	}
-	
-	public void filterTable(String text){
 
-		// always clear selected items
-		selectionModel.clear();
-		
-		// store list only for first time
-		if (fullBackup.isEmpty() || fullBackup == null) {
-			for (Group grp : getList()){
-				fullBackup.add(grp);
-			}	
-		}
-		if (text.equalsIgnoreCase("")) {
-			setList(fullBackup);
-		} else {
-			getList().clear();
-			for (Group grp : fullBackup){
-				// store facility by filter
-				if (grp.getName().toLowerCase().startsWith(text.toLowerCase())) {
-					addToTable(grp);
-				}
-			}
-			if (getList().isEmpty()) {
-				loaderImage.loadingFinished();
-			}
-            dataProvider.flush();
-            dataProvider.refresh();
-		}
-	}
+    public void filterTable(String text){
+
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            fullBackup.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (text.equalsIgnoreCase("")) {
+            list.addAll(fullBackup);
+        } else {
+            for (Group grp : fullBackup){
+                // store facility by filter
+                if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
+                        grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
+                    list.add(grp);
+                }
+            }
+        }
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+    }
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;

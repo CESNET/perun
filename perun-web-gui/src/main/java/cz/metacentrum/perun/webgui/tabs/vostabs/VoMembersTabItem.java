@@ -263,9 +263,9 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
         members.clearTable();
 
         // get the table
-		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, String>() {
+		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, RichMember>() {
             // when user click on a row -> open new tab
-            public void update(int index, RichMember object, String value) {
+            public void update(int index, RichMember object, RichMember value) {
                 session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), 0));
             }
         });
@@ -297,9 +297,9 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
             findMembers.clearTable();
         }
 
-		CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, String>() {
+		CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
             // when user click on a row -> open new tab
-            public void update(int index, RichMember object, String value) {
+            public void update(int index, RichMember object, RichMember value) {
                 session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), 0));
             }
         });

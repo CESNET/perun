@@ -192,9 +192,9 @@ public class AddMemberToResourceTabItem implements TabItem  {
             ScrollPanel tableWrapper = new ScrollPanel();
             tableWrapper.setWidth("100%");
 
-            CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, String>() {
+            CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
                 // when user click on a row -> open new tab
-                public void update(int index, RichMember object, String value) {
+                public void update(int index, RichMember object, RichMember value) {
                     session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), 0));
                 }
             });

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.Host;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +27,7 @@ import java.util.Comparator;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id: b2703d8a44931c4844f237ae91048ffb55fe901a $
  */
-public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
+public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCallbackOracle<Host> {
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
@@ -41,12 +42,15 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
 	private FieldUpdater<Host, String> tableFieldUpdater;
 	
 	// Selection model
-	final MultiSelectionModel<Host> selectionModel = new MultiSelectionModel<Host>(
-			new GeneralKeyProvider<Host>());
+	final MultiSelectionModel<Host> selectionModel = new MultiSelectionModel<Host>(new GeneralKeyProvider<Host>());
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private int facilityId = 0;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+    // oracle
+    private ArrayList<Host> backupList = new ArrayList<Host>();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+    private boolean checkable = true; // default is checkable
 
 	/**
 	 * Creates a new instance of the request
@@ -111,7 +115,9 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
 		table.setEmptyTableWidget(loaderImage);
 		
 		// columns
-		table.addCheckBoxColumn();
+        if (checkable) {
+            table.addCheckBoxColumn();
+        }
 		table.addIdColumn("Host ID", tableFieldUpdater);
 
         // NAME COLUMN
@@ -158,6 +164,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
      */
     public void addToTable(Host object) {
         list.add(object);
+        oracle.add(object.getName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -180,6 +187,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -232,6 +240,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
 
     public void insertToTable(int index, Host object) {
         list.add(index, object);
+        oracle.add(object.getName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -241,18 +250,60 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host> {
     }
 
     public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
+        this.checkable = checkable;
     }
 
     public void setList(ArrayList<Host> list) {
         clearTable();
         this.list.addAll(list);
+        for (Host object : list) {
+            oracle.add(object.getName());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
 
     public ArrayList<Host> getList() {
         return this.list;
+    }
+
+    @Override
+    public void filterTable(String filter) {
+
+        // store list only for first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(backupList);
+        } else {
+            for (Host o: backupList){
+                // store owner by filter
+                if (o.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(o);
+                }
+            }
+        }
+
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
+
+    }
+
+    @Override
+    public UnaccentMultiWordSuggestOracle getOracle() {
+        return this.oracle;
+    }
+
+    @Override
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
     }
 
 }

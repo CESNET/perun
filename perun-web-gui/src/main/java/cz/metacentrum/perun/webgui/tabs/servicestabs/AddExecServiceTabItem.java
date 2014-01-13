@@ -3,8 +3,6 @@ package cz.metacentrum.perun.webgui.tabs.servicestabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -23,6 +21,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
@@ -59,7 +58,6 @@ public class AddExecServiceTabItem implements TabItem {
 
 	// data
 	private Service service;
-    private boolean callDone = false;
 	private int serviceId;
 
 	/**
@@ -102,26 +100,28 @@ public class AddExecServiceTabItem implements TabItem {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
-                own = new TableSorter<Owner>().sortByName(own);
-                owner.clear();
-                for (int i=0; i<own.size(); i++){
-					owner.addItem(own.get(i));
-				}
-                createButton.setEnabled(true);
-                callDone = true;
+                if (own != null && !own.isEmpty()) {
+                    own = new TableSorter<Owner>().sortByName(own);
+                    owner.clear();
+                    for (int i=0; i<own.size(); i++){
+                        owner.addItem(own.get(i));
+                    }
+                    createButton.setEnabled(true);
+                } else {
+                    owner.clear();
+                    owner.addItem("No owners available");
+                }
 			}
             @Override
             public void onLoadingStart(){
                 owner.addItem("Loading...");
                 createButton.setEnabled(false);
-                callDone = false;
             }
             @Override
             public void onError(PerunError error){
                 owner.clear();
                 owner.addItem("Error while loading");
                 createButton.setEnabled(false);
-                callDone = false;
             }
 		});
 		owners.retrieveData();
@@ -137,9 +137,38 @@ public class AddExecServiceTabItem implements TabItem {
 		enabled.setText("Enabled / Disabled");
 		enabled.setValue(true);
 
-		final TextBox delay = new TextBox();
-        delay.setText(DEFAULT_DELAY);
-		final TextBox scriptPath = new TextBox();
+		final ExtendedTextBox delay = new ExtendedTextBox();
+        delay.getTextBox().setText(DEFAULT_DELAY);
+
+        final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
+            @Override
+            public boolean validateTextBox() {
+                if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
+                    delay.setError("Delay must be a number (time in minutes) !");
+                    return false;
+                } else {
+                    delay.setOk();
+                    return true;
+                }
+            }
+        };
+        delay.setValidator(delayValidator);
+
+		final ExtendedTextBox scriptPath = new ExtendedTextBox();
+
+        final ExtendedTextBox.TextBoxValidator scriptValidator = new ExtendedTextBox.TextBoxValidator() {
+            @Override
+            public boolean validateTextBox() {
+                if (scriptPath.getTextBox().getText().trim().isEmpty()) {
+                    scriptPath.setError("Script path can't be empty !");
+                    return false;
+                } else {
+                    scriptPath.setOk();
+                    return true;
+                }
+            }
+        };
+        scriptPath.setValidator(scriptValidator);
 
 		// layout
 		layout.setHTML(0, 0, "Service:");
@@ -161,13 +190,11 @@ public class AddExecServiceTabItem implements TabItem {
             @Override
             public void onClick(ClickEvent event) {
 
-                if(!JsonUtils.checkParseInt(delay.getText())) {
-                    JsonUtils.cantParseIntConfirm("Delay", delay.getText());
+                if (delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
+                    int delayNum = Integer.parseInt(delay.getTextBox().getText().trim());
+                    InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+                    request.addExecService(service, owner.getSelectedObject(), type.getValue(type.getSelectedIndex()), enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
                 }
-                int delayNum = Integer.parseInt(delay.getText().trim());
-                InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                request.addExecService(service, owner.getSelectedObject(), type.getValue(type.getSelectedIndex()), enabled.getValue(), delayNum, scriptPath.getText().trim());
-
             }
         });
 
@@ -183,17 +210,6 @@ public class AddExecServiceTabItem implements TabItem {
         for (int i=0; i<layout.getRowCount(); i++) {
             cellFormatter.addStyleName(i, 0, "itemName");
         }
-
-        scriptPath.addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                if (callDone && !scriptPath.getText().isEmpty()) {
-                    createButton.setEnabled(true);
-                } else {
-                    createButton.setEnabled(false);
-                }
-            }
-        });
 
         createButton.setEnabled(false);
         menu.addWidget(createButton);
@@ -245,8 +261,7 @@ public class AddExecServiceTabItem implements TabItem {
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 
 	}
 

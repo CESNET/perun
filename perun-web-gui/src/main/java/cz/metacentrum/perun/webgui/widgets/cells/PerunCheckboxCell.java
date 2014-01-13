@@ -11,10 +11,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import cz.metacentrum.perun.webgui.model.Attribute;
-import cz.metacentrum.perun.webgui.model.GeneralObject;
-import cz.metacentrum.perun.webgui.model.Group;
-import cz.metacentrum.perun.webgui.model.RichService;
+import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Custom GWT cell, which displays checkbox when Group not core Group
@@ -166,6 +163,14 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 				return;
 			}
 		}
+
+        // is service disabled on facility
+        if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichMember")) {
+            if(((RichMember)value).getMembershipType().equalsIgnoreCase("INDIRECT") && !editable){
+                sb.append(INPUT_DISABLED);
+                return;
+            }
+        }
 
         // attribute is read only (better don't allow selection)
         if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Attribute")) {

@@ -326,19 +326,18 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 
     public void filterTable(String text){
 
-        // always clear selected items
-        selectionModel.clear();
-
         // store list only for first time
         if (fullBackup.isEmpty() || fullBackup == null) {
-            for (Facility fac : getList()){
-                fullBackup.add(fac);
-            }
+            fullBackup.addAll(list);
         }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
         if (text.equalsIgnoreCase("")) {
-            setList(fullBackup);
+            list.addAll(fullBackup);
         } else {
-            getList().clear();
             for (Facility fac : fullBackup){
                 // store facility by filter
                 if (fac.getName().toLowerCase().startsWith(text.toLowerCase())) {
@@ -354,13 +353,10 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
                     }
                 }
             }
-            if (getList().isEmpty()) {
-                loaderImage.loadingFinished();
-            }
-            dataProvider.flush();
-            dataProvider.refresh();
         }
-
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
     }
 
     public void setOracle(UnaccentMultiWordSuggestOracle oracle) {

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	// data
 	private int serviceId;
 	private Service service;
+    private boolean attributeAdded = false;
 
 	/**
 	 * Tab with form for adding attribute definition as required attribute to service
@@ -89,23 +91,22 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		mainTab.setSize("100%","100%");
 
 		final GetAttributesDefinition attrDefs = new GetAttributesDefinition();
+        attrDefs.setEditable(false);
 		CellTable<AttributeDefinition> table = attrDefs.getTable();
 
 		TabMenu menu = new TabMenu();
         final TabItem tab = this;
 
+        // already added
+        final SimplePanel alreadyAdded = new SimplePanel();
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        alreadyAdded.setVisible(false);
+
         final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedRequiredAttribute());
-        menu.addWidget(addButton);
 
-        // cancel button
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
-
-        menu.addFilterWidget(new ExtendedSuggestBox(attrDefs.getOracle()), new PerunSearchEvent() {
+        final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDefs.getOracle());
+        menu.addFilterWidget(box, new PerunSearchEvent() {
             @Override
             public void searchFor(String text) {
                 attrDefs.filterTable(text);
@@ -114,23 +115,36 @@ public class AddRequiredAttributesTabItem implements TabItem {
 
         addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                ArrayList<AttributeDefinition> attributesToAdd = attrDefs.getTableSelectedList();
+                final ArrayList<AttributeDefinition> attributesToAdd = attrDefs.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(attributesToAdd)) {
                     // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
                     for (int i=0; i<attributesToAdd.size(); i++ ) {
-                        if (i == attributesToAdd.size()-1) {
-                            AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
-                        } else {
-                            AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
-                        }
+                        final int n = i;
+                        AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                attributeAdded = true;
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + attributesToAdd.get(n).getName() + ", ");
+                                // unselect added attribute
+                                attrDefs.getSelectionModel().setSelected(attributesToAdd.get(n), false);
+                            }
+                        }));
+                        request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
                     }
-
-
                 }
 			}
 		});
+
+        menu.addWidget(addButton);
+
+        // cancel button
+        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                session.getTabManager().closeTab(tab, attributeAdded);
+            }
+        }));
 
         addButton.setEnabled(false);
         JsonUtils.addTableManagedButton(attrDefs, table, addButton);
@@ -143,6 +157,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 
 		mainTab.add(menu);
 		mainTab.setCellHeight(menu, "30px");
+        mainTab.add(alreadyAdded);
 		mainTab.add(sp);
 		mainTab.setCellHeight(sp, "100%");
 				

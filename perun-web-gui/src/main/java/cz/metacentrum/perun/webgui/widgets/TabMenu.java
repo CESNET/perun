@@ -240,7 +240,8 @@ public class TabMenu extends Composite {
                     filterEvent.searchFor(suggest.getSuggestBox().getText().trim());
                 } else if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ESCAPE) {
                     suggest.getSuggestBox().hideSuggestionList();
-                } else {
+                } else if (!suggest.getSuggestBox().isSuggestionListShowing()) {
+                    // of not already displayed, show suggestion list
                     suggest.getSuggestBox().showSuggestionList();
                 }
             }

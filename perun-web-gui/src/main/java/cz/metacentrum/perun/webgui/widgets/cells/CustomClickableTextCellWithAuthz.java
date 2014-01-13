@@ -22,6 +22,7 @@ import cz.metacentrum.perun.webgui.model.*;
 public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extends AbstractSafeHtmlCell<T> {
 
     private static IsClickableCell<GeneralObject> authz;
+    private static String style;
 
     /**
      * Creates a new CustomClickableTextCellWithAuthz with default renderer
@@ -69,7 +70,7 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
         if(go == null) return;
 
         if(authz.isClickable(go)){
-            sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
+            sb.appendHtmlConstant("<div class=\"customClickableTextCell "+getAdditionalStyle(go, attrName)+"\">");
             sb.appendHtmlConstant(getValue(go, attrName));
             sb.appendHtmlConstant("</div>");
         } else {
@@ -177,7 +178,55 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
                 return text;
             }
 
+        } else if (go.getObjectType().equals("RichMember")) {
+
+            RichMember object = go.cast();
+            if (attrName.equalsIgnoreCase("id")) {
+                return ""+object.getId();
+            } else if (attrName.equalsIgnoreCase("userId")) {
+                return ""+object.getUserId();
+            } else if (attrName.equalsIgnoreCase("status")) {
+                return object.getStatus();
+            } else if (attrName.equalsIgnoreCase("name")) {
+                return object.getUser().getFullNameWithTitles();
+            }  else if (attrName.equalsIgnoreCase("organization")) {
+
+                Attribute at = object.getAttribute("urn:perun:member:attribute-def:def:organization");
+                if (at == null || at.getValue().equalsIgnoreCase("null")) {
+                    at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
+                }
+                String value = "";
+
+                if (at != null) {
+                    value = at.getValue();
+                }
+                if (value.equalsIgnoreCase("null")) {
+                    return "";
+                }
+                return value;
+
+            } else if (attrName.equalsIgnoreCase("email")) {
+
+                Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
+                if (at == null || at.getValue().equalsIgnoreCase("null")) {
+                    at = object.getAttribute("urn:perun:member:attribute-def:def:mail");
+                }
+                String value = "";
+
+                if (at != null) {
+                    value = at.getValue();
+                    // replace "," to " " in emails
+                    value = value.replace(",", " ");
+                }
+
+                return value;
+
+            }  else if (attrName.equalsIgnoreCase("logins")) {
+                return object.getUserLogins();
+            }
+
         }
+
         return "";
 
     }
@@ -190,6 +239,29 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
         if (value != null) {
             sb.append(value);
         }
+    }
+
+    /**
+     * Return additional style for cell based on Object and Attribute
+     *
+     * @return additional style name or empty
+     */
+    public static String getAdditionalStyle(GeneralObject go, String attrName) {
+
+        if (go.getObjectType().equalsIgnoreCase("RichMember")) {
+
+            RichMember object = go.cast();
+            // show rich members cells italic if INDIRECT membership
+            if ("INDIRECT".equalsIgnoreCase(object.getMembershipType())) {
+                return "italic";
+            } else {
+                return "";
+            }
+
+        }
+
+        return "";
+
     }
 
 }

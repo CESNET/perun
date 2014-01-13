@@ -136,12 +136,12 @@ public class AddMember {
 		String errorMsg = "";
 
 		if(groupId == 0){
-			errorMsg += "Wrong parameter 'group'.</br>";
+			errorMsg += "Wrong parameter <strong>Group</strong>.</br>";
 			result = false;
 		}
 
 		if(memberId == 0){
-			errorMsg += "Wrong parameter 'member'.";
+			errorMsg += "Wrong parameter <strong>Member</strong>.";
 			result = false;
 		}
 

@@ -5,6 +5,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.extSourcesManager.GetExtSources;
 import cz.metacentrum.perun.webgui.model.ExtSource;
@@ -12,6 +13,8 @@ import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
 
@@ -53,11 +56,20 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// create main panel for content
 		VerticalPanel mainPage = new VerticalPanel();
-		mainPage.setWidth("100%");		
+		mainPage.setWidth("100%");
 
-		// create new instance for jsonCall getExtSources
-		GetExtSources getExtSources = new GetExtSources();
-		getExtSources.setCheckable(false);
+        // create new instance for jsonCall getExtSources
+        final GetExtSources getExtSources = new GetExtSources();
+        getExtSources.setCheckable(false);
+
+        // menu
+        TabMenu menu = new TabMenu();
+        menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                getExtSources.filterTable(text);
+            }
+        }, "Filter external sources by name or type");
 
 		// get CellTable from jsonCall
 		CellTable<ExtSource> extSourcesTable = getExtSources.getTable();
@@ -66,6 +78,8 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		scrollTable.addStyleName("perun-tableScrollPanel");
 
 		// put page into scroll panel
+        mainPage.add(menu);
+        mainPage.setCellHeight(menu, "30px");
 		mainPage.add(scrollTable);
 
 		session.getUiElements().resizePerunTable(scrollTable, 350, this);
@@ -116,8 +130,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
 	}

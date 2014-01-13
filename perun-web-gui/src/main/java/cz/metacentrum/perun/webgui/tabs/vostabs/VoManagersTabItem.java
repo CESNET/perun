@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
@@ -188,7 +189,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
                             } else {
                                 request = new RemoveAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(removeButton));
                             }
-                            request.removeAdmin(voId, adminsForRemoving.get(i).getId());
+                            request.removeAdmin((GeneralObject)vo.cast(), adminsForRemoving.get(i));
                         }
                     }
                 });
@@ -310,8 +311,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Managers", getUrlWithParameters());
 		if(vo != null){
@@ -320,7 +320,6 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 		}
 		session.setActiveVoId(voId);
 	}
-
 	
 	public boolean isAuthorized() {
 
@@ -339,13 +338,11 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoManagersTabItem load(Map<String, String> parameters)
-	{
+	static public VoManagersTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoManagersTabItem(voId);
 	}

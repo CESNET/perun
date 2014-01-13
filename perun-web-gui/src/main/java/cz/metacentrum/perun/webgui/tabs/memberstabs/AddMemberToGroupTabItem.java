@@ -134,6 +134,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
         // search through whole VO
         findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
+        findMembers.setCustomEmptyTableMessage("Search for members to add by name, login or email.");
         findMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
                 new JsonCallbackEvents(){
                     @Override
@@ -156,31 +157,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedMemberToGroup());
         // close tab event
         final TabItem tab = this;
-        // click handler
-        addButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                // state specific events
-                final ArrayList<RichMember> membersToAdd = findMembers.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(membersToAdd)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                    for (int i=0; i<membersToAdd.size(); i++ ) {
-                        final int n = i;
-                        AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
-                            @Override
-                            public void onFinished(JavaScriptObject jso) {
-                                // put names to already added
-                                alreadyAdded.setVisible(true);
-                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + membersToAdd.get(n).getUser().getFullName() + ", ");
-                                // unselect added person
-                                findMembers.getSelectionModel().setSelected(membersToAdd.get(n), false);
-                                someoneAdded = true;
-                            }
-                        }));
-                        request.addMemberToGroup(group, membersToAdd.get(i));
-                    }
-                }
-            }
-        });
 
         // DISABLED CHECKBOX
         disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
@@ -201,13 +177,41 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         });
 
         // SEARCH FOR BUTTON
-        ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             public void searchFor(String text) {
                 searchString = text;
                 searchForAction(text, findMembers, disabled, addButton);
             }
         }, searchButton);
         searchBox.getTextBox().setText(searchString);
+
+        // click handler
+        addButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                // state specific events
+                final ArrayList<RichMember> membersToAdd = findMembers.getTableSelectedList();
+                if (UiElements.cantSaveEmptyListDialogBox(membersToAdd)) {
+                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+                    for (int i=0; i<membersToAdd.size(); i++ ) {
+                        final int n = i;
+                        AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso) {
+                                // put names to already added
+                                alreadyAdded.setVisible(true);
+                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + membersToAdd.get(n).getUser().getFullName() + ", ");
+                                // unselect added person
+                                findMembers.getSelectionModel().setSelected(membersToAdd.get(n), false);
+                                // clear search
+                                searchBox.getTextBox().setText("");
+                                someoneAdded = true;
+                            }
+                        }));
+                        request.addMemberToGroup(group, membersToAdd.get(i));
+                    }
+                }
+            }
+        });
 
         tabMenu.addWidget(addButton);
 
@@ -244,9 +248,9 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
         ScrollPanel tableWrapper = new ScrollPanel();
 
-        CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, String>() {
+        CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
             // when user click on a row -> open new tab
-            public void update(int index, RichMember object, String value) {
+            public void update(int index, RichMember object, RichMember value) {
                 session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
             }
         });
@@ -270,8 +274,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
     }
 
-    private void setPageWidget(Widget w)
-    {
+    private void setPageWidget(Widget w) {
         this.pageWidget.setWidget(w);
 
     }

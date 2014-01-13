@@ -76,7 +76,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 
         CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
-		this.users = new FindCompleteRichUsers("", JsonCallbackEvents.disableButtonEvents(searchButton),null);
+		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.Owner;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +27,7 @@ import java.util.Comparator;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id: 9a36d0278e8d44666dbc40ddacdde585d192a992 $
  */
-public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner> {
+public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCallbackOracle<Owner> {
 
     // Session
     private PerunWebSession session = PerunWebSession.getInstance();
@@ -46,6 +47,8 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
     private Facility facility;
     // checkable
     private boolean checkable = true;
+    private ArrayList<Owner> backupList = new ArrayList<Owner>();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
     /**
      * New instance of get facility owners
@@ -174,6 +177,9 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
      */
     public void addToTable(Owner object) {
         list.add(object);
+        oracle.add(object.getName());
+        oracle.add(object.getContact());
+        oracle.add(Owner.getTranslatedType(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -196,6 +202,7 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -248,6 +255,9 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
 
     public void insertToTable(int index, Owner object) {
         list.add(index, object);
+        oracle.add(object.getName());
+        oracle.add(object.getContact());
+        oracle.add(Owner.getTranslatedType(object.getType()));
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -263,12 +273,58 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
     public void setList(ArrayList<Owner> list) {
         clearTable();
         this.list.addAll(list);
+        for (Owner o : list) {
+            oracle.add(o.getName());
+            oracle.add(o.getContact());
+            oracle.add(Owner.getTranslatedType(o.getType()));
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
 
     public ArrayList<Owner> getList() {
         return this.list;
+    }
+
+    @Override
+    public void filterTable(String filter) {
+
+        // store list only for first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(backupList);
+        } else {
+            for (Owner o: backupList){
+                // store owner by filter
+                if (o.getName().toLowerCase().startsWith(filter.toLowerCase()) ||
+                        o.getContact().toLowerCase().startsWith(filter.toLowerCase()) ||
+                        Owner.getTranslatedType(o.getType()).toLowerCase().startsWith(Owner.getTranslatedType(filter).toLowerCase())) {
+                    list.add(o);
+                }
+            }
+        }
+
+        loaderImage.loadingFinished();
+        dataProvider.flush();
+        dataProvider.refresh();
+
+    }
+
+    @Override
+    public UnaccentMultiWordSuggestOracle getOracle() {
+        return this.oracle;
+    }
+
+    @Override
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
     }
 
 }

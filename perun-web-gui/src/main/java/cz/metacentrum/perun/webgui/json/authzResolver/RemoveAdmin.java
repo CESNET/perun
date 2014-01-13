@@ -8,7 +8,10 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.User;
 
 /**
  * Ajax query which removes admin from VO / Group
@@ -76,7 +79,7 @@ public class RemoveAdmin {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Admin (User ID: " + userId + ") successfully removed from "+entity+": "+ entityId);
+				session.getUiElements().setLogSuccessText("Admin (User ID: " + userId + ") removed from "+entity+": "+ entityId);
 				events.onFinished(jso);
 			};
 
@@ -97,6 +100,52 @@ public class RemoveAdmin {
         }
 
 	}
+
+    /**
+     * Attempts to remove admin from VO/Group/Facility, it first tests the values and then submits them.
+     *
+     * @param entity entity, where we want to remove admin
+     * @param user User to be removed from admins
+     */
+    public void removeAdmin(final GeneralObject entity, final User user) {
+
+        this.userId = (user != null) ? user.getId() : 0;
+        this.entityId = (entity != null) ? entity.getId() : 0;
+
+        // test arguments
+        if(!this.testRemoving()){
+            return;
+        }
+
+        // new events
+        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+            public void onError(PerunError error) {
+                session.getUiElements().setLogErrorText("Removing "+user.getFullName()+" as admin failed.");
+                events.onError(error); // custom events
+            };
+
+            public void onFinished(JavaScriptObject jso) {
+                session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " removed from admins of "+entity.getName());
+                events.onFinished(jso);
+            };
+
+            public void onLoadingStart() {
+                events.onLoadingStart();
+            };
+        };
+
+        // sending data
+        JsonPostClient jspc = new JsonPostClient(newEvents);
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            jspc.sendData(VO_JSON_URL, prepareJSONObject());
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            jspc.sendData(GROUP_JSON_URL, prepareJSONObject());
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            jspc.sendData(FACILITY_JSON_URL, prepareJSONObject());
+        }
+
+    }
 
     /**
      * Attempts to remove admin from VO
@@ -122,7 +171,54 @@ public class RemoveAdmin {
             };
 
             public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Admin (Group ID: " + userId + ") successfully removed from "+entity+": "+ entityId);
+                session.getUiElements().setLogSuccessText("Admin (Group ID: " + userId + ") removed from "+entity+": "+ entityId);
+                events.onFinished(jso);
+            };
+
+            public void onLoadingStart() {
+                events.onLoadingStart();
+            };
+        };
+
+        // sending data
+        JsonPostClient jspc = new JsonPostClient(newEvents);
+
+        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+            jspc.sendData(VO_JSON_URL, prepareJSONObjectForGroup());
+        } else if (entity.equals(PerunEntity.GROUP)) {
+            jspc.sendData(GROUP_JSON_URL, prepareJSONObjectForGroup());
+        } else if (entity.equals(PerunEntity.FACILITY)) {
+            jspc.sendData(FACILITY_JSON_URL, prepareJSONObjectForGroup());
+        }
+
+    }
+
+    /**
+     * Attempts to remove admin from VO/Group/Facility, it first tests the values and then submits them.
+     *
+     * @param entity where we want to remove admin
+     * @param group Group to be removed from admins
+     */
+    public void removeAdminGroup(final GeneralObject entity,final Group group) {
+
+        // store group id to user id to used unified check method
+        this.userId = (group != null) ? group.getId() : 0;
+        this.entityId = (entity != null) ? entity.getId() : 0;
+
+        // test arguments
+        if(!this.testRemoving()){
+            return;
+        }
+
+        // new events
+        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+            public void onError(PerunError error) {
+                session.getUiElements().setLogErrorText("Removing group "+group.getShortName()+" as admin failed.");
+                events.onError(error); // custom events
+            };
+
+            public void onFinished(JavaScriptObject jso) {
+                session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " removed from admins of "+entity.getName());
                 events.onFinished(jso);
             };
 

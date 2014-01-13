@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 
@@ -24,8 +25,7 @@ import java.util.ArrayList;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
-public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Service> {
+public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -45,6 +45,9 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 	private int resourceId;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
+    // oracle
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+    private ArrayList<Service> fullBackup = new ArrayList<Service>();
 
 	/**
 	 * Creates a new ajax query
@@ -231,12 +234,51 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
     public void setList(ArrayList<Service> list) {
         clearTable();
         this.list.addAll(list);
+        for (Service object : list) {
+            oracle.add(object.getName());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
 
     public ArrayList<Service> getList() {
         return this.list;
+    }
+
+    public UnaccentMultiWordSuggestOracle getOracle(){
+        return this.oracle;
+    }
+
+    public void filterTable(String text){
+
+        // store list only for first time
+        if (fullBackup.isEmpty() || fullBackup == null) {
+            fullBackup.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (text.equalsIgnoreCase("")) {
+            list.addAll(fullBackup);
+        } else {
+            for (Service s : fullBackup){
+                // store facility by filter
+                if (s.getName().toLowerCase().startsWith(text.toLowerCase())) {
+                    list.add(s);
+                }
+            }
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+
+    }
+
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
     }
 
 }
