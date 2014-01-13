@@ -224,7 +224,7 @@ public interface GroupsManager {
    * 
    * @param perunSession
    * @param group
-   * @return list of users or empty list if the group is empty
+   * @return list of members or empty list if the group is empty
    *
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -234,12 +234,12 @@ public interface GroupsManager {
   List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
   /** 
-   * Return group members for displaying on pages.
+   * Return group members with specified vo membership status.
    * 
    * @param perunSession
    * @param group
    * @param status
-   * @return list users on specified page or empty list if there are no users on specified page
+   * @return list of members with specified membership status or empty list if no such member is found in group
    * 
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -262,7 +262,7 @@ public interface GroupsManager {
   List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
   
   /**
-   * Returns group members in the RichMember object, which contains Member+User data.
+   * Returns group members with specified membership status in the RichMember object, which contains Member+User data.
    * 
    * @param sess
    * @param group
@@ -287,7 +287,7 @@ public interface GroupsManager {
   List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
   
   /**
-   * Returns group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
+   * Returns group members with specified membership status in the RichMember object, which contains Member+User data. Also contains user and member attributes.
    * 
    * @param sess
    * @param group
