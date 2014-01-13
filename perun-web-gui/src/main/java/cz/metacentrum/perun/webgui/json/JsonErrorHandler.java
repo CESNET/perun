@@ -809,6 +809,11 @@ public class JsonErrorHandler {
 
             return error.getErrorInfo();
 
+        }  else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
+
+            // meaningful message
+            return error.getErrorInfo();
+
         }
 
         //default text
