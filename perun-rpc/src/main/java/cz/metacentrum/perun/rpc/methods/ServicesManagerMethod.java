@@ -623,6 +623,15 @@ public enum ServicesManagerMethod implements ManagerMethod {
      * @param type String Type
      * @return Destination Created destination.
      */
+    /*#
+     * Adds an destination for a facility and list of services. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+     *
+     * @param services List<Service> Services
+     * @param facility int Facility ID
+     * @param destination String Destination
+     * @param type String Type
+     * @return Destination Created destination.
+     */
     addDestination {
 
       @Override
@@ -685,8 +694,26 @@ public enum ServicesManagerMethod implements ManagerMethod {
     },
     
     /*#
-     * Defines service destination for all hosts using theirs hostnames.
+     * Add services destinations for all services currently available on facility
+     * (assigned to all facility's resources). Destinations names are taken from
+     * all facility's host hostnames.
      * 
+     * @param service int Service ID
+     * @param facility int Facility ID
+     * @return List<Destinations> Added destinations
+     */
+    /*#
+     * Add services destinations for list of services. Destinations names are taken from
+     * all facility's host hostnames.
+     *
+     * @param services List<Service> Services
+     * @param facility int Facility ID
+     * @return List<Destinations> Added destinations
+     */
+    /*#
+     * Add services destinations for one service. Destinations names are taken from
+     * all facility's host hostnames.
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @return List<Destinations> Added destinations

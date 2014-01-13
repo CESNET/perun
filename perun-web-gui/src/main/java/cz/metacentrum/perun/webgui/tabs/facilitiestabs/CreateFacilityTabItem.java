@@ -1140,31 +1140,24 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                             // selected all
                             if (useHosts.getValue() == true){
                                 // auto by hosts
-                                AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility.getId(), JsonCallbackEvents.refreshTableEvents(callback));
+                                AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.refreshTableEvents(callback));
                                 request.addDestinationByHosts(services.getAllObjects());
                             } else {
                                 // default
                                 // FIXME - there are no services on facility at the moment, use list of services
-                                for (int i=0; i<services.getAllObjects().size(); i++) {
-                                    if (i == services.getAllObjects().size()-1) {
-                                        AddDestination request = new AddDestination(facility.getId(), services.getAllObjects().get(i).getId(), JsonCallbackEvents.refreshTableEvents(callback));
-                                        request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()));
-                                    } else {
-                                        AddDestination request = new AddDestination(facility.getId(), services.getAllObjects().get(i).getId());
-                                        request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()));
-                                    }
-                                }
+                                AddDestination request = new AddDestination(facility, JsonCallbackEvents.refreshTableEvents(callback));
+                                request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
                             }
                         } else {
                             // selected one
                             if (useHosts.getValue() == true){
                                 // auto by hosts
-                                AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility.getId(), JsonCallbackEvents.refreshTableEvents(callback));
+                                AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.refreshTableEvents(callback));
                                 request.addDestinationByHosts(services.getSelectedObject());
                             } else {
                                 // default
-                                AddDestination request = new AddDestination(facility.getId(), services.getSelectedObject().getId(), JsonCallbackEvents.refreshTableEvents(callback));
-                                request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()));
+                                AddDestination request = new AddDestination(facility, JsonCallbackEvents.refreshTableEvents(callback));
+                                request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getSelectedObject());
                             }
                         }
 
