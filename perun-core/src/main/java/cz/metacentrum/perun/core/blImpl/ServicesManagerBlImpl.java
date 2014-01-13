@@ -381,6 +381,56 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
     return destination;
   }
+  
+  public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
+    if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
+      try { 
+        //Try to get the destination without id
+        destination = getServicesManagerImpl().getDestination(perunSession, destination.getDestination(), destination.getType());
+      } catch(DestinationNotExistsException ex) {
+        try {
+          destination = createDestination(perunSession, destination);
+        } catch(DestinationExistsException e) {
+          throw new ConsistencyErrorException(e);
+        }
+      }
+    }
+    
+    for(Service s: services) {
+      if(!getServicesManagerImpl().destinationExists(perunSession, s, facility, destination)) {
+          getServicesManagerImpl().addDestination(perunSession, s, facility, destination);
+          getPerunBl().getAuditer().log(perunSession, "{} added to {} and {}.", destination, s, facility);
+      }
+    }
+    
+    return destination; 
+  }
+  
+  private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
+    if(!getServicesManagerImpl().destinationExists(sess, destination)) {  
+      try { 
+        //Try to get the destination without id
+        destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
+      } catch(DestinationNotExistsException ex) {
+        try {
+          destination = createDestination(sess, destination);
+        } catch(DestinationExistsException e) {
+          //This is ok, destination already exists so take it from DB
+          try {
+            destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());  
+          } catch (DestinationNotExistsException exep) {
+              throw new ConsistencyErrorException("Destination seems to exists and not exists in the same time. There is some other problem." + exep);
+          }
+        }
+      }
+    }
+    //if destination is already assigned, do not add message to the log and only return it back
+    if(getServicesManagerImpl().destinationExists(sess, service, facility, destination)) return destination;
+
+    getServicesManagerImpl().addDestination(sess, service, facility, destination);
+    getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
+    return destination;
+  }
 
   public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyRemovedException {
     if(!getServicesManagerImpl().destinationExists(sess, destination)) {
@@ -531,6 +581,30 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
       
       return destinations;
   }
+  
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException {
+      List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
+      List<Destination> destinations = new ArrayList<Destination>();
+      
+      for (Service service: services) {
+        for (Host host: hosts) {
+          if (host.getHostname() != null && !host.getHostname().isEmpty()) {
+            Destination destination = new Destination();
+            destination.setDestination(host.getHostname());
+            destination.setType(Destination.DESTINATIONHOSTTYPE);
+            destinations.add(this.addDestinationEvenIfAlreadyExists(perunSession, service, facility, destination));
+          }  
+        }
+      }
+      return destinations;
+  }
+  
+  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
+      //First generate services
+      List<Service> services = getPerunBl().getServicesManagerBl().getAssignedServices(perunSession, facility);
+      return this.addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
+  }
+  
   
   public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
     List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);

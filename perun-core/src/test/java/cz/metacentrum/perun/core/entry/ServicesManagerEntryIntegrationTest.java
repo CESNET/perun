@@ -729,6 +729,26 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertTrue("our destination should be assigned to service",destinations.contains(destination));
 
 	}
+        
+        @Test
+        public void addDestinationForMoreThanOneService() throws Exception {
+                System.out.println("ServicesManager.addDestinationForMoreThanOneService");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+                perun.getServicesManager().addDestination(sess, services, facility, destination);
+
+                List<RichDestination> destinations = perun.getServicesManager().getRichDestinations(sess, facility, services.get(0));
+                destinations.addAll(perun.getServicesManager().getRichDestinations(sess, facility, services.get(1)));
+		assertTrue("service should have 1 destination",destinations.size() == 2);
+		
+                for(RichDestination rd: destinations) {
+                    assertTrue("destination in richDestination need to be our destination", rd.getDestination().equals(destination.getDestination()));
+                    assertTrue("type of destination need to be our type of destination", rd.getType().equals(destination.getType()));
+                    assertTrue("richDestination has service from our list of services", services.contains(rd.getService()));
+                }
+        }
 
 	@Test (expected=ServiceNotExistsException.class)
 	public void addDestinationWhenServiceNotExists() throws Exception {
@@ -799,6 +819,46 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, service, facility);
 		assertTrue("service should have 2 destinations",destinations.size() == 2);
+	}
+        
+        @Test
+	public void addDestinationsDefinedByHostsOnFacilityWithListOfServices() throws Exception {
+		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacilityWithListOfServices");
+
+		List<Service> services = setUpServices();
+		facility = setUpNonClusterFacilityWithTwoHosts();
+
+		List<Destination> newDestinations = perun.getServicesManager().addDestinationsDefinedByHostsOnFacility(sess, services, facility);
+
+		assertTrue("addDestinationsDefinedByHostsOnFacility should create 4 destination",newDestinations.size() == 4);
+
+		List<RichDestination> destinations = perun.getServicesManager().getRichDestinations(sess, facility, services.get(0));
+                destinations.addAll(perun.getServicesManager().getRichDestinations(sess, facility, services.get(1)));
+                
+		assertTrue("service should have 4 destinations",destinations.size() == 4);
+	}
+        
+        @Test
+	public void addDestinationsDefinedByHostsOnFacilityForAssignedListOfServices() throws Exception {
+		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacilityForAssignedListOfServices");
+                
+                List<Service> services = setUpServices();
+		
+                vo = setUpVo();
+		facility = setUpNonClusterFacilityWithTwoHosts();
+                resource = setUpResource();
+                assignServicesOnResource(resource, services);
+                
+                assertTrue("There are 2 assigned services on resource.", perun.getServicesManagerBl().getAssignedServices(sess, facility).size() == 2);
+
+		List<Destination> newDestinations = perun.getServicesManager().addDestinationsDefinedByHostsOnFacility(sess, facility);
+
+		assertTrue("addDestinationsDefinedByHostsOnFacility should create 4 destination",newDestinations.size() == 4);
+
+		List<RichDestination> destinations = perun.getServicesManager().getRichDestinations(sess, facility, services.get(0));
+                destinations.addAll(perun.getServicesManager().getRichDestinations(sess, facility, services.get(1)));
+                
+		assertTrue("service should have 4 destinations",destinations.size() == 4);
 	}
 
 	@Test
@@ -1392,6 +1452,37 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		return service;
 
 	}
+        
+        private List<Service> setUpServices() throws Exception {
+            
+                Owner owner = new Owner();
+                owner.setName("ServicesManagerTestServiceOwner01");
+                owner.setContact("ServicesManagerTestServiceOwner01");
+                owner.setType(OwnerType.technical);
+                perun.getOwnersManager().createOwner(sess, owner);
+                
+                Service service1 = new Service();
+		service1.setName("ServicesManagerTestService01");
+		service1 = perun.getServicesManager().createService(sess, service1, owner);
+		assertNotNull("unable to create service",service1);
+                
+                Service service2 = new Service();
+		service2.setName("ServicesManagerTestService02");
+		service2 = perun.getServicesManager().createService(sess, service2, owner);
+		assertNotNull("unable to create service",service2);
+                
+                List<Service> services = new ArrayList<Service>();
+                services.add(service1);
+                services.add(service2);
+                
+                return services;
+        }
+        
+        private void assignServicesOnResource(Resource resource, List<Service> services) throws Exception {
+            for(Service s: services) {    
+                perun.getResourcesManagerBl().assignService(sess, resource, s);
+            }
+        } 
 
 	private ServicesPackage setUpServicesPackage(Service service) throws Exception {
 

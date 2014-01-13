@@ -628,11 +628,20 @@ public enum ServicesManagerMethod implements ManagerMethod {
       @Override
       public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
         ac.stateChangingCheck();
+        
+        if(parms.contains("services")) {
+            return ac.getServicesManager().addDestination(ac.getSession(),
+                parms.readList("services", Service.class),
+                ac.getFacilityById(parms.readInt("facility")),
+                ac.getDestination(parms.readString("destination"), parms.readString("type")));
+        } else {
+            return ac.getServicesManager().addDestination(ac.getSession(),
+                ac.getServiceById(parms.readInt("service")),
+                ac.getFacilityById(parms.readInt("facility")),
+                ac.getDestination(parms.readString("destination"), parms.readString("type")));
+        }
 
-        return ac.getServicesManager().addDestination(ac.getSession(),
-            ac.getServiceById(parms.readInt("service")),
-            ac.getFacilityById(parms.readInt("facility")),
-            ac.getDestination(parms.readString("destination"), parms.readString("type")));
+        
       }
     },
     
@@ -688,9 +697,19 @@ public enum ServicesManagerMethod implements ManagerMethod {
       public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
         ac.stateChangingCheck();
 
-        return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
+        if(parms.contains("service")) {
+            return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
             ac.getServiceById(parms.readInt("service")),
             ac.getFacilityById(parms.readInt("facility")));
+        } else if (parms.contains("services")) {
+            return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
+            parms.readList("services", Service.class),
+            ac.getFacilityById(parms.readInt("facility")));
+        } else {
+            return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
+            ac.getFacilityById(parms.readInt("facility")));
+        }
+        
       }
     },
 
