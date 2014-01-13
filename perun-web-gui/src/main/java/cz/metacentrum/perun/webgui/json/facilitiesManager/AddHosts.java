@@ -5,8 +5,8 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
 public class AddHosts {
 
 	// web session
@@ -26,26 +25,26 @@ public class AddHosts {
 	final String JSON_URL = "facilitiesManager/addHosts";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int clusterId = 0;
+	private int facilityId = 0;
 	private String[] hostNames;
 
 	/**
 	 * Creates a new request
      *
-     * @param clusterId ID of facility
+     * @param facilityId ID of facility
 	 */
-	public AddHosts(int clusterId) {
-		this.clusterId = clusterId;
+	public AddHosts(int facilityId) {
+		this.facilityId = facilityId;
 	}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param clusterId ID of facility
+     * @param facilityId ID of facility
      * @param events external events
 	 */
-	public AddHosts(int clusterId, final JsonCallbackEvents events) {
-		this.clusterId = clusterId;
+	public AddHosts(int facilityId, final JsonCallbackEvents events) {
+		this.facilityId = facilityId;
 		this.events = events;
 	}
 
@@ -75,7 +74,7 @@ public class AddHosts {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Hosts added to cluster: "+ clusterId);
+				session.getUiElements().setLogSuccessText("Hosts added to cluster: "+ facilityId);
 				events.onFinished(jso);
 			};
 
@@ -101,18 +100,18 @@ public class AddHosts {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(clusterId == 0){
-			errorMsg += "Wrong parametr Facility ID.\n";
+		if(facilityId == 0){
+			errorMsg += "Wrong parameter <strong>Facility</strong>.</br>";
 			result = false;
 		}
 
 		if(hostNames.length == 0){
-			errorMsg += "You must enter at least 1 host name.\n";
+			errorMsg += "You must enter at least 1 host name.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -125,18 +124,18 @@ public class AddHosts {
 	 */
 	private JSONObject prepareJSONObject() {
 
-		JSONNumber cluster = new JSONNumber(clusterId);
-		JSONArray ids = new JSONArray();
+		JSONNumber facility = new JSONNumber(facilityId);
+		JSONArray hostnames = new JSONArray();
 		// put names in array
 		for (int i=0; i<hostNames.length; i++) {
 			if (hostNames[i] == "") continue; // empty host names are excluded
-			ids.set(i,new JSONString(hostNames[i]));	
+			hostnames.set(i, new JSONString(hostNames[i]));
 		}
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("facility", cluster);
-		jsonQuery.put("hostnames", ids);
+		jsonQuery.put("facility", facility);
+		jsonQuery.put("hostnames", hostnames);
 		return jsonQuery;
 
 	}
