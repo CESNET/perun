@@ -474,6 +474,22 @@ public interface ServicesManager {
   Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException;
 
   /**
+   * Adds an destination for the facility and all services. Destination id doesn't need to be filled. If destination doesn't exist it will be created.
+   * 
+   * @param perunSession
+   * @param services
+   * @param facility
+   * @param destination (id of this destination doesn't need to be filled.)
+   * @return destination with it's id set
+   * @throws PrivilegeException
+   * @throws InternalErrorException
+   * @throws ServiceNotExistsException
+   * @throws FacilityNotExistsException
+   * @throws DestinationAlreadyAssignedException 
+   */
+  Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException;
+  
+  /**
    * Adds destination for all services defined on the facility.
    * 
    * @param perunSession
@@ -517,6 +533,38 @@ public interface ServicesManager {
    * @throws DestinationAlreadyAssignedException 
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException;
+  
+  /**
+   * Defines services destination for all hosts using their hostnames.
+   * Do it for all services in List.
+   * 
+   * If some destination for service and facility already exist, do not create it but still return back in the list.
+   * 
+   * @param perunSession
+   * @param services
+   * @param facility
+   * @return list of added destiniations (even if they alredy was adedded before)
+   * @throws PrivilegeException
+   * @throws InternalErrorException
+   * @throws ServiceNotExistsException
+   * @throws FacilityNotExistsException 
+   */
+  List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException;
+  
+  /**
+   * Defines services destiniation for all hosts using their hostnames.
+   * Use all assigned services to resources for the facility.
+   * 
+   * If some destination for service and facility already exist, do not create it but still return back in the list.
+   * 
+   * @param perunSession
+   * @param facility
+   * @return list of added destiniations (even if they alredy was adedded before)
+   * @throws PrivilegeException
+   * @throws InternalErrorException
+   * @throws FacilityNotExistsException 
+   */
+  List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException;
   
   /**
    * Removes an destination from the facility and service.
