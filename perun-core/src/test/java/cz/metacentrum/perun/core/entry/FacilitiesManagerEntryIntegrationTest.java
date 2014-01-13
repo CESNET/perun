@@ -48,6 +48,9 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -514,6 +517,67 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facilitiesManagerEntry.addHosts(sess, hosts, emptyFac);
 		// shouldn't find facility
 
+	}
+        
+        @Test
+	public void addHostsWithPattern()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithPattern()");
+
+                String hostname = "name[00-01]surname[99-100]cz";
+                List<String> listOfHosts = new ArrayList<String>();
+                listOfHosts.add(hostname);
+                hostname = "local";
+                listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+		// test
+		assertNotNull("Unable to add hosts", hosts);
+		assertEquals("There should be 5 hosts in list", 5, hosts.size());
+		
+                Set<String> hostNames = new HashSet<String>();
+                for (Host h: hosts) {
+                    hostNames.add(h.getHostname());
+                }
+                assertTrue("List doesn't contain host with name 'name00surname99cz'.", hostNames.contains("name00surname99cz"));
+                assertTrue("List doesn't contain host with name 'name00surname100cz'.", hostNames.contains("name00surname100cz"));
+                assertTrue("List doesn't contain host with name 'name01surname99cz'.", hostNames.contains("name01surname99cz"));
+                assertTrue("List doesn't contain host with name 'name01surname100cz'.", hostNames.contains("name01surname100cz"));
+                assertTrue("List doesn't contain host with name 'local'.", hostNames.contains("local"));
+	}
+        
+        @Test(expected = WrongPatternException.class)
+	public void addHostsWithWrongPattern()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern()");
+
+                String hostname = "name[00]-01]surname[99-100]cz";
+                List<String> listOfHosts = new ArrayList<String>();
+                listOfHosts.add(hostname);
+                hostname = "local";
+                listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+	}
+        
+        @Test(expected = WrongPatternException.class)
+	public void addHostsWithWrongPattern2()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern2()");
+
+                String hostname = "name[00-a01]surname[99-100]cz";
+                List<String> listOfHosts = new ArrayList<String>();
+                listOfHosts.add(hostname);
+                hostname = "local";
+                listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+	}
+        
+        @Test(expected = WrongPatternException.class)
+	public void addHostsWithWrongPattern3()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern3()");
+
+                String hostname = "name[01-00]surname[99-100]cz";
+                List<String> listOfHosts = new ArrayList<String>();
+                listOfHosts.add(hostname);
+                hostname = "local";
+                listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
 	}
 
 	@Test
