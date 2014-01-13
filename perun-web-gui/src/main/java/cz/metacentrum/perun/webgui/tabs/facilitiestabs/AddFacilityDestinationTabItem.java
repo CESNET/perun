@@ -223,23 +223,23 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					// selected all
 					if (useHosts.getValue() == true){
 						// auto by hosts
-						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility.getId(), closeTabEvents);
+						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, closeTabEvents);
 						request.addDestinationByHosts(services.getAllObjects());
 					} else {
 						// default
-						AddDestinationsForAllServices request = new AddDestinationsForAllServices(facility.getId(), closeTabEvents);
-						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()));
+                        AddDestination request = new AddDestination(facility, closeTabEvents);
+                        request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
 					}
 				} else {
 					// selected one
 					if (useHosts.getValue() == true){
 						// auto by hosts
-						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility.getId(), closeTabEvents);
+						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, closeTabEvents);
 						request.addDestinationByHosts(services.getSelectedObject());
 					} else {
 						// default
-						AddDestination request = new AddDestination(facility.getId(), services.getSelectedObject().getId(), closeTabEvents);
-						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()));
+						AddDestination request = new AddDestination(facility, closeTabEvents);
+						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getSelectedObject());
 					}
 				}
 			}
@@ -301,8 +301,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 	}
 	
 	public boolean isAuthorized() {
