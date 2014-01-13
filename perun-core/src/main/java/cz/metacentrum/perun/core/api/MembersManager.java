@@ -483,11 +483,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, GroupNotExistsException;    
     
     /**
-     * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
+     * Get all rich members of VO. Rich member object contains user, member, userExtSources.
      *
      * @param sess
      * @param vo
-     * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
+     * @return list of rich members, empty list if there are no members in VO
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws VoNotExistsException
@@ -495,11 +495,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
     /**
-     * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
+     * Get all rich members of Group. Rich member object contains user, member, userExtSources.
      * 
      * @param sess
      * @param group
-     * @return list of rich members on specified page, empty list if there are no user in this Group or in this page
+     * @return list of rich members, empty list if there are no members in Group
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws GroupNotExistsException 
@@ -507,12 +507,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
     
     /**
-     * Get rich members who have the status, for displaying on pages. Rich member object contains user, member, userExtSources.
+     * Get all rich members of VO with specified status. Rich member object contains user, member, userExtSources.
      *
      * @param sess
      * @param vo
      * @param status get only members who have this status
-     * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
+     * @return list of rich members, empty list if there are no members in VO with specified status
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws VoNotExistsException
@@ -520,11 +520,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException;
     
     /**
-     * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
+     * Get all rich members of VO. Rich member object contains user, member, userExtSources and member/user attributes.
      *
      * @param sess
      * @param vo
-     * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
+     * @return list of rich members with all member/user attributes, empty list if there are no members in VO
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws VoNotExistsException
@@ -532,12 +532,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
     List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
     /**
-     * Get rich members who have the status, for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
+     * Get all rich members of VO with specified status. Rich member object contains user, member, userExtSources and member/user attributes.
      *
      * @param sess
      * @param vo
      * @param status
-     * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
+     * @return list of rich members with all member/user attributes, empty list if there are no members in VO with specified status
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws VoNotExistsException
