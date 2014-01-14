@@ -158,7 +158,7 @@ public class AddVoManagerTabItem implements TabItem {
                     for (int i=0; i<list.size(); i++) {
                         // FIXME - Should have only one callback to core
                         final int n = i;
-                        AddAdmin request = new AddAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                        AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
                                 // put names to already added
@@ -171,7 +171,7 @@ public class AddVoManagerTabItem implements TabItem {
                                 somebodyAdded = true;
                             }
                         }));
-                        request.addAdmin((GeneralObject)vo.cast(), list.get(i));
+                        request.addVoAdmin(vo, list.get(i));
                     }
                 }
             }

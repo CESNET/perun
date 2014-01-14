@@ -162,7 +162,7 @@ public class AddGroupManagerTabItem implements TabItem {
                 if (UiElements.cantSaveEmptyListDialogBox(list)) {
                     for (int i = 0; i < list.size(); i++) {
                         final int n = i;
-                        AddAdmin request = new AddAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                        AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
                                 // put names to already added
@@ -175,7 +175,7 @@ public class AddGroupManagerTabItem implements TabItem {
                                 somebodyAdded = true;
                             }
                         }));
-                        request.addAdmin((GeneralObject)group.cast(), list.get(i));
+                        request.addGroupAdmin(group, list.get(i));
                     }
                 }
             }
