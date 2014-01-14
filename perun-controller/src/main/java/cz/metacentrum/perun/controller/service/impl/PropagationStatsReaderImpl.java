@@ -175,7 +175,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
         // return facilities where user is admin or all if perun admin
         facs = perun.getFacilitiesManager().getFacilities(session);
-
+        Collections.sort(facs);
         for (Facility facility : facs) {
             list.add(getFacilityState(session, facility));
         }
@@ -196,6 +196,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
         for (Facility f : facilities) {
             list.add(getFacilityState(session, f));
         }
+        Collections.sort(list);
         return list;
     };
 
@@ -230,7 +231,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
   public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException {
     
-    //FIXME check privileges, propably only some monitoring system can request these data
+    //FIXME check privileges, probably only some monitoring system can request these data
     return getTaskResultDao().getTaskResultsForDestinations(destinationsNames);
   }
 }
