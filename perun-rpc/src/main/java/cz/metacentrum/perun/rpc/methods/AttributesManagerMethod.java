@@ -1087,8 +1087,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
                 if (parms.contains("facility")) {
                     return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), services,
                             ac.getFacilityById(parms.readInt("facility")));
+                } else if (parms.contains("resource")) {
+                    return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), services,
+                            ac.getResourceById(parms.readInt("resource")));
                 } else {
-                    throw new RpcException(RpcException.Type.MISSING_VALUE, "facility");
+                    throw new RpcException(RpcException.Type.MISSING_VALUE, "facility or resource");
                 }
             } else if (parms.contains("resource")) {
 				if (parms.contains("member")) {
