@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -104,7 +106,16 @@ public class AddFacilityManagerTabItem implements TabItem {
 		TabMenu tabMenu = new TabMenu();
 
 		// get the table
-		final CellTable<User> table = users.getTable();
+        final CellTable<User> table;
+        if (session.isPerunAdmin()) {
+            table = users.getTable(new FieldUpdater<User, String>() {
+                public void update(int i, User user, String s) {
+                    session.getTabManager().addTab(new UserDetailTabItem(user));
+                }
+            });
+        } else {
+            table = users.getTable();
+        }
 
         final TabItem tab = this;
 
@@ -132,7 +143,7 @@ public class AddFacilityManagerTabItem implements TabItem {
                     // proceed
                     for (int i=0; i<list.size(); i++) {
                         final int n = i;
-                        AddAdmin request = new AddAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+                        AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
                                 // put names to already added
@@ -145,7 +156,7 @@ public class AddFacilityManagerTabItem implements TabItem {
                                 somebodyAdded = true;
                             }
                         }));
-                        request.addAdmin((GeneralObject)facility.cast(), list.get(i));
+                        request.addFacilityAdmin(facility, list.get(i));
                     }
                 }
 			}
