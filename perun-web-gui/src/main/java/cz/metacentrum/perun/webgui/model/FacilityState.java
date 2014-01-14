@@ -37,8 +37,7 @@ public class FacilityState extends JavaScriptObject {
 	 * @param o Object to compare
 	 * @return true, if they are the same
 	 */
-	public final boolean equals(FacilityState o)
-	{
+	public final boolean equals(FacilityState o) {
 		return o.getFacility().equals(getFacility()) && o.getState().equals(getState());		
 	}
 	
