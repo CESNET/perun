@@ -219,7 +219,7 @@ public interface ResourcesManagerBl {
    * @throws GroupAlreadyAssignedException
    * @throws WrongReferenceAttributeValueException
    */
-  void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
+  void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
 
   /**
    * Remove group from a resource.
@@ -545,6 +545,44 @@ public interface ResourcesManagerBl {
    * @throws InternalErrorException
    */
   List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+  
+  /**
+  * Copy all attributes of the source resource to the destionation resource.
+  * The attributes, that are in the destination resource and aren't in the source resource, are retained.
+  * The common attributes are replaced with attributes from the source resource.
+  * 
+  * @param sess
+  * @param sourceResource
+  * @param destinationResource
+  * @throws InternalErrorException
+  * @throws WrongAttributeAssignmentException if there is no resource attribute
+  * @throws WrongAttributeValueException if the attribute value is illegal
+  * @throws WrongReferenceAttributeValueException if the attribute value is illegal
+  */
+  public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+  /**
+   * Copy all services of the source resource to the destionation resource.
+   * The services, that are in the destination resource and aren't in the source resource, are retained.
+   * The common services are replaced with services from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   */
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+
+  /**
+   * Copy all groups of the source resource to the destionation resource.
+   * The groups, that are in the destination resource and aren't in the source resource, are retained.
+   * The common groups are replaced with the groups from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   */
+  public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+
   
   void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException;
   

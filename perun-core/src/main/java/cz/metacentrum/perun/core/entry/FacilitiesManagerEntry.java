@@ -713,10 +713,10 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
         
         // Authorization - facility admin of the both facilities required
         if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceFacility)) {
-            throw new PrivilegeException(sess, "copyManager");
+            throw new PrivilegeException(sess, "copyAttributes");
         }
         if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
-            throw new PrivilegeException(sess, "copyManager");
+            throw new PrivilegeException(sess, "copyAttributes");
         }
         
         getFacilitiesManagerBl().copyAttributes(sess, sourceFacility, destinationFacility);
