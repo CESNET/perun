@@ -1743,13 +1743,13 @@ public interface AttributesManager {
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException;
 
     /**
-     * Get facility attributes which are required by the service.
+     * Get facility attributes which are required by the services.
      *
      * PRIVILEGE: Get only those required attributes principal has access to.
      *
      * @param sess perun session
      * @param facility you get attributes for this facility
-     * @param services attribute required by this services you'll get
+     * @param services attributes required by this services you'll get
      * @return list of facility attributes which are required by the service
      *
      * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1759,14 +1759,14 @@ public interface AttributesManager {
      */
     List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException;
 
-    /**
+  /**
    * Get resource attributes which are required by the service. 
    * 
    * PRIVILEGE: Get only those required attributes principal has access to.
    * 
    * @param sess perun session
    * @param resource resource for which you want to get the attributes
-   * @param service attribute required by this servis you'll get
+   * @param service attributes required by this service you'll get
    * @return list of resource attributes which are required by the service 
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1777,6 +1777,23 @@ public interface AttributesManager {
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException;
 
   /**
+   * Get resource attributes which are required by the services.
+   *
+   * PRIVILEGE: Get only those required attributes principal has access to.
+   *
+   * @param sess perun session
+   * @param resource you get attributes for this resource
+   * @param services attributes required by this services you'll get
+   * @return list of facility attributes which are required by the service
+   *
+   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+   * @throws PrivilegeException if privileges are not given
+   * @throws ResourceNotExistsException if the resource doesn't exists
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
+   */
+  public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException;
+
+  /**
    * Get member-resource attributes which are required by the service. 
    * 
    * PRIVILEGE: Get only those required attributes principal has access to.
@@ -1784,7 +1801,7 @@ public interface AttributesManager {
    * @param sess perun session
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
-   * @param service attribute required by this servis you'll get
+   * @param service attributes required by this services you'll get
    * @return list of attributes which are required by the service. 
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
