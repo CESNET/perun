@@ -109,7 +109,8 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
       Utils.checkPerunSession(sess);
         
       // Authorization
-      if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+      if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+          !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
         throw new PrivilegeException(sess, "getVoExtSources");
       }
 

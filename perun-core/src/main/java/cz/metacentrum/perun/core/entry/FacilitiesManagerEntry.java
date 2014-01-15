@@ -416,6 +416,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
         !AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
       throw new PrivilegeException(sess, "getAssignedFacilities");

@@ -162,7 +162,8 @@ public class MembersManagerEntry implements MembersManager {
     Utils.checkPerunSession(sess);
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+           !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
       throw new PrivilegeException(sess, "getMemberByUserExtSource");
     }
 
@@ -175,7 +176,8 @@ public class MembersManagerEntry implements MembersManager {
     Utils.checkPerunSession(sess);
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+            !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
       throw new PrivilegeException(sess, "getMemberByUserExtSources");
     }
 
@@ -190,6 +192,7 @@ public class MembersManagerEntry implements MembersManager {
     Member member = getMembersManagerBl().getMemberById(sess, id);
     //  Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
       throw new PrivilegeException(sess, "getMemberById");
     }
@@ -202,6 +205,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
       throw new PrivilegeException(sess, "getMemberByUser");
     }
@@ -230,6 +234,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getMembers");
     }
@@ -244,6 +249,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getMembers");
     }
@@ -261,6 +267,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
       throw new PrivilegeException(sess, "getRichMemberById");
@@ -278,6 +285,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
       throw new PrivilegeException(sess, "getRichMemberWithAttributes");
@@ -293,6 +301,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)){
       throw new PrivilegeException(sess, "getRichMemberWithAttributes");
     }
@@ -307,6 +316,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)){
       throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
     }  
@@ -321,6 +331,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)){
       throw new PrivilegeException(sess, "getCompleteRichMembers");
     }  
@@ -335,6 +346,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)){
       throw new PrivilegeException(sess, "getCompleteRichMembers");
     }  
@@ -349,6 +361,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)){
       throw new PrivilegeException(sess, "getCompleteRichMembers");
     }  
@@ -363,6 +376,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)){
       throw new PrivilegeException(sess, "getCompleteRichMembers");
     }  
@@ -377,6 +391,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "findCompleteRichMembers");
     }
@@ -391,6 +406,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "findCompleteRichMembers");
     }
@@ -405,6 +421,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization 
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findCompleteRichMembers");
     }
@@ -419,6 +436,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findCompleteRichMembers");
     }
@@ -433,6 +451,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)){
       throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
     }  
@@ -447,6 +466,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)){
       throw new PrivilegeException(sess, "getRichMemberWithAttributes");
     }
@@ -461,6 +481,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)){
       throw new PrivilegeException(sess, "getRichMembers");
     }
@@ -473,6 +494,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getMembers");
     }
@@ -487,6 +509,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getRichMembers");
     }
@@ -501,6 +524,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getRichMembersWithAttributes");
     }
@@ -515,6 +539,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getRichMembersWithAttributes");
     }
@@ -530,6 +555,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getMembersCount");
     }
@@ -543,6 +569,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
       throw new PrivilegeException(sess, "getMembersCount");
     }
@@ -603,6 +630,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findMembersInGroup");
     }
@@ -616,6 +644,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findRichMembersInGroup");
     }
@@ -630,6 +659,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findMembersInParentGroup");
     }
@@ -643,6 +673,7 @@ public class MembersManagerEntry implements MembersManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "findRichMembersInParentGroup");
     }
@@ -656,7 +687,8 @@ public class MembersManagerEntry implements MembersManager {
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
       throw new PrivilegeException(sess, "findRichMembersInVo");
     }
     
@@ -669,7 +701,8 @@ public class MembersManagerEntry implements MembersManager {
           getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
           // Authorization
-          if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+          if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+              !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
                   throw new PrivilegeException(sess, "findRichMembersWithAttributesInVo");
           }
 

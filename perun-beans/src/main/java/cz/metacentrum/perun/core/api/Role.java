@@ -14,6 +14,7 @@ public enum Role {
   RPC ("rpc"),
   NOTIFICATIONS ("notifications"),
   SERVICEUSER ("serviceuser"),
+  VOOBSERVER ("voobserver"),
   UNKNOWNROLENAME ("unknown");
 
   private final String roleName;
