@@ -178,7 +178,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
         }
 
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-          String columnName = rs.getMetaData().getColumnName(i);
+          String columnName = rs.getMetaData().getColumnLabel(i);
           log.trace("Iterating through attribute {}", columnName);
           // Now go through all other attributes. If the column name(=attribute name) contains ":", then it represents an attribute
           if (columnName.contains(":")) {
