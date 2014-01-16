@@ -120,7 +120,7 @@ public enum UsersManagerMethod implements ManagerMethod {
      * @param user int User ID
      * @param serviceUser int Service user ID
      */
-    addServiceUser {
+    addServiceUserOwner {
 
         @Override
         public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -139,7 +139,7 @@ public enum UsersManagerMethod implements ManagerMethod {
      * @param user int User ID
      * @param serviceUser int Service user ID
      */
-    removeServiceUser {
+    removeServiceUserOwner {
 
         @Override
         public Void call(ApiCaller ac, Deserializer parms) throws PerunException {

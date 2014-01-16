@@ -1052,11 +1052,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                         public void onClick(ClickEvent event) {
                             for (int i=0; i<list.size(); i++ ) {
                                 // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                                RemoveServiceUser req;
+                                RemoveServiceUserOwner req;
                                 if(i == list.size() - 1) {
-                                    req = new RemoveServiceUser(JsonCallbackEvents.refreshTableEvents(request));
+                                    req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
                                 } else {
-                                    req = new RemoveServiceUser();
+                                    req = new RemoveServiceUserOwner();
                                 }
                                 req.removeServiceUser(list.get(i), user);
                             }
@@ -1113,12 +1113,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                         public void onClick(ClickEvent event) {
                             // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
                             for (int i=0; i<list.size(); i++ ) {
-                                RemoveServiceUser req;
+                                RemoveServiceUserOwner req;
                                 // if last, refresh
                                 if(i == list.size() - 1) {
-                                    req = new RemoveServiceUser(JsonCallbackEvents.refreshTableEvents(request));
+                                    req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
                                 } else {
-                                    req = new RemoveServiceUser();
+                                    req = new RemoveServiceUserOwner();
                                 }
                                 req.removeServiceUser(user, list.get(i));
                             }

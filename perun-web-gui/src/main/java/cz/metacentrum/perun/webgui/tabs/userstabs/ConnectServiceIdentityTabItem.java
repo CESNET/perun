@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.usersManager.AddServiceUser;
+import cz.metacentrum.perun.webgui.json.usersManager.AddServiceUserOwner;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -138,11 +138,11 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
                 ArrayList<User> list = call.getTableSelectedList();
                 for (int i = 0; i < list.size(); i++) {
                     // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    AddServiceUser req;
+                    AddServiceUserOwner req;
                     if (i == list.size() - 1) {
-                        req = new AddServiceUser(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+                        req = new AddServiceUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
                     } else {
-                        req = new AddServiceUser(JsonCallbackEvents.disableButtonEvents(addButton));
+                        req = new AddServiceUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
                     }
                     if (user.isServiceUser()) {
                         // service user adds user
