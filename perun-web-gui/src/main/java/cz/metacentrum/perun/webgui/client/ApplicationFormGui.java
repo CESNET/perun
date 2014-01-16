@@ -14,7 +14,6 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.applicationresources.ApplicationFormLeftMenu;
 import cz.metacentrum.perun.webgui.client.applicationresources.pages.ApplicationFormPage;
 import cz.metacentrum.perun.webgui.client.applicationresources.pages.UsersApplicationsPage;
-import cz.metacentrum.perun.webgui.client.applicationresources.pages.VoNotFoundPage;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -173,7 +172,8 @@ public class ApplicationFormGui implements EntryPoint {
         groupName = Location.getParameter("group");
 
 		Initialize req = new Initialize(voName, groupName, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
+            @Override
+            public void onFinished(JavaScriptObject jso){
 				
 				JsArray<Attribute> list = JsonUtils.jsoAsArray(jso);
 				
@@ -237,12 +237,16 @@ public class ApplicationFormGui implements EntryPoint {
                 loadPerunPrincipal(events);
 				
 			}
-			
-			public void onError(PerunError error)
-			{
-				voNotFound(error);
+			@Override
+			public void onError(PerunError error) {
+
                 // hides the loading box
                 loadingBox.hide();
+
+                RootLayoutPanel panel = RootLayoutPanel.get();
+                panel.clear();
+                panel.add(getErrorWidget(error));
+
 			}
 		});
 		
@@ -250,17 +254,6 @@ public class ApplicationFormGui implements EntryPoint {
 		req.retrieveData();		
 		
 	}
-	
-	/**
-	 * When VO not found, disable error
-	 */
-	public void voNotFound(PerunError error)
-	{
-		 RootLayoutPanel panel = RootLayoutPanel.get();
-		 panel.clear();
-		 panel.add(new VoNotFoundPage(error));
-	}
-
 
     /**
      * Performs a login into the RPC, loads user and his roles into session and enables GUI.
@@ -612,16 +605,30 @@ public class ApplicationFormGui implements EntryPoint {
 	
 	private FlexTable getErrorWidget(PerunError error) {
 		
-		String text = "<h2>Request timeout exceeded.</h2>";
-		if (error != null) {
-			text = error.getErrorInfo();
+		String text = "Request timeout exceeded.";
+		String errorInfo = "";
+        if (error != null) {
+            if (error.getName().equalsIgnoreCase("VoNotExistsException")){
+                text = "Virtual organization with such name doesn't exists. Please check URL and try again.";
+            } else if (error.getName().equalsIgnoreCase("GroupNotExistsException")){
+                text = "Group with such name doesn't exists. Please check URL and try again.";
+            } else {
+                text = "Error: "+error.getName();
+            }
+            errorInfo = error.getErrorInfo();
 		}
+
+
 		FlexTable ft = new FlexTable();
 		ft.setSize("100%", "300px");
-		ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: </h2>" + text);
+		ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + text + "</h2>");
 		ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-		ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-		
+		ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_BOTTOM);
+
+        ft.setHTML(1, 0, "<p>"+errorInfo);
+        ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+        ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
+
 		return ft;
 
 	}
