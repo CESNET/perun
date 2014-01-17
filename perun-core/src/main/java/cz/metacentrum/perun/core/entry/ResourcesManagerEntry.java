@@ -451,10 +451,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.notNull(sess, "sess");
     resourcesManagerBl.checkResourceExists(sess, resource);
     
-    // Authorization - Vo admin required
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) || 
-            !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
-      throw new PrivilegeException(sess, "updateVo");
+    // Authorization
+    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+      throw new PrivilegeException(sess, "updateResource");
     }
 
     return resourcesManagerBl.updateResource(sess, resource);
