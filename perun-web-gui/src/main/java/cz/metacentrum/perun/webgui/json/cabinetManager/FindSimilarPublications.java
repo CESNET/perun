@@ -142,10 +142,10 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No similar publications found.");
 
 		// show checkbox column
-		if(this.checkable)
-		{
+		if(this.checkable) {
 			// checkbox column column
 			table.addCheckBoxColumn();
 		}
