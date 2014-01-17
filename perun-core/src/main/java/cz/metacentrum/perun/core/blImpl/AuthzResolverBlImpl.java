@@ -404,7 +404,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
         } else if(resource != null) {
             if(roles.contains(Role.VOADMIN)) {
                Vo v = getPerunBlImpl().getResourcesManagerBl().getVo(sess, resource);
-               if(isAuthorized(sess, Role.VOADMIN, vo)) return true;
+               if(isAuthorized(sess, Role.VOADMIN, v)) return true;
             }
             if(roles.contains(Role.GROUPADMIN)); {
                 List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
