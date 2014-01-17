@@ -69,6 +69,11 @@ public class VosManagerEntry implements VosManager {
                 for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOADMIN, Vo.class)) {
                     vos.add((Vo) vo);
                 }
+                
+                // Get Vos where user is VO Observer
+                for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOOBSERVER, Vo.class)) {
+                    vos.add((Vo) vo);
+                }
 
                 // Get Vos where user has an group admin right on some of the group
                 for(PerunBean group: AuthzResolver.getComplementaryObjectsForRole(sess, Role.GROUPADMIN, Group.class)) {
@@ -90,6 +95,7 @@ public class VosManagerEntry implements VosManager {
         Utils.notNull(perunSession, "sess");
         if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
                 !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN) &&
+                !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
                 !AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN)) {
             throw new PrivilegeException(perunSession, "getAllVos");
         }
@@ -171,6 +177,7 @@ public class VosManagerEntry implements VosManager {
         // Authorization
         //TODO Any groupAdmin can get anyVo
         if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
                 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
                 !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
             throw new PrivilegeException(sess, "getVoByShortName");
@@ -187,6 +194,7 @@ public class VosManagerEntry implements VosManager {
         //TODO Any groupAdmin can get anyVo
         if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
                 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
                 !AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
                 !AuthzResolver.isAuthorized(sess, Role.RPC) &&
                 !AuthzResolver.isAuthorized(sess, Role.SELF)) {
@@ -202,7 +210,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         // Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "findCandidates");
         }
 
@@ -215,7 +224,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         // Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "findCandidates");
         }
 
@@ -282,7 +292,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getAdmins");
         }
 
@@ -295,7 +306,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getDirectAdmins");
         }
 
@@ -308,7 +320,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getAdminGroups");
         }
 
@@ -320,7 +333,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && 
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getRichAdmins");
         }
 
@@ -332,7 +346,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && 
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getRichAdminsWithAttributes");
         }
 
@@ -344,7 +359,8 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getRichAdminsWithSpecificAttributes");
         }
 

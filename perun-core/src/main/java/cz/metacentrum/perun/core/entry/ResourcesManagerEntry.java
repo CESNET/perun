@@ -72,6 +72,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
       throw new PrivilegeException(sess, "getResourceById");
     }
@@ -87,6 +88,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
         // Authorization
         if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, rr.getVo()) &&
+            !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rr.getVo()) &&
             !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, rr.getFacility())) {
             throw new PrivilegeException(sess, "getRichResourceById");
         }
@@ -106,6 +108,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
         
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
       throw new PrivilegeException(sess, "getResourceByName");
     }
@@ -158,9 +161,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
   public Facility getFacility(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
     getResourcesManagerBl().checkResourceExists(sess, resource);
-   
+
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource) &&
         !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
       throw new PrivilegeException(sess, "getFacility");
@@ -190,6 +194,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
       throw new PrivilegeException(sess, "getVo");
     }
@@ -201,9 +207,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.checkPerunSession(sess);
 
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
-
+    
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
       throw new PrivilegeException(sess, "getAllowedMembers");
     }
 
@@ -214,9 +220,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.checkPerunSession(sess);
 
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
-
+    
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
       throw new PrivilegeException(sess, "getAllowedUsers");
     }
 
@@ -229,6 +235,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
       throw new PrivilegeException(sess, "getAssignedServices");
     }
@@ -242,7 +249,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getResourcesManagerBl().checkResourceExists(sess, resource);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
       throw new PrivilegeException(sess, "assignGroupToResource");
     }
     
@@ -273,6 +280,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
       throw new PrivilegeException(sess, "getAssignedGroups");
     }
@@ -286,6 +294,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+                 !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
   		 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "getAssignedResources");
     }
@@ -299,6 +308,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 	  // Authorization
 	  if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+                  !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
 		  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 		  throw new PrivilegeException(sess, "getAssignedRichResources");
 	  }
@@ -366,7 +376,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
       throw new PrivilegeException(sess, "getResources");
     }
 
@@ -379,7 +389,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	  Utils.checkPerunSession(sess);
 
 	  // Authorization
-	  if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+	  if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
 		  throw new PrivilegeException(sess, "getRichResources");
 	  }
 
@@ -392,7 +402,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
       throw new PrivilegeException(sess, "getResourcesCount");
     }
 
@@ -406,7 +416,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
   
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) 
-            && !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+            && !AuthzResolver.isAuthorized(sess, Role.SELF, member) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member)) {
       throw new PrivilegeException(sess, "getAllowedResources");
     }
 
@@ -423,6 +433,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
       throw new PrivilegeException(sess, "getAssignedResources");
@@ -439,6 +450,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	  
 	  // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
         !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
       throw new PrivilegeException(sess, "getAssignedRichResources");

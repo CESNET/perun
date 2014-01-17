@@ -3120,6 +3120,7 @@ public interface AttributesManager {
     * Gets attribute rights of an attribute with id given as a parametr.
     * If the attribute has no rights for a role, it returns empty list. That means the returned list has always 4 items
     * for each of the roles VOADMIN, FACILITYADMIN, GROUPADMIN, SELF.
+    * Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
     * 
     * @param sess perun session
     * @param attributeId id of the attribute
@@ -3134,7 +3135,7 @@ public interface AttributesManager {
     * Sets all attribute rights in the list given as a parametr.
     * The method sets the rights for attribute and role exactly as it is given in the list of action types. That means it can
     * remove a right, if the right is missing in the list.
-    * 
+    * Info: If there is role VoAdmin in the list, use it for setting also VoObserver rights (only for read) automatic
     * 
     * @param sess perun session
     * @param rights list of attribute rights

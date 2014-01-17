@@ -108,6 +108,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
       throw new PrivilegeException(sess, "getServiceById");
@@ -121,6 +122,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
       throw new PrivilegeException(sess, "getServiceByName");
     }
@@ -135,6 +137,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
       throw new PrivilegeException(sess, "getServices");
     }
@@ -159,7 +162,8 @@ public class ServicesManagerEntry implements ServicesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+      
       throw new PrivilegeException(sess, "getAssignedResources");
     }
 
@@ -214,7 +218,7 @@ public class ServicesManagerEntry implements ServicesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization 
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
       throw new PrivilegeException(sess, "getServicesPackages");
     }
 
@@ -226,6 +230,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
     // Authorization 
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
       throw new PrivilegeException(sess, "getServicesPackageById");
     }
@@ -238,7 +243,7 @@ public class ServicesManagerEntry implements ServicesManager {
     Utils.notNull(servicesPackageName, "servicesPackageName");
 
     // Authorization 
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
       throw new PrivilegeException(sess, "getServicesPackageByName");
     }
 
@@ -316,7 +321,7 @@ public class ServicesManagerEntry implements ServicesManager {
     Utils.checkPerunSession(sess);
 
     // Authorization 
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
       throw new PrivilegeException(sess, "getServicesFromServicesPackage");
     }
 
@@ -530,6 +535,7 @@ public class ServicesManagerEntry implements ServicesManager {
     // Authorization 
     if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) && 
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN) && 
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
       throw new PrivilegeException(sess, "getDestinations");
     }
@@ -546,6 +552,7 @@ public class ServicesManagerEntry implements ServicesManager {
     //Authorization
     if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) && 
         !AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) && 
+        !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
       throw new PrivilegeException(perunSession, "getAllRichDestinations");
     }
@@ -570,6 +577,7 @@ public class ServicesManagerEntry implements ServicesManager {
     //Authorization
     if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) && 
         !AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) && 
+        !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
       throw new PrivilegeException(perunSession, "getRichDestinations");
     }

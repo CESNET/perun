@@ -95,6 +95,7 @@ public class OwnersManagerEntry implements OwnersManager {
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
         !AuthzResolver.isAuthorized(sess, Role.RPC)) {
@@ -110,6 +111,7 @@ public class OwnersManagerEntry implements OwnersManager {
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
         !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
         !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
         !AuthzResolver.isAuthorized(sess, Role.ENGINE)) {

@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -5096,7 +5097,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
     @Override
     public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException {
-        return getAttributesManagerImpl().getAttributeRights(sess, attributeId);
+        List<AttributeRights> listOfAr = getAttributesManagerImpl().getAttributeRights(sess, attributeId);
+        
+        //Do not return VoObsever rights by this method
+        if(listOfAr != null) {
+            Iterator<AttributeRights> iterator = listOfAr.iterator();
+            while(iterator.hasNext()) {
+                AttributeRights ar = iterator.next();
+                if(ar.getRole().equals(Role.VOOBSERVER)) iterator.remove();
+            }
+        }
+        
+        return listOfAr;
     }
 
     @Override
@@ -5104,6 +5116,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
         for (AttributeRights right : rights) {
             getAttributesManagerImpl().setAttributeRight(sess, right);
             getPerunBl().getAuditer().log(sess, "Attribute right set : {}", right);
+            
+            //If these rights are for VoAdmin, do the same for VoObserver but only for READ privilegies
+            if(right.getRole().equals(Role.VOADMIN)) {
+                List<ActionType> onlyReadActionType = new ArrayList<ActionType>();
+                if(right.getRights().contains(ActionType.READ)) onlyReadActionType.add(ActionType.READ);
+                right.setRights(onlyReadActionType);
+                right.setRole(Role.VOOBSERVER);
+                //Rights are now set for VoObserver with read privilegies on the same attribute like VoAdmin
+                getAttributesManagerImpl().setAttributeRight(sess, right);
+                getPerunBl().getAuditer().log(sess, "Attribute right set : {}", right);
+            }
         }
     }
         
