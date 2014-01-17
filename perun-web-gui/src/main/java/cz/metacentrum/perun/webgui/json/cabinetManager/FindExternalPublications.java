@@ -152,6 +152,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage.prepareToSearch("Please select external pub. system and year range to search for publications for import."));
+        loaderImage.setEmptyResultMessage("No publications found in external system.");
 
 		// show checkbox column
 		if(this.checkable) {

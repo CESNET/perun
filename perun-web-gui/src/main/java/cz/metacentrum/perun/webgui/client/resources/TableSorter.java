@@ -259,7 +259,7 @@ public class TableSorter<T> {
             public int compare(T o1, T o2) {
                 Publication o3 = (Publication)o1;
                 Publication o4 = (Publication)o2;
-                return o4.getTitle().compareToIgnoreCase(o3.getTitle());
+                return o3.getTitle().compareToIgnoreCase(o4.getTitle());
             }
         });
         return list;
