@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.controller.model;
 
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @version $Id$
  */
 
-public class FacilityState {
+public class FacilityState implements Comparable<FacilityState> {
 	
 	public static enum FacilityPropagationState {
 		OK, ERROR, PROCESSING, NOT_DETERMINED
@@ -73,5 +74,11 @@ public class FacilityState {
 	public String toString() {
 		return "FacilityState [facility=" + facility + ", state=" + state + "]";
 	}
+
+    @Override
+    public int compareTo(FacilityState facility) {
+        if (facility == null || this.facility == null || this.facility.getName() == null) throw new NullPointerException("Facility or facility name");
+        return this.facility.getName().compareTo(facility.getFacility().getName());
+    }
 	
 }
