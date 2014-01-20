@@ -575,8 +575,10 @@ public interface ResourcesManager {
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
+   * @throws WrongAttributeValueException
+   * @throws WrongReferenceAttributeValueException
    */
-  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Copy all groups of the source resource to the destionation resource.

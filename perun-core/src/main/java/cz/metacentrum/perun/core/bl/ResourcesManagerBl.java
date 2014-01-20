@@ -569,8 +569,10 @@ public interface ResourcesManagerBl {
    * @param sourceResource 
    * @param destinationResource 
    * @throws InternalErrorException
+   * @throws WrongReferenceAttributeValueException
+   * @throws WrongAttributeValueException
    */
-  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Copy all groups of the source resource to the destionation resource.

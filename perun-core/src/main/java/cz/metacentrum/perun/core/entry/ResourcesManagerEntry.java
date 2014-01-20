@@ -608,7 +608,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
         getResourcesManagerBl().copyAttributes(sess, sourceResource, destinationResource);
     }
 
-  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
         Utils.checkPerunSession(sess);
 
         getResourcesManagerBl().checkResourceExists(sess, sourceResource);

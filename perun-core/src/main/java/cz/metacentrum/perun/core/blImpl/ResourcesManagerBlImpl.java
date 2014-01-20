@@ -564,7 +564,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         
     }
 
-  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException {
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
         for (Service owner : getAssignedServices(sess, sourceResource)) {
           try {
               assignService(sess, destinationResource, owner);
@@ -572,10 +572,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
               // we can ignore the exception in this particular case, service can exists in both of the resources
           } catch (ServiceNotExistsException ex) {
               throw new InternalErrorException("Service from source Resource does not exists when copying services.", ex);
-          } catch (WrongAttributeValueException ex) {
-              throw new InternalErrorException("Copying of services failed.", ex);
-          } catch (WrongReferenceAttributeValueException ex) {
-              throw new InternalErrorException("Copying of services failed.", ex);
           }
       }
   }
