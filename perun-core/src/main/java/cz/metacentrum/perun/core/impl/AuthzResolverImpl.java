@@ -28,6 +28,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 public class AuthzResolverImpl implements AuthzResolverImplApi {
@@ -52,10 +54,10 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
     }
   };
   
-  public static final RowMapper<Pair<Role, Map<String, List<Integer>>>> AUTHZROLE_MAPPER = new RowMapper<Pair<Role, Map<String, List<Integer>>>>() {
-    public Pair<Role, Map<String, List<Integer>>> mapRow(ResultSet rs, int i) throws SQLException {
+  public static final RowMapper<Pair<Role, Map<String, Set<Integer>>>> AUTHZROLE_MAPPER = new RowMapper<Pair<Role, Map<String, Set<Integer>>>>() {
+    public Pair<Role, Map<String, Set<Integer>>> mapRow(ResultSet rs, int i) throws SQLException {
       try {
-        Map<String, List<Integer>> perunBeans = null;
+        Map<String, Set<Integer>> perunBeans = null;
         Role role = Role.valueOf(rs.getString("role_name").toUpperCase());
         
         // Iterate through all returned columns and try to extract PerunBean name from the labels
@@ -69,10 +71,10 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
               String className = perunBeanName.substring(0, 1).toUpperCase() + perunBeanName.substring(1);
               
               if (perunBeans == null) {
-                perunBeans = new HashMap<String, List<Integer>>();
+                perunBeans = new HashMap<String, Set<Integer>>();
               }
               if (perunBeans.get(className) == null) {
-                perunBeans.put(className, new ArrayList<Integer>());
+                perunBeans.put(className, new HashSet<Integer>());
                 
               }
               perunBeans.get(className).add(id);
@@ -80,7 +82,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
           }
         }
         
-        return new Pair<Role, Map<String, List<Integer>>>(role, perunBeans);
+        return new Pair<Role, Map<String, Set<Integer>>>(role, perunBeans);
         
       } catch (Exception e) {
         throw new InternalErrorRuntimeException(e);
@@ -98,12 +100,12 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
     if (user != null) {
     try {
                   // Get roles from Authz table
-		  List<Pair<Role, Map<String, List<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
+		  List<Pair<Role, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
                           + ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.user_id=? or authorized_group_id in "
                           + "(select groups.id from groups join groups_members on groups.id=groups_members.group_id join members on "
                           + "members.id=groups_members.member_id join users on users.id=members.user_id where users.id=?)", AUTHZROLE_MAPPER, user.getId(), user.getId());
 	    
-		  for (Pair<Role, Map<String, List<Integer>>> pair : authzRolesPairs) {
+		  for (Pair<Role, Map<String, Set<Integer>>> pair : authzRolesPairs) {
 		    authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight());
 		  }
 		  
