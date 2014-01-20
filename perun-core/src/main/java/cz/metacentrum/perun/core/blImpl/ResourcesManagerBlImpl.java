@@ -203,7 +203,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   }
 
 
-  public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+  public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
     Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
     // Check if the group and resource belongs to the same VO
@@ -532,6 +532,63 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
    public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException {
     getPerunBl().getAuditer().log(sess, "{} updated.", resource);
     return getResourcesManagerImpl().updateResource(sess, resource);
+  }
+   
+  public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException {
+        List<Attribute> sourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceResource);
+        List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationResource);
+
+        // do not get virtual attributes from source resource, they can't be set to destination
+        Iterator<Attribute> it = sourceAttributes.iterator();
+        while (it.hasNext()) {
+            if (it.next().getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
+                it.remove();
+            }
+        }
+
+        // create intersection of destination and source attributes
+        List<Attribute> intersection = new ArrayList<>();
+        intersection.addAll(destinationAttributes);
+        intersection.retainAll(sourceAttributes);
+
+        try {
+        // delete all common attributes from destination resource
+        getPerunBl().getAttributesManagerBl().removeAttributes(sess, destinationResource, intersection);
+        // add all attributes from the source resource to the destination resource
+        getPerunBl().getAttributesManagerBl().setAttributes(sess, destinationResource, sourceAttributes);
+        } catch (WrongAttributeAssignmentException ex) {
+            throw new InternalErrorException("Copying of attributes failed, wrong assignment.", ex);
+        } catch (WrongAttributeValueException ex) {
+            throw new ConsistencyErrorException("Copying of attributes failed.", ex);
+        }
+        
+    }
+
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+        for (Service owner : getAssignedServices(sess, sourceResource)) {
+          try {
+              assignService(sess, destinationResource, owner);
+          } catch (ServiceAlreadyAssignedException ex) {
+              // we can ignore the exception in this particular case, service can exists in both of the resources
+          } catch (ServiceNotExistsException ex) {
+              throw new InternalErrorException("Service from source Resource does not exists when copying services.", ex);
+          }
+      }
+  }
+
+    @Override
+  public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException {
+        for (Group group: getAssignedGroups(sess, sourceResource)) {
+            try {
+                assignGroupToResource(sess, group, destinationResource);
+            } catch (GroupAlreadyAssignedException ex) {
+                // we can ignore the exception in this particular case, group can exists in both of the resources
+            } catch (WrongAttributeValueException ex) {
+              throw new InternalErrorException("Copying of groups failed.", ex);
+            } catch (WrongReferenceAttributeValueException ex) {
+              throw new InternalErrorException("Copying of groups failed.", ex);
+            }
+        }
   }
 
   /**

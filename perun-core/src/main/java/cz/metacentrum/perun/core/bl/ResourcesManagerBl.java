@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -219,7 +220,7 @@ public interface ResourcesManagerBl {
    * @throws GroupAlreadyAssignedException
    * @throws WrongReferenceAttributeValueException
    */
-  void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
+  void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
 
   /**
    * Remove group from a resource.
@@ -545,6 +546,45 @@ public interface ResourcesManagerBl {
    * @throws InternalErrorException
    */
   List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+  
+  /**
+  * Copy all attributes of the source resource to the destionation resource.
+  * The attributes, that are in the destination resource and aren't in the source resource, are retained.
+  * The common attributes are replaced with attributes from the source resource.
+  * The virtual attributes are not copied.
+  * 
+  * @param sess
+  * @param sourceResource
+  * @param destinationResource
+  * @throws InternalErrorException
+  * @throws WrongReferenceAttributeValueException
+  */
+  public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
+
+  /**
+   * Copy all services of the source resource to the destionation resource.
+   * The services, that are in the destination resource and aren't in the source resource, are retained.
+   * The common services are replaced with services from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   * @throws WrongReferenceAttributeValueException
+   * @throws WrongAttributeValueException
+   */
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+  /**
+   * Copy all groups of the source resource to the destionation resource.
+   * The groups, that are in the destination resource and aren't in the source resource, are retained.
+   * The common groups are replaced with the groups from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   */
+  public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+
   
   void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException;
   

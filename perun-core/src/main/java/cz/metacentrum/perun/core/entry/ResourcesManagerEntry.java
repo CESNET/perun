@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -588,6 +589,57 @@ public class ResourcesManagerEntry implements ResourcesManager {
     }
     
     return resourcesManagerBl.getAllResourcesTagsForResource(perunSession, resource);
+  }
+  
+  public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongReferenceAttributeValueException {
+        Utils.checkPerunSession(sess);
+
+        getResourcesManagerBl().checkResourceExists(sess, sourceResource);
+        getResourcesManagerBl().checkResourceExists(sess, destinationResource);
+        
+        // Authorization - facility admin of the both resources required
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceResource)) {
+            throw new PrivilegeException(sess, "copyAttributes");
+        }
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationResource)) {
+            throw new PrivilegeException(sess, "copyAttributes");
+        }
+        
+        getResourcesManagerBl().copyAttributes(sess, sourceResource, destinationResource);
+    }
+
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+        Utils.checkPerunSession(sess);
+
+        getResourcesManagerBl().checkResourceExists(sess, sourceResource);
+        getResourcesManagerBl().checkResourceExists(sess, destinationResource);
+        
+        // Authorization - facility admin of the both resources required
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, sourceResource)) {
+            throw new PrivilegeException(sess, "copyServices");
+        }
+        if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationResource)) {
+            throw new PrivilegeException(sess, "copyServices");
+        }
+        
+        getResourcesManagerBl().copyServices(sess, sourceResource, destinationResource);
+  }
+  
+  public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
+        Utils.checkPerunSession(sess);
+
+        getResourcesManagerBl().checkResourceExists(sess, sourceResource);
+        getResourcesManagerBl().checkResourceExists(sess, destinationResource);
+        
+        // Authorization - vo admin of the both resources required
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, sourceResource)) {
+            throw new PrivilegeException(sess, "copyGroups");
+        }
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, destinationResource)) {
+            throw new PrivilegeException(sess, "copyGroups");
+        }
+        
+        getResourcesManagerBl().copyGroups(sess, sourceResource, destinationResource);
   }
   
   /**

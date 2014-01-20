@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -547,5 +548,49 @@ public interface ResourcesManager {
    * @throws PrivilegeException 
    */
   List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;  
+
+   
+ /**
+  * Copy all attributes of the source resource to the destionation resource.
+  * The attributes, that are in the destination resource and aren't in the source resource, are retained.
+  * The common attributes are replaced with the attributes from the source resource.
+  * The virtual attributes are not copied.
+  * @param sess
+  * @param sourceResource
+  * @param destinationResource
+  * @throws InternalErrorException
+  * @throws PrivilegeException
+  * @throws ResourceNotExistsException
+  * @throws WrongReferenceAttributeValueException
+  */
+  public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongReferenceAttributeValueException;
+
+  /**
+   * Copy all services of the source resource to the destionation resource.
+   * The services, that are in the destination resource and aren't in the source resource, are retained.
+   * The common services are replaced with the services from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   * @throws ResourceNotExistsException
+   * @throws PrivilegeException
+   * @throws WrongAttributeValueException
+   * @throws WrongReferenceAttributeValueException
+   */
+  public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+  /**
+   * Copy all groups of the source resource to the destionation resource.
+   * The groups, that are in the destination resource and aren't in the source resource, are retained.
+   * The common groups are replaced with the groups from source resource.
+   * 
+   * @param sourceResource 
+   * @param destinationResource 
+   * @throws InternalErrorException
+   * @throws ResourceNotExistsException
+   * @throws PrivilegeException
+   */
+  public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
 }
