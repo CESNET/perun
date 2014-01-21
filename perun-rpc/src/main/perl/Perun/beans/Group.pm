@@ -39,8 +39,14 @@ sub TO_JSON
 	} else {
 		$description = undef;
 	}
+
+        my $voId;
+        if (defined($self->{_voId})) {
+        } else {
+                $voId = 0;
+        }
 	
-	return {id => $id, name => $name, description => $description};
+	return {id => $id, name => $name, description => $description, voId => $voId};
 }
 
 sub getId
@@ -86,5 +92,17 @@ sub setDescription
     $self->{_description} = shift;
     
     return;
+}
+
+sub getVoId
+{
+    my $self = shift;
+    return $self->{_voId};
+}
+
+sub setVoId
+{
+    my $self = shift;
+    $self->{_voId} = shift;
 }
 1;

@@ -48,7 +48,6 @@ my $groupsAgent = $agent->getGroupsAgent;
 my @groups = $groupsAgent->getGroups(vo => $voId);
 
 my $membersGroup = $groupsAgent->getGroupByName(vo => $voId, name => "members");
-my $adminsGroup = $groupsAgent->getGroupByName(vo => $voId, name => "administrators");
 
 sub printSubGroups {
 	my $group = shift;
@@ -73,7 +72,6 @@ sub printSubGroups {
 my $table = Text::ASCIITable->new();
 $table->setCols('ID','Name', 'Description');
 
-$table->addRow($adminsGroup->getId, $adminsGroup->getName, "build-in group containg all Vo administrators");
 $table->addRow($membersGroup->getId, $membersGroup->getName, "build-in group containg all Vo members");
 
 foreach my $group (sort $sortingFunction @groups) {
