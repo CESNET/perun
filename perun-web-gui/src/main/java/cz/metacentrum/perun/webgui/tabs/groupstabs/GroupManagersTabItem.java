@@ -188,7 +188,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
                                 } else {
                                     request = new RemoveAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(removeButton));
                                 }
-                                request.removeAdmin((GeneralObject)group.cast(), itemsToRemove.get(i));
+                                request.removeGroupAdmin(group, itemsToRemove.get(i));
                             }
                         }
                     });
@@ -266,7 +266,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
                                 } else {
                                     request = new RemoveAdmin(PerunEntity.GROUP, JsonCallbackEvents.disableButtonEvents(removeButton));
                                 }
-                                request.removeAdminGroup(groupId, itemsToRemove.get(i).getId());
+                                request.removeGroupAdminGroup(group, itemsToRemove.get(i));
                             }
                         }
                     });
