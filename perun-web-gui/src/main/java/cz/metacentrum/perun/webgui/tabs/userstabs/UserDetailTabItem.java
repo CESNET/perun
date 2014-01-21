@@ -1047,22 +1047,60 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 public void onClick(ClickEvent clickEvent) {
 
                     final ArrayList<User> list = request.getTableSelectedList();
-                    UiElements.showDeleteConfirm(list, "Following users will be removed from this service user identity", new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            for (int i=0; i<list.size(); i++ ) {
-                                // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                                RemoveServiceUserOwner req;
-                                if(i == list.size() - 1) {
-                                    req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
-                                } else {
-                                    req = new RemoveServiceUserOwner();
-                                }
-                                req.removeServiceUser(list.get(i), user);
-                            }
+                    final ArrayList<User> fullList = request.getList();
 
-                        }
-                    });
+                    if (fullList.size() == list.size()) {
+
+                        UiElements.generateAlert("Remove warning", "<strong><span class=\"serverResponseLabelError\">If you remove all users from service identity you won't be able to use it in the future.</br></br>Please consider keeping at least one user, e.g. add someone else before you remove yourself.</span></strong><p><strong>Do you wish to continue anyway ?</strong>", new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent event) {
+
+                                UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose all access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, you won't be able to use it in future!", new ClickHandler() {
+                                    @Override
+                                    public void onClick(ClickEvent event) {
+                                        for (int i = 0; i < list.size(); i++) {
+                                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+                                            RemoveServiceUserOwner req;
+                                            if (i == list.size() - 1) {
+                                                req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+                                            } else {
+                                                req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+                                            }
+                                            req.removeServiceUser(list.get(i), user);
+
+                                            // TODO - consider fixing authz in session ?
+
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+
+                    } else {
+
+                        // if not selected myself, continue same way
+                        UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, it will be deleted too!", new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent event) {
+                                for (int i = 0; i < list.size(); i++) {
+                                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+                                    RemoveServiceUserOwner req;
+                                    if (i == list.size() - 1) {
+                                        req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+                                    } else {
+                                        req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+                                    }
+                                    req.removeServiceUser(list.get(i), user);
+
+                                    // TODO - consider fixing authz in session ?
+
+                                }
+                            }
+                        });
+
+                    }
+
                 }
             });
 
