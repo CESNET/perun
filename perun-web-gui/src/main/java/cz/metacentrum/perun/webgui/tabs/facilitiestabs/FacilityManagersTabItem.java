@@ -194,10 +194,10 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
                         for (int i=0; i<list.size(); i++) {
                             if (i == list.size()-1) {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(jsonCallback)));
-                                request.removeAdmin((GeneralObject)facility.cast(), list.get(i));
+                                request.removeFacilityAdmin(facility, list.get(i));
                             } else {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeAdmin((GeneralObject)facility.cast(), list.get(i));
+                                request.removeFacilityAdmin(facility, list.get(i));
                             }
                         }
                     }
@@ -245,10 +245,10 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
                         for (int i=0; i<list.size(); i++) {
                             if (i == list.size()-1) {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(jsonCallback)));
-                                request.removeAdminGroup(facilityId, list.get(i).getId());
+                                request.removeFacilityAdminGroup(facility, list.get(i));
                             } else {
                                 RemoveAdmin request = new RemoveAdmin(PerunEntity.FACILITY, JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeAdminGroup(facilityId, list.get(i).getId());
+                                request.removeFacilityAdminGroup(facility, list.get(i));
                             }
                         }
                     }

@@ -189,7 +189,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
                             } else {
                                 request = new RemoveAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(removeButton));
                             }
-                            request.removeAdmin((GeneralObject)vo.cast(), adminsForRemoving.get(i));
+                            request.removeVoAdmin(vo, adminsForRemoving.get(i));
                         }
                     }
                 });
@@ -250,7 +250,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
                             } else {
                                 request = new RemoveAdmin(PerunEntity.VIRTUAL_ORGANIZATION, JsonCallbackEvents.disableButtonEvents(removeButton));
                             }
-                            request.removeAdminGroup(voId, adminsForRemoving.get(i).getId());
+                            request.removeVoAdminGroup(vo, adminsForRemoving.get(i));
                         }
                     }
                 });

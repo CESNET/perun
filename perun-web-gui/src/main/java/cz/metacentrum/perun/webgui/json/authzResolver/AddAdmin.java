@@ -193,7 +193,7 @@ public class AddAdmin {
     }
 
     /**
-     * Attempts to add a new admin to VO/Group/Facility, it first tests the values and then submits them.
+     * Attempts to add a new admin group to Group, it first tests the values and then submits them.
      *
      * @param groupToAddAdminTo where we want to add admin
      * @param group Group to be admin
@@ -234,7 +234,7 @@ public class AddAdmin {
     }
 
     /**
-     * Attempts to add a new admin to VO/Group/Facility, it first tests the values and then submits them.
+     * Attempts to add a new admin group to VO, it first tests the values and then submits them.
      *
      * @param vo where we want to add admin
      * @param group Group to be admin
@@ -275,7 +275,7 @@ public class AddAdmin {
     }
 
     /**
-     * Attempts to add a new admin to VO/Group/Facility, it first tests the values and then submits them.
+     * Attempts to add a new admin group to Facility, it first tests the values and then submits them.
      *
      * @param facility where we want to add admin
      * @param group Group to be admin
