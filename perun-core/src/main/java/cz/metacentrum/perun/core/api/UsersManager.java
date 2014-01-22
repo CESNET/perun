@@ -67,6 +67,7 @@ public interface UsersManager {
   
   /**
    * Remove serviceUser owner (the user)
+   * Only disable ownership of user and serviceUser
    * 
    * @param sess
    * @param user the user
@@ -84,6 +85,8 @@ public interface UsersManager {
   
   /**
    * Add serviceUser owner (the user)
+   * If not exists, create new ownership.
+   * If exists, only enable ownership for user and serviceUser
    * 
    * @param sess
    * @param user the user

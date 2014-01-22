@@ -214,7 +214,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
-          " from users, service_user_users where users.id=service_user_users.service_user_id and service_user_users.user_id=?", USER_MAPPER, user.getId());
+          " from users, service_user_users where users.id=service_user_users.service_user_id and service_user_users.status='0' and service_user_users.user_id=?", USER_MAPPER, user.getId());
     } catch (EmptyResultDataAccessException ex) {
       // Return empty list
       return new ArrayList<User>();
@@ -226,7 +226,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
-          " from users, service_user_users where users.id=service_user_users.user_id and service_user_users.service_user_id=?", USER_MAPPER, serviceUser.getId());
+          " from users, service_user_users where users.id=service_user_users.user_id and service_user_users.status='0' and service_user_users.service_user_id=?", USER_MAPPER, serviceUser.getId());
     } catch (EmptyResultDataAccessException ex) {
       // Return empty list
       return new ArrayList<User>();
@@ -247,17 +247,46 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   
   public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
     try {
-      jdbc.update("insert into service_user_users(user_id,service_user_id) values (?,?)", user.getId(), serviceUser.getId());
+      jdbc.update("insert into service_user_users(user_id,service_user_id,status,created_by_uid,modified_at) values (?,?,'0',?," + Compatibility.getSysdate() + ")", 
+              user.getId(), serviceUser.getId(), sess.getPerunPrincipal().getUserId());
       
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
     }    
   }
   
+  public void enableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+    try {
+      jdbc.update("update service_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
+              sess.getPerunPrincipal().getUserId(), user.getId(), serviceUser.getId());
+    } catch (RuntimeException er) {
+      throw new InternalErrorException(er);
+    }
+  }
+  
+  public void disableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+    try {
+      jdbc.update("update service_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
+              sess.getPerunPrincipal().getUserId(), user.getId(), serviceUser.getId());
+    } catch (RuntimeException er) {
+      throw new InternalErrorException(er);
+    }    
+  }
+  
+  public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+      try {
+         return 1 == jdbc.queryForInt("select 1 from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
+      } catch (EmptyResultDataAccessException e) {
+         return false;
+      } catch (RuntimeException e) {
+         throw new InternalErrorException(e);
+      }
+  }
+  
   public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
-          "  from users where users.service_acc=1", USER_MAPPER);
+          "  from users where users.service_acc='1'", USER_MAPPER);
     } catch (EmptyResultDataAccessException ex) {
       // Return empty list
       return new ArrayList<User>();

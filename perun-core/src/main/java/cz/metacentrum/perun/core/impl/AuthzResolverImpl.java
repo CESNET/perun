@@ -111,7 +111,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		  
 		  // Get service users for user
 		  List<Integer> authzServiceUsers = jdbc.query("select service_user_users.service_user_id as id from users, " +
-		  		"service_user_users where users.id=service_user_users.user_id and users.id=?", Utils.ID_MAPPER ,user.getId());
+		  		"service_user_users where users.id=service_user_users.user_id and service_user_users='0' and users.id=?", Utils.ID_MAPPER ,user.getId());
 		  for (Integer serviceUserId : authzServiceUsers) {
 		    authzRoles.putAuthzRole(Role.SELF, User.class, serviceUserId);
 		  }
