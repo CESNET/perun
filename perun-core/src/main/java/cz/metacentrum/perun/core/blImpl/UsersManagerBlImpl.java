@@ -121,17 +121,31 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   
   public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlredyRemovedException {
     List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
-    if(!serviceUserOwners.remove(user)) throw new RelationNotExistsException("User is not the owner of the service user.");
-    if(serviceUserOwners.isEmpty()) throw new ServiceUserMustHaveOwnerException("The service user must have at least 1 owner. Can't exist alone.");
-    getPerunBl().getAuditer().log(sess, "{} was removed from owners of {}.", user, serviceUser);
-    getUsersManagerImpl().removeServiceUserOwner(sess, user, serviceUser);
+    if(!serviceUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the service user.");
+    
+    if(!getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
+        throw new RelationNotExistsException("User has no relationship to serviceUser.");
+    } 
+    
+    getPerunBl().getAuditer().log(sess, "{} ownership was disabled for serviceUser {}.", user, serviceUser);
+    getUsersManagerImpl().disableOwnership(sess, user, serviceUser);
   }
   
   public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationExistsException {
     List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);  
-    if(serviceUserOwners.remove(user)) throw new RelationExistsException("User is already the owner of service user.");
-    getPerunBl().getAuditer().log(sess, "{} was added to owners of {}.", user, serviceUser);
-    getUsersManagerImpl().addServiceUserOwner(sess, user, serviceUser);
+    if(serviceUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of service user.");
+    
+    if(getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
+        getUsersManagerImpl().enableOwnership(sess, user, serviceUser);
+        getPerunBl().getAuditer().log(sess, "{} ownership was enabled for serviceUser {}.", user, serviceUser);
+    } else {
+        getPerunBl().getAuditer().log(sess, "{} was added to owners of {}.", user, serviceUser);
+        getUsersManagerImpl().addServiceUserOwner(sess, user, serviceUser);
+    }
+  }
+  
+  public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+      return getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser);
   }
   
   public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
@@ -286,16 +300,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     this.deleteUser(sess, user, false);
   }
 
-  public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
-    //Test if user is not the last owner of some serviceUser
-    List<User> serviceUsers = getPerunBl().getUsersManagerBl().getServiceUsersByUser(sess, user);
-    for(User su: serviceUsers) {
-        List<User> owners = getPerunBl().getUsersManagerBl().getUsersByServiceUser(sess, su);
-        //Remove this user from owners and if owners are empty after that, so this user is the last
-        owners.remove(user);
-        if(owners.isEmpty()) throw new RelationExistsException("User is the last owner of some serviceUser.");
-    }
-      
+  public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {  
     List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
     if (members != null && (members.size() > 0)) {
