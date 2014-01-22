@@ -68,7 +68,7 @@ public interface UsersManagerImplApi {
     User getUserById(PerunSession perunSession, int id) throws InternalErrorException, UserNotExistsException;
 
     /**
-     * Return all serviceUsers who are owned by the user
+     * Return all serviceUsers who are owned by the user and their ownership is not in status disabled
      * 
      * @param sess
      * @param user the user
@@ -78,7 +78,7 @@ public interface UsersManagerImplApi {
     List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException;
     
     /**
-     * Return all users who owns the serviceUser
+     * Return all users who owns the serviceUser and their ownership is not in status disabled
      * 
      * @param sess
      * @param serviceUser the service User
@@ -89,6 +89,7 @@ public interface UsersManagerImplApi {
     
     /**
      * Remove serviceUser owner (the user)
+     * Only disable ownership of user and serviceUser
      * 
      * @param sess
      * @param user the user
@@ -99,8 +100,10 @@ public interface UsersManagerImplApi {
     void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlredyRemovedException;
     
     /**
-     * Add serviceUser owner (the user)
-     * 
+     * Add serviceUser owner (the user).
+     * If not exists, create new ownership.
+     * If exists, only enable ownership for user and serviceUser
+     *
      * @param sess
      * @param user the user
      * @param serviceUser the serviceUser
@@ -109,7 +112,40 @@ public interface UsersManagerImplApi {
     void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
     
     /**
+     * Set ownership for user and serviceUser to ENABLE (0).
+     * 
+     * @param sess
+     * @param user
+     * @param serviceUser
+     * @throws InternalErrorException 
+     */
+    void enableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+    
+    /**
+     * Set ownership for user and serviceUser to DISABLE (1).
+     * 
+     * @param sess
+     * @param user
+     * @param serviceUser
+     * @throws InternalErrorException 
+     */
+    void disableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+    
+    /**
+     * Return true if ownership between user and serviceUser already exists.
+     * Return false if not.
+     * 
+     * @param sess
+     * @param user
+     * @param serviceUser
+     * @return true if ownership exists, false if not
+     * @throws InternalErrorException 
+     */
+    boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+    
+    /**
      * Return all service Users (only service users)
+     * Return also users who has no owners.
      * 
      * @param sess
      * @return list of all service users in perun

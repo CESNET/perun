@@ -32,6 +32,8 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -45,6 +47,9 @@ import java.util.ArrayList;
 public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private User user;                             // our User
+        private User serviceUser1;
+        private User serviceUser2;
+        private Vo vo;
 	String userFirstName = "";
 	String userLastName = "";
 	String extLogin = "";              // his login in external source
@@ -65,7 +70,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		setUpUser();
-		setUpUserExtSource();
+		setUpUserExtSource();                
+                vo = setUpVo();
+                setUpServiceUser1ForUser(vo);
+                setUpServiceUser2ForUser(vo);
 
 	}
 
@@ -126,7 +134,141 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.contains(user));
 
 	}
+        
+        @Test
+        public void getServiceUsers() throws Exception {
+                System.out.println("UsersManager.getServiceUsers");
+                
+                List<User> users = usersManager.getServiceUsers(sess);
+                assertTrue(users.contains(serviceUser1));
+                assertTrue(users.contains(serviceUser2));
+        }
+        
+        @Test
+        public void getUsersByServiceUser1() throws Exception {
+                System.out.println("UsersManager.getUsersByServiceUser1");
+                
+                List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser1);
+                assertTrue(users.contains(user));
+                assertTrue(users.size() == 1);
+        }
 
+        @Test
+        public void getUsersByServiceUser2() throws Exception {
+                System.out.println("UsersManager.getUsersByServiceUser2");
+                
+                List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser2);
+                assertTrue(users.contains(user));
+                assertTrue(users.size() == 1);
+        }
+        
+        @Test
+        public void getServiceUsersByUser() throws Exception {
+                System.out.println("UsersManager.getServiceUsersByUser");
+                
+                List<User> users = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(users.contains(serviceUser1));
+                assertTrue(users.contains(serviceUser2));
+                assertTrue(users.size() == 2);
+        }
+        
+        @Test
+        public void modifyOwnership() throws Exception {
+                System.out.println("UsersManager.modifyOwnership");
+                
+                usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+                
+                List<User> users = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(users.contains(serviceUser2));
+                assertTrue(users.size() == 1);
+                
+                usersManager.removeServiceUserOwner(sess, user, serviceUser2);
+                users = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(users.isEmpty());
+                
+                usersManager.addServiceUserOwner(sess, user, serviceUser1);
+                users = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(users.contains(serviceUser1));
+                assertTrue(users.size() == 1);
+                
+                usersManager.addServiceUserOwner(sess, user, serviceUser2);
+                users = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(users.contains(serviceUser1));
+                assertTrue(users.contains(serviceUser2));
+                assertTrue(users.size() == 2);
+        }
+        
+        @Test (expected= RelationNotExistsException.class)
+        public void removeNotExistingOwnership() throws Exception {
+                System.out.println("UsersManager.removeNotExistingOwnership");
+            
+                Member member = setUpMember(vo);
+                User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+                
+                usersManager.removeServiceUserOwner(sess, userOfMember, serviceUser1);
+        }
+        
+        @Test (expected= RelationNotExistsException.class)
+        public void removeOwnershipTwiceInRow() throws Exception {
+                System.out.println("UsersManager.removeOwnershipTwiceInRow");
+            
+                usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+                usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+        }
+        
+        @Test (expected= RelationExistsException.class)
+        public void addExistingOwnership() throws Exception {
+                System.out.println("UsersManager.addExistingOwnership");
+            
+                usersManager.addServiceUserOwner(sess, user, serviceUser1);
+                
+        }
+        
+        @Test (expected= RelationExistsException.class)
+        public void addOwnershipTwiceInRow() throws Exception {
+                System.out.println("UsersManager.addOwnershipTwiceInRow");
+            
+                Member member = setUpMember(vo);
+                User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+                
+                usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
+                usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
+        }
+        
+        @Test
+        public void disableExistingOwnership() throws Exception {
+                System.out.println("UsersManager.disableExistingOwnership");
+            
+                Member member = setUpMember(vo);
+                User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+                assertTrue(!perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser1));
+                assertTrue(!perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser2));
+                
+                usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser1));
+                
+                usersManager.addServiceUserOwner(sess, userOfMember, serviceUser2);
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser2));
+                
+                List<User> serviceUsers = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(serviceUsers.contains(serviceUser1));
+                assertTrue(serviceUsers.contains(serviceUser2));
+                assertTrue(serviceUsers.size() == 2);
+                
+                usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser1));
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser2));
+                serviceUsers = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(serviceUsers.contains(serviceUser2));
+                assertTrue(serviceUsers.size() == 1);
+                
+                usersManager.removeServiceUserOwner(sess, user, serviceUser2);
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser1));
+                assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser2));
+                serviceUsers = usersManager.getServiceUsersByUser(sess, user);
+                assertTrue(serviceUsers.isEmpty());
+        }
+        
 	@Test
 	public void updateUser() throws Exception {
 		System.out.println("UsersManager.updateUser");
@@ -327,7 +469,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getUserByMember() throws Exception {
 		System.out.println("UsersManager.getUserByMember");
 
-		Vo vo = setUpVo();
 		Member member = setUpMember(vo);
 
 		User firstUser = usersManager.getUserByMember(sess, member);
@@ -350,7 +491,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getVosWhereUserIsAdmin() throws Exception {
 		System.out.println("UsersManager.getVosWhereUserIsAdmin");
 
-		Vo vo = setUpVo();
 		Member member = setUpMember(vo);
                 User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		perun.getVosManager().addAdmin(sess, vo, user);
@@ -372,7 +512,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getGroupsWhereUserIsAdmin() throws Exception {
 		System.out.println("UsersManager.getGroupsWhereUserIsAdmin");
 
-		Vo vo = setUpVo();
 		Member member = setUpMember(vo);
 		Group group = setUpGroup(vo, member);
 		User returnedUser = usersManager.getUserByMember(sess, member);
@@ -395,7 +534,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getVosWhereUserIsMember() throws Exception {
 		System.out.println("UsersManager.getVosWhereUserIsMember");
 
-		Vo vo = setUpVo();
 		Member member = setUpMember(vo);
 
 		User returnedUser = usersManager.getUserByMember(sess, member);
@@ -416,7 +554,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getAllowedResources() throws Exception {
 		System.out.println("UsersManager.getAllowedResources");
 
-		Vo vo = setUpVo();
 		Member member = setUpMember(vo);
 		Group group = setUpGroup(vo, member);
 
@@ -582,6 +719,32 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersForDeletion.add(user);
 		// save user for deletion after testing
 	}
+        
+        private void setUpServiceUser1ForUser(Vo vo) throws Exception {
+               Candidate candidate = setUpCandidateForServiceUser1();
+               
+               List<User> owners = new ArrayList<User>();
+               owners.add(user);
+               
+               Member serviceMember = perun.getMembersManagerBl().createServiceMemberSync(sess, vo, candidate, owners);
+		// set first candidate as member of test VO
+		assertNotNull("No member created", serviceMember);
+                serviceUser1 = usersManager.getUserByMember(sess, serviceMember);
+		usersForDeletion.add(serviceUser1);
+        }
+        
+        private void setUpServiceUser2ForUser(Vo vo) throws Exception {
+               Candidate candidate = setUpCandidateForServiceUser2();
+               
+               List<User> owners = new ArrayList<User>();
+               owners.add(user);
+               
+               Member serviceMember = perun.getMembersManagerBl().createServiceMemberSync(sess, vo, candidate, owners);
+		// set first candidate as member of test VO
+		assertNotNull("No member created", serviceMember);
+                serviceUser2 = usersManager.getUserByMember(sess, serviceMember);
+		usersForDeletion.add(serviceUser2);
+        }
 
 	private void setUpUserExtSource() throws Exception {
 
@@ -655,4 +818,32 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		return candidate;
 
 	}
+        
+        private Candidate setUpCandidateForServiceUser1() {
+                Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName("(Service)");
+		candidate.setId(0);
+                candidate.setMiddleName("");
+		candidate.setLastName("testingServiceUser01");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
+		return candidate;
+        }
+        
+        private Candidate setUpCandidateForServiceUser2() {
+                Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName("(Service)");
+		candidate.setId(0);
+                candidate.setMiddleName("");
+		candidate.setLastName("testingServiceUser02");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
+		return candidate;
+        }
 }

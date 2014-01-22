@@ -68,7 +68,7 @@ public interface UsersManagerBl {
   User getUserByMember(PerunSession perunSession, Member member) throws InternalErrorException;
 
   /**
-   * Return all serviceUsers who are owned by the user
+   * Return all serviceUsers who are owned by the user and their ownership is not in status disabled
    * 
    * @param sess
    * @param user the user
@@ -78,7 +78,7 @@ public interface UsersManagerBl {
   List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException;
 
   /**
-   * Return all users who owns the serviceUser
+   * Return all users who owns the serviceUser and their ownership is not in status disabled
    * 
    * @param sess
    * @param serviceUser the service User
@@ -89,6 +89,7 @@ public interface UsersManagerBl {
 
   /**
    * Remove serviceUser owner (the user)
+   * Only disable ownership of user and serviceUser
    * 
    * @param sess
    * @param user the user
@@ -102,6 +103,8 @@ public interface UsersManagerBl {
 
   /**
    * Add serviceUser owner (the user)
+   * If not exists, create new ownership.
+   * If exists, only enable ownership for user and serviceUser
    * 
    * @param sess
    * @param user the user
@@ -111,6 +114,20 @@ public interface UsersManagerBl {
    */
   void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationExistsException;
 
+  /**
+   * Return true if ownership of user and serviceUser already exists.
+   * Return false if not.
+   * 
+   * Looking for enabled and also for disabled ownership.
+   * 
+   * @param sess
+   * @param user
+   * @param serviceUser
+   * @return
+   * @throws InternalErrorException 
+   */
+  boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+  
   /**
    * Return all service Users (only service users)
    * 
