@@ -64,7 +64,7 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("You have provided unverified e-mail, please check your mailbox for validation link.")
 	String ifEmailProvidedCheckInbox();
 	
-	@DefaultMessage("Membership in VO {0} has been successfully extended.")
+	@DefaultMessage("Extension application for VO {0} has been successfully sent.")
 	String membershipExtensionSuccessfullySent(String voName);
 	
 	@DefaultMessage("Error occurred when processing your application.")
