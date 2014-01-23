@@ -220,6 +220,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         loaderImage.loadingStart();
         list.clear();
         oracle.clear();
+        fullBackup.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();

@@ -299,6 +299,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
         list.clear();
         oracle.clear();
         selectionModel.clear();
+        fullBackup.clear();
         dataProvider.flush();
         dataProvider.refresh();
     }

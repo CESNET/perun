@@ -276,8 +276,7 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		
 		String param = "";
 		
@@ -333,6 +332,7 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        backupList.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

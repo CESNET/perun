@@ -206,6 +206,7 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
      */
     public void clearTable(){
         loaderImage.loadingStart();
+        fullBackup.clear();
         list.clear();
         oracle.clear();
         selectionModel.clear();

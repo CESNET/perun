@@ -168,6 +168,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
