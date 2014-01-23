@@ -277,6 +277,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
      */
     public void clearTable(){
         loaderImage.loadingStart();
+        backupList.clear();
         list.clear();
         oracle.clear();
         selectionModel.clear();

@@ -65,24 +65,15 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	final SimplePanel pageWidget = new SimplePanel();
 	// members table wrapper
 	ScrollPanel tableWrapper = new ScrollPanel();
+
+    String searchString = "";
 	
 	/**
 	 * Group
 	 */
 	private Group group;
 	private int groupId;
-	
-	// CURRENT TAB STATE
-	enum State {
-		searching, listAll		
-	}
-	
-	// default state is search
-	State state = State.listAll;
-	
-	// when searching
-	private String searchString = "";
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -131,15 +122,11 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 		// CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, disableCheckboxEvent);
-		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.GROUP, groupId, "", null, disableCheckboxEvent);
-        members.setIndirectCheckable(false);
-        findMembers.setIndirectCheckable(false);
+		members.setIndirectCheckable(false);
 
 		// refreshMembers
 		final JsonCallbackEvents refreshMembersEvent = JsonCallbackEvents.refreshTableEvents(members);
-		// refreshFindMembers
-		final JsonCallbackEvents refreshFindMembersEvent = JsonCallbackEvents.refreshTableEvents(findMembers);
-		
+
 		// MENU
 		TabMenu tabMenu = new TabMenu();
 		boolean isMembersGroup = group.isCoreGroup();
@@ -162,18 +149,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 			removeButton.addClickHandler(new ClickHandler() {
 				@Override
                 public void onClick(ClickEvent event) {
-					final ArrayList<RichMember> itemsToRemove;
-					final JsonCallbackEvents events;
-					final JsonCallbackEvents refreshEvents;
-					if (state == State.listAll) {
-						itemsToRemove = members.getTableSelectedList();
-						events = JsonCallbackEvents.disableButtonEvents(removeButton);
-						refreshEvents = JsonCallbackEvents.disableButtonEvents(removeButton, refreshMembersEvent);
-					} else {
-						itemsToRemove = findMembers.getTableSelectedList();
-						events = JsonCallbackEvents.disableButtonEvents(removeButton);
-						refreshEvents = JsonCallbackEvents.disableButtonEvents(removeButton, refreshFindMembersEvent);
-					}
+					final ArrayList<RichMember> itemsToRemove = members.getTableSelectedList();
+					final JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(removeButton);
+					final JsonCallbackEvents refreshEvents = JsonCallbackEvents.disableButtonEvents(removeButton, refreshMembersEvent);
                     String text = "Following members will be removed from group. They will lose access to resources provided by this group.";
                     UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
                         @Override
@@ -206,7 +184,6 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
             });
             tabMenu.addWidget(a);
 
-            findMembers.setCheckable(false);
             members.setCheckable(false);
 
         }
@@ -220,43 +197,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
             }
         });
 
-		// checkbox click handler
-        /* OLD CLICK HANDLER
-		disabled.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				if (state == State.listAll) {
-					if (disabled.getValue()) {
-						members.excludeDisabled(false);
-					} else {
-						members.excludeDisabled(true);
-					}
-					refreshMembersEvent.onFinished(null); // refresh table
-				} else {
-					if (disabled.getValue()) {
-						findMembers.excludeDisabled(false);
-					} else {
-						findMembers.excludeDisabled(true);
-					}
-					if (!searchString.equalsIgnoreCase("")) {
-						refreshFindMembersEvent.onFinished(null); // refresh table only if there is something to search					
-					}
-				}
-			}
-		});
-		*/
 
-		// SEARCH FOR BUTTON
-
-        /*
-		TextBox searchBox = tabMenu.addSearchBox(new PerunSearchEvent() {
-			public void searchFor(String text) {
-				searchString = text;
-				state = State.searching;
-				searchForAction(text, findMembers, disabled);
-			}
-		}, "Search", "Search for Group members by name, login, email");
-		searchBox.setText(searchString);
-        */
         final ExtendedSuggestBox box = new ExtendedSuggestBox(members.getOracle());
         box.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
@@ -278,17 +219,6 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
                 members.filterTable(searchString);
             }
         });
-
-		// LIST ALL BUTTON
-
-        /*
-		tabMenu.addButton("List all", SmallIcons.INSTANCE.userGreenIcon(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                state = State.listAll;
-                listAllAction(members, disabled);
-            }
-        });
-        */
 		
 		tabMenu.addWidget(disabled);
 		
@@ -297,11 +227,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		vp.add(pageWidget);
 		
 		/* WHEN TAB RELOADS, CHECK THE STATE */
-		if(this.state == State.listAll){
-			listAllAction(members, removeButton, disabled);
-		}else if(this.state == State.searching){
-			searchForAction(searchString, findMembers, disabled);
-		}
+		listAllAction(members, removeButton, disabled);
 		
 		this.contentWidget.setWidget(vp);
 		return getWidget();
@@ -340,39 +266,6 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		
 	}
 	
-	/**
-	 * SEARCH FOR
-	 */
-	private void searchForAction(String text, FindCompleteRichMembers findMembers, CheckBox disabled) {
-		
-		findMembers.excludeDisabled(!disabled.getValue());
-
-		ScrollPanel tableWrapper = new ScrollPanel();
-
-		CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
-			// when user click on a row -> open new tab
-			public void update(int index, RichMember object, RichMember value) {
-				// TODO better auth
-				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
-			}
-		});
-		
-		table.addStyleName("perun-table");
-		tableWrapper.setWidget(table);
-		tableWrapper.addStyleName("perun-tableScrollPanel");		
-
-		session.getUiElements().resizePerunTable(tableWrapper, 350, this);
-		
-		// add menu and the table to the main panel
-		setPageWidget(tableWrapper);
-		
-		// if not empty - start searching
-		if (!text.equalsIgnoreCase("")) {
-			findMembers.searchFor(text);			
-		}
-		
-	}
-	
 	private void setPageWidget(Widget w) {
 		this.pageWidget.setWidget(w);
 
@@ -398,9 +291,6 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

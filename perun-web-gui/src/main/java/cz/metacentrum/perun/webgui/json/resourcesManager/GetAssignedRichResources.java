@@ -231,6 +231,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

@@ -86,8 +86,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	 * @param fu Field updater 
 	 * @return table widget
 	 */
-	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu)
-	{
+	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu) {
 		this.tableFieldUpdater = fu;	
 		return this.getTable();
 	}
@@ -217,6 +216,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

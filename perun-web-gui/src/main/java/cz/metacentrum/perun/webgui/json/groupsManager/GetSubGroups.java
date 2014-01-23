@@ -73,8 +73,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	/**
 	 * Retrieves data via RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		final String param = "parentGroup=" + this.parentId;
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
@@ -167,6 +166,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

@@ -232,6 +232,10 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
      */
     public void addToTable(Destination object) {
         list.add(object);
+        if (object.getService() != null) {
+            oracle.add(object.getService().getName());
+        }
+        oracle.add(object.getDestination());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -254,6 +258,8 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
+        oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -310,6 +316,10 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
     public void insertToTable(int index, Destination object) {
         list.add(index, object);
+        if (object.getService() != null) {
+            oracle.add(object.getService().getName());
+        }
+        oracle.add(object.getDestination());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -325,6 +335,12 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
     public void setList(ArrayList<Destination> list) {
         clearTable();
         this.list.addAll(list);
+        for (Destination object : list) {
+            if (object.getService() != null) {
+                oracle.add(object.getService().getName());
+            }
+            oracle.add(object.getDestination());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }

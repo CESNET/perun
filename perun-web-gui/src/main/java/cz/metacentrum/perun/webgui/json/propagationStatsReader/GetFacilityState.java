@@ -245,6 +245,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();

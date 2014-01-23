@@ -240,6 +240,7 @@ public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<Reso
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
