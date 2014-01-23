@@ -184,6 +184,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        backupList.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();

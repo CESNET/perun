@@ -213,6 +213,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

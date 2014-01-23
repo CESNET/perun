@@ -198,6 +198,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		loaderImage.loadingStart();
 		list.clear();
         oracle.clear();
+        fullBackup.clear();
 		selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();

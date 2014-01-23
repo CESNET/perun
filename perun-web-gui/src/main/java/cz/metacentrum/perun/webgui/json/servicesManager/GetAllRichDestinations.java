@@ -255,6 +255,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
         list.clear();
         selectionModel.clear();
         oracle.clear();
+        fullBackup.clear();
         dataProvider.flush();
         dataProvider.refresh();
     }

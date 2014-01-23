@@ -88,8 +88,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	 * @param fu Field updater 
 	 * @return table widget
 	 */
-	public CellTable<Group> getTable(FieldUpdater<Group, String> fu)
-	{
+	public CellTable<Group> getTable(FieldUpdater<Group, String> fu) {
 		this.tableFieldUpdater = fu;	
 		return this.getTable();
 	}
@@ -189,8 +188,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
     /**
      * Retrieve data from RPC
      */
-    public void retrieveData()
-    {
+    public void retrieveData() {
         final String param = "resource=" + this.resourceId;
         JsonClient js = new JsonClient();
         js.retrieveData(JSON_URL, param, this);
@@ -240,6 +238,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
         loaderImage.loadingStart();
         list.clear();
         oracle.clear();
+        fullBackup.clear();
         selectionModel.clear();
         singleSelectionModel.clear();
         dataProvider.flush();

@@ -362,6 +362,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        backupList.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

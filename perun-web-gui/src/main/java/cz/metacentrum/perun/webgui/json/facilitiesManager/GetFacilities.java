@@ -233,6 +233,7 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

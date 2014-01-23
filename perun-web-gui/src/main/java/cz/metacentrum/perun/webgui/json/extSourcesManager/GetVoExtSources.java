@@ -178,6 +178,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();

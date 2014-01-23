@@ -214,6 +214,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        fullBackup.clear();
         oracle.clear();
         selectionModel.clear();
         dataProvider.flush();
