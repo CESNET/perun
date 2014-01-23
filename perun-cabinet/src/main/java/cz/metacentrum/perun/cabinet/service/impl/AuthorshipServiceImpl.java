@@ -112,7 +112,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 			Authorship filter = new Authorship();
 			filter.setPublicationId(authorship.getPublicationId());
 			filter.setUserId(authorship.getUserId());
-			return authorshipDao.findByFilter(filter, null).size() > 0;
+			return authorshipDao.findByFilter(filter).size() > 0;
 		}
 		return false;
 	}
