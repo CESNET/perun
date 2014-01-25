@@ -76,8 +76,24 @@ public interface FacilitiesManager {
   * @throws FacilityNotExistsException
   * @throws InternalErrorException
   * @throws PrivilegeException
+  * @deprecated use {@link #getFacilityByName(PerunSession, String)} instead
   */
+ @Deprecated
  Facility getFacilityByName(PerunSession perunSession, String name, String type) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
+
+ /**
+  * Searches the Facility by its name.
+  *
+  * @param perunSession
+  * @param name
+  *  
+  * @return Facility with specified name
+  * 
+  * @throws FacilityNotExistsException
+  * @throws InternalErrorException
+  * @throws PrivilegeException
+  */
+ Facility getFacilityByName(PerunSession perunSession, String name) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
 
  /**
   * Get all possible rich Facilities with all their owners.
@@ -115,7 +131,9 @@ public interface FacilitiesManager {
   * 
   * @throws InternalErrorException
   * @throws PrivilegeException
+  * @deprecated the type attribute of the bean Facility will not be supported
   */
+ @Deprecated
  List<Facility> getFacilitiesByType(PerunSession perunSession, String type) throws InternalErrorException, PrivilegeException;
 
  /**
@@ -128,7 +146,9 @@ public interface FacilitiesManager {
   * 
   * @throws InternalErrorException
   * @throws PrivilegeException
+  * @deprecated the type attribute of the bean Facility will not be supported
   */
+ @Deprecated
  int getFacilitiesCountByType(PerunSession perunSession, String type) throws InternalErrorException, PrivilegeException;
 
  /**

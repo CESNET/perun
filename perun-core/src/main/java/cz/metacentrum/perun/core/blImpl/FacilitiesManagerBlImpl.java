@@ -92,8 +92,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     return getFacilitiesManagerImpl().getFacilityById(sess, id);
   }
 
+  @Deprecated
   public Facility getFacilityByName(PerunSession sess, String name, String type) throws InternalErrorException, FacilityNotExistsException {
     return getFacilitiesManagerImpl().getFacilityByName(sess, name, type);
+  }
+  
+  public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException {
+    return getFacilitiesManagerImpl().getFacilityByName(sess, name);
   }
   
   public List<RichFacility> getRichFacilities(PerunSession perunSession) throws InternalErrorException {
@@ -127,12 +132,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     return facilities;
   }
 
+  @Deprecated
   public List<Facility> getFacilitiesByType(PerunSession sess, String type) throws InternalErrorException {
     List<Facility> facilities = getFacilitiesManagerImpl().getFacilitiesByType(sess, type);
     Collections.sort(facilities);
     return facilities;
   }
 
+  @Deprecated
   public int getFacilitiesCountByType(PerunSession sess, String type) throws InternalErrorException {
     return getFacilitiesManagerImpl().getFacilitiesCountByType(sess, type);
   }
@@ -266,8 +273,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityExistsException {
-    //
-    //TODO check if facility type is correct
 
     //check facility name, it can contain only a-zA-Z.0-9_-
     if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
@@ -276,7 +281,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
     //check if facility have uniq name
     try {
-      this.getFacilityByName(sess, facility.getName(), facility.getType());
+      this.getFacilityByName(sess, facility.getName());
       throw new FacilityExistsException(facility);
     } catch(FacilityNotExistsException ex) { /* OK */ }
     
