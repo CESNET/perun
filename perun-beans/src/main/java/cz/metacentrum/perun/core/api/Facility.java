@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class Facility extends Auditable implements Comparable<Facility> {
 
   private String name;
-  private String type;
+  private String type = "general";
   // TODO kontakty na spravce facility
 
   public Facility() {

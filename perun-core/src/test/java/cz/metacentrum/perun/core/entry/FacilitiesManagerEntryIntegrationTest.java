@@ -431,7 +431,6 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Facility facility = new Facility();
 		facility.setName("FacilitiesManagerTestFacility");
-		facility.setType("Testing");
 
 		perun.getFacilitiesManager().createFacility(sess, facility);
 		// shouldn't create same facility twice
