@@ -21,7 +21,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_preferredDefaultUnixGIDs_Namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
     
     public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-    List<Integer> preferedGIDs = (List<Integer>) attribute.getValue();
+    List<String> preferedGIDs = (List<String>) attribute.getValue();
     if(preferedGIDs != null && !preferedGIDs.isEmpty()) {
         try {
             sess.getPerunBl().getModulesUtilsBl().checkIfListOfGIDIsWithinRange(sess, attribute);

@@ -37,15 +37,16 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
                 return attr;
             }
             
-            Attribute facilityUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+            Attribute facilityminGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":minGID");
+            Attribute facilitymaxGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":maxGID");
             Attribute userPrefferedUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs");
             List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             String namespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace").getValue();
             Set<String> resourcesUGIDs = new HashSet<>();
             
             for (Resource resource : resources) {
-                List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
-                if (resourcesShellsForTest != null) resourcesUGIDs.addAll(resourcesShellsForTest);
+                List<String> resourcesUGIDsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
+                if (resourcesUGIDsForTest != null) resourcesUGIDs.addAll(resourcesUGIDsForTest);
             }
             
             if (userPrefferedUGIDs.getValue() != null){
@@ -57,11 +58,12 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
                     }
                 }
             }
-            if (facilityUGIDs.getValue() != null){
-                for (String fUGID : (List<String>)facilityUGIDs.getValue()) {
-                    if (resourcesUGIDs.contains(fUGID)) {
-                        Utils.copyAttributeToViAttributeWithoutValue(facilityUGIDs, attr);
-                        attr.setValue(new Integer(fUGID));
+            if (facilitymaxGID.getValue() != null && facilityminGID.getValue() != null){
+                for (String rUGID : (List<String>)resourcesUGIDs) {
+                    Integer intUGID = new Integer(rUGID);
+                    if ( intUGID<= (Integer) facilitymaxGID.getValue() && intUGID >= (Integer)facilityminGID.getValue()) {
+                        Utils.copyAttributeToViAttributeWithoutValue(facilitymaxGID, attr);
+                        attr.setValue(new Integer(intUGID));
                         return attr;
                     }
                 }

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 /**
  *
- * @author Papperwing
+ * @author Jakub Peschel <410368@mail.muni.cz
  */
 public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
     
