@@ -25,13 +25,18 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -118,8 +123,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       return;
     }
 
-    // Load all user's roles
-    sess.getPerunPrincipal().setRoles(authzResolverImpl.getRoles(sess.getPerunPrincipal().getUser()));
+    // Prepare first users rights on all subgroups of groups where user is GroupAdmin and add them to AuthzRoles of the user
+    AuthzRoles authzRoles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(sess.getPerunPrincipal().getUser()));
+    
+    // Load all user's roles with all possible subgroups
+    sess.getPerunPrincipal().setRoles(authzRoles);
     
     // Add self role for the user
     if (sess.getPerunPrincipal().getUser() != null) {
@@ -643,6 +651,41 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
   }
 
+  /**
+   * For role GroupAdmin with association to "Group" add also all subgroups to authzRoles.
+   * If authzRoles is null, return empty AuthzRoles.
+   * If there is no GroupAdmin role or Group object for this role, return not changed authzRoles.
+   * 
+   * @param sess
+   * @param authzRoles authzRoles for some user
+   * @return authzRoles also with subgroups of groups
+   * @throws InternalErrorException
+   */
+  public static AuthzRoles addAllSubgroupsToAuthzRoles(PerunSession sess, AuthzRoles authzRoles) throws InternalErrorException {
+    if(authzRoles == null) return new AuthzRoles();
+    if(authzRoles.hasRole(Role.GROUPADMIN)) {
+      Map<String, Set<Integer>> groupAdminRoles = authzRoles.get(Role.GROUPADMIN);
+      Set<Integer> groupsIds = groupAdminRoles.get("Group");
+      Set<Integer> newGroupsIds = new HashSet<Integer>(groupsIds);
+      for(Integer id: groupsIds) {
+        Group parentGroup;
+        try {
+              parentGroup = getPerunBlImpl().getGroupsManagerBl().getGroupById(sess, id);
+            } catch (GroupNotExistsException ex) {
+              log.debug("Group with id=" + id + " not exists when initializing rights for user: " + sess.getPerunPrincipal().getUser());
+              continue;
+            }
+            List<Group> subGroups = getPerunBlImpl().getGroupsManagerBl().getAllSubGroups(sess, parentGroup);
+            for(Group g: subGroups) {
+              newGroupsIds.add(g.getId());
+            }
+      }
+      groupAdminRoles.put("Group", newGroupsIds);
+      authzRoles.put(Role.GROUPADMIN, groupAdminRoles);
+    }
+    return authzRoles;
+  }
+  
   // Filled by Spring
   public static AuthzResolverImplApi setAuthzResolverImpl(AuthzResolverImplApi authzResolverImpl) {
     AuthzResolverBlImpl.authzResolverImpl = authzResolverImpl;

@@ -17,7 +17,13 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jiri Harazim <harazim@mail.muni.cz>
@@ -108,6 +114,41 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
         AuthzResolver.refreshAuthz(sess1);
 
         assertTrue(AuthzResolver.isAuthorized(sess1, Role.VOADMIN, createdVo));
+    }
+    
+    @Test
+    public void addAllSubgroupsToAuthzRoles() throws Exception {
+        System.out.println(CLASS_NAME + "addAllSubgroupsToAuthzRoles()");
+        
+        Vo testVo = new Vo(1000, "AuthzResolver-testVo", "AuthzResolver-testVo");
+        testVo = perun.getVosManagerBl().createVo(sess, testVo);
+        
+        Group testGroupA = new Group("AuthzResolver-testGroupA", "testGroupA");
+        Group testGroupB = new Group("AuthzResolver-testGroupB", "testGroupB");
+        Group testGroupC = new Group("AuthzResolver-testGroupC", "testGroupC");
+        testGroupA = perun.getGroupsManagerBl().createGroup(sess, testVo, testGroupA);
+        testGroupB = perun.getGroupsManagerBl().createGroup(sess, testGroupA, testGroupB);
+        testGroupC = perun.getGroupsManagerBl().createGroup(sess, testGroupB, testGroupC);
+        
+        HashMap<String, Set<Integer>> mapWithRights = new HashMap<String, Set<Integer>>();
+        Set<Integer> listWithIds = new HashSet<Integer>();
+        listWithIds.add(testGroupA.getId());
+        mapWithRights.put("Vo", listWithIds);
+        mapWithRights.put("Group", listWithIds);
+        
+        AuthzRoles authzRoles = new AuthzRoles(Role.GROUPADMIN, mapWithRights);
+        authzRoles = AuthzResolverBlImpl.addAllSubgroupsToAuthzRoles(sess, authzRoles);
+        
+        assertTrue(authzRoles.hasRole(Role.GROUPADMIN));
+        assertTrue(!authzRoles.hasRole(Role.VOADMIN));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).containsKey("Group"));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).containsKey("Vo"));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupA.getId()));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupB.getId()));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupC.getId()));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").size() == 3);
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Vo").contains(testGroupA.getId()));
+        assertTrue(authzRoles.get(Role.GROUPADMIN).get("Vo").size() == 1);
     }
 
     @Test
