@@ -322,7 +322,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(voId) ) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;

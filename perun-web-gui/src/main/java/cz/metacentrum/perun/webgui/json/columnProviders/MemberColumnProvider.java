@@ -309,7 +309,7 @@ public class MemberColumnProvider {
             @Override
             public boolean isClickable(GeneralObject object) {
                 RichMember rm = object.cast();
-                return PerunWebSession.getInstance().isVoAdmin(rm.getVoId());
+                return (PerunWebSession.getInstance().isVoAdmin(rm.getVoId()) || PerunWebSession.getInstance().isVoObserver(rm.getVoId()));
             }
 
             @Override

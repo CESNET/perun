@@ -89,8 +89,7 @@ public class VoOverviewTabItem implements TabItem {
         return !(vo == null);
     }
 
-    private void setLabels()
-    {
+    private void setLabels() {
         this.titleWidget.setText(vo.getName());
         this.voNameLabel.setText(vo.getName());
         this.voIdLabel.setText(String.valueOf(vo.getId()));
@@ -283,9 +282,6 @@ public class VoOverviewTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -304,8 +300,7 @@ public class VoOverviewTabItem implements TabItem {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         // TODO - there should be link
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Overview", "");
@@ -316,10 +311,9 @@ public class VoOverviewTabItem implements TabItem {
         session.setActiveVoId(voId);
     }
 
-
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId) ) {
+        if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
             return true;
         } else {
             return false;

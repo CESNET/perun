@@ -41,6 +41,7 @@ public class PerunWebSession {
 	private boolean groupAdmin = false;
 	private boolean voAdmin = false;
 	private boolean facilityAdmin = false;
+    private boolean voObserver = false; // is not vo admin
 	private boolean self = false; // is not admin
 	
 	// User roles constants
@@ -49,13 +50,17 @@ public class PerunWebSession {
 	static public final String VO_ADMIN_PRINCIPAL_ROLE = "VOADMIN";
 	static public final String FACILITY_ADMIN_PRINCIPAL_ROLE = "FACILITYADMIN";
 	static public final String USER_ROLE = "SELF";
+    static public final String VO_OBSERVER_PRINCIPAL_ROLE = "VOOBSERVER";
 	
 	// Entities which can the user edit
 	private ArrayList<Integer> editableGroups = new ArrayList<Integer>();
     private ArrayList<Integer> editableVos = new ArrayList<Integer>();
     private ArrayList<Integer> editableFacilities = new ArrayList<Integer>();
     private ArrayList<Integer> editableUsers = new ArrayList<Integer>();
-	
+
+    // entities which user can view (Observer role)
+    private ArrayList<Integer> viewableVos = new ArrayList<Integer>();
+
 	// Currently active entities - user is editing them now
 	private VirtualOrganization activeVo;
 	private Group activeGroup;
@@ -257,6 +262,36 @@ public class PerunWebSession {
         return false;
 	}
 
+    /**
+     * True if the user is VO observer.
+     * TRUE for PerunAdmin too.
+     *
+     * @return true if VO observer
+     */
+    public boolean isVoObserver(){
+
+        if (this.perunAdmin) {
+            return this.perunAdmin;
+        }
+        return this.voObserver;
+    }
+
+    /**
+     * True if the user is vo observer of a specified VO.
+     * TRUE for PerunAdmin too.
+     *
+     * @param id ID of VO to check observer status for
+     * @return true if user is VO's observer
+     */
+    public boolean isVoObserver(int id){
+        if (this.perunAdmin) {
+            return this.perunAdmin;
+        } else if (this.voObserver) {
+            return viewableVos.contains(id);
+        }
+        return false;
+    }
+
 	/**
 	 * True if the user is group admin.
      * TRUE for PerunAdmin too.
@@ -353,6 +388,15 @@ public class PerunWebSession {
         if (!this.editableVos.contains(voId)) this.editableVos.add(voId);
 	}
 
+    /**
+     * Add a VO, which user can view (for VO observer role)
+     *
+     * @param voId VO, which can user view
+     */
+    public void addViewableVo(int voId){
+        if (!this.viewableVos.contains(voId)) this.viewableVos.add(voId);
+    }
+
 	/**
 	 * Add a group, which user can edit
 	 * 
@@ -397,6 +441,15 @@ public class PerunWebSession {
      */
     public ArrayList<Integer> getEditableVos() {
         return editableVos;
+    }
+
+    /**
+     * Return list of viewable vos IDs
+     *
+     * @return vos
+     */
+    public ArrayList<Integer> getViewableVos() {
+        return viewableVos;
     }
 
 
@@ -610,6 +663,7 @@ public class PerunWebSession {
         this.facilityAdmin = roles.hasRole(FACILITY_ADMIN_PRINCIPAL_ROLE);
         this.groupAdmin = roles.hasRole(GROUP_ADMIN_PRINCIPAL_ROLE);
         this.self = roles.hasRole(USER_ROLE);
+        this.voObserver = roles.hasRole(VO_OBSERVER_PRINCIPAL_ROLE);
 
         JsArrayInteger array = roles.getEditableEntities("VOADMIN", "Vo");
         for (int i=0; i<array.length(); i++) {
@@ -626,6 +680,10 @@ public class PerunWebSession {
         JsArrayInteger array4 = roles.getEditableEntities("GROUPADMIN","Group");
         for (int i=0; i<array4.length(); i++) {
             addEditableGroup(array4.get(i));
+        }
+        JsArrayInteger array5 = roles.getEditableEntities("VOOBSERVER", "Vo");
+        for (int i=0; i<array5.length(); i++) {
+            addViewableVo(array5.get(i));
         }
 
     }
@@ -649,6 +707,9 @@ public class PerunWebSession {
         }
         if (voAdmin) {
             result += "; VoManager="+editableVos;
+        }
+        if (voObserver) {
+            result += "; VoObserver="+viewableVos;
         }
         if (groupAdmin) {
             result += "; GroupManager="+editableGroups;

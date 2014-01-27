@@ -133,9 +133,6 @@ public class MemberResourcesTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -160,7 +157,7 @@ public class MemberResourcesTabItem implements TabItem {
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin()) {
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin()) {
 			return true; 
 		} else {
 			return false;

@@ -322,8 +322,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 
     }
 	
-	private void setPageWidget(Widget w)
-	{
+	private void setPageWidget(Widget w) {
 		this.pageWidget.setWidget(w);
 
 	}
@@ -348,10 +347,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
-	@Override
+    @Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -365,13 +361,11 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		return true;
 	}
 
-
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Members", getUrlWithParameters());
         if(vo != null){
@@ -381,10 +375,9 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		session.setActiveVoId(voId);
 	}
 
-	
 	public boolean isAuthorized() {
 		
-		if (session.isVoAdmin(voId)) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
@@ -399,19 +392,16 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoMembersTabItem load(Map<String, String> parameters)
-	{
+	static public VoMembersTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoMembersTabItem(voId);
 	}
 	
-	static public VoMembersTabItem load(VirtualOrganization vo)
-	{
+	static public VoMembersTabItem load(VirtualOrganization vo) {
 		return new VoMembersTabItem(vo);
 	}
 

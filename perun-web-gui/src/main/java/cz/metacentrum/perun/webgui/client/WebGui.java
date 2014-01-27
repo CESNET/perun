@@ -449,17 +449,27 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
      */
     private void loadDefaultTabs() {
 
-        // perun / vo admin
+        // perun admin
         if(session.isPerunAdmin()) {
             // let perun admin decide what to open
             //session.getTabManager().addTab(new VosTabItem(session), true);
             return;
         }
+        // VO admin
         if(session.isVoAdmin()) {
             if (session.getEditableVos().size() > 1) {
                 session.getTabManager().addTab(new VosSelectTabItem(), true);
             } else {
                 session.getTabManager().addTab(new VoDetailTabItem(session.getEditableVos().get(0)), true);
+            }
+            return;
+        }
+        // VO observer
+        if(session.isVoObserver()) {
+            if (session.getViewableVos().size() > 1) {
+                session.getTabManager().addTab(new VosSelectTabItem(), true);
+            } else {
+                session.getTabManager().addTab(new VoDetailTabItem(session.getViewableVos().get(0)), true);
             }
             return;
         }

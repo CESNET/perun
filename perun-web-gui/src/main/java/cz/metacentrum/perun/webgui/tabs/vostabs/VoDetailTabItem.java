@@ -233,14 +233,12 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
         }
     }
 
-	public boolean isAuthorized() {
-
-		if (session.isVoAdmin(voId) ) {
+    public boolean isAuthorized() {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
 		}
-		
 	}
 	
 	public final static String URL = "detail";
@@ -258,6 +256,5 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoDetailTabItem(voId);
 	}
-	
 
 }

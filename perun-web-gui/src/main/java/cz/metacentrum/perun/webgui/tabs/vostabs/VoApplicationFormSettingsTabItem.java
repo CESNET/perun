@@ -280,9 +280,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Application form", getUrlWithParameters());
 		if(vo != null){
@@ -292,15 +290,12 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		session.setActiveVoId(voId);
 	}
 
-
 	public boolean isAuthorized() {
-		
-		if (session.isVoAdmin(voId)) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
 		}
-
 	}
 	
 	public final static String URL = "appl-form";
@@ -310,13 +305,11 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoApplicationFormSettingsTabItem load(Map<String, String> parameters)
-	{
+	static public VoApplicationFormSettingsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoApplicationFormSettingsTabItem(voId);
 	}

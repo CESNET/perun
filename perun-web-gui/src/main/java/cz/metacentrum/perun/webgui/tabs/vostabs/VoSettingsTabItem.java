@@ -216,8 +216,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
 		if(vo != null){
@@ -230,7 +229,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(voId) ) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;

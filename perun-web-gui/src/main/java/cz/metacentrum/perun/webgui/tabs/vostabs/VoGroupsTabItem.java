@@ -209,7 +209,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Groups", getUrlWithParameters());
@@ -219,7 +218,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		}
 		session.setActiveVoId(voId);
 	}
-
 
 	public boolean isAuthorized() {
 		
@@ -238,13 +236,11 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoGroupsTabItem load(Map<String, String> parameters)
-	{
+	static public VoGroupsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoGroupsTabItem(voId);
 	}

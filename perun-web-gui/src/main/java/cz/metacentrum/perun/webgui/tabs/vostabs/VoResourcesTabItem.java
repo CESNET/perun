@@ -182,9 +182,6 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -203,8 +200,7 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources", getUrlWithParameters());
         if(vo != null){
@@ -217,14 +213,13 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId) ) {
+        if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
             return true;
         } else {
             return false;
         }
 
     }
-
 
     public final static String URL = "resources";
 
@@ -233,13 +228,11 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
     }
 
-    static public VoResourcesTabItem load(Map<String, String> parameters)
-    {
+    static public VoResourcesTabItem load(Map<String, String> parameters) {
         int voId = Integer.parseInt(parameters.get("id"));
         return new VoResourcesTabItem(voId);
     }
