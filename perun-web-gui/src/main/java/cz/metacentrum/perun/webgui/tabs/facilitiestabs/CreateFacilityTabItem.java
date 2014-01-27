@@ -187,7 +187,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
             // widgets
             final ExtendedTextBox name = new ExtendedTextBox();
-            final ListBox type = new ListBox();
             final ListBoxWithObjects<Facility> copyOfFacility = new ListBoxWithObjects<Facility>();
 
             final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
@@ -211,21 +210,11 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                 copyOfFacility.setSelectedIndex(0);
             }
 
-            // facility-type values
-            type.addItem("General", "general");
-            type.addItem("Storage", "storage");
-            type.addItem("Cluster", "cluster");
-            type.addItem("Host", "host");
-            type.addItem("V-Cluster", "vcluster");
-            type.addItem("V-Host", "vhost");
-
             // Add some standard form options
             layout.setHTML(0, 0, "Name:");
             layout.setWidget(0, 1, name);
-            layout.setHTML(1, 0, "Type:");
-            layout.setWidget(1, 1, type);
-            layout.setHTML(2, 0, "As copy of:");
-            layout.setWidget(2, 1, copyOfFacility);
+            layout.setHTML(1, 0, "As copy of:");
+            layout.setWidget(1, 1, copyOfFacility);
 
             final CustomButton create = TabMenu.getPredefinedButton(ButtonType.CREATE, "Create new facility");
             TabMenu menu = new TabMenu();
@@ -319,7 +308,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                                     copyOfFacility.setEnabled(true);
                                 }
                             }));
-                            request.createFacility(name.getTextBox().getText().trim(), type.getValue(type.getSelectedIndex()));
+                            request.createFacility(name.getTextBox().getText().trim());
                         }
 
                     } else {
@@ -336,15 +325,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
                 // if tab was visited
                 name.getTextBox().setValue(facility.getName());
 
-                for (int i=0; i< type.getItemCount(); i++) {
-                    if (type.getValue(i).equals(facility.getType())) {
-                        type.setSelectedIndex(i);
-                        break;
-                    }
-                }
-
                 name.getTextBox().setEnabled(false);
-                type.setEnabled(false);
                 copyOfFacility.setEnabled(false);
 
                 if (sourceFacility != null) {
@@ -1458,9 +1439,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -1469,8 +1447,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
             return false;
         if (getClass() != obj.getClass())
             return false;
-
-
         return true;
     }
 
@@ -1493,8 +1469,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
     }
 
-    static public CreateFacilityTabItem load(Map<String, String> parameters)
-    {
+    static public CreateFacilityTabItem load(Map<String, String> parameters) {
         return new CreateFacilityTabItem();
     }
 
