@@ -98,7 +98,7 @@ public class EditGroupDetailsTabItem implements TabItem {
             public boolean validateTextBox() {
                 if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
                     nameTextBox.setError("Name can't be empty.");
-                } else if (!nameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_NAME_MATCHER)) {
+                } else if (!nameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
                     nameTextBox.setError("Name can contain only letters, numbers, spaces, dots, '_' and '-'.");
                 } else {
                     nameTextBox.setOk();

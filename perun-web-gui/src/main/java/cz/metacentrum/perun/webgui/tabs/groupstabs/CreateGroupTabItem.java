@@ -179,7 +179,7 @@ public class CreateGroupTabItem implements TabItem {
             public boolean validateTextBox() {
                 if (groupNameTextBox.getTextBox().getText().trim().isEmpty()) {
                     groupNameTextBox.setError("Name can't be empty.");
-                } else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_NAME_MATCHER)) {
+                } else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
                     groupNameTextBox.setError("Name can contain only letters, numbers, spaces, dots, '_' and '-'.");
                 } else {
                     groupNameTextBox.setOk();

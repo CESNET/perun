@@ -17,6 +17,7 @@ public class Utils {
     private static final int DEFAULT_LENGTH = 25;
 
     public static final String GROUP_NAME_MATCHER = "^[- a-zA-Z.0-9_:]+$";
+    public static final String GROUP_SHORT_NAME_MATCHER = "^[- a-zA-Z.0-9_]+$";
     public static final String VO_SHORT_NAME_MATCHER = "^[-a-zA-Z0-9_]+$";
     public static final String ATTRIBUTE_FRIENDLY_NAME_MATCHER = "^[-a-zA-Z:]+$";
 
