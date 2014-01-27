@@ -34,8 +34,7 @@ import java.util.Set;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id$
  */
-
-public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
+public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
     /**
      * Perun web session
@@ -109,7 +108,7 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
         */
 
-        CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+        final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
                 session.getTabManager().reloadTab(tab);
             }
@@ -137,42 +136,39 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         final GetFacilityState callback = new GetFacilityState(0, 0, new JsonCallbackEvents(){
             public void onLoadingStart(){
                 im.loadingStart();
+                cb.setProcessing(true);
             }
             public void onError(PerunError error){
                 im.loadingError(error);
+                cb.setProcessing(false);
             }
             public void onFinished(JavaScriptObject jso) {
                 im.loadingFinished();
+                cb.setProcessing(false);
                 content.clear();
                 content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
                 ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);
                 if (list != null && !list.isEmpty()){
 
-                    list = new TableSorter<FacilityState>().sortByFacilityName(list);
-
-                    ArrayList<FacilityState> cluster = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> host = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> storage = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> general = new ArrayList<FacilityState>();
-
-
-                    for (FacilityState st : list) {
-                        if (st.getFacility().getType().equalsIgnoreCase("cluster") || st.getFacility().getType().equalsIgnoreCase("vcluster")) {
-                            cluster.add(st);
-                        } else if (st.getFacility().getType().equalsIgnoreCase("host") || st.getFacility().getType().equalsIgnoreCase("vhost")) {
-                            host.add(st);
-                        } else if (st.getFacility().getType().equalsIgnoreCase("storage")) {
-                            storage.add(st);
+                    list = new TableSorter<FacilityState>().sortByNumberOfDestinations(list);
+                    ArrayList<FacilityState> clusters = new ArrayList<FacilityState>();
+                    ArrayList<FacilityState> hosts = new ArrayList<FacilityState>();
+                    for (final FacilityState state : list) {
+                        if (state.getDestinations().size() > 1) {
+                            clusters.add(state);
                         } else {
-                            general.add(st);
+                            hosts.add(state);
                         }
                     }
 
-                    // PROCESS CLUSTERS AND VCLUSTERS
+                    clusters = new TableSorter<FacilityState>().sortByFacilityName(clusters);
+                    hosts = new TableSorter<FacilityState>().sortByFacilityName(hosts);
 
-                    for (final FacilityState state : cluster) {
+                    // PROCESS CLUSTERS (with more than one destinations)
 
-                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "&nbsp;(" + state.getFacility().getType() + ")</strong>");
+                    for (final FacilityState state : clusters) {
+
+                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "</strong>");
 
                         final FlowPanel inner = new FlowPanel();
                         content.setWidget(mainrow+1, 0, inner);
@@ -225,139 +221,83 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
 
                     }
 
-                    // PROCESS HOSTS and VHOSTS
+                    // PROCESS HOSTS (with one or less destination)
 
+                    // FIX WIDTH
                     int width = 0;
-                    for (FacilityState state : host) {
-                        if (state.getFacility().getName().length()*8 > width) {
-                            width = state.getFacility().getName().length()*8;
+                    for (FacilityState state : hosts) {
+                        if (state.getDestinations().size() < 2) {
+                            if (state.getFacility().getName().length()*8 > width) {
+                                width = state.getFacility().getName().length()*8;
+                            }
                         }
                     }
 
                     FlowPanel inner = new FlowPanel();
-                    for (final FacilityState state : host) {
 
-                        Set<String> destinations = state.getDestinations().keySet();
-                        ArrayList<String> destList = new ArrayList<String>();
-                        for (String dest : destinations) {
-                            destList.add(dest);
-                        }
+                    for (final FacilityState state : hosts) {
 
-                        Collections.sort(destList);
+                            Set<String> destinations = state.getDestinations().keySet();
+                            ArrayList<String> destList = new ArrayList<String>();
+                            for (String dest : destinations) {
+                                destList.add(dest);
+                            }
 
-                        for (final String dest : destList) {
+                            Collections.sort(destList);
 
-                            Anchor hyp = new Anchor();
-                            hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+dest+"</span>");
-                            inner.add(hyp);
-                            hyp.addClickHandler(new ClickHandler() {
-                                public void onClick(ClickEvent clickEvent) {
-                                    session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, false));
+                            for (final String dest : destList) {
+
+                                Anchor hyp = new Anchor();
+                                hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+dest+"</span>");
+                                inner.add(hyp);
+                                hyp.addClickHandler(new ClickHandler() {
+                                    public void onClick(ClickEvent clickEvent) {
+                                        session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, false));
+                                    }
+                                });
+
+                                // style
+                                if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
+                                    hyp.addStyleName("red");
+                                    errorCounter++;
+                                } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
+                                    hyp.addStyleName("green");
+                                    okCounter++;
+                                } else {
+                                    hyp.addStyleName("notdetermined");
+                                    notDeterminedCounter++;
                                 }
-                            });
+                            }
 
-                            // style
-                            if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-                                hyp.addStyleName("red");
-                                errorCounter++;
-                            } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-                                hyp.addStyleName("green");
-                                okCounter++;
-                            } else {
+                            if (destList.isEmpty()) {
+                                Anchor hyp = new Anchor();
+                                hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+state.getFacility().getName()+"</span>");
+                                inner.add(hyp);
                                 hyp.addStyleName("notdetermined");
                                 notDeterminedCounter++;
                             }
-                        }
-
-                        if (destList.isEmpty()) {
-                            Anchor hyp = new Anchor();
-                            hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+state.getFacility().getName()+"</span>");
-                            inner.add(hyp);
-                            hyp.addStyleName("notdetermined");
-                            notDeterminedCounter++;
-                        }
 
                     }
 
-                    if (!host.isEmpty()) {
-                        content.setHTML(mainrow, 0, "<strong>Hosts and vHosts</strong>");
+                    if (!hosts.isEmpty()) {
+                        content.setHTML(mainrow, 0, "<strong>Single hosts</strong>");
                         mainrow++;
                     }
                     content.setWidget(mainrow, 0, inner);
                     content.getFlexCellFormatter().setStyleName(mainrow, 0, "propagationTablePadding");
                     mainrow++;
 
-                    // PROCESS REST
-
-                    ArrayList<FacilityState> rest = new ArrayList<FacilityState>();
-                    rest.addAll(storage);
-                    rest.addAll(general);
-
-                    for (final FacilityState state : rest) {
-
-                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "&nbsp;(" + state.getFacility().getType() + ")</strong>");
-
-                        final FlowPanel inner2 = new FlowPanel();
-                        content.setWidget(mainrow+1, 0, inner2);
-                        content.getFlexCellFormatter().setStyleName(mainrow+1, 0, "propagationTablePadding");
-
-                        Set<String> destinations = state.getDestinations().keySet();
-                        ArrayList<String> destList = new ArrayList<String>();
-                        int width2 = 0;
-                        for (String dest : destinations) {
-                            destList.add(dest);
-                            if (dest.indexOf(".")*8 > width2) {
-                                width2 = dest.indexOf(".")*8;
-                            }
-                        }
-
-                        Collections.sort(destList);
-
-                        for (final String dest : destList) {
-
-                            String show = dest.substring(0, dest.indexOf("."));
-                            Anchor hyp = new Anchor();
-                            hyp.setHTML("<span style=\"display: inline-block; width: "+width2+"px; text-align: center;\">"+show+"</span>");
-                            hyp.addClickHandler(new ClickHandler() {
-                                public void onClick(ClickEvent clickEvent) {
-                                    session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, false));
-                                }
-                            });
-                            inner2.add(hyp);
-
-                            // style
-                            if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-                                hyp.addStyleName("red");
-                                errorCounter++;
-                            } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-                                hyp.addStyleName("green");
-                                okCounter++;
-                            } else {
-                                hyp.addStyleName("notdetermined");
-                                notDeterminedCounter++;
-                            }
-
-                        }
-
-                        if (destList.isEmpty()) {
-                            notDeterminedCounter++;
-                        }
-
-                        mainrow++;
-                        mainrow++;
-
-                    }
-
-                    // set counters
-                    help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
-                    help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
-                    help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
-                    //help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
-
-
                 }
+
+                // set counters
+                help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
+                help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
+                help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
+                //help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
+
             }
-        }); // get for all facilities for VO
+        });
+        // get for all facilities
         callback.retrieveData();
 
         // resize perun table to correct size on screen
@@ -366,6 +306,7 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         this.contentWidget.setWidget(mainTab);
 
         return getWidget();
+
     }
 
     public Widget getWidget() {
@@ -380,7 +321,6 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         return SmallIcons.INSTANCE.arrowRightIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -389,9 +329,6 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -408,36 +345,30 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "All facilities states", getUrlWithParameters());
     }
 
     public boolean isAuthorized() {
-
         if (session.isFacilityAdmin()) {
             return true;
         } else {
             return false;
         }
-
     }
 
     public final static String URL = "propags";
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
     }
 
-    static public FacilitiesPropagationsTabItem load(Map<String, String> parameters)
-    {
+    static public FacilitiesPropagationsTabItem load(Map<String, String> parameters) {
         return new FacilitiesPropagationsTabItem();
     }
 

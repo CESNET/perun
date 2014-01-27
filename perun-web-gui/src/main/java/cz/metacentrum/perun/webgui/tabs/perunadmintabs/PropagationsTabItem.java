@@ -36,8 +36,7 @@ import java.util.Set;
  * @author Vaclav Mach <374430@mail.muni.cz> 
  * @version $Id$
  */
-
-public class PropagationsTabItem implements TabItem, TabItemWithUrl{
+public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
     /**
      * Perun web session
@@ -152,31 +151,25 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
                 ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);
                 if (list != null && !list.isEmpty()){
 
-                    list = new TableSorter<FacilityState>().sortByFacilityName(list);
-
-                    ArrayList<FacilityState> cluster = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> host = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> storage = new ArrayList<FacilityState>();
-                    ArrayList<FacilityState> general = new ArrayList<FacilityState>();
-
-
-                    for (FacilityState st : list) {
-                        if (st.getFacility().getType().equalsIgnoreCase("cluster") || st.getFacility().getType().equalsIgnoreCase("vcluster")) {
-                            cluster.add(st);
-                        } else if (st.getFacility().getType().equalsIgnoreCase("host") || st.getFacility().getType().equalsIgnoreCase("vhost")) {
-                            host.add(st);
-                        } else if (st.getFacility().getType().equalsIgnoreCase("storage")) {
-                            storage.add(st);
+                    list = new TableSorter<FacilityState>().sortByNumberOfDestinations(list);
+                    ArrayList<FacilityState> clusters = new ArrayList<FacilityState>();
+                    ArrayList<FacilityState> hosts = new ArrayList<FacilityState>();
+                    for (final FacilityState state : list) {
+                        if (state.getDestinations().size() > 1) {
+                            clusters.add(state);
                         } else {
-                            general.add(st);
+                            hosts.add(state);
                         }
                     }
 
-                    // PROCESS CLUSTERS AND VCLUSTERS
+                    clusters = new TableSorter<FacilityState>().sortByFacilityName(clusters);
+                    hosts = new TableSorter<FacilityState>().sortByFacilityName(hosts);
 
-                    for (final FacilityState state : cluster) {
+                    // PROCESS CLUSTERS (with more than one destinations)
 
-                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "&nbsp;(" + state.getFacility().getType() + ")</strong>");
+                    for (final FacilityState state : clusters) {
+
+                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "</strong>");
 
                         final FlowPanel inner = new FlowPanel();
                         content.setWidget(mainrow+1, 0, inner);
@@ -229,17 +222,21 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
 
                     }
 
-                    // PROCESS HOSTS and VHOSTS
+                    // PROCESS HOSTS (with one or less destination)
 
+                    // FIX WIDTH
                     int width = 0;
-                    for (FacilityState state : host) {
-                        if (state.getFacility().getName().length()*8 > width) {
-                            width = state.getFacility().getName().length()*8;
+                    for (FacilityState state : hosts) {
+                        if (state.getDestinations().size() < 2) {
+                            if (state.getFacility().getName().length()*8 > width) {
+                                width = state.getFacility().getName().length()*8;
+                            }
                         }
                     }
 
                     FlowPanel inner = new FlowPanel();
-                    for (final FacilityState state : host) {
+
+                    for (final FacilityState state : hosts) {
 
                         Set<String> destinations = state.getDestinations().keySet();
                         ArrayList<String> destList = new ArrayList<String>();
@@ -267,7 +264,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
                             } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
                                 hyp.addStyleName("green");
                                 okCounter++;
-                            }  else {
+                            } else {
                                 hyp.addStyleName("notdetermined");
                                 notDeterminedCounter++;
                             }
@@ -283,83 +280,22 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
 
                     }
 
-                    if (!host.isEmpty()) {
-                        content.setHTML(mainrow, 0, "<strong>Hosts and vHosts</strong>");
+                    if (!hosts.isEmpty()) {
+                        content.setHTML(mainrow, 0, "<strong>Single hosts</strong>");
                         mainrow++;
                     }
                     content.setWidget(mainrow, 0, inner);
                     content.getFlexCellFormatter().setStyleName(mainrow, 0, "propagationTablePadding");
                     mainrow++;
 
-                    // PROCESS REST
-
-                    ArrayList<FacilityState> rest = new ArrayList<FacilityState>();
-                    rest.addAll(storage);
-                    rest.addAll(general);
-
-                    for (final FacilityState state : rest) {
-
-                        content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "&nbsp;(" + state.getFacility().getType() + ")</strong>");
-
-                        final FlowPanel inner2 = new FlowPanel();
-                        content.setWidget(mainrow+1, 0, inner2);
-                        content.getFlexCellFormatter().setStyleName(mainrow+1, 0, "propagationTablePadding");
-
-                        Set<String> destinations = state.getDestinations().keySet();
-                        ArrayList<String> destList = new ArrayList<String>();
-                        int width2 = 0;
-                        for (String dest : destinations) {
-                            destList.add(dest);
-                            if (dest.indexOf(".")*8 > width2) {
-                                width2 = dest.indexOf(".")*8;
-                            }
-                        }
-
-                        Collections.sort(destList);
-
-                        for (final String dest : destList) {
-
-                            String show = dest.substring(0, dest.indexOf("."));
-                            Anchor hyp = new Anchor();
-                            hyp.setHTML("<span style=\"display: inline-block; width: "+width2+"px; text-align: center;\">"+show+"</span>");
-                            hyp.addClickHandler(new ClickHandler() {
-                                public void onClick(ClickEvent clickEvent) {
-                                    session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, true));
-                                }
-                            });
-                            inner2.add(hyp);
-
-                            // style
-                            if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-                                hyp.addStyleName("red");
-                                errorCounter++;
-                            } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-                                hyp.addStyleName("green");
-                                okCounter++;
-                            } else {
-                                hyp.addStyleName("notdetermined");
-                                notDeterminedCounter++;
-                            }
-
-                        }
-
-                        if (destList.isEmpty()) {
-                            notDeterminedCounter++;
-                        }
-
-                        mainrow++;
-                        mainrow++;
-
-                    }
-
-                    // set counters
-                    help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
-                    help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
-                    help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
-                    //help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
-
-
                 }
+
+                // set counters
+                help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
+                help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
+                help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
+                //help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
+
             }
         }); // get for all facilities for VO
         callback.retrieveData();
@@ -383,7 +319,6 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         return SmallIcons.INSTANCE.arrowRightIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -392,9 +327,6 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -404,7 +336,6 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         if (getClass() != obj.getClass())
             return false;
 
-
         return true;
     }
 
@@ -412,36 +343,31 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Propagations", getUrlWithParameters());
     }
 
     public boolean isAuthorized() {
-
         if (session.isPerunAdmin()) {
             return true;
         } else {
             return false;
         }
-
     }
 
     public final static String URL = "propags";
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
     }
 
-    static public PropagationsTabItem load(Map<String, String> parameters)
-    {
+    static public PropagationsTabItem load(Map<String, String> parameters) {
         return new PropagationsTabItem();
     }
+
 }

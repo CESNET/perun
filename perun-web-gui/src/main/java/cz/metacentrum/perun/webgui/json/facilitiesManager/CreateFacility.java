@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.webgui.json.facilitiesManager;
 
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -48,23 +47,18 @@ public class CreateFacility {
 	 * 
 	 * @return true/false when process can/can't continue
 	 */
-	private boolean testCreating()
-	{
+	private boolean testCreating() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(name.length() == 0){
-			errorMsg += "You must fill in the parameter 'Name'.\n";
-			result = false;
-		}
-
-		if(type.length() == 0){
-			errorMsg += "You must fill in the parameter 'Type'.\n";
+			errorMsg += "Facility parameter <strong>Name</strong> can't be empty.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -74,12 +68,11 @@ public class CreateFacility {
 	 * Attempts to create a new Facility, it first tests the values and then submits them.
 	 * 
 	 * @param name Facility name
-	 * @param type Facility type
 	 */
-	public void createFacility(final String name, String type)
-	{
-		this.name = name;
-		this.type = type;
+	public void createFacility(final String name) {
+
+        this.name = name;
+		this.type = "general"; // FIXME - fake type, while transition to removing this property
 
 		// test arguments
 		if(!this.testCreating()){
@@ -118,8 +111,7 @@ public class CreateFacility {
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
+	private JSONObject prepareJSONObject() {
 		// facility
 		JSONObject facility = new JSONObject();
 		facility.put("name", new JSONString(name));

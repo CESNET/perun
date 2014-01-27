@@ -267,6 +267,27 @@ public class TableSorter<T> {
     }
 
     /**
+     * Returns sorted list of objects - FOR FACILITY_STATE ONLY !!
+     *
+     * SORTED DESC by default !!!
+     *
+     * @param list of objects to be sorted
+     * @return ArrayList<T> sorted list of objects by number of destinations
+     */
+    public ArrayList<T> sortByNumberOfDestinations(ArrayList<T> list){
+        if(list == null) return null;
+        Collections.sort(list, new Comparator<T>(){
+            public int compare(T o1, T o2) {
+                FacilityState o3 = (FacilityState)o1;
+                FacilityState o4 = (FacilityState)o2;
+                return o4.getDestinations().size() - (o3.getDestinations().size());
+            }
+        });
+        return list;
+
+    }
+
+    /**
 	 * Returns name of object
 	 * 
 	 * @param value object
