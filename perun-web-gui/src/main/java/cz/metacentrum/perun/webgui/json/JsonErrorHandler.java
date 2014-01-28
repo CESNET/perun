@@ -70,7 +70,7 @@ public class JsonErrorHandler {
         }
 
         // build confirm
-        Confirm conf = new Confirm(getCaption(type), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
+        Confirm conf = new Confirm(getCaption(type) + ((!error.getErrorId().equals("")) ? " ("+error.getErrorId()+")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
         conf.setNonScrollable(true);
         conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
 
