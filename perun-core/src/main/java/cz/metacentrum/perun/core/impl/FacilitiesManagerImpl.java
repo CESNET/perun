@@ -196,6 +196,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
+  @Deprecated
   public Facility getFacilityByName(PerunSession sess, String name, String type) throws InternalErrorException, FacilityNotExistsException {
     try {
       return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where name=? and type=?", FACILITY_MAPPER, name, type);
@@ -209,6 +210,19 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
+  public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where name=?", FACILITY_MAPPER, name);
+    } catch (EmptyResultDataAccessException ex) {
+      Facility fac = new Facility();
+      fac.setName(name);
+      throw new FacilityNotExistsException(fac);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  
   public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException {
     try {
       return jdbc.query("select distinct " + facilityMappingSelectQuery + " from facilities, destinations, facility_service_destinations " +
@@ -230,6 +244,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
+  @Deprecated
   public List<Facility> getFacilitiesByType(PerunSession sess, String type) throws InternalErrorException {
     try {
       return jdbc.query("select " + facilityMappingSelectQuery + " from facilities where facilities.type=?", FACILITY_MAPPER, type);
