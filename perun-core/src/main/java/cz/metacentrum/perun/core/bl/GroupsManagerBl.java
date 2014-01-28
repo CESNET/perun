@@ -53,15 +53,17 @@ public interface GroupsManagerBl {
 
 
   /** 
-   * Creates a new group and associate it with the VO.
+   * Creates a new top-level group and associate it with the VO.
+   * 
+   * For this method (new group) has always same shortName like Name.
    *
    * @param perunSession
    * @param vo
-   * @param group
+   * @param group with name without ":"
    * 
-   * @return newly created group
+   * @return newly created top-level group
    * 
-   * @throws InternalErrorException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
    * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, InternalErrorException;
@@ -71,11 +73,11 @@ public interface GroupsManagerBl {
    *
    * @param perunSession
    * @param parentGroup
-   * @param group
+   * @param group group.name must contain only shortName (without ":"). Hierarchy is defined by parentGroup parameter.
    * 
-   * @return newly created sub group
+   * @return newly created sub group with full group.Name with ":"
    * 
-   * @throws InternalErrorException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
    * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException;
@@ -130,12 +132,15 @@ public interface GroupsManagerBl {
   void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
   /**
-   * Updates group.
+   * Updates group by ID.
+   * 
+   * Update shortName (use shortName) and description. Group.name is ignored.
+   * Return Group with correctly set parameters (including group.name)
    * 
    * @param perunSession
-   * @param group to update
+   * @param group to update (use only ID, shortName and description)
    * 
-   * @return updated group
+   * @return updated group with correctly set parameters (including group.name)
    * 
    * @throws InternalErrorException
    */

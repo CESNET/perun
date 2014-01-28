@@ -214,13 +214,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       throw new InternalErrorException("Group existence was checked at the higher level",e);
     }
 
-    if (!dbGroup.getName().equals(group.getName())) {
+    if (!dbGroup.getShortName().equals(group.getShortName())) {
       try {
         jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", group.getShortName(),
                 sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId());
       } catch (RuntimeException e) {
         throw new InternalErrorException(e);
       }
+      dbGroup.setShortName(group.getShortName());
     }
 
     if (group.getDescription() != null && !group.getDescription().equals(dbGroup.getDescription())) {
@@ -230,8 +231,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       } catch (RuntimeException e) {
         throw new InternalErrorException(e);
       }
+      dbGroup.setDescription(group.getDescription());
     }
-    return group;
+    return dbGroup;
   }
 
   public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException, InternalErrorException {

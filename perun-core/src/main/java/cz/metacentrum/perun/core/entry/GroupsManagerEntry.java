@@ -73,8 +73,8 @@ public class GroupsManagerEntry implements GroupsManager {
     Utils.notNull(group.getName(), "group.name");
     
 
-    if (!group.getName().matches(GroupsManager.GROUP_NAME_REGEXP)) {
-      throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_NAME_REGEXP));
+    if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
+      throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
     }
 
     // Authorization
@@ -94,8 +94,8 @@ public class GroupsManagerEntry implements GroupsManager {
     Utils.notNull(group.getName(), "group.name");
 
      
-    if (!group.getName().matches(GroupsManager.GROUP_NAME_REGEXP)) {
-      throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_NAME_REGEXP));
+    if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
+      throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
     }
 
     // Authorization
@@ -143,8 +143,8 @@ public class GroupsManagerEntry implements GroupsManager {
     Utils.notNull(group, "group");
     Utils.notNull(group.getName(), "group.name");
 
-    if (!group.getName().matches(GroupsManager.GROUP_NAME_REGEXP)) {
-      throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_NAME_REGEXP));
+    if (!group.getShortName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
+      throw new InternalErrorException(new IllegalArgumentException("Wrong group shortName, group shortName must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
     }
 
     // Authorization
