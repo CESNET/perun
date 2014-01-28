@@ -159,8 +159,6 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
             Facility object = go.cast();
             if (attrName.equalsIgnoreCase("name")) {
                 return object.getName();
-            } else if (attrName.equalsIgnoreCase("type")) {
-                return object.getType();
             } else if (attrName.equalsIgnoreCase("id")) {
                 return ""+object.getId();
             } else if (attrName.equalsIgnoreCase("technicalOwners")) {

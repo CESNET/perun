@@ -84,7 +84,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 	public Widget draw() {
 
 		// title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Propagation status");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Propagation status");
 		
 		// main content
 		final VerticalPanel vp = new VerticalPanel();

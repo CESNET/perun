@@ -82,7 +82,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	
 	public Widget draw() {
 		
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + "): create resource");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": create resource");
 
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
@@ -140,7 +140,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
         layout.setHTML(2, 0, "VO:");
         layout.setWidget(2, 1, vosDropDown);
         layout.setHTML(3, 0, "Facility:");
-        layout.setHTML(3, 1, facility.getName()+" ("+facility.getType()+")");
+        layout.setHTML(3, 1, facility.getName());
 
         for (int i=0; i<layout.getRowCount(); i++) {
             cellFormatter.addStyleName(i, 0, "itemName");

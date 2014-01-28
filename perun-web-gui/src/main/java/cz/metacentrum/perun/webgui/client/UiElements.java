@@ -457,7 +457,7 @@ public class UiElements {
                     items = items.concat("<li>" + h.getName() + "</li>");
                 } else if (go.getObjectType().equalsIgnoreCase("Facility") || go.getObjectType().equalsIgnoreCase("RichFacility")) {
                     Facility f = go.cast();
-                    items = items.concat("<li>" + f.getName() + " (" + f.getType() + ")" + "</li>");
+                    items = items.concat("<li>"+f.getName()+"</li>");
                 } else if (go.getObjectType().equalsIgnoreCase("Attribute") || go.getObjectType().equalsIgnoreCase("AttributeDefinition")) {
                     Attribute a = go.cast();
                     items = items.concat("<li>" + a.getDisplayName() + "</li>");

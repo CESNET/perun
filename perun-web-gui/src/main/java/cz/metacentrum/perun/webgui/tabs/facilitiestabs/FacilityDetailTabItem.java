@@ -99,7 +99,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + ")");
+        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()));
 		
 		// main widget panel
 		final VerticalPanel vp = new VerticalPanel();
@@ -128,8 +128,6 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
             menu.getFlexCellFormatter().setWidth(0, column, "25px");
             column++;
         }
-
-        menu.setHTML(0, column, "<strong>Type:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getType()+"</span>");
 
         CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
             @Override

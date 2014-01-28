@@ -124,14 +124,6 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 			}
 		});
 
-		// type column
-		Column<FacilityState, String> typeColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<FacilityState, String>() {
-					public String getValue(FacilityState object) {
-						return String.valueOf(object.getFacility().getType());
-					}
-				}, null);
-
 		// status column
 		Column<FacilityState, String> statusColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<FacilityState, String>() {
@@ -173,7 +165,6 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
         */
 
         table.addColumn(facilityColumn, "Facility");
-		table.addColumn(typeColumn, "Type");
 		table.addColumn(statusColumn, "Propagation state");
         //table.addColumn(errorColumn, "Nodes in error");
 
