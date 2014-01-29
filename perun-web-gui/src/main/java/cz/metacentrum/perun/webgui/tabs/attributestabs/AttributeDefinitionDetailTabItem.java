@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * Detail of Attribute definition
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AttributeDefinitionDetailTabItem implements TabItem {
 

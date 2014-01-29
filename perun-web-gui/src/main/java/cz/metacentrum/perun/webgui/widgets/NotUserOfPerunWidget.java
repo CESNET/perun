@@ -10,7 +10,6 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
  * => user not found by provided KRB/FED credentials.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class NotUserOfPerunWidget extends Composite {

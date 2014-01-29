@@ -36,7 +36,6 @@ import java.util.ArrayList;
  * Provides page with add admin facility to Facility form
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class AddFacilityManagerGroupTabItem implements TabItem {
 

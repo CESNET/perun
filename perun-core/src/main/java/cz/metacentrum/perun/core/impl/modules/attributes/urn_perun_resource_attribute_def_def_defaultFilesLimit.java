@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 /**
  *
  * @author Michal Stava stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_defaultFilesLimit extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

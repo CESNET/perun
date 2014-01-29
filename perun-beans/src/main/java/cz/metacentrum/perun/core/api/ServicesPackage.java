@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Auditable;
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Michal Karm Babacek
- * @version $Id$
  */
 public class ServicesPackage extends Auditable {
 	private int id;

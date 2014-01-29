@@ -19,7 +19,6 @@ import java.util.List;
  * Pairs of IdP indentificator and user's EPPN.
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

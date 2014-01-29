@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
  * UsersManager entry logic
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 58a733a0cf9aad7f880616c0758787e206c1bdf9 $
  */
 public class UsersManagerEntry implements UsersManager {
 

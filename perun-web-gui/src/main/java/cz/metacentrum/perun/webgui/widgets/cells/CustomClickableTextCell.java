@@ -8,7 +8,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
  * Custom GWT cell, which is clickable and looks like an anchor.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class CustomClickableTextCell extends ClickableTextCell
 {

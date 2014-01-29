@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Remove owner from facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class RemoveOwner {

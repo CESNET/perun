@@ -36,7 +36,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AuthorshipServiceImpl implements IAuthorshipService {
 	

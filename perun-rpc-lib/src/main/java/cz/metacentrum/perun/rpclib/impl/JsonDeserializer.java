@@ -30,7 +30,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * Deserializer that reads values from JSON content.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public class JsonDeserializer extends Deserializer {

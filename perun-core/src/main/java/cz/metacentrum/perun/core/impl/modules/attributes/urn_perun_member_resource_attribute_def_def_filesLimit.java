@@ -20,7 +20,6 @@ import java.util.List;
 /**
  *
  * @author Michal Stava stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_member_resource_attribute_def_def_filesLimit extends ResourceMemberAttributesModuleAbstract implements ResourceMemberAttributesModuleImplApi {
 

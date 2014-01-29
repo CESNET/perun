@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.client.resources;
  * Provides localized comparing of strings 
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Collator {
 	

@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * @author Slavek Licehammer
  * @author Zora Sebestianova
  * @author 
- * @version $Id: 4f9b9326612ee24ce4ed36fe2cedcfa1ec0448e4 $
  */
 public interface MembersManagerBl {
 

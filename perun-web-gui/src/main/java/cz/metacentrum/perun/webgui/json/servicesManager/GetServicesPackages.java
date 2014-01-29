@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Ajax query to get all services packages
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 
 public class GetServicesPackages implements JsonCallback, JsonCallbackTable<ServicesPackage>, JsonCallbackOracle<ServicesPackage> {

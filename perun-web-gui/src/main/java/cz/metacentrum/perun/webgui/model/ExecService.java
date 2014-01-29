@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Overlay type for ExecService objects
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class ExecService extends JavaScriptObject {

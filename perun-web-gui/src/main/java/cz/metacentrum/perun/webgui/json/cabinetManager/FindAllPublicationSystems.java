@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Finds All publication systems in Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTable<PublicationSystem> {
 

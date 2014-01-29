@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  *
  * @date 22.4.2011 10:43:48
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_login_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 

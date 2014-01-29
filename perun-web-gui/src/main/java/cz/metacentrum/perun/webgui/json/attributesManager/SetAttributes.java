@@ -21,7 +21,6 @@ import java.util.Map;
  * Ajax query which sets attributes with a new value
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class SetAttributes {

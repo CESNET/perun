@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
  * OwnersManager
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
   public interface OwnersManagerImplApi {
 

@@ -35,7 +35,6 @@ import java.sql.SQLException;
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @version $Id: 4ef758d03c3e54841a886d276cd50f0e92c42167 $
  */
 public interface FacilitiesManagerImplApi {
 

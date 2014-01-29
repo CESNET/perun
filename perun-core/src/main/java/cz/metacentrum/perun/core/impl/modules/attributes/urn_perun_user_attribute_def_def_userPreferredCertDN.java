@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {  
     

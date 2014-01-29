@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * This exception raises when the name of entity contains at least one space.
  *
  * @author Michal Šťava
- * @version $Id$
  */
 public class SpaceNotAllowedException extends InternalErrorException {
     static final long serialVersionUID = 0;

@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Searcher Class for searching objects by Map of Attributes
  * 
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class SearcherImpl implements SearcherImplApi {
     

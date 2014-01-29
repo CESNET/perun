@@ -37,7 +37,6 @@ import java.util.Set;
  * Tab with propagation status of all facilities related to VO.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 

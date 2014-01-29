@@ -24,7 +24,6 @@ import java.util.ArrayList;
  * Ajax query to get allowed vos on facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$ 
  */
 public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrganization> {
 

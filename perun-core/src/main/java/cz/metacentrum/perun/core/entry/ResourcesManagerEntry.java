@@ -49,7 +49,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 /**
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class ResourcesManagerEntry implements ResourcesManager {
 

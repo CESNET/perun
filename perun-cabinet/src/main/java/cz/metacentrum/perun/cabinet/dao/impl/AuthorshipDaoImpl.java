@@ -16,7 +16,6 @@ import cz.metacentrum.perun.cabinet.service.SortParam;
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class AuthorshipDaoImpl implements IAuthorshipDao {
 

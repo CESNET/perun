@@ -26,7 +26,6 @@ import java.util.ArrayList;
  * Ajax query to get RichTasks for service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 @Deprecated
 public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task> {

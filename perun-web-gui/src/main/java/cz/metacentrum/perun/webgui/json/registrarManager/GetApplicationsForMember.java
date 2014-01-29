@@ -32,7 +32,6 @@ import java.util.Comparator;
  * Returns list of Members applications with filtering based on group name
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
 

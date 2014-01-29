@@ -10,7 +10,6 @@ import java.util.ArrayList;
  * Class with support methods used in GUI code
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Utils {
 

@@ -16,7 +16,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Create a new group query.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class CreateGroup {
 

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.DestinationExistsRuntimeExcep
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceExistsRuntimeException
  * @author Michal Prochazka
- * @version $Id$
  */
 public class DestinationExistsException extends EntityExistsException {
   static final long serialVersionUID = 0;

@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to create dependency between two exec services
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreateDependency {
 

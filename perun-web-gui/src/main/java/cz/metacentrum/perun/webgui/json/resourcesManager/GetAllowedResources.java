@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * Get allowed resources for a Member
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetAllowedResources implements JsonCallback, JsonCallbackTable<Resource> {
 

@@ -34,7 +34,6 @@ import java.util.Map;
  * Create service member in VO.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 

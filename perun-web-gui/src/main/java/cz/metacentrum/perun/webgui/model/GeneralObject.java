@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * common properties from all kind of objects in Perun.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GeneralObject extends JavaScriptObject {
 

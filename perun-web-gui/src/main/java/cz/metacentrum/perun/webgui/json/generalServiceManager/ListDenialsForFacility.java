@@ -25,7 +25,6 @@ import java.util.Comparator;
  * Ajax query to get exec services which are denied on facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<ExecService> {
 	// Session

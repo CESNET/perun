@@ -33,7 +33,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
  * ExtSourcesManager entry logic.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class ExtSourcesManagerEntry implements ExtSourcesManager {
 

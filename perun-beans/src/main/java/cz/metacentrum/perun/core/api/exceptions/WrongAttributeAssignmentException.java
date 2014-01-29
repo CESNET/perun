@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeAssignmentRunti
  * Thrown while assign atribute to wrong entity. For example if you try to set value for the facility to atrribut whis is only for resources.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class WrongAttributeAssignmentException extends PerunException {
     static final long serialVersionUID = 0;

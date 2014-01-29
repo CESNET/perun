@@ -8,7 +8,6 @@ import cz.metacentrum.perun.webgui.client.localization.ObjectTranslation;
  * Overlay type for registrar: Application
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class Application extends JavaScriptObject {

@@ -9,7 +9,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * Tab for Page not found case
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 	

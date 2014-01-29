@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.Resource;
  * Update resource details
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 6f992a4341026e85889ee2b9164ce2b873f64bb0 $
  */
 public class UpdateResource {
 

@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 

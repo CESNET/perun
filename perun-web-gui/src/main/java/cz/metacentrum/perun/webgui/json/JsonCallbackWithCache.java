@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.json;
  * If the JsonCallback can use cache
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public interface JsonCallbackWithCache {

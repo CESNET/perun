@@ -32,7 +32,6 @@ import java.util.Map;
  * Tab for adding new Thanks
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 

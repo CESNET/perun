@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttri
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 

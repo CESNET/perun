@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.HTML;
  * ORIGINAL LICENSE: Apache License 2.0
  *
  * @author Claudius Hauptmann <claudiushauptmann.com@googlemail.com>
- * @version $Id$
  */
 public class RecaptchaWidget extends Composite {
 

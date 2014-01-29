@@ -29,7 +29,6 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
  * View VO overview details
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class VoOverviewTabItem implements TabItem {
 

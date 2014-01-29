@@ -8,7 +8,6 @@ import cz.metacentrum.perun.webgui.model.Destination;
  * (if service param is available, it's used too)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class DestinationKeyProvider implements ProvidesKey<Destination> {
 

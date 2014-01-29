@@ -47,7 +47,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * 
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
- * @version $Id: 2d955f5cad2749d5b30fe5529282bb99a4737f51 $
  * @see Perun
  */
 public interface GroupsManagerBl {

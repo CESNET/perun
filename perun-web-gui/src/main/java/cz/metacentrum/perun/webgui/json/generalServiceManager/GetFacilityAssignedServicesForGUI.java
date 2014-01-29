@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query to get all services on facility with allowedOnFacility property filled.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$ 
  */
 public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCallbackTable<RichService> {
 

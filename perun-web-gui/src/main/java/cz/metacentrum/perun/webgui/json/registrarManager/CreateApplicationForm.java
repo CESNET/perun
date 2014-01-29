@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Request, which creates a new application form in VO or Group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreateApplicationForm {
 

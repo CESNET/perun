@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Ajax query to get facility propagation state for 1 or All facilities or Facilities related to some VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetFacilityState implements JsonCallback, JsonCallbackTable<FacilityState>, JsonCallbackOracle<FacilityState> {

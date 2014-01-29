@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
  * Identification of the acting person.
  *
  * @author Martin Kuba
- * @version $Id$
  */
 public class PerunPrincipal {
 

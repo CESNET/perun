@@ -46,7 +46,6 @@ import cz.metacentrum.perun.core.impl.Utils;
  * AttributesManager entry logic.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 0ab02810f0db6459d4729c8d7f9c4b58789e2c79 $
  */
 public class AttributesManagerEntry implements AttributesManager {
 

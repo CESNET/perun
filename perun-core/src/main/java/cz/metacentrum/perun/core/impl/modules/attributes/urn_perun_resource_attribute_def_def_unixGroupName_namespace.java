@@ -26,7 +26,6 @@ import java.util.Set;
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
   

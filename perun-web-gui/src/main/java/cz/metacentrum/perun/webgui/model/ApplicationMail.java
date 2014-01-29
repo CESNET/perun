@@ -10,7 +10,6 @@ import java.util.Map;
  * Overlay type for registrar: ApplicationMail
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: 3b0bbaa8f147a16871b90dc879936200a03c19e2 $
  */
 
 public class ApplicationMail extends JavaScriptObject {

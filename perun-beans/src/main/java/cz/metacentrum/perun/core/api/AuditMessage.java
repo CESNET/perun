@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api;
  * Represents auditors message.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class AuditMessage {
 

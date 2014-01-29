@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz> 
- * @version $Id: 26b5b8dd2fce7ccc999c2dad2a4869687aabbb5b $
  */
 public class CreateService {
 

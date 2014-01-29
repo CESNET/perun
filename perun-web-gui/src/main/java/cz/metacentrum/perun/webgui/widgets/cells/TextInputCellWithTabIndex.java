@@ -14,7 +14,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
  * Same widget as TextInputCell, only with tab index
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class TextInputCellWithTabIndex extends
 		AbstractInputCell<String, TextInputCellWithTabIndex.ViewData> {

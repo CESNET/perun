@@ -32,7 +32,6 @@ import java.util.Map;
  * Return Tab with Task Results loaded by destination name
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 

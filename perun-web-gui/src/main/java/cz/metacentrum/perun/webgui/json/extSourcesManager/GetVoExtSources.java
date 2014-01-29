@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query to get all VO ext sources
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
 

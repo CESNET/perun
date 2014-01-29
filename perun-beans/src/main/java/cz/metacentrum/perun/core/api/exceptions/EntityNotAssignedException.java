@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.EntityNotAssignedRuntimeExcep
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.EntityNotAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class EntityNotAssignedException extends PerunException {
     static final long serialVersionUID = 0;

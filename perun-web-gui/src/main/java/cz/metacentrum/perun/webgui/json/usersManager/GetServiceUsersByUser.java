@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query to get list of service users for user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetServiceUsersByUser implements JsonCallback, JsonCallbackTable<User> {
 

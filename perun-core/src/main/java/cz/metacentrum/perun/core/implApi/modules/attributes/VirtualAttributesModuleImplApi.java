@@ -14,7 +14,6 @@ import java.util.List;
  * This interface serves as a template for virtual attributes.
  * 
  * @author Michal Prochazka   <stavamichal@gmail.com>
- * @version $Id$
  */
 public interface VirtualAttributesModuleImplApi extends AttributesModuleImplApi {
     

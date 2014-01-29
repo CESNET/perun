@@ -40,7 +40,6 @@ import java.util.Map;
  * Group Applications 
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 

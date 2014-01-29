@@ -13,7 +13,6 @@ import java.util.ArrayList;
  * Left menu used in password reset form gui
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PasswordResetLeftMenu extends Composite {
 	

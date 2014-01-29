@@ -22,7 +22,6 @@ import cz.metacentrum.perun.rpc.RpcException;
  * JSON serializer.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public final class JsonSerializer implements Serializer {

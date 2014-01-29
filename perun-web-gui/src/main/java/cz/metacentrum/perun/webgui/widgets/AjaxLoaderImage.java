@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Custom GWT widget for ajax loader image.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: 67ed94e30cb88ef5798a46940f7bd07d2d260404 $
  */
 public class AjaxLoaderImage extends Composite {
 

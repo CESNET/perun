@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * Runtime version of ConsistencyErrorException
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ConsistencyErrorRuntimeException extends InternalErrorRuntimeException {
     static final long serialVersionUID = 0;

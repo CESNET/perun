@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.*;
  * Custom cell with value optionally displayed as clickable
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extends AbstractSafeHtmlCell<T> {
 

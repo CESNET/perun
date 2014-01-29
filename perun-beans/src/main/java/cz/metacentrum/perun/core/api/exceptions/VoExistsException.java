@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.VoExistsRuntimeException;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.VoExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class VoExistsException extends EntityExistsException {
     static final long serialVersionUID = 0;

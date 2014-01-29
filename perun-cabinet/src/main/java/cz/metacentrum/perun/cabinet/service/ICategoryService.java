@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
  * Interface for handling publication's categories
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface ICategoryService {
 

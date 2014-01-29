@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_smb_groupshare extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

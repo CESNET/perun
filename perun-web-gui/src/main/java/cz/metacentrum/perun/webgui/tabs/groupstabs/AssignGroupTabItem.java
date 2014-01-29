@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * !!! USE ONLY AS INNER TAB !!!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: d38362804030ea2bda04ec76fd91a3e4660757d2 $
  */
 public class AssignGroupTabItem implements TabItem {
 

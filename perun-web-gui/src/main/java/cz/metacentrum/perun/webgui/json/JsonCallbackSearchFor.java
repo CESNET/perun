@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.json;
  * Extension to JsonCallback which provides searchFor() method
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public interface JsonCallbackSearchFor extends JsonCallback {
 

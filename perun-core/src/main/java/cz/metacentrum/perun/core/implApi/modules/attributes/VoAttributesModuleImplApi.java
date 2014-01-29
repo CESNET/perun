@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * Organization (Vo) attributes.
  *
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 

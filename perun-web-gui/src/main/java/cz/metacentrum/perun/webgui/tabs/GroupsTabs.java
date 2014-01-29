@@ -9,7 +9,6 @@ import java.util.Map;
  * Groups
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: ec60c9c53ef0fc8492a859893e10daef9914f272 $
  */
 public class GroupsTabs {
 

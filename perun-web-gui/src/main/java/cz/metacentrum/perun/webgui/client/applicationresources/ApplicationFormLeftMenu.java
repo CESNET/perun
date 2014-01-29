@@ -15,7 +15,6 @@ import java.util.ArrayList;
  * Left menu used in application form gui
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class ApplicationFormLeftMenu extends Composite{
 	

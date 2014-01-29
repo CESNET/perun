@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleIm
 
 /**
  * @author Jiří Mauritz
- * @version $Id$
  */
 public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 

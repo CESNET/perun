@@ -27,7 +27,6 @@ import java.util.Map;
 
 /**
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 
 public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {

@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.Vo;
  * Application form of a VO. Use {@link cz.metacentrum.perun.registrar.RegistrarManager#getFormItems} for items.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class ApplicationForm {
 

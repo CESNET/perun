@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotExistsRuntimeExce
  * Attribute not exists in underlayin data source.
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class AttributeNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

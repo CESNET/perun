@@ -23,7 +23,6 @@ import java.util.ArrayList;
 /**
  *
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
- * @version $Id$
  */
 public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 

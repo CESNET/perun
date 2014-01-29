@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to ban selected exec service on facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class BanExecServiceOnFacility {

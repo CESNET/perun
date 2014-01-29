@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query which deletes service from Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 0c31e40db57650523e086c9c2bfccd6facf87c69 $
  */
 public class DeleteService {
 

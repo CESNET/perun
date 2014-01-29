@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * Checked version of EmptyPasswordRuntimeException.
  *
  * @author Michal Prochazka
- * @version $Id$
  */
 public class EmptyPasswordRuntimeException extends PerunRuntimeException {
     static final long serialVersionUID = 0;

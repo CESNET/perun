@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * USE AS INNER TAB ONLY or DON'T add tab url between vos tabs
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 

@@ -11,7 +11,6 @@ import java.util.ArrayList;
  * Member of a Virtual Organization.
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class RichMember extends Member implements Comparable<RichMember> {
   private User user;

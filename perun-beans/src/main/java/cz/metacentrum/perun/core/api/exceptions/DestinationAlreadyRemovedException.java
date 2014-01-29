@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.DestinationAlreadyRemovedRunt
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.DestinationAlreadyRemovedException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class DestinationAlreadyRemovedException extends PerunException {
     static final long serialVersionUID = 0;

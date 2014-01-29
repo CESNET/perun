@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * It's processed in GUI and shows raw message text.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class RegistrarException extends PerunException {
 

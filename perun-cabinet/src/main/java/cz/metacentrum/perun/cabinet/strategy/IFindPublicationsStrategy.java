@@ -16,7 +16,6 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  * is the main purpose of classes implementing this interface. 
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IFindPublicationsStrategy {
 

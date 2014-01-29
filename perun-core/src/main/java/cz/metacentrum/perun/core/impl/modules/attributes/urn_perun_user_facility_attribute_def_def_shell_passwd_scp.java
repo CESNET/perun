@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 

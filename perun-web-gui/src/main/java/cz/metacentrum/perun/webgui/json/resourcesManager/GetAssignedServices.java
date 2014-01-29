@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * Ajax query to get assigned services for specified resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {
 

@@ -32,7 +32,6 @@ import java.util.*;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 17237cc31fe9d79e96ca64551a2d13ef8f8c5ee1 $
  */
 public class JsonUtils {
 	

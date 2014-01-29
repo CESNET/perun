@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query for finding candidates in External sources so they can become VO members
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate> {

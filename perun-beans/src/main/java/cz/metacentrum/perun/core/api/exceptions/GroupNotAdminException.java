@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Group;
 /**
  *
  * @author Jiří Mauritz
- * @version $Id$
  */
 public class GroupNotAdminException extends PerunException {
     static final long serialVersionUID = 0;

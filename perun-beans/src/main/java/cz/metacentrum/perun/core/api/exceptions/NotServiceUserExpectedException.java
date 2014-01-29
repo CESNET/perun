@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException
  * @author Michal Šťava
- * @version $Id$
  */
 public class NotServiceUserExpectedException extends PerunException {
     static final long serialVersionUID = 0;

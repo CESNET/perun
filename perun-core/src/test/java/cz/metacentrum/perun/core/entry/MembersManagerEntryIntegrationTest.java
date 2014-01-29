@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ServicesPackageNotExistsRunti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ServicesPackageNotExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class ServicesPackageNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

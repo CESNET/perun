@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Request, which adds application email
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class AddApplicationMail {
 

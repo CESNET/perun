@@ -8,7 +8,6 @@ import com.google.gwt.i18n.client.Constants;
  * Settings are stored in {devel,production}/resources/PerunWebConstants.properties
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface PerunWebConstants extends Constants{
 

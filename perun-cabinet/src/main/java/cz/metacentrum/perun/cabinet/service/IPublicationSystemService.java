@@ -7,7 +7,6 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  * Interface for handling PublicationSystem entity in Cabinet.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IPublicationSystemService {
 

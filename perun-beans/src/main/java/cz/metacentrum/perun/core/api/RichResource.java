@@ -10,7 +10,6 @@ import java.util.List;
  * Object which represents RichResource
  *
  * @author  Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 1508935453da8317cac7768aaec515faee248a3a $
  */
 
 public class RichResource extends Resource {

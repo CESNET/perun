@@ -7,7 +7,6 @@ import org.apache.http.client.methods.HttpUriRequest;
  * Interface for executing HTTP request to external PS to retrieve users publications
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IHttpService {
 	

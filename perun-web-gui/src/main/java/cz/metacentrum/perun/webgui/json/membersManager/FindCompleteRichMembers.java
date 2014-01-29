@@ -33,7 +33,6 @@ import java.util.ArrayList;
  * Ajax query to find all RichMembers of VO / Group by searchString with list of selected attributes
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallbackTable<RichMember> {
 

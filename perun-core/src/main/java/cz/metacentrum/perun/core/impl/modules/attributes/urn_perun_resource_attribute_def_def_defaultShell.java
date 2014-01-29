@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  *
  * @date 28.4.2011 11:12:16
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

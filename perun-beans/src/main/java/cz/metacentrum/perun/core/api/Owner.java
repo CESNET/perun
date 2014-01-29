@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class Owner extends Auditable {
 

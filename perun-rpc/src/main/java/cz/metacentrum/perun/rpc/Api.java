@@ -52,7 +52,6 @@ import cz.metacentrum.perun.rpc.serializer.Serializer;
  *
  * @author Jan Klos <ddd@mail.muni.cz>
  * @author Ales Krenek
- * @version $Id$
  * @since 0.1
  */
 public class Api extends HttpServlet {

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Destination where services are propagated.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class Destination extends Auditable implements Comparable<Destination> {
 

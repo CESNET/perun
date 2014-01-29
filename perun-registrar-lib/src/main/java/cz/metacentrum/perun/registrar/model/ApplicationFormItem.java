@@ -8,7 +8,6 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
  * Item of a form for an application to a VO.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class ApplicationFormItem {
 

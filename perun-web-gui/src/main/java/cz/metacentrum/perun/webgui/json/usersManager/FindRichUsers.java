@@ -27,7 +27,6 @@ import java.util.Comparator;
  * UsersManager/FindRichUsers
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 @Deprecated
 public class FindRichUsers implements JsonCallback, JsonCallbackTable<User> {

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.FacilityNotExistsRuntimeExcep
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.FacilityNotExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class FacilityNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

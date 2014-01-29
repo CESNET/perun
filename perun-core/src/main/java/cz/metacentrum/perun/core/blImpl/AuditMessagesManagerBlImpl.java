@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
  * Business logic.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 

@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 
 /**
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 

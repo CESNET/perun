@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * Module not exists.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ModuleNotExistsException extends InternalErrorException {
     static final long serialVersionUID = 0;

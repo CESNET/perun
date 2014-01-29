@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_smb_write_conf extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 

@@ -32,7 +32,6 @@ import java.util.Map;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MembershipExpirationTabItem implements TabItem {
 

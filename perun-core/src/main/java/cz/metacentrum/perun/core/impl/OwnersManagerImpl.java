@@ -24,7 +24,6 @@ import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
  * OwnersManager implementation.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class OwnersManagerImpl implements OwnersManagerImplApi {
 

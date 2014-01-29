@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Ajax query which deletes attribute definition
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class DeleteAttribute {

@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
- * @version $Id: c4cf29067c1bec2fc500f38adee7f334da2c74ee $
  */
 public interface UsersManager {
 

@@ -39,7 +39,6 @@ import java.util.Map;
  * Tab with Group Attributes for Group Admin
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 

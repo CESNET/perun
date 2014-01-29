@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.Messages;
  * Translations for buttons
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: c7243aabccd0a29f77580b056d6c4684ba108e5e $
  */
 public interface ButtonTranslation extends Messages {
 

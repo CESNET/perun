@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Candidate member of a Virtual Organization.
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class Candidate extends User {
 

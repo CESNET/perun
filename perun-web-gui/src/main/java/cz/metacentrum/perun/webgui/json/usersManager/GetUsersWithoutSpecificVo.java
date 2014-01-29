@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Search is base on name, login and mail.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 @Deprecated
 public class GetUsersWithoutSpecificVo implements JsonCallback, JsonCallbackTable<User> {

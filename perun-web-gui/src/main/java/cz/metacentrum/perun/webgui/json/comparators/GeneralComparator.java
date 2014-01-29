@@ -9,7 +9,6 @@ import java.util.Comparator;
  * Comparator for any Perun object - it makes a GeneralObject from them.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GeneralComparator<T extends JavaScriptObject> implements Comparator<T>{
 

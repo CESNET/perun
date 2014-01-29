@@ -16,7 +16,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to get group by it's name
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetGroupByName implements JsonCallback {
 

@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Axaj query to get Rich Resources for VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 22903139669d5eff4707b6be8bf617ee3e626765 $
  */
 public class GetRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
 

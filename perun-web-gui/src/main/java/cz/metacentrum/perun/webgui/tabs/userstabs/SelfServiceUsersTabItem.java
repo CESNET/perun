@@ -35,7 +35,6 @@ import java.util.Map;
  * Tab for managing service identities for users.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 

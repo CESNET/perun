@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Class represents facility.
  * 
  * @author  Michal Prochazka
- * @version $Id$
  */
 public class Facility extends Auditable implements Comparable<Facility> {
 

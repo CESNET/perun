@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.model.Group;
  * Custom GWT cell, which displays the group name with the correct indent.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class PerunGroupCell extends AbstractCell<Group> {
 

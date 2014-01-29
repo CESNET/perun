@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
  * Ajax query for removing resource tag from Resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class RemoveResourceTag {
 

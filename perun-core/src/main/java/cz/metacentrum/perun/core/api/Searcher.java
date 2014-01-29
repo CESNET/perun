@@ -12,7 +12,6 @@ import java.util.Map;
 /**
  * 
  * @author  Michal Stava
- * @version $Id$
  */
 public interface Searcher {
     

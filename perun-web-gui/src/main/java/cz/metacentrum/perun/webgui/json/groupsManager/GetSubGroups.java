@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * GroupsManager/getSubGroups Method
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 

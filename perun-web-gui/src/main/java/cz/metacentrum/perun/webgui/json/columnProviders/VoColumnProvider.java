@@ -20,7 +20,6 @@ import java.util.Comparator;
  * Provide columns definitions for VO object
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class VoColumnProvider {
 

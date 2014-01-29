@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * Checked RPC exception.
  * 
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public class RpcException extends InternalErrorException {

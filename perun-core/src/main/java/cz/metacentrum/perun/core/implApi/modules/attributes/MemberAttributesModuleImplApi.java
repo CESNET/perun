@@ -15,7 +15,6 @@ import java.util.List;
  * Interface for checking and filling in member's attributes.
  *
  * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
  */
 public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 

@@ -12,7 +12,6 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class PublicationSystemDaoImpl implements IPublicationSystemDao {
 

@@ -49,7 +49,6 @@ import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
  * 
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class GroupsManagerEntry implements GroupsManager {
 

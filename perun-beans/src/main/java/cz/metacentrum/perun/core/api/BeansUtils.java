@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 /**
  * Beans Utilities.
  *
- * @version $Id$
  */
 public class BeansUtils {
 

@@ -10,7 +10,6 @@ import java.util.Map;
  * Object definition for facility propagation state
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FacilityState extends JavaScriptObject {
 

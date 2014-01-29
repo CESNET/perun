@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * Checked version of ResourceAlreadyRemovedException.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class ResourceAlreadyRemovedException extends PerunException {
     static final long serialVersionUID = 0;

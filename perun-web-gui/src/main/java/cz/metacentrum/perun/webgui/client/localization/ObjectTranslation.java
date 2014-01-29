@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.Messages;
  * Translations for objects and object parameters with fixed values
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: d36dd764e6d52f116425040979fffedafc1a60f4 $
  */
 public interface ObjectTranslation extends Messages {
 

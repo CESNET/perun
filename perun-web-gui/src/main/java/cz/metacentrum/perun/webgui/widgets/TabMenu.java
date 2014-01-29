@@ -21,7 +21,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * action buttons above tables
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 1bc44c081d1159259692e7e4f8bca2d8b3aa2e2f $
  */
 public class TabMenu extends Composite {
 

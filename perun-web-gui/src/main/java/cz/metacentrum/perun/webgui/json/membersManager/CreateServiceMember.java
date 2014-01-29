@@ -16,7 +16,6 @@ import java.util.ArrayList;
  * Ajax query to create service member in VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class CreateServiceMember {

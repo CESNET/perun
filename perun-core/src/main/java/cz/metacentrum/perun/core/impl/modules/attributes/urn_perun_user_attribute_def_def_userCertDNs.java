@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 

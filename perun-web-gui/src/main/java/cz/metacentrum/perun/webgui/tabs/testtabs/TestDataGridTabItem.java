@@ -45,7 +45,6 @@ import java.util.Map;
  * Inner tab item for shell change
  *
  * @author Pavel Zlamal <256627@mail-muni.cz>
- * @version $Id$
  */
 
 public class TestDataGridTabItem implements TabItem, TabItemWithUrl {

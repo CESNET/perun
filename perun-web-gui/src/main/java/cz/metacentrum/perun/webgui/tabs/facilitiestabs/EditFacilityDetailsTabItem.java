@@ -23,7 +23,6 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * Edit facility details tab
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class EditFacilityDetailsTabItem implements TabItem {
 

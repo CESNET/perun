@@ -39,7 +39,6 @@ import java.util.Set;
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id: 0efc1792b0b54a8999441acdfb74070c15652add $
  */
 public interface AttributesManagerBl {
 

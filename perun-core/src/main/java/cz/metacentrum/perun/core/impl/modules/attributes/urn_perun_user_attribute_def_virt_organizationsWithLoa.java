@@ -34,7 +34,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Get specified user oraganizations with Loa
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

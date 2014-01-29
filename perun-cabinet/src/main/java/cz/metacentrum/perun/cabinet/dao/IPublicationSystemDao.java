@@ -8,7 +8,6 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  * Interface of DAO layer for handling PublicationSystem entity.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IPublicationSystemDao {
 

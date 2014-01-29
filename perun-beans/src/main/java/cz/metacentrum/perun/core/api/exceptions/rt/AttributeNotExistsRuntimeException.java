@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * 
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class AttributeNotExistsRuntimeException extends EntityNotExistsRuntimeException {

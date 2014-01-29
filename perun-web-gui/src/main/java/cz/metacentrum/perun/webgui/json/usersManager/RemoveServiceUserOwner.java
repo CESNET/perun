@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.User;
  * Ajax query which disconnects service user and user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class RemoveServiceUserOwner {
 

@@ -10,7 +10,6 @@ import java.util.Comparator;
  * Comparator for Attribute and AttributeDefinition object
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AttributeComparator<T extends JavaScriptObject> implements Comparator<T>{
 

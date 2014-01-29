@@ -18,7 +18,6 @@ import java.util.List;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  * 
  */
 public abstract class ResourceVirtualAttributesModuleAbstract extends ResourceAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {

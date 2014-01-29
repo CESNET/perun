@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.GroupAlreadyAssignedRuntimeEx
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.GroupAlreadyAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class GroupAlreadyAssignedException extends PerunException {
     static final long serialVersionUID = 0;

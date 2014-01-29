@@ -9,7 +9,6 @@ import java.util.Date;
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Thanks implements Serializable {
     

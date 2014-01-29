@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * Checked version of GroupAlreadyRemovedFromResourceException.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class GroupAlreadyRemovedFromResourceException extends PerunException {
     static final long serialVersionUID = 0;

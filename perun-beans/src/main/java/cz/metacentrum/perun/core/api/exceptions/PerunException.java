@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
  * The base of Perun checked exceptions.
  *
  * @author Martin Kuba
- * @version $Id$
  */
 public abstract class PerunException extends Exception {
     static final long serialVersionUID = 0;

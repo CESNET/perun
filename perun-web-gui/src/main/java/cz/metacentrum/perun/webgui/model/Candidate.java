@@ -9,7 +9,6 @@ import java.util.Map;
  * OverlayType for Candidate object
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class Candidate extends JavaScriptObject {

@@ -7,7 +7,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * Extension of Service (from Perun-Core) to provide more info for GUI
  * 
  * @author Pavel Zlámal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class ServiceForGUI extends Service {

@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query which removes a destination from service and facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class RemoveDestination {

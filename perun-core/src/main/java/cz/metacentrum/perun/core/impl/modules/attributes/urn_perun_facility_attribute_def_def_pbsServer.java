@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 /**
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 

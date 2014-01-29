@@ -17,7 +17,6 @@ import java.util.ArrayList;
  * You can specify the namespace or the request uses ALL the namespaces
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class IsLoginAvailable implements JsonCallback {

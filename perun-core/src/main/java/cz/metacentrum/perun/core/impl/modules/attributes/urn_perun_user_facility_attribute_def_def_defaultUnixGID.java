@@ -27,7 +27,6 @@ import java.util.ArrayList;
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 

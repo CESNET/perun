@@ -24,7 +24,6 @@ import java.util.Set;
 /**
  *
  * @author Michal Stava  stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
     

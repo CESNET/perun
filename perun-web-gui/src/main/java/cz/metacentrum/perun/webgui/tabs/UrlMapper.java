@@ -16,7 +16,6 @@ import java.util.Map;
  * Class for parsion URL and loading proper tabs
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class UrlMapper {
 

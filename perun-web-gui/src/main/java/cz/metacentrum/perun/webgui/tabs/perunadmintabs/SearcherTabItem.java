@@ -23,7 +23,6 @@ import java.util.Map;
  * Searcher page
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class SearcherTabItem implements TabItem, TabItemWithUrl {

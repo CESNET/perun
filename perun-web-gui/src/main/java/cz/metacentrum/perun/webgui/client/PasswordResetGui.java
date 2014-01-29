@@ -20,7 +20,6 @@ import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
  * Loads whole GUI, makes login to RPC by calling GetPerunPrincipal
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PasswordResetGui implements EntryPoint {
 

@@ -34,7 +34,6 @@ import java.util.Map;
  * Tab for resources tags management in VO
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 0c2d0786c3c7f2b51bcb8f9ee9a114e1a220fcfe $
  */
 public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 

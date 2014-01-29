@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Michal Karm Babacek
- * @version $Id$
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources.xml", "classpath:perun-beans.xml", "classpath:perun-transaction-manager.xml" })

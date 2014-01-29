@@ -18,7 +18,6 @@ import static org.junit.Assert.assertNull;
  *
  * @author Michal Šťava <stava.michal@gmail.com>
  * @date 12.04.2012 14:35:00
- * @version $Id$
  */
 public class urn_perun_member_attribute_def_def_membershipExpirationTest {
 

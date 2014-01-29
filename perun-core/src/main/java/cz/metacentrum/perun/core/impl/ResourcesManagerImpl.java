@@ -48,7 +48,6 @@ import java.util.Map;
 /**
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 7a518311bfc5616bc7c7addd63ecd50b5de50583 $
  */
 public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 

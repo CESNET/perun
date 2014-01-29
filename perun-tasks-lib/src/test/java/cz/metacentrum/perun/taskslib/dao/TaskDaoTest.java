@@ -46,7 +46,6 @@ import cz.metacentrum.perun.taskslib.service.GeneralServiceManager;*/
 
 /**
  * @author Michal Karm Babacek
- * @version $Id$
  **/
 /*
 @RunWith(SpringJUnit4ClassRunner.class)

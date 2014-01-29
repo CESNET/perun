@@ -9,7 +9,6 @@ import java.sql.Date;
  * Overlay type for Task object from Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Task extends JavaScriptObject {
 	

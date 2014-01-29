@@ -23,7 +23,6 @@ import java.util.Comparator;
  * Ajax qeury to logIn to RPC and get PerunPrincipal
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMessage> {

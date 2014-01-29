@@ -82,7 +82,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * AttributesManager buisness logic.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class AttributesManagerBlImpl implements AttributesManagerBl {
 

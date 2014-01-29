@@ -7,7 +7,6 @@ import cz.metacentrum.perun.webgui.model.FacilityState;
  * Provides key for tables with FacilityState objects
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FacilityStateKeyProvider implements ProvidesKey<FacilityState> {
 

@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
  * Ajax query for updating resource tag of VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class UpdateResourceTag {
 

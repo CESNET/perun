@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.GroupNotDefinedOnResourceRunt
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.GroupNotDefinedOnResourceRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class GroupNotDefinedOnResourceException extends PerunException {
     static final long serialVersionUID = 0;

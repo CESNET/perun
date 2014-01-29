@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Retrieves logins for a user
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetLogins implements JsonCallback{
 

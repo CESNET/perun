@@ -25,7 +25,6 @@ import java.util.Comparator;
  * Ajax query to get all exec services specified exec service depend on
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , JsonCallbackTable<ExecService>
 {

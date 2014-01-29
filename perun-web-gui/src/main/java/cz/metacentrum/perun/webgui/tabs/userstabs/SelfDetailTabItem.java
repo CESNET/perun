@@ -42,7 +42,6 @@ import java.util.Map;
  * Page with user's details for user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class SelfDetailTabItem implements TabItem, TabItemWithUrl {

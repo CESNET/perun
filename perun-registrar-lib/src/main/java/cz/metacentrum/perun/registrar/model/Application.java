@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.Vo;
  * Represents an application by a user to a VO. Application is a request for becoming a member of the VO.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class Application {
 

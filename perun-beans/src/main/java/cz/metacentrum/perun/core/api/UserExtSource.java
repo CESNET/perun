@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * User external authentication.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class UserExtSource extends Auditable {
 

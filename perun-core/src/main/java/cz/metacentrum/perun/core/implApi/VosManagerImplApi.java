@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @version $Id: c50827739426cd0f4735f59e98597a376f23d591 $
  * @see PerunSession
  */
 public interface VosManagerImplApi {

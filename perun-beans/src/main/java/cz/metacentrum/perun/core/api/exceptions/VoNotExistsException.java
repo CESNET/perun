@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.VoNotExistsRuntimeException;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.VoNotExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class VoNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

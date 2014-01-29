@@ -15,7 +15,6 @@ import java.util.ArrayList;
  * Request, which enable or disable application emails
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class SetSendingEnabled {
 

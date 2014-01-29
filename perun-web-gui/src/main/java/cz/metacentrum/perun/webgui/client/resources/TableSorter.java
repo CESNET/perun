@@ -11,7 +11,6 @@ import java.util.Comparator;
  * Class used for sorting list of different types of objects in their tables
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 6d930f6f45c3c72aaaad7c783a604c60267e4760 $
  */
 
 public class TableSorter<T> {

@@ -35,7 +35,6 @@ import java.util.ArrayList;
  * Provides page with add admin group to VO form
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class AddVoManagerGroupTabItem implements TabItem {
 

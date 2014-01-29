@@ -12,7 +12,6 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
  * called after same functions in registrar.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$ 
  */
 public interface RegistrarModule {
 

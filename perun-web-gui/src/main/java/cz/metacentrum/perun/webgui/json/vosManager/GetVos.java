@@ -26,7 +26,6 @@ import java.util.ArrayList;
  * The list of VOs query. You can get VOs by "getVos" method.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganization>, JsonCallbackOracle<VirtualOrganization> {

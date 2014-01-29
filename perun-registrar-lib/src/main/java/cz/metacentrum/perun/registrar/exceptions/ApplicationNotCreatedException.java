@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * This is usually caused by broken login/pass reservation i external system.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ApplicationNotCreatedException extends PerunException {
 

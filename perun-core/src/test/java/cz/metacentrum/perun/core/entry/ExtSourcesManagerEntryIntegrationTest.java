@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 /**
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$ $LastChangeDate $LastChangeBy
  */
 
 public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

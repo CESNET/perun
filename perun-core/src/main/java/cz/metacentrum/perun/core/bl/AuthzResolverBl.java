@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * 
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * 
- * @version $Id$
  */
 public interface AuthzResolverBl {
   

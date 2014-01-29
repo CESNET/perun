@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 * 
 * @author  Michal Prochazka
 * @author  Michal Karm Babacek
-* @version $Id$
 */
 public class Host extends Auditable {
 	

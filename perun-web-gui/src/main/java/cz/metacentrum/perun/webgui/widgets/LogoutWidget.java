@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * Widget which is displayed when user logs out of Perun.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class LogoutWidget extends Composite {

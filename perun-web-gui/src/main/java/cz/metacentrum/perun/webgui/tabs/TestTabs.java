@@ -12,7 +12,6 @@ import java.util.Map;
  * Tabs indended only for testing
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class TestTabs {
 

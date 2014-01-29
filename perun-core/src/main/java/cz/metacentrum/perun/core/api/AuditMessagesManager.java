@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
  * AuditMessagesManager manages audit messages (logs).
  *
  * @author Michal Stava
- * @version $Id: 2a5612808194bc4627997a95e4c25889f7c64e5c $
  */
 public interface AuditMessagesManager {
     

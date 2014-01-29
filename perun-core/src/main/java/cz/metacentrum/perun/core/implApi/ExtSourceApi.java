@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
- * @version $Id$
  */
 public interface ExtSourceApi {
 	/**

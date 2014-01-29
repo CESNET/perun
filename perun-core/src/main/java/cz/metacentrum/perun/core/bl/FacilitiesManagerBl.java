@@ -49,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author 
- * @version $Id$
  */
 public interface FacilitiesManagerBl {
 

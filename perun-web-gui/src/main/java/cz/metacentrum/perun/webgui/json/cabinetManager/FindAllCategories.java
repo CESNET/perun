@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Finds All categories in Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindAllCategories implements JsonCallback, JsonCallbackTable<Category> {
 

@@ -27,7 +27,6 @@ import java.util.Set;
  * Resource unixGID-namespace attribute.
  *
  * @author Michal Stava  stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_unixGID_namespace extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

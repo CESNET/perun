@@ -29,7 +29,6 @@ import java.util.HashMap;
 
 /**
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationtest extends AbstractPerunIntegrationTest {
     

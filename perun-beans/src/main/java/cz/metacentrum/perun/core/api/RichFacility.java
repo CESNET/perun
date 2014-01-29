@@ -7,7 +7,6 @@ import java.util.ArrayList;
 /**
  * Facility with list of all its owners
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class RichFacility extends Facility {
 

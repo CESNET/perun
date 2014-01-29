@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AlreadyAdminRuntimeException;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AlreadyAdminRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class AlreadyAdminException extends PerunException {
     static final long serialVersionUID = 0;

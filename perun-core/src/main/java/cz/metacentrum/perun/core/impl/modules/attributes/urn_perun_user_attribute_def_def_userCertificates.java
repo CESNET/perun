@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_userCertificates extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 

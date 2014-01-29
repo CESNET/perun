@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

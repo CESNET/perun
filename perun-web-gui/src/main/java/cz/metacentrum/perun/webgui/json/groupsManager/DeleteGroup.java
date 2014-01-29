@@ -12,7 +12,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to delete selected group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class DeleteGroup {
 

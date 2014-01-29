@@ -34,7 +34,6 @@ import java.util.Map;
  * Ajax query to get all required attributes for any entity and specified service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<Attribute> {
 

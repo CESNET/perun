@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * This exception raises when name of entity is too long.
  *
  * @author Michal Šťava
- * @version $Id$
  */
 public class MaxSizeExceededException extends InternalErrorException {
     static final long serialVersionUID = 0;

@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  * Checks specified kerberos admin principal (check existence of only one kerberos principal)
  *
  * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 

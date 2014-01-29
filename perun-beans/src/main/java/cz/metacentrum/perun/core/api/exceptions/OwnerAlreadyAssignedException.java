@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.OwnerAlreadyAssignedRuntimeEx
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.OwnerAlreadyAssignedException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class OwnerAlreadyAssignedException extends PerunException {
     static final long serialVersionUID = 0;

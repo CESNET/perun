@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query to get required attributes for specified service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  * 
  */
 public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackTable<AttributeDefinition> {

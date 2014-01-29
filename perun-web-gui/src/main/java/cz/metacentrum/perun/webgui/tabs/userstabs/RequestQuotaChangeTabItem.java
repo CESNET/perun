@@ -21,7 +21,6 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * Inner tab item for quota change
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class RequestQuotaChangeTabItem implements TabItem {

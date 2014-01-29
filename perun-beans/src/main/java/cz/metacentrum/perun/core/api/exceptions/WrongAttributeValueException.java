@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeValueRuntimeExc
  * Attribute has wrong/illegal value.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class WrongAttributeValueException extends AttributeValueException {
 

@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 
 /**
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$ $LastChangeDate $LastChangeBy
  */
 
 public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

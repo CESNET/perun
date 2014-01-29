@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.Group;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.GroupSynchronizationAlreadyRunningException
  * @author Michal Prochazka
- * @version $Id$
  */
 public class GroupSynchronizationAlreadyRunningException extends PerunException {
     static final long serialVersionUID = 0;

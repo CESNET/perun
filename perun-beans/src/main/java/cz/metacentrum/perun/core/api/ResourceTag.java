@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 /**
  * Resource Tag entity.
  *
- * @version $Id$
  */
 public class ResourceTag extends Auditable {
     private String tagName;

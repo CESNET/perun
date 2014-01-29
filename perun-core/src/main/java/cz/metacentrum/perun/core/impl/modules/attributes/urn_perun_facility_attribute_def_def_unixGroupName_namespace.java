@@ -22,7 +22,6 @@ import java.util.Iterator;
  * Modul of unixGroupName-namespace attribut
  *
  * @author Michal Stava  stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_unixGroupName_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
    

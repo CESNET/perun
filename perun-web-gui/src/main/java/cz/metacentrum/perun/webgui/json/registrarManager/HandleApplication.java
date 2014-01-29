@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * Common request, which handles applications (VERIFY, REJECT, APPROVE)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class HandleApplication {
 

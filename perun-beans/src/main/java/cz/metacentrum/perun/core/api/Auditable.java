@@ -10,7 +10,6 @@ import java.util.Date;
  * This class represent audit information.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public abstract class Auditable extends PerunBean {
 

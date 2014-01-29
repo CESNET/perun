@@ -30,7 +30,6 @@ import java.util.Collections;
  * Page with list of user applications
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class UsersApplicationsPage extends ApplicationPage {
 

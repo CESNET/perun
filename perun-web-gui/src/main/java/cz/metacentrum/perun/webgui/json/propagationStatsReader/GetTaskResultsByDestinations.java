@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Ajax query to ger RichTaskResults by Destinations
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackTable<TaskResult> {
 

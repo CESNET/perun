@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.client.resources;
  * Event called when user clicks on search in tab menu.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 abstract public class PerunSearchEvent {
 	

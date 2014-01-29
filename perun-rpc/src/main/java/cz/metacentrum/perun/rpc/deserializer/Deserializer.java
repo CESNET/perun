@@ -9,7 +9,6 @@ import java.util.List;
  * are undefined if multiple values with the same name are supplied. Implementing any of the read* methods is optional.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public abstract class Deserializer {

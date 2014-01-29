@@ -16,7 +16,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Changing user's password
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class ChangePassword {

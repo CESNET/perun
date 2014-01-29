@@ -12,7 +12,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Returns the count of the members in Group.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetGroupMembersCount implements JsonCallback {
 	

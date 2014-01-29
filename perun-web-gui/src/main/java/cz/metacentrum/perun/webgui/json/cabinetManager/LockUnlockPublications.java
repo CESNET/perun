@@ -17,7 +17,6 @@ import java.util.ArrayList;
  * Ajax query which lock or unlock a Publications
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class LockUnlockPublications {
 

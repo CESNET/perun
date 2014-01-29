@@ -17,7 +17,6 @@ import java.util.ArrayList;
  * Widget for listing added / removed items
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {

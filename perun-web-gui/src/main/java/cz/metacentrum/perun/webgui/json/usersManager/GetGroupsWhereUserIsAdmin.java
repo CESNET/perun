@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * GroupsManager/getGroups method
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetGroupsWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<Group> {
 

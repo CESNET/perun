@@ -10,7 +10,6 @@ import cz.metacentrum.perun.rpclib.RpcException;
  * optional.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public abstract interface Serializer {

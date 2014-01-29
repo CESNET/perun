@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  * @date 23.11.2011
  */
 public class urn_perun_resource_attribute_def_def_accountExpirationTime extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {

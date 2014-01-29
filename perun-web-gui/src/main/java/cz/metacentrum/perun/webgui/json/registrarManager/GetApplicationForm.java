@@ -24,7 +24,6 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * Retrieves form for VO / GROUP to determine if it's auto approve or not.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationForm implements JsonCallback {
 	

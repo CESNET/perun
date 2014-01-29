@@ -16,7 +16,6 @@ import java.util.List;
  * attributes.
  *  
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi {
 

@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.Image;
  * Custom GWT cell, which is clickable and looks like an anchor with icon
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CustomClickableTextCellWithIcon extends ClickableTextCell
 {

@@ -44,7 +44,6 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 0c2d0786c3c7f2b51bcb8f9ee9a114e1a220fcfe $
  */
 public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 

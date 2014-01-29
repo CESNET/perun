@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 /**
  *
  * @author Michal Stava stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_defaultDataQuota extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

@@ -27,7 +27,6 @@ import java.util.Map;
  * Page, which displays the Perun VOs for users to select them
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class VosSelectTabItem implements TabItem, TabItemWithUrl {

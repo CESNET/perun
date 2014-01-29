@@ -23,7 +23,6 @@ import java.util.Map;
  * User's application detail
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{

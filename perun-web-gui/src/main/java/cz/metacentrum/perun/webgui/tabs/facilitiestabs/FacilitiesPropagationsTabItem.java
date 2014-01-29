@@ -32,7 +32,6 @@ import java.util.Set;
  * Tab with propagation status of all facilities (or where user is admin).
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 

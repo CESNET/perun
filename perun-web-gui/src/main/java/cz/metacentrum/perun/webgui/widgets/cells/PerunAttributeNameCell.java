@@ -12,7 +12,6 @@ import cz.metacentrum.perun.webgui.model.Attribute;
  * Custom cell for Perun attributes
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class PerunAttributeNameCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute>
 {

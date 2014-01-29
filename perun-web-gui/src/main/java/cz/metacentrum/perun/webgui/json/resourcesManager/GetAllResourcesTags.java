@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Axaj query to get all resources tags for VO or Resource
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<ResourceTag>, JsonCallbackOracle<ResourceTag> {
 

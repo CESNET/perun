@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.*;
  * Ajax query which adds admin to VO or Group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 60eaaf7bd262b410113b77670ccb06656e4dc0af $
  */
 public class AddAdmin {
 

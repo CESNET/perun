@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Request, which creates a new VO.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class CreateVo {
 

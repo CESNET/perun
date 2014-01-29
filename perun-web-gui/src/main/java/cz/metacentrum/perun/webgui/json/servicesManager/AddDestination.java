@@ -19,7 +19,6 @@ import java.util.ArrayList;
  * Ajax query which creates a new destination for service and facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AddDestination {
 

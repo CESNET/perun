@@ -28,7 +28,6 @@ import java.util.Comparator;
  * Returns list of User's applications
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
 

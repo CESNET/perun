@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 
 public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

@@ -43,7 +43,6 @@ import java.util.Set;
  * 
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * 
- * @version $Id$
  */
 public class AuthzResolverBlImpl implements AuthzResolverBl {
 

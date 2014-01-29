@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class RelationExistsException extends PerunException {
     static final long serialVersionUID = 0;

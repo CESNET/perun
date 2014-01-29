@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.User;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AlreadyAdminRuntimeException
  * @author Michal Stava
- * @version $Id$
  */
 public class UserNotAdminException extends PerunException {
     static final long serialVersionUID = 0;

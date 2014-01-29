@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 /**
  *
  * @author Lukas Pravda  <luky.pravda@gmail.com>
- * @version $Id$
  * @date 21.5.2011 8:26:49
  */
 public class urn_perun_facility_attribute_def_def_shellsTest {

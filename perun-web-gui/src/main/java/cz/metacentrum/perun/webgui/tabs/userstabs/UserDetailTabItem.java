@@ -50,7 +50,6 @@ import java.util.Map;
  * View user details
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: 2940fc232606dbcee6fcee1803abda7dc53fef58 $
  */
 public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 

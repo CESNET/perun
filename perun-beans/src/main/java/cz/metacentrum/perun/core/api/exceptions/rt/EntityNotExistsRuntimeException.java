@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.EntityNotExistsException
  * @author Slavek Licehammer
- * @version $Id$
  *
  */
 public class EntityNotExistsRuntimeException extends PerunRuntimeException {

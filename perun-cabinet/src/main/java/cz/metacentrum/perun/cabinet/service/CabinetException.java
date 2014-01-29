@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * It extends PerunException to be handled same way as rest of exceptions in Perun.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class CabinetException extends PerunException {
 

@@ -17,7 +17,6 @@ import java.util.List;
  * This interface serves as a template for checking facilities attributes.
  *
  * @author Milan Halenar  <mhalenar@gmail.com>
- * @version $Id:
  */
 public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 

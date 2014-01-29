@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Ajax query which add new external identity to specified user
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AddUserExtSource {

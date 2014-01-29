@@ -26,7 +26,6 @@ import java.util.ArrayList;
  * Ajax query to get VO/GROUP/FACILITY admins
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 

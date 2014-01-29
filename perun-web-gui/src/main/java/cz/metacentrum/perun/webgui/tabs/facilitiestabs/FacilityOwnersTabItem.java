@@ -33,7 +33,6 @@ import java.util.Map;
  * Tab with list of owners of facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 

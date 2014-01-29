@@ -17,7 +17,6 @@ import java.util.List;
 /**
  *
  * @author Jiří Mauritz
- * @version $Id$
  */
 public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi{
     

@@ -9,7 +9,6 @@ import java.util.Map;
  * Services tabs
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: ce6928c7673d51842b12995f38f6ce3e196ae858 $
  */
 public class ServicesTabs {
 

@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Finds All authors in Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTable<Author> {
 

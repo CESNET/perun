@@ -16,7 +16,6 @@ import java.util.List;
  *
  *
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImplApi{
 

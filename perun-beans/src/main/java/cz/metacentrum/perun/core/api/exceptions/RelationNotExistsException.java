@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * This exception means that some relation or dependency not exists which prevents to execute the action.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class RelationNotExistsException extends PerunException {
     static final long serialVersionUID = 0;

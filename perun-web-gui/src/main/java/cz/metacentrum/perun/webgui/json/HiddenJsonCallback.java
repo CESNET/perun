@@ -5,7 +5,6 @@ package cz.metacentrum.perun.webgui.json;
  * The JSON request doesn't trigger the alert box if failed
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface HiddenJsonCallback {
 

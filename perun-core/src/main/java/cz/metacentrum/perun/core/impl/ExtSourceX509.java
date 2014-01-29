@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
  * Dummy ExtSource - X.508
  * 
  * @author Michal Prochazka michalp@ics.muni.cz
- * @version $Id$
  */
 public class ExtSourceX509 extends ExtSource implements ExtSourceApi {
 

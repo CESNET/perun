@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
  * This class is passed to the JSON request and called when an event happen.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
   */
 public class JsonCallbackEvents {
 

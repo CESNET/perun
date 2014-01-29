@@ -15,7 +15,6 @@ import java.util.Set;
  * Allows definition of events to handle.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 

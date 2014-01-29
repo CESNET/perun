@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Overlay type for registrar: ItemTexts
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id
  */
 
 public class ItemTexts extends JavaScriptObject {

@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * @author Michal Šťava <stavamichal@gmail.com> 
- * @version $Id$
  */
 public class RichUser extends User {
   private List<UserExtSource> userExtSources;

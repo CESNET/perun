@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query which checks if publication exists in DB
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CheckPublicationExists implements JsonCallback {
 

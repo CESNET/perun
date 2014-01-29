@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.json;
  * A request - table - which can be pageable, must inherit this.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public interface JsonCallbackWithPages {

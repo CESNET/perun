@@ -21,7 +21,6 @@ import java.util.Set;
  * Class with a client for JSON calls. For each call a new instance must be created.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class JsonClient  {
 

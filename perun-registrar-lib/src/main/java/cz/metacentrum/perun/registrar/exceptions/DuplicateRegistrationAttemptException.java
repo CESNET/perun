@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * Thrown when initial application for the user already exists.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class DuplicateRegistrationAttemptException extends PerunException {
     private final String actor;

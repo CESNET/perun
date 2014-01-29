@@ -12,7 +12,6 @@ import java.util.List;
  * UsersManager manages users.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public interface AuditMessagesManagerBl {
     

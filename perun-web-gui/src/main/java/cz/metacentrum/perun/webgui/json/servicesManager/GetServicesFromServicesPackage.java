@@ -24,7 +24,6 @@ import java.util.ArrayList;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 07555b0435c8dd9899c882fa307417a3edffd6ad $
  */
 
 public class GetServicesFromServicesPackage implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {

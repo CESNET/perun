@@ -25,7 +25,6 @@ import org.junit.Ignore;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 
 public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

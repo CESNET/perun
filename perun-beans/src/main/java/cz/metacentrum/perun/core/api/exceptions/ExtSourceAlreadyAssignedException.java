@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceAlreadyAssignedRunti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceAlreadyAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ExtSourceAlreadyAssignedException extends EntityAlreadyAssignedException {
     static final long serialVersionUID = 0;

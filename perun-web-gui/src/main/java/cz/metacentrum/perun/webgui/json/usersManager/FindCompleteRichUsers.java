@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Callback to find RichUsers with attributes by name/login/email, optionally users without specific VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 84a914c276f213b9675292d95fd6e0d0ae3adc5c $
  */
 public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<User> {
 

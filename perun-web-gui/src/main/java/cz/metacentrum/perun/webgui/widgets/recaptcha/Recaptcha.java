@@ -7,7 +7,6 @@ package cz.metacentrum.perun.webgui.widgets.recaptcha;
  * ORIGINAL LICENSE: Apache License 2.0
  *
  * @author Claudius Hauptmann <claudiushauptmann.com@googlemail.com>
- * @version $Id$
  */
 public class Recaptcha {
 

@@ -32,7 +32,6 @@ import java.util.Comparator;
  * Returns list of Group applications
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
 

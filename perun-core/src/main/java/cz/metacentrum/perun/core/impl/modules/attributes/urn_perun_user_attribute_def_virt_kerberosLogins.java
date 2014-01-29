@@ -20,7 +20,6 @@ import java.util.List;
  * Get and set specified user krb Principal Name in arrayList included all userExtSources which are type of KERBEROS
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

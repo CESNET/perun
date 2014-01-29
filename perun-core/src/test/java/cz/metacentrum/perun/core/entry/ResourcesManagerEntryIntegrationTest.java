@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 9d63b2ad68112c8a312d8fefd2c9eae09a78d168 $
  */
 
 public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

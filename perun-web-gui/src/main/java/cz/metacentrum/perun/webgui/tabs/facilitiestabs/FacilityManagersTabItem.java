@@ -43,7 +43,6 @@ import java.util.Map;
  * Tab with list of administrators on facility
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: b2c3f64a0a8205817fe0bdfd122b33f45f4b2635 $
  */
 public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
 

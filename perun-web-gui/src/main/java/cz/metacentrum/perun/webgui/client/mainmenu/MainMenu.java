@@ -35,7 +35,6 @@ import java.util.Map;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: d920bf2e62f7824e8cc846be39b41dc4b0ec67ff $
  */
 public class MainMenu {
 

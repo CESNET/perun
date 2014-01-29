@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.Messages;
  * Translations for common widgets in GUI
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: fd846bfed0815e009836bee08fe58fc40a46caab $
  */
 public interface WidgetTranslation extends Messages {
 

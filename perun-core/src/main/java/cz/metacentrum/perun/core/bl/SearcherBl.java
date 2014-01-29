@@ -13,7 +13,6 @@ import java.util.Map;
  * Searcher Class for searching objects by Map of Attributes
  * 
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public interface SearcherBl {
     

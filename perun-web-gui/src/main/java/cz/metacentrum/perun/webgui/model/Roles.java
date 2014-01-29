@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JsArrayInteger;
  * Overlay type for Roles object
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Roles extends JavaScriptObject {
 

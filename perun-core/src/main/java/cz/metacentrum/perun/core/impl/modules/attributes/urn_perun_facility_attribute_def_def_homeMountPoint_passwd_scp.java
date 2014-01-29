@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_homeMountPoint_passwd_scp extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 

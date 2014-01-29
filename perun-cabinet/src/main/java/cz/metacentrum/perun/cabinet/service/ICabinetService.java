@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
  * external PS based on user's identity and PS namespace.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface ICabinetService {
 

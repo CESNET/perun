@@ -15,7 +15,6 @@ import java.util.List;
  * Module for VO Metacentrum
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Metacentrum implements RegistrarModule {
 

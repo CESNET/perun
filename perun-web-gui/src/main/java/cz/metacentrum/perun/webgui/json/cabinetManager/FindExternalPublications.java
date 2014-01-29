@@ -29,7 +29,6 @@ import java.util.ArrayList;
  * Finds publications in external source
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class FindExternalPublications implements JsonCallback, JsonCallbackTable<Publication> {

@@ -23,7 +23,6 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 7e5208348414ad5569075f95f12ebc7b85da4d1d $
  */
 public class MemberResourcesTabItem implements TabItem {
 

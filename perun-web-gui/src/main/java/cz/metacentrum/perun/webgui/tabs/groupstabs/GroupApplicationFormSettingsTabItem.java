@@ -41,7 +41,6 @@ import java.util.Map;
  * Group Application form settings
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl{
 

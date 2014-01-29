@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JsArrayString;
  * Overlay type for registrar: ApplicationFormItem
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class ApplicationFormItem extends JavaScriptObject {

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.mock;
  * Test of user attribute module for timezone.
  *
  * @author Jiří Mauritz <jirmauritz@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_timezoneTest {
 

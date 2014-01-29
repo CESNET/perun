@@ -9,7 +9,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * ExecService Data Access Object
  * 
  * @author Michal Karm Babacek
- * @version draft
  */
 public interface ExecServiceDao {
 

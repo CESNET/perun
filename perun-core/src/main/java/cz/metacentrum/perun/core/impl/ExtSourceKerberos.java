@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
  * Dummy ExtSource - Kerberos
  * 
  * @author Michal Prochazka michalp@ics.muni.cz
- * @version $Id$
  */
 public class ExtSourceKerberos extends ExtSource implements ExtSourceApi {
 

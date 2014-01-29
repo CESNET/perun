@@ -9,7 +9,6 @@ import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
  * Interface of DAO layer for handling Thanks entity.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IThanksDao {
 

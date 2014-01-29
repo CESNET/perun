@@ -37,7 +37,6 @@ import java.util.Map;
  * Tab, which displays Groups where user is Admin
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GroupsTabItem implements TabItem, TabItemWithUrl {

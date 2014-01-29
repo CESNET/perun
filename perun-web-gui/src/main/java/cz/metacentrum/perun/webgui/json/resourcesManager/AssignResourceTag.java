@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
  * Ajax query for assigning resource tag to Resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class AssignResourceTag {
 

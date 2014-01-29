@@ -41,7 +41,6 @@ import java.util.Map;
  * VO Applications
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl{
 

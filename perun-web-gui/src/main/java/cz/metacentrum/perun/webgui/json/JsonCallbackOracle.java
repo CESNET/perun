@@ -8,7 +8,6 @@ import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @param <T> type of javascript objects in table
- * @version $Id$
  */
 
 public interface JsonCallbackOracle <T extends JavaScriptObject> extends JsonCallbackTable<T> {

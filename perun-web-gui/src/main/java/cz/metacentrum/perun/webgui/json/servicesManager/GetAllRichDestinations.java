@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Ajax query to get all rich destinations for selected facility or service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 96e0726384e9a35f4ffab2d462ea9dc1600c6644 $
  */
 public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {
 

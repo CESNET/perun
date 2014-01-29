@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * Ajax query to get resources where Group is assigned
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Resource> {
 

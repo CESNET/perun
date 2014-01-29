@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.tabs.memberstabs.MembershipExpirationTabItem;
  * Custom GWT widget, which handles
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MembershipExpirationWidget extends Composite {
 

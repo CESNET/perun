@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Vo entity.
- * @version $Id$
  */
 public class Vo extends Auditable implements Comparable<Vo> {
     private String name;

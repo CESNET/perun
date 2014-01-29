@@ -15,7 +15,6 @@ import java.util.Map;
  * Ajax query which gets list of attributes
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetListOfAttributes implements JsonCallback {

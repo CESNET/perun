@@ -7,7 +7,6 @@ import java.util.List;
  * Extension for single publication which provides more info for GUI
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PublicationForGUI extends Publication{
 	

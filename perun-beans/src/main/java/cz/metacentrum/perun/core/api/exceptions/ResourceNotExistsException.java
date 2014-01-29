@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ResourceNotExistsRuntimeExcep
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ResourceNotExistsRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ResourceNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

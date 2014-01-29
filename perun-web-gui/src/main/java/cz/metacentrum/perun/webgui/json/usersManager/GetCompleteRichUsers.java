@@ -26,7 +26,6 @@ import java.util.Comparator;
  * UsersManager/getRichUsersWithAttributes
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetCompleteRichUsers implements JsonCallback, JsonCallbackTable<User> {
 

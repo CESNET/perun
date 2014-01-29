@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * TODO
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id$
  */
 public class Attribute extends AttributeDefinition {
 

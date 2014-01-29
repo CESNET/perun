@@ -34,7 +34,6 @@ import java.util.Map;
  * Used by VO administrators
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 

@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.ResourceTag;
  * ResourceTag already assigned exception.
  *
  * @author Stava Michal <stavamichal@gmail.com>
- * @version $Id$
  */
 public class ResourceTagAlreadyAssignedException extends EntityAlreadyAssignedException {
     static final long serialVersionUID = 0;

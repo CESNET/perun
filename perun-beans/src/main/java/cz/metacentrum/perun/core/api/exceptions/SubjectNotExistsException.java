@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeExcepti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.SubjectNotExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class SubjectNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

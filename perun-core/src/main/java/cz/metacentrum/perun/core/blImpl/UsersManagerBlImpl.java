@@ -62,7 +62,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: c63575ed55b07eaa72bd664cf2424b7c6cbaebab $
  */
 public class UsersManagerBlImpl implements UsersManagerBl {
 

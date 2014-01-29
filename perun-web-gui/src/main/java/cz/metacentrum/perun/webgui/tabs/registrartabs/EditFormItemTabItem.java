@@ -36,7 +36,6 @@ import java.util.Map;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: ff645a4c253a4f54bdd15e6f1d9bdd255e6647ba $
  */
 public class EditFormItemTabItem implements TabItem{
 

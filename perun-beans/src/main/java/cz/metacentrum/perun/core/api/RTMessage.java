@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api;
  * RT message bean
  * 
  * @author Michal Stava <stavamichal@gmail.cz>
- * @version $Id$
  */
 public class RTMessage {
 

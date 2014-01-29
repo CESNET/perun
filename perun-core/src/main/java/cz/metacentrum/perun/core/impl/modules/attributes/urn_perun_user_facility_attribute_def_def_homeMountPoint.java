@@ -27,7 +27,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  * @date 27.4.2011
  */
 public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {

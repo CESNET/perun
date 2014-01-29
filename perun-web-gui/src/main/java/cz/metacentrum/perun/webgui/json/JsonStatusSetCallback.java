@@ -6,7 +6,6 @@ package cz.metacentrum.perun.webgui.json;
  * You must pass the object ID in the constructor.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface JsonStatusSetCallback {
 

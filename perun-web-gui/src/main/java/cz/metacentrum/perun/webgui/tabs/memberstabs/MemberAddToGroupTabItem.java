@@ -29,7 +29,6 @@ import java.util.ArrayList;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MemberAddToGroupTabItem implements TabItem {
 

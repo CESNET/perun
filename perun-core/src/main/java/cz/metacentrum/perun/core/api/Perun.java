@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.impl.Auditer;
  * an instance of Perun.
  * 
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public interface Perun {
 

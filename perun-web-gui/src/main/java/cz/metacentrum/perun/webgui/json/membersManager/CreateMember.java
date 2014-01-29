@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.User;
  * Ajax query to create member in VO from candidate or User
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class CreateMember {

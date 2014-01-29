@@ -13,7 +13,6 @@ import cz.metacentrum.perun.rpc.RpcException;
  * {@code int} and {@code String}) are implemented.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public class UrlDeserializer extends Deserializer {

@@ -58,7 +58,6 @@ import cz.metacentrum.perun.core.impl.Utils;
  * RTMessage manager can create a new message and send it to RT like predefined service user.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{  
     private String rtURL;   

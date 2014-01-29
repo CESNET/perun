@@ -28,7 +28,6 @@ import java.util.Set;
  * Group unixGID-namespace attribute.
  *
  * @author Michal Stava  stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
    

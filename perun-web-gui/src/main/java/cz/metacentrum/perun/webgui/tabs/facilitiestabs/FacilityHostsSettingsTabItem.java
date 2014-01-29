@@ -44,7 +44,6 @@ import java.util.Map;
  * Provides page with hosts settings (manage hosts attributes)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 

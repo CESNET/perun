@@ -9,7 +9,6 @@ import java.util.Map;
  * Attributes tabs
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class AttributesTabs {
 

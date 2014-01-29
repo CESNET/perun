@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.EntityNotExistsRuntimeExcepti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.EntityNotExistsRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class EntityNotExistsException extends PerunException {
     static final long serialVersionUID = 0;

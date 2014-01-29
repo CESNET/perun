@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
  * OwnersManager 
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
   public interface OwnersManager {
 

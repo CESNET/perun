@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ServiceAlreadyAssignedRuntime
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ServiceAlreadyAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ServiceAlreadyAssignedException extends EntityAlreadyAssignedException {
     static final long serialVersionUID = 0;

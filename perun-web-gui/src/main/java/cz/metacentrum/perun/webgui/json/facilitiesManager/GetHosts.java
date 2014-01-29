@@ -25,7 +25,6 @@ import java.util.Comparator;
  * Ajax query to get hosts from facility (cluster)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: b2703d8a44931c4844f237ae91048ffb55fe901a $
  */
 public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCallbackOracle<Host> {
 	// Session

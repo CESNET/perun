@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.ServicesPackage;
  * Ajax query which updates an existing service package
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class UpdateServicePackage {
 

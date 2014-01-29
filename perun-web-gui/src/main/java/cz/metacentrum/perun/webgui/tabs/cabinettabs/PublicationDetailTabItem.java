@@ -37,7 +37,6 @@ import java.util.Map;
  * Tab which shows publication's details.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {

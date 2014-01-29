@@ -36,7 +36,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  * 
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
- * @version $Id$
  * @see Perun
  */
 public interface GroupsManager {

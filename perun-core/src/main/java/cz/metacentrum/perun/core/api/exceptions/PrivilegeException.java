@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PrivilegeRuntimeException;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.PrivilegeRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class PrivilegeException extends PerunException {
     static final long serialVersionUID = 0;

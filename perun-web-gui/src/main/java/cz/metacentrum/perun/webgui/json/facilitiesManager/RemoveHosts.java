@@ -16,7 +16,6 @@ import java.util.ArrayList;
  * Ajax query which deletes hosts from Cluster/Facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class RemoveHosts {

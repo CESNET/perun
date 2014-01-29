@@ -30,7 +30,6 @@ import java.util.Map;
  * User in: SelfSettingsTabItem
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class ShellChangeTabItem implements TabItem{
 

@@ -58,7 +58,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * ApiCaller calls Perun manager methods.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @version $Id$
  * @since 0.1
  */
 public class ApiCaller {

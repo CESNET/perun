@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * OverlayType for Attribute Definition object
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AttributeDefinition extends JavaScriptObject {

@@ -13,7 +13,6 @@ import com.google.gwt.view.client.RowCountChangeEvent;
  * Provides the functionality of RPC for SimplePager.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class JsonRpcSourceData implements HasRows {
 

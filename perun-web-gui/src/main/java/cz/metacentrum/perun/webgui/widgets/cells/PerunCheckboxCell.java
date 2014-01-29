@@ -18,7 +18,6 @@ import cz.metacentrum.perun.webgui.model.*;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEditableCell<T, Boolean> {
 	

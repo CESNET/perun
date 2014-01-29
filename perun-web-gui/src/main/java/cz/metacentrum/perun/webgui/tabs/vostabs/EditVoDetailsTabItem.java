@@ -22,7 +22,6 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * Edit vo details tab
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class EditVoDetailsTabItem implements TabItem {
 

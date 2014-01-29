@@ -4,7 +4,6 @@ package cz.metacentrum.perun.cabinet.service;
  * Property is column in db used for sorting.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class SortParam {
 	

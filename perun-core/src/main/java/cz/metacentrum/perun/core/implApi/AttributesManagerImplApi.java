@@ -33,7 +33,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id: 392235f34ef408a43997e1682f2229562a1a1e8e $
  */
 public interface AttributesManagerImplApi {
 

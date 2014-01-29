@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JsArray;
  * Overlay type for Cabinet API: Publication
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class Publication extends JavaScriptObject {

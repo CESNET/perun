@@ -74,7 +74,6 @@ import java.util.logging.Level;
 /**
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 06cc5cdfde3a9dd9563615972210f27a03614ea4 $
  */
 public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 

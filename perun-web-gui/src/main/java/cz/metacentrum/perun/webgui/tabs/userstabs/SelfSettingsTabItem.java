@@ -32,7 +32,6 @@ import java.util.Map;
  * Tab with user's settings for User
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class SelfSettingsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp{

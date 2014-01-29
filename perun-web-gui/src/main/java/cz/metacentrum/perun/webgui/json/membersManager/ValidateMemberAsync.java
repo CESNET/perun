@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to validates member asynchronously (should be called when member is created from GUI)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class ValidateMemberAsync {

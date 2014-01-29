@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  * @date 9.6.2011
  */
 public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {

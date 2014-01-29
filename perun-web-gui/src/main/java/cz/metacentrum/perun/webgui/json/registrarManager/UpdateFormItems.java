@@ -18,7 +18,6 @@ import java.util.ArrayList;
  * Request, which updates form items
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class UpdateFormItems {
 

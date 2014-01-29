@@ -10,7 +10,6 @@ import java.util.Map;
  * Model class used to interpret facility propagation state in GUI
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class FacilityState implements Comparable<FacilityState> {

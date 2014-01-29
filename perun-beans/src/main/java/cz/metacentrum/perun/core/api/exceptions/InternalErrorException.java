@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class InternalErrorException extends PerunException {
     static final long serialVersionUID = 0;

@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttribu
 /**
  *
  * @author Michal Stava stavamichal@gmail.com
- * @version $Id$
  */
 public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 

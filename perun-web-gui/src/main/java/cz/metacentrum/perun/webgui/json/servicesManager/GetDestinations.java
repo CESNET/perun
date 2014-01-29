@@ -28,7 +28,6 @@ import java.util.Comparator;
  * Ajax query to get destinations for selected facility and service
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {

@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.model.Thanks;
  * Ajax query which creates a new Thanks
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreateThanks {
 

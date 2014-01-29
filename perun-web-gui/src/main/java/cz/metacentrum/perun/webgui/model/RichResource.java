@@ -11,7 +11,6 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 07542163d18a16dd6f45b1046eac22b7cf1164ca $
  */
 public class RichResource extends JavaScriptObject {
 

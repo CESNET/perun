@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Overlay type for ServicesPackage object
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class ServicesPackage extends JavaScriptObject {
 

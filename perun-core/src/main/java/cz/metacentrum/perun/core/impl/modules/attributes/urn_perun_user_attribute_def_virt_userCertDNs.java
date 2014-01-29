@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
  * Get and set specified user certDNs in hashMap included all userExtSources which are type of X509
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

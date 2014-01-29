@@ -33,7 +33,6 @@ import java.util.Map;
  * Tab for adding author to publication
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 

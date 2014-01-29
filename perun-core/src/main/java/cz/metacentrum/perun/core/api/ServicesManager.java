@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  * ServicesManager's functionality is going to be encapsulated in the Controller's
  * GeneralServiceManager.
  * 
- * @version $Id: 06e308cdd66f21e577d886040b22894ab12e4cc1 $
  */
 public interface ServicesManager {
   

@@ -12,7 +12,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Request, which updates vo application form - to switch automatic and manual approval
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class UpdateForm {
 

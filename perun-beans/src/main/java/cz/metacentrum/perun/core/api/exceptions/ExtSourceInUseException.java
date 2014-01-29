@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * Checked version of ExtSourceInUseException.
  *
  * @author Michal Prochazka
- * @version $Id$
  */
 public class ExtSourceInUseException extends PerunException {
     static final long serialVersionUID = 0;

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AlreadyMemberRuntimeException
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AlreadyMemberRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class AlreadyMemberException extends PerunException {
     static final long serialVersionUID = 0;

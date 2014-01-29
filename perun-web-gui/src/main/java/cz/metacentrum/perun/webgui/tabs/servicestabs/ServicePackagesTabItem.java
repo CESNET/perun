@@ -34,7 +34,6 @@ import java.util.Map;
  * Services packages management for Perun Admin
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class ServicePackagesTabItem implements TabItem, TabItemWithUrl {
 

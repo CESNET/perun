@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * ResourceManager/getResources method.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetResources implements JsonCallback, JsonCallbackTable<Resource> {
 

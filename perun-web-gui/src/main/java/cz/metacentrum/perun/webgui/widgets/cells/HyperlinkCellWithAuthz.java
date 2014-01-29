@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.model.*;
  * Custom cell with value optionally displayed as anchor.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class HyperlinkCellWithAuthz<T extends JavaScriptObject> extends AbstractSafeHtmlCell<T> {
 

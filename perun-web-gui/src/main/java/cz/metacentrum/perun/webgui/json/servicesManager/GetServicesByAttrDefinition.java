@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * Ajax query to get services which have some attribute definition set as "required".
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {
 

@@ -24,7 +24,6 @@ import java.util.Map;
  * Manager for the tabs in the main tab panel 
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class TabManager {
 	

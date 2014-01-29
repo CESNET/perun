@@ -20,7 +20,6 @@ import java.util.Properties;
  *
  * @author Tomáš Tunkl
  * @author Pavel Zlámal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)

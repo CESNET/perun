@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * Represents resource.
  * 
  * @author  Slavek Licehammer 
- * @version $Id$
  */
 public class Resource extends Auditable {
   private int facilityId;

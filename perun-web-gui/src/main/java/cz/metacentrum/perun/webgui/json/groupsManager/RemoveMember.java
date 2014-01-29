@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.model.RichMember;
  * Ajax query to remove member from group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class RemoveMember {
 

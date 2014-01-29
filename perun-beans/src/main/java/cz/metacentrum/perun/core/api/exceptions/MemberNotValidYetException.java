@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Member;
  * Operation required complete member. This member is still invalid (his record in perun is not complete),
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class MemberNotValidYetException extends PerunException {
     static final long serialVersionUID = 0;

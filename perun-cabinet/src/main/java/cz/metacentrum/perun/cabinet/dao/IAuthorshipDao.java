@@ -10,7 +10,6 @@ import cz.metacentrum.perun.cabinet.service.SortParam;
  * Interface of DAO layer for handling Authorship entity.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public interface IAuthorshipDao {
 

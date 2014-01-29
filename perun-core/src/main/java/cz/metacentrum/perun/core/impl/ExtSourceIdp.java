@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
  * Dummy ExtSource - IdP - Identity federation
  * 
  * @author Michal Prochazka michalp@ics.muni.cz
- * @version $Id$
  */
 public class ExtSourceIdp extends ExtSource implements ExtSourceApi {
 

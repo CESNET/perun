@@ -30,7 +30,6 @@ import java.util.Map;
  * Types of emails for application
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class CreateMailTabItem implements TabItem {
 

@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
  * Something is wrong with attribute value. See exception which extends this exception.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class AttributeValueException extends PerunException {
 

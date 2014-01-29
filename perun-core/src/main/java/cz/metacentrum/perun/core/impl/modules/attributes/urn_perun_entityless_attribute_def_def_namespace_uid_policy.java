@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
  * 
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_entityless_attribute_def_def_namespace_uid_policy extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceNotExistsRuntimeExce
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceNotExistsRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ExtSourceNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

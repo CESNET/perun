@@ -27,7 +27,6 @@ import java.util.Comparator;
  * FacilitiesManager/getRichFacilities Method Provides getTable().
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>, JsonCallbackOracle<Facility> {

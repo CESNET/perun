@@ -37,7 +37,6 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 

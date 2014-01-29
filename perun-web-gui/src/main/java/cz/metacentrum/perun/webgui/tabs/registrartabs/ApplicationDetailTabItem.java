@@ -30,7 +30,6 @@ import java.util.Map;
  * before ACCEPT / REJECT by VO admin
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 

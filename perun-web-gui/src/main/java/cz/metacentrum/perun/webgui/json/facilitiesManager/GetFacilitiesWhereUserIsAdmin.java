@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * Ajax query to get facilties where user is administrator.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetFacilitiesWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<Facility> {
 

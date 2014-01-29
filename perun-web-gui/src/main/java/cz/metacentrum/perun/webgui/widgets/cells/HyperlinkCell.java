@@ -18,7 +18,6 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
  * Custom GWT cell, which is clickable and looks like an anchor.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlCell<T>
 {

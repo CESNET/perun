@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Ajax query which updates attribute definition (only description is updated)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class UpdateAttribute {

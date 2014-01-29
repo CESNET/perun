@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Request, which tries to validate user's email address
  *  
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ValidateEmail implements JsonCallback {
 

@@ -31,7 +31,6 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 1e3169b84c18f7c8da4a14adac69d26925d8da05 $
  */
 public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 

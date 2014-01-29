@@ -30,7 +30,6 @@ import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
  * Provide columns definitions for RichMember object
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MemberColumnProvider {
 

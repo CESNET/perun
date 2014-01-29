@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.GroupExistsRuntimeException;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.GroupExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class GroupExistsException extends EntityExistsException {
     static final long serialVersionUID = 0;

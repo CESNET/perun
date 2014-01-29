@@ -11,7 +11,6 @@ import java.util.Map;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 3f7a4da9c70bea9a4c67f4878d284df21bfd877b $
  */
 
 public class VosTabs {

@@ -35,7 +35,6 @@ import java.util.ArrayList;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: c9103388cea74cc079e1a408a09442ac2cdbb81a $
  */
 public class AddVoManagerTabItem implements TabItem {
 

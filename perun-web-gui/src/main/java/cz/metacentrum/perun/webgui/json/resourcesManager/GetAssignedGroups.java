@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * Ajax query to get assigned groups for specified resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 

@@ -6,7 +6,6 @@ package cz.metacentrum.perun.core.api;
  * Basic class. All beans (entitties) in Perun must extends this class.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 
 public abstract class PerunBean {

@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class PerunSessionImpl extends PerunSession {
 

@@ -35,7 +35,6 @@ import java.util.Map;
  * Groups resources tab
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 

@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Overlay type for Cabinet API: Authorship
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class Authorship extends JavaScriptObject {

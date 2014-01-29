@@ -22,7 +22,6 @@ import java.util.Comparator;
  * Returns data sent by user in the form elements in application form
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationDataById implements JsonCallback{
 

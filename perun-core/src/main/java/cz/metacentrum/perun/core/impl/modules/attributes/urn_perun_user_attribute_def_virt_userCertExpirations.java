@@ -27,7 +27,6 @@ import java.util.List;
  * Get and set specified user certificate expiration
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

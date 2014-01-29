@@ -50,7 +50,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  *      SimpleJdbcTemplate which is useful for quering against database.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)

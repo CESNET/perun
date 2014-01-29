@@ -42,7 +42,6 @@ import java.util.Map;
  * Group admins page for Group Admin
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: 0671c63a5ff764b8e26bb2dc6185315705cee7de $
  */
 public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 

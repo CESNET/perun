@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * Unit tests
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 
 public class urn_perun_resource_attribute_def_def_defaultShellTest {

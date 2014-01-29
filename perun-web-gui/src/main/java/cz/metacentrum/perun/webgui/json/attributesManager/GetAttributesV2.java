@@ -40,7 +40,6 @@ import java.util.Map;
  * Ajax query to get attributes with values for all sort of entities in Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribute> {
 

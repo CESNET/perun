@@ -12,7 +12,6 @@ import cz.metacentrum.perun.cabinet.model.Category;
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class CategoryDaoImpl implements ICategoryDao {
 

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Member;
  * Is not allowed to add member to group of other VO.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class MembershipMismatchException extends InternalErrorException {
     static final long serialVersionUID = 0;

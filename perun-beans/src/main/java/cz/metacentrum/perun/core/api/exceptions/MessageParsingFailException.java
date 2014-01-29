@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.MessageParsingFailException
  * @author Michal Šťava
- * @version $Id$
  */
 public class MessageParsingFailException extends PerunException {
     static final long serialVersionUID = 0;

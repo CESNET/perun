@@ -18,7 +18,6 @@ import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  * @param <T>
  */
 public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {

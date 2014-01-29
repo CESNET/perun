@@ -25,7 +25,6 @@ import java.util.Date;
  *
  * @date 12.4.2012 13:05:00
  * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_member_attribute_def_def_membershipExpiration extends MemberAttributesModuleAbstract implements MemberAttributesModuleImplApi {
 

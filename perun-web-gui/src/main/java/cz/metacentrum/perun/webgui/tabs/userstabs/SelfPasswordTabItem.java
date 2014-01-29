@@ -34,7 +34,6 @@ import java.util.Map;
  * USE ONLY AS INNER TAB !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 

@@ -73,7 +73,6 @@ import org.mockito.internal.matchers.Any;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

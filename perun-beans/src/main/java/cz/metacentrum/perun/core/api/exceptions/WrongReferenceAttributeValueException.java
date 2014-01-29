@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.WrongReferenceAttributeValueR
  *
  * @author Slavek Licehammer
  * @author Michal Prochazka
- * @version $Id$
  */
 public class WrongReferenceAttributeValueException extends AttributeValueException {
 

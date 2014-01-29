@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeExcepti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeException
  * @author Martin Kuba
- * @version $Id$
  */
 public class MemberNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

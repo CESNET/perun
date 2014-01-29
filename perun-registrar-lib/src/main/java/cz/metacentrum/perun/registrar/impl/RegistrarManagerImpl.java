@@ -82,7 +82,6 @@ import cz.metacentrum.perun.registrar.RegistrarModule;
  *
  * @author Martin Kuba makub@ics.muni.cz
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class RegistrarManagerImpl implements RegistrarManager {
 

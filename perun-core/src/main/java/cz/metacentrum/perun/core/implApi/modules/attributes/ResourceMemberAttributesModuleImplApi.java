@@ -17,7 +17,6 @@ import java.util.List;
  * for a member at a specified Resource.
  *
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleImplApi{
 

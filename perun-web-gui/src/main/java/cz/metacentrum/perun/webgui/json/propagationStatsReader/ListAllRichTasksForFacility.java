@@ -25,7 +25,6 @@ import java.util.ArrayList;
  * Ajax query to get all RichTasks for selected facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTable<Task> {
 	

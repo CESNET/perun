@@ -18,7 +18,6 @@ import com.google.gwt.view.client.SelectionModel;
  * widgets to be closed
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForIsWidget {
 

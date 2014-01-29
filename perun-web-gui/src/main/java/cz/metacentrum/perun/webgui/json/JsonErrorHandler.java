@@ -24,7 +24,6 @@ import java.util.Set;
  * Class for handling Error objects returned from RPC server
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: e56daef542e2a1710c3d6ccb41bbb421ffcdaa80 $
  */
 public class JsonErrorHandler {
 

@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.tabs.*;
  * Breadcrumbs widget used in GUI header panel
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class BreadcrumbsWidget extends Composite {
 

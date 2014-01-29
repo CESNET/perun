@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * GeneralServiceManager.getFacilityAssignedServicesForGUI()
  * 
  * @author Pavel Zlámal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class RichService extends JavaScriptObject {
 	

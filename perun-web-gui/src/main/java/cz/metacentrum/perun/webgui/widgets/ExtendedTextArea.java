@@ -20,7 +20,6 @@ import com.google.gwt.user.client.ui.TextArea;
  *  and display error message.
  *
  *  @author Pavel Zlamal <256627@mail.muni.cz>
- *  @version $Id: $
  */
 public class ExtendedTextArea extends Composite {
 

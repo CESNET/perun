@@ -25,7 +25,6 @@ import java.util.Comparator;
  * Ajax query to get all facility owners
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 9a36d0278e8d44666dbc40ddacdde585d192a992 $
  */
 public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCallbackOracle<Owner> {
 

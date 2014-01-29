@@ -20,7 +20,6 @@ import java.util.Map;
  * Ajax query which fills attributes for Resource and Member_Resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class FillAttributes {

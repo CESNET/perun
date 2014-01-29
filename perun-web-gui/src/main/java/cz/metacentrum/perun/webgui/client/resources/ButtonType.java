@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.client.resources;
  * Defined button types for generic actions
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public enum ButtonType {
 

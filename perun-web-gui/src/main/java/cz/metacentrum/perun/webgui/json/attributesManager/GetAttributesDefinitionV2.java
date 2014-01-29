@@ -33,7 +33,6 @@ import java.util.Set;
  * Ajax query to get all attributes definitions in Perun but stores them as attributes
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTable<Attribute>, JsonCallbackOracle<Attribute> {

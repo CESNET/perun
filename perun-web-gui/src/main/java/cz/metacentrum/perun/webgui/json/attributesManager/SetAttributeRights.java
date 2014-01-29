@@ -15,7 +15,6 @@ import java.util.ArrayList;
  * Ajax query which sets attribute rights
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class SetAttributeRights {
 

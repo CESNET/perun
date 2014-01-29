@@ -27,7 +27,6 @@ import java.util.Comparator;
  * Ajax query to get assigned rich resources for group or member
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: dc9a1803499cfa4bd819fc91338d7081e33b7e02 $
  */
 public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
 

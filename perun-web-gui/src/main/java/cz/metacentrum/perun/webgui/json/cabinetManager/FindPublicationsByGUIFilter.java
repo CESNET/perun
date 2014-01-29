@@ -37,7 +37,6 @@ import java.util.Map;
  * Finds RichPublications by GUI filter
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTable<Publication> {
 

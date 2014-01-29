@@ -13,7 +13,6 @@ import java.util.List;
  * 
  * @author Michal Prochazka   <michalp@ics.muni.cz>
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  */
 public interface UserVirtualAttributesModuleImplApi extends UserAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 

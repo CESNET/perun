@@ -10,7 +10,6 @@ import java.util.ArrayList;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @param <T> type of javascript objects in table
- * @version $Id$
  */
 
 public interface JsonCallbackTable <T extends JavaScriptObject> extends JsonCallback {

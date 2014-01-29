@@ -25,7 +25,6 @@ import javax.mail.Session;
  *
  * @date 28.4.2011 14:48:04
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public class urn_perun_resource_attribute_def_def_shells extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 

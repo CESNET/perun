@@ -27,7 +27,6 @@ import java.util.HashMap;
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  */
 public class urn_perun_user_facility_attribute_def_def_accountExpirationTime extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 

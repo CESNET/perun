@@ -8,7 +8,6 @@ import java.io.Serializable;
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Category implements Serializable{
     

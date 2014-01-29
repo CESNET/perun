@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 /**
  * Encapsulates context of user's interaction with the Perun system.
  *
- * @version $Id$
  */
 public abstract class PerunSession {
 

@@ -8,7 +8,6 @@ import java.util.List;
  * a Role. Object ActionType represents one right (READ or WRITE).
  *
  * @author Jiří Mauritz
- * @version $Id$
  */
 public class AttributeRights {
 

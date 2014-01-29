@@ -37,7 +37,6 @@ import java.util.Map;
  * Finds similar RichPublications
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<Publication> {
 

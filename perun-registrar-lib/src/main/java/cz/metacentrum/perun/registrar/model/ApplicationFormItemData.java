@@ -4,7 +4,6 @@ package cz.metacentrum.perun.registrar.model;
  * Application form data as submitted by a user.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class ApplicationFormItemData {
 

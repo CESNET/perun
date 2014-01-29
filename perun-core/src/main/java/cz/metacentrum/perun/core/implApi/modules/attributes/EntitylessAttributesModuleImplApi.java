@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * This interface serves as a template for checking entityless attributes.
  * 
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplApi {
 

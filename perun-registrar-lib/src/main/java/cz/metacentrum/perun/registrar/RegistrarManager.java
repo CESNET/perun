@@ -19,7 +19,6 @@ import static cz.metacentrum.perun.registrar.model.Application.AppType;
  * Perun Registrar API.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id: dee17e9f6ff7127b81c945a25a123e6a1ca8e82b $
  */
 @SuppressWarnings("UnusedDeclaration")
 public interface RegistrarManager {

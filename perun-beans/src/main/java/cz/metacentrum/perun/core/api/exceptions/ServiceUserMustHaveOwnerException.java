@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * This exception means that serviceUser can't exist without any assigned user.
  *
  * @author Michal Stava
- * @version $Id$
  */
 public class ServiceUserMustHaveOwnerException extends PerunException {
     static final long serialVersionUID = 0;

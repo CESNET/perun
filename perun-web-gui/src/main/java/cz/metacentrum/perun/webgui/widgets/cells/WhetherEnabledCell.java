@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * Custom GWT cell, which displays current status of the element
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class WhetherEnabledCell extends AbstractCell<Boolean> {
 

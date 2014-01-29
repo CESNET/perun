@@ -30,7 +30,6 @@ import org.junit.Ignore;
 /**
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  * @date 22.04.2013
  */
 public class urn_perun_resource_attribute_def_def_unixGID_namespaceTest {

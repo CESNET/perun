@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceNotAssignedRuntimeEx
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceNotAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ExtSourceNotAssignedException extends EntityNotAssignedException {
     static final long serialVersionUID = 0;

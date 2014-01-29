@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Initialize Registrar GUI - retrieves all VO attributes
  *  
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class Initialize implements JsonCallback {
 

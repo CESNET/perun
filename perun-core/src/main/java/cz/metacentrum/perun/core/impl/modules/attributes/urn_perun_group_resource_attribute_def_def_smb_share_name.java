@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttribu
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
- * @version $Id$
  */
 public class urn_perun_group_resource_attribute_def_def_smb_share_name extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 

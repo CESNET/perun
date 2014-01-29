@@ -8,7 +8,6 @@ package cz.metacentrum.perun.webgui.widgets.recaptcha;
  * ORIGINAL LICENSE: Apache License 2.0
  *
  * @author Dominik Duda
- * @version $Id$
  */
 public class RecaptchaTranslation {
 

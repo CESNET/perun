@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoGroupsTabItem;
  * Returns the count of the groups in VO.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetGroupsCount implements JsonCallback {
 

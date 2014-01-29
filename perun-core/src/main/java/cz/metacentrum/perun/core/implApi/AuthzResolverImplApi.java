@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 * This interface represents AuthzResolver methods.
 *
 * @author Michal Prochazka
- * @version $Id$
 */
 
 public interface AuthzResolverImplApi {

@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Ajax query to get users without VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<User> {
 

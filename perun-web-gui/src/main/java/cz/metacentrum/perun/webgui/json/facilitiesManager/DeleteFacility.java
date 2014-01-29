@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class DeleteFacility {

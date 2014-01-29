@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * This exception raises when some inconsistency in underlaying data sources occured.
  *
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class ConsistencyErrorException extends InternalErrorException {
     static final long serialVersionUID = 0;

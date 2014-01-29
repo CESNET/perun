@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
- * @version $Id$
  */
 public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
   private Map<String, String> mapping;

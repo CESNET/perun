@@ -52,7 +52,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class GroupsManagerBlImpl implements GroupsManagerBl {
 

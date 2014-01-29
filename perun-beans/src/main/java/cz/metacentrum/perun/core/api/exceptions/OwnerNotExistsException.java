@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.OwnerNotExistsRuntimeExceptio
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.OwnerNotExistsRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class OwnerNotExistsException extends EntityNotExistsException {
     static final long serialVersionUID = 0;

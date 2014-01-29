@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 3d213c316e8c236f2969dd71b1f0288cdafed6bb $
  */
 public class CreateGroupTabItem implements TabItem {
 

@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * !! USE IN INNER TAB ONLY !!
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id: d6dc172b2a7cbfa25ca94ba0f964bc6c9b6f508c $
  */
 public class CreateFormItemTabItem implements TabItem{
 

@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
  * Ajax query for deleting resource tag from VO
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class DeleteResourceTag {
 

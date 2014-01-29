@@ -33,7 +33,6 @@ import java.util.HashSet;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AddMemberToResourceTabItem implements TabItem  {
 

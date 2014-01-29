@@ -20,7 +20,6 @@ import java.util.Set;
  * ModuleUtils interface.
  * There are methods for help with modules.
  * 
- * @version $Id: 6fb0721f4b2646969ab0daff01dd8c7d3b668597 $
  */
 public interface ModulesUtilsBl {
     

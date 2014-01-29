@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.implApi;
 *
 * @author Slavek Licehammer
 * @author 
- * @version $Id$
 */
 @Deprecated
 public interface AuditerListener {

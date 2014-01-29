@@ -14,7 +14,6 @@ import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ThanksDaoImpl implements IThanksDao {
 

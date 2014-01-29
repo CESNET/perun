@@ -5,7 +5,6 @@ package cz.metacentrum.perun.webgui.json;
  * Overlaying class for a GET request
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class JsonClientRequest {
 

@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.tabs;
  * Interface for a tab with its own URL which appears in address line
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface TabItemWithUrl extends TabItem {
 	

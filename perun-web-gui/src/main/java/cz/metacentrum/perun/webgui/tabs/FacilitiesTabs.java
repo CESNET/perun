@@ -9,7 +9,6 @@ import java.util.Map;
  * Pages, which are in facility admin part of menu
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 3e399fce015f85ec33b7c1fe7e57eb0e0567b171 $
  */
 public class FacilitiesTabs {
 

@@ -105,7 +105,6 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * AttributesManager implementation.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: 973cf2a358f9a9a47f1f866b00060e986671e730 $
  */
 public class AttributesManagerImpl implements AttributesManagerImplApi {
 

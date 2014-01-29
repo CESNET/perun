@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Martin Kuba
- * @version $Id$
  */
 public class User extends Auditable implements Comparable<User> {
 

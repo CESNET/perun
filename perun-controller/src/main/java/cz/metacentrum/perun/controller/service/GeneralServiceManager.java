@@ -22,7 +22,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
  * ExecService manager
  * 
  * @author Michal Karm Babacek
- * @version first draft
  */
 public interface GeneralServiceManager {
     

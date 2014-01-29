@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
- * @version $Id: 9752010d5747c959710005a3e01b084f0b157fdd $
  *
  */
 public interface ExtSourcesManagerImplApi {

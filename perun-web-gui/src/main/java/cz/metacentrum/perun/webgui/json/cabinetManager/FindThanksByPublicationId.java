@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * Ajax query to get thanks ba publication ID.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable<Thanks> {

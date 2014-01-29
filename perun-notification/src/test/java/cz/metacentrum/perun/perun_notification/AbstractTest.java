@@ -20,7 +20,6 @@ import java.sql.Statement;
  *
  * @author Tomáš Tunkl
  * @author Pavel Zlámal <256627@mail.muni.cz>
- * @version $Id$
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-jdbc-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml" })

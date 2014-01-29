@@ -6,7 +6,6 @@ import java.util.Date;
  * Extension for single Thanks to provide GUI more info
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ThanksForGUI extends Thanks {
 

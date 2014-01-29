@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 /**
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_entityless_attribute_def_def_namespace_maxUID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.SubGroupCannotBeRemovedRuntim
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.SubGroupCannotBeRemovedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class SubGroupCannotBeRemovedException extends PerunException {
     static final long serialVersionUID = 0;

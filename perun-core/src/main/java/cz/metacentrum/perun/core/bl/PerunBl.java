@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * an instance of Perun.
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id: e2ec4e1ee4b198c394e2e09a95f589a75f31b860 $
  */
 public interface PerunBl extends Perun {
 

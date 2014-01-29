@@ -38,7 +38,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  * Manages resources.
  * 
  * @author  Slavek Licehammer
- * @version $Id: 8abee750709dc3602bac09b9de38746ebcf7555a $
  */
 public interface ResourcesManagerBl {
 

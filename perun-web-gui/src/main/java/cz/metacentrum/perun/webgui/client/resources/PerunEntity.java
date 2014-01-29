@@ -4,7 +4,6 @@ package cz.metacentrum.perun.webgui.client.resources;
  * Entities, which are used in perun
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public enum PerunEntity {

@@ -18,7 +18,6 @@ import cz.metacentrum.perun.cabinet.service.IHttpService;
  * Request is get from PSStrategy files and response returned back to them.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class HttpServiceImpl implements IHttpService {
 

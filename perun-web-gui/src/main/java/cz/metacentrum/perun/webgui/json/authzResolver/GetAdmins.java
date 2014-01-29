@@ -30,7 +30,6 @@ import java.util.Comparator;
  * TODO: support for FACILITY ADMINS is not yet done on perun side
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 

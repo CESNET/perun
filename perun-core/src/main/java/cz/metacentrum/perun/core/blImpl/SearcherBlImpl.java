@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  * Searcher Class for searching objects by Map of Attributes
  * 
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class SearcherBlImpl implements SearcherBl {
     private final static Logger log = LoggerFactory.getLogger(SearcherBlImpl.class);

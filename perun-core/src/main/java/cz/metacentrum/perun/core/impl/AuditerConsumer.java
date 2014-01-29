@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 * 
 *
 * @author Slavek Licehammer
-* @version $Id$
 */
 public class AuditerConsumer {
 

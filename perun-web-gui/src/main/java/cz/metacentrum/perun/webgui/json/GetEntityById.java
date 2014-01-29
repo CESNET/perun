@@ -9,7 +9,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Unified callback class to get any PerunEntity by it's ID with optional cache support
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 

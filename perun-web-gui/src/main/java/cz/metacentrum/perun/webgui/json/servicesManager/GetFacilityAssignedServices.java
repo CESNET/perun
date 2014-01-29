@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * Ajax query to get all services on facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$ 
  */
 public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTable<Service> {
 

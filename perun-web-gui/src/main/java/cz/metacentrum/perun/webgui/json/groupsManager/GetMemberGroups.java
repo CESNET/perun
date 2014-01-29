@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 

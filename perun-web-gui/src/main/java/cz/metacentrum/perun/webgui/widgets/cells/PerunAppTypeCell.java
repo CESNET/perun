@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  * Custom GWT cell, which displays application type (INITIAL, EXTENSION)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class PerunAppTypeCell extends ClickableTextCell {
 

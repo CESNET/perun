@@ -24,7 +24,6 @@ import java.util.Map;
  * Page with Users for perun admin but in "User section"
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 

@@ -15,7 +15,6 @@ import com.google.gwt.resources.client.ImageResource;
  * Instead, generate it with gen.php file.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface LargeIcons extends ClientBundle{
 	public static final LargeIcons INSTANCE = GWT.create(LargeIcons.class);

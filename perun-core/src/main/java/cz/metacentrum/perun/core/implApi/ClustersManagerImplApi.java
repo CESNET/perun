@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 *
 * @author  Michal Prochazka
 * @author  Michal Karm Babacek
-* @version $Id$
 */
 public interface ClustersManagerImplApi {
 

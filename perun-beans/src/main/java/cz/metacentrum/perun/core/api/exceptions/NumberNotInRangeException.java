@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * This exception raises when a number is not in the range of numbers.
  *
  * @author Michal Šťava
- * @version $Id$
  */
 public class NumberNotInRangeException extends InternalErrorException {
     static final long serialVersionUID = 0;

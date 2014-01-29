@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.NotGroupMemberRuntimeExceptio
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.NotGroupMemberRuntimeException
  * @author Michal Prochazka
- * @version $Id$
  */
 public class NotGroupMemberException extends PerunException {
     static final long serialVersionUID = 0;

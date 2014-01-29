@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax request to set status for member
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class SetStatus implements JsonStatusSetCallback {
 

@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * 
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * 
- * @version $Id$
  */
 public class Synchronizer {
 

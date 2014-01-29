@@ -31,7 +31,6 @@ import java.util.ArrayList;
  * Returns the form elements in application form
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetFormItems implements JsonCallback {
 

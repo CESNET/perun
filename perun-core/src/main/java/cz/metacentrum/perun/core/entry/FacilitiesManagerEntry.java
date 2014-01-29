@@ -60,7 +60,6 @@ import java.util.Iterator;
 /**
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class FacilitiesManagerEntry implements FacilitiesManager {
 

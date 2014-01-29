@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 /**
  * Destination where services are propagated.
  * @author Michal Stava stavamichal@gmail.com
- * @version $Id$
  */
 public class RichDestination extends Destination implements Comparable<Destination> {
   private Service service;

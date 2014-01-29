@@ -15,7 +15,6 @@ import java.util.List;
  * Interface for checking and filling in user's attributes.
  *
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
- * @version $Id$
  */
 public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 

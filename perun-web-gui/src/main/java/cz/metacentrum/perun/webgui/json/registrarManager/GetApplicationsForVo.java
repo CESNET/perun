@@ -32,7 +32,6 @@ import java.util.Comparator;
  * Returns list of VO applications
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
 

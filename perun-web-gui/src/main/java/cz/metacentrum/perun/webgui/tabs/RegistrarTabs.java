@@ -10,7 +10,6 @@ import java.util.Map;
  * Pages, which are for registrar
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class RegistrarTabs {

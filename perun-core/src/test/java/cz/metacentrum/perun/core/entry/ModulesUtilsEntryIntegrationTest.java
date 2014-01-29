@@ -48,7 +48,6 @@ import java.util.Set;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 
 public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTest {

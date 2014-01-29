@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Michal Prochazka &lt;michalp@ics.muni.cz&gt;
- * @version $Id$
  */
 public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
     

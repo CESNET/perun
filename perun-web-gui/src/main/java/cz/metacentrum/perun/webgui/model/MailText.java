@@ -7,7 +7,6 @@ import com.google.gwt.json.client.JSONObject;
  * Overlay type for registrar: MailText
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 
 public class MailText extends JavaScriptObject {

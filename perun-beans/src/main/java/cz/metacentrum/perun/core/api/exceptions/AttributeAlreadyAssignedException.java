@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeAlreadyAssignedRunti
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AttributeAlreadyAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class AttributeAlreadyAssignedException extends EntityAlreadyAssignedException {
     static final long serialVersionUID = 0;

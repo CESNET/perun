@@ -7,7 +7,6 @@ import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
  * Widget which is displayed when user is not authorized to view some tab.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class NotAuthorizedWidget extends Composite {

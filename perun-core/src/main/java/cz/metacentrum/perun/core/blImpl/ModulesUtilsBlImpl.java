@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class ModulesUtilsBlImpl implements ModulesUtilsBl {
     

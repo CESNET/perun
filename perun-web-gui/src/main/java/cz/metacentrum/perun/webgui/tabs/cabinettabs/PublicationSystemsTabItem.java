@@ -19,7 +19,6 @@ import java.util.Map;
  * Tab for viewing all external publication systems stored in Perun.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{

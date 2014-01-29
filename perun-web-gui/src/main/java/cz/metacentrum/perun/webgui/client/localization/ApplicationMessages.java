@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.Messages;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public interface ApplicationMessages extends Messages {
 

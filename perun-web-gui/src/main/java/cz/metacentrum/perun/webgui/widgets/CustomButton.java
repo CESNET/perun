@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.Image;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <2566627@mail.muni.cz>
- * @version $Id: 265b90fe70c5723a829fc56061806391a29dd697 $
  */
 public class CustomButton extends Button {
 

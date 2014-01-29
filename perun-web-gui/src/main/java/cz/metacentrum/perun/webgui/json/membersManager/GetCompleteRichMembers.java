@@ -33,7 +33,6 @@ import java.util.ArrayList;
  * Ajax query to get all RichMembers of VO / Group with list of selected attributes
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<RichMember>, JsonCallbackOracle<RichMember> {
 

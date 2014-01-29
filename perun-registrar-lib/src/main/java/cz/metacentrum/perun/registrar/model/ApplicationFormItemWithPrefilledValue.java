@@ -4,7 +4,6 @@ package cz.metacentrum.perun.registrar.model;
  * Application form item with a value prefilled.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class ApplicationFormItemWithPrefilledValue {
 

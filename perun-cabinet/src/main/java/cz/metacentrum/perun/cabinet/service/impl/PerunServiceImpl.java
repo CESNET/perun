@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * Class which provides connection to the rest of Perun.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class PerunServiceImpl implements IPerunService {
 

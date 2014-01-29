@@ -27,7 +27,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
  * Manages resources.
  * 
  * @author  Slavek Licehammer
- * @version $Id: a040bcb30f5271c55c64195402fb420d903dea69 $
  */
 public interface ResourcesManagerImplApi {
 

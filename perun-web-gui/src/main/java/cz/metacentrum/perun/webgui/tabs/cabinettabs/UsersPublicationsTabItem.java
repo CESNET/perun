@@ -38,7 +38,6 @@ import java.util.Map;
  * Page with Publications management for users.
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{

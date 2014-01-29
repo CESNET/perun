@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Ajax query to get allowed groups on facility (filtered by VO or service)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAllowedGroups implements JsonCallback, JsonCallbackTable<Group> {
 

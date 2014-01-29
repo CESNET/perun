@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Ajax query to get all owners
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCallbackOracle<Owner> {
 

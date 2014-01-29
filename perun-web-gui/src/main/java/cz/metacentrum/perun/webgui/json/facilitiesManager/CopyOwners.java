@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query which copy owners from one facility to another
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class CopyOwners {
 

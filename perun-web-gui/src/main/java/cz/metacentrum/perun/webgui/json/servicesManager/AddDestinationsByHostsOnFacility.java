@@ -19,7 +19,6 @@ import java.util.ArrayList;
  * Ajax query which creates a new destinations for service and facility based on facility hosts (their names) 
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AddDestinationsByHostsOnFacility {
 

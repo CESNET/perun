@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  *
  * @date 19.4.2011 16:50:00
  * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
     

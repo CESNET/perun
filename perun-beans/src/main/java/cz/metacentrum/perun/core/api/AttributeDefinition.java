@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id$
  */
 public class AttributeDefinition extends Auditable implements Comparable<AttributeDefinition> {
 

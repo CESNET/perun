@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.DestinationAlreadyAssignedRun
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.DestinationAlreadyAssignedException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class DestinationAlreadyAssignedException extends PerunException {
     static final long serialVersionUID = 0;

@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to get Rights above specific attribute
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetAttributeRights implements JsonCallback {
 

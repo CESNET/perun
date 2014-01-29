@@ -30,7 +30,6 @@ import java.util.Map;
  * Tab which allow to add new identity to user/service user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 

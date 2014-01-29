@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.model.Publication;
  * Ajax query which updates a Publication
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class UpdatePublication {
 

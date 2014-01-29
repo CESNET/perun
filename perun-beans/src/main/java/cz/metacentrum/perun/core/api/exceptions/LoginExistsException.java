@@ -4,7 +4,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  * Checked version of LoginNotExistsException.
  *
  * @author Pavel Zlámal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class LoginExistsException extends PerunException {
     static final long serialVersionUID = 0;

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotAssignedRuntimeEx
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotAssignedRuntimeException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class AttributeNotAssignedException extends EntityNotAssignedException {
     static final long serialVersionUID = 0;

@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorException
  * @author Michal Šťava
- * @version $Id$
  */
 public class WrongRangeOfCountException extends IllegalArgumentException {
     static final long serialVersionUID = 0;

@@ -48,7 +48,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
- * @version $Id$
  */
 public class UsersManagerImpl implements UsersManagerImplApi {
 

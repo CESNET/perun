@@ -34,7 +34,6 @@ import java.util.Map;
  * Tab for importing publications from external systems into Perun
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {

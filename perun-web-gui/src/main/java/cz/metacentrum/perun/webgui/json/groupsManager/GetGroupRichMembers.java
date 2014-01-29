@@ -33,7 +33,6 @@ import java.util.ArrayList;
  * Ajax query to get group rich members
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<RichMember> {
 	

@@ -20,7 +20,6 @@ import java.util.Map;
  * Ajax query which removes attributes from any entity
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class RemoveAttributes {

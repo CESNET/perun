@@ -25,7 +25,6 @@ import java.util.HashMap;
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MemberOverviewTabItem implements TabItem {
 

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * @version $Id$
  */
 public class Service extends Auditable {
 	private String name;

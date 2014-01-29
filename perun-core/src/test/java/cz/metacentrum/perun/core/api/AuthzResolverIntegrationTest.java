@@ -27,7 +27,6 @@ import java.util.Set;
 
 /**
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$ $LastChangeDate $LastChangeBy
  */
 
 public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {

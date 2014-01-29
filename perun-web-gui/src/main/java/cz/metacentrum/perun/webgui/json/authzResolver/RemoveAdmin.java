@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.model.*;
  * Ajax query which removes admin from VO / Group
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: 61d3044b749b99e22722b4696d2c1abfd221b7fc $
  */
 public class RemoveAdmin {
 

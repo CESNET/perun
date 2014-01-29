@@ -14,7 +14,6 @@ import cz.metacentrum.perun.cabinet.service.IPublicationSystemService;
  * Class for handling PublicationSystem entity in Cabinet.
  * 
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @version $Id$
  */
 public class PublicationSystemServiceImpl implements IPublicationSystemService {
 

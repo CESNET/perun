@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.OwnerAlreadyRemovedRuntimeExc
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.OwnerAlreadyRemovedException
  * @author Slavek Licehammer
- * @version $Id$
  */
 public class OwnerAlreadyRemovedException extends PerunException {
     static final long serialVersionUID = 0;

@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.api.exceptions;
  *
  * @see cz.metacentrum.perun.core.api.exceptions.rt.AlreadyReservedLoginException
  * @author Michal Šťava
- * @version $Id$
  */
 public class AlreadyReservedLoginException extends PerunException {
     static final long serialVersionUID = 0;

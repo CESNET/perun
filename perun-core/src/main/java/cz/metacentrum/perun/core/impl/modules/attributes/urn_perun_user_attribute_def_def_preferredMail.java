@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Michal Šťava   <stava.michal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_preferredMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 

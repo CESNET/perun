@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
     

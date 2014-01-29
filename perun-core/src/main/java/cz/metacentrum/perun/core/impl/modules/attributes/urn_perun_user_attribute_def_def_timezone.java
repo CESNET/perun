@@ -19,7 +19,6 @@ import java.util.Set;
  * Attribute represents timezone of the user's location.
  * 
  * @author Jiří Mauritz <jirmauritz@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_def_timezone extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
     

@@ -7,7 +7,6 @@ import com.google.gwt.core.client.JsArrayString;
  * Overlay object type for Rights above attribute (definition)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class AttributeRights extends JavaScriptObject {
 

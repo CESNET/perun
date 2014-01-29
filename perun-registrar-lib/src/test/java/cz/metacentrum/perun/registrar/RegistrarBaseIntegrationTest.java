@@ -38,7 +38,6 @@ import static org.junit.Assert.*;
  * Base registrar-lib test class
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 @Transactional

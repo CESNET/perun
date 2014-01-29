@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
  * Checked version of ExtendMembershipException.
  *
  * @author Michal Prochazka
- * @version $Id$
  */
 public class ExtendMembershipException extends PerunException {
     static final long serialVersionUID = 0;

@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Object definition for audit messages
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class AuditMessage extends JavaScriptObject {

@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.Widget;
  * The attributes of the tab are sent via the constructor.
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public interface TabItem{
 	

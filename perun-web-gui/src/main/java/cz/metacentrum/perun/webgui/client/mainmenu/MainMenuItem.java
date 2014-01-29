@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class MainMenuItem {
 

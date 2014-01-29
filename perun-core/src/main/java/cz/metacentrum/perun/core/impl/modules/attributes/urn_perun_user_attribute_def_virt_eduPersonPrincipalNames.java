@@ -20,7 +20,6 @@ import java.util.List;
  * User edu Person principal Names (eppn)
  *
  * @author Michal Šťava <stavamichal@gmail.com>
- * @version $Id$
  */
 public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 

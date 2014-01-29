@@ -48,7 +48,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {

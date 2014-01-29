@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * Set of tests for class urn_perun_resource_attribute_def_def_shells
  * 
  * @author Lukas Pravda  <luky.pravda@gmail.com>
- * @version $Id$
  * @date 19.5.2011 14:41:23
  */
 public class urn_perun_resource_attribute_def_def_shellsTest {

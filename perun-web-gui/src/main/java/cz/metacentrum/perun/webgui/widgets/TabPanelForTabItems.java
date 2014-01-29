@@ -17,7 +17,6 @@ import java.util.ArrayList;
  * Automatically handles drawing and resizing
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
- * @version $Id$
  */
 public class TabPanelForTabItems extends TabLayoutPanel {
 

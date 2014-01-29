@@ -12,7 +12,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  * Ajax query to get info about denial of service on facility
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class IsServiceDeniedOnFacility implements JsonCallback {
 	

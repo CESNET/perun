@@ -18,7 +18,6 @@ import cz.metacentrum.perun.webgui.model.Publication;
  * Ajax query which creates a new Publication
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class CreatePublication {
 

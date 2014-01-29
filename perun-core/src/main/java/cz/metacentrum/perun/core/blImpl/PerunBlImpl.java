@@ -50,7 +50,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * Implementation of Perun.
  *
  * @author Martin Kuba makub@ics.muni.cz
- * @version $Id$
  */
 public class PerunBlImpl implements PerunBl {
     private VosManager vosManager = null;

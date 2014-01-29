@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * Create user's password (reserve in external system + validate)
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 
 public class CreatePassword {

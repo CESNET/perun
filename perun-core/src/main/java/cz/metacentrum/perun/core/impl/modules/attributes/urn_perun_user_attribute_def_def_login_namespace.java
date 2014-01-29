@@ -24,7 +24,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  * 
  * @author Michal Prochazka  &lt;michalp@ics.muni.cz&gt;
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
- * @version $Id$
  * @date 3.6.2011 11:02:22
  */
 public class urn_perun_user_attribute_def_def_login_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {

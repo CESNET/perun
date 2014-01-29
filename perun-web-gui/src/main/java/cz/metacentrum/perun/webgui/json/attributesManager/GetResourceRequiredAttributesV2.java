@@ -36,7 +36,6 @@ import java.util.Map;
  * Ajax query to get all resource required attributes for any entity and all services on specified resource
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id$
  */
 public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<Attribute> {
 
