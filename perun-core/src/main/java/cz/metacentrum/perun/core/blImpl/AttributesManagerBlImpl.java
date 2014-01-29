@@ -14,8 +14,6 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -70,12 +68,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.AbstractList;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -2335,6 +2327,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
     }
     
+    public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+        List<Group> groups = this.perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource);
+        List<Attribute> attrs = new ArrayList<>();
+        for (Group group : groups) {
+			this.getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
+        }
+        
+        this.attributesManagerImpl.removeAllGroupResourceAttributes(sess, resource);
+        log.info("All non-virtual group-resource attributes removed for all groups and {}", resource);
+
+    }
+
     public void removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
       getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
       if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -5089,7 +5093,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       }
       return false;
   } 
-  
+    
   public List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) throws InternalErrorException {
     List<Attribute> emptyList = new ArrayList<Attribute>();
     if(attributes == null) return emptyList;
