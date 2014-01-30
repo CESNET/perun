@@ -36,31 +36,32 @@ public interface GroupsManagerImplApi {
 
 
   /** 
-   * Creates a new group and associate it with the VO. (Stores group to underlaying data source)
+   * Creates a new top-level group and associate it with the VO. (Stores group to underlaying data source)
+   * 
+   * For this method (new group) has always same shortName like Name.
    *
    * @param perunSession
    * @param vo
-   * @param group
+   * @param group with name without ":"
    * 
-   * @return newly created group with id set
+   * @return newly created top-level group
    * 
-   * @throws InternalErrorException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
    * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, InternalErrorException;
 
   /** 
-   * Creates a new subgroup of the existing group.
+   * Creates a new subgroup of the existing group. (Stores group to underlaying data source)
    *
    * @param perunSession
-   * @param parentGroup 
-   * @param vo
-   * @param group
+   * @param parentGroup
+   * @param group group.name must contain only shortName (without ":"). Hierarchy is defined by parentGroup parameter.
    * 
-   * @return newly created group with id set
+   * @return newly created sub group with full group.Name with ":"
    * 
-   * @throws InternalErrorException
-   * @throws GroupNotExistsException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
+   * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Vo vo, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException;
 
@@ -78,12 +79,15 @@ public interface GroupsManagerImplApi {
   void deleteGroup(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, GroupAlreadyRemovedException;
 
   /**
-   * Updates group.
+   * Updates group by ID.
+   * 
+   * Update shortName (use shortName) and description. Group.name is ignored.
+   * Return Group with correctly set parameters (including group.name)
    * 
    * @param perunSession
-   * @param group
+   * @param group to update (use only ID, shortName and description)
    * 
-   * @return updated group
+   * @return updated group with correctly set parameters (including group.name)
    * 
    * @throws InternalErrorException
    */

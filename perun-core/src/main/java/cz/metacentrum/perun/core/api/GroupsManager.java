@@ -51,40 +51,40 @@ public interface GroupsManager {
   public static final String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
   // Defines the interval, when the group has to be synchronized. It is fold of 5 minutes
   public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
-
-  public static final String GROUP_NAME_REGEXP = "^[- a-zA-Z.0-9_:]+$";
   
+  public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
   /** 
-   * Creates a new group and associate it with the VO.
+   * Creates a new top-level group and associate it with the VO.
+   * 
+   * For this method (new group) has always same shortName like Name.
    *
    * @param perunSession
    * @param vo
-   * @param group
+   * @param group with name without ":"
    * 
-   * @return newly created group
+   * @return newly created top-level group
    * 
-   * @throws InternalErrorException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
    * @throws GroupExistsException
    * @throws PrivilegeException
    * @throws VoNotExistsException
-   * @throws InternalErrorRuntimeException
    */
   Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, PrivilegeException, InternalErrorException, VoNotExistsException;
 
   /** 
    * Creates a new subgroup of the existing group.
    *
+   *
    * @param perunSession
    * @param parentGroup
-   * @param group
+   * @param group group.name must contain only shortName (without ":"). Hierarchy is defined by parentGroup parameter.
    * 
-   * @return newly created sub group
+   * @return newly created sub group with full group.Name with ":"
    * 
-   * @throws InternalErrorException
+   * @throws InternalErrorException if group.name contains ':' or other internal error occured
    * @throws GroupExistsException
    * @throws GroupNotExistsException
    * @throws PrivilegeException
-   * @throws InternalErrorRuntimeException
    */
   Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException;
 
@@ -137,12 +137,15 @@ public interface GroupsManager {
   void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
   /**
-   * Updates group.
+   * Updates group by ID.
+   * 
+   * Update shortName (use shortName) and description. Group.name is ignored.
+   * Return Group with correctly set parameters (including group.name)
    * 
    * @param perunSession
-   * @param group to update
+   * @param group to update (use only ID, shortName and description)
    * 
-   * @return updated group
+   * @return updated group with correctly set parameters (including group.name)
    * 
    * @throws InternalErrorException
    * @throws GroupNotExistsException 
