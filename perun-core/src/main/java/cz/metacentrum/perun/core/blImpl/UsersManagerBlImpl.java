@@ -392,6 +392,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     getPerunBl().getAuditer().log(sess, "{} updated.", user);
     return getUsersManagerImpl().updateUser(sess, user);
   }
+
+    public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException {
+        // must audit like update user since it changes same object
+        getPerunBl().getAuditer().log(sess, "{} updated.", user);
+        return getUsersManagerImpl().updateNameTitles(sess, user);
+    }
   
   public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 	    getPerunBl().getAuditer().log(sess, "{} updated.", userExtSource);
