@@ -289,7 +289,22 @@ public interface UsersManager {
    */
   User updateUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
-  /**
+    /**
+     *  Updates titles before/after name of user.
+     *
+     *  New titles must be set inside User object.
+     *  Setting any title to null will remove title from name.
+     *
+     * @param perunSession
+     * @param user
+     * @return updated user with new titles before/after name
+     * @throws InternalErrorException
+     * @throws UserNotExistsException
+     * @throws PrivilegeException
+     */
+    User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+    /**
    *  Updates user's userExtSource in DB.
    *
    * @param perunSession

@@ -365,9 +365,36 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
     }
-  }   
-  
-  public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+  }
+
+    public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException {
+        try {
+            User userDb = jdbc.queryForObject("select " + userMappingSelectQuery + " from users where id=? ", USER_MAPPER, user.getId());
+
+            if (userDb == null) {
+                throw new ConsistencyErrorException("Updating titles for non existing user");
+            }
+
+            // changed condition to updateUser case to handle: fill, change and remove
+
+            if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) ||
+                    (user.getTitleBefore() == null && userDb.getTitleBefore() != null)) {
+                jdbc.update("update users set title_before=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+                        user.getTitleBefore(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+            }
+            if ((user.getTitleAfter() != null && !user.getTitleAfter().equals(userDb.getTitleAfter())) ||
+                    ((user.getTitleAfter() == null && userDb.getTitleAfter() != null))) {
+                jdbc.update("update users set title_after=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+                        user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+            }
+
+            return user;
+        } catch (RuntimeException err) {
+            throw new InternalErrorException(err);
+        }
+    }
+
+    public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
     try {
       jdbc.update("update user_ext_sources set last_access=" + Compatibility.getSysdate() + " where id=?", userExtSource.getId());
     } catch (RuntimeException e) {

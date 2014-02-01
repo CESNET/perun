@@ -326,6 +326,26 @@ public enum UsersManagerMethod implements ManagerMethod {
     },
 
     /*#
+     * Updates titles before/after users name
+     *
+     * Titles must be set in User object.
+     * Setting any title to null will remove title from name.
+     *
+     * @param user User JSON object with titles to set
+     * @return User Updated user
+     */
+    updateNameTitles {
+
+        @Override
+        public User call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            return ac.getUsersManager().updateUser(ac.getSession(),
+                    parms.read("user", User.class));
+        }
+    },
+
+    /*#
      * Updates user's userExtSource in DB.
      *
      * @param userExtSource UserExtSource JSON object

@@ -651,11 +651,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     }
                 }
 
-                itemData.setId(Utils.getNewId(jdbc, "APPLICATION_DATA_ID_SEQ"));
-                jdbc.update("insert into application_data(id,app_id,item_id,shortname,value,assurance_level) values (?,?,?,?,?,?)",
-                        itemData.getId(), appId, itemData.getFormItem().getId(), itemData
-                        .getFormItem().getShortname(), itemData.getValue(), itemData
-                        .getAssuranceLevel());
+                try {
+                    itemData.setId(Utils.getNewId(jdbc, "APPLICATION_DATA_ID_SEQ"));
+                    jdbc.update("insert into application_data(id,app_id,item_id,shortname,value,assurance_level) values (?,?,?,?,?,?)",
+                            itemData.getId(), appId, itemData.getFormItem().getId(), itemData
+                            .getFormItem().getShortname(), itemData.getValue(), itemData
+                            .getAssuranceLevel());
+                } catch (Exception ex) {
+                    // log and store exception so vo manager could see error in notification.
+                    log.error("[REGISTRAR] Storing form item {} caused exception {}", itemData, ex);
+                    exceptions.add(ex);
+                }
 
             }
 
@@ -689,7 +695,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                             // Reserve login
                             jdbc.update("insert into application_reserved_logins(login,namespace,app_id,created_by,created_at) values(?,?,?,?,?)",
                                     login, loginNamespace, appId, application.getCreatedBy(), new Date());
-                            log.debug("Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
+                            log.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
 
                             // process password for this login
                             for (ApplicationFormItemData passItem : logins) {
@@ -700,10 +706,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                         try {
                                             // reserve password
                                             perun.getUsersManagerBl().reservePassword(registrarSession, login, loginNamespace, pass);
-                                            log.debug("Password for login: {} in namespace: {} successfully reserved in external system.", login, loginNamespace);
+                                            log.debug("[REGISTRAR] Password for login: {} in namespace: {} successfully reserved in external system.", login, loginNamespace);
                                         } catch (Exception ex) {
                                             // login reservation fail must cause rollback !!
-                                            log.error("Unable to reserve password for login: {} in namespace: {} in external system. Exception: " + ex, login, loginNamespace);
+                                            log.error("[REGISTRAR] Unable to reserve password for login: {} in namespace: {} in external system. Exception: " + ex, login, loginNamespace);
                                             throw new ApplicationNotCreatedException("Application was not created. Reason: Unable to reserve password for login: "+login+" in namespace: "+loginNamespace+" in external system. Please contact support to fix this issue before new application submission.", login, loginNamespace);
                                         }
                                         break; // use first pass with correct namespace
@@ -714,12 +720,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
                             throw ex; // re-throw
                         } catch (Exception ex) {
                             // unable to book login
-                            log.error("Unable to reserve login: {} in namespace: {}. Exception: " + ex, login, loginNamespace);
+                            log.error("[REGISTRAR] Unable to reserve login: {} in namespace: {}. Exception: " + ex, login, loginNamespace);
                             exceptions.add(ex);
                         }
                     } else {
                         // login is not available
-                        log.error("Login: " + login + " in namespace: " + loginNamespace + " is already occupied but it shouldn't (race condition).");
+                        log.error("[REGISTRAR] Login: " + login + " in namespace: " + loginNamespace + " is already occupied but it shouldn't (race condition).");
                         exceptions.add(new InternalErrorException("Login: " + login  + " in namespace: " + loginNamespace + " is already occupied but it shouldn't."));
                     }
                 }
@@ -758,7 +764,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 if (!exceptions.isEmpty()) {
                     RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
                             ") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to Perun administrators.");
-                    log.error("New application {} created with errors {}. This is case of PerunException {}", new Object[] {application, exceptions, ex.getErrorId()});
+                    log.error("[REGISTRAR] New application {} created with errors {}. This is case of PerunException {}", new Object[] {application, exceptions, ex.getErrorId()});
                     throw ex;
                 }
                 log.info("New application {} created.", application);
@@ -888,7 +894,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 // left = namespace / right = login
                 usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
             } catch (LoginNotExistsException ex) {
-                log.error("Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
+                log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
             }
         }
         // free any login from reservation when application is rejected
@@ -940,7 +946,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
             perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
         } catch (Exception ex) {
             // we skip any exception thrown from here
-            log.error("Exception when validating {} after approving application {}.", member, app);
+            log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
         }
 
         return app;
@@ -1029,9 +1035,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
                 }
 
+                // update titles before/after users name if part of application !! USER MUST EXISTS !!
+                updateUserNameTitles(app);
+
                 perun.getGroupsManager().addMember(registrarSession, app.getGroup(), member);
 
-                log.debug("Member {} added to Group {}.",member, app.getGroup());
+                log.debug("[REGISTRAR] Member {} added to Group {}.",member, app.getGroup());
 
             } else {
 
@@ -1060,7 +1069,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 Candidate candidate = new Candidate();
                 candidate.setAttributes(attributes);
 
-                log.debug("Retrieved candidate from DB {}", candidate);
+                log.debug("[REGISTRAR] Retrieved candidate from DB {}", candidate);
 
                 // first try to parse display_name if not null and not empty
                 if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
@@ -1112,11 +1121,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
                 // create member and user
-                log.debug("Trying to make member from candidate {}", candidate);
+                log.debug("[REGISTRAR] Trying to make member from candidate {}", candidate);
 
                 member = membersManager.createMember(sess, app.getVo(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), app.getCreatedBy(), candidate);
-                // set user id back to application
                 User u = usersManager.getUserById(registrarSession, member.getUserId());
+
+                if (app.getUser() != null) {
+                    // if user was already known to perun, createMember() will set attributes
+                    // via setAttributes() method so core attributes are skipped
+                    // ==> updateNameTitles() in case of change in appForm.
+                    updateUserNameTitles(app);
+                }
+
+                // set NEW user id back to application
                 app.setUser(u);
                 result = jdbc.update("update application set user_id=? where id=?", member.getUserId(), appId);
                 if (result == 0) {
@@ -1169,6 +1186,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 // left = namespace, right = login
                 perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
             }
+
+            // update titles before/after users name if part of application !! USER MUST EXISTS !!
+            updateUserNameTitles(app);
 
             // log
             perun.getAuditer().log(sess, "Membership extended for {} in {} for approved {}.", member, app.getVo(), app);
@@ -1924,28 +1944,97 @@ public class RegistrarManagerImpl implements RegistrarManager {
      */
     private RegistrarModule getRegistrarModule(ApplicationForm form) {
 
-        RegistrarModule module = null;
-
         if (form == null) {
             // wrong input
             log.error("[REGISTRAR] Application form is null when getting it's registrar module.");
             throw new NullPointerException("Application form is null when getting it's registrar module.");
         }
-        if (form.getModuleClassName() == null || form.getModuleClassName().trim().equals("")) {
-            // module not set
+
+        if (form.getModuleClassName() != null && !form.getModuleClassName().trim().isEmpty()) {
+
+            RegistrarModule module = null;
+
+            try {
+                log.debug("[REGISTRAR] Attempting to instantiate class: {}", MODULE_PACKAGE_PATH + form.getModuleClassName());
+                module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
+            } catch (Exception ex) {
+                log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
+                return module;
+            }
+            log.debug("[REGISTRAR] Class {} successfully created.", MODULE_PACKAGE_PATH + form.getModuleClassName());
+
             return module;
+
         }
+
+        return null;
+
+    }
+
+    /**
+     * If titles before / after name are part of application form and User exists,
+     * update titles for user according to application.
+     *
+     * This method doesn't clear titles from users name if sent empty in order to prevent
+     * accidental removal when user log-in with different IDP without titles provided.
+     *
+     * @param app Application to update user's titles for.
+     * @throws PerunException
+     */
+    private void updateUserNameTitles(Application app) {
 
         try {
-            log.debug("Attempting to instantiate class {}...", MODULE_PACKAGE_PATH + form.getModuleClassName());
-            module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
-        } catch (Exception ex) {
-            log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
-            return module;
-        }
-        log.debug("Class {} successfully created.", MODULE_PACKAGE_PATH + form.getModuleClassName());
 
-        return module;
+            User user = usersManager.getUserById(registrarSession, app.getUser().getId());
+            List<ApplicationFormItemData> data = registrarManager.getApplicationDataById(registrarSession, app.getId());
+            boolean found = false;
+
+            // first check for display name
+            for (ApplicationFormItemData item : data) {
+                if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
+                    try {
+                        Map<String, String> commonName = Utils.parseCommonName(item.getValue());
+                        if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+                            user.setTitleBefore(commonName.get("titleBefore"));
+                            found = true;
+                        }
+                        if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+                            user.setTitleAfter(commonName.get("titleAfter"));
+                            found = true;
+                        }
+                    } catch (InternalErrorException ex) {
+                        // we don't care so much, try also other possibilities
+                        log.error("[REGISTRAR] Unable to parse common name in order to update titles: {}", ex);
+                    }
+                    break;
+                }
+            }
+
+            // overwrite by specific before/after name title
+            for (ApplicationFormItemData item : data) {
+                if (URN_USER_TITLE_BEFORE.equals(item.getFormItem().getPerunDestinationAttribute())) {
+                    if (item.getValue() != null && !item.getValue().isEmpty()) {
+                        user.setTitleBefore(item.getValue());
+                        found = true;
+                    }
+                }
+                if (URN_USER_TITLE_AFTER.equals(item.getFormItem().getPerunDestinationAttribute())) {
+                    if (item.getValue() != null && !item.getValue().isEmpty()) {
+                        user.setTitleAfter(item.getValue());
+                        found = true;
+                    }
+                }
+            }
+
+            // titles were part of application form
+            if (found) {
+                log.debug("[REGISTRAR] User to update titles: {}", user);
+                usersManager.updateNameTitles(registrarSession, user);
+            }
+
+        } catch (Exception ex) {
+            log.error("[REGISTRAR] Exception when updating titles: {}", ex);
+        }
 
     }
 

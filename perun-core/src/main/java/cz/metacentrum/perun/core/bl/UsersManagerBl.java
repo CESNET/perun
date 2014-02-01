@@ -287,8 +287,18 @@ public interface UsersManagerBl {
    * @throws InternalErrorException
    */
   User updateUser(PerunSession perunSession, User user) throws InternalErrorException;
-  
-  /**
+
+    /**
+     *  Updates titles before/after users name
+     *
+     * @param perunSession
+     * @param user
+     * @return updated user with new titles before/after name
+     * @throws InternalErrorException
+     */
+    User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException;
+
+    /**
    *  Updates user's userExtSource in DB.
    *
    * @param perunSession
