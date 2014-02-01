@@ -319,6 +319,19 @@ public class UsersManagerEntry implements UsersManager {
     return getUsersManagerBl().updateUser(sess, user);
   }
 
+    public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+        Utils.checkPerunSession(sess);
+
+        // Authorization
+        if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+            throw new PrivilegeException(sess, "updateNameTitles");
+        }
+
+        getUsersManagerBl().checkUserExists(sess, user);
+
+        return getUsersManagerBl().updateNameTitles(sess, user);
+    }
+
   public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, PrivilegeException {
             Utils.checkPerunSession(sess);
 
