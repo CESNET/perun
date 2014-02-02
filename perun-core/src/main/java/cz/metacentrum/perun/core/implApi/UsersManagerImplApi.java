@@ -539,4 +539,41 @@ public interface UsersManagerImplApi {
      * @throws InternalErrorException 
      */
     List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException;
-}
+
+      /**
+       * Store request of change of user's preferred email address.
+       * Change in attribute value is not done, until email
+       * address is verified by link in email notice.
+       * (urn:perun:user:attribute-def:def:preferredEmail)
+       *
+       * @param sess
+       * @param user
+       * @param email
+       * @throws InternalErrorException
+       * @return ID of change request
+       */
+      int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException;
+
+      /**
+       * Get new preferred email value from user's original request
+       *
+       * @param sess PerunSession
+       * @param user User to get new email address for
+       * @param i decrypted parameter
+       * @param m encrypted parameter
+       * @throws InternalErrorException
+       * @return String return new preferred email
+       */
+      String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) throws InternalErrorException;
+
+      /**
+       * Removes all mail change requests related to user.
+       *
+       * @param sess PerunSession
+       * @param user User to remove preferred email change requests for
+       *
+       * @throws InternalErrorException if any exception in DB occur
+       */
+      void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException;
+
+  }

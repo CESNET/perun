@@ -844,7 +844,44 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	  }
 	  
   }
-  
+
+  public int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException {
+
+      int id = Utils.getNewId(jdbc, "mailchange_id_seq");
+
+      jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
+              id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+
+      return id;
+
+  }
+
+  public String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) throws InternalErrorException {
+
+      int changeId = Integer.parseInt(i, Character.MAX_RADIX);
+
+      // get new email if possible
+      String newEmail = "";
+      try {
+          newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=?", String.class, changeId, user.getId());
+      } catch (EmptyResultDataAccessException ex) {
+          throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exist.");
+      }
+
+      return newEmail;
+
+  }
+
+  public void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException {
+
+      try {
+          jdbc.update("delete from mailchange where user_id=?", user.getId());
+      } catch (Exception ex) {
+          throw new InternalErrorException("Unable to remove preferred mail change requests for user: "+user, ex);
+      }
+
+  }
+
   public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
   }

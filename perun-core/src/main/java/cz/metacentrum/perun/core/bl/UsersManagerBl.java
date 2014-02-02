@@ -903,5 +903,40 @@ public interface UsersManagerBl {
      */
     void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException;
 
+    /**
+     * Request change of user's preferred email address.
+     * Change in attribute value is not done, until email
+     * address is verified by link in email notice.
+     * (urn:perun:user:attribute-def:def:preferredEmail)
+     *
+     * @param sess PerunSession
+     * @param url base URL of running perun instance passed from RPC.
+     * @param user User to request preferred email change for
+     * @param email new email address
+     *
+     * @throws InternalErrorException
+     * @throws UserNotExistsException
+     */
+    void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, UserNotExistsException;
+
+    /**
+     * * Validate change of user's preferred email address.
+     * New email address is set as value of
+     * urn:perun:user:attribute-def:def:preferredEmail attribute.
+     *
+     * @param sess PerunSession
+     * @param user User to validate email address for
+     * @param i decrypted parameter
+     * @param m encrypted parameter
+     * @return String return new preferred email
+     *
+     * @throws InternalErrorException
+     * @throws UserNotExistsException When user from session is null
+     * @throws WrongAttributeValueException If new email address is in wrong format
+     * @throws WrongAttributeAssignmentException
+     * @throws AttributeNotExistsException If user:preferredEmail attribute doesn't exists.
+     * @throws WrongReferenceAttributeValueException
+     */
+    String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 }

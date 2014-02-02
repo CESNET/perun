@@ -470,11 +470,11 @@ public interface UsersManager {
   List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
   
   /**
-   * Returns list of richusers with attributes who matches the searchString, searching name, email, logins.
+   * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
    * 
    * @param sess
    * @param searchString
-   * @return list of richusers
+   * @return list of RichUsers
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws PrivilegeException
@@ -787,12 +787,12 @@ public interface UsersManager {
     throws InternalErrorException, PrivilegeException, UserNotExistsException;
      
 /**
-   * Returns list of richusers with attributes who matches the searchString, searching name, email, logins.
+   * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
    * 
    * @param sess
    * @param searchString
    * @param attrNames
-   * @return list of richusers with selected attributes
+   * @return list of RichUsers with selected attributes
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws PrivilegeException
@@ -801,11 +801,11 @@ public interface UsersManager {
     throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
   /**
-   * Returns list of richusers which are not members of any VO and with selected attributes
+   * Returns list of RichUsers which are not members of any VO and with selected attributes
    * 
    * @param sess
    * @param attrNames
-   * @return list of richusers with selected attributes
+   * @return list of RichUsers with selected attributes
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws VoNotExistsException
@@ -822,7 +822,7 @@ public interface UsersManager {
    * @param vo
    * @param searchString
    * @param attrsName 
-   * @return list of richuser
+   * @return list of RichUsers
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws VoNotExistsException
@@ -845,6 +845,44 @@ public interface UsersManager {
      */
     void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException;
 
+    /**
+     * Request change of user's preferred email address.
+     * Change in attribute value is not done, until email
+     * address is verified by link in email notice.
+     * (urn:perun:user:attribute-def:def:preferredEmail)
+     *
+     * @param sess PerunSession
+     * @param url base URL of running perun instance passed from RPC.
+     * @param user User to request preferred email change for
+     * @param email new email address
+     *
+     * @throws InternalErrorException
+     * @throws PrivilegeException
+     * @throws UserNotExistsException
+     */
+    void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+
+    /**
+     * Validate change of user's preferred email address.
+     * New email address is set as value of
+     * urn:perun:user:attribute-def:def:preferredEmail attribute.
+     *
+     * @param sess PerunSession
+     * @param user User to validate email address for
+     * @param i decrypted parameter
+     * @param m encrypted parameter
+     *
+     * @throws InternalErrorException
+     * @throws PrivilegeException
+     * @throws UserNotExistsException
+     * @throws WrongAttributeAssignmentException
+     * @throws AttributeNotExistsException
+     * @throws WrongReferenceAttributeValueException
+     * @throws WrongAttributeValueException
+     *
+     * @return String return new preferred email
+     */
+    String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 
 }

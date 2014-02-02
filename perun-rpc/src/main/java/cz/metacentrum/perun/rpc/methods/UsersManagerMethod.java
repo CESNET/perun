@@ -887,5 +887,54 @@ public enum UsersManagerMethod implements ManagerMethod {
             return null;
 
         }
+    },
+    /*#
+     * Request to change preferred email address of user.
+     * Validation mail is sent on new address.
+     *
+     * Change is not saved until user validate new email address
+     * by calling validatePreferredEmailChange() method with
+     * proper set of parameters (sent in validation mail).
+     *
+     * @param user Integer User id
+     * @param email new email address to set
+     */
+    requestPreferredEmailChange {
+        @Override
+        public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
+                    parms.getServletRequest().getRequestURL().toString(),
+                    ac.getUserById(parms.readInt("user")),
+                    parms.readString("email"));
+
+            return null;
+
+        }
+    },
+    /*#
+     * Validate new preferred email address.
+     *
+     * Request to validate is determined based
+     * on encrypted parameters sent in email notice
+     * by requestPreferredEmailChange() method.
+     *
+     * @param i encrypted request parameter
+     * @param m encrypted request parameter
+     *
+     * @return new validated email address
+     */
+    validatePreferredEmailChange {
+        @Override
+        public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
+                    ac.getUserById(parms.readInt("u")),
+                    parms.readString("i"),
+                    parms.readString("m"));
+
+        }
     };
 }

@@ -15,35 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordChangeFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserMustHaveOwnerException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlredyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordChangeFailedRuntimeException;
@@ -318,7 +293,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     // delete all authorships of users publications
     getUsersManagerImpl().removeAllAuthorships(sess, user);
-    
+
+    // delete all mailchange request related to user
+    getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
+
     // get all reserved logins of user
     List<Pair<String,String>> logins = getUsersManagerImpl().getUsersReservedLogins(user);
     
@@ -1398,5 +1376,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
 
   }
+
+    public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, UserNotExistsException {
+
+        int changeId = getUsersManagerImpl().requestPreferredEmailChange(sess, user, email);
+        Utils.sendValidationEmail(user, url, email, changeId);
+
+    }
+
+    public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+
+        String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
+
+        AttributeDefinition def = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF+":preferredEmail");
+        Attribute a = new Attribute(def);
+        a.setValue(email);
+
+        // store attribute
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, user, a);
+
+        return email;
+
+    }
 
 }

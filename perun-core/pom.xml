@@ -172,6 +172,11 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+
         <!--
           JDBC Data Access Library (depends on spring-core, spring-beans, spring-context, spring-tx)
           Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*)
