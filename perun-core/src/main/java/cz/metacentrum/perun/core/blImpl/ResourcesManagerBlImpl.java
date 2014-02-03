@@ -83,7 +83,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
     //Get facility for audit messages
     Facility facility = this.getFacility(sess, resource);
-
+    
     // Remove binding between resource and service
     List<Service> services = getAssignedServices(sess, resource);
     for (Service service: services) {
@@ -96,6 +96,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
     List<Group> groups = getAssignedGroups(sess, resource);
     for (Group group: groups){
+        try{
+            List<Attribute> attributes = this.perunBl.getAttributesManagerBl().getAttributes(sess, resource, group);
+            for(Attribute attr: attributes)
+                this.perunBl.getAttributesManagerBl().deleteAttribute(sess, attr);
+        }catch(WrongAttributeAssignmentException ex){
+            throw new InternalErrorException("WrongAttributeAssigmentException for resource: " + resource + " and group: " + group, ex);
+        }
         getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
     }
 
