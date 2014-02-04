@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.rpc.deserializer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +27,21 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.rpc.RpcException;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
- * Deserializer that reads values from JSON content.
+ * Deserializer for JSON / JSONP data format.
+ *
+ * Reads parameters from body (InputStream) of request which is typically POST.
+ * Doesn't read any parameters form URL!
+ *
+ * While deserializing objects from JSON some of their properties may be ignored.
+ * They are not read from input and also not required to be present in input
+ * in order to match JSON object to the right Java object.
+ * They are set as NULL in Java object (if present as variable) or ignored at all.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @since 0.1
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class JsonDeserializer extends Deserializer {
 
@@ -50,26 +59,26 @@ public class JsonDeserializer extends Deserializer {
 
     @JsonIgnoreProperties({"beanName"})
     private interface PerunBeanMixIn {}
-    
+
     @JsonIgnoreProperties({"userExtSources"})
     private interface CandidateMixIn {}
 
     @JsonIgnoreProperties({"name"})
     private interface PerunExceptionMixIn {}
-    
+
     @JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
     private interface DestinationMixIn {}
-    
+
     @JsonIgnoreProperties({"shortName", "beanName"})
     private interface GroupMixIn {}
 
 
     private interface MemberMixIn {
-      @JsonIgnore
-      void setStatus(String status);
+        @JsonIgnore
+        void setStatus(String status);
 
-      @JsonDeserialize
-      void setStatus(Status status);
+        @JsonDeserialize
+        void setStatus(Status status);
     }
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -100,17 +109,24 @@ public class JsonDeserializer extends Deserializer {
         mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, PerunBeanMixIn.class);
 
     }
-    
+
     private JsonNode root;
+    private HttpServletRequest req;
 
     /**
-     * @param in {@code InputStream} to read JSON data from
+     * Create deserializer for JSON/JSONP data format.
+     *
+     * @param request HttpServletRequest this deserializer is about to process
+     *
      * @throws IOException if an IO error occurs
      * @throws RpcException if content of {@code in} is wrongly formatted
      */
-    public JsonDeserializer(InputStream in) throws IOException, RpcException {
+    public JsonDeserializer(HttpServletRequest request) throws IOException, RpcException {
+
+        this.req = request;
+
         try {
-            root = mapper.readTree(in);
+            root = mapper.readTree(req.getInputStream());
         } catch (JsonProcessingException ex) {
             throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
         }
@@ -240,8 +256,14 @@ public class JsonDeserializer extends Deserializer {
             throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
         }
     }
-    
+
     public String readAll() throws RpcException {
-      return root.toString();
+        return root.toString();
     }
+
+    @Override
+    public HttpServletRequest getServletRequest() {
+        return this.req;
+    }
+
 }
