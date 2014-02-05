@@ -503,7 +503,10 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
             for (Application app : backupList){
                 // store app by filter
                 if (app.getUser() != null) {
-                    if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
+                    if (app.getUser().getFullName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        list.add(app);
+                        continue;
+                    } else if (app.getUser().getLastName().toLowerCase().startsWith(filter.toLowerCase())) {
                         list.add(app);
                         continue;
                     } else if (app.getUser().getFirstName().toLowerCase().startsWith(filter.toLowerCase())) {
