@@ -1388,7 +1388,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
         String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
 
-        AttributeDefinition def = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF+":preferredEmail");
+        AttributeDefinition def = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
         Attribute a = new Attribute(def);
         a.setValue(email);
 

@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class TestRtReportingTabItem implements TabItem, TabItemWithUrl{
+public class TestRtReportingTabItem implements TabItem, TabItemWithUrl {
 
 
 	/**

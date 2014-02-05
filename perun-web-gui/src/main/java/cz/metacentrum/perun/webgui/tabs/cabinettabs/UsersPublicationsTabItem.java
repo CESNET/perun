@@ -436,9 +436,6 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -460,7 +457,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My publications", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Publications", getUrlWithParameters());
 	}
 	
 	public boolean isAuthorized() {
@@ -478,13 +475,11 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?user=" + userId;
 	}
 	
-	static public UsersPublicationsTabItem load(Map<String, String> parameters)
-	{
+	static public UsersPublicationsTabItem load(Map<String, String> parameters) {
 		if(parameters.containsKey("user")){
 			return new UsersPublicationsTabItem(Integer.valueOf(parameters.get("user")));
 		}

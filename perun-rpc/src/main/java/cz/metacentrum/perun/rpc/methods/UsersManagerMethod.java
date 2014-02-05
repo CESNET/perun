@@ -928,7 +928,6 @@ public enum UsersManagerMethod implements ManagerMethod {
     validatePreferredEmailChange {
         @Override
         public String call(ApiCaller ac, Deserializer parms) throws PerunException {
-            ac.stateChangingCheck();
 
             return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
                     ac.getUserById(parms.readInt("u")),

@@ -1856,8 +1856,8 @@ public interface LargeIcons extends ClientBundle{
     //@Source("icons/32x32/dinersclub.png")
     //ImageResource dinersclubIcon();
 
-    //@Source("icons/32x32/direction.png")
-    //ImageResource directionIcon();
+    @Source("icons/32x32/direction.png")
+    ImageResource directionIcon();
 
     //@Source("icons/32x32/directory_listing.png")
     //ImageResource directoryListingIcon();
@@ -5840,8 +5840,8 @@ public interface LargeIcons extends ClientBundle{
     //@Source("icons/32x32/server_information.png")
     //ImageResource serverInformationIcon();
 
-    //@Source("icons/32x32/server_key.png")
-    //ImageResource serverKeyIcon();
+    @Source("icons/32x32/server_key.png")
+    ImageResource serverKeyIcon();
 
     //@Source("icons/32x32/server_lightning.png")
     //ImageResource serverLightningIcon();
@@ -6158,8 +6158,8 @@ public interface LargeIcons extends ClientBundle{
     //@Source("icons/32x32/sql_join_right_exclude.png")
     //ImageResource sqlJoinRightExcludeIcon();
 
-    //@Source("icons/32x32/ssl_certificates.png")
-    //ImageResource sslCertificatesIcon();
+    @Source("icons/32x32/ssl_certificates.png")
+    ImageResource sslCertificatesIcon();
 
     //@Source("icons/32x32/stamp_pattern.png")
     //ImageResource stampPatternIcon();

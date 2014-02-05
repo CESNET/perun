@@ -49,8 +49,7 @@ public class UsersTabs {
 			session.getTabManager().addTab(AddUserExtSourceTabItem.load(parameters), open);
 			return true;
 		}
-		
-		
+
 		if (tab.equals(SelfSettingsTabItem.URL)) {
 			session.getTabManager().addTab(SelfSettingsTabItem.load(parameters), open);
 			return true;
@@ -83,6 +82,16 @@ public class UsersTabs {
 
         if (tab.equals(SelfServiceUsersTabItem.URL)) {
             session.getTabManager().addTab(SelfServiceUsersTabItem.load(parameters), open);
+            return true;
+        }
+
+        if (tab.equals(SelfAuthenticationsTabItem.URL)) {
+            session.getTabManager().addTab(SelfAuthenticationsTabItem.load(parameters), open);
+            return true;
+        }
+
+        if (tab.equals(SelfVosTabItem.URL)) {
+            session.getTabManager().addTab(SelfVosTabItem.load(parameters), open);
             return true;
         }
 		

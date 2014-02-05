@@ -202,8 +202,7 @@ public class PerunAttributeTableWidget extends Composite {
 				ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
 				
 				// for each find
-				for(Map.Entry<Attribute, PerunAttributeValueCell> entry : valueCells.entrySet())
-				{
+				for(Map.Entry<Attribute, PerunAttributeValueCell> entry : valueCells.entrySet()) {
 					Attribute attrOld = entry.getKey();
 					PerunAttributeValueCell valueCell = entry.getValue();
 					
@@ -211,8 +210,7 @@ public class PerunAttributeTableWidget extends Composite {
 					Attribute attr = valueCell.getValue(attrOld);
 					newAttributes.add(attr);
 				}
-				
-				
+
 				save(newAttributes);
 				
 			}
@@ -223,7 +221,7 @@ public class PerunAttributeTableWidget extends Composite {
             row++;
         }
 
-		for(Attribute attr : attributes){
+		for (Attribute attr : attributes) {
 			
 			PerunAttributeNameCell nameCell = new PerunAttributeNameCell();
 			PerunAttributeValueCell valueCell = new PerunAttributeValueCell();

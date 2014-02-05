@@ -1,15 +1,13 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -24,15 +22,11 @@ import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
 import cz.metacentrum.perun.webgui.json.usersManager.GetUserExtSources;
 import cz.metacentrum.perun.webgui.json.usersManager.GetVosWhereUserIsMember;
 import cz.metacentrum.perun.webgui.model.*;
-import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
-import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.tabs.UsersTabs;
+import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.PerunAttributeTableWidget;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,8 +36,8 @@ import java.util.Map;
  * Page with user's details for user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @version $Id: $
  */
-
 public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
     /**
@@ -60,6 +54,8 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
      * Title widget
      */
     private Label titleWidget = new Label("Loading user");
+
+    private TabPanelForTabItems tabPanel;
 
     private User user;
     private int userId = 0;
@@ -79,15 +75,13 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
     private ArrayList<Attribute> userAttrs = new ArrayList<Attribute>();
     private ArrayList<Attribute> userLoginAttrs = new ArrayList<Attribute>();
 
-    // tab panel
-    TabLayoutPanel tabPanel;
-
     /**
      * Creates a tab instance
      */
     public SelfDetailTabItem(){
-        this.user = session.getUser();
+        this.user = session.getActiveUser();
         this.userId = user.getId();
+        this.tabPanel = new TabPanelForTabItems(this);
     }
 
     /**
@@ -97,6 +91,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
     public SelfDetailTabItem(User user){
         this.user = user;
         this.userId = user.getId();
+        this.tabPanel = new TabPanelForTabItems(this);
     }
 
     /**
@@ -110,6 +105,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
                 user = jso.cast();
             }
         }).retrieveData();
+        this.tabPanel = new TabPanelForTabItems(this);
     }
 
     public boolean isPrepared(){
@@ -118,15 +114,125 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
     public Widget draw() {
 
-        userAttrs.clear();
-        userLoginAttrs.clear();
-
         this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": My profile");
 
-        // panel
-        tabPanel = new TabLayoutPanel(33, Unit.PX);
-        tabPanel.addStyleName("smallTabPanel");
-        tabPanel.setWidth("100%");
+        // main panel
+        VerticalPanel vp = new VerticalPanel();
+        vp.setSize("100%", "100%");
+
+        // The table
+        AbsolutePanel dp = new AbsolutePanel();
+        //dp.setStyleName("decoration");
+        final FlexTable menu = new FlexTable();
+        menu.setCellSpacing(5);
+
+        if (user.isServiceUser()) {
+            menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+        } else {
+            menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+        }
+        Label userName = new Label();
+        userName.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles(), 40));
+        userName.setStyleName("now-managing");
+        userName.setTitle(user.getFullNameWithTitles());
+        menu.setWidget(0, 1, userName);
+
+        menu.setHTML(0, 2, "&nbsp;");
+        menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+
+        int column = 3;
+        if (JsonUtils.isExtendedInfoVisible()) {
+            menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+user.getId()+"</span>");
+            column++;
+
+            menu.setHTML(0, column, "&nbsp;");
+            menu.getFlexCellFormatter().setWidth(0, column, "25px");
+            column++;
+        }
+
+        String type = user.isServiceUser() ? "Service" : "Person";
+        menu.setHTML(0, column, "<strong>User type:</strong><br/><span class=\"inputFormInlineComment\">"+type+"</span>");
+
+        CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                tabPanel.getSelectedTabItem().draw();
+            }
+        });
+        dp.add(cb);
+
+        // normal user can change details
+        cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
+
+        final TabItem tab = this;
+        final JsonCallbackEvents events = new JsonCallbackEvents(){
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+                user = jso.cast();
+                tab.draw();
+            }
+        };
+
+        CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
+        change.addClickHandler(new ClickHandler(){
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
+            }
+        });
+        dp.add(change);
+        change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+
+        dp.add(menu);
+        vp.add(dp);
+        vp.setCellHeight(dp, "30px");
+
+        tabPanel.clear();
+
+        // Event for refreshing the whole tab
+        final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+                new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
+                    public void onFinished(JavaScriptObject jso){
+                        user = jso.cast();
+                        draw();
+                    }
+                }).retrieveData();
+            }
+        };
+
+        tabPanel.add(new SelfPersonalTabItem(user), "Overview");
+        tabPanel.add(new SelfVosTabItem(user), "VO settings");
+        tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentications");
+
+        if (!user.isServiceUser()) {
+            tabPanel.add(new UsersPublicationsTabItem(user), "Publications");
+        }
+        tabPanel.add(new SelfApplicationsTabItem(user), "Applications");
+        if (!user.isServiceUser()) {
+            tabPanel.add(new SelfServiceUsersTabItem(user), "Service identities");
+        } else {
+            tabPanel.add(new SelfServiceUsersTabItem(user), "Associated users");
+        }
+
+        // Resize must be called after page fully displays
+        Scheduler.get().scheduleDeferred(new Command() {
+            @Override
+            public void execute() {
+                tabPanel.finishAdding();
+            }
+        });
+
+        vp.add(tabPanel);
+
+        this.contentWidget.setWidget(vp);
+
+        return getWidget();
+
+        /*
+
+        userAttrs.clear();
+        userLoginAttrs.clear();
 
         final TabItem tab = this;
         // common selection actions
@@ -185,84 +291,8 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
         return getWidget();
 
-    }
+        */
 
-    /**
-     * Loads personal info - user detail and user attributes
-     *
-     * @return return tab content
-     */
-    private Widget loadPersonalInfo() {
-
-        // CONTENT PANEL
-        ScrollPanel scroll = new ScrollPanel();
-        final VerticalPanel contentPanel = new VerticalPanel();
-        contentPanel.setStyleName("perun-table");
-        contentPanel.setSpacing(5); // spacing
-        scroll.setWidget(contentPanel);
-        scroll.setStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizeSmallTabPanel(scroll, 350, this);
-        scroll.setWidth("100%");
-
-        // PERSONAL INFO
-        contentPanel.add(getWidgetPersonalInfo());
-
-        // VOS
-        contentPanel.add(getWidgetVos());
-
-        // logins / certificates
-        contentPanel.add(getWidgetLoginsCertificates());
-
-        // CONTACT INFO
-        contentPanel.add(getWidgetContactInfo());
-
-        // TODO unified user logins a certificates into first callback
-
-
-
-
-        // EXTERNAL ORIGIN
-        contentPanel.add(getWidgetExtSources());
-
-
-        return scroll;
-
-    }
-
-    /**
-     * Returns the widget with personal information
-     * @return
-     */
-    private Widget getWidgetPersonalInfo() {
-        DisclosurePanel dp = new DisclosurePanel();
-        dp.setWidth("100%");
-        dp.setOpen(true);
-
-        // header
-        FlexTable personalHeader = new FlexTable();
-        personalHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
-        personalHeader.setWidget(0, 1, new HTML("<h3>User details</h3>"));
-        personalHeader.setTitle("Click to show/hide User details");
-        dp.setHeader(personalHeader);
-
-        // content
-        final FlexTable layout = new FlexTable();
-        layout.setStyleName("userDetailTable");
-
-        // Add some standard form options
-        layout.setHTML(0, 0, "<strong>User&nbsp;ID:</strong>");
-        layout.setHTML(0, 1, String.valueOf(user.getId()));
-        layout.setHTML(1, 0, "<strong>Full&nbsp;name:</strong>");
-        layout.setHTML(1, 1, user.getFullNameWithTitles());
-        layout.setHTML(2, 0, "<strong>User&nbsp;type:</strong>");
-        if (user.isServiceUser()) {
-            layout.setHTML(2, 1, "Service");
-        } else {
-            layout.setHTML(2, 1, "Person");
-        }
-
-        dp.setContent(layout);
-        return dp;
     }
 
     /**
@@ -659,7 +689,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 					if (a.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
 						if (a.getValueAsObject() != null) {
 							// add only non-empty logins
-							table.add(a);													
+							table.add(a);
 						}
 					} else */ if (a.getFriendlyName().equalsIgnoreCase("userCertificates")) {
                         table.add(a);
@@ -971,7 +1001,6 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         return SmallIcons.INSTANCE.userGrayIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -980,9 +1009,6 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -1001,8 +1027,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My profile", getUrlWithParameters());
@@ -1025,13 +1050,11 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return  UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
     }
 
     static public SelfDetailTabItem load(Map<String, String> parameters) {
-
         if (parameters.containsKey("id")) {
             int uid = Integer.parseInt(parameters.get("id"));
             if (uid != 0) {

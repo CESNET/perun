@@ -695,6 +695,7 @@ public class Utils {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+        message.setSubject("[Perun] New email address verification");
 
         // get validation link params
         String i = Integer.toString(changeId, Character.MAX_RADIX);
@@ -721,7 +722,10 @@ public class Utils {
 
             // Build message
             String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+
-                    ".\n\nTo confirm this change please use link below:\n\n"+link+"\n\n";
+                    ".\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
+                    "Message is generated automatically, please do not respond." +
+                    "\n----------------------------------------------" +
+                    "\nPerun - User and Resource Management System";
 
             message.setText(text);
 

@@ -1079,3 +1079,8 @@ h3 {
 .italic {
     font-style: italic;
 }
+
+.padding-vertical {
+    padding: 0 !important;
+    padding-right: 5px !important;
+}

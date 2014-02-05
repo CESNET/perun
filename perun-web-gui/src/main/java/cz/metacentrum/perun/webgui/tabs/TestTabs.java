@@ -1,10 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs;
 
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.tabs.testtabs.TestAttributeTableTabItem;
-import cz.metacentrum.perun.webgui.tabs.testtabs.TestDataGridAttributesTabItem;
-import cz.metacentrum.perun.webgui.tabs.testtabs.TestDataGridTabItem;
-import cz.metacentrum.perun.webgui.tabs.testtabs.TestRtReportingTabItem;
+import cz.metacentrum.perun.webgui.tabs.testtabs.*;
 
 import java.util.Map;
 
@@ -54,6 +51,11 @@ public class TestTabs {
 
         if (tab.equals(TestDataGridAttributesTabItem.URL)) {
             session.getTabManager().addTab(TestDataGridAttributesTabItem.load(parameters), open);
+            return true;
+        }
+
+        if (tab.equals(TestJSONParserTabItem.URL)) {
+            session.getTabManager().addTab(TestJSONParserTabItem.load(parameters), open);
             return true;
         }
 

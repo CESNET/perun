@@ -41,6 +41,15 @@ public class User extends JavaScriptObject {
 		return this.firstName;
 	}-*/;
 
+    /**
+     * Set first name
+     *
+     * @param name first name of user
+     */
+    public final native String setFirstName(String name) /*-{
+        this.firstName = name;
+    }-*/;
+
 	/**
 	 * Get last name of user
 	 * 
@@ -51,7 +60,16 @@ public class User extends JavaScriptObject {
 		return this.lastName;
 	}-*/;
 
-	/**
+    /**
+     * Set last name
+     *
+     * @param name last name of user
+     */
+    public final native String setLastName(String name) /*-{
+        this.lastName = name;
+    }-*/;
+
+    /**
 	 * Get full name of user
 	 * 
 	 * @return last+first name of user
@@ -70,6 +88,15 @@ public class User extends JavaScriptObject {
 		return this.middleName;
 	}-*/;
 
+    /**
+     * Set middle name
+     *
+     * @param name middle name of user
+     */
+    public final native String setMiddleName(String name) /*-{
+        this.middleName = name;
+    }-*/;
+
 	/**
 	 * Get title before name of user
 	 * 
@@ -80,6 +107,15 @@ public class User extends JavaScriptObject {
 		return this.titleBefore;
 	}-*/;
 
+    /**
+     * Set title before name
+     *
+     * @param title title of user before name
+     */
+    public final native void setTitleBefore(String title) /*-{
+        this.titleBefore = title;
+    }-*/;
+
 	/**
 	 * Get title after name of user
 	 * 
@@ -89,6 +125,15 @@ public class User extends JavaScriptObject {
 		if (!this.titleAfter) { return ""; }
 		return this.titleAfter;
 	}-*/;
+
+    /**
+     * Set title after name
+     *
+     * @param title title of user after name
+     */
+    public final native void setTitleAfter(String title) /*-{
+        this.titleAfter = title;
+    }-*/;
 
     /**
      * Get User Ext Sources of user

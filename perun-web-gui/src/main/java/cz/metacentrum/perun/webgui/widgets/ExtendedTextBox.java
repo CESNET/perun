@@ -90,14 +90,6 @@ public class ExtendedTextBox extends Composite {
         sp.setWidget(box);
         sp.getElement().appendChild(errorText.getElement());
 
-        Scheduler.get().scheduleDeferred(new Command() {
-            @Override
-            public void execute() {
-                // set same width as used for box in form
-                errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+box.getOffsetWidth()+"px;");
-            }
-        });
-
     }
 
     /**
@@ -122,12 +114,16 @@ public class ExtendedTextBox extends Composite {
     public void setError(String message) {
 
         if (message != null && !message.isEmpty()) {
-            errorText.setText(message);
+            errorText.getElement().setInnerHTML(message);
             errorText.setVisible(true);
         } else {
-            errorText.setText("");
+            errorText.getElement().setInnerHTML("");
             errorText.setVisible(false);
         }
+
+        // set error message max-width based on size of box
+        int width = box.getOffsetWidth();
+        errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+width+"px;");
 
         box.addStyleName("input-text-error-border");
 

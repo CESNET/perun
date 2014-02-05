@@ -42,7 +42,7 @@ public class PerunError extends JavaScriptObject {
      * @return type of exception or empty string
      */
     public final native String getType() /*-{
-        if (!this.type) {
+        if (typeof this.type === 'undefined' || !this.type) {
             return "";
         }
         return this.type;

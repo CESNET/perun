@@ -227,9 +227,10 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
         createButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
-                // proceed
-                CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                create.createPassword(userId, login, namespace, newPass.getTextBox().getValue().trim());
+                if (validator.validateTextBox() && validator2.validateTextBox()) {
+                    CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+                    create.createPassword(userId, login, namespace, newPass.getTextBox().getValue().trim());
+                }
             }
         });
 
@@ -282,6 +283,16 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
             layout.setHTML(3, 0, "Retype new pass:");
             layout.setWidget(3, 1, confPass);
 
+            final CustomButton skip = new CustomButton("Skip", SmallIcons.INSTANCE.arrowRightIcon());
+            skip.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab));
+                    create.createRandomPassword(userId, login, namespace);
+                }
+            });
+            menu.addWidget(skip);
+
             menu.addWidget(createButton);
             vp.add(layout);
 
@@ -301,12 +312,14 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
             layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
         }
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+        if (!action.equals(Actions.CREATE)) {
+            menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    session.getTabManager().closeTab(tab, false);
+                }
+            }));
+        }
 
         vp.add(menu);
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
