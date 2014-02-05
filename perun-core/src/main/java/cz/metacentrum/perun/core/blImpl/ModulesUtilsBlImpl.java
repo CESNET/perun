@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -199,7 +200,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
     }
     return null;
   }
-  public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+  public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
       Utils.notNull(attribute, "attribute");
       List<String> gIDs = (List<String>)attribute.getValue();
       if (gIDs != null){
@@ -220,7 +221,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
                 throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
             }
           }catch(NumberFormatException ex){
-              throw new WrongAttributeAssignmentException("attribute is not a number", ex);
+              throw new WrongAttributeValueException(attribute ,user,"attribute is not a number", ex);
           }
         }
       }

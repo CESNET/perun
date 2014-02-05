@@ -37,37 +37,37 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
                 return attr;
             }
             
-            Attribute facilityminGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":minGID");
-            Attribute facilitymaxGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":maxGID");
-            Attribute userPrefferedUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs");
-            List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             String namespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace").getValue();
-            Set<String> resourcesUGIDs = new HashSet<>();
+            List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
+            Set<Integer> resourcesUGIDs = new HashSet<>();
             
             for (Resource resource : resources) {
-                List<String> resourcesUGIDsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
-                if (resourcesUGIDsForTest != null) resourcesUGIDs.addAll(resourcesUGIDsForTest);
+                Integer gidForTest = (Integer) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace).getValue();
+                if (gidForTest != null) resourcesUGIDs.add(gidForTest);
             }
             
+            Attribute userPrefferedUGIDs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs");
             if (userPrefferedUGIDs.getValue() != null){
                 for (String pUGID : (List<String>)userPrefferedUGIDs.getValue()) {
-                    if (resourcesUGIDs.contains(pUGID)) {
+                    if (resourcesUGIDs.contains(new Integer(pUGID))) {
                         Utils.copyAttributeToViAttributeWithoutValue(userPrefferedUGIDs, attr);
                         attr.setValue(new Integer(pUGID));
                         return attr;
                     }
                 }
             }
-            if (facilitymaxGID.getValue() != null && facilityminGID.getValue() != null){
-                for (String rUGID : (List<String>)resourcesUGIDs) {
-                    Integer intUGID = new Integer(rUGID);
-                    if ( intUGID<= (Integer) facilitymaxGID.getValue() && intUGID >= (Integer)facilityminGID.getValue()) {
-                        Utils.copyAttributeToViAttributeWithoutValue(facilitymaxGID, attr);
-                        attr.setValue(new Integer(intUGID));
-                        return attr;
-                    }
-                }
+            Resource resourceWithMinID = resources.get(0);
+            for (Resource resource : resources) {
+                if(resource.getId()<resourceWithMinID.getId()) resourceWithMinID = resource;
             }
+            Attribute resourcesAttrs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceWithMinID, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace);
+            if(resourcesAttrs != null && resourcesAttrs.getValue() != null){
+                Utils.copyAttributeToViAttributeWithoutValue(resourcesAttrs, attr);
+                attr.setValue(resourcesAttrs.getValue());
+                return attr;
+            }
+                
+            
 
         } catch (AttributeNotExistsException ex) {
             throw new InternalErrorException(ex);
@@ -100,7 +100,6 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
         strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
         strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredUnixGIDs");
         strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:*");
-        strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
         return strongDependencies;
     }
 

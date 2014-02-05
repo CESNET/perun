@@ -24,7 +24,7 @@ public class urn_perun_user_attribute_def_def_preferredDefaultUnixGIDs_Namespace
     List<String> preferedGIDs = (List<String>) attribute.getValue();
     if(preferedGIDs != null && !preferedGIDs.isEmpty()) {
         try {
-            sess.getPerunBl().getModulesUtilsBl().checkIfListOfGIDIsWithinRange(sess, attribute);
+            sess.getPerunBl().getModulesUtilsBl().checkIfListOfGIDIsWithinRange(sess, user, attribute);
         } catch (AttributeNotExistsException ex) {
             throw new WrongAttributeValueException(ex);
         }

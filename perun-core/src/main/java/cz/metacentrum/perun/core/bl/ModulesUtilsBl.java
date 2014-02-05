@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -134,6 +135,7 @@ public interface ModulesUtilsBl {
    * 
    * @param sess
    * @param attribute list of unixGIDs-namespace attribute with value
+   * @param user handler of atribute
    * 
    * @throws InternalErrorException
    * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
@@ -141,7 +143,7 @@ public interface ModulesUtilsBl {
    * @throws AttributeNotExistsException
    * @throws WrongAttributeValueException 
    */
-  void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;  
+  void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;  
   
   /**
    * Return true if i have right on any of groups or resources to WRITE the attribute
