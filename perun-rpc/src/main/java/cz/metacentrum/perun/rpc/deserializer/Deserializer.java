@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.rpc.deserializer;
 
 import cz.metacentrum.perun.rpc.RpcException;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -9,7 +11,7 @@ import java.util.List;
  * are undefined if multiple values with the same name are supplied. Implementing any of the read* methods is optional.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @since 0.1
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public abstract class Deserializer {
 
@@ -72,12 +74,27 @@ public abstract class Deserializer {
     public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
         throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
     }
-    
+
     /**
      * Returns string representation of the variables stored in the deserializer.
-     * 
+     *
      * @return string containing all variables
      * @throws RpcException
      */
     public abstract String readAll() throws RpcException;
+
+    /**
+     * Return HttpServletRequest related to concrete call this deserializer is used to process.
+     *
+     * Note that this "request" is not necessarily used as source to read parameters by
+     * other methods of deserializer. It IS typically for GET requests, but NOT for POST with
+     * JSON/JSONP data format.
+     *
+     * @return HttpServletRequest related to concrete call
+     * @throws UnsupportedOperationException if this deserializer does not implement this method
+     */
+    public HttpServletRequest getServletRequest() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
+    }
+
 }

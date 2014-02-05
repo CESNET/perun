@@ -43,7 +43,6 @@ import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
 
-
 @SuppressWarnings("serial")
 /**
  * HTTP servlet wrapping Perun's method calls. Returned values are serialized and sent as an HTTP response.
@@ -442,7 +441,7 @@ public class Api extends HttpServlet {
     switch (Formats.match(format)) {
     case json:
     case jsonp:
-      return new JsonDeserializer(req.getInputStream());
+      return new JsonDeserializer(req);
     case urlinjsonout:
       return new UrlDeserializer(req);
     default:
