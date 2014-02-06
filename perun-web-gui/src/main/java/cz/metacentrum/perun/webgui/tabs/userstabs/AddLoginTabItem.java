@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
  * USE ONLY AS INNER TAB !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class AddLoginTabItem implements TabItem {
 
@@ -126,6 +126,15 @@ public class AddLoginTabItem implements TabItem {
                     userLogin.setError("Login can't be empty!");
                     return false;
                 }
+                RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+                boolean match = regExp.test(userLogin.getTextBox().getValue().trim());
+                if (!match) {
+                    userLogin.setError("Invalid format!");
+                    return false;
+                }
+                if (userLogin.isProcessing() || userLogin.isHardError()) {
+                    return false;
+                }
                 userLogin.setOk();
                 return true;
             }
@@ -166,32 +175,41 @@ public class AddLoginTabItem implements TabItem {
 
             // check login availability
             userLogin.getTextBox().addKeyUpHandler(new KeyUpHandler() {
+                @Override
                 public void onKeyUp(KeyUpEvent keyUpEvent) {
+                    if (keyUpEvent.isDownArrow() || keyUpEvent.isUpArrow() || keyUpEvent.isLeftArrow() || keyUpEvent.isRightArrow()) {
+                        // do not trigger when no text input
+                        return;
+                    }
                     final String value = userLogin.getTextBox().getValue().trim();
-                    if (!userLogin.getTextBox().getValue().trim().equals("")) {
+                    // trigger new validation on checked input or if previously was hard error
+                    if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
                         new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents(){
+                            @Override
                             public void onFinished(JavaScriptObject jso) {
                                 if (value.equals(userLogin.getTextBox().getValue().trim())) {
                                     BasicOverlayType bo = jso.cast();
+                                    userLogin.setProcessing(false);
                                     if (!bo.getBoolean()) {
-                                        userLogin.setError("Login not available!");
-                                        createLogin.setEnabled(false);
+                                        userLogin.setHardError("Login is already in use!");
                                     } else {
+                                        userLogin.removeHardError();
                                         loginValidator.validateTextBox();
-                                        createLogin.setEnabled(true);
                                     }
                                 }
                             }
+                            @Override
                             public void onLoadingStart(){
                                 if (value.equals(userLogin.getTextBox().getValue().trim())) {
-                                    userLogin.setError("Loading...");
-                                    createLogin.setEnabled(false);
+                                    userLogin.removeHardError();
+                                    userLogin.setProcessing(true);
                                 }
                             }
+                            @Override
                             public void onError(PerunError error) {
                                 if (value.equals(userLogin.getTextBox().getValue().trim())) {
-                                    userLogin.setError("Error while loading.");
-                                    createLogin.setEnabled(false);
+                                    userLogin.setProcessing(false);
+                                    userLogin.setHardError("Unable to check if login is available!");
                                 }
                             }
                         }).retrieveData();
@@ -201,27 +219,36 @@ public class AddLoginTabItem implements TabItem {
 
             namespace.addChangeHandler(new ChangeHandler() {
                 public void onChange(ChangeEvent changeEvent) {
-                    if (!userLogin.getTextBox().getValue().trim().equals("")) {
+                    final String value = userLogin.getTextBox().getValue().trim();
+                    // trigger new validation on checked input or if previously was hard error
+                    if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
                         new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
+                            @Override
                             public void onFinished(JavaScriptObject jso) {
-                                BasicOverlayType bo = jso.cast();
-                                if (!bo.getBoolean()) {
-                                    userLogin.setError("Login not available!");
-                                    createLogin.setEnabled(false);
-                                } else {
-                                    loginValidator.validateTextBox();
-                                    createLogin.setEnabled(true);
+                                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                                    BasicOverlayType bo = jso.cast();
+                                    userLogin.setProcessing(false);
+                                    if (!bo.getBoolean()) {
+                                        userLogin.setError("Login is already in use!");
+                                    } else {
+                                        userLogin.removeHardError();
+                                        loginValidator.validateTextBox();
+                                    }
                                 }
                             }
-
+                            @Override
                             public void onLoadingStart() {
-                                userLogin.setError("Loading...");
-                                createLogin.setEnabled(false);
+                                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                                    userLogin.removeHardError();
+                                    userLogin.setProcessing(true);
+                                }
                             }
-
+                            @Override
                             public void onError(PerunError error) {
-                                userLogin.setError("Error while loading.");
-                                createLogin.setEnabled(false);
+                                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                                    userLogin.setProcessing(false);
+                                    userLogin.setHardError("Error while loading.");
+                                }
                             }
                         }).retrieveData();
                     }
@@ -244,7 +271,6 @@ public class AddLoginTabItem implements TabItem {
 
                 }
             });
-
 
         }
 

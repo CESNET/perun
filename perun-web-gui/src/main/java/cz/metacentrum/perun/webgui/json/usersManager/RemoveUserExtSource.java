@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class RemoveUserExtSource {
 
 	// web session

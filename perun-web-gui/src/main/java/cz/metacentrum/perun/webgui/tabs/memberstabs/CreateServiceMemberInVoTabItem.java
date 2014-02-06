@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
@@ -129,6 +131,16 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
             public boolean validateTextBox() {
                 if (serviceUserLogin.getTextBox().getValue().trim().isEmpty()) {
                     serviceUserLogin.setError("Login can't be empty!");
+                    return false;
+                }
+                RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+                boolean match = regExp.test(serviceUserLogin.getTextBox().getValue().trim());
+                if (!match) {
+                    serviceUserLogin.setError("Invalid format!");
+                    return false;
+                }
+                if (serviceUserLogin.isProcessing() || serviceUserLogin.isHardError()) {
+                    // keep original message
                     return false;
                 }
                 serviceUserLogin.setOk();
@@ -397,50 +409,91 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
             }
         });
-        cb.setEnabled(false);
 
         // check login availability
         serviceUserLogin.getTextBox().addKeyUpHandler(new KeyUpHandler() {
+            @Override
             public void onKeyUp(KeyUpEvent keyUpEvent) {
-                new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), serviceUserLogin.getTextBox().getValue().trim(), new JsonCallbackEvents(){
-                    public void onFinished(JavaScriptObject jso) {
-                        BasicOverlayType bo = jso.cast();
-                        if (!bo.getBoolean()) {
-                            layout.setWidget(4, 2, new FormInputStatusWidget("Not available", FormInputStatusWidget.Status.ERROR));
-                        } else {
-                            layout.setWidget(4, 2, new FormInputStatusWidget("OK", FormInputStatusWidget.Status.OK));
-                            cb.setEnabled(true);
+                if (keyUpEvent.isDownArrow() || keyUpEvent.isUpArrow() || keyUpEvent.isLeftArrow() || keyUpEvent.isRightArrow()) {
+                    // do not trigger when no text input
+                    return;
+                }
+                final String login = serviceUserLogin.getTextBox().getValue().trim();
+                final String loginNamespace = namespace.getValue(namespace.getSelectedIndex());
+                // trigger new validation on checked input or if previously was hard error
+                if ((!login.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(login)) || serviceUserLogin.isHardError()) {
+                    new IsLoginAvailable(loginNamespace, login, new JsonCallbackEvents(){
+                        @Override
+                        public void onFinished(JavaScriptObject jso) {
+                            // UPDATE RESULT ONLY IF CONTENT OF LOGIN BOX IS SAME AS ON CALLBACK START
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                BasicOverlayType bo = jso.cast();
+                                serviceUserLogin.setProcessing(false);
+                                if (!bo.getBoolean()) {
+                                    serviceUserLogin.setHardError("Login is already in use!");
+                                } else {
+                                    serviceUserLogin.removeHardError();
+                                    loginValidator.validateTextBox();
+                                }
+                            }
                         }
-                    }
-                    public void onLoadingStart(){
-                        cb.setEnabled(false);
-                    }
-                    public void onError(PerunError error) {
-                        cb.setEnabled(false);
-                    }
-                }).retrieveData();
+                        @Override
+                        public void onLoadingStart(){
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                serviceUserLogin.removeHardError();
+                                serviceUserLogin.setProcessing(true);
+                            }
+                        }
+                        @Override
+                        public void onError(PerunError error) {
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                serviceUserLogin.setProcessing(false);
+                                serviceUserLogin.setHardError("Unable to check if login is available!");
+                            }
+                        }
+                    }).retrieveData();
+                }
             }
         });
 
         namespace.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent changeEvent) {
-                new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), serviceUserLogin.getTextBox().getValue().trim(), new JsonCallbackEvents(){
-                    public void onFinished(JavaScriptObject jso) {
-                        BasicOverlayType bo = jso.cast();
-                        if (!bo.getBoolean()) {
-                            layout.setWidget(4, 2, new FormInputStatusWidget("Not available", FormInputStatusWidget.Status.ERROR));                            cb.setEnabled(false);
-                        } else {
-                            layout.setWidget(4, 2, new FormInputStatusWidget("OK", FormInputStatusWidget.Status.OK));
-                            cb.setEnabled(true);
+                final String login = serviceUserLogin.getTextBox().getValue().trim();
+                final String loginNamespace = namespace.getValue(namespace.getSelectedIndex());
+                if ((!login.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(login)) || serviceUserLogin.isHardError()) {
+                    new IsLoginAvailable(loginNamespace, login, new JsonCallbackEvents(){
+                        @Override
+                        public void onFinished(JavaScriptObject jso) {
+                            // UPDATE RESULT ONLY IF CONTENT OF LOGIN BOX IS SAME AS ON CALLBACK START
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                serviceUserLogin.setProcessing(false);
+                                BasicOverlayType bo = jso.cast();
+                                if (!bo.getBoolean()) {
+                                    serviceUserLogin.setHardError("Login is already in use!");
+                                } else {
+                                    serviceUserLogin.removeHardError();
+                                    loginValidator.validateTextBox();
+                                }
+                            }
                         }
-                    }
-                    public void onLoadingStart(){
-                        cb.setEnabled(false);
-                    }
-                    public void onError(PerunError error) {
-                        cb.setEnabled(false);
-                    }
-                }).retrieveData();
+                        @Override
+                        public void onLoadingStart(){
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                serviceUserLogin.removeHardError();
+                                serviceUserLogin.setProcessing(true);
+                                loginValidator.validateTextBox();
+                            }
+                        }
+                        @Override
+                        public void onError(PerunError error) {
+                            if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+                                serviceUserLogin.setProcessing(false);
+                                serviceUserLogin.setHardError("Unable to check if login is available!");
+                            }
+                        }
+                    }).retrieveData();
+                }
             }
         });
 
@@ -464,7 +517,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
         return SmallIcons.INSTANCE.addIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -473,9 +525,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -494,8 +543,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         if(vo != null){
             session.setActiveVo(vo);
@@ -521,13 +569,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return MembersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + voId;
     }
 
-    static public CreateServiceMemberInVoTabItem load(Map<String, String> parameters)
-    {
+    static public CreateServiceMemberInVoTabItem load(Map<String, String> parameters) {
         int gid = Integer.parseInt(parameters.get("vo"));
         return new CreateServiceMemberInVoTabItem(gid);
     }

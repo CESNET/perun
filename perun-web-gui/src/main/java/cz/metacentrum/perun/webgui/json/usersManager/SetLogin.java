@@ -18,9 +18,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  * ! For service users only !
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
-
 public class SetLogin {
 
     // web session
