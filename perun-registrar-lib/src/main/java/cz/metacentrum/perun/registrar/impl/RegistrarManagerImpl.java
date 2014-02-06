@@ -1084,6 +1084,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                             && !commonName.get("firstName").isEmpty()) {
                         candidate.setFirstName(commonName.get("firstName"));
                     }
+                    // FIXME - ? there is no middleName in Utils.parseCommonName() implementation
                     if (commonName.get("middleName") != null
                             && !commonName.get("middleName").isEmpty()) {
                         candidate.setMiddleName(commonName.get("middleName"));
@@ -1775,6 +1776,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
             for (ApplicationFormItemData item : data) {
                 if ("urn:perun:user:attribute-def:core:displayName".equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
+                    // use parsed name to drop mistakes on IDP side
+                    try {
+                        Map<String, String> nameMap = Utils.parseCommonName(name);
+                        // drop name titles to spread search
+                        String newName = "";
+                        if (nameMap.get("firstName") != null
+                                && !nameMap.get("firstName").isEmpty()) {
+                            newName += nameMap.get("firstName") + " ";
+                        }
+                        if (nameMap.get("lastName") != null
+                                && !nameMap.get("lastName").isEmpty()) {
+                            newName += nameMap.get("lastName");
+                        }
+                        // fill parsed name instead of input
+                        if (newName != null && !newName.isEmpty()) {
+                            name = newName;
+                        }
+                    } catch (Exception ex) {
+                        log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for simillar users. Exception: {}", ex);
+                    }
                     if (name != null && !name.isEmpty()) break;
                 } else if ("urn:perun:user:attribute-def:core:lastName".equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
