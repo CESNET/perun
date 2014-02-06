@@ -53,6 +53,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
   private final static Logger log = LoggerFactory.getLogger(UsersManagerImpl.class);
 
+  // time window size for mail validation
+  private final static int VALIDATION_ALLOWED_HOURS = 6;
+
   // Part of the SQL script used for getting the User object
   protected final static String userMappingSelectQuery = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
           "users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
@@ -863,9 +866,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       // get new email if possible
       String newEmail = "";
       try {
-          newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=?", String.class, changeId, user.getId());
+          if (Compatibility.isPostgreSql()) {
+              // postgres
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+VALIDATION_ALLOWED_HOURS+" hours'))", String.class, changeId, user.getId());
+          } else {
+              // oracle
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+VALIDATION_ALLOWED_HOURS+"' HOUR))", String.class, changeId, user.getId());
+          }
       } catch (EmptyResultDataAccessException ex) {
-          throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exist.");
+          throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exists or isn't valid anymore.");
       }
 
       return newEmail;
