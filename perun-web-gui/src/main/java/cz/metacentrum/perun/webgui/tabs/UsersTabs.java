@@ -50,8 +50,8 @@ public class UsersTabs {
 			return true;
 		}
 
-		if (tab.equals(SelfSettingsTabItem.URL)) {
-			session.getTabManager().addTab(SelfSettingsTabItem.load(parameters), open);
+		if (tab.equals(SelfResourcesSettingsTabItem.URL)) {
+			session.getTabManager().addTab(SelfResourcesSettingsTabItem.load(parameters), open);
 			return true;
 		}
 		

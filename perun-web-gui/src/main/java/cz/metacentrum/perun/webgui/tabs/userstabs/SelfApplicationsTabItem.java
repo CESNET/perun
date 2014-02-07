@@ -168,7 +168,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Applications", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Applications", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

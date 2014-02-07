@@ -497,6 +497,7 @@ public class MainMenu {
         TabItemWithUrl changer = null;
         TabItemWithUrl detail = null;
         TabItemWithUrl settings = null;
+        TabItemWithUrl resources = null;
         TabItemWithUrl authentications = null;
         TabItemWithUrl applications = null;
         TabItemWithUrl publications = null;
@@ -505,6 +506,7 @@ public class MainMenu {
         if (user != null) {
             detail = new SelfDetailTabItem(user);
             settings = new SelfVosTabItem(user);
+            resources = new SelfResourcesSettingsTabItem(user);
             authentications = new SelfAuthenticationsTabItem(user);
             if (!user.isServiceUser()) {
                 // publications can be reported by normal people only
@@ -528,8 +530,8 @@ public class MainMenu {
         menu.setTabItem(detail);
         menu.addItem(new MainMenuItem((user != null) ? user.getFullNameWithTitles() : "My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
         menu.addItem(new MainMenuItem("VO settings", settings, SmallIcons.INSTANCE.buildingIcon()));
+        menu.addItem(new MainMenuItem("Resources settings", resources, SmallIcons.INSTANCE.settingToolsIcon()));
         menu.addItem(new MainMenuItem("Authentications", authentications, SmallIcons.INSTANCE.keyIcon()));
-
         menu.addItem(new MainMenuItem("Publications", publications, SmallIcons.INSTANCE.booksIcon()));
         menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
 

@@ -18,7 +18,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.UsersTabs;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -45,16 +45,21 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
-
         final TabItem tab = this;
 
-        final FlexTable layout = new FlexTable();
-        layout.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+        HorizontalPanel horizontalSplitter = new HorizontalPanel();
+        horizontalSplitter.setHeight("500px");
+        horizontalSplitter.setWidth("100%");
 
-        // always get user this person is logged as.
+        // BASE LAYOUT
+        DecoratorPanel dp = new DecoratorPanel();
+        FlexTable baseLayout = new FlexTable();
+        baseLayout.setCellSpacing(10);
+        dp.add(baseLayout);
+        baseLayout.setHTML(0, 0, "<h3>Select base identity</h3>");
+        baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
+        baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+
         Anchor userName = new Anchor();
         userName.setText(session.getUser().getFullNameWithTitles());
         userName.addStyleName("now-managing");
@@ -67,9 +72,26 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().closeTab(tab, false);
             }
         });
-        layout.setWidget(0, 1, userName);
-        layout.setHTML(1, 1, "Your base identity you are currently logged in.");
-        layout.getFlexCellFormatter().setStyleName(1, 1, "inputFormInlineComment");
+        baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+        baseLayout.setWidget(2, 1, userName);
+
+        baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+        baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
+
+        // SERVICE IDENTITIES LAYOUT
+        DecoratorPanel dp2 = new DecoratorPanel();
+        final FlexTable serviceLayout = new FlexTable();
+        serviceLayout.setCellSpacing(10);
+        dp2.add(serviceLayout);
+
+        serviceLayout.setHTML(0, 0, "<h3>Select service identity</h3>");
+        serviceLayout.setHTML(1, 0, "Service identities you have access to.");
+        serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+
+        horizontalSplitter.add(dp);
+        horizontalSplitter.setCellWidth(dp, "50%");
+        horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+        horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 
         if (session.getEditableUsers().size() > 1) {
             // user has service identities
@@ -78,10 +100,14 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
                 public void onFinished(JavaScriptObject jso) {
                     ArrayList<User> list = JsonUtils.jsoAsList(jso);
                     if (list != null && !list.isEmpty()) {
+
+                        serviceLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+                        serviceLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
+
                         int row = 2;
                         for (User u : list) {
                             final User u2 = u;
-                            layout.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+                            serviceLayout.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
                             Anchor userName = new Anchor();
                             userName.setText(u2.getFullNameWithTitles());
                             userName.addStyleName("now-managing");
@@ -94,32 +120,33 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
                                     session.getTabManager().closeTab(tab, false);
                                 }
                             });
-                            layout.setWidget(row, 1, userName);
+                            serviceLayout.setWidget(row, 1, userName);
                             row++;
                         }
+
                     } else {
-                        layout.setHTML(2, 1, "");
+                        serviceLayout.setHTML(2, 1, "");
                     }
                 }
                 @Override
                 public void onLoadingStart() {
-                    layout.setWidget(2, 1, new AjaxLoaderImage().loadingStart());
+                    serviceLayout.setWidget(2, 1, new AjaxLoaderImage().loadingStart());
                 }
                 @Override
                 public void onError(PerunError error) {
-                    layout.setWidget(2, 1, new AjaxLoaderImage().loadingError(error));
+                    serviceLayout.setWidget(2, 1, new AjaxLoaderImage().loadingError(error));
                 }
             });
             call.retrieveData();
+
+            horizontalSplitter.add(dp2);
+            horizontalSplitter.setCellWidth(dp2, "50%");
+            horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
+            horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
+
         }
 
-        // fill page
-        firstTabPanel.add(new HTML("<p>Select identity</p>"));
-        firstTabPanel.getWidget(0).setStyleName("subsection-heading");
-        firstTabPanel.add(layout);
-        firstTabPanel.setCellHeight(layout, "100%");
-
-		this.contentWidget.setWidget(firstTabPanel);
+		this.contentWidget.setWidget(horizontalSplitter);
 		
 		return getWidget();
 

@@ -10,9 +10,11 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributes;
+import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttribute;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -27,9 +29,9 @@ import java.util.Map;
 
 /**
  * Inner tab item for shell change
- * User in: SelfSettingsTabItem
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ShellChangeTabItem implements TabItem{
 
@@ -41,7 +43,7 @@ public class ShellChangeTabItem implements TabItem{
 	private Resource resource;
 	private Attribute a;
 	private int userId;
-	private HTML shellWrapper;
+    private JsonCallbackEvents events = new JsonCallbackEvents();
 
 	/**
 	 * Changing shell request
@@ -49,15 +51,14 @@ public class ShellChangeTabItem implements TabItem{
      * @param resource
      * @param userId
      * @param a Attribute to be changed
-     * @param shellWrapper Shell wrapper
+     * @param refreshEvents
      */
-	public ShellChangeTabItem(Resource resource, int userId, Attribute a, HTML shellWrapper){
+	public ShellChangeTabItem(Resource resource, int userId, Attribute a, JsonCallbackEvents refreshEvents){
 		this.resource = resource;
 		this.userId = userId;
 		this.a = a;
-		this.shellWrapper = shellWrapper;
+		this.events = refreshEvents;
 	}
-	
 
 	public boolean isPrepared(){
 		return (userId != 0 && resource != null);		
@@ -68,21 +69,24 @@ public class ShellChangeTabItem implements TabItem{
         VerticalPanel vp = new VerticalPanel();
 		
 		final FlexTable ft = new FlexTable();
+        ft.setWidth("350px");
 		ft.setStyleName("inputFormFlexTable");
         ft.setHTML(0, 0, "Available shells:");
         ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
 		final ListBox shells = new ListBox();
-		ft.setWidget(0, 1, shells);
-
+		shells.setWidth("200px");
+        ft.setWidget(0, 1, shells);
         vp.add(ft);
+        final CustomButton selectShellButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save preferred shell");
 
-		// callback for available shells
-		// TODO - retrieve only 1 attribute ?
+        // callback for available shells
 		GetAttributes attrs = new GetAttributes(new JsonCallbackEvents(){
-			public void onError(PerunError error) {
+			@Override
+            public void onError(PerunError error) {
 				shells.clear();
                 shells.addItem("Error while loading");
 			}
+            @Override
 			public void onFinished(JavaScriptObject jso) {
 				shells.clear();
 				ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
@@ -102,18 +106,23 @@ public class ShellChangeTabItem implements TabItem{
 				}
 				// set selected
 				for (int i=0; i<shells.getItemCount() ; i++) {
-					if (shells.getValue(i).equalsIgnoreCase(a.getValue())) {
+					if (shells.getValue(i).equals(a.getValue())) {
 						shells.setSelectedIndex(i);
 						break;
 					}
 				}
+                if (shells.getValue(shells.getSelectedIndex()).equals(a.getValue())) {
+                    selectShellButton.setEnabled(false);
+                } else {
+                    selectShellButton.setEnabled(true);
+                }
 			}
+            @Override
             public void onLoadingStart() {
                 shells.clear();
                 shells.addItem("Loading...");
             }
 		});
-		
 
 		final TabItem tab = this;
 
@@ -121,7 +130,6 @@ public class ShellChangeTabItem implements TabItem{
         vp.add(menu);
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        final CustomButton selectShellButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save preferred shell");
         selectShellButton.setEnabled(false);
         selectShellButton.addClickHandler(new ClickHandler() {
 			
@@ -133,23 +141,25 @@ public class ShellChangeTabItem implements TabItem{
 				Map<String, Integer> ids = new HashMap<String, Integer>();
 				ids.put("user", userId);
 				ids.put("facility", resource.getFacilityId());
-				SetAttribute request = new SetAttribute(JsonCallbackEvents.disableButtonEvents(selectShellButton, new JsonCallbackEvents(){
-					public void onFinished(JavaScriptObject jso) {
-						shellWrapper.setHTML(a.getValue());
-						session.getTabManager().closeTab(tab);
-					}
-				}));
+				SetAttribute request = new SetAttribute(JsonCallbackEvents.disableButtonEvents(selectShellButton, new JsonCallbackEvents() {
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        // refresh only what's necessary
+                        events.onFinished(jso);
+                        // don't refresh underlaying tab
+                        session.getTabManager().closeTab(tab, false);
+                    }
+                }));
 				request.setAttribute(ids, a);
 			}
 		});
 		attrs.getResourceAttributes(resource.getId());
 		attrs.retrieveData();
 
-
         shells.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent changeEvent) {
-                if (shells.getValue(shells.getSelectedIndex()).equalsIgnoreCase(a.getValue())) {
+                if (shells.getValue(shells.getSelectedIndex()).equals(a.getValue())) {
                     selectShellButton.setEnabled(false);
                 } else {
                     selectShellButton.setEnabled(true);
@@ -157,7 +167,30 @@ public class ShellChangeTabItem implements TabItem{
             }
         });
 
+        final CustomButton defaultButton = new CustomButton("Use default", "", SmallIcons.INSTANCE.lightningIcon());
+        defaultButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Map<String, Integer> ids = new HashMap<String, Integer>();
+                ids.put("user", userId);
+                ids.put("facility", resource.getFacilityId());
+                RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(defaultButton, new JsonCallbackEvents() {
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        // refresh only what's necessary
+                        events.onFinished(jso);
+                        // don't refresh underlaying tab
+                        session.getTabManager().closeTab(tab, false);
+                    }
+                }));
+                ArrayList<Attribute> list = new ArrayList<Attribute>();
+                list.add(a);
+                request.removeAttributes(ids, list);
+            }
+        });
+
         menu.addWidget(selectShellButton);
+        menu.addWidget(defaultButton);
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -190,9 +223,6 @@ public class ShellChangeTabItem implements TabItem{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -214,9 +244,7 @@ public class ShellChangeTabItem implements TabItem{
 		return false;
 	}
 
-	public void open() {
-		
-	}
+	public void open() {}
 	
 	public boolean isAuthorized() {
 		return session.isSelf(userId);

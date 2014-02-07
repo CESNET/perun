@@ -114,7 +114,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
     public Widget draw() {
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": My profile");
+        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()));
 
         // main panel
         VerticalPanel vp = new VerticalPanel();
@@ -202,7 +202,12 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         };
 
         tabPanel.add(new SelfPersonalTabItem(user), "Overview");
-        tabPanel.add(new SelfVosTabItem(user), "VO settings");
+
+        SelfVosTabItem vosTab = new SelfVosTabItem(user);
+        vosTab.setParentPanel(tabPanel);
+        tabPanel.add(vosTab, "VO settings");
+
+        tabPanel.add(new SelfResourcesSettingsTabItem(user), "Resources settings");
         tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentications");
 
         if (!user.isServiceUser()) {
@@ -229,78 +234,14 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
         return getWidget();
 
-        /*
-
-        userAttrs.clear();
-        userLoginAttrs.clear();
-
-        final TabItem tab = this;
-        // common selection actions
-        tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-            public void onSelection(SelectionEvent<Integer> event) {
-                UiElements.runResizeCommands(tab);
-                setLastTabId(event.getSelectedItem());
-            }
-        });
-
-        session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
-
-        final SimplePanel sp0 = new SimplePanel(); // personal data
-        tabPanel.add(sp0, "User overview");
-        sp0.add(loadPersonalInfo());
-
-        final ArrayList<VirtualOrganization> listOfVos = new ArrayList<VirtualOrganization>();
-
-        // get user VOs
-        GetVosWhereUserIsMember vos = new GetVosWhereUserIsMember(user.getId(), new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                // sort & add
-                ArrayList<VirtualOrganization> vosList = JsonUtils.jsoAsList(jso);
-                vosList = new TableSorter<VirtualOrganization>().sortByName(vosList);
-                listOfVos.addAll(vosList);
-
-                // if not empty
-                if (!listOfVos.isEmpty()) {
-                    for (int i=0; i<listOfVos.size(); i++) {
-                        // create empty tab for VO
-                        final SimplePanel voContent = new SimplePanel();
-                        tabPanel.add(voContent, Utils.getStrippedStringWithEllipsis(listOfVos.get(i).getName()));
-
-                        tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-                            public void onSelection(SelectionEvent<Integer> event) {
-                                // if this tab is selected
-                                if (event.getSelectedItem() == tabPanel.getWidgetIndex(voContent)) {
-                                    // is child of widget null? = not loaded?
-                                    if (((SimplePanel)tabPanel.getWidget(event.getSelectedItem())).getWidget() == null) {
-                                        // load position -1 because of personal info tab
-                                        voContent.add(loadVoContent(listOfVos.get(event.getSelectedItem()-1)));
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-
-                tabPanel.selectTab(getLastTabId(), true);  // select and trigger onSelect event
-
-            }
-        });
-        vos.retrieveData();
-
-        this.contentWidget.setWidget(tabPanel);
-
-        return getWidget();
-
-        */
-
     }
 
     /**
      * Returns the widget with VOs information
      * @return
      */
-    private Widget getWidgetVos()
-    {
+    private Widget getWidgetVos() {
+
         final DisclosurePanel vosDp = new DisclosurePanel();
         vosDp.setWidth("100%");
         vosDp.setOpen(true);
@@ -852,7 +793,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
         settingsContents.add(new CustomButton("Quota and shell settings for resources", SmallIcons.INSTANCE.settingToolsIcon(), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new SelfSettingsTabItem(user, vo));
+                session.getTabManager().addTab(new SelfResourcesSettingsTabItem(user, vo));
             }
         }));
 
@@ -1030,7 +971,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
     public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My profile", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), getUrlWithParameters());
     }
 
     public boolean isAuthorized() {

@@ -35,7 +35,6 @@ import java.util.Map;
  * Tab with user's authentications settings (logins / passwords / certificates)
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
@@ -311,7 +310,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
     public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Authentications", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Authentications", getUrlWithParameters());
     }
 
     public boolean isAuthorized() {

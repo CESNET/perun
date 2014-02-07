@@ -17,16 +17,14 @@ import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetMemberGroups;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
+import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.json.usersManager.GetVosWhereUserIsMember;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.UsersTabs;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
-import cz.metacentrum.perun.webgui.widgets.PerunAttributeTableWidget;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.widgets.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +34,6 @@ import java.util.Map;
  * Tab with user's VO preferences
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @version $Id: $
  */
 public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
@@ -45,8 +42,11 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
     private SimplePanel contentWidget = new SimplePanel();
     private Label titleWidget = new Label("Loading user");
 
+    private TabPanelForTabItems tabPanel;
+
     private User user;
     private int userId;
+    private int selectedVoId = 0;
 
     /**
      * Creates a tab instance
@@ -97,16 +97,15 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
         final ListBoxWithObjects<VirtualOrganization> vosListbox = new ListBoxWithObjects<VirtualOrganization>();
 
-        menu.addWidget(new HTML("<strong>Select VO:</strong>"));
+        menu.addWidget(new HTML("<strong>Selected VO:</strong>"));
         menu.addWidget(vosListbox);
-        menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-        menu.addWidget(new HTML("<strong>Select VO to see your settings.</strong>"));
 
         vp.add(menu);
         vp.setCellHeight(menu, "50px");
         vp.setCellVerticalAlignment(menu, HasVerticalAlignment.ALIGN_MIDDLE);
         vp.add(new HTML("<hr size=\"1\" color=\"#ccc\">"));
         vp.add(sp);
+        vp.setCellHeight(sp, "100%");
 
         final GetVosWhereUserIsMember whereMember = new GetVosWhereUserIsMember(userId, new JsonCallbackEvents(){
             @Override
@@ -117,10 +116,14 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
                 if (vos != null && !vos.isEmpty()) {
                     for (VirtualOrganization vo : vos) {
                         vosListbox.addItem(vo);
+                        if (vo.getId() == selectedVoId) {
+                            vosListbox.setSelected(vo, true);
+                        }
                     }
                     vosListbox.addChangeHandler(new ChangeHandler() {
                         @Override
                         public void onChange(ChangeEvent event) {
+                            selectedVoId = vosListbox.getSelectedObject().getId();
                             sp.setWidget(displayVoSubtab(vosListbox.getSelectedObject()));
                         }
                     });
@@ -157,8 +160,16 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
      */
     private Widget displayVoSubtab(final VirtualOrganization vo) {
 
-        final FlexTable layout = new FlexTable();
-        layout.setSize("100%", "100%");
+        // do the layout
+        HorizontalPanel horizontalSplitter = new HorizontalPanel();
+        horizontalSplitter.setSize("100%", "100%");
+        final VerticalPanel leftPanel = new VerticalPanel();
+        final VerticalPanel rightPanel = new VerticalPanel();
+
+        horizontalSplitter.add(leftPanel);
+        horizontalSplitter.add(rightPanel);
+        horizontalSplitter.setCellWidth(leftPanel, "50%");
+        horizontalSplitter.setCellWidth(rightPanel, "50%");
 
         // VO overview
 
@@ -168,6 +179,9 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
         final FlexTable voOverview = new FlexTable();
         voOverview.setStyleName("inputFormFlexTableDark");
+
+        leftPanel.add(voHeader);
+        leftPanel.add(voOverview);
 
         GetAttributes voAttrsCall = new GetAttributes(new JsonCallbackEvents(){
             @Override
@@ -229,12 +243,15 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
         contactTable.setDark(true);
         contactTable.setDisplaySaveButton(false);
 
+        leftPanel.add(contactHeader);
+
         final GetListOfAttributes attributes = new GetListOfAttributes(new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
                 contactTable.add(new TableSorter<Attribute>().sortByAttrNameTranslation(JsonUtils.<Attribute>jsoAsList(jso)));
-                layout.setWidget(3, 0, contactTable.getSaveButton());
-                layout.setWidget(4, 0, contactTable);
+                leftPanel.add(contactTable.getSaveButton());
+                leftPanel.setCellHeight(contactTable.getSaveButton(), "50px");
+                leftPanel.add(contactTable);
             }
         });
         final ArrayList<String> list = new ArrayList<String>();
@@ -256,6 +273,117 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
         });
         mem.retrieveData();
 
+        // MEMBERSHIP STATE
+
+        FlexTable membershipHeader = new FlexTable();
+        membershipHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGreenIcon()));
+        membershipHeader.setHTML(0, 1, "<p class=\"subsection-heading\">Membership</p>");
+
+        // Membership table
+        final FlexTable memberLayout = new FlexTable();
+        memberLayout.setStyleName("inputFormFlexTableDark");
+
+        rightPanel.add(membershipHeader);
+        rightPanel.add(memberLayout);
+
+        GetMemberByUser call = new GetMemberByUser(vo.getId(), userId, new JsonCallbackEvents(){
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+
+                final Member m = jso.cast();
+
+                memberLayout.setHTML(0, 0, "Status:");
+                memberLayout.setHTML(1, 0, "Expiration:");
+
+                memberLayout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+                memberLayout.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+
+                // fill inner layout
+                PerunStatusWidget<Member> statusWidget;
+                if (session.isVoAdmin()) {
+                    SetStatus statCall = new SetStatus(m.getId(), new JsonCallbackEvents(){
+                        @Override
+                        public void onFinished(JavaScriptObject jso) {
+                            // REFRESH PARENT TAB
+                            draw();
+                        }
+                    });
+                    statusWidget = new PerunStatusWidget<Member>(m, user.getFullName(), statCall);
+                } else {
+                    statusWidget = new PerunStatusWidget<Member>(m, user.getFullName(), null);
+                }
+
+                memberLayout.setWidget(0, 1, statusWidget);
+
+                HashMap<String, Integer> ids = new HashMap<String, Integer>();
+                ids.put("member", m.getId());
+
+                GetListOfAttributes attrCall = new GetListOfAttributes(new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        ArrayList<Attribute> la = JsonUtils.jsoAsList(jso);
+                        if (la != null && !la.isEmpty()) {
+                            for (Attribute a : la) {
+                                if ("urn:perun:member:attribute-def:def:membershipExpiration".equals(a.getName())) {
+                                    RichMember rm = m.cast();
+                                    // store value into richmember
+                                    rm.setAttribute(a);
+                                    memberLayout.setWidget(1, 1, new MembershipExpirationWidget(rm));
+                                }
+                            }
+                        }
+                    }
+                });
+                ArrayList<String> ls = new ArrayList<String>();
+                ls.add("urn:perun:member:attribute-def:def:membershipExpiration");
+                attrCall.getListOfAttributes(ids, ls);
+
+            }
+            @Override
+            public void onLoadingStart(){
+                memberLayout.setWidget(0, 0, new AjaxLoaderImage());
+            }
+            @Override
+            public void onError(PerunError error){
+                memberLayout.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
+            }
+        });
+        call.retrieveData();
+
+        // RESOURCES SETTINGS
+
+        FlexTable resourcesSettingsHeader = new FlexTable();
+        resourcesSettingsHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.settingToolsIcon()));
+        resourcesSettingsHeader.setHTML(0, 1, "<p class=\"subsection-heading\">Resources settings</p>");
+
+        FlexTable resourcesSettingsTable = new FlexTable();
+        resourcesSettingsTable.setStyleName("inputFormFlexTable");
+
+        Anchor a = new Anchor();
+        a.setText("Go to Resources settings page >>");
+        a.setStyleName("pointer");
+        a.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (tabPanel != null) {
+                    // resource settings tab is next to this one
+                    SelfResourcesSettingsTabItem tab = ((SelfResourcesSettingsTabItem)tabPanel.getTabItem(tabPanel.getSelectedIndex() + 1));
+                    tab.setVo(vo);
+                    tab.draw();
+                    tabPanel.selectTab(tabPanel.getSelectedIndex()+1);
+                } else {
+                    session.getTabManager().addTab(new SelfResourcesSettingsTabItem(user, vo), true);
+                }
+            }
+        });
+
+        resourcesSettingsTable.setHTML(0, 0, "Manage VO resources specific settings like: shell, data/files quotas, mailing list exclusions");
+        resourcesSettingsTable.getFlexCellFormatter().setStyleName(0, 0, "inputFormInlineComment");
+        resourcesSettingsTable.setWidget(1, 0, a);
+
+        rightPanel.add(resourcesSettingsHeader);
+        rightPanel.add(resourcesSettingsTable);
+
         // GROUPS
 
         FlexTable groupsHeader = new FlexTable();
@@ -265,6 +393,9 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
         final FlexTable groupsTable = new FlexTable();
         groupsTable.setStyleName("inputFormFlexTable");
 
+        rightPanel.add(groupsHeader);
+        rightPanel.add(groupsTable);
+
         GetMemberByUser memCall = new GetMemberByUser(vo.getId(), userId, new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
@@ -272,18 +403,15 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
                 GetMemberGroups groupsCall = new GetMemberGroups(m.getId(), new JsonCallbackEvents(){
                     @Override
                     public void onError(PerunError error) {
-                        layout.setWidget(3, 1, new AjaxLoaderImage().loadingError(error));
+                        groupsTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
                     }
                     @Override
                     public void onFinished(JavaScriptObject jso) {
                         ArrayList<Group> list = JsonUtils.jsoAsList(jso);
                         if (list.isEmpty() || list == null) {
-                            layout.setHTML(3, 1, "You are not member of any group.");
+                            groupsTable.setHTML(0, 0, "You aren't member of any group in this VO.");
                             return;
                         }
-                        layout.setWidget(3, 1, groupsTable);
-                        layout.getFlexCellFormatter().setRowSpan(3, 1, 2);
-                        layout.getFlexCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_TOP);
                         groupsTable.addStyleName("userDetailTable");
                         groupsTable.setHTML(0, 0, "<strong>Name</strong>");
                         groupsTable.setHTML(0, 1, "<strong>Description</strong>");
@@ -297,55 +425,21 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
             }
             @Override
             public void onError(PerunError error) {
-                layout.setWidget(3, 1, new AjaxLoaderImage().loadingError(error));
+                groupsTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
             }
             @Override
             public void onLoadingStart() {
-                layout.setWidget(3, 1, new AjaxLoaderImage().loadingStart());
+                groupsTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
             }
         });
         memCall.retrieveData();
 
-        // RESOURCES SETTINGS
+        return horizontalSplitter;
 
-        FlexTable resourcesSettingsHeader = new FlexTable();
-        resourcesSettingsHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.settingToolsIcon()));
-        resourcesSettingsHeader.setHTML(0, 1, "<p class=\"subsection-heading\">Settings</p>");
+    }
 
-        FlexTable resourcesSettingsTable = new FlexTable();
-        resourcesSettingsTable.setStyleName("inputFormFlexTable");
-
-        Anchor a = new Anchor();
-        a.setText("Shell and Quota settings >>");
-        a.setStyleName("pointer");
-        a.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new SelfSettingsTabItem(user, vo), true);
-            }
-        });
-
-        resourcesSettingsTable.setWidget(0, 0, a);
-
-        // FILL LAYOUT
-
-        layout.setWidget(0, 0, voHeader);
-        layout.setWidget(1, 0, voOverview);
-
-        layout.setWidget(2, 0, contactHeader);
-        layout.setWidget(3, 0, new AjaxLoaderImage());
-        layout.setHTML(4, 0, "");
-
-        layout.setWidget(0, 1, resourcesSettingsHeader);
-        layout.setWidget(1, 1, resourcesSettingsTable);
-
-        layout.setWidget(2, 1, groupsHeader);
-        layout.setWidget(3, 1, new AjaxLoaderImage());
-
-        layout.getFlexCellFormatter().setWidth(0, 0, "50%");
-
-        return layout;
-
+    public void setParentPanel(TabPanelForTabItems panel) {
+        this.tabPanel = panel;
     }
 
     public Widget getWidget() {
@@ -389,7 +483,7 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
     public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "VO settings", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "VO settings", getUrlWithParameters());
     }
 
     public boolean isAuthorized() {

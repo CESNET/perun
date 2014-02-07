@@ -473,4 +473,8 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 		return selectionModel;
 	}
 
+    public void setEvents(JsonCallbackEvents events) {
+        this.events = events;
+    }
+
 }

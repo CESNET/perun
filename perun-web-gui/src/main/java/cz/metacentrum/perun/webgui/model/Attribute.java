@@ -139,7 +139,7 @@ public class Attribute extends JavaScriptObject {
 	}-*/;
 	
 	/**
-	 * Gets tye of attribute
+	 * Gets type of attribute
 	 * 
 	 * @return type of attribute
 	 */
