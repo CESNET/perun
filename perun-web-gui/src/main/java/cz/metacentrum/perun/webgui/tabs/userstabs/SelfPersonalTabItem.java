@@ -208,7 +208,7 @@ public class SelfPersonalTabItem implements TabItem {
                         } else {
                             if (a.getFriendlyName().equalsIgnoreCase("preferredMail")) {
                                 final String val = newValue;
-                                RequestPreferredEmailChange call = new RequestPreferredEmailChange(new JsonCallbackEvents(){
+                                RequestPreferredEmailChange call = new RequestPreferredEmailChange(JsonCallbackEvents.disableButtonEvents(save , new JsonCallbackEvents(){
                                     @Override
                                     public void onFinished(JavaScriptObject jso) {
                                         try {
@@ -220,7 +220,7 @@ public class SelfPersonalTabItem implements TabItem {
                                             // storage is blocked but supported
                                         }
                                     }
-                                });
+                                }));
                                 call.requestChange(user, newValue);
                             } else {
                                 a.setValue(newValue); // set value
@@ -296,7 +296,7 @@ public class SelfPersonalTabItem implements TabItem {
 
                                 String value = storage.getItem("urn:perun:gui:user:mailchange");
                                 if (value != null && !value.isEmpty()) {
-                                    if (value.equals(a.getValue())) {
+                                    if (!value.equals(a.getValue())) {
                                         settingsTable.setHTML(2, 0, "Preferred mail change is pending for: "+value+". Please check your inbox for validation mail.");
                                         settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment serverResponseLabelError");
                                     }

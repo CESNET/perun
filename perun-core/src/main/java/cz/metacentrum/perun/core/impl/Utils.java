@@ -708,12 +708,23 @@ public class Utils {
 
             URL urlObject = new URL(url);
 
+            // use default if unknown rpc path
+            String path = "/perun-gui/";
+
+            if (urlObject.getPath().contains("/perun-rpc-krb/")) {
+                path = "/perun-gui-krb/";
+            } else if (urlObject.getPath().contains("/perun-rpc-fed/")) {
+                path = "/perun-gui-fed/";
+            } else if (urlObject.getPath().contains("/perun-rpc-cert/")) {
+                path = "/perun-gui-cert/";
+            }
+
             StringBuilder link = new StringBuilder();
 
             link.append(urlObject.getProtocol());
             link.append("://");
             link.append(urlObject.getHost());
-            link.append("/perun-gui/");
+            link.append(path);
             link.append("?i=");
             link.append(URLEncoder.encode(i, "UTF-8"));
             link.append("&m=");
@@ -723,8 +734,8 @@ public class Utils {
             // Build message
             String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+
                     ".\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
-                    "Message is generated automatically, please do not respond." +
-                    "\n----------------------------------------------" +
+                    "Message is automatically generated." +
+                    "\n----------------------------------------------------------------" +
                     "\nPerun - User and Resource Management System";
 
             message.setText(text);

@@ -53,7 +53,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
   private final static Logger log = LoggerFactory.getLogger(UsersManagerImpl.class);
 
-  // time window size for mail validation
+  // time window size for mail validation if not taken from peruns configuration file
   private final static int VALIDATION_ALLOWED_HOURS = 6;
 
   // Part of the SQL script used for getting the User object
@@ -863,15 +863,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
       int changeId = Integer.parseInt(i, Character.MAX_RADIX);
 
+      int validWindow = VALIDATION_ALLOWED_HOURS;
+      try {
+          validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+      } catch (Exception ex) {
+          log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
+      }
+
       // get new email if possible
       String newEmail = "";
       try {
           if (Compatibility.isPostgreSql()) {
               // postgres
-              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+VALIDATION_ALLOWED_HOURS+" hours'))", String.class, changeId, user.getId());
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))", String.class, changeId, user.getId());
           } else {
               // oracle
-              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+VALIDATION_ALLOWED_HOURS+"' HOUR))", String.class, changeId, user.getId());
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", String.class, changeId, user.getId());
           }
       } catch (EmptyResultDataAccessException ex) {
           throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exists or isn't valid anymore.");
