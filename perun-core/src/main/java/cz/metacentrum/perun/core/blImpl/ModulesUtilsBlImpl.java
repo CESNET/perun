@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -197,6 +198,32 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
       }
     }
     return null;
+  }
+  public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+      Utils.notNull(attribute, "attribute");
+      List<String> gIDs = (List<String>)attribute.getValue();
+      if (gIDs != null){
+        for(String sGid : gIDs){
+          try{
+            Integer gid = new Integer(sGid);
+            String gidNamespace = attribute.getFriendlyNameParameter();
+            
+            Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
+            if(minGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, minGidAttribute, "Attribute minGid cannot be null");
+            Integer minGid = (Integer) minGidAttribute.getValue();
+            
+            Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
+            if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute, "Attribute maxGid cannot be null");
+            Integer maxGid = (Integer) maxGidAttribute.getValue();
+            
+            if ( gid < minGid || gid > maxGid ) {
+                throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
+            }
+          }catch(NumberFormatException ex){
+              throw new WrongAttributeValueException(attribute ,user,"attribute is not a number", ex);
+          }
+        }
+      }
   }
   
   public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
