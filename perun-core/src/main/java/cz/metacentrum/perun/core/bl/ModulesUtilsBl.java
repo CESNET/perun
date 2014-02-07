@@ -140,10 +140,9 @@ public interface ModulesUtilsBl {
    * @throws InternalErrorException
    * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException
    * @throws WrongAttributeValueException 
    */
-  void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;  
+  void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;  
   
   /**
    * Return true if i have right on any of groups or resources to WRITE the attribute

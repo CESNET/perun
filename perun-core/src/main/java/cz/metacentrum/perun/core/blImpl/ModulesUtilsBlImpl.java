@@ -199,7 +199,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
     }
     return null;
   }
-  public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+  public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
       Utils.notNull(attribute, "attribute");
       List<String> gIDs = (List<String>)attribute.getValue();
       if (gIDs != null){
@@ -207,14 +207,23 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
           try{
             Integer gid = new Integer(sGid);
             String gidNamespace = attribute.getFriendlyNameParameter();
-            
-            Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
-            if(minGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, minGidAttribute, "Attribute minGid cannot be null");
-            Integer minGid = (Integer) minGidAttribute.getValue();
-            
-            Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
-            if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute, "Attribute maxGid cannot be null");
-            Integer maxGid = (Integer) maxGidAttribute.getValue();
+            if(gidNamespace == null) throw new InternalErrorException("Atribute: " + attribute + "has not namespace");
+            Integer minGid;
+            Integer maxGid;
+            try{
+                Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
+                if(minGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, minGidAttribute, "Attribute minGid cannot be null");
+                minGid = (Integer) minGidAttribute.getValue();
+            }catch(AttributeNotExistsException ex){
+                throw new InternalErrorException("Attribut minGid for namespace:" + gidNamespace + " does not exist",ex);
+            }
+            try{
+                Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
+                if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute, "Attribute maxGid cannot be null");
+                maxGid = (Integer) maxGidAttribute.getValue();
+            }catch(AttributeNotExistsException ex){
+                throw new InternalErrorException("Attribut maxGid for namespace:" + gidNamespace + " does not exist",ex);
+            }
             
             if ( gid < minGid || gid > maxGid ) {
                 throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
