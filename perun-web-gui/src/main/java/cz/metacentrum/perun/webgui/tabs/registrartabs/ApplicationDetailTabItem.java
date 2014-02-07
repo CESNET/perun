@@ -12,9 +12,11 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.membersManager.GetNewExtendMembership;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.json.registrarManager.HandleApplication;
 import cz.metacentrum.perun.webgui.model.Application;
+import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -93,7 +95,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         vp.add(menu);
         vp.setCellHeight(menu, "30px");
 
-        FlexTable ft = new FlexTable();
+        final FlexTable ft = new FlexTable();
 
         String text = "<strong>Submitted by:</strong> ";
         if (app.getUser() != null) {
@@ -111,8 +113,24 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
             ft.setHTML(1, 0, "<strong>Application for VO: </strong>"+app.getVo().getName());
         }
 
+        // for extension in VO if not approved or rejected
+        if (app.getType().equalsIgnoreCase("EXTENSION") && app.getUser() != null &&
+                !app.getState().equalsIgnoreCase("APPROVED") && !app.getState().equalsIgnoreCase("REJECTED")) {
+
+            GetNewExtendMembership ex = new GetNewExtendMembership(app.getVo().getId(), app.getUser().getId(), new JsonCallbackEvents(){
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                    if (jso != null) {
+                        BasicOverlayType basic = jso.cast();
+                        ft.setHTML(2, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+                    }
+                }
+            });
+            ex.retrieveData();
+        }
+
         vp.add(ft);
-        vp.add(new HTML("<hr size=\"2\"/>"));
+        vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\"/>"));
 
         // only NEW apps can be Verified
         if (app.getState().equals("NEW")) {

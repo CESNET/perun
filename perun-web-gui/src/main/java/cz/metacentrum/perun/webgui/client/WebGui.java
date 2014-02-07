@@ -435,6 +435,16 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
                         ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
                         body.add(ft);
 
+                        // clear local storage about change
+                        try {
+                            Storage storage = Storage.getLocalStorageIfSupported();
+                            if (storage != null) {
+                                storage.setItem("urn:perun:gui:user:mailchange", "");
+                            }
+                        } catch (Exception ex) {
+                            // storage is blocked but supported
+                        }
+
                     }
                     @Override
                     public void onLoadingStart() {

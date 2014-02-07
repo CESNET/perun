@@ -1,17 +1,14 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.*;
+
+import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
+import cz.metacentrum.perun.rpc.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum MembersManagerMethod implements ManagerMethod {
 	/*#
@@ -624,8 +621,7 @@ public enum MembersManagerMethod implements ManagerMethod {
       }
     }
   },
-  
-  
+
   canExtendMembership {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -637,5 +633,29 @@ public enum MembersManagerMethod implements ManagerMethod {
         return 0;
       }
     }
-  }; 
+  },
+
+    getNewExtendMembership {
+        @Override
+        public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            if (parms.contains("member")) {
+                Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(),ac.getMemberById(parms.readInt("member")));
+                if (d != null) {
+                    return BeansUtils.DATE_FORMATTER.format(d);
+                }
+                return null;
+            } else if (parms.contains("user") && parms.contains("vo")) {
+                Member m = ac.getMembersManager().getMemberByUser(ac.getSession(),
+                        ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
+                Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(), m);
+                if (d != null) {
+                    return BeansUtils.DATE_FORMATTER.format(d);
+                }
+                return null;
+            } else {
+                throw new RpcException(RpcException.Type.MISSING_VALUE, "member, user, vo");
+            }
+        }
+    };
 }
