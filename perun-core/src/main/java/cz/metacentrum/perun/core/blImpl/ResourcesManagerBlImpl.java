@@ -37,7 +37,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -380,12 +379,14 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         attributesManagerBl.setAttributes(sess, resource, group, attributes, true);
       }
 
-      //*member *user attributes
+      // *facility * resource *member *user attributes
       Facility facility = getFacility(sess, resource);
+      for(Attribute attr: attributesManagerBl.getAttributes(sess, facility)) attributesManagerBl.checkAttributeValue(sess, facility, attr);
+      for(Attribute attr: attributesManagerBl.getAttributes(sess, resource)) attributesManagerBl.checkAttributeValue(sess, resource, attr);
       List<Member> members = getAllowedMembers(sess, resource);
+      List<Attribute> attributes;
       for(Member member : members) {
         User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-        List<Attribute> attributes;
         attributes = attributesManagerBl.getRequiredAttributes(sess, service, facility, resource, user, member);
         attributes = attributesManagerBl.fillAttributes(sess, facility, resource, user, member, attributes);
         attributesManagerBl.setAttributes(sess, facility, resource, user, member, attributes);
