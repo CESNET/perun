@@ -65,7 +65,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns chosen Member attributes.
 	 * @param member int Member ID
-	 * @param attrNames List<String> Attribute names
+	 * @param attrNames[] List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -76,7 +76,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns chosen User attributes.
 	 * @param user int User ID
-	 * @param attrNames List<String> Attribute names
+	 * @param attrNames[] List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -164,7 +164,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Returns all entitiless attributes.
+	 * Returns all entityless attributes.
 	 * 
 	 * @return List<Attribute> Attributes
 	 */
@@ -625,7 +625,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param id int Attribute ID
 	 * @return AttributeDefinition Definition of an Attribute
 	 */
-	
 	getAttributeDefinitionById {
 
 		@Override
@@ -647,9 +646,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
         
-        /*#
-	 * Returns all AttributeDefinitions for every entity and possible combination of entities with rights
-	 * 
+    /*#
+	 * Returns all AttributeDefinitions for every entity and possible combination of entities with rights.
+	 * Only attribute definition of attributes user can read (or write) you will get.
+	 *
+	 * Combination of entities is based on provided parameters, which are optional
+	 * (at least one must be present).
+	 *
+	 * @param member int ID of Member
+	 * @param user int ID of User
+	 * @param vo int ID of Virtual organization
+	 * @param group int ID of Group
+	 * @param resource int ID of Resource
+	 * @param facility int ID of Facility
+	 * @param host int ID of Host
+	 *
 	 * @return List<AttributeDefinition> Definitions of Attributes for entities
 	 */
         getAttributesDefinitionWithRights {
@@ -913,7 +924,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	
 	/*#
 	 * Creates AttributeDefinition
-	 * @param attribute AttributeDefinition JSON object
+	 *
+	 * @param attribute AttributeDefinition object
 	 * @return AttributeDefinition Created AttributeDefinition
 	 */
 	createAttribute {
@@ -930,8 +942,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 	
 	/*#
-	 * Deletes Attribute
-	 * @param attribute int Attribute ID
+	 * Deletes attribute definition from Perun.
+	 *
+	 * Deletion fails if any entity in Perun has
+	 * any value for this attribute set.
+	 *
+	 * @param attribute int AttributeDefinition ID
 	 */
 	deleteAttribute {
 
@@ -1135,7 +1151,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 	
 	/*#
-	 * Returns requried attributes definition for a Service.
+	 * Returns required attributes definition for a Service.
 	 * 
 	 * @param service int Service ID
 	 * @return List<AttributeDefinition> Attributes definitions
@@ -1431,7 +1447,111 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	removeAttributes {
+
+        /*#
+         * Remove attributes of namespace:
+         *
+         * user, user-facility, member, member-resource
+         *
+         * @param facility int Facility ID
+         * @param user int User ID
+         * @param member int Member ID
+         * @param resource int Resource ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * user-facility
+         *
+         * @param facility int Facility ID
+         * @param user int User ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * facility
+         *
+         * @param facility int Facility ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * vo
+         *
+         * @param vo int VO ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * resource
+         *
+         * @param resource int Resource ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * group-resource
+         *
+         * @param resource int Resource ID
+         * @param group int Group ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * member-resource
+         *
+         * @param resource int Resource ID
+         * @param member int Member ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * member, user (optional)
+         *
+         * @param member int Member ID
+         * @param workWithUserAttributes int Set to 1 if you want to remove also user attributes
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * member
+         *
+         * @param member int Member ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * group
+         *
+         * @param group int Group ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * host
+         *
+         * @param host int Host ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+        /*#
+         * Remove attributes of namespace:
+         *
+         * user
+         *
+         * @param user int User ID
+         * @param attributes List<Integer> List of attributes IDs to remove
+         */
+       removeAttributes {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1452,6 +1572,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
                                     Resource resource = ac.getResourceById(parms.readInt("resource"));
                                     ac.getAttributesManager().removeAttributes(ac.getSession(),facility, resource, user, member, attributes);        
                                     
+                                } else if (parms.contains("user")) {
+                                    Facility facility = ac.getFacilityById(parms.readInt("facility"));
+                                    User user = ac.getUserById(parms.readInt("user"));
+                                    ac.getAttributesManager().removeAttributes(ac.getSession(), facility, user, attributes);
                                 } else {
                                     Facility facility = ac.getFacilityById(parms.readInt("facility"));
                                     ac.getAttributesManager().removeAttributes(ac.getSession(), facility, attributes);
@@ -1505,6 +1629,90 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
+
+        /*#
+         * Remove attribute of namespace:
+         *
+         * user-facility
+         *
+         * @param facility int Facility ID
+         * @param user int User ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * facility
+         *
+         * @param facility int Facility ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * vo
+         *
+         * @param vo int VO ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * resource
+         *
+         * @param resource int Resource ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * group-resource
+         *
+         * @param resource int Resource ID
+         * @param group int Group ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * member-resource
+         *
+         * @param resource int Resource ID
+         * @param member int Member ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * member
+         *
+         * @param member int Member ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * group
+         *
+         * @param group int Group ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * host
+         *
+         * @param host int Host ID
+         * @param attribute int ID of attribute to remove
+         */
+        /*#
+         * Remove attribute of namespace:
+         *
+         * user
+         *
+         * @param user int User ID
+         * @param attribute int ID of attribute to remove
+         */
 	removeAttribute {
 
 		@Override
@@ -1577,6 +1785,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
+
 	removeAllAttributes {
 
 		@Override
@@ -1639,13 +1849,31 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
+    /*#
+     * Get all users logins as attributes
+     * (all attributes with URN starting with:
+     * "urn:perun:user:attribute-def:def:login-namespace:").
+     *
+     * @param user int User ID
+     * @return List<Attribute> list of users logins as attributes
+     */
 	getLogins {
 		@Override
 		public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAttributesManager().getLogins(ac.getSession(), ac.getUserById(parms.readInt("user")));
 		}
 	},
-        
+
+    /*#
+    * Updates attribute definition in Perun based on
+    * provided AttributeDefinition object.
+    *
+    * Update is done on attribute definition selected by it's ID.
+    *
+    * @param attributeDefinition AttributeDefinition object with updated properties to store in DB
+    * @return AttributeDefinition updated attribute definition
+    */
         updateAttributeDefinition {
 
                 @Override
@@ -1679,9 +1907,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
         },
         
        /*#
-        * Sets all attribute rights in the list given as a parametr.
+        * Sets all attribute rights in the list given as a parameter.
         *
-        * @param rights list of attribute rights
+        * @param rights AttributeRights list of attribute rights
         */
         setAttributeRights {
             @Override
