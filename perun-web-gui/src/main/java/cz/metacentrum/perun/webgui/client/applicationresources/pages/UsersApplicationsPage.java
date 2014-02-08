@@ -187,7 +187,7 @@ public class UsersApplicationsPage extends ApplicationPage {
         } else {
             vp.add(new HTML("<h2>" + ApplicationMessages.INSTANCE.applicationDetailGroup(Application.getTranslatedType(app.getType()), app.getGroup().getName(), app.getVo().getName())+"</h2>"));
         }
-        vp.add(new HTML(ApplicationMessages.INSTANCE.applicationDetailMessage(app.getCreatedAt(), Application.getTranslatedState(app.getState()))));
+        vp.add(new HTML(ApplicationMessages.INSTANCE.applicationDetailMessage(app.getCreatedAt().substring(0, app.getCreatedAt().indexOf(".")), Application.getTranslatedState(app.getState()))));
         vp.add(new HTML("<hr size=\"1\" style=\"color #ccc;\"/>"));
         vp.add(data.getContents());
 

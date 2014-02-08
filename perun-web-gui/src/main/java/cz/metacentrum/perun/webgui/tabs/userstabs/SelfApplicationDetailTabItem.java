@@ -12,10 +12,8 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.model.Application;
-import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
-import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.tabs.UsersTabs;
+import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.tabs.*;
 
 import java.util.Map;
 
@@ -23,8 +21,8 @@ import java.util.Map;
  * User's application detail
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
     /**
@@ -44,6 +42,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
     private Application application;
     private int applicationId = 0;
+    private User user;
 
 
     /**
@@ -53,6 +52,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
     public SelfApplicationDetailTabItem(Application application){
         this.application = application;
         this.applicationId = application.getId();
+        this.user = application.getUser();
     }
 
     /**
@@ -64,6 +64,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         new GetEntityById(PerunEntity.APPLICATION, applicationId, new JsonCallbackEvents() {
             public void onFinished(JavaScriptObject jso) {
                 application = jso.cast();
+                user = application.getUser();
             }
         }).retrieveData();
     }
@@ -74,50 +75,46 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
     public Widget draw() {
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(application.getVo().getName()) + " application");
+        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+ ": Application detail");
+
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
 
-        vp.add(new HTML("<h3>Application</h3>"));
-        // app info
-        FlexTable ft = new FlexTable();
-        ft.setCellPadding(10);
-        int i = 0;
+        String header = "<h2>";
+        if (application.getType().equalsIgnoreCase("INITIAL")) {
+            header += "Initial application for ";
+        } else {
+            header += "Extension application for ";
+        }
+        if (application.getGroup() == null) {
+            header += "VO "+application.getVo().getName();
+        } else {
+            header += "group "+application.getGroup().getShortName()+" in VO "+application.getVo().getName();
+        }
 
-        ft.setHTML(i, 0, "<strong>" + "Submitted" + "</strong>");
-        ft.setHTML(i, 1, application.getCreatedAt());
-        i++;
+        String submitted = "</h2><p>Submitted on <strong>" + application.getCreatedAt().substring(0, application.getCreatedAt().indexOf("."));
+        submitted += "</strong> is in state <strong>"+application.getState().toUpperCase()+"</strong>";
 
+        vp.add(new HTML(header+submitted));
 
-        ft.setHTML(i, 0, "<strong>" + "Type" + "</strong>");
-        ft.setHTML(i, 1, application.getType());
-        i++;
+        vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\" />"));
 
+        ScrollPanel sp = new ScrollPanel();
+        sp.setSize("100%", "100%");
+        sp.addStyleName("perun-tableScrollPanel");
+        vp.add(sp);
+        vp.setCellHeight(sp, "100%");
 
-        ft.setHTML(i, 0, "<strong>" + "State" + "</strong>");
-        ft.setHTML(i, 1, application.getState());
-
-        vp.add(ft);
-
-        //data
-        vp.add(new HTML("<h3>Contents</h3>"));
         GetApplicationDataById data = new GetApplicationDataById(applicationId);
         data.setShowAdminItems(false);
         data.retrieveData();
-        vp.add(data.getContents());
+        sp.setWidget(data.getContents());
+        session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-        // wrap
-        ScrollPanel sp = new ScrollPanel(vp);
-        sp.setSize("100%", "100%");
-        sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
-
-        this.contentWidget.setWidget(sp);
+        this.contentWidget.setWidget(vp);
         return getWidget();
+
     }
-
-
-
 
     public Widget getWidget() {
         return this.contentWidget;
@@ -131,7 +128,6 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         return SmallIcons.INSTANCE.applicationFromStorageIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -140,9 +136,6 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -163,21 +156,19 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
     public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        // FIXME - there currently isn't way to get to application detail without beeing a user in perun,
-        // so getting user from application should be safe.
+        if (user != null) {
+            session.setActiveUser(user);
+        }
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My applications", UsersTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"appls?id="+application.getUser().getId(), "Application detail", getUrlWithParameters());
     }
 
     public boolean isAuthorized() {
 
-        if (application.getUser() != null) {
-            // user known
-            if (session.isSelf(application.getUser().getId())) {
-                return true;
-            }
-        } else {
-            // user unknown
-            if (session.isPerunAdmin()) {
+        // GETTING APPLICATION WITHOUT USER SET IS NOT ALLOWED IN PERUN GUI,
+        // SINCE USER MUST BE LOGGED-IN !!
+        if (user != null) {
+            if (session.isSelf(user.getId())) {
+                // is authorized for user from application
                 return true;
             }
         }
@@ -185,16 +176,13 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
     }
 
-
     public final static String URL = "appl-detail";
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return  UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + applicationId;
     }
 

@@ -106,7 +106,6 @@ public class GetApplicationDataById implements JsonCallback{
 	 * Called when loading starts.
 	 */
 	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading application form items in selected VO started.");
 		events.onLoadingStart();
 	}
 
@@ -134,6 +133,7 @@ public class GetApplicationDataById implements JsonCallback{
 		
 		session.getUiElements().setLogText("Loading application form items in selected VO finished:" + applFormItems.size());
 		events.onFinished(jso);
+        loaderImage.setEmptyResultMessage("Application doesn't contain any data.");
 		loaderImage.loadingFinished();
 		
 	}
