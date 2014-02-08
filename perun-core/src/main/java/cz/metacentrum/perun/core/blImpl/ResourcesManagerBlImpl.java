@@ -37,7 +37,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -105,6 +104,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     } catch(AttributeValueException ex) {
       throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed withou problem.", ex);
     }
+      try {
+          this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
+      } catch (WrongAttributeValueException ex) {
+          throw new InternalErrorException(ex);
+      } catch (WrongAttributeAssignmentException ex) {
+          throw new InternalErrorException(ex);
+      } catch (WrongReferenceAttributeValueException ex) {
+          throw new InternalErrorException(ex);
+      }
     
     //Remove all resources tags
     this.removeAllResourcesTagFromResource(sess, resource);

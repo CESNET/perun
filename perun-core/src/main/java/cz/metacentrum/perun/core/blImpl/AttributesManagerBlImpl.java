@@ -2335,6 +2335,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
     }
     
+    public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+      List<Group> groups = this.perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource);
+      List<Attribute> attrs = new ArrayList<>();
+      for(Group group: groups){
+           attrs =this.getAttributes(sess, resource, group);
+           for(Attribute attr : attrs) {
+               attr.setValue(null);
+               try {
+                   this.checkAttributesValue(sess, resource, group, attrs);
+               } catch(WrongAttributeAssignmentException ex) {
+                   throw new ConsistencyErrorException(ex);
+               }
+           }
+      }
+    
+      this.attributesManagerImpl.removeAllGroupResourceAttributes(sess, resource);
+      log.info("All non-virtual group-resource attributes removed for all groups and {}", resource);
+         
+    }
+    
     public void removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
       getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
       if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -5082,7 +5102,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       }
       return false;
   } 
-  
+    
   public List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) throws InternalErrorException {
     List<Attribute> emptyList = new ArrayList<Attribute>();
     if(attributes == null) return emptyList;

@@ -2866,6 +2866,15 @@ public interface AttributesManagerBl {
    void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws InternalErrorException;
    
    /**
+    * Remove all non-virtual group-resource attributes assigned to resource
+    * 
+    * @param sess
+    * @param resource
+    * @throws InternalErrorException 
+    */
+   void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+   
+   /**
      * Get user virtual attribute module by the attribute.
      * 
      * @param sess
