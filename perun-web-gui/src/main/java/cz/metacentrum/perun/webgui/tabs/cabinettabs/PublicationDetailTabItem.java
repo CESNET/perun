@@ -185,13 +185,12 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			ft.setHTML(1, 1, publication.getId()+" / <Strong>Ext. Id: </strong>"+publication.getExternalId()+" <Strong>System: </strong>"+publication.getPublicationSystemName());
 			ft.setWidget(2, 1, title);
 			ft.setWidget(3, 1, year);
-			if (session.isPerunAdmin()) {
-				// only perunadmin can change rank and category
-				ft.setWidget(4, 1, listbox);			
+            ft.setWidget(4, 1, listbox);
+            if (session.isPerunAdmin()) {
+				// only perunadmin can change rank
 				ft.setWidget(5, 1, rank);
 			} else {
-				ft.setHTML(4, 1, publication.getCategoryName());
-				ft.setHTML(5, 1, ""+publication.getRank());
+                ft.setHTML(5, 1, ""+publication.getRank());
 			}
 			ft.setWidget(6, 1, isbn);
 			ft.setWidget(7, 1, doi);
@@ -215,14 +214,12 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 						pub.setYear(Integer.parseInt(year.getText()));
 					}
 					if (session.isPerunAdmin()) {
-						// perunadmin can change rank and category
-						pub.setRank(Double.parseDouble(rank.getText())); // TODO check parsing
-						pub.setCategoryId(listbox.getSelectedObject().getId());						
+						pub.setRank(Double.parseDouble(rank.getText()));
+
 					} else {
-						// others can't
 						pub.setRank(publication.getRank());
-						pub.setCategoryId(publication.getCategoryId());
-					}
+                    }
+                    pub.setCategoryId(listbox.getSelectedObject().getId());
 					pub.setTitle(title.getText());
 					pub.setMain(main.getText());
 					pub.setIsbn(isbn.getText());
