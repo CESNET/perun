@@ -200,9 +200,9 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
                   log.error(e.toString(), e);
                 }
             } else {
-                final long THREE_HOUR = 1000 * 60 * 60 * 3;
+                final long TWO_HOUR = 1000 * 60 * 60 * 2;
                 long timeDifference = System.currentTimeMillis() - task.getStartTime().getTime();
-                if(timeDifference > THREE_HOUR) {
+                if(timeDifference > TWO_HOUR) {
                   //
                   // WARNING!!
                   //
@@ -302,7 +302,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
             int howManyMinutesAgo = (int) (System.currentTimeMillis() - ( task.getStatus().equals(TaskStatus.PLANNED) ? task.getSchedule() : task.getStartTime() ).getTime()) / 1000 / 60;
 
             //If too much time has passed something is broken
-            if (howManyMinutesAgo >= 60) {
+            if (howManyMinutesAgo >= 180) {
                       log.error("ERROR: Task is stucked in PLANNED or PROCESSING state. Switching it to ERROR. {}", task);
                       task.setEndTime(new Date(System.currentTimeMillis()));
                       task.setStatus(TaskStatus.ERROR);
