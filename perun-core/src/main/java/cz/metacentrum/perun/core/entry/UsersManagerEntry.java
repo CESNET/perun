@@ -947,6 +947,7 @@ public class UsersManagerEntry implements UsersManager {
     public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 
         Utils.checkPerunSession(sess);
+        getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
         // Authorization
         if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
@@ -960,6 +961,20 @@ public class UsersManagerEntry implements UsersManager {
         }
 
         throw new InternalErrorException("Can't validate preferred email change. Verification parameters doesn't match.");
+
+    }
+
+    public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
+
+        Utils.checkPerunSession(sess);
+        getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+        // Authorization
+        if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+            throw new PrivilegeException(sess, "getPendingPreferredEmailChanges");
+        }
+
+        return getPerunBl().getUsersManagerBl().getPendingPreferredEmailChanges(sess, user);
 
     }
 

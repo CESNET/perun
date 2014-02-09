@@ -3,10 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.*;
@@ -16,6 +13,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
+import cz.metacentrum.perun.webgui.json.usersManager.GetPendingPreferredEmailChanges;
 import cz.metacentrum.perun.webgui.json.usersManager.RequestPreferredEmailChange;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -44,11 +42,8 @@ public class SelfPersonalTabItem implements TabItem {
     private int userId;
     private ArrayList<Attribute> userAttrs = new ArrayList<Attribute>();
 
-    private int vosIndex = 0;
-
-    // members and their attributes lists
-    private Map<VirtualOrganization, Member> members = new HashMap<VirtualOrganization, Member>();
-    private Map<Member, ArrayList<Attribute>> memAttrs = new HashMap<Member, ArrayList<Attribute>>();
+    String resultText = "";
+    ArrayList<String> emails = new ArrayList<String>();
 
     /**
      * Creates a tab instance
@@ -121,22 +116,6 @@ public class SelfPersonalTabItem implements TabItem {
         preferredEmail.getTextBox().setWidth("300px");
         preferredEmail.setWidth("300px");
 
-        preferredEmail.setValidator(new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (preferredEmail.getTextBox().getText().trim().isEmpty()) {
-                    preferredEmail.setError("Preferred email address can't be empty.");
-                    return false;
-                } else if (!JsonUtils.isValidEmail(preferredEmail.getTextBox().getText().trim())) {
-                    preferredEmail.setError("Not valid email address format.");
-                    return false;
-                } else {
-                    preferredEmail.setOk();
-                    return true;
-                }
-            }
-        });
-
         final ListBox preferredLanguage = new ListBox();
 
         preferredLanguage.addItem("Not selected", "");
@@ -208,19 +187,7 @@ public class SelfPersonalTabItem implements TabItem {
                         } else {
                             if (a.getFriendlyName().equalsIgnoreCase("preferredMail")) {
                                 final String val = newValue;
-                                RequestPreferredEmailChange call = new RequestPreferredEmailChange(JsonCallbackEvents.disableButtonEvents(save , new JsonCallbackEvents(){
-                                    @Override
-                                    public void onFinished(JavaScriptObject jso) {
-                                        try {
-                                            Storage storage = Storage.getLocalStorageIfSupported();
-                                            if (storage != null) {
-                                                storage.setItem("urn:perun:gui:user:mailchange", val);
-                                            }
-                                        } catch (Exception ex) {
-                                            // storage is blocked but supported
-                                        }
-                                    }
-                                }));
+                                RequestPreferredEmailChange call = new RequestPreferredEmailChange(JsonCallbackEvents.disableButtonEvents(save));
                                 call.requestChange(user, newValue);
                             } else {
                                 a.setValue(newValue); // set value
@@ -252,16 +219,15 @@ public class SelfPersonalTabItem implements TabItem {
         GetListOfAttributes attrsCall = new GetListOfAttributes(new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
-                ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
-                userAttrs = list;
+                userAttrs = JsonUtils.jsoAsList(jso);
 
                 settingsTable.setWidget(1, 1, preferredEmail);
                 settingsTable.setWidget(3, 1, preferredLanguage);
                 settingsTable.setWidget(4, 1, timezone);
 
-                for (final Attribute a : list) {
+                for (final Attribute a : userAttrs) {
 
-                    if (a.getValue().equalsIgnoreCase("null")) {
+                    if (a.getValue() == null || a.getValue().equalsIgnoreCase("null")) {
                         continue; // skip null attributes
                     }
 
@@ -275,36 +241,82 @@ public class SelfPersonalTabItem implements TabItem {
 
                         preferredEmail.getTextBox().setText(a.getValue());
 
-                        preferredEmail.getTextBox().addKeyUpHandler(new KeyUpHandler() {
+                        // display notice if there is any valid pending change request
+                        GetPendingPreferredEmailChanges get = new GetPendingPreferredEmailChanges(user.getId(), new JsonCallbackEvents(){
                             @Override
-                            public void onKeyUp(KeyUpEvent event) {
-                                if (!a.getValue().equals(preferredEmail.getTextBox().getText().trim())) {
-                                    settingsTable.setHTML(2, 0, "No changes in preferred mail are saved, until new email address is validated. After saving new value, please check your inbox for validation mail.");
-                                    settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment");
-                                } else {
-                                    settingsTable.setHTML(2, 0, "");
-                                }
-                            }
-                        });
+                            public void onFinished(JavaScriptObject jso) {
+                                //save.setEnabled(true);
+                                // process returned value
+                                if (jso != null) {
+                                    BasicOverlayType basic = jso.cast();
+                                    emails = basic.getListOfStrings();
+                                    if (!emails.isEmpty()) {
 
-                        try {
-                            Storage storage = Storage.getLocalStorageIfSupported();
-                            if (storage != null) {
+                                        for (String s : emails) {
+                                            if (!s.equals(preferredEmail.getTextBox().getText().trim())) {
+                                                resultText += s+", ";
+                                            }
+                                        }
+                                        if (resultText.length() >= 2) resultText = resultText.substring(0, resultText.length()-2);
 
-                                // we must also write so we could get an error if storage is supported but size set to 0.
-                                storage.setItem("urn:perun:gui:preferences:localStorageCheck", "checked");
-
-                                String value = storage.getItem("urn:perun:gui:user:mailchange");
-                                if (value != null && !value.isEmpty()) {
-                                    if (!value.equals(a.getValue())) {
-                                        settingsTable.setHTML(2, 0, "Preferred mail change is pending for: "+value+". Please check your inbox for validation mail.");
+                                        settingsTable.setHTML(2, 0, "You have pending change request. Please check inbox of: "+resultText+" for validation email.");
                                         settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment serverResponseLabelError");
                                     }
+
                                 }
+
+                                // set validator with respect to returned values
+                                preferredEmail.setValidator(new ExtendedTextBox.TextBoxValidator() {
+                                    @Override
+                                    public boolean validateTextBox() {
+                                        if (preferredEmail.getTextBox().getText().trim().isEmpty()) {
+                                            preferredEmail.setError("Preferred email address can't be empty.");
+                                            return false;
+                                        } else if (!JsonUtils.isValidEmail(preferredEmail.getTextBox().getText().trim())) {
+                                            preferredEmail.setError("Not valid email address format.");
+                                            return false;
+                                        }
+                                        // update notice under textbox on any cut/past/type action
+                                        if (!preferredEmail.getTextBox().getText().trim().equals(a.getValue())) {
+                                            settingsTable.setHTML(2, 0, "No changes are saved, until new address is validated. After change please check your inbox for validation mail." +
+                                                    ((!resultText.isEmpty()) ? "<p><span class=\"serverResponseLabelError\">You have pending change request. Please check inbox of: "+resultText+" for validation email.</span>" : ""));
+                                            settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment");
+                                        } else {
+                                            settingsTable.setHTML(2, 0, (!resultText.isEmpty()) ? "You have pending change request. Please check inbox of: "+resultText+" for validation email." : "");
+                                            settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment serverResponseLabelError");
+                                        }
+                                        preferredEmail.setOk();
+                                        return true;
+                                    }
+                                });
+
                             }
-                        } catch (Exception ex) {
-                            // storage is blocked but supported
-                        }
+                            @Override
+                            public void onError(PerunError error) {
+                                //save.setEnabled(true);
+                                // add basic validator even if there is any error
+                                preferredEmail.setValidator(new ExtendedTextBox.TextBoxValidator() {
+                                    @Override
+                                    public boolean validateTextBox() {
+                                        if (preferredEmail.getTextBox().getText().trim().isEmpty()) {
+                                            preferredEmail.setError("Preferred email address can't be empty.");
+                                            return false;
+                                        } else if (!JsonUtils.isValidEmail(preferredEmail.getTextBox().getText().trim())) {
+                                            preferredEmail.setError("Not valid email address format.");
+                                            return false;
+                                        } else {
+                                            preferredEmail.setOk();
+                                            return true;
+                                        }
+                                    }
+                                });
+                            }
+                            @Override
+                            public void onLoadingStart() {
+                                //save.setEnabled(false);
+                            }
+                        });
+                        get.retrieveData();
 
                     } else if (a.getFriendlyName().equalsIgnoreCase("timezone")) {
                         for (int i=0; i<timezone.getItemCount(); i++) {
@@ -372,33 +384,6 @@ public class SelfPersonalTabItem implements TabItem {
 
     public ImageResource getIcon() {
         return SmallIcons.INSTANCE.userGrayIcon();
-    }
-
-    /**
-     * Returns image for vo membership status of member
-     *
-     * @param mem
-     * @return image
-     */
-    private Image getImage(Member mem){
-
-        ImageResource ir = null;
-
-        // member status
-        if(mem.getStatus().equalsIgnoreCase("VALID")){
-            ir = SmallIcons.INSTANCE.acceptIcon();
-        } else if (mem.getStatus().equalsIgnoreCase("INVALID")){
-            ir = SmallIcons.INSTANCE.flagRedIcon();
-        } else if (mem.getStatus().equalsIgnoreCase("SUSPENDED")){
-            ir = SmallIcons.INSTANCE.stopIcon();
-        } else if (mem.getStatus().equalsIgnoreCase("EXPIRED")){
-            ir = SmallIcons.INSTANCE.flagYellowIcon();
-        } else if (mem.getStatus().equalsIgnoreCase("DISABLED")){
-            ir = SmallIcons.INSTANCE.binClosedIcon();
-        }
-
-        return new Image(ir);
-
     }
 
     @Override

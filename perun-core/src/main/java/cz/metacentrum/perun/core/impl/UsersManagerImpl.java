@@ -898,6 +898,41 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
   }
 
+  public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException {
+
+      int validWindow = VALIDATION_ALLOWED_HOURS;
+      try {
+          validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+      } catch (Exception ex) {
+          log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
+      }
+
+      try {
+          if (Compatibility.isPostgreSql()) {
+
+              return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))", new RowMapper<String>() {
+                  @Override
+                  public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                      return resultSet.getString("value");
+                  }
+              }, user.getId());
+
+          } else {
+
+              return jdbc.query("select value from mailchange where user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", new RowMapper<String>() {
+                  @Override
+                  public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                      return resultSet.getString("value");
+                  }
+              }, user.getId());
+
+          }
+      } catch (EmptyResultDataAccessException ex) {
+        return new ArrayList<String>();
+      }
+
+  }
+
   public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
   }

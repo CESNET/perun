@@ -1399,4 +1399,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     }
 
+    public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+
+        List<String> list = getUsersManagerImpl().getPendingPreferredEmailChanges(sess, user);
+
+        Attribute a = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
+        if (a != null && a.getValue() != null) {
+            Iterator<String> it = list.iterator();
+            while (it.hasNext()) {
+                String value = it.next();
+                if (value.equals(BeansUtils.attributeValueToString(a))) {
+                    // remove pending change requests if they are already set in attribute
+                    it.remove();
+                }
+            }
+        }
+
+        return list;
+
+    }
+
 }

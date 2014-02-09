@@ -849,7 +849,7 @@ public interface UsersManager {
      * Request change of user's preferred email address.
      * Change in attribute value is not done, until email
      * address is verified by link in email notice.
-     * (urn:perun:user:attribute-def:def:preferredEmail)
+     * (urn:perun:user:attribute-def:def:preferredMail)
      *
      * @param sess PerunSession
      * @param url base URL of running perun instance passed from RPC.
@@ -865,7 +865,7 @@ public interface UsersManager {
     /**
      * Validate change of user's preferred email address.
      * New email address is set as value of
-     * urn:perun:user:attribute-def:def:preferredEmail attribute.
+     * urn:perun:user:attribute-def:def:preferredMail attribute.
      *
      * @param sess PerunSession
      * @param user User to validate email address for
@@ -883,6 +883,28 @@ public interface UsersManager {
      * @return String return new preferred email
      */
     String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+
+    /**
+     * Return list of email addresses of user, which are
+     * awaiting validation and are inside time window
+     * for validation.
+     *
+     * If there is no preferred email change request pending
+     * or requests are outside time window for validation,
+     * returns empty list.
+     *
+     * @param sess PerunSession
+     * @param user User to check pending request for
+     *
+     * @throws InternalErrorException
+     * @throws PrivilegeException
+     * @throws UserNotExistsException
+     * @throws WrongAttributeAssignmentException
+     * @throws AttributeNotExistsException
+     *
+     * @return List<String> user's email addresses pending validation
+     */
+    List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 
 }

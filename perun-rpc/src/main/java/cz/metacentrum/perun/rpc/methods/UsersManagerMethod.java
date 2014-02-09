@@ -923,7 +923,7 @@ public enum UsersManagerMethod implements ManagerMethod {
      * @param i encrypted request parameter
      * @param m encrypted request parameter
      *
-     * @return new validated email address
+     * @return String new validated email address
      */
     validatePreferredEmailChange {
         @Override
@@ -933,6 +933,29 @@ public enum UsersManagerMethod implements ManagerMethod {
                     ac.getUserById(parms.readInt("u")),
                     parms.readString("i"),
                     parms.readString("m"));
+
+        }
+    },
+    /*#
+     * Return list of email addresses of user, which are
+     * awaiting validation and are inside time window
+     * for validation.
+     *
+     * If there is no preferred email change request pending
+     * or requests are outside time window for validation,
+     * returns empty list.
+     *
+     * @param sess PerunSession
+     * @param user ID of user to check
+     *
+     * @return List<String> user's email addresses pending validation
+     */
+    getPendingPreferredEmailChanges {
+        @Override
+        public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            return ac.getUsersManager().getPendingPreferredEmailChanges(ac.getSession(),
+                    ac.getUserById(parms.readInt("user")));
 
         }
     };

@@ -576,4 +576,22 @@ public interface UsersManagerImplApi {
        */
       void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException;
 
+      /**
+       * Return list of email addresses of user, which are
+       * awaiting validation and are inside time window
+       * for validation.
+       *
+       * If there is no preferred email change request pending
+       * or requests are outside time window for validation,
+       * returns empty list.
+       *
+       * @param sess PerunSession
+       * @param user User to check pending request for
+       *
+       * @throws InternalErrorException
+       *
+       * @return List<String> user's email addresses pending validation
+       */
+      List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException;
+
   }

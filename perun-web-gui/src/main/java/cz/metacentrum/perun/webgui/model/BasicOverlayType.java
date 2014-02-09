@@ -1,12 +1,15 @@
 package cz.metacentrum.perun.webgui.model;
 
-import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.*;
+
+import java.util.ArrayList;
 
 /**
- * Object definition for primitive types. 
+ * Object definition for primitive types and lists of them.
  * Can return Int, String, Boolean, Float from itself.
  * 
  * @author Vaclav Mach  <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class BasicOverlayType extends JavaScriptObject {
 
@@ -27,5 +30,47 @@ public class BasicOverlayType extends JavaScriptObject {
 	public final native float getFloat() /*-{
 		return this.value;
 	}-*/;
+
+    public final ArrayList<String> getListOfStrings() {
+
+        JsArrayString array = this.cast();
+        ArrayList<String> list = new ArrayList<String>();
+        if (array != null) {
+            for (int i=0; i<array.length(); i++) {
+                list.add(array.get(i));
+            }
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    public final ArrayList<Integer> getListOfIntegers() {
+
+        JsArrayInteger array = this.cast();
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        if (array != null) {
+            for (int i=0; i<array.length(); i++) {
+                list.add(array.get(i));
+            }
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    public final ArrayList<Boolean> getListOfBooleans() {
+
+        JsArrayBoolean array = this.cast();
+        ArrayList<Boolean> list = new ArrayList<Boolean>();
+        if (array != null) {
+            for (int i=0; i<array.length(); i++) {
+                list.add(array.get(i));
+            }
+            return list;
+        } else {
+            return null;
+        }
+    }
 
 }
