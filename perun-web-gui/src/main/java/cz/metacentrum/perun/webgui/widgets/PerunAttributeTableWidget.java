@@ -67,6 +67,13 @@ public class PerunAttributeTableWidget extends Composite {
     private boolean displaySaveButton = true;
 
     /**
+     * Creates a new table
+     */
+    public PerunAttributeTableWidget(){
+        this.initWidget(ft);
+    }
+
+    /**
 	 * Creates a new table
 	 */
 	public PerunAttributeTableWidget(Map<String, Integer> ids){
@@ -163,6 +170,14 @@ public class PerunAttributeTableWidget extends Composite {
 
     public CustomButton getSaveButton() {
         return this.saveButton;
+    }
+
+    public void setIds(Map<String, Integer> ids) {
+        this.ids = ids;
+    }
+
+    public void setEvents(SaveEvent saveEvent) {
+        this.saveEvent = saveEvent;
     }
 
     /**

@@ -237,9 +237,7 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
         contactHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.vcardIcon()));
         contactHeader.setHTML(0, 1, "<p class=\"subsection-heading\">Contact</p>");
 
-        HashMap<String, Integer> ids = new HashMap<String, Integer>();
-        ids.put("user", userId);
-        final PerunAttributeTableWidget contactTable = new PerunAttributeTableWidget(ids);
+        final PerunAttributeTableWidget contactTable = new PerunAttributeTableWidget();
         contactTable.setDark(true);
         contactTable.setDisplaySaveButton(false);
 
@@ -268,6 +266,7 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
                 Member m = jso.cast();
                 HashMap<String, Integer> ids = new HashMap<String, Integer>();
                 ids.put("member", m.getId());
+                contactTable.setIds(ids);
                 attributes.getListOfAttributes(ids, list);
             }
         });
@@ -300,7 +299,7 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
                 // fill inner layout
                 PerunStatusWidget<Member> statusWidget;
-                if (session.isVoAdmin()) {
+                if (session.isVoAdmin(vo.getId())) {
                     SetStatus statCall = new SetStatus(m.getId(), new JsonCallbackEvents(){
                         @Override
                         public void onFinished(JavaScriptObject jso) {

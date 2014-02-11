@@ -4,7 +4,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -45,7 +44,6 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
     private User user;
     private int userId;
-    private ArrayList<Attribute> userAttrs = new ArrayList<Attribute>();
 
     /**
      * Creates a tab instance
