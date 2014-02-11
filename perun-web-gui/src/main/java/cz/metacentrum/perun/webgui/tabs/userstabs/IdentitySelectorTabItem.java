@@ -56,7 +56,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
         FlexTable baseLayout = new FlexTable();
         baseLayout.setCellSpacing(10);
         dp.add(baseLayout);
-        baseLayout.setHTML(0, 0, "<h3>Select base identity</h3>");
+        baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
         baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
         baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
@@ -84,7 +84,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
         serviceLayout.setCellSpacing(10);
         dp2.add(serviceLayout);
 
-        serviceLayout.setHTML(0, 0, "<h3>Select service identity</h3>");
+        serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
         serviceLayout.setHTML(1, 0, "Service identities you have access to.");
         serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
@@ -92,6 +92,12 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
         horizontalSplitter.setCellWidth(dp, "50%");
         horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
         horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
+
+        ScrollPanel sp = new ScrollPanel();
+        final FlexTable innerTable = new FlexTable();
+        sp.setWidget(innerTable);
+        sp.setStyleName("scroll-max-height");
+        serviceLayout.setWidget(2, 0, sp);
 
         if (session.getEditableUsers().size() > 1) {
             // user has service identities
@@ -101,13 +107,10 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
                     ArrayList<User> list = JsonUtils.jsoAsList(jso);
                     if (list != null && !list.isEmpty()) {
 
-                        serviceLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
-                        serviceLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
-
-                        int row = 2;
+                        int row = 0;
                         for (User u : list) {
                             final User u2 = u;
-                            serviceLayout.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+                            innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
                             Anchor userName = new Anchor();
                             userName.setText(u2.getFullNameWithTitles());
                             userName.addStyleName("now-managing");
@@ -120,21 +123,21 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
                                     session.getTabManager().closeTab(tab, false);
                                 }
                             });
-                            serviceLayout.setWidget(row, 1, userName);
+                            innerTable.setWidget(row, 1, userName);
                             row++;
                         }
 
                     } else {
-                        serviceLayout.setHTML(2, 1, "");
+                        innerTable.setHTML(0, 0, "You have no service identities");
                     }
                 }
                 @Override
                 public void onLoadingStart() {
-                    serviceLayout.setWidget(2, 1, new AjaxLoaderImage().loadingStart());
+                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
                 }
                 @Override
                 public void onError(PerunError error) {
-                    serviceLayout.setWidget(2, 1, new AjaxLoaderImage().loadingError(error));
+                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
                 }
             });
             call.retrieveData();

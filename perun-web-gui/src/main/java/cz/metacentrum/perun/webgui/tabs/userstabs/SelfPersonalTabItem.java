@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.*;
@@ -17,10 +19,9 @@ import cz.metacentrum.perun.webgui.json.usersManager.GetPendingPreferredEmailCha
 import cz.metacentrum.perun.webgui.json.usersManager.RequestPreferredEmailChange;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.tabs.cabinettabs.AddPublicationsTabItem;
+import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,12 +45,13 @@ public class SelfPersonalTabItem implements TabItem {
 
     String resultText = "";
     ArrayList<String> emails = new ArrayList<String>();
+    private TabPanelForTabItems tabPanel;
 
     /**
      * Creates a tab instance
      */
     public SelfPersonalTabItem(){
-        this.user = session.getUser();
+        this.user = session.getActiveUser();
         this.userId = user.getId();
     }
 
@@ -128,6 +130,8 @@ public class SelfPersonalTabItem implements TabItem {
             timezone.addItem(zone, zone);
         }
 
+        final PreferredShellsWidget preferredShellsWidget = new PreferredShellsWidget();
+
         // content
         final FlexTable settingsTable = new FlexTable();
         settingsTable.setStyleName("inputFormFlexTableDark");
@@ -141,11 +145,16 @@ public class SelfPersonalTabItem implements TabItem {
         settingsTable.setWidget(3, 1, preferredLanguage);
         settingsTable.setHTML(4, 0, "Timezone:");
         settingsTable.setWidget(4, 1, timezone);
+        settingsTable.setHTML(5, 0, "Preferred shells:");
+        settingsTable.setWidget(5, 1, preferredShellsWidget);
+        settingsTable.getFlexCellFormatter().setRowSpan(5, 0, 2);
+        settingsTable.setHTML(6, 0, "List of preferred shells ordered from the most preferred to least is used to determine your shell on provided resources. If none of preferred shells is available on resource (or no preferred shell is set), resource's default is used.");
+        settingsTable.getFlexCellFormatter().setStyleName(6, 0, "inputFormInlineComment");
+
 
         for (int i=1; i<settingsTable.getRowCount(); i++) {
-            if (i != 2) {
-                settingsTable.getFlexCellFormatter().addStyleName(i, 0, "itemName");
-            }
+            if (i == 2 || i == 6) continue;
+            settingsTable.getFlexCellFormatter().addStyleName(i, 0, "itemName");
         }
 
         // SET SAVE CLICK HANDLER
@@ -162,7 +171,7 @@ public class SelfPersonalTabItem implements TabItem {
                 ArrayList<Attribute> toSend = new ArrayList<Attribute>(); // will be set
                 ArrayList<Attribute> toRemove = new ArrayList<Attribute>(); // will be removed
 
-                for (Attribute a : userAttrs) {
+                for (final Attribute a : userAttrs) {
 
                     String oldValue = a.getValue();
                     String newValue = "";
@@ -173,6 +182,8 @@ public class SelfPersonalTabItem implements TabItem {
                         newValue = timezone.getValue(timezone.getSelectedIndex());
                     } else if (a.getFriendlyName().equalsIgnoreCase("preferredMail")) {
                         newValue = preferredEmail.getTextBox().getValue().trim();
+                    } else if (a.getFriendlyName().equalsIgnoreCase("preferredShells")) {
+                        newValue = preferredShellsWidget.getAttribute().getValue();
                     } else {
                         continue; // other than contact attributes must be skipped
                     }
@@ -190,8 +201,9 @@ public class SelfPersonalTabItem implements TabItem {
                                 RequestPreferredEmailChange call = new RequestPreferredEmailChange(JsonCallbackEvents.disableButtonEvents(save));
                                 call.requestChange(user, newValue);
                             } else {
-                                a.setValue(newValue); // set value
-                                toSend.add(a); // value was changed / added
+                                Attribute newA = JsonUtils.clone(a).cast();
+                                newA.setValue(newValue); // set value
+                                toSend.add(newA); // value was changed / added
                             }
                         }
                     }
@@ -219,16 +231,23 @@ public class SelfPersonalTabItem implements TabItem {
         GetListOfAttributes attrsCall = new GetListOfAttributes(new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
+
                 userAttrs = JsonUtils.jsoAsList(jso);
 
                 settingsTable.setWidget(1, 1, preferredEmail);
                 settingsTable.setWidget(3, 1, preferredLanguage);
                 settingsTable.setWidget(4, 1, timezone);
+                settingsTable.setWidget(5, 1, preferredShellsWidget);
 
                 for (final Attribute a : userAttrs) {
 
                     if (a.getValue() == null || a.getValue().equalsIgnoreCase("null")) {
-                        continue; // skip null attributes
+                        if (a.getFriendlyName().equalsIgnoreCase("preferredShells")) {
+                            // don't skip this null attribute
+                            preferredShellsWidget.setAttribute(a);
+                        }
+                        // skip null attributes
+                        continue;
                     }
 
                     if (a.getFriendlyName().equalsIgnoreCase("preferredLanguage")) {
@@ -324,6 +343,9 @@ public class SelfPersonalTabItem implements TabItem {
                                 timezone.setSelectedIndex(i);
                             }
                         }
+                    } else if (a.getFriendlyName().equalsIgnoreCase("preferredShells")) {
+                        // set attribute and display value
+                        preferredShellsWidget.setAttribute(a);
                     }
                 }
             }
@@ -332,12 +354,14 @@ public class SelfPersonalTabItem implements TabItem {
                 settingsTable.setWidget(1, 1, new AjaxLoaderImage(true));
                 settingsTable.setWidget(3, 1, new AjaxLoaderImage(true));
                 settingsTable.setWidget(4, 1, new AjaxLoaderImage(true));
+                settingsTable.setWidget(5, 1, new AjaxLoaderImage(true));
             }
             @Override
             public void onError(PerunError error) {
                 settingsTable.setWidget(1, 1, new AjaxLoaderImage(true).loadingError(error));
                 settingsTable.setWidget(3, 1, new AjaxLoaderImage(true).loadingError(error));
                 settingsTable.setWidget(4, 1, new AjaxLoaderImage(true).loadingError(error));
+                settingsTable.setWidget(5, 1, new AjaxLoaderImage(true).loadingError(error));
             }
         });
         // list of wanted attributes
@@ -345,6 +369,7 @@ public class SelfPersonalTabItem implements TabItem {
         list.add("urn:perun:user:attribute-def:def:preferredLanguage");
         list.add("urn:perun:user:attribute-def:def:preferredMail");
         list.add("urn:perun:user:attribute-def:def:timezone");
+        list.add("urn:perun:user:attribute-def:def:preferredShells");
 
         Map<String,Integer> ids = new HashMap<String,Integer>();
         ids.put("user", userId);
@@ -354,20 +379,84 @@ public class SelfPersonalTabItem implements TabItem {
         FlexTable quickLinks = new FlexTable();
         quickHeader.setStyleName("inputFormFlexTable");
 
-        quickLinks.setHTML(0, 0, "Add login");
-        quickLinks.setHTML(1, 0, "Change password");
-        quickLinks.setHTML(2, 0, "Reset password");
-        quickLinks.setHTML(3, 0, "Update titles in name");
-        quickLinks.setHTML(4, 0, "Manage service identities");
-        quickLinks.setHTML(5, 0, "View applications");
-        quickLinks.setHTML(6, 0, "Add certificate");
-        quickLinks.setHTML(7, 0, "Add SSH key");
-        quickLinks.setHTML(8, 0, "Change shell on VO resources");
-        quickLinks.setHTML(9, 0, "Request data/files quota change");
-        quickLinks.setHTML(10, 0, "Manage mailing lists");
+        String span = "<span style=\"font-weight: bold; font-style: italic; padding-left: 25px; line-height: 2;\">";
+
+        Anchor name = new Anchor(span+"Update name titles</span>", true);
+        name.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        // refresh parent tab
+                        SelfDetailTabItem item = (SelfDetailTabItem)session.getTabManager().getActiveTab();
+                        item.setUser((User)jso);
+                        item.draw();
+                    }
+                }));
+            }
+        });
+        quickLinks.setWidget(0, 0, name);
+
+        Anchor password = new Anchor(span+"Change / reset password</span>", true);
+        password.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                tabPanel.selectTab(tabPanel.getSelectedIndex()+3);
+            }
+        });
+        quickLinks.setWidget(1, 0, password);
+
+        Anchor cert = new Anchor(span+"<a href=\""+ Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">Add certificate</a></span>", true);
+        quickLinks.setWidget(2, 0, cert);
+
+        Anchor ssh = new Anchor(span+"Manage SSH keys</span>", true);
+        ssh.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                tabPanel.selectTab(tabPanel.getSelectedIndex()+3);
+            }
+        });
+        quickLinks.setWidget(3, 0, ssh);
+
+        Anchor report = new Anchor(span+"Report new publication</span>", true);
+        report.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTab(new AddPublicationsTabItem(user));
+            }
+        });
+        quickLinks.setWidget(4, 0, report);
+
+        Anchor request = new Anchor(span+"Request data/files quota change</span>", true);
+        request.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                tabPanel.selectTab(tabPanel.getSelectedIndex() + 2);
+            }
+        });
+        quickLinks.setWidget(5, 0, request);
+
+        if (session.getEditableUsers().size() > 1) {
+            Anchor serv = new Anchor(span+"Manage service identities</span>", true);
+            serv.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    tabPanel.selectTab(tabPanel.getSelectedIndex()+6);
+                }
+            });
+            quickLinks.setWidget(6, 0, serv);
+        }
 
         rightPanel.add(settingsTable);
         leftPanel.add(quickLinks);
+
+        Scheduler.get().scheduleDeferred(new Command() {
+            @Override
+            public void execute() {
+                sp.scrollToTop();
+            }
+        });
 
         this.contentWidget.setWidget(sp);
         return getWidget();
@@ -384,6 +473,10 @@ public class SelfPersonalTabItem implements TabItem {
 
     public ImageResource getIcon() {
         return SmallIcons.INSTANCE.userGrayIcon();
+    }
+
+    public void setParentPanel(TabPanelForTabItems panel) {
+        this.tabPanel = panel;
     }
 
     @Override
