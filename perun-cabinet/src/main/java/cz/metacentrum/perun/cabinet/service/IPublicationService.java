@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 
 public interface IPublicationService {
 
-	int createPublication(Publication p) throws CabinetException;
+	int createPublication(PerunSession sess, Publication p) throws CabinetException;
 
 	boolean publicationExists(Publication p);
 

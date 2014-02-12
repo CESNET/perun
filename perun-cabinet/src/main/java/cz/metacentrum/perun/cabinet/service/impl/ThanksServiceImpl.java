@@ -93,7 +93,9 @@ public class ThanksServiceImpl implements IThanksService {
 		// To delete thanks user must me either PERUNADMIN
 		// or user who created record (thanks.createdBy property)
 		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) && (!t.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()))) {
+			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+                    (!t.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor())) &&
+                    (!t.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId()))) {
 				throw new CabinetException("You are not allowed to delete thanks you didn't created.", ErrorCodes.NOT_AUTHORIZED);
 			}
 		} catch (PerunException pe) {

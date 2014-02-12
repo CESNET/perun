@@ -43,8 +43,9 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setRank(0.0);
 		p.setLocked(false);
 		p.setDoi("DOI");
+        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 		
-		int id = publicationService.createPublication(p);
+		int id = publicationService.createPublication(sess, p);
 		
 		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());
 		assertTrue("Returned ID shouldn't be < 0.", id > 0);
@@ -68,8 +69,9 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setRank(0.0);
 		p.setLocked(false);
 		p.setDoi("DOI");
+        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 		
-		int id = publicationService.createPublication(p);
+		int id = publicationService.createPublication(sess, p);
 		assertTrue(id > 0);
 		
 		// must be reset, since test update object after creation
@@ -78,7 +80,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		
 		// double-check existence (based on isbn)
 		try {
-			publicationService.createPublication(p);
+			publicationService.createPublication(sess, p);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.PUBLICATION_ALREADY_EXISTS)){
 				fail("Different exception was thrown when creating \"same\" internal publication: "+ex);
@@ -247,8 +249,9 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setMain(main);
 		p.setTitle(title);
 		p.setDoi(doi);
+        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 		
-		int id = publicationService.createPublication(p);
+		int id = publicationService.createPublication(sess, p);
 		
 		// if stripping works, must have been created
 		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());

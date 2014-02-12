@@ -74,13 +74,16 @@ public class PublicationServiceImpl implements IPublicationService {
 
 	// business methods --------------------------------
 	
-	public int createPublication(Publication p) throws CabinetException {
+	public int createPublication(PerunSession sess, Publication p) throws CabinetException {
 
 		if (p.getCreatedDate() == null)
 			p.setCreatedDate(new Date());
 		if (p.getLocked() == null) {
 			p.setLocked(false);
 		}
+        if (p.getCreatedByUid() == null && sess != null) {
+            p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+        }
 
 		if (p.getExternalId() == 0 && p.getPublicationSystemId() == 0) {
 			// check existence
@@ -99,13 +102,13 @@ public class PublicationServiceImpl implements IPublicationService {
 			//
 			stripLongParams(p);
 			// create internal
-			return publicationDao.createInternalPublication(p);		
+			return publicationDao.createInternalPublication(sess, p);
 		} else {
 			if (publicationExists(p)) throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
 			
 			stripLongParams(p);
 			
-			return publicationDao.createPublication(p);
+			return publicationDao.createPublication(sess, p);
 		}
 	}
 	
@@ -220,7 +223,9 @@ public class PublicationServiceImpl implements IPublicationService {
 		// To delete publication user must be either PERUNADMIN
 		// or user who created record (publication.createdBy==actor property)
 		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) && !pub.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) ) {
+			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+                    !pub.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+                    !pub.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId())) {
 				// not perun admin or author of record
 				throw new CabinetException("You are not allowed to delete publications you didn't created.", ErrorCodes.NOT_AUTHORIZED);
 			}

@@ -448,7 +448,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 				}
 			} else {
 				// else create one
-				int id = ac.getCabinetManager().createPublication(parms.read("publication", Publication.class));				
+				int id = ac.getCabinetManager().createPublication(ac.getSession(), parms.read("publication", Publication.class));
 				return ac.getCabinetManager().findRichPublicationById(id);
 			}
 		}
