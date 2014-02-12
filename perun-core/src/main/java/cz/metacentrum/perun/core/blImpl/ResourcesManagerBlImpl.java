@@ -97,6 +97,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     List<Group> groups = getAssignedGroups(sess, resource);
     for (Group group: groups){
         getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
+        //IMPORTANT: If removeGroupFromResource called from BlImpl, this logging must be deleted
+        getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
     }
 
     // Remove attr values for the resource
@@ -112,7 +114,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     // Get the resource VO
     Vo vo = this.getVo(sess, resource);
     getResourcesManagerImpl().deleteResource(sess, vo, resource);
-    getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}", resource, facility, services, groups);
+    getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}.", resource, facility, services);
   }
 
   public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
