@@ -12,6 +12,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.usersManager.UpdateNameTitles;
 import cz.metacentrum.perun.webgui.json.usersManager.UpdateUser;
 import cz.metacentrum.perun.webgui.model.User;
@@ -126,7 +127,7 @@ public class EditUserDetailsTabItem implements TabItem {
             saveButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     if (validator.validateTextBox()) {
-                        User u = new JSONObject().getJavaScriptObject().cast();
+                        User u = JsonUtils.clone(user).cast();
                         u.setFirstName(firstName.getText().trim());
                         u.setMiddleName(middleName.getText().trim());
                         u.setLastName(lastName.getTextBox().getText().trim());
@@ -142,10 +143,7 @@ public class EditUserDetailsTabItem implements TabItem {
 
             saveButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
-                    User u = new JSONObject().getJavaScriptObject().cast();
-                    u.setFirstName(user.getFirstName());
-                    u.setMiddleName(user.getMiddleName());
-                    u.setLastName(user.getLastName());
+                    User u = JsonUtils.clone(user).cast();
                     u.setTitleBefore(beforeName.getText().trim());
                     u.setTitleAfter(afterName.getText().trim());
                     UpdateNameTitles request = new UpdateNameTitles(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));

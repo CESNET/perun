@@ -379,9 +379,9 @@ public class SelfPersonalTabItem implements TabItem {
         FlexTable quickLinks = new FlexTable();
         quickHeader.setStyleName("inputFormFlexTable");
 
-        String span = "<span style=\"font-weight: bold; font-style: italic; padding-left: 25px; line-height: 2;\">";
+        String span = "<span style=\"font-weight: bold; padding-left: 25px; line-height: 2;\">";
 
-        Anchor name = new Anchor(span+"Update name titles</span>", true);
+        Anchor name = new Anchor(span+"Edit name titles</span>", true);
         name.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
