@@ -110,11 +110,16 @@ public class CreatePublication {
 
 	}
 
-	/**
-	 * Attempts to create a new Publication from EXTERNAL SOURCE, it first tests the values and then submits them.
-	 * 
-	 * @param publication Publication
-	 */
+    /**
+     * Attempts to create a new Publication from scratch.
+     *
+     * @param title
+     * @param category
+     * @param year
+     * @param ISBN
+     * @param doi
+     * @param main
+     */
 	public void createPublication(final String title, final int category, final int year, final String ISBN, final String doi, final String main) {
 	
 		publication = new JSONObject().getJavaScriptObject().cast();
@@ -131,12 +136,13 @@ public class CreatePublication {
 		publication.setRank(0);
 		publication.setDoi(doi);
 		publication.setLocked(false);
+        publication.setCreatedByUid(session.getActiveUser().getId());
 		
 		// local events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating publicaton failed.");
+				session.getUiElements().setLogErrorText("Creating publication failed.");
 				events.onError(error);
 			};
 
@@ -191,7 +197,8 @@ public class CreatePublication {
 		newPub.put("rank", new JSONNumber(0));
 		newPub.put("doi", oldPub.get("doi"));
 		newPub.put("locked", oldPub.get("locked"));
-		
+        newPub.put("createdByUid", oldPub.get("createdByUid"));
+
 		// dig-in authors
 		JsArray<Author> authors = publication.getAuthors();
 		JSONArray jsonAuthors = new JSONArray();
@@ -202,8 +209,8 @@ public class CreatePublication {
 			jsonAuthor.put("lastName", oldAuthor.get("lastName"));
 			jsonAuthor.put("namespace", oldAuthor.get("namespace"));
 			jsonAuthor.put("namespaceLogin", oldAuthor.get("namespaceLogin"));
-			jsonAuthor.put("userId", oldAuthor.get("userId"));	
-			jsonAuthors.set(i, jsonAuthor);
+			jsonAuthor.put("userId", oldAuthor.get("userId"));
+            jsonAuthors.set(i, jsonAuthor);
 		}
 		newPub.put("authors", jsonAuthors);
 		

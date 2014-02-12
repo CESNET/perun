@@ -225,6 +225,19 @@ public class Publication extends JavaScriptObject {
 	public final native String getCreatedBy() /*-{
 		return this.createdBy;
 	}-*/;
+
+    /**
+     * Returns who created the publication
+     * @return ID of user, who created publication
+     */
+    public final native int getCreatedByUid() /*-{
+        if (!this.createdByUid) return 0;
+        return this.createdByUid;
+    }-*/;
+
+    public final native void setCreatedByUid(int uid) /*-{
+        this.createdByUid = uid;
+    }-*/;
 	
 	/**
 	 * Sets user who created publication

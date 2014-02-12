@@ -163,7 +163,9 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
                                 continue;
                             } else {
 
-                                if (list.get(i).getCreatedBy().equalsIgnoreCase(session.getPerunPrincipal().getActor()) || session.isPerunAdmin()) {
+                                if (list.get(i).getCreatedBy().equalsIgnoreCase(session.getPerunPrincipal().getActor())
+                                        || session.isPerunAdmin()
+                                        || session.getActiveUser().getId() == list.get(i).getCreatedByUid()) {
                                     // delete whole publication
                                     if (i == list.size()-1) {
                                         DeletePublication request = new DeletePublication(JsonCallbackEvents.disableButtonEvents(removeButton, refreshTable));
