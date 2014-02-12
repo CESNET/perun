@@ -58,6 +58,49 @@ public class LdapConnectorImpl implements LdapConnector {
   public LdapConnectorImpl() {
   }
   
+  //------------------RESOURCE MODIFICATION METHODS----------------------------
+  
+  public void createResource(Resource resource) throws InternalErrorException {
+    // Create a set of attributes
+    Attributes attributes = new BasicAttributes();
+
+    // Create the objectclass to add
+    Attribute objClasses = new BasicAttribute("objectClass");
+    objClasses.add("top");
+    objClasses.add("groupOfUniqueNames");
+    objClasses.add("perunResource");
+
+    // Add attributes
+    attributes.put(objClasses);
+    attributes.put("cn", resource.getName());
+    attributes.put("perunResourceId", String.valueOf(resource.getId()));
+    attributes.put("perunFacilityId", String.valueOf(resource.getFacilityId()));
+    attributes.put("perunVoId", String.valueOf(resource.getVoId()));
+    if(resource.getDescription() != null) attributes.put("description", resource.getDescription());
+   
+    // Create the entry 
+    try {
+        ldapTemplate.bind(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), null, attributes);
+        log.debug("New entry created in LDAP: Resource {} in Vo with Id=" + resource.getVoId() + " and Facility with ID=" + resource.getFacilityId() + ".", resource);
+    } catch (NameNotFoundException e) {
+        throw new InternalErrorException(e);
+    }  
+  }
+  
+  public void deleteResource(Resource resource) throws InternalErrorException {
+    try {
+        ldapTemplate.unbind(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())));
+        log.debug("Entry deleted from LDAP: Resource {} from Vo with ID=" + resource.getVoId() + " and Facility with ID=" + resource.getFacilityId() + ".", resource);
+    } catch (NameNotFoundException e) {
+        throw new InternalErrorException(e);
+    }    
+  }
+  
+  public void updateResource(Resource resource, ModificationItem[] modificationItems) {
+    ldapTemplate.modifyAttributes(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), modificationItems);
+    log.debug("Entry modified in LDAP: Resource {}.", resource);
+  }
+  
   //------------------GROUP MODIFICATION METHODS-------------------------------
 
   public void addGroup(Group group) throws InternalErrorException {
@@ -365,6 +408,22 @@ public class LdapConnectorImpl implements LdapConnector {
     return new StringBuffer()
     .append("perunGroupId=")
     .append(groupId)
+    .append(",perunVoId=")
+    .append(voId)
+    .toString();
+  }
+
+  /**
+   * Get Resource DN using VoId, FacilityId and ResourceId.
+   * 
+   * @param voId vo id 
+   * @param groupId group id
+   * @return DN in String
+   */
+  private String getResourceDN(String voId, String resourceId) {
+    return new StringBuffer()
+    .append("perunResourceId=")
+    .append(resourceId)
     .append(",perunVoId=")
     .append(voId)
     .toString();
