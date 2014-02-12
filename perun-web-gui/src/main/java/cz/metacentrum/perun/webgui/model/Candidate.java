@@ -142,11 +142,12 @@ public class Candidate extends JavaScriptObject {
 	 * @return email of candidate
 	 */
 	public final native String getEmail() /*-{
-		if (this.attributes['urn:perun:user:attribute-def:def:preferredMail'] == null) {
-			return this.attributes['urn:perun:user:attribute-def:def:mail'];
-		} else {
-			return this.attributes['urn:perun:user:attribute-def:def:preferredMail'];
-		}
+        if (this.attributes['urn:perun:member:attribute-def:def:mail'] != null) {
+            return this.attributes['urn:perun:member:attribute-def:def:mail'];
+        } else if (this.attributes['urn:perun:user:attribute-def:def:preferredMail'] != null) {
+            return this.attributes['urn:perun:user:attribute-def:def:preferredMail'];
+        }
+        return "";
 	}-*/;
 
 	/**
