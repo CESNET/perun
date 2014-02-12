@@ -10,6 +10,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.vosManager.UpdateVo;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -58,7 +59,7 @@ public class EditVoDetailsTabItem implements TabItem {
     }
 
     public boolean isPrepared(){
-        return true;
+        return (vo != null);
     }
 
     public Widget draw() {
@@ -102,9 +103,10 @@ public class EditVoDetailsTabItem implements TabItem {
         saveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (!nameValidator.validateTextBox()) return;
-                vo.setName(nameTextBox.getTextBox().getText().trim());
+                VirtualOrganization v = JsonUtils.clone(vo).cast();
+                v.setName(nameTextBox.getTextBox().getText().trim());
                 UpdateVo request = new UpdateVo(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                request.updateVo(vo);
+                request.updateVo(v);
             }
         });
 
@@ -159,9 +161,6 @@ public class EditVoDetailsTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -170,16 +169,18 @@ public class EditVoDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
+        EditVoDetailsTabItem other = (EditVoDetailsTabItem) obj;
+        if (vo != other.vo)
+            return false;
 
         return true;
     }
 
     public boolean multipleInstancesEnabled() {
-        return true;
+        return false;
     }
 
-    public void open() {
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

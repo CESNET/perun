@@ -142,6 +142,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
             @Override
             public void onFinished(JavaScriptObject jso) {
                 user = jso.cast();
+                tab.open();
                 tab.draw();
             }
         };

@@ -11,6 +11,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.UpdateGroup;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -60,7 +61,7 @@ public class EditGroupDetailsTabItem implements TabItem {
     }
 
     public boolean isPrepared(){
-        return true;
+        return (group != null);
     }
 
     public Widget draw() {
@@ -112,21 +113,24 @@ public class EditGroupDetailsTabItem implements TabItem {
             public void onClick(ClickEvent event) {
                 if (!validator.validateTextBox()) return;
 
-                group.setDescription(descriptionTextBox.getTextBox().getText().trim());
+                Group g = JsonUtils.clone(group).cast();
+
+                g.setDescription(descriptionTextBox.getTextBox().getText().trim());
                 String value = nameTextBox.getTextBox().getText().trim();
-                group.setShortName(value);
-                int index = group.getName().lastIndexOf(":");
+                g.setShortName(value);
+                int index = g.getName().lastIndexOf(":");
                 if (index > 0) {
                     // short name append to base name
-                    String baseName = group.getName().substring(0, index);
-                    baseName += ":"+group.getShortName();
-                    group.setName(baseName);
+                    String baseName = g.getName().substring(0, index);
+                    baseName += ":"+g.getShortName();
+                    g.setName(baseName);
                 } else {
                     // short name is whole name
-                    group.setName(value);
+                    g.setName(value);
                 };
                 UpdateGroup request = new UpdateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                request.updateGroup(group);
+                request.updateGroup(g);
+
             }
         });
 
@@ -173,7 +177,6 @@ public class EditGroupDetailsTabItem implements TabItem {
         return SmallIcons.INSTANCE.applicationFormEditIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 17;
@@ -182,9 +185,6 @@ public class EditGroupDetailsTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -193,16 +193,18 @@ public class EditGroupDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
+        EditGroupDetailsTabItem other = (EditGroupDetailsTabItem) obj;
+        if (group != other.group)
+            return false;
 
         return true;
     }
 
     public boolean multipleInstancesEnabled() {
-        return true;
+        return false;
     }
 
-    public void open() {
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

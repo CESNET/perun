@@ -2,7 +2,6 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -63,7 +62,7 @@ public class EditUserDetailsTabItem implements TabItem {
     }
 
     public boolean isPrepared(){
-        return true;
+        return (user != null);
     }
 
     public Widget draw() {
@@ -207,7 +206,6 @@ public class EditUserDetailsTabItem implements TabItem {
         return SmallIcons.INSTANCE.applicationFormEditIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -224,12 +222,15 @@ public class EditUserDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
+        EditUserDetailsTabItem other = (EditUserDetailsTabItem) obj;
+        if (user != other.user)
+            return false;
 
         return true;
     }
 
     public boolean multipleInstancesEnabled() {
-        return true;
+        return false;
     }
 
     public void open() {

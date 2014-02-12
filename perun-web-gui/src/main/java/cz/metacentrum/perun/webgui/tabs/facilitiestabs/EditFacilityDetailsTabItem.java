@@ -11,6 +11,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.UpdateFacility;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -60,7 +61,7 @@ public class EditFacilityDetailsTabItem implements TabItem {
     }
 
     public boolean isPrepared(){
-        return true;
+        return (facility != null);
     }
 
     public Widget draw() {
@@ -106,10 +107,11 @@ public class EditFacilityDetailsTabItem implements TabItem {
         saveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (validator.validateTextBox()) {
-                    facility.setName(nameTextBox.getTextBox().getText().trim());
+                    Facility fac = JsonUtils.clone(facility).cast();
+                    fac.setName(nameTextBox.getTextBox().getText().trim());
                     //facility.setDescription(descriptionTextBox.getText().trim());
                     UpdateFacility request = new UpdateFacility(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                    request.updateFacility(facility);
+                    request.updateFacility(fac);
                 }
             }
         });
@@ -157,7 +159,6 @@ public class EditFacilityDetailsTabItem implements TabItem {
         return SmallIcons.INSTANCE.applicationFormEditIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -166,9 +167,6 @@ public class EditFacilityDetailsTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -177,16 +175,18 @@ public class EditFacilityDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
+        EditFacilityDetailsTabItem other = (EditFacilityDetailsTabItem) obj;
+        if (facility != other.facility)
+            return false;
 
         return true;
     }
 
     public boolean multipleInstancesEnabled() {
-        return true;
+        return false;
     }
 
-    public void open() {
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

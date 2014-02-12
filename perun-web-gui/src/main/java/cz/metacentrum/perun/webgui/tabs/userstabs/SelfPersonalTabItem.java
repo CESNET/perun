@@ -391,6 +391,7 @@ public class SelfPersonalTabItem implements TabItem {
                         // refresh parent tab
                         SelfDetailTabItem item = (SelfDetailTabItem)session.getTabManager().getActiveTab();
                         item.setUser((User)jso);
+                        item.open();
                         item.draw();
                     }
                 }));
