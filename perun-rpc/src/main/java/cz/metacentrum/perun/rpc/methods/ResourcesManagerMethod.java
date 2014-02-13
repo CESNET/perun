@@ -197,6 +197,26 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
+    
+    /*#
+     * Assign groups to a resource. Check if attributes for each member form groups are valid. Fill members' attributes with missing values.
+     *
+     * @param groups listOfGroups
+     * @param resource int Resource ID
+     */
+    assignGroupsToResource {
+
+        @Override
+        public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            ac.getResourcesManager().assignGroupsToResource(ac.getSession(),
+                    parms.readList("groups", Group.class),
+                    ac.getResourceById(parms.readInt("resource")));
+            return null;
+        }
+    },
+    
     /*#
      * Remove group from a resource.
      * After removing, check attributes and fix them if it is needed.
@@ -217,6 +237,26 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         }
     },
 
+    /*#
+     * Remove groups from a resource.
+     * After removing, check attributes and fix them if it is needed.
+     *
+     * @param groups list of group
+     * @param resource int Resource ID
+     */
+    removeGroupsFromResource {
+
+        @Override
+        public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            ac.getResourcesManager().removeGroupsFromResource(ac.getSession(),
+                    parms.readList("groups", Group.class),
+                    ac.getResourceById(parms.readInt("resource")));
+            return null;
+        }
+    },
+    
     /*#
      * List all groups associated with the resource.
      *
