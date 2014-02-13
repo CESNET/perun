@@ -43,6 +43,19 @@ public class Authorship extends JavaScriptObject {
 	public final native String getCreatedBy() /*-{
 		return this.createdBy;
 	}-*/;
+
+    /**
+     * Returns who created the authorship
+     * @return ID of user, who created authorship
+     */
+    public final native int getCreatedByUid() /*-{
+        if (!this.createdByUid) return 0;
+        return this.createdByUid;
+    }-*/;
+
+    public final native void setCreatedByUid(int uid) /*-{
+        this.createdByUid = uid;
+    }-*/;
 	
 	/**
 	 * Returns created date

@@ -470,12 +470,14 @@ public class AuditParserTest {
             authorship1.setUserId(18);
             authorship1.setCreatedBy(textMismatch);
             authorship1.setCreatedDate(new Date());
+            authorship1.setCreatedByUid(10);
             Authorship authorship2 = new Authorship();
             authorship2.setId(1);
             authorship2.setPublicationId(3);
             authorship2.setUserId(18);
             authorship2.setCreatedBy(null);
             authorship2.setCreatedDate(null);
+            authorship2.setCreatedByUid(null);
             List<PerunBean> authorship1InList = AuditParser.parseLog(authorship1.serializeToString());
             List<PerunBean> authorship2InList = AuditParser.parseLog(authorship2.serializeToString());
             assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());

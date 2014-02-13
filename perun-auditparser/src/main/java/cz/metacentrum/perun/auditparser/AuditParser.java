@@ -447,6 +447,7 @@ public class AuditParser {
         authorship.setPublicationId(Integer.valueOf(beanAttr.get("publicationId")).intValue());
         authorship.setUserId(Integer.valueOf(beanAttr.get("userId")).intValue());
         authorship.setCreatedBy(BeansUtils.eraseEscaping(beanAttr.get("createdBy")));
+        authorship.setCreatedByUid((beanAttr.get("createdByUid").equals("\\0")) ? null : Integer.valueOf(beanAttr.get("createdByUid")).intValue());
         if(BeansUtils.eraseEscaping(beanAttr.get("createdDate"))== null) authorship.setCreatedDate(null);
         else {
             Date date;

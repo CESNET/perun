@@ -5,6 +5,7 @@ import java.util.List;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.service.SortParam;
+import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
  * Interface of DAO layer for handling Publication entity.
@@ -14,9 +15,9 @@ import cz.metacentrum.perun.cabinet.service.SortParam;
  */
 public interface IPublicationDao {
 
-	int createPublication(Publication p);
+	int createPublication(PerunSession sess, Publication p);
 	
-	int createInternalPublication(Publication p);
+	int createInternalPublication(PerunSession sess, Publication p);
 
 	/**
 	 * Filter result by exact match in any filed (and operator is used between fields)

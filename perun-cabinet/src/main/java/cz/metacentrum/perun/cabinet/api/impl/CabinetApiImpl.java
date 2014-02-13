@@ -94,8 +94,8 @@ public class CabinetApiImpl implements ICabinetApi {
 		return perunService.findAllOwners(sess);
 	}
 
-	public int createPublication(Publication p) throws CabinetException {
-		return this.publicationService.createPublication(p);
+	public int createPublication(PerunSession sess, Publication p) throws CabinetException {
+		return this.publicationService.createPublication(sess, p);
 	}
 
 	public int createAuthorship(PerunSession sess, Authorship r) throws CabinetException {

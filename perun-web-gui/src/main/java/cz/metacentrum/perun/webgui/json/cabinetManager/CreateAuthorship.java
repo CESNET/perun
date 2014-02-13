@@ -125,6 +125,7 @@ public class CreateAuthorship {
 		authorship.put("userId", new JSONNumber(userId));
 		authorship.put("createdBy", new JSONString(session.getPerunPrincipal().getActor()));
 		authorship.put("createdDate", null);
+        authorship.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
 		
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();

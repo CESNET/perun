@@ -22,12 +22,19 @@ public class ThanksForGUI extends Thanks {
 		super(id, publicationId, ownerId, createdBy, createdDate);
 	}
 
+    public ThanksForGUI(Integer id, Integer publicationId, Integer ownerId,
+                        String createdBy, Date createdDate, Integer createByUid) {
+        super(id, publicationId, ownerId, createdBy, createdDate);
+        setCreatedByUid(createByUid);
+    }
+
 	public ThanksForGUI(Thanks thanks) {
 		setId(thanks.getId());
 		setPublicationId(thanks.getPublicationId());
 		setCreatedBy(thanks.getCreatedBy());
 		setCreatedDate(thanks.getCreatedDate());
 		setOwnerId(thanks.getOwnerId());
+        setCreatedByUid(thanks.getCreatedByUid());
 	}
 
 	public String getOwnerName() {
@@ -40,7 +47,7 @@ public class ThanksForGUI extends Thanks {
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id="+ this.getId() + ", pubId="+ this.getPublicationId() +", ownerId="+ this.getOwnerId() +", ownerName="+ ownerName +", createdBy="+ this.getCreatedBy() +", createdDate="+ this.getCreatedDate() +"]";
+		return getClass().getSimpleName()+":[id="+ this.getId() + ", pubId="+ this.getPublicationId() +", ownerId="+ this.getOwnerId() +", ownerName="+ ownerName +", createdBy="+ this.getCreatedBy() +", createdByUid="+ this.getCreatedByUid() +", createdDate="+ this.getCreatedDate() +"]";
 	}
 
 }

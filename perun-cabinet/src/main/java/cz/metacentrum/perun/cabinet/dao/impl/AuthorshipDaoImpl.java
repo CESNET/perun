@@ -49,7 +49,7 @@ public class AuthorshipDaoImpl implements IAuthorshipDao {
 
 	public Authorship findLastestOfUser(Integer userId) {
 		AuthorshipExample example = new AuthorshipExample();
-		example.createCriteria().andCreatedByEqualTo(userId);
+		example.createCriteria().andUserIdEqualTo(userId);
 		example.setOrderByClause(CREATED_DATE_DESC);
 		List<Authorship> reports = authorshipMapper.selectByExample(example);
 		return (reports.size() > 0) ? reports.get(0) : null;

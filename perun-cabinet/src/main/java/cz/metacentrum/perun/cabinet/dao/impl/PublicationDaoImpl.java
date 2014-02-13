@@ -11,6 +11,7 @@ import cz.metacentrum.perun.cabinet.dao.mybatis.PublicationMapper;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.service.SortParam;
+import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
  * Class of DAO layer for handling Publication entity. 
@@ -33,13 +34,13 @@ public class PublicationDaoImpl implements IPublicationDao {
 
 	// methods ----------------------
 	
-	public int createPublication(Publication p) {
+	public int createPublication(PerunSession sess, Publication p) {
 		publicationMapper.insert(p);
 		return p.getId();
 	}
 	
 
-	public int createInternalPublication(Publication p) {
+	public int createInternalPublication(PerunSession sess, Publication p) {
 		publicationMapper.insertInternal(p);
 		return p.getId();
 	}
@@ -152,7 +153,8 @@ public class PublicationDaoImpl implements IPublicationDao {
 		params.put("rank", p.getRank());
 		params.put("doi", p.getDoi());
 		params.put("locked", p.getLocked());
-		
+        params.put("createdByUid", p.getCreatedByUid());
+
 		if (sp != null) {
 			params.put("limit1", sp.getPage()*sp.getSize());
 			params.put("limit2", sp.getSize());

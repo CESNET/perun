@@ -50,6 +50,19 @@ public class Thanks extends JavaScriptObject {
 	public final native String getCreatedBy() /*-{
 		return this.createdBy;
 	}-*/;
+
+    /**
+     * Returns who created the thanks
+     * @return ID of user, who created thanks
+     */
+    public final native int getCreatedByUid() /*-{
+        if (!this.createdByUid) return 0;
+        return this.createdByUid;
+    }-*/;
+
+    public final native void setCreatedByUid(int uid) /*-{
+        this.createdByUid = uid;
+    }-*/;
 	
 	/**
 	 * Returns created date

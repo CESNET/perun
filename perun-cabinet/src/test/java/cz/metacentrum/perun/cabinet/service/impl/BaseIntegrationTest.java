@@ -174,9 +174,9 @@ public class BaseIntegrationTest {
 		p2.setLocked(false);
 		p2.setDoi("DOI2");
 		
-		p1Id = publicationDao.createPublication(p1);
+		p1Id = publicationDao.createPublication(sess, p1);
 		p1.setId(p1Id);
-		int p2Id = publicationDao.createPublication(p2);
+		int p2Id = publicationDao.createPublication(sess, p2);
 		p2.setId(p2Id);
 		
 		publicationOne = p1;

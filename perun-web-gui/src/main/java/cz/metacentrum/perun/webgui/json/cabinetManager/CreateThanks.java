@@ -6,6 +6,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -53,23 +54,23 @@ public class CreateThanks {
 	 * 
 	 * @return true/false when process can/can't continue
 	 */
-	private boolean testCreating()
-	{
+	private boolean testCreating() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(publicationId == 0){
-			errorMsg += "Wrong parameter 'Publication ID'.\n";
+			errorMsg += "Wrong parameter <strong>Publication ID</strong>.<br />";
 			result = false;
 		}
 		
 		if(ownerId == 0){
-			errorMsg += "Wrong parameter 'Owner'.\n";
+			errorMsg += "Wrong parameter <strong>Owner</strong>.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -77,9 +78,8 @@ public class CreateThanks {
 
 	/**
 	 * Attempts to create a Thanks, it first tests the values and then submits them.
-	 * 
-	 * @param author author which thanks
-	 * @param owner to thank to
+	 *
+	 * @param ownerId owner to thank to
 	 */
 	public void createThanks(final int ownerId) {
 		
@@ -123,8 +123,7 @@ public class CreateThanks {
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
+	private JSONObject prepareJSONObject() {
 		
 		JSONObject jsonQuery = new JSONObject();
 		
@@ -133,6 +132,7 @@ public class CreateThanks {
 		thanks.put("ownerId", new JSONNumber(ownerId));
 		thanks.put("publicationId", new JSONNumber(publicationId));
 		thanks.put("createdBy", new JSONString(session.getPerunPrincipal().getActor()));
+        thanks.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
 
 		jsonQuery.put("thanks", thanks);
 		

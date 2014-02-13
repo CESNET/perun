@@ -80,6 +80,9 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		if (authorship.getCreatedDate() == null) {
 			authorship.setCreatedDate(new Date());
 		}
+        if (authorship.getCreatedByUid() == null) {
+            authorship.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+        }
 		int id;
 		try {
 			id = authorshipDao.create(authorship);
@@ -135,7 +138,6 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		return rank;
 		
 	}
-
 	
 	public List<Authorship> findAuthorshipsByFilter(Authorship filter) {
 		return authorshipDao.findByFilter(filter);
@@ -145,8 +147,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		Authorship report = authorshipDao.findLastestOfUser(userId);
 		return (report != null) ? report.getCreatedDate() : null;
 	}
-	
-	
+
 	public List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException {
 		List<Author> result = new ArrayList<Author>();
 		
@@ -264,8 +265,10 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		// or user who created record (authorship.createdBy property)
 		// or user which is concerned by record (authorship.userId property)
 		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) && (
-				!a.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) || !a.getUserId().equals(sess.getPerunPrincipal().getUser().getId()) )) {
+			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!a.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+                    !a.getUserId().equals(sess.getPerunPrincipal().getUser().getId()) &&
+                    !a.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId())) {
 				throw new CabinetException("You are not allowed to delete authorships you didn't created or which doesn't concern you.", ErrorCodes.NOT_AUTHORIZED);
 			}
 		} catch (PerunException pe) {
