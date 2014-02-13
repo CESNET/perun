@@ -53,6 +53,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
   private final static Logger log = LoggerFactory.getLogger(UsersManagerImpl.class);
 
+  // time window size for mail validation if not taken from peruns configuration file
+  private final static int VALIDATION_ALLOWED_HOURS = 6;
+
   // Part of the SQL script used for getting the User object
   protected final static String userMappingSelectQuery = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
           "users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
@@ -844,7 +847,92 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	  }
 	  
   }
-  
+
+  public int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException {
+
+      int id = Utils.getNewId(jdbc, "mailchange_id_seq");
+
+      jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
+              id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+
+      return id;
+
+  }
+
+  public String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) throws InternalErrorException {
+
+      int changeId = Integer.parseInt(i, Character.MAX_RADIX);
+
+      int validWindow = VALIDATION_ALLOWED_HOURS;
+      try {
+          validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+      } catch (Exception ex) {
+          log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
+      }
+
+      // get new email if possible
+      String newEmail = "";
+      try {
+          if (Compatibility.isPostgreSql()) {
+              // postgres
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))", String.class, changeId, user.getId());
+          } else {
+              // oracle
+              newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", String.class, changeId, user.getId());
+          }
+      } catch (EmptyResultDataAccessException ex) {
+          throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exists or isn't valid anymore.");
+      }
+
+      return newEmail;
+
+  }
+
+  public void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException {
+
+      try {
+          jdbc.update("delete from mailchange where user_id=?", user.getId());
+      } catch (Exception ex) {
+          throw new InternalErrorException("Unable to remove preferred mail change requests for user: "+user, ex);
+      }
+
+  }
+
+  public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException {
+
+      int validWindow = VALIDATION_ALLOWED_HOURS;
+      try {
+          validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+      } catch (Exception ex) {
+          log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
+      }
+
+      try {
+          if (Compatibility.isPostgreSql()) {
+
+              return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))", new RowMapper<String>() {
+                  @Override
+                  public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                      return resultSet.getString("value");
+                  }
+              }, user.getId());
+
+          } else {
+
+              return jdbc.query("select value from mailchange where user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", new RowMapper<String>() {
+                  @Override
+                  public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                      return resultSet.getString("value");
+                  }
+              }, user.getId());
+
+          }
+      } catch (EmptyResultDataAccessException ex) {
+        return new ArrayList<String>();
+      }
+
+  }
+
   public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
   }

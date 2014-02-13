@@ -273,7 +273,9 @@ public class TabManager {
 		{
 			activeTab = tab;
 			// call the event
-			tab.open();
+            if (tab.isAuthorized()) {
+                tab.open();
+            }
 			// DO NOT CHANGE MENU, IT'S HANDLED BY TAB
 			// ON IT'S OWN VIA tab.open()
 			//session.getUiElements().getMenu().updateLinks();
@@ -583,8 +585,10 @@ public class TabManager {
 		}
 
 		tabToReload.draw(); // load page content
-		tabToReload.open(); // sets page context to the rest of GUI (show proper menu, set breadcrumbs)
-		return true;
+		if (tabToReload.isAuthorized()) {
+            tabToReload.open(); // sets page context to the rest of GUI (show proper menu, set breadcrumbs)
+        }
+        return true;
 	
 	}
 
@@ -619,8 +623,10 @@ public class TabManager {
 		{
 			if(key.equals(tab)){
 				key.draw(); // load page content
-				key.open(); // sets page context to the rest of GUI (show proper menu, set breadcrumbs)
-				return true;
+				if (key.isAuthorized()) {
+                    key.open(); // sets page context to the rest of GUI (show proper menu, set breadcrumbs)
+                }
+                return true;
 			}
 		}
         // reload also overlay tabs (key is child tab = content of overlay tab)
@@ -628,7 +634,9 @@ public class TabManager {
         {
             if(key.equals(tab)){
                 key.draw();
-                key.open();
+                if (key.isAuthorized()) {
+                    key.open();
+                }
                 return true;
             }
         }
@@ -761,7 +769,9 @@ public class TabManager {
 		
 		this.activeTab = tabOpen;
         refreshUrl();
-        tabOpen.open();
+        if (tabOpen.isAuthorized()) {
+            tabOpen.open();
+        }
 
         UiElements.runResizeCommands(activeTab);
 		

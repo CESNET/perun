@@ -53,18 +53,8 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading vo");
-
-	// VO name label
-	private Label voNameLabel = new Label();
-
-	// VO short name label
-	private Label voShortNameLabel = new Label();
-
-	// VO ID label
-	private Label voIdLabel = new Label();
 	
 	private int voId;
-
     private TabPanelForTabItems tabPanel;
 	
 	/**
@@ -76,7 +66,6 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		this.vo = vo;
 		this.voId = vo.getId();
         tabPanel = new TabPanelForTabItems(this);
-		setLabels();
 	}
 	
 	/**
@@ -90,7 +79,6 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
         JsonCallbackEvents events = new JsonCallbackEvents(){
             public void onFinished(JavaScriptObject jso) {
                 vo = jso.cast();
-                setLabels();
             }
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
@@ -100,16 +88,9 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		return !(vo == null);
 	}
 	
-		
-	private void setLabels()
-	{
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()));
-		this.voNameLabel.setText(vo.getName());
-		this.voIdLabel.setText(String.valueOf(vo.getId()));
-		this.voShortNameLabel.setText(vo.getShortName());
-	}
-	
 	public Widget draw() {
+
+        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()));
 
         // main panel
         VerticalPanel vp = new VerticalPanel();
@@ -157,6 +138,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
             public void onFinished(JavaScriptObject jso) {
                 // set VO and redraw tab
                 vo = jso.cast();
+                open();
                 draw();
             }
         };
@@ -223,9 +205,6 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -254,7 +233,6 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
         }
     }
 
-	
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId) ) {
@@ -272,13 +250,11 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoDetailTabItem load(Map<String, String> parameters)
-	{
+	static public VoDetailTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoDetailTabItem(voId);
 	}

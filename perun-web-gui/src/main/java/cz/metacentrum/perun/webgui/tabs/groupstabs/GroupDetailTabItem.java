@@ -155,6 +155,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
                 new GetEntityById(PerunEntity.GROUP, groupId, new JsonCallbackEvents(){
                     public void onFinished(JavaScriptObject jso){
                         group = jso.cast();
+                        open();
                         draw();
                     }
                 }).retrieveData();

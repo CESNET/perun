@@ -484,8 +484,7 @@ public class MainMenu {
     /**
      * Rebuild whole USER menu
      */
-    private void buildUserMenu()
-    {
+    private void buildUserMenu() {
 
         MainMenuSection menu = sectionsMap.get(USER);
         if(menu == null) return;
@@ -497,14 +496,18 @@ public class MainMenu {
 
         TabItemWithUrl changer = null;
         TabItemWithUrl detail = null;
-        //TabItemWithUrl settings = null;
+        TabItemWithUrl settings = null;
+        TabItemWithUrl resources = null;
+        TabItemWithUrl authentications = null;
         TabItemWithUrl applications = null;
         TabItemWithUrl publications = null;
         TabItemWithUrl services = null;
 
         if (user != null) {
             detail = new SelfDetailTabItem(user);
-            //	settings = new SelfSettingsTabItem(session, user);
+            settings = new SelfVosTabItem(user);
+            resources = new SelfResourcesSettingsTabItem(user);
+            authentications = new SelfAuthenticationsTabItem(user);
             if (!user.isServiceUser()) {
                 // publications can be reported by normal people only
                 publications = new UsersPublicationsTabItem(user);
@@ -517,17 +520,20 @@ public class MainMenu {
             detail = new IdentitySelectorTabItem();
         }
 
-        if (session.isPerunAdmin()) {
-            // display user changer for PerunAdmin
+        // display user changer for PerunAdmin or user with service identities
+        if (session.isPerunAdmin() || session.getEditableUsers().size() > 1) {
             changer = new IdentitySelectorTabItem();
-            menu.addItem(new MainMenuItem("Identity selector", changer, SmallIcons.INSTANCE.userGrayIcon()));
         }
+        menu.addItem(new MainMenuItem("Select identity", changer, SmallIcons.INSTANCE.userGrayIcon()));
+        menu.addSplitter();
 
         menu.setTabItem(detail);
-        menu.addItem(new MainMenuItem("My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
-        //menu.addItem(new MainMenuItem(session, "Settings", settings, SmallIcons.INSTANCE.cogIcon()));
-        menu.addItem(new MainMenuItem("My publications", publications, SmallIcons.INSTANCE.booksIcon()));
-        menu.addItem(new MainMenuItem("My applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
+        menu.addItem(new MainMenuItem((user != null) ? user.getFullNameWithTitles() : "My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
+        menu.addItem(new MainMenuItem("VO settings", settings, SmallIcons.INSTANCE.buildingIcon()));
+        menu.addItem(new MainMenuItem("Resources settings", resources, SmallIcons.INSTANCE.settingToolsIcon()));
+        menu.addItem(new MainMenuItem("Authentications", authentications, SmallIcons.INSTANCE.keyIcon()));
+        menu.addItem(new MainMenuItem("Publications", publications, SmallIcons.INSTANCE.booksIcon()));
+        menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
 
         if (!user.isServiceUser()) {
             menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));

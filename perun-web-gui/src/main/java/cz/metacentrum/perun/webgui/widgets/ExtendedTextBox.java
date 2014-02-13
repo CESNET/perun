@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
@@ -27,7 +26,11 @@ public class ExtendedTextBox extends Composite {
     private TextBoxValidator validator;
     private SimplePanel sp = new SimplePanel();
     private TextBox box = new PasteTextBox();
-
+    // set to TRUE if external check is processing
+    private boolean processing = false;
+    private AjaxLoaderImage processingImage = new AjaxLoaderImage(true);
+    // set to TRUE for hard errors caused by external checks
+    private boolean hardError = false;
 
     private static int counter = 0;
 
@@ -90,14 +93,6 @@ public class ExtendedTextBox extends Composite {
         sp.setWidget(box);
         sp.getElement().appendChild(errorText.getElement());
 
-        Scheduler.get().scheduleDeferred(new Command() {
-            @Override
-            public void execute() {
-                // set same width as used for box in form
-                errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+box.getOffsetWidth()+"px;");
-            }
-        });
-
     }
 
     /**
@@ -122,18 +117,87 @@ public class ExtendedTextBox extends Composite {
     public void setError(String message) {
 
         if (message != null && !message.isEmpty()) {
-            errorText.setText(message);
+            errorText.getElement().setInnerHTML(message);
             errorText.setVisible(true);
         } else {
-            errorText.setText("");
+            errorText.getElement().setInnerHTML("");
             errorText.setVisible(false);
         }
+
+        // set error message max-width based on size of box
+        int width = box.getOffsetWidth();
+        errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style") + " max-width: " + width + "px;");
 
         box.addStyleName("input-text-error-border");
 
         sp.setWidget(box);
         sp.getElement().appendChild(errorText.getElement());
 
+    }
+
+    /**
+     * Set TextBox to HARD ERROR state and display custom message under TextBox.
+     * Use this state to force local validation result to FALSE since,
+     * error was caused by external check.
+     *
+     * @param message message to display
+     */
+    public void setHardError(String message) {
+        this.hardError = true;
+        setError(message);
+    }
+
+    /**
+     * Remove HARD error state caused by external check.
+     * Local validation results are valid now.
+     */
+    public void removeHardError() {
+
+        this.hardError = false;
+
+        errorText.getElement().setInnerHTML("");
+        errorText.setVisible(false);
+
+        box.removeStyleName("input-text-error-border");
+        sp.setWidget(box);
+        sp.getElement().appendChild(errorText.getElement());
+
+    }
+
+    /**
+     * Set TextBox to processing state state and display custom message under TextBox.
+     * In this state validator must always return FALSE !!
+     *
+     * @param processing TRUE if there is any running RPC callback which checks input value
+     */
+    public void setProcessing(boolean processing) {
+
+        this.processing = processing;
+        // clear any error message
+        errorText.getElement().setInnerHTML("");
+        errorText.setVisible(false);
+
+        if (processing) {
+            box.removeStyleName("input-text-error-border");
+        } else {
+            box.addStyleName("input-text-error-border");
+        }
+
+        processingImage.setStyleName("input-status-error-padding");
+
+        sp.setWidget(box);
+        sp.getElement().appendChild(errorText.getElement());
+        sp.getElement().appendChild(processingImage.getElement());
+        processingImage.setVisible(processing);
+
+    }
+
+    public boolean isProcessing() {
+        return this.processing;
+    }
+
+    public boolean isHardError() {
+        return this.hardError;
     }
 
     /**
@@ -182,9 +246,12 @@ public class ExtendedTextBox extends Composite {
     public interface TextBoxValidator {
 
         /**
-         * Validate textbox content and make graphics changes if not valid
+         * Validate TextBox content and make graphics changes if not valid
          *
-         * @return TRUE - value in textbox is valid / FALSE - value is not valid (switch textbox display);
+         * If TextBox is in PROCESSING state (caused by external check), method MUST ALWAYS return FALSE !!
+         * If TextBox is in HARD ERROR state (caused by external check), method MUST ALWAYS return FALSE !!
+         *
+         * @return TRUE - value in TextBox is valid / FALSE - value is not valid (switch TextBox display);
          */
         public boolean validateTextBox();
 

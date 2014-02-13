@@ -1079,3 +1079,18 @@ h3 {
 .italic {
     font-style: italic;
 }
+
+.padding-vertical {
+    padding: 0 !important;
+    padding-right: 5px !important;
+}
+
+.preferredShellWidget tr, .preferredShellWidget tr td {
+    padding: 0px !important;
+    padding-top: 2px !important;
+    padding-right: 2px !important;
+}
+
+.scroll-max-height {
+    max-height: 500px;
+}

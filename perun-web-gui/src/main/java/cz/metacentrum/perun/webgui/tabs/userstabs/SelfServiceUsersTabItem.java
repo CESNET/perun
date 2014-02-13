@@ -153,7 +153,6 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
             menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
             menu.addWidget(new HTML("<strong>Click on yourself to view your profile (switch context).</strong>"));
 
-
             // table
             CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
                 public void update(int i, User user, String s) {
@@ -268,9 +267,9 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
         if (!user.isServiceUser()) {
-            session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Service identities", getUrlWithParameters());
+            session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Service identities", getUrlWithParameters());
         } else {
-            session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Associated users", getUrlWithParameters());
+            session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Associated users", getUrlWithParameters());
         }
     }
 

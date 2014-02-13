@@ -116,14 +116,13 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 		appsTable.addStyleName("perun-table");
-		
-		bodyContents.add(appsTable);
 
-		ScrollPanel sp = new ScrollPanel(bodyContents);
+		ScrollPanel sp = new ScrollPanel(appsTable);
 		sp.addStyleName("perun-tableScrollPanel");		
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
-		this.contentWidget.setWidget(sp);
+
+        bodyContents.add(sp);
+		this.contentWidget.setWidget(bodyContents);
 		return getWidget();
 
 	}
@@ -140,7 +139,6 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.applicationFromStorageIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -149,9 +147,6 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -170,11 +165,10 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My applications", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Applications", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {
@@ -194,8 +188,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return  UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
 	}
 

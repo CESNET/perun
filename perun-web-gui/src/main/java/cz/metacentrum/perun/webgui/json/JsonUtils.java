@@ -282,11 +282,17 @@ public class JsonUtils {
      * @return JavaScriptObject that you can cast to an Overlay Type
      */
     public static native JavaScriptObject parseJson(String data) /*-{
-        var response = $wnd.jQuery.parseJSON(data);
-        if(typeof response === 'object') {
-            return response;
+        try {
+            var response = $wnd.jQuery.parseJSON(data);
+            if(typeof response === 'object') {
+                return response;
+            }
+            // if returned value is not json object
+            return {"value":response};
+        } catch(err) {
+            // if parsing fails, return raw data wrapped in BasicOverlayObject
+            return {"value":response};
         }
-        return {"value":data};
     }-*/;
 
     /**

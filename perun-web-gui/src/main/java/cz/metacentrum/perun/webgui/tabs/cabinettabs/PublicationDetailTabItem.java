@@ -4,7 +4,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
@@ -24,7 +23,6 @@ import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.tabs.userstabs.IdentitySelectorTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -205,9 +203,8 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 				public void onClick(ClickEvent event) {
 
-					Publication pub = new JSONObject().getJavaScriptObject().cast();
-					pub.setId(publicationId);
-					
+					Publication pub = JsonUtils.clone(publication).cast();
+
 					if (!JsonUtils.checkParseInt(year.getText())){
 						JsonUtils.cantParseIntConfirm("YEAR", year.getText());
 					} else {
@@ -215,20 +212,12 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 					}
 					if (session.isPerunAdmin()) {
 						pub.setRank(Double.parseDouble(rank.getText()));
-
-					} else {
-						pub.setRank(publication.getRank());
-                    }
+					}
                     pub.setCategoryId(listbox.getSelectedObject().getId());
 					pub.setTitle(title.getText());
 					pub.setMain(main.getText());
 					pub.setIsbn(isbn.getText());
 					pub.setDoi(doi.getText());
-					pub.setLocked(publication.getLocked());
-					pub.setPublicationSystemId(publication.getPublicationSystemId());
-					pub.setExternalId(publication.getExternalId());
-					pub.setCreatedBy(publication.getCreatedBy());
-					pub.setCreatedDate(publication.getCreatedDate());
 
 					UpdatePublication upCall = new UpdatePublication(JsonCallbackEvents.disableButtonEvents(change, new JsonCallbackEvents(){
 						public void onFinished(JavaScriptObject jso) {
@@ -302,8 +291,9 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 							draw();
 						}
 					}));
-					publication.setLocked(!publication.getLocked());
-					upCall.updatePublication(publication);
+                    Publication p = JsonUtils.clone(publication).cast();
+					p.setLocked(!publication.getLocked());
+					upCall.updatePublication(p);
 				}
 			});
 			
@@ -366,14 +356,9 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
         addButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (session.isPerunAdmin() && session.getUser() == null) {
-                    // for perunadmin to load session
-                    session.getTabManager().addTab(new IdentitySelectorTabItem());
-                } else {
-                    JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(call);
-                    CreateAuthorship request = new CreateAuthorship(JsonCallbackEvents.disableButtonEvents(addButton, events));
-                    request.createAuthorship(publicationId, session.getUser().getId());
-                }
+                JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(call);
+                CreateAuthorship request = new CreateAuthorship(JsonCallbackEvents.disableButtonEvents(addButton, events));
+                request.createAuthorship(publicationId, session.getActiveUser().getId());
             }
         });
         menu.addWidget(addButton);
@@ -534,9 +519,6 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -578,13 +560,11 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + publicationId + "&self="+fromSelf;
 	}
 
-	static public PublicationDetailTabItem load(Map<String, String> parameters)
-	{
+	static public PublicationDetailTabItem load(Map<String, String> parameters) {
 		int pubId = Integer.parseInt(parameters.get("id"));
         boolean fromSelf = Boolean.parseBoolean(parameters.get("self"));
 		return new PublicationDetailTabItem(pubId, fromSelf);

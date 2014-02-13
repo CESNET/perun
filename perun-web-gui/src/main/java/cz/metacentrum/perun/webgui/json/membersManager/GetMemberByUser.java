@@ -1,10 +1,6 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.ui.DecoratorPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
@@ -29,12 +25,6 @@ public class GetMemberByUser implements JsonCallback {
 
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-
-	// User ID label
-	private Label idLabel = new Label();
-
-	// The user itself
-	private Member member;
 	
 	private boolean hidden = false;
 
@@ -62,29 +52,6 @@ public class GetMemberByUser implements JsonCallback {
 		this.events = events;
 	}
 
-
-	/**
-	 * Returns user info
-	 * @return
-	 */
-	public Widget getDecoratedFlexTable(){
-		this.retrieveData();
-
-		// User info table
-		FlexTable layout = new FlexTable();
-		layout.setCellSpacing(6);
-
-		// Add some standard form options
-		layout.setHTML(0, 0, "Member ID:");
-		layout.setWidget(0, 1, this.idLabel);
-
-		// wrap the content in a DecoratorPanel
-		DecoratorPanel decPanel = new DecoratorPanel();
-		decPanel.setWidget(layout);
-
-		return decPanel;
-	}
-
 	/**
 	 * Retrieves data
 	 */
@@ -99,32 +66,16 @@ public class GetMemberByUser implements JsonCallback {
 	}
 
 	/**
-	 * Updates data in the labels.
-	 */
-	private void updateData() {
-		// set id
-		this.idLabel.setText(String.valueOf(this.member.getId()));
-	}
-
-	public Member getMember() {
-		return member;
-	}
-
-	/**
 	 * When successfully finishes
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		this.member = (Member) jso;
-		this.updateData();
-		//session.getUiElements().setLogText("Member found.");
-		events.onFinished(member);
+		events.onFinished(jso);
 	}
 
 	/**
 	 * When error
 	 */
 	public void onError(PerunError error) {
-		//session.getUiElements().setLogErrorText("Error while loading member for user: " + this.userId);
 		events.onError(error);
 	}
 
@@ -132,7 +83,6 @@ public class GetMemberByUser implements JsonCallback {
 	 * When start
 	 */
 	public void onLoadingStart() {
-		//session.getUiElements().setLogText("Loading member for user started.");
 		events.onLoadingStart();
 	}
 	

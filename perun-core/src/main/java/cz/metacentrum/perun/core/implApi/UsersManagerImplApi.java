@@ -539,4 +539,59 @@ public interface UsersManagerImplApi {
      * @throws InternalErrorException 
      */
     List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException;
-}
+
+      /**
+       * Store request of change of user's preferred email address.
+       * Change in attribute value is not done, until email
+       * address is verified by link in email notice.
+       * (urn:perun:user:attribute-def:def:preferredEmail)
+       *
+       * @param sess
+       * @param user
+       * @param email
+       * @throws InternalErrorException
+       * @return ID of change request
+       */
+      int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException;
+
+      /**
+       * Get new preferred email value from user's original request
+       *
+       * @param sess PerunSession
+       * @param user User to get new email address for
+       * @param i decrypted parameter
+       * @param m encrypted parameter
+       * @throws InternalErrorException
+       * @return String return new preferred email
+       */
+      String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) throws InternalErrorException;
+
+      /**
+       * Removes all mail change requests related to user.
+       *
+       * @param sess PerunSession
+       * @param user User to remove preferred email change requests for
+       *
+       * @throws InternalErrorException if any exception in DB occur
+       */
+      void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException;
+
+      /**
+       * Return list of email addresses of user, which are
+       * awaiting validation and are inside time window
+       * for validation.
+       *
+       * If there is no preferred email change request pending
+       * or requests are outside time window for validation,
+       * returns empty list.
+       *
+       * @param sess PerunSession
+       * @param user User to check pending request for
+       *
+       * @throws InternalErrorException
+       *
+       * @return List<String> user's email addresses pending validation
+       */
+      List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException;
+
+  }

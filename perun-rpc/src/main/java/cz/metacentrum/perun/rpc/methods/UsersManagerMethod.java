@@ -320,7 +320,7 @@ public enum UsersManagerMethod implements ManagerMethod {
         public User call(ApiCaller ac, Deserializer parms) throws PerunException {
             ac.stateChangingCheck();
 
-            return ac.getUsersManager().updateUser(ac.getSession(),
+            return ac.getUsersManager().updateNameTitles(ac.getSession(),
                     parms.read("user", User.class));
         }
     },
@@ -885,6 +885,77 @@ public enum UsersManagerMethod implements ManagerMethod {
             ac.getUsersManager().setLogin(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"), parms.readString("login"));
 
             return null;
+
+        }
+    },
+    /*#
+     * Request to change preferred email address of user.
+     * Validation mail is sent on new address.
+     *
+     * Change is not saved until user validate new email address
+     * by calling validatePreferredEmailChange() method with
+     * proper set of parameters (sent in validation mail).
+     *
+     * @param user Integer User id
+     * @param email new email address to set
+     */
+    requestPreferredEmailChange {
+        @Override
+        public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+            ac.stateChangingCheck();
+
+            ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
+                    parms.getServletRequest().getRequestURL().toString(),
+                    ac.getUserById(parms.readInt("user")),
+                    parms.readString("email"));
+
+            return null;
+
+        }
+    },
+    /*#
+     * Validate new preferred email address.
+     *
+     * Request to validate is determined based
+     * on encrypted parameters sent in email notice
+     * by requestPreferredEmailChange() method.
+     *
+     * @param i encrypted request parameter
+     * @param m encrypted request parameter
+     *
+     * @return String new validated email address
+     */
+    validatePreferredEmailChange {
+        @Override
+        public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
+                    ac.getUserById(parms.readInt("u")),
+                    parms.readString("i"),
+                    parms.readString("m"));
+
+        }
+    },
+    /*#
+     * Return list of email addresses of user, which are
+     * awaiting validation and are inside time window
+     * for validation.
+     *
+     * If there is no preferred email change request pending
+     * or requests are outside time window for validation,
+     * returns empty list.
+     *
+     * @param sess PerunSession
+     * @param user ID of user to check
+     *
+     * @return List<String> user's email addresses pending validation
+     */
+    getPendingPreferredEmailChanges {
+        @Override
+        public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+            return ac.getUsersManager().getPendingPreferredEmailChanges(ac.getSession(),
+                    ac.getUserById(parms.readInt("user")));
 
         }
     };

@@ -18,7 +18,6 @@ import java.util.ArrayList;
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-
 public class IsLoginAvailable implements JsonCallback {
 	
 	// URL to call
@@ -69,11 +68,9 @@ public class IsLoginAvailable implements JsonCallback {
 	public IsLoginAvailable(String namespace, String login, final JsonCallbackEvents events) {
 		this.namespace = namespace;
 		this.login = login;
-		if(events != null)
-		{
+		if(events != null) {
 			this.finalEvents = events;
 		}
-
 	}
 	
 	/**
@@ -91,7 +88,7 @@ public class IsLoginAvailable implements JsonCallback {
 	 * Generates the final response in format {value: true} or {value: false}
 	 * @return
 	 */
-	protected JavaScriptObject generateFinalResponce(){
+	protected JavaScriptObject generateFinalResponse(){
 		JSONBoolean response = JSONBoolean.getInstance(isAvailable);
 		JSONObject json = new JSONObject();
 		json.put("value", response);
@@ -102,19 +99,17 @@ public class IsLoginAvailable implements JsonCallback {
 	/**
 	 * Whether is login available in selected namespaces
 	 */
-	protected void isLoginAvailable()
-	{
+	protected void isLoginAvailable() {
 		checkedNamespaces = 0;
 		namespacesToCheck.clear();
-		if(namespace.equals("")){
+		if (namespace.equals("")) {
 			for(int i = 0; i < LOGIN_NAMESPACES.length; i++){
 				namespacesToCheck.add(LOGIN_NAMESPACES[i]);
 			}			
-		}else{
+		} else {
 			namespacesToCheck.add(namespace);
 		}
-		
-		for(String namespace : namespacesToCheck){
+		for(String namespace : namespacesToCheck) {
 			isLoginAvailable(namespace);
 		}
 	}
@@ -132,24 +127,24 @@ public class IsLoginAvailable implements JsonCallback {
 		
 		if(available == 0){
 			isAvailable = false;
-			finalEvents.onFinished(generateFinalResponce());
+			finalEvents.onFinished(generateFinalResponse());
 			return;
 		}
 		
 		// is available, is the last
 		if(checkedNamespaces == namespacesToCheck.size()){
-			finalEvents.onFinished(generateFinalResponce());
+			finalEvents.onFinished(generateFinalResponse());
 			return;
 		}
 	}
-	
 
 	public void onError(PerunError error) {
-	}
+        finalEvents.onError(error);
+    }
 
 	public void onLoadingStart() {
-		
-	}
+        finalEvents.onLoadingStart();
+    }
 
 	/**
 	 * Calls the request for checking logins

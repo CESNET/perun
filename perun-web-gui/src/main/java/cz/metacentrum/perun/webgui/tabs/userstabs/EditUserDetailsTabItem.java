@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
+package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -12,8 +12,9 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.facilitiesManager.UpdateFacility;
-import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.json.usersManager.UpdateNameTitles;
+import cz.metacentrum.perun.webgui.json.usersManager.UpdateUser;
+import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
@@ -21,11 +22,11 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
  * !! USE ONLY AS INNER TAB !!!
- * Edit facility details tab
+ * Edit user details tab
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class EditFacilityDetailsTabItem implements TabItem {
+public class EditUserDetailsTabItem implements TabItem {
 
     /**
      * Perun web session
@@ -45,57 +46,72 @@ public class EditFacilityDetailsTabItem implements TabItem {
     /**
      * Data
      */
-    private Facility facility;
+    private User user;
     private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
     private JsonCallbackEvents events;
 
     /**
      * Creates a tab instance
      *
-     * @param facility
+     * @param u
      * @param event
      */
-    public EditFacilityDetailsTabItem(Facility facility, JsonCallbackEvents event){
-        this.facility = facility;
+    public EditUserDetailsTabItem(User u, JsonCallbackEvents event){
+        this.user = u;
         this.events = event;
     }
 
     public boolean isPrepared(){
-        return (facility != null);
+        return (user != null);
     }
 
     public Widget draw() {
 
-        titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(facility.getName()));
+        titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles()));
 
         VerticalPanel vp = new VerticalPanel();
 
-        // textboxes which set the class data when updated
-        final ExtendedTextBox nameTextBox = new ExtendedTextBox();
-        nameTextBox.getTextBox().setText(facility.getName());
-
-        final TextBox descriptionTextBox = new TextBox();
-        //descriptionTextBox.setText(resource.getDescription());
+        final TextBox beforeName = new TextBox();
+        final TextBox afterName = new TextBox();
+        final TextBox firstName = new TextBox();
+        final TextBox middleName = new TextBox();
+        final ExtendedTextBox lastName = new ExtendedTextBox();
 
         final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
             @Override
             public boolean validateTextBox() {
-                if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setError("Name can't be empty.");
+
+                if (lastName.getTextBox().getText().trim().isEmpty()) {
+                    lastName.setError("Last name can't be empty");
                     return false;
                 } else {
-                    nameTextBox.setOk();
+                    lastName.setOk();
                     return true;
                 }
+
             }
         };
-
-        nameTextBox.setValidator(validator);
+        lastName.setValidator(validator);
 
         // prepares layout
         FlexTable layout = new FlexTable();
         layout.setStyleName("inputFormFlexTable");
         FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+
+        // set values from user
+        beforeName.setText(user.getTitleBefore());
+        afterName.setText(user.getTitleAfter());
+        firstName.setText(user.getFirstName());
+        lastName.getTextBox().setText(user.getLastName());
+        middleName.setText(user.getMiddleName());
+
+        // service users can have only first and last name (first is fixed as "(Service)"
+        if (user.isServiceUser()) {
+            beforeName.setEnabled(false);
+            afterName.setEnabled(false);
+            firstName.setEnabled(false);
+            middleName.setEnabled(false);
+        }
 
         // close tab events
         final TabItem tab = this;
@@ -103,18 +119,38 @@ public class EditFacilityDetailsTabItem implements TabItem {
         TabMenu menu = new TabMenu();
 
         // send button
-        final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, buttonTranslation.saveFacilityDetails());
-        saveButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (validator.validateTextBox()) {
-                    Facility fac = JsonUtils.clone(facility).cast();
-                    fac.setName(nameTextBox.getTextBox().getText().trim());
-                    //facility.setDescription(descriptionTextBox.getText().trim());
-                    UpdateFacility request = new UpdateFacility(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                    request.updateFacility(fac);
+        final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, buttonTranslation.saveResourceDetails());
+
+        if (session.isPerunAdmin()) {
+
+            saveButton.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    if (validator.validateTextBox()) {
+                        User u = JsonUtils.clone(user).cast();
+                        u.setFirstName(firstName.getText().trim());
+                        u.setMiddleName(middleName.getText().trim());
+                        u.setLastName(lastName.getTextBox().getText().trim());
+                        u.setTitleBefore(beforeName.getText().trim());
+                        u.setTitleAfter(afterName.getText().trim());
+                        UpdateUser request = new UpdateUser(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+                        request.updateUser(u);
+                    }
                 }
-            }
-        });
+            });
+
+        } else {
+
+            saveButton.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    User u = JsonUtils.clone(user).cast();
+                    u.setTitleBefore(beforeName.getText().trim());
+                    u.setTitleAfter(afterName.getText().trim());
+                    UpdateNameTitles request = new UpdateNameTitles(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+                    request.updateUserTitles(u);
+                }
+            });
+
+        }
 
         // cancel button
         final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
@@ -126,10 +162,21 @@ public class EditFacilityDetailsTabItem implements TabItem {
         });
 
         // Add some standard form options
-        layout.setHTML(0, 0, "Name:");
-        layout.setWidget(0, 1, nameTextBox);
-        //layout.setHTML(1, 0, "Description:");
-        //layout.setWidget(1, 1, descriptionTextBox);
+        layout.setHTML(0, 0, "Title before name:");
+        layout.setWidget(0, 1, beforeName);
+        layout.setHTML(1, 0, "Title after name:");
+        layout.setWidget(1, 1, afterName);
+
+        if (session.isPerunAdmin()) {
+
+            layout.setHTML(2, 0, "First name:");
+            layout.setWidget(2, 1, firstName);
+            layout.setHTML(3, 0, "Middle name:");
+            layout.setWidget(3, 1, middleName);
+            layout.setHTML(4, 0, "Last name:");
+            layout.setWidget(4, 1, lastName);
+
+        }
 
         for (int i=0; i<layout.getRowCount(); i++) {
             cellFormatter.addStyleName(i, 0, "itemName");
@@ -175,8 +222,8 @@ public class EditFacilityDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        EditFacilityDetailsTabItem other = (EditFacilityDetailsTabItem) obj;
-        if (facility != other.facility)
+        EditUserDetailsTabItem other = (EditUserDetailsTabItem) obj;
+        if (user != other.user)
             return false;
 
         return true;
@@ -186,11 +233,12 @@ public class EditFacilityDetailsTabItem implements TabItem {
         return false;
     }
 
-    public void open() { }
+    public void open() {
+    }
 
     public boolean isAuthorized() {
 
-        if (session.isFacilityAdmin(facility.getId())) {
+        if (session.isSelf(user.getId())) {
             return true;
         } else {
             return false;

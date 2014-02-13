@@ -245,5 +245,11 @@ public class TabPanelForTabItems extends TabLayoutPanel {
         return innerTabs.get(getSelectedIndex());
 
     }
+
+    public TabItem getTabItem(int index) {
+
+        return innerTabs.get(index);
+
+    }
 	
 }

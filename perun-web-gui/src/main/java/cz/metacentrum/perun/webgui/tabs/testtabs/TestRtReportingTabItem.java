@@ -17,12 +17,12 @@ import java.util.Map;
 
 /**
  * Inner tab item for shell change
- * User in: SelfSettingsTabItem
+ * User in: SelfResourcesSettingsTabItem
  * 
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class TestRtReportingTabItem implements TabItem, TabItemWithUrl{
+public class TestRtReportingTabItem implements TabItem, TabItemWithUrl {
 
 
 	/**

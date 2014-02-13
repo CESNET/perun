@@ -22,10 +22,7 @@ import cz.metacentrum.perun.webgui.model.Category;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Publication;
 import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
-import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
-import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -39,7 +36,6 @@ import java.util.Map;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
@@ -436,9 +432,6 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -460,7 +453,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
         session.setActiveUser(user);
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My publications", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Publications", getUrlWithParameters());
 	}
 	
 	public boolean isAuthorized() {
@@ -478,13 +471,11 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?user=" + userId;
 	}
 	
-	static public UsersPublicationsTabItem load(Map<String, String> parameters)
-	{
+	static public UsersPublicationsTabItem load(Map<String, String> parameters) {
 		if(parameters.containsKey("user")){
 			return new UsersPublicationsTabItem(Integer.valueOf(parameters.get("user")));
 		}

@@ -238,6 +238,20 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		Widget userHeader = new HTML("<h2>" + "User details" + "</h2>");
 		extendedInfoVp.add(userHeader);
 		extendedInfoVp.setCellHeight(userHeader, "30px");
+
+        final TabItem tab = this;
+        final JsonCallbackEvents events = new JsonCallbackEvents() {
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+                tab.draw();
+            }
+        };
+        CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
+        change.addClickHandler(new ClickHandler(){
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
+            }
+        });
 		
 		// detail content
 	    FlexTable layout = new FlexTable();
@@ -245,13 +259,14 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	    // Add some standard form options
 	    layout.setHTML(0, 0, "<strong>Full&nbsp;name:</strong>");
 	    layout.setHTML(0, 1, user.getFullNameWithTitles());
-	    layout.setHTML(0, 2, "<strong>User&nbsp;ID:</strong>");
-	    layout.setHTML(0, 3, String.valueOf(user.getId()));
-	    layout.setHTML(0, 4, "<strong>User&nbsp;type:</strong>");
+        layout.setWidget(0, 2, change);
+	    layout.setHTML(0, 3, "<strong>User&nbsp;ID:</strong>");
+	    layout.setHTML(0, 4, String.valueOf(user.getId()));
+	    layout.setHTML(0, 5, "<strong>User&nbsp;type:</strong>");
 	    if (user.isServiceUser()) {
-	    	layout.setHTML(0, 5, "Service");
+	    	layout.setHTML(0, 6, "Service");
 	    } else {
-	    	layout.setHTML(0, 5, "Person");
+	    	layout.setHTML(0, 6, "Person");
 	    }
 	    
 	    // wrap the content in a DecoratorPanel
@@ -1217,7 +1232,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		this.lastTabId = id;
 	}
 	
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -1226,9 +1240,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -1247,8 +1258,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
+        session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", PerunAdminTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"users", user.getFullNameWithTitles(), getUrlWithParameters());
 	}
 	
@@ -1269,13 +1280,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
 	}
 	
-	static public UserDetailTabItem load(Map<String, String> parameters)
-	{
+	static public UserDetailTabItem load(Map<String, String> parameters) {
 		int uid = Integer.parseInt(parameters.get("id"));
 		return new UserDetailTabItem(uid);
 	}

@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -25,16 +25,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cz.metacentrum.perun.core.api.*;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.DiacriticNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
@@ -44,6 +42,12 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.LinkedHashSet;
 /**
  * Utilities.
@@ -650,4 +654,100 @@ public class Utils {
         }
         return result;
     }
+
+    /**
+     * Return encrypted version of input in UTF-8 by HmacSHA256
+     *
+     * @param input input to encrypt
+     * @return encrypted value
+     */
+    public static String getMessageAuthenticationCode(String input) {
+
+        if (input == null)
+            throw new NullPointerException("input must not be null");
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(getPropertyFromConfiguration("perun.mailchange.secretKey").getBytes("UTF-8"),"HmacSHA256"));
+            byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
+            return new BigInteger(macbytes).toString(Character.MAX_RADIX);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * Send validation email related to requested change of users preferred email.
+     *
+     * @param user user to change preferred email for
+     * @param url base URL of running perun instance passed from RPC
+     * @param email new email address to send notification to
+     * @param changeId ID of change request in DB
+     * @throws InternalErrorException
+     */
+    public static void sendValidationEmail(User user, String url, String email, int changeId) throws InternalErrorException {
+
+        // create mail sender
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("localhost");
+
+        // create message
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+        message.setSubject("[Perun] New email address verification");
+
+        // get validation link params
+        String i = Integer.toString(changeId, Character.MAX_RADIX);
+        String m = Utils.getMessageAuthenticationCode(i);
+
+        try {
+
+            // !! There is a hard-requirement for Perun instance
+            // to host GUI on same server as RPC like: "serverUrl/perun-gui/"
+
+            URL urlObject = new URL(url);
+
+            // use default if unknown rpc path
+            String path = "/perun-gui/";
+
+            if (urlObject.getPath().contains("/perun-rpc-krb/")) {
+                path = "/perun-gui-krb/";
+            } else if (urlObject.getPath().contains("/perun-rpc-fed/")) {
+                path = "/perun-gui-fed/";
+            } else if (urlObject.getPath().contains("/perun-rpc-cert/")) {
+                path = "/perun-gui-cert/";
+            }
+
+            StringBuilder link = new StringBuilder();
+
+            link.append(urlObject.getProtocol());
+            link.append("://");
+            link.append(urlObject.getHost());
+            link.append(path);
+            link.append("?i=");
+            link.append(URLEncoder.encode(i, "UTF-8"));
+            link.append("&m=");
+            link.append(URLEncoder.encode(m, "UTF-8"));
+            link.append("&u=" + user.getId());
+
+            // Build message
+            String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+
+                    ".\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
+                    "Message is automatically generated." +
+                    "\n----------------------------------------------------------------" +
+                    "\nPerun - User and Resource Management System";
+
+            message.setText(text);
+
+            mailSender.send(message);
+
+        } catch (UnsupportedEncodingException ex) {
+            throw new InternalErrorException("Unable to encode validation URL for mail change.", ex);
+        } catch (MalformedURLException ex) {
+            throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+        }
+
+    }
+
 }

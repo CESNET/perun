@@ -160,6 +160,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
                 new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
                     public void onFinished(JavaScriptObject jso){
                         resource = jso.cast();
+                        open();
                         draw();
                     }
                 }).retrieveData();
@@ -243,9 +244,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 	
-	
-	public void open()
-	{
+	public void open() {
         if (facilityId == 0) {
             // opened from VO section
             session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
@@ -277,20 +276,17 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId + "&fid=" + facilityId;
 	}
 	
-	static public ResourceDetailTabItem load(Map<String, String> parameters)
-	{
+	static public ResourceDetailTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
         int fid = Integer.parseInt(parameters.get("fid"));
         return new ResourceDetailTabItem(id, fid);
 	}
 	
-	static public ResourceDetailTabItem load(RichResource resource, int fid)
-	{
+	static public ResourceDetailTabItem load(RichResource resource, int fid) {
 		return new ResourceDetailTabItem(resource, fid);
 	}
 	

@@ -11,6 +11,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.UpdateResource;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -60,7 +61,7 @@ public class EditResourceDetailsTabItem implements TabItem {
     }
 
     public boolean isPrepared(){
-        return true;
+        return (resource != null);
     }
 
     public Widget draw() {
@@ -104,13 +105,14 @@ public class EditResourceDetailsTabItem implements TabItem {
         // send button
         final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, buttonTranslation.saveResourceDetails());
         saveButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
-                if (validator.validateTextBox()) {
-                    resource.setName(nameTextBox.getTextBox().getText().trim());
-                    resource.setDescription(descriptionTextBox.getText().trim());
-                    UpdateResource request = new UpdateResource(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                    request.updateResource(resource);
-                }
+                if (!validator.validateTextBox()) return;
+                Resource r = JsonUtils.clone(resource).cast();
+                r.setName(nameTextBox.getTextBox().getText().trim());
+                r.setDescription(descriptionTextBox.getText().trim());
+                UpdateResource request = new UpdateResource(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+                request.updateResource(r);
             }
         });
 
@@ -157,7 +159,6 @@ public class EditResourceDetailsTabItem implements TabItem {
         return SmallIcons.INSTANCE.applicationFormEditIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -166,9 +167,6 @@ public class EditResourceDetailsTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -177,16 +175,18 @@ public class EditResourceDetailsTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
+        EditResourceDetailsTabItem other = (EditResourceDetailsTabItem) obj;
+        if (resource != other.resource)
+            return false;
 
         return true;
     }
 
     public boolean multipleInstancesEnabled() {
-        return true;
+        return false;
     }
 
-    public void open() {
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

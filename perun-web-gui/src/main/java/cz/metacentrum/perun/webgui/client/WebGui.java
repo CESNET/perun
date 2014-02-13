@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
 import cz.metacentrum.perun.webgui.json.authzResolver.KeepAlive;
+import cz.metacentrum.perun.webgui.json.usersManager.ValidatePreferredEmailChange;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
@@ -61,6 +62,11 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
      * containing this GUI is loaded in browser.
      */
     public void onModuleLoad() {
+
+        // IF IS MAIL VERIFICATION REQUEST
+        if (checkIfMailVerification()) return;
+
+        // LOAD PERUN WEB GUI
 
         // Get web page's BODY
         RootLayoutPanel body = RootLayoutPanel.get();
@@ -298,8 +304,8 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
      */
     private void loadPage() {
 
-        // when there is no token, the the default tabs are loaded
-        // this is useful if a user has bookmarked a site other than the homepage.
+        // when there is no token, default tabs are loaded
+        // this is useful if user has bookmarked a site other than the homepage.
         if(History.getToken().isEmpty()){
 
             // get whole URL
@@ -388,10 +394,93 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
         }
 
         // only user
-        if(session.isSelf() && session.getUser() != null)
-        {
+        if(session.isSelf() && session.getUser() != null) {
             session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()), true);
         }
+
+    }
+
+    /**
+     * Check if URL parameters contains data for mail verification and display different GUI instead.
+     *
+     * @return TRUE if parameters are contained and valid in URL, FALSE otherwise.
+     */
+    public boolean checkIfMailVerification() {
+
+        // Trigger validation if necessary
+        if (Location.getParameterMap().keySet().contains("m") &&
+                Location.getParameterMap().keySet().contains("i") &&
+                Location.getParameterMap().keySet().contains("u")) {
+
+            String verifyI = Location.getParameter("i");
+            String verifyM = Location.getParameter("m");
+            String verifyU = Location.getParameter("u");
+
+            if (verifyI != null && !verifyI.isEmpty() &&
+                    verifyM != null && !verifyM.isEmpty() &&
+                    verifyU != null && !verifyU.isEmpty() && JsonUtils.checkParseInt(verifyU)) {
+
+                ValidatePreferredEmailChange call = new ValidatePreferredEmailChange(verifyI, verifyM, Integer.parseInt(verifyU), new JsonCallbackEvents() {
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+
+                        BasicOverlayType over = jso.cast();
+
+                        RootLayoutPanel body = RootLayoutPanel.get();
+                        body.clear();
+                        FlexTable ft = new FlexTable();
+                        ft.setSize("100%", "300px");
+                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ "The email address: <i>"+over.getString()+"</i></h2><h2>was verified and set as your preferred email.</h2>");
+                        ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                        ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+                        body.add(ft);
+                    }
+                    @Override
+                    public void onLoadingStart() {
+
+                        RootLayoutPanel body = RootLayoutPanel.get();
+                        body.clear();
+                        FlexTable ft = new FlexTable();
+                        ft.setSize("100%", "300px");
+                        ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                        ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+                        ft.setWidget(0, 0, new AjaxLoaderImage());
+                        body.add(ft);
+
+                    }
+                    @Override
+                    public void onError(PerunError error) {
+
+                        RootLayoutPanel body = RootLayoutPanel.get();
+                        body.clear();
+                        FlexTable ft = new FlexTable();
+                        ft.setSize("100%", "300px");
+                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>Your new email address couldn't be verified !</h2>");
+                        ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                        ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+
+                        if (error == null) {
+                            ft.setHTML(1, 0, "Request timeout exceeded.");
+                            ft.getFlexCellFormatter().setStyleName(1, 0, "serverResponseLabelError");
+                        } else {
+                            // display raw message
+                            ft.setHTML(1, 0, "<strong>"+error.getErrorInfo()+"</strong>");
+                        }
+                        ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                        ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+
+                        body.add(ft);
+
+                    }
+                });
+                call.retrieveData();
+            }
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

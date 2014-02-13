@@ -1,23 +1,26 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
-import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.usersManager.GetServiceUsersByUser;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.UsersTabs;
-import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.widgets.*;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -27,28 +30,9 @@ import java.util.Map;
  */
 public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
 	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Identity selector");
-
-	// users query
-	private FindCompleteRichUsers users;
-
-	/**
-	 * Search string
-	 */
-	private String searchString = "";
+	private Label titleWidget = new Label("Select identity");
 
 	/**
 	 * Creates a tab instance
@@ -60,74 +44,115 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public Widget draw() {
-		
-		this.users = new FindCompleteRichUsers("", null);
-		users.setCheckable(false);
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+        final TabItem tab = this;
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+        HorizontalPanel horizontalSplitter = new HorizontalPanel();
+        horizontalSplitter.setHeight("500px");
+        horizontalSplitter.setWidth("100%");
 
-		// this tab to close
-		final IdentitySelectorTabItem tab = this;
+        // BASE LAYOUT
+        DecoratorPanel dp = new DecoratorPanel();
+        FlexTable baseLayout = new FlexTable();
+        baseLayout.setCellSpacing(10);
+        dp.add(baseLayout);
+        baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
+        baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
+        baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-		// get the table
-		final CellTable<User> table = users.getTable(new FieldUpdater<User, String>() {
-			public void update(int index, User object, String value) {
-				
-				 // save user into session
-				session.getPerunPrincipal().setUser(object);
-				// notify
-				session.getUiElements().setLogSuccessText("User identity loaded: " + object.getFullNameWithTitles());
-				// open selected user detail
-				session.getTabManager().addTab(new SelfDetailTabItem(object));
-				// close this tab
-				session.getTabManager().closeTab(tab);
-
-			}
-		});
-
-		// search textbox
-		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+        Anchor userName = new Anchor();
+        userName.setText(session.getUser().getFullNameWithTitles());
+        userName.addStyleName("now-managing");
+        userName.addStyleName("pointer");
+        userName.setTitle(session.getUser().getFullNameWithTitles());
+        userName.addClickHandler(new ClickHandler() {
             @Override
-            public void searchFor(String text) {
-                startSearching(text);
-                searchString = text;
+            public void onClick(ClickEvent event) {
+                session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
+                session.getTabManager().closeTab(tab, false);
             }
-        }, ButtonTranslation.INSTANCE.searchUsers());
+        });
+        baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+        baseLayout.setWidget(2, 1, userName);
 
-		// if some text has been searched before
-		if(!searchString.equals(""))
-		{
-			searchBox.getTextBox().setText(searchString);
-			startSearching(searchString);
-		}
+        baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+        baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+        // SERVICE IDENTITIES LAYOUT
+        DecoratorPanel dp2 = new DecoratorPanel();
+        final FlexTable serviceLayout = new FlexTable();
+        serviceLayout.setCellSpacing(10);
+        dp2.add(serviceLayout);
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(sp);
+        serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
+        serviceLayout.setHTML(1, 0, "Service identities you have access to.");
+        serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+        horizontalSplitter.add(dp);
+        horizontalSplitter.setCellWidth(dp, "50%");
+        horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+        horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 
-		this.contentWidget.setWidget(firstTabPanel);
+        ScrollPanel sp = new ScrollPanel();
+        final FlexTable innerTable = new FlexTable();
+        sp.setWidget(innerTable);
+        sp.setStyleName("scroll-max-height");
+        serviceLayout.setWidget(2, 0, sp);
+
+        if (session.getEditableUsers().size() > 1) {
+            // user has service identities
+            GetServiceUsersByUser call = new GetServiceUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                    ArrayList<User> list = JsonUtils.jsoAsList(jso);
+                    if (list != null && !list.isEmpty()) {
+
+                        int row = 0;
+                        for (User u : list) {
+                            final User u2 = u;
+                            innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+                            Anchor userName = new Anchor();
+                            userName.setText(u2.getFullNameWithTitles());
+                            userName.addStyleName("now-managing");
+                            userName.addStyleName("pointer");
+                            userName.setTitle(u2.getFullNameWithTitles());
+                            userName.addClickHandler(new ClickHandler() {
+                                @Override
+                                public void onClick(ClickEvent event) {
+                                    session.getTabManager().addTab(new SelfDetailTabItem(u2));
+                                    session.getTabManager().closeTab(tab, false);
+                                }
+                            });
+                            innerTable.setWidget(row, 1, userName);
+                            row++;
+                        }
+
+                    } else {
+                        innerTable.setHTML(0, 0, "You have no service identities");
+                    }
+                }
+                @Override
+                public void onLoadingStart() {
+                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
+                }
+                @Override
+                public void onError(PerunError error) {
+                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
+                }
+            });
+            call.retrieveData();
+
+            horizontalSplitter.add(dp2);
+            horizontalSplitter.setCellWidth(dp2, "50%");
+            horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
+            horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
+
+        }
+
+		this.contentWidget.setWidget(horizontalSplitter);
 		
 		return getWidget();
-	}
 
-	/**
-	 * Starts the search for users
-	 */
-	protected void startSearching(String text){
-		users.searchFor(text);	
 	}
 
 	public Widget getWidget() {
@@ -142,7 +167,6 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		return SmallIcons.INSTANCE.userGrayIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -151,9 +175,6 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -170,15 +191,14 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.USER, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Identity selector", getUrlWithParameters());
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
 	}
 	
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
+		if (session.isSelf()) {
 			return true; 
 		} else {
 			return false;
@@ -193,13 +213,11 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public IdentitySelectorTabItem load(Map<String, String> parameters)
-	{
+	static public IdentitySelectorTabItem load(Map<String, String> parameters) {
 		return new IdentitySelectorTabItem();
 	}
 

@@ -149,6 +149,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
                 new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
                     public void onFinished(JavaScriptObject jso){
                         facility = jso.cast();
+                        open();
                         draw();
                     }
                 }).retrieveData();
@@ -236,8 +237,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "", "");
 		if(facility != null) {
@@ -264,19 +264,16 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
 	
-	static public FacilityDetailTabItem load(Map<String, String> parameters)
-	{
+	static public FacilityDetailTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityDetailTabItem(fid);
 	}
 	
-	static public FacilityDetailTabItem load(Facility fac)
-	{
+	static public FacilityDetailTabItem load(Facility fac) {
 		return new FacilityDetailTabItem(fac);
 	}
 }

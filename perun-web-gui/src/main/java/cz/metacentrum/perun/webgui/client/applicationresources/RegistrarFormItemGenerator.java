@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.applicationresources.FormInputStatusWidget.Status;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.usersManager.IsLoginAvailable;
@@ -34,7 +35,6 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class RegistrarFormItemGenerator {
 	
 	/**
@@ -127,21 +127,17 @@ public class RegistrarFormItemGenerator {
 	 * @param withValue
 	 * @param locale
 	 */
-	public RegistrarFormItemGenerator(ApplicationFormItemWithPrefilledValue withValue, String locale)
-	{
+	public RegistrarFormItemGenerator(ApplicationFormItemWithPrefilledValue withValue, String locale) {
 		this(withValue.getFormItem(), withValue.getValue(), locale);
 		this.assuranceLevel = withValue.getAssuranceLevel();
 	}
-	
-	
 
 	/**
 	 * Widget generator instance
 	 * @param item
 	 * @param locale
 	 */
-	public RegistrarFormItemGenerator(ApplicationFormItem item, String locale)
-	{
+	public RegistrarFormItemGenerator(ApplicationFormItem item, String locale) {
 		this(item, "", locale);
 	}
 	
@@ -151,8 +147,8 @@ public class RegistrarFormItemGenerator {
 	 * @param strValue
 	 * @param locale
 	 */
-	public RegistrarFormItemGenerator(final ApplicationFormItem item, String strValue, String locale)
-	{
+	public RegistrarFormItemGenerator(final ApplicationFormItem item, String strValue, String locale) {
+
 		if(strValue == null || strValue.equals("null")) {
 			strValue = "";
 		}
@@ -260,8 +256,8 @@ public class RegistrarFormItemGenerator {
 		return true;
 	}
 	
-	protected boolean checkLength()
-	{
+	protected boolean checkLength() {
+
 		boolean tooLong = false;
 		String value = getValue();
 		if (value != null) {
@@ -282,6 +278,7 @@ public class RegistrarFormItemGenerator {
 		}
 		
 		return !tooLong;
+
 	}
 
 
@@ -775,6 +772,7 @@ public class RegistrarFormItemGenerator {
 		ft.setWidget(1, 0, pwdbox2);
 		ft.setWidth("100%");
 		return ft;
+
 	}
 
 	/**
@@ -782,6 +780,7 @@ public class RegistrarFormItemGenerator {
 	 * @return
 	 */
 	private Widget generateListBox() {
+
 		final ListBox lbox = new ListBox();
 		strValueBox = new ExtendedTextBox();
 		
@@ -917,6 +916,7 @@ public class RegistrarFormItemGenerator {
 	 * @return
 	 */
 	private Widget generateComboBox() {
+
 		final ListBox lbox = new ListBox();
 		final TextBox textBox = new ExtendedTextBox();
 		textBox.setMaxLength(TEXT_BOX_MAX_LENGTH);
@@ -1009,8 +1009,7 @@ public class RegistrarFormItemGenerator {
 	 * Generates the textbox
 	 * @return
 	 */
-	private Widget generateTextBox()
-	{
+	private Widget generateTextBox() {
 		TextBox tbox = new ExtendedTextBox();
 		tbox.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		strValueBox = tbox;
@@ -1029,8 +1028,8 @@ public class RegistrarFormItemGenerator {
 	 * Generates the username textbox
 	 * @return
 	 */
-	private Widget generateUsernameBox()
-	{
+	private Widget generateUsernameBox() {
+
 		final TextBox tbox = new ExtendedTextBox();
 		tbox.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		strValueBox = tbox;
@@ -1082,12 +1081,16 @@ public class RegistrarFormItemGenerator {
 						return false;
 					}
 
-
 					valid = checkValueRegex();
 					// regex check
 					if(!valid){
 						return false;
 					}
+
+                    // force check for base REGEX used in login attribute module
+                    RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+                    boolean match = regExp.test(str);
+                    if (!match) return false;
 
 					// has already checked it?
 					if(validMap.containsKey(str)){
@@ -1104,13 +1107,12 @@ public class RegistrarFormItemGenerator {
 
 					// check login
 					validating = true;
-					
 
 					statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.validating(), Status.LOADING));
 
 					// check login
 					new IsLoginAvailable(loginNamespace, str, new JsonCallbackEvents(){
-
+                        @Override
 						public void onFinished(JavaScriptObject jso){
 
 							// store result for the requested login
@@ -1182,8 +1184,7 @@ public class RegistrarFormItemGenerator {
 	 * Returns the label or shortname for current locale
 	 * @return
 	 */
-	public String getLabelOrShortname()
-	{
+	public String getLabelOrShortname() {
 		String label = item.getItemTexts(locale).getLabel();
 		if(label == null || label.length() == 0){
 			label = item.getShortname();			
@@ -1195,8 +1196,7 @@ public class RegistrarFormItemGenerator {
 	 * Returns the options for current locale
 	 * @return
 	 */
-	private String getOptions()
-	{
+	private String getOptions() {
 		String options = item.getItemTexts(locale).getOptions();
 		return options;
 	}
@@ -1338,8 +1338,6 @@ public class RegistrarFormItemGenerator {
 	public boolean isVisible() {
 		return this.visible ;
 	}
-
-	
 	
 	/**
 	 * Returns the assurance level
@@ -1349,7 +1347,6 @@ public class RegistrarFormItemGenerator {
 	{
 		return this.assuranceLevel;
 	}
-
 
 
 	public void addValidationTrigger(FormValidator formValidator) {
