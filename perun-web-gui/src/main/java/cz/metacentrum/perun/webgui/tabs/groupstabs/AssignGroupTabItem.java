@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResources;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetRichResources;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichResource;
@@ -106,17 +106,8 @@ public class AssignGroupTabItem implements TabItem {
             public void onClick(ClickEvent event) {
                 final ArrayList<RichResource> toAssign = callback.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(toAssign)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                    for (int i=0; i<toAssign.size(); i++) {
-                        AssignGroupToResource request;
-                        if (i == toAssign.size()-1) {
-                            // on last self-close tab
-                            request = new AssignGroupToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                        } else {
-                            request = new AssignGroupToResource(JsonCallbackEvents.disableButtonEvents(assignButton));
-                        }
-                        request.assignGroup(groupId, toAssign.get(i).getId());
-                    }
+                    AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+                    request.assignGroupToResources(group, toAssign);
                 }
             }
         });

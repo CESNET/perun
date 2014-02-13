@@ -1,57 +1,60 @@
 package cz.metacentrum.perun.webgui.json.resourcesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichResource;
+
+import java.util.ArrayList;
 
 /**
- * Ajax query which Assigns group to resource
+ * Ajax query which Assigns group to resources
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class AssignGroupToResource {
+public class RemoveGroupFromResources {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "resourcesManager/assignGroupToResource";
+	final String JSON_URL = "resourcesManager/removeGroupFromResources";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// ids
-	private int resourceId = 0;
-	private int groupId = 0;
+	private Group group;
+	private ArrayList<RichResource> resources;
 
 	/**
 	 * Creates a new request
 	 */
-	public AssignGroupToResource() {}
+	public RemoveGroupFromResources() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
 	 * @param events external events
 	 */
-	public AssignGroupToResource(final JsonCallbackEvents events) {
+	public RemoveGroupFromResources(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
-	 * Attempts to assign group to resource
+	 * Attempts to remove group from resources
 	 * 
-	 * @param groupId ID of group which should be assigned
-	 * @param resourceId ID of resource where should be assigned
-	 * 
+	 * @param group group which should be removed
+	 * @param resources resources where group should be removed
 	 */
-	public void assignGroup(final int groupId, final int resourceId)
-	{
+	public void removeGroupFromResources(final Group group, final ArrayList<RichResource> resources) {
 
-		this.resourceId = resourceId;
-		this.groupId = groupId;
+		this.group = group;
+		this.resources = resources;
 
 		// test arguments
 		if(!this.testAssigning()){
@@ -61,12 +64,12 @@ public class AssignGroupToResource {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Assigning group: " + groupId + " to resource: " + resourceId + " failed.");
+				session.getUiElements().setLogErrorText("Assigning group: " + group.getShortName() + " failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group: "+ groupId +" sucessfully assigned to resource: "+ resourceId);
+				session.getUiElements().setLogSuccessText("Group: "+group.getShortName()+" was successfully assigned to resources.");
 				events.onFinished(jso);
 			};
 
@@ -86,23 +89,23 @@ public class AssignGroupToResource {
 	 * 
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAssigning()
-	{
+	private boolean testAssigning() {
+
 		boolean result = true;
 		String errorMsg = "";
 
-		if(groupId == 0){
-			errorMsg += "Wrong Group parametr.\n";
+		if(resources == null || resources.isEmpty()){
+			errorMsg += "Wrong parameter <strong>Resources</strong>.<br />";
 			result = false;
 		}
 
-		if(resourceId == 0){
-			errorMsg += "Wrong Resource parametr.\n";
+		if(group == null){
+			errorMsg += "Wrong parameter <strong>group</strong>.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+            UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -115,11 +118,16 @@ public class AssignGroupToResource {
 	 */
 	private JSONObject prepareJSONObject() {
 
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("group", new JSONNumber(groupId));    
-		jsonQuery.put("resource", new JSONNumber(resourceId));
-		return jsonQuery;
+        JSONObject jsonQuery = new JSONObject();
+
+        JSONArray array = new JSONArray();
+        for (int i=0; i< resources.size(); i++) {
+            array.set(i, new JSONNumber(resources.get(i).getId()));
+        }
+        jsonQuery.put("resources", array);
+		jsonQuery.put("group", new JSONNumber(group.getId()));
+
+        return jsonQuery;
 	}
 
 }
