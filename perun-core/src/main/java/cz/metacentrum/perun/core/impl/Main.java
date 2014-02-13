@@ -64,6 +64,7 @@ public class Main {
         System.err.println("Last message id before starting initializing: " + LastMessageBeforeInitializingData + '\n');
         vosLdifToWriter();
         groupsLdifToWriter();
+        resourcesLdifToWriter();
         usersLdifToWriter();
         int LastMessageAfterInitializingData = perun.getAuditer().getLastMessageId();
         System.err.println("Last message id after initializing: " + LastMessageAfterInitializingData + '\n');
@@ -175,6 +176,52 @@ public class Main {
             writer.write('\n');
         }
     }   
+    
+    private void resourcesLdifToWriter() throws Exception {
+        List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
+        
+        for(Vo v: vos) {
+            List<Resource> resources = new ArrayList<Resource>();
+            resources = perun.getResourcesManagerBl().getResources(perunSession, v);
+            for(Resource r: resources) {
+                String dn = "dn: ";
+                String oc1 = "objectclass: top";
+                String oc2 = "objectclass: groupOfUniqueNames";
+                String oc3 = "objectclass: perunResource";
+                String cn = "cn: ";
+                String perunVoId = "perunVoId: ";
+                String perunFacilityId = "perunFacilityId: ";
+                String perunResourceId = "perunResourceId: ";
+                String description = "description: ";
+                
+                perunVoId+= String.valueOf(r.getVoId());
+                perunFacilityId+= String.valueOf(r.getFacilityId());
+                perunResourceId+= String.valueOf(r.getId());
+                dn+= "perunResourceId=" + r.getId() + ",perunVoId=" + r.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
+                cn+= r.getName();
+                String descriptionValue = r.getDescription();
+                if(descriptionValue != null) {
+                    if(descriptionValue.matches("^[ ]*$")) descriptionValue = null;
+                }
+                writer.write(dn + '\n');
+                writer.write(oc1 + '\n');
+                writer.write(oc2 + '\n');
+                writer.write(oc3 + '\n');
+                writer.write(cn + '\n');
+                writer.write(perunResourceId + '\n');
+                if(descriptionValue != null) writer.write(description + descriptionValue + '\n');
+                writer.write(perunVoId + '\n');
+                writer.write(perunFacilityId + '\n');
+                //ADD resources which group is assigned to
+                List<Group> associatedGroups = perun.getResourcesManagerBl().getAssignedGroups(perunSession, r);
+                for(Group g: associatedGroups) {
+                    writer.write("assignedGroupId: " + g.getId());
+                    writer.write('\n');
+                }
+                writer.write('\n');
+            }
+        }
+    }
 
     private void groupsLdifToWriter() throws Exception {
         List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
@@ -198,7 +245,7 @@ public class Main {
                 List<Member> members = new ArrayList<Member>();
                 members = perun.getGroupsManagerBl().getGroupMembers(perunSession, g, Status.VALID);
                 perunGroupId+= String.valueOf(g.getId());
-                perunVoId+=String.valueOf(g.getVoId());
+                perunVoId+= String.valueOf(g.getVoId());
                 dn+= "perunGroupId=" + g.getId() + ",perunVoId=" + g.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
                 cn+= g.getName();
                 perunUniqueGroupName+= v.getShortName() + ":" + g.getName();

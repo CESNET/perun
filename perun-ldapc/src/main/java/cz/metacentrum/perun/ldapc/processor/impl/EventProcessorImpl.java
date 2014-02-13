@@ -94,6 +94,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   private Pattern deletedPattern = Pattern.compile(" deleted.$");
   private Pattern createdPattern = Pattern.compile(" created.$"); 
   private Pattern updatedPattern = Pattern.compile(" updated.$");
+  //Resources patterns
+  private Pattern deletedResourcePattern = Pattern.compile(" deleted.#Facility");
   //Groups patterns
   private Pattern newGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\]");
   private Pattern subGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\] as subgroup of Group:\\[(.*)\\]");
@@ -216,31 +218,35 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * -> 3) GROUP AND RESOURCE exist
    *   -> 3.1) if there is message with adding group to resource => add resource to group (like attribute) in LDAP
    *   -> 3.2) if there is message with removing group from resource => remove resource from group (like attribute) in LDAP
-   * -> 4) only GROUP exists
-   *   -> 4.1) if there is message with deleting group => delete this group from LDAP
-   *   -> 4.2) if there is message with creating group => create this group in LDAP
-   *   -> 4.3) if there is message with updating group => update this group in LDAP
-   * -> 5) only MEMBER exists (RPC CALLING used)
-   *   -> 5.1) if there is message with changing of member state to valid => add member to all groups in LDAP where he needs to be 
-   *   -> 5.2) if there is message with changing of member state to other than valid => remove member from all groups in LDAP where is needed
-   * -> 6) only VO exists
-   *   -> 6.1) if there is message with deleting vo => delete this vo from LDAP
-   *   -> 6.2) if there is message with creating vo => create this vo in LDAP
-   *   -> 6.3) if there is message with updating vo => update this vo in LDAP
-   * -> 7) USER and USER_EXT_SOURCE exist
-   *   -> 7.1) if there is message with adding userExtSource (IDP) to user => create or update attribute of user in LDAP
-   *   -> 7.2) if there is message with removing userExtSource (IDP) from user => remove or update attribute of user in LDAP
-   * -> 8) USER and ATTRIBUTE exist
-   *   -> 8.1) if there is message with setting attribute to user => set Attribute to user in LDAP
-   * -> 9) USER and ATTRIBUTE_DEFINITION exist
-   *   -> 9.1) if there is message with removing attribute from user => remove Attribute from user in LDAP 
-   * -> 10) only USER exists
-   *   -> 10.1) if there is message with deleting user => delete user from LDAP
-   *   -> 10.2) if there is message with creating user => create user in LDAP
-   *   -> 10.3) if there is message with updating user => update user in LDAP
-   *   -> 10.4) if there is message with removing all attribute from user => remove all attributes from user in LDAP (only removeable attributes)
-   * -> 11) in all other cases
-   *   -> 11.1) always => only log some information
+   * -> 4) only RESOURCE exists (resource must be before group because of 
+   *   -> 4.1) if there is message with deleting resource => delete this resource from LDAP
+   *   -> 4.2) if there is message with createing resource => create this resource in LDAP
+   *   -> 4.3) if there is message with updating resource => update this resource in LDAP
+   * -> 5) only GROUP exists
+   *   -> 5.1) if there is message with deleting group => delete this group from LDAP
+   *   -> 5.2) if there is message with creating group => create this group in LDAP
+   *   -> 5.3) if there is message with updating group => update this group in LDAP
+   * -> 6) only MEMBER exists (RPC CALLING used)
+   *   -> 6.1) if there is message with changing of member state to valid => add member to all groups in LDAP where he needs to be 
+   *   -> 6.2) if there is message with changing of member state to other than valid => remove member from all groups in LDAP where is needed
+   * -> 7) only VO exists
+   *   -> 7.1) if there is message with deleting vo => delete this vo from LDAP
+   *   -> 7.2) if there is message with creating vo => create this vo in LDAP
+   *   -> 7.3) if there is message with updating vo => update this vo in LDAP
+   * -> 8) USER and USER_EXT_SOURCE exist
+   *   -> 8.1) if there is message with adding userExtSource (IDP) to user => create or update attribute of user in LDAP
+   *   -> 8.2) if there is message with removing userExtSource (IDP) from user => remove or update attribute of user in LDAP
+   * -> 9) USER and ATTRIBUTE exist
+   *   -> 9.1) if there is message with setting attribute to user => set Attribute to user in LDAP
+   * -> 10) USER and ATTRIBUTE_DEFINITION exist
+   *   -> 10.1) if there is message with removing attribute from user => remove Attribute from user in LDAP 
+   * -> 11) only USER exists
+   *   -> 11.1) if there is message with deleting user => delete user from LDAP
+   *   -> 11.2) if there is message with creating user => create user in LDAP
+   *   -> 11.3) if there is message with updating user => update user in LDAP
+   *   -> 11.4) if there is message with removing all attribute from user => remove all attributes from user in LDAP (only removeable attributes)
+   * -> 12) in all other cases
+   *   -> 12.1) always => only log some information
    * 
    * @param msg message which need to be parse and resolve
    * @param idOfMessage id of paring/resolving message
@@ -312,24 +318,46 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         // 3.1) ADD NEW RESOURCE FOR GROUP IN LDAP
         if(assigned.find()) {
             updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.ADD_ATTRIBUTE, this.group);
+            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), DirContext.ADD_ATTRIBUTE, this.resource);
         // 3.2) REMOVE RESOURCE FROM GROUP IN LDAP
         } else if(removed.find()) {
             updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.REMOVE_ATTRIBUTE, this.group);
+            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), DirContext.REMOVE_ATTRIBUTE, this.resource);
         }
-    
-    // 4) IF ONLY GROUP WERE FOUND, TRY TO WORK WITH GROUP SPECIFIC OPERATIONS
+    // 4) IF ONLY RESOURCE WERE FOUND, TRY TO WORK WITH RESOURCE SPECIFIC OPERATIONS
+    } else if(this.resource != null) {
+        Matcher deleted = deletedResourcePattern.matcher(msg);
+        Matcher created = createdPattern.matcher(msg);
+        Matcher updated = updatedPattern.matcher(msg);
+        
+        // 4.1) RESOURCE WILL BE DELETED
+        if(deleted.find()) {
+            ldapConnector.deleteResource(resource);
+        // 4.2) RESOURCE WILL BE CREATED
+        } else if(created.find()) {
+            ldapConnector.createResource(resource);
+        // 4.3) RESOURCE WILL BE UPDATED
+        } else if(updated.find()) {
+            Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
+            List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
+            replaceList.add(new Pair("cn",this.resource.getName()));
+            if(this.resource.getDescription() != null) replaceList.add(new Pair("description", this.resource.getDescription()));
+            attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
+            updateResourceAttributes(attributes, this.resource);    
+        }
+    // 5) IF ONLY GROUP WERE FOUND, TRY TO WORK WITH GROUP SPECIFIC OPERATIONS
     } else if(this.group != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher newGroup = newGroupPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         
-        // 4.1) GROUP WILL BE DELTED
+        // 5.1) GROUP WILL BE DELETED
         if(deleted.find()){
             ldapConnector.removeGroup(this.group);
-        // 4.2) GROUP WILL BE CREATED
+        // 5.2) GROUP WILL BE CREATED
         } else if(newGroup.find()) {
             ldapConnector.addGroup(this.group);
-        // 4.3) GROUP WILL BE UPDATED
+        // 5.3) GROUP WILL BE UPDATED
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
@@ -340,12 +368,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             updateGroupAttributes(attributes, this.group);
         }
         
-    // 5) IF MEMBER WAS FOUND, TRY TO WORK WITH MEMBER SPECIFIC OPERATIONS (! RPC CALLING used there !)
+    // 6) IF MEMBER WAS FOUND, TRY TO WORK WITH MEMBER SPECIFIC OPERATIONS (! RPC CALLING used there !)
     } else if(this.member != null) {
         Matcher validated = validatedPattern.matcher(msg);
         Matcher otherStateOfMember = otherStateOfMemberPattern.matcher(msg);
         
-        // 5.1) MEMBER WAS VALIDATED, NEED TO ADD HIM TO ALL GROUPS
+        // 6.1) MEMBER WAS VALIDATED, NEED TO ADD HIM TO ALL GROUPS
         if(validated.find()) {
             List<Group> memberGroups = new ArrayList<Group>();
             try {
@@ -360,7 +388,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             for(Group g: memberGroups) {
                 if(!ldapConnector.isAlreadyMember(this.member, g)) ldapConnector.addMemberToGroup(this.member, g);
             }
-        // 5.2) MEMBER STATE WAS CHANGED TO OTHER STATE THAN VALIDATE
+        // 6.2) MEMBER STATE WAS CHANGED TO OTHER STATE THAN VALIDATE
         } else if(otherStateOfMember.find()) {
             List<Group> memberGroups = new ArrayList<Group>();
             try {
@@ -377,19 +405,19 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             }
         }
         
-    // 6) IF VO WAS FOUND, TRY TO WORK WITH VO SPECIFIC OPERATIONS
+    // 7) IF VO WAS FOUND, TRY TO WORK WITH VO SPECIFIC OPERATIONS
     } else if(this.vo != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher created = createdPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         
-        // 6.1) VO WILL BE DELETED
+        // 7.1) VO WILL BE DELETED
         if(deleted.find()) {
             ldapConnector.deleteVo(this.vo);
-        // 6.2) VO WILL BE CREATED
+        // 7.2) VO WILL BE CREATED
         } else if(created.find()) {
             ldapConnector.createVo(this.vo);
-        // 6.3) VO WILL BE UPDATED
+        // 7.3) VO WILL BE UPDATED
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
@@ -398,12 +426,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             updateVoAttributes(attributes, this.vo);
         }
         
-    // 7) IF USER AND USEREXTSOURCE WERE FOUND, TRY TO WORK WITH USER-USEREXTSOURCE SPECIFIC OPERATIONS (LIKE SET EXT LOGINS FOR IDP EXTSOURCES)
+    // 8) IF USER AND USEREXTSOURCE WERE FOUND, TRY TO WORK WITH USER-USEREXTSOURCE SPECIFIC OPERATIONS (LIKE SET EXT LOGINS FOR IDP EXTSOURCES)
     } else if(this.user != null && this.userExtSource != null) {
         Matcher addExtSource = addUserExtSource.matcher(msg);
         Matcher removeExtSource = removeUserExtSource.matcher(msg);
         
-        // 7.1) ADD ATTRIBUTE WITH IDP EXTSOURCE
+        // 8.1) ADD ATTRIBUTE WITH IDP EXTSOURCE
         if(addExtSource.find()) {
             if(this.userExtSource.getExtSource() != null && this.userExtSource.getExtSource().getType() != null) {
                 String extLogin;
@@ -413,7 +441,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                     updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.ADD_ATTRIBUTE, user);
                 }
             }
-        // 7.2) REMOVE ATTRIBUTE WITH IDP EXTSOURCE
+        // 8.2) REMOVE ATTRIBUTE WITH IDP EXTSOURCE
         } else if(removeExtSource.find()) {
             if(this.userExtSource.getExtSource() != null && this.userExtSource.getExtSource().getType() != null) {
                 String extLogin;
@@ -425,11 +453,11 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             }
         }
         
-    // 8) IF USER AND ATTRIBUTE WERE FOUND, TRY TO WORK WITH USER-ATTR SPECIFIC OPERATIONS (LIKE SET USER ATTRIBUTES)
+    // 9) IF USER AND ATTRIBUTE WERE FOUND, TRY TO WORK WITH USER-ATTR SPECIFIC OPERATIONS (LIKE SET USER ATTRIBUTES)
     } else if(this.user != null && this.attribute != null) {
         Matcher set = setPattern.matcher(msg);
         
-        // 8.1) SOME USER ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
+        // 9.1) SOME USER ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
         if(set.find()) {
             Matcher uidMatcher = userUidNamespace.matcher(this.attribute.getName());
             Matcher loginMatcher = userLoginNamespace.matcher(this.attribute.getName());
@@ -501,10 +529,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             }
         }
         
-    // 9) IF USER AND ATTRIBTUE DEFINITION WERE FOUND, TRY TO WORK WITH USER-ATTRDEF SPECIFIC OPERATIONS
+    // 10) IF USER AND ATTRIBTUE DEFINITION WERE FOUND, TRY TO WORK WITH USER-ATTRDEF SPECIFIC OPERATIONS
     } else if(this.user != null && attributeDef != null) {
         Matcher remove = removePattern.matcher(msg);
-        // 9.1) REMOVE SPECIFIC USER ATTRIBUTE
+        // 10.1) REMOVE SPECIFIC USER ATTRIBUTE
         if(remove.find() &&  ldapConnector.userExist(this.user)) {
             Matcher uidMatcher = userUidNamespace.matcher(this.attributeDef.getName());
             Matcher loginMatcher = userLoginNamespace.matcher(this.attributeDef.getName());
@@ -540,19 +568,19 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 }
             }
         }
-    // 10) IF ONLY USER WAS FOUND, TRY TO WORK WITH USER SPECIFIC OPERATIONS
+    // 11) IF ONLY USER WAS FOUND, TRY TO WORK WITH USER SPECIFIC OPERATIONS
     } else if(this.user != null) {
         Matcher deleted = deletedPattern.matcher(msg);
         Matcher created = createdPattern.matcher(msg);
         Matcher updated = updatedPattern.matcher(msg);
         Matcher removedAllAttrs = allAttrsRemovedPattern.matcher(msg);
-        // 10.1) DELETE USER
+        // 11.1) DELETE USER
         if(deleted.find()) {
             ldapConnector.deleteUser(this.user);
-        // 10.2) CREATE USER
+        // 11.2) CREATE USER
         } else if(created.find()) {                 
             ldapConnector.createUser(this.user);
-        // 10.3) UPDATE USER
+        // 11.3) UPDATE USER
         } else if(updated.find()) {
             Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
@@ -561,7 +589,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             replaceList.add(new Pair("givenName", this.user.getFirstName()));
             attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
             updateUserAttributes(attributes, this.user);
-        // 10.4) REMOVE ALL USER ATTRIBUTES
+        // 11.4) REMOVE ALL USER ATTRIBUTES
         } else if(removedAllAttrs.find()) {
             if(ldapConnector.userExist(this.user)) {
                 Attributes usersAttrs = ldapConnector.getAllUsersAttributes(this.user);
@@ -590,7 +618,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             }
         }
         
-    // 11) IN OTHER CASES 
+    // 12) IN OTHER CASES 
     } else {
        log.debug("Nothing to resolve for message with number : " + idOfMessage);
     }
@@ -760,6 +788,118 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         ldapConnector.updateUser(user, items);
     }
   }
+  
+  /**
+   * Update ldap attribute with attributeName for the resource by value with operation.
+   * 
+   * Operation 1 = add
+   * Operation 2 = replace 
+   * Operation 3 = remove
+   * Operation less then 1 or more than 3 = InternalErrorException
+   * 
+   * @param attributeName name of attribute, is mandatory, cant be null
+   * @param attributeValue value of attribute, is not mandatory, can be null
+   * @param operation can be 1 or 2 or 3 nothing else, cant be null
+   * @param resource cant be null
+   * 
+   * @exception InternalErrorException if an error occurs
+   */
+  private void updateResourceAttribute(String attributeName, String attributeValue, Integer operation, Resource resource) throws InternalErrorException {
+    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateResourceAttribute :" + operation);
+    if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateResourceAttribute :" + attributeName);
+    if(resource == null) throw new InternalErrorException("Resource is null in method updateResourceAttribute");
+    
+    Attribute attribute;
+    if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
+    else attribute = new BasicAttribute(attributeName);
+    
+    ModificationItem attributeItem =  new ModificationItem(operation, attribute);
+    ldapConnector.updateResource(resource, new ModificationItem[] {attributeItem});
+  }
+
+  /**
+   * Update resource's ldap attributes from Map by operation in key.
+   * 
+   * Map<Integer, List<Pair<String, String>>> => Map<operation, List<Pair<attributeName, attributeValue>>>
+   * 
+   * Operation 1 = add
+   * Operation 2 = replace 
+   * Operation 3 = remove
+   * Operation less then 1 or more than 3 = InternalErrorException
+   * 
+   * attributeName cant be null and empty String
+   * attributeValue can be null
+   * 
+   * Execute all operations on all attributes with (or without value) in 1 task.
+   * 
+   * @param mapOfAttributes map of Operation to list of pairs where left is attributeName and right is attributeValue
+   * @param resource cant be null
+   * @throws InternalErrorException if an error occurs
+   */
+  private void updateResourceAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Resource resource) throws InternalErrorException {
+    //Resource cant be null
+    if(resource == null) throw new InternalErrorException("Resource is null in method updateGroupAttributes");
+    //Only 3 types of key are allowed (1,2 or 3) Modification classes
+    Set<Integer> keys = null;
+    keys = mapOfAttributes.keySet();
+    if(keys.size()>3) throw new InternalErrorException("There are some not allowed operations.");
+    for(Integer operation: keys) {
+        if(operation == null || operation <0 || operation >3) throw new InternalErrorException("There are some not allowed operations.");
+    }
+    
+    //Every Pair in List need to have "attributeName" and may have "attributeValue"
+    for(Integer operation: keys) {
+        List<Pair<String, String>> listOfAttrs = mapOfAttributes.get(operation);
+        for(Pair<String, String> pair: listOfAttrs) {
+            if(pair.getLeft() == null || pair.getLeft().equals("")) throw new InternalErrorException("Some attributes in map has no name.");
+        }
+    }
+    
+    //If all is correct, can execute operations on attributes
+    List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
+    
+    //For all attributes with operation ADD (1) 
+    if(mapOfAttributes.containsKey(DirContext.ADD_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.ADD_ATTRIBUTE);
+        for(Pair<String,String> pair: listOfAddingAttributes) {
+            Attribute attribute;
+            if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+            else attribute = new BasicAttribute(pair.getRight());
+            ModificationItem attributeItem =  new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
+            listOfItemsToModify.add(attributeItem);
+        }
+    }
+    
+    //For all attributes with operation REPLACE (2)
+    if(mapOfAttributes.containsKey(DirContext.REPLACE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REPLACE_ATTRIBUTE);
+        for(Pair<String,String> pair: listOfAddingAttributes) {
+            Attribute attribute;
+            if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+            else attribute = new BasicAttribute(pair.getRight());
+            ModificationItem attributeItem =  new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute);
+            listOfItemsToModify.add(attributeItem);
+        }
+    }
+    
+    //For all attributes with operation REMOVE (3)
+    if(mapOfAttributes.containsKey(DirContext.REMOVE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REMOVE_ATTRIBUTE);
+        for(Pair<String,String> pair: listOfAddingAttributes) {
+            Attribute attribute;
+            if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+            else attribute = new BasicAttribute(pair.getRight());
+            ModificationItem attributeItem =  new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute);
+            listOfItemsToModify.add(attributeItem);
+        }
+    }
+    
+    //Execute all changes on the notEmpty list of items
+    if(!listOfItemsToModify.isEmpty()) {
+        ModificationItem[] items = Arrays.copyOf(listOfItemsToModify.toArray(), listOfItemsToModify.toArray().length, ModificationItem[].class);
+        ldapConnector.updateResource(resource, items);
+    }
+  }
 
   /**
    * Update ldap attribute with attributeName for the group by value with operation.
@@ -778,8 +918,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * 
    */
   private void updateGroupAttribute(String attributeName, String attributeValue, Integer operation, Group group) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateUserAttribute :" + operation);
-    if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateUserAttribute :" + attributeName);
+    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateGroupAttribute :" + operation);
+    if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateGroupAttribute :" + attributeName);
     if(group == null) throw new InternalErrorException("Group is null in method updateGroupAttribute");
     
     Attribute attribute;
@@ -811,7 +951,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    */
   private void updateGroupAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Group group) throws InternalErrorException {
     //Group cant be null
-    if(group == null) throw new InternalErrorException("group is null in method updateUserAttributes");
+    if(group == null) throw new InternalErrorException("group is null in method updateGroupAttributes");
     //Only 3 types of key are allowed (1,2 or 3) Modification classes
     Set<Integer> keys = null;
     keys = mapOfAttributes.keySet();
@@ -890,9 +1030,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * @exception InternalErrorException if an error occurs 
    */
   private void updateVoAttribute(String attributeName, String attributeValue, Integer operation, Vo vo) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateUserAttribute :" + operation);
-    if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateUserAttribute :" + attributeName);
-    if(vo == null) throw new InternalErrorException("Vo is null in method updateUserAttribute");
+    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateVoAttribute :" + operation);
+    if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateVoAttribute :" + attributeName);
+    if(vo == null) throw new InternalErrorException("Vo is null in method updateVoAttribute");
     
     Attribute attribute;
     if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
@@ -923,7 +1063,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    */
   private void updateVoAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Vo vo) throws InternalErrorException {
     //User cant be null
-    if(vo == null) throw new InternalErrorException("Vo is null in method updateUserAttributes");
+    if(vo == null) throw new InternalErrorException("Vo is null in method updateVoAttributes");
     //Only 3 types of key are allowed (1,2 or 3) Modification classes
     Set<Integer> keys = null;
     keys = mapOfAttributes.keySet();

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.ldapc.processor;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -13,6 +14,32 @@ import javax.naming.directory.ModificationItem;
 
 public interface LdapConnector {
   
+  //--------------------RESOURCE METHODS----------------------------------------
+  /**
+   * Remove resource from LDAP
+   * 
+   * @param resource resource from Perun
+   * @throws InternalErrorException if NameNotFoundException is thrown
+   */
+  public void deleteResource(Resource resource) throws InternalErrorException;
+  
+  /**
+   * Update resource in LDAP
+   * 
+   * @param resource resource from Perun
+   * @param modificationItems attributes of resources which need to be modified
+   * @throws InternalErrorException if NameNotFoundException is thrown
+   */
+  public void updateResource(Resource resource, ModificationItem[] modificationItems) throws InternalErrorException;
+  
+  /**
+   * Add resource to LDAP.
+   * 
+   * @param resource resource from Perun
+   * @throws InternalErrorException if NameNotFoundException is thrown
+   */
+  public void createResource(Resource resource) throws InternalErrorException;
+    
   //---------------------GROUP METHODS------------------------------------------  
   /**
    * Add group to LDAP.
