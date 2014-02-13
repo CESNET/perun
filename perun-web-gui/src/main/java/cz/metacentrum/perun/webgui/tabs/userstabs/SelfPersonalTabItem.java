@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
-import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.json.usersManager.GetPendingPreferredEmailChanges;
 import cz.metacentrum.perun.webgui.json.usersManager.RequestPreferredEmailChange;
@@ -165,11 +164,21 @@ public class SelfPersonalTabItem implements TabItem {
 
         settingsTable.setWidget(0, 0, save);
 
+        final GetListOfAttributes attrsCall = new GetListOfAttributes();
+        // list of wanted attributes
+        final ArrayList<String> list = new ArrayList<String>();
+        list.add("urn:perun:user:attribute-def:def:preferredLanguage");
+        list.add("urn:perun:user:attribute-def:def:preferredMail");
+        list.add("urn:perun:user:attribute-def:def:timezone");
+        list.add("urn:perun:user:attribute-def:def:preferredShells");
+
+        final Map<String,Integer> ids = new HashMap<String,Integer>();
+        ids.put("user", userId);
+
         save.addClickHandler(new ClickHandler(){
             public void onClick(ClickEvent event) {
 
                 ArrayList<Attribute> toSend = new ArrayList<Attribute>(); // will be set
-                ArrayList<Attribute> toRemove = new ArrayList<Attribute>(); // will be removed
 
                 for (final Attribute a : userAttrs) {
 
@@ -183,21 +192,23 @@ public class SelfPersonalTabItem implements TabItem {
                     } else if (a.getFriendlyName().equalsIgnoreCase("preferredMail")) {
                         newValue = preferredEmail.getTextBox().getValue().trim();
                     } else if (a.getFriendlyName().equalsIgnoreCase("preferredShells")) {
-                        newValue = preferredShellsWidget.getAttribute().getValue();
+                        String s = preferredShellsWidget.getAttribute().getValue();
+                        newValue = (!s.equalsIgnoreCase("null")) ? s : "";
                     } else {
                         continue; // other than contact attributes must be skipped
                     }
 
-                    if (oldValue.equals(newValue) || (oldValue.equalsIgnoreCase("null") && ("").equalsIgnoreCase(newValue))) {
+                    if (oldValue.equals(newValue) || (oldValue.equalsIgnoreCase("null") && ("").equals(newValue))) {
                         // if both values are the same or both are "empty"
                         continue; // skip this cycle
                     } else {
-                        if (newValue.equalsIgnoreCase("")) {
-                            toRemove.add(a); // value was cleared
+                        if (("").equals(newValue) || ("null").equals(newValue)) {
+                            Attribute newA = JsonUtils.clone(a).cast();
+                            newA.setValueAsJso(null); // set value
+                            toSend.add(newA); // value was cleared
                             // preferred email can't be ever removed from here
                         } else {
                             if (a.getFriendlyName().equalsIgnoreCase("preferredMail")) {
-                                final String val = newValue;
                                 RequestPreferredEmailChange call = new RequestPreferredEmailChange(JsonCallbackEvents.disableButtonEvents(save));
                                 call.requestChange(user, newValue);
                             } else {
@@ -210,25 +221,25 @@ public class SelfPersonalTabItem implements TabItem {
                 }
 
                 // ids
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
+                Map<String, Integer> localIds = new HashMap<String, Integer>();
+                localIds.put("user", userId);
 
                 // requests
-                SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(save));
-                RemoveAttributes removeRequest = new RemoveAttributes();
+                SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(save, new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        attrsCall.getListOfAttributes(ids, list);
+                    }
+                }));
                 // send if not empty
-                if (!toRemove.isEmpty()) {
-                    removeRequest.removeAttributes(ids, toRemove);
-                }
                 if (!toSend.isEmpty()) {
-                    request.setAttributes(ids, toSend);
+                    request.setAttributes(localIds, toSend);
                 }
             }
         });
 
         // GET USER ATTRIBUTES BY NAME
-
-        GetListOfAttributes attrsCall = new GetListOfAttributes(new JsonCallbackEvents(){
+        attrsCall.setEvents(new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso) {
 
@@ -364,15 +375,7 @@ public class SelfPersonalTabItem implements TabItem {
                 settingsTable.setWidget(5, 1, new AjaxLoaderImage(true).loadingError(error));
             }
         });
-        // list of wanted attributes
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("urn:perun:user:attribute-def:def:preferredLanguage");
-        list.add("urn:perun:user:attribute-def:def:preferredMail");
-        list.add("urn:perun:user:attribute-def:def:timezone");
-        list.add("urn:perun:user:attribute-def:def:preferredShells");
 
-        Map<String,Integer> ids = new HashMap<String,Integer>();
-        ids.put("user", userId);
         attrsCall.getListOfAttributes(ids, list);
 
 

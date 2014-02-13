@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Attribute;
 
 import java.util.ArrayList;
@@ -40,16 +41,14 @@ public class PreferredShellsWidget extends Composite {
     public PreferredShellsWidget(Attribute a) {
         initWidget(widget);
         if (a != null) {
-            this.a = new JSONObject().getJavaScriptObject().cast();
-            this.a.setValueAsJsArray(a.getValueAsJsArray());
+            this.a = JsonUtils.clone(a).cast();
             buildWidget();
         }
     }
 
     public void setAttribute(Attribute a) {
         if (a != null) {
-            this.a = new JSONObject().getJavaScriptObject().cast();
-            this.a.setValueAsJsArray(a.getValueAsJsArray());
+            this.a = JsonUtils.clone(a).cast();
         }
         buildWidget();
     }
@@ -68,7 +67,7 @@ public class PreferredShellsWidget extends Composite {
         layout = new FlexTable();
         setStyleName("preferredShellWidget");
 
-        if (a.getValue() != null)  {
+        if (!a.getValue().equalsIgnoreCase("null"))  {
 
             for (int i=0; i<a.getValueAsJsArray().length(); i++) {
 
