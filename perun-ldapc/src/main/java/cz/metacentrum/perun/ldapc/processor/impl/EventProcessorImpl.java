@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import cz.metacentrum.perun.ldapc.beans.LdapOperation;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -317,12 +318,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
         
         // 3.1) ADD NEW RESOURCE FOR GROUP IN LDAP
         if(assigned.find()) {
-            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.ADD_ATTRIBUTE, this.group);
-            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), DirContext.ADD_ATTRIBUTE, this.resource);
+            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), LdapOperation.ADD_ATTRIBUTE, this.group);
+            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), LdapOperation.ADD_ATTRIBUTE, this.resource);
         // 3.2) REMOVE RESOURCE FROM GROUP IN LDAP
         } else if(removed.find()) {
-            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), DirContext.REMOVE_ATTRIBUTE, this.group);
-            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), DirContext.REMOVE_ATTRIBUTE, this.resource);
+            updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.group);
+            updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.resource);
         }
     // 4) IF ONLY RESOURCE WERE FOUND, TRY TO WORK WITH RESOURCE SPECIFIC OPERATIONS
     } else if(this.resource != null) {
@@ -338,11 +339,11 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             ldapConnector.createResource(resource);
         // 4.3) RESOURCE WILL BE UPDATED
         } else if(updated.find()) {
-            Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
+            Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
             replaceList.add(new Pair("cn",this.resource.getName()));
             if(this.resource.getDescription() != null) replaceList.add(new Pair("description", this.resource.getDescription()));
-            attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
+            attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
             updateResourceAttributes(attributes, this.resource);    
         }
     // 5) IF ONLY GROUP WERE FOUND, TRY TO WORK WITH GROUP SPECIFIC OPERATIONS
@@ -359,12 +360,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             ldapConnector.addGroup(this.group);
         // 5.3) GROUP WILL BE UPDATED
         } else if(updated.find()) {
-            Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
+            Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
             replaceList.add(new Pair("cn",this.group.getName()));
             replaceList.add(new Pair("perunUniqueGroupName", ldapConnector.getVoShortName(this.group.getVoId()) + ":" + this.group.getName()));
             if(this.group.getDescription() != null) replaceList.add(new Pair("description", this.group.getDescription()));
-            attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
+            attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
             updateGroupAttributes(attributes, this.group);
         }
         
@@ -419,10 +420,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             ldapConnector.createVo(this.vo);
         // 7.3) VO WILL BE UPDATED
         } else if(updated.find()) {
-            Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
+            Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
             replaceList.add(new Pair("description",this.vo.getName()));
-            attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
+            attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
             updateVoAttributes(attributes, this.vo);
         }
         
@@ -438,7 +439,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
                     extLogin = this.userExtSource.getLogin();
                     if(extLogin == null) extLogin = "";
-                    updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.ADD_ATTRIBUTE, user);
+                    updateUserAttribute("eduPersonPrincipalNames", extLogin, LdapOperation.ADD_ATTRIBUTE, user);
                 }
             }
         // 8.2) REMOVE ATTRIBUTE WITH IDP EXTSOURCE
@@ -448,7 +449,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
                     extLogin = this.userExtSource.getLogin();
                     if(extLogin == null) extLogin = "";
-                    updateUserAttribute("eduPersonPrincipalNames", extLogin, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("eduPersonPrincipalNames", extLogin, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
             }
         }
@@ -465,23 +466,23 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
                 //this mean change of attribute preferredMail in User
                 if(this.attribute.getValue() != null) {
-                    updateUserAttribute("preferredMail", (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);
-                    updateUserAttribute("mail", (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, user);                    
+                    updateUserAttribute("preferredMail", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);
+                    updateUserAttribute("mail", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);                    
                 } else {
                     if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
-                        updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("preferredMail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                     if(ldapConnector.userAttributeExist(this.user, "mail")) {
-                        updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("mail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                 }           
             //USER ORGANIZATION WILL BE SET
             } else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
                 if(this.attribute.getValue() != null) {
-                    updateUserAttribute("o", (String) attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, this.user);
+                    updateUserAttribute("o", (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
                 } else {
                     if(ldapConnector.userAttributeExist(this.user, "o")) {
-                        updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                 }
             //USER CERT DNS WILL BE SET (it is only attribute where for set is special method)
@@ -492,7 +493,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                 
                 if(certDNsMap == null || certDNsMap.isEmpty()) {
                     if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
-                        updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                 } else {
                     Set<String> certSubjects =((Map) this.attribute.getValue()).keySet();
@@ -502,27 +503,27 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             //USER UID NUMBER WILL BE SET
             } else if(uidMatcher.find()) {
                 if(this.attribute.getValue() != null) {
-                    updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), DirContext.REPLACE_ATTRIBUTE, this.user);
+                    updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), LdapOperation.REPLACE_ATTRIBUTE, this.user);
                 } else {
                     if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                 }
             //USER LOGIN WILL BE SET
             } else if(loginMatcher.find()) {
                 if(this.attribute.getValue() != null) {
-                    updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), DirContext.REPLACE_ATTRIBUTE, this.user);
+                    updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
                     //if login is from loginNamespace (eg. EINFRA) (new value), then userPassword must be set or modified
                     if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("userPassword", "{SASL}" + this.attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), DirContext.REPLACE_ATTRIBUTE, this.user);
+                        updateUserAttribute("userPassword", "{SASL}" + this.attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
                     }
                 } else {
                     if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attribute.getFriendlyNameParameter())) {
-                        updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                        updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                     }
                     if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
                         if(ldapConnector.userAttributeExist(this.user, "userPassword")) {    
-                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                            updateUserAttribute("userPassword", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                         }
                     }
                 }
@@ -538,32 +539,32 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             Matcher loginMatcher = userLoginNamespace.matcher(this.attributeDef.getName());
             if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
                 if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
-                    updateUserAttribute("preferredMail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("preferredMail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
                 if(ldapConnector.userAttributeExist(this.user, "mail")) {
-                    updateUserAttribute("mail", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("mail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
                 //TODO: organization (user) will not exists
                 
             } else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
                 if(ldapConnector.userAttributeExist(this.user, "o")) {
-                    updateUserAttribute("o", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
             } else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
                 if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
-                    updateUserAttribute("userCertificateSubject", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
             } else if(uidMatcher.find()) {
                 if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
-                    updateUserAttribute("uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
             } else if(loginMatcher.find()) {
                 if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
-                    updateUserAttribute("login;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                    updateUserAttribute("login;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                 }
                 if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attributeDef.getFriendlyNameParameter())) {
                         if(ldapConnector.userPasswordExists(this.user)) {    
-                            updateUserAttribute("userPassword", null, DirContext.REMOVE_ATTRIBUTE, this.user);
+                            updateUserAttribute("userPassword", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
                         }
                 }
             }
@@ -582,12 +583,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
             ldapConnector.createUser(this.user);
         // 11.3) UPDATE USER
         } else if(updated.find()) {
-            Map<Integer, List<Pair<String,String>>> attributes = new HashMap<Integer, List<Pair<String, String>>>();
+            Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
             List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
             replaceList.add(new Pair("sn",this.user.getLastName()));
             replaceList.add(new Pair("cn", this.user.getFirstName() + " " + this.user.getLastName()));
             replaceList.add(new Pair("givenName", this.user.getFirstName()));
-            attributes.put(DirContext.REPLACE_ATTRIBUTE, replaceList);
+            attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
             updateUserAttributes(attributes, this.user);
         // 11.4) REMOVE ALL USER ATTRIBUTES
         } else if(removedAllAttrs.find()) {
@@ -602,7 +603,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
                             Attribute attr = attributesEnumeration.nextElement();
                             if(attr != null && attr.getID() != null) {
                                 if(isRemovableUserAttribute(attr.getID())) {
-                                    ModificationItem item = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attr);
+                                    ModificationItem item = new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attr);
                                     listOfItems.add(item);
                                 }
                             }                    
@@ -679,21 +680,17 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   /**
    * Update ldap attribute with attributeName for the user by value with operation.
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
    * 
    * @param attributeName name of attribute, is mandatory, cant be null
    * @param attributeValue value of attribute, is not mandatory, can be null
-   * @param operation can be 1 or 2 or 3 nothing else, cant be null
+   * @param operation add, remove or replace (can't be null)
    * @param user cant be null
    * 
    * @exception InternalErrorException if an error occurs
    * 
    */
-  private void updateUserAttribute(String attributeName, String attributeValue, Integer operation, User user) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateUserAttribute :" + operation);
+  private void updateUserAttribute(String attributeName, String attributeValue, LdapOperation operation, User user) throws InternalErrorException {
+    if(operation == null) throw new InternalErrorException("Operation can't be null");
     if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateUserAttribute :" + attributeName);
     if(user == null) throw new InternalErrorException("User is null in method updateUserAttribute");
     
@@ -701,19 +698,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
     else attribute = new BasicAttribute(attributeName);
     
-    ModificationItem attributeItem =  new ModificationItem(operation, attribute);
+    ModificationItem attributeItem =  new ModificationItem(operation.getCode(), attribute);
     ldapConnector.updateUser(user, new ModificationItem[] {attributeItem});
   }
   
   /**
    * Update user's ldap attributes from Map by operation in key.
    * 
-   * Map<Integer, List<Pair<String, String>>> => Map<operation, List<Pair<attributeName, attributeValue>>>
+   * Map<LdapOperation, List<Pair<String, String>>> => Map<LdapOperation, List<Pair<attributeName, attributeValue>>>
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
    * 
    * attributeName cant be null and empty String
    * attributeValue can be null
@@ -724,19 +717,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * @param user cant be null
    * @throws InternalErrorException if an error occurs
    */
-  private void updateUserAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, User user) throws InternalErrorException {
+  private void updateUserAttributes(Map<LdapOperation, List<Pair<String, String>>> mapOfAttributes, User user) throws InternalErrorException {
     //User cant be null
     if(user == null) throw new InternalErrorException("User is null in method updateUserAttributes");
-    //Only 3 types of key are allowed (1,2 or 3) Modification classes
-    Set<Integer> keys = null;
-    keys = mapOfAttributes.keySet();
-    if(keys.size()>3) throw new InternalErrorException("There are some not allowed operations.");
-    for(Integer operation: keys) {
-        if(operation == null || operation <0 || operation >3) throw new InternalErrorException("There are some not allowed operations.");
-    }
+
+    Set<LdapOperation> keys = mapOfAttributes.keySet();
     
     //Every Pair in List need to have "attributeName" and may have "attributeValue"
-    for(Integer operation: keys) {
+    for(LdapOperation operation: keys) {
         List<Pair<String, String>> listOfAttrs = mapOfAttributes.get(operation);
         for(Pair<String, String> pair: listOfAttrs) {
             if(pair.getLeft() == null || pair.getLeft().equals("")) throw new InternalErrorException("Some attributes in map has no name.");
@@ -747,37 +735,37 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
     
     //For all attributes with operation ADD (1)
-    if(mapOfAttributes.containsKey(DirContext.ADD_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.ADD_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REPLACE (2)
-    if(mapOfAttributes.containsKey(DirContext.REPLACE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REPLACE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REMOVE (3)
-    if(mapOfAttributes.containsKey(DirContext.REMOVE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REMOVE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
@@ -792,20 +780,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   /**
    * Update ldap attribute with attributeName for the resource by value with operation.
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
    * 
    * @param attributeName name of attribute, is mandatory, cant be null
    * @param attributeValue value of attribute, is not mandatory, can be null
-   * @param operation can be 1 or 2 or 3 nothing else, cant be null
+   * @param operation add, replace or remove, can't be null
    * @param resource cant be null
    * 
    * @exception InternalErrorException if an error occurs
    */
-  private void updateResourceAttribute(String attributeName, String attributeValue, Integer operation, Resource resource) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateResourceAttribute :" + operation);
+  private void updateResourceAttribute(String attributeName, String attributeValue, LdapOperation operation, Resource resource) throws InternalErrorException {
+    if(operation == null) throw new InternalErrorException("Operation can't be null.");
     if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateResourceAttribute :" + attributeName);
     if(resource == null) throw new InternalErrorException("Resource is null in method updateResourceAttribute");
     
@@ -813,19 +797,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
     else attribute = new BasicAttribute(attributeName);
     
-    ModificationItem attributeItem =  new ModificationItem(operation, attribute);
+    ModificationItem attributeItem =  new ModificationItem(operation.getCode(), attribute);
     ldapConnector.updateResource(resource, new ModificationItem[] {attributeItem});
   }
 
   /**
    * Update resource's ldap attributes from Map by operation in key.
    * 
-   * Map<Integer, List<Pair<String, String>>> => Map<operation, List<Pair<attributeName, attributeValue>>>
-   * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
+   * Map<LdapOperation, List<Pair<String, String>>> => Map<LdapOperation, List<Pair<attributeName, attributeValue>>>
    * 
    * attributeName cant be null and empty String
    * attributeValue can be null
@@ -836,19 +815,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * @param resource cant be null
    * @throws InternalErrorException if an error occurs
    */
-  private void updateResourceAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Resource resource) throws InternalErrorException {
+  private void updateResourceAttributes(Map<LdapOperation, List<Pair<String, String>>> mapOfAttributes, Resource resource) throws InternalErrorException {
     //Resource cant be null
     if(resource == null) throw new InternalErrorException("Resource is null in method updateGroupAttributes");
-    //Only 3 types of key are allowed (1,2 or 3) Modification classes
-    Set<Integer> keys = null;
-    keys = mapOfAttributes.keySet();
-    if(keys.size()>3) throw new InternalErrorException("There are some not allowed operations.");
-    for(Integer operation: keys) {
-        if(operation == null || operation <0 || operation >3) throw new InternalErrorException("There are some not allowed operations.");
-    }
+    
+    Set<LdapOperation> keys = mapOfAttributes.keySet();
     
     //Every Pair in List need to have "attributeName" and may have "attributeValue"
-    for(Integer operation: keys) {
+    for(LdapOperation operation: keys) {
         List<Pair<String, String>> listOfAttrs = mapOfAttributes.get(operation);
         for(Pair<String, String> pair: listOfAttrs) {
             if(pair.getLeft() == null || pair.getLeft().equals("")) throw new InternalErrorException("Some attributes in map has no name.");
@@ -859,37 +833,37 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
     
     //For all attributes with operation ADD (1) 
-    if(mapOfAttributes.containsKey(DirContext.ADD_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.ADD_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REPLACE (2)
-    if(mapOfAttributes.containsKey(DirContext.REPLACE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REPLACE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REMOVE (3)
-    if(mapOfAttributes.containsKey(DirContext.REMOVE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REMOVE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
@@ -904,21 +878,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   /**
    * Update ldap attribute with attributeName for the group by value with operation.
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
-   * 
    * @param attributeName name of attribute, is mandatory, cant be null
    * @param attributeValue value of attribute, is not mandatory, can be null
-   * @param operation can be 1 or 2 or 3 nothing else, cant be null
+   * @param operation add, replace or remove, can't be null
    * @param group cant be null
    * 
    * @exception InternalErrorException if an error occurs
    * 
    */
-  private void updateGroupAttribute(String attributeName, String attributeValue, Integer operation, Group group) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateGroupAttribute :" + operation);
+  private void updateGroupAttribute(String attributeName, String attributeValue, LdapOperation operation, Group group) throws InternalErrorException {
+    if(operation == null) throw new InternalErrorException("Operation can't be null.");
     if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateGroupAttribute :" + attributeName);
     if(group == null) throw new InternalErrorException("Group is null in method updateGroupAttribute");
     
@@ -926,19 +895,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
     else attribute = new BasicAttribute(attributeName);
     
-    ModificationItem attributeItem =  new ModificationItem(operation, attribute);
+    ModificationItem attributeItem =  new ModificationItem(operation.getCode(), attribute);
     ldapConnector.updateGroup(group, new ModificationItem[] {attributeItem});
   }
   
   /**
    * Update group's ldap attributes from Map by operation in key.
    * 
-   * Map<Integer, List<Pair<String, String>>> => Map<operation, List<Pair<attributeName, attributeValue>>>
-   * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
+   * Map<LdapOperation, List<Pair<String, String>>> => Map<LdapOperation, List<Pair<attributeName, attributeValue>>>
    * 
    * attributeName cant be null and empty String
    * attributeValue can be null
@@ -949,19 +913,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * @param group cant be null
    * @throws InternalErrorException if an error occurs
    */
-  private void updateGroupAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Group group) throws InternalErrorException {
+  private void updateGroupAttributes(Map<LdapOperation, List<Pair<String, String>>> mapOfAttributes, Group group) throws InternalErrorException {
     //Group cant be null
     if(group == null) throw new InternalErrorException("group is null in method updateGroupAttributes");
-    //Only 3 types of key are allowed (1,2 or 3) Modification classes
-    Set<Integer> keys = null;
-    keys = mapOfAttributes.keySet();
-    if(keys.size()>3) throw new InternalErrorException("There are some not allowed operations.");
-    for(Integer operation: keys) {
-        if(operation == null || operation <0 || operation >3) throw new InternalErrorException("There are some not allowed operations.");
-    }
+    
+    Set<LdapOperation> keys = mapOfAttributes.keySet();
     
     //Every Pair in List need to have "attributeName" and may have "attributeValue"
-    for(Integer operation: keys) {
+    for(LdapOperation operation: keys) {
         List<Pair<String, String>> listOfAttrs = mapOfAttributes.get(operation);
         for(Pair<String, String> pair: listOfAttrs) {
             if(pair.getLeft() == null || pair.getLeft().equals("")) throw new InternalErrorException("Some attributes in map has no name.");
@@ -972,37 +931,37 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
     
     //For all attributes with operation ADD (1) 
-    if(mapOfAttributes.containsKey(DirContext.ADD_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.ADD_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REPLACE (2)
-    if(mapOfAttributes.containsKey(DirContext.REPLACE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REPLACE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REMOVE (3)
-    if(mapOfAttributes.containsKey(DirContext.REMOVE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REMOVE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
@@ -1017,20 +976,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
   /**
    * Update ldap attribute with attributeName for the vo by value with operation.
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
-   * 
    * @param attributeName name of attribute, is mandatory, cant be null
    * @param attributeValue value of attribute, is not mandatory, can be null
-   * @param operation can be 1 or 2 or 3 nothing else, cant be null
+   * @param operation add, replace or remove, can't be null
    * @param vo cant be null
    * 
    * @exception InternalErrorException if an error occurs 
    */
-  private void updateVoAttribute(String attributeName, String attributeValue, Integer operation, Vo vo) throws InternalErrorException {
-    if(operation == null || operation < 1 || operation > 3) throw new InternalErrorException("Bad operation for method updateVoAttribute :" + operation);
+  private void updateVoAttribute(String attributeName, String attributeValue, LdapOperation operation, Vo vo) throws InternalErrorException {
+    if(operation == null) throw new InternalErrorException("Operation can't be null.");
     if(attributeName == null || attributeName.equals("")) throw new InternalErrorException("Bad attribute Name in method updateVoAttribute :" + attributeName);
     if(vo == null) throw new InternalErrorException("Vo is null in method updateVoAttribute");
     
@@ -1038,19 +992,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     if(attributeValue != null) attribute = new BasicAttribute(attributeName, attributeValue);
     else attribute = new BasicAttribute(attributeName);
     
-    ModificationItem attributeItem =  new ModificationItem(operation, attribute);
+    ModificationItem attributeItem =  new ModificationItem(operation.getCode(), attribute);
     ldapConnector.updateVo(vo, new ModificationItem[] {attributeItem});
   }
   
   /**
    * Update vo's ldap attributes from Map by operation in key.
    * 
-   * Map<Integer, List<Pair<String, String>>> => Map<operation, List<Pair<attributeName, attributeValue>>>
+   * Map<LdapOperation, List<Pair<String, String>>> => Map<LdapOperation, List<Pair<attributeName, attributeValue>>>
    * 
-   * Operation 1 = add
-   * Operation 2 = replace 
-   * Operation 3 = remove
-   * Operation less then 1 or more than 3 = InternalErrorException
    * 
    * attributeName cant be null and empty String
    * attributeValue can be null
@@ -1061,19 +1011,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
    * @param vo cant be null
    * @throws InternalErrorException if an error occurs
    */
-  private void updateVoAttributes(Map<Integer, List<Pair<String, String>>> mapOfAttributes, Vo vo) throws InternalErrorException {
+  private void updateVoAttributes(Map<LdapOperation, List<Pair<String, String>>> mapOfAttributes, Vo vo) throws InternalErrorException {
     //User cant be null
     if(vo == null) throw new InternalErrorException("Vo is null in method updateVoAttributes");
     //Only 3 types of key are allowed (1,2 or 3) Modification classes
-    Set<Integer> keys = null;
-    keys = mapOfAttributes.keySet();
-    if(keys.size()>3) throw new InternalErrorException("There are some not allowed operations.");
-    for(Integer operation: keys) {
-        if(operation == null || operation <0 || operation >3) throw new InternalErrorException("There are some not allowed operations.");
-    }
+    Set<LdapOperation> keys = mapOfAttributes.keySet();
     
     //Every Pair in List need to have "attributeName" and may have "attributeValue"
-    for(Integer operation: keys) {
+    for(LdapOperation operation: keys) {
         List<Pair<String, String>> listOfAttrs = mapOfAttributes.get(operation);
         for(Pair<String, String> pair: listOfAttrs) {
             if(pair.getLeft() == null || pair.getLeft().equals("")) throw new InternalErrorException("Some attributes in map has no name.");
@@ -1084,37 +1029,37 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
     List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
     
     //For all attributes with operation ADD (1)
-    if(mapOfAttributes.containsKey(DirContext.ADD_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.ADD_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REPLACE (2)
-    if(mapOfAttributes.containsKey(DirContext.REPLACE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REPLACE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
     
     //For all attributes with operation REMOVE (3)
-    if(mapOfAttributes.containsKey(DirContext.REMOVE_ATTRIBUTE)) {
-        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(DirContext.REMOVE_ATTRIBUTE);
+    if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
+        List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
         for(Pair<String,String> pair: listOfAddingAttributes) {
             Attribute attribute;
             if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
             else attribute = new BasicAttribute(pair.getRight());
-            ModificationItem attributeItem =  new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute);
+            ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
             listOfItemsToModify.add(attributeItem);
         }
     }
