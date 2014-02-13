@@ -35,14 +35,13 @@ import java.util.Map;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {
 
 	// TAB NEEDED
     private PerunWebSession session = PerunWebSession.getInstance();
 	private User user;
 	private SimplePanel contentWidget = new SimplePanel();
-	private Label titleWidget = new Label("Add publications");
+	private Label titleWidget = new Label("Add publication");
 	private int userId;
 	private SimplePanel helpWidget = new SimplePanel();
 
@@ -109,7 +108,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			
 			loadStartScreen();
 			
-			titleWidget.setText("Add publications");
+			titleWidget.setText("Add publication");
 			
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Please select either \"Create\" or \"Import\" for new publication.</strong>" +
 					"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
@@ -174,7 +173,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		HorizontalPanel vp = new HorizontalPanel();
 		vp.setHeight("500px");
-		vp.setWidth("1000px");
+		vp.setWidth("100%");
 		
 		// IMPORT LAYOUT
 		DecoratorPanel dp = new DecoratorPanel();
@@ -183,29 +182,31 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		dp.add(importLayout);
 		// button
 		CustomButton importButton = new CustomButton("Import publication", SmallIcons.INSTANCE.addIcon());
-		// layout
-		importLayout.setHTML(0, 0, "<h3>Import publication</h3>");
-		importLayout.setHTML(1, 0, "<strong>Are you from MU, ZCU ? You can now import publications </br> you already reported in university publication systems.</strong>");
-		importLayout.setWidget(2, 0, importButton);
-		
-		// CREATE LAYOUT
-		DecoratorPanel dp2 = new DecoratorPanel();
-		FlexTable createLayout = new FlexTable();
+        // layout
+        importLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Import publication</span>");
+        importLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Are you from MU, ZCU? You can import publications you have already reported in university publication systems.</span>");
+        importLayout.setWidget(2, 0, importButton);
+
+        // CREATE LAYOUT
+        DecoratorPanel dp2 = new DecoratorPanel();
+        FlexTable createLayout = new FlexTable();
         createLayout.setCellSpacing(10);
-		dp2.add(createLayout);
-		// button
-		CustomButton createButton = new CustomButton("Create publication", SmallIcons.INSTANCE.addIcon());
-		// layout
-		createLayout.setHTML(0, 0, "<h3>Create publication</h3>");
-		createLayout.setHTML(1, 0, "<strong>When you want to add custom publication or report publication for somebody else.</strong>");
-		createLayout.setWidget(2, 0, createButton);
+        dp2.add(createLayout);
+        // button
+        CustomButton createButton = new CustomButton("Create publication", SmallIcons.INSTANCE.addIcon());
+        // layout
+        createLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Create publication</span>");
+        createLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Use when you want to add custom publication or report publication created by other user.</span>");
+        createLayout.setWidget(2, 0, createButton);
 		
 		// ADD CONTENT
 		vp.add(dp);
 		dp.setWidth("400px");
 		vp.add(dp2);
 		dp2.setWidth("400px");
-		vp.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+        vp.setCellWidth(dp, "50%");
+        vp.setCellWidth(dp2, "50%");
+        vp.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
 		vp.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
 		vp.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 		vp.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
@@ -1128,9 +1129,6 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
