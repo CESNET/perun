@@ -266,6 +266,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     }
 
   }
+  
+  public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+    for(Group g: groups) {
+        this.assignGroupToResource(perunSession, g, resource);
+    }
+  }
 
   public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
     Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
@@ -342,6 +348,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
           throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
         }
       }
+    }
+  }
+  
+  public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+    for(Group g: groups) {
+        this.removeGroupFromResource(perunSession, g, resource);
     }
   }
 

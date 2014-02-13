@@ -257,6 +257,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
     
     getResourcesManagerBl().assignGroupToResource(sess, group, resource);
   }
+  
+  public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(groups, "groups");
+    getResourcesManagerBl().checkResourceExists(perunSession, resource);
+    
+    // Authorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, resource)) {
+      throw new PrivilegeException(perunSession, "assignGroupsToResource");
+    }
+    
+    for(Group g: groups) {
+        getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, g);
+    }
+    
+    getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource);
+  }
 
   public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
     Utils.checkPerunSession(sess);
@@ -270,6 +287,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
     
     getResourcesManagerBl().removeGroupFromResource(sess, group, resource);
+  }
+  
+  public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(groups, "groups");
+    getResourcesManagerBl().checkResourceExists(perunSession, resource);
+    
+    // Authorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, resource)) {
+      throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+    }
+    
+    for(Group g: groups) {
+        getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, g);
+    }
+    
+    getResourcesManagerBl().removeGroupsFromResource(perunSession, groups, resource);  
   }
 
   public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
