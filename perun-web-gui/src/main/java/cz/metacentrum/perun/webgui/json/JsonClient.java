@@ -160,7 +160,6 @@ public class JsonClient  {
 			}
 		}	
 		
-		String rpcUrl = URL.encode(urlPrefix + url) + "?callback=";
 		this.module.onLoadingStart();
 
 		// if new loading
@@ -169,9 +168,10 @@ public class JsonClient  {
 			loadingStarted();
 		}
 
+        String rpcUrl = URL.encode(urlPrefix + url) + "?callback=";
 
-		// params - cache
-		parameters = "cache=" + cacheEnabled + "&" + parameters;
+        // params - cache
+		parameters = "cache=" + cacheEnabled + "&" + URL.encode(parameters);
 		
 		// new request ID
 		jsonRequestId++;
