@@ -17,7 +17,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
-import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupsToResource;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
@@ -134,15 +134,8 @@ public class AssignGroupTabItem implements TabItem {
 				ArrayList<Group> groupsToAssign = voGroups.getTableSelectedList();
                 if (UiElements.cantSaveEmptyListDialogBox(groupsToAssign)) {
                     if (chb.getValue() == false) {
-                        for (int i=0; i<groupsToAssign.size(); i++ ) {
-                            if (i != groupsToAssign.size()-1) {	                 // call json normaly
-                                AssignGroupToResource request = new AssignGroupToResource(JsonCallbackEvents.disableButtonEvents(assignButton));
-                                request.assignGroup(groupsToAssign.get(i).getId(), resourceId);
-                            } else {                                                // last change - call json with update
-                                AssignGroupToResource request = new AssignGroupToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                                request.assignGroup(groupsToAssign.get(i).getId(), resourceId);
-                            }
-                        }
+                        AssignGroupsToResource request = new AssignGroupsToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+                        request.assignGroupsToResource(groupsToAssign, resource);
                     }
                     if (chb.getValue() == true){
                         session.getTabManager().addTabToCurrentTab(new ManageGroupsBeforeAssigning(resource, groupsToAssign), true);
@@ -232,9 +225,7 @@ public class AssignGroupTabItem implements TabItem {
 		return false;
 	}
 
-	public void open()
-	{
-	}
+	public void open() {}
 
 	public boolean isAuthorized() {
 

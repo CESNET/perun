@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Facility;
@@ -201,7 +202,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
     /*#
      * Assign groups to a resource. Check if attributes for each member form groups are valid. Fill members' attributes with missing values.
      *
-     * @param groups listOfGroups
+     * @param groups List<Integer> list of groups IDs
      * @param resource int Resource ID
      */
     assignGroupsToResource {
@@ -210,8 +211,13 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
             ac.stateChangingCheck();
 
+            List<Integer> ids = parms.readList("groups", Integer.class);
+            List<Group> groups = new ArrayList<Group>();
+            for (Integer i : ids) {
+                groups.add(ac.getGroupById(i));
+            }
             ac.getResourcesManager().assignGroupsToResource(ac.getSession(),
-                    parms.readList("groups", Group.class),
+                    groups,
                     ac.getResourceById(parms.readInt("resource")));
             return null;
         }
