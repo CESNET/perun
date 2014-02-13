@@ -53,11 +53,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 public interface FacilitiesManagerBl {
 
   /**
-   * Initialize manager.
-   */
-  void initialize(PerunSession sess);
-  
-  /**
    * Searches for the Facility with specified id.
    *
    * @param perunSession

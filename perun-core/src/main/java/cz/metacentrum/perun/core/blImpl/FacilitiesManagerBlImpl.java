@@ -710,30 +710,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 	  return  facilitiesManagerImpl.getFacilitiesWhereUserIsAdmin(sess, user);
   }
-  
-  public void initialize(PerunSession sess) {
-    if (!this.initialized.compareAndSet(false, true)) return;
-
-    // Check if the facility administrators VO exists
-    try  {
-      perunBl.getVosManagerBl().getVoByShortName(sess, FacilitiesManager.FACADMINVO);
-    } catch (VoNotExistsException e) {
-      // Create the VO
-      Vo vo = new Vo();
-      vo.setName(FacilitiesManager.FACADMINVONAME);
-      vo.setShortName(FacilitiesManager.FACADMINVO);
-      try {
-        vo = perunBl.getVosManagerBl().createVo(sess, vo);
-
-      } catch (VoExistsException e1) {
-        throw new ConsistencyErrorRuntimeException("Newly created VO already exists", e1);
-      } catch (InternalErrorException e1) {
-        throw new InternalErrorRuntimeException(e1);
-      }
-    } catch (InternalErrorException e) {
-      throw new InternalErrorRuntimeException(e);
-    }
-  }
 
   public Host addHost(PerunSession sess, Host host, Facility facility) throws InternalErrorException {
     getPerunBl().getAuditer().log(sess, "{} added to {}.", host, facility);
