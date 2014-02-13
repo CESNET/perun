@@ -371,7 +371,6 @@ public class PerunBlImpl implements PerunBl {
      */
     public void initialize() throws InternalErrorException {
         this.extSourcesManagerBl.initialize(this.getPerunSession());
-        this.facilitiesManagerBl.initialize(this.getPerunSession());
     }
 
     /**
