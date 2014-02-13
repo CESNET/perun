@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroupsWithHierarchy;
 import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupsToResource;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.tabs.ResourcesTabs;
@@ -130,15 +131,8 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				// assign all
 				if (groupsDropDown.getSelectedIndex() == 0) {
-					for (int i=0; i<groupsToAssign.size(); i++ ) {
-						if (i != groupsToAssign.size()-1) {	                 // call json normaly
-							AssignGroupToResource request = new AssignGroupToResource(disableButtonEvents);
-							request.assignGroup(groupsToAssign.get(i).getId(), resourceId);
-						} else {                                                // last change - call json with update
-							AssignGroupToResource request = new AssignGroupToResource(closeTabEvents);
-							request.assignGroup(groupsToAssign.get(i).getId(), resourceId);
-						}
-					}
+					AssignGroupsToResource request = new AssignGroupsToResource(closeTabEvents);
+					request.assignGroupsToResource(groupsToAssign, resource);
 				} else {
 					// assign selected
 					if (groupsDropDown.getSelectedObject() == null) { 
