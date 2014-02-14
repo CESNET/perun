@@ -249,7 +249,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getResourcesManagerBl().checkResourceExists(sess, resource);
 
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
       throw new PrivilegeException(sess, "assignGroupToResource");
     }
     
@@ -264,7 +264,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getResourcesManagerBl().checkResourceExists(perunSession, resource);
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, resource)) {
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource)) {
       throw new PrivilegeException(perunSession, "assignGroupsToResource");
     }
     
@@ -275,6 +275,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource);
   }
 
+  public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(resources, "resources");
+    getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, group);
+
+    // Authorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)) {
+      throw new PrivilegeException(perunSession, "assignGroupToResources");
+    }
+    
+    for(Resource r: resources) {
+        getResourcesManagerBl().checkResourceExists(perunSession, r);
+    }
+    
+    getResourcesManagerBl().assignGroupToResources(perunSession, group, resources);
+  }
+  
   public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
     Utils.checkPerunSession(sess);
     getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -295,7 +312,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
     getResourcesManagerBl().checkResourceExists(perunSession, resource);
     
     // Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, resource)) {
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource)) {
       throw new PrivilegeException(perunSession, "removeGroupsFromResource");
     }
     
@@ -304,6 +321,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
     }
     
     getResourcesManagerBl().removeGroupsFromResource(perunSession, groups, resource);  
+  }
+  
+  public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+    Utils.checkPerunSession(perunSession);
+    Utils.notNull(resources, "resources");
+    getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, group);
+    
+    // Authorization
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)) {
+      throw new PrivilegeException(perunSession, "removeGroupFromResources");
+    }
+    
+    for(Resource r: resources) {
+        getResourcesManagerBl().checkResourceExists(perunSession, r);
+    }
+    
+    getResourcesManagerBl().removeGroupFromResources(perunSession, group, resources);  
   }
 
   public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
