@@ -98,7 +98,7 @@ public class UsersManagerEntry implements UsersManager {
     return getUsersManagerBl().getUsersByServiceUser(sess, serviceUser);
   }
   
-  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException, NotServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlredyRemovedException {
+  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException, NotServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException {
     Utils.checkPerunSession(sess);
     getUsersManagerBl().checkUserExists(sess, user);
     getUsersManagerBl().checkUserExists(sess, serviceUser);

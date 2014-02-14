@@ -78,9 +78,9 @@ public interface UsersManager {
    * @throws NotServiceUserExpectedException when the user is service User
    * @throws RelationNotExistsException if there is no such user (the user) to remove 
    * @throws ServiceUserMustHaveOwnerException if there is the last user to remove
-   * @throws ServiceUserOwnerAlredyRemovedException if there are 0 rows affected by removing from DB
+   * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by removing from DB
    */
-  void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException, ServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlredyRemovedException;
+  void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException, ServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException;
   
   /**
    * Add serviceUser owner (the user)

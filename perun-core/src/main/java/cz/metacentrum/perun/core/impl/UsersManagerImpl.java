@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,17 +32,9 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlredyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
 
 /**
  * UsersManager implementation.
@@ -237,10 +230,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     }      
   }
   
-  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlredyRemovedException {
+  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException {
     try {
       int numAffected = jdbc.update("delete from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
-      if(numAffected == 0) throw new ServiceUserOwnerAlredyRemovedException("ServiceUser-Owner: " + user + " , ServiceUser: " + serviceUser);
+      if(numAffected == 0) throw new ServiceUserOwnerAlreadyRemovedException("ServiceUser-Owner: " + user + " , ServiceUser: " + serviceUser);
       
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);

@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlredyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -90,9 +90,9 @@ public interface UsersManagerImplApi {
      * @param user the user
      * @param serviceUser the serviceUser
      * @throws InternalErrorException 
-     * @throws ServiceUserOwnerAlredyRemovedException if there are 0 rows affected by deleting from DB
+     * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
      */
-    void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlredyRemovedException;
+    void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException;
     
     /**
      * Add serviceUser owner (the user).

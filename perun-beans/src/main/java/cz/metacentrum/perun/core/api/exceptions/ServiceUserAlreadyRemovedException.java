@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * Checked version of ServiceUserOwnerAlredyRemovedException.
+ * Checked version of ServiceUserAlreadyRemovedException.
  *
  * @author Michal Stava
  */

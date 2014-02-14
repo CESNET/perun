@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotExistsRuntimeException;
 
 /**
- * Attribute not exists in underlayin data source.
+ * Attribute not exists in underlaying data source.
  * 
  * @author Slavek Licehammer glory@ics.muni.cz
  */
