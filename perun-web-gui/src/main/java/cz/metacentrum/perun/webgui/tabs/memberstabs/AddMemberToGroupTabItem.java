@@ -57,17 +57,12 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
     // data
     private Group group;
 
-    // members table wrapper
-    ScrollPanel tableWrapper = new ScrollPanel();
-
-    // widget
-    final SimplePanel pageWidget = new SimplePanel();
-
     // when searching
     private String searchString = "";
 
     private int groupId;
-    private boolean someoneAdded = false; // by default nobody is added
+    private ArrayList<RichMember> alreadyAddedList = new ArrayList<RichMember>();
+    private SimplePanel alreadyAdded = new SimplePanel();
 
     /**
      * Creates a tab instance
@@ -146,12 +141,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
                     }
                 }));
 
-        // already added
-        final SimplePanel alreadyAdded = new SimplePanel();
-        alreadyAdded.setStyleName("alreadyAdded");
-        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-        alreadyAdded.setVisible(false);
-
         // ADD
         final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedMemberToGroup());
         // close tab event
@@ -163,11 +152,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         // checkbox click handler
         disabled.addClickHandler(new ClickHandler(){
             public void onClick(ClickEvent event) {
-                if (disabled.getValue()) {
-                    findMembers.excludeDisabled(false);
-                } else {
-                    findMembers.excludeDisabled(true);
-                }
+                findMembers.excludeDisabled(!disabled.getValue());
                 if (!searchString.equalsIgnoreCase("")) {
                     findMembers.clearTable();
                     findMembers.retrieveData();
@@ -179,7 +164,10 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
             public void searchFor(String text) {
                 searchString = text;
-                searchForAction(text, findMembers, disabled, addButton);
+                findMembers.excludeDisabled(!disabled.getValue());
+                if (!searchString.equalsIgnoreCase("")) {
+                    findMembers.searchFor(searchString);
+                }
             }
         }, searchButton);
         searchBox.getTextBox().setText(searchString);
@@ -196,14 +184,13 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
                         AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
-                                // put names to already added
-                                alreadyAdded.setVisible(true);
-                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + membersToAdd.get(n).getUser().getFullName() + ", ");
                                 // unselect added person
                                 findMembers.getSelectionModel().setSelected(membersToAdd.get(n), false);
+                                // put names to already added
+                                alreadyAddedList.add(membersToAdd.get(n));
+                                rebuildAlreadyAddedWidget();
                                 // clear search
                                 searchBox.getTextBox().setText("");
-                                someoneAdded = true;
                             }
                         }));
                         request.addMemberToGroup(group, membersToAdd.get(i));
@@ -218,32 +205,13 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 // with refresh if somebody was added
-                session.getTabManager().closeTab(tab, someoneAdded);
+                session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
             }
         }));
 
         tabMenu.addWidget(disabled);
+        rebuildAlreadyAddedWidget();
         firstTabPanel.add(alreadyAdded);
-        firstTabPanel.add(pageWidget);
-		
-		/* WHEN TAB RELOADS, CHECK THE STATE */
-        searchForAction(searchString, findMembers, disabled, addButton);
-
-        this.contentWidget.setWidget(firstTabPanel);
-        return getWidget();
-
-    }
-
-    /**
-     * SEARCH FOR
-     */
-    private void searchForAction(String text, FindCompleteRichMembers findMembers, CheckBox disabled, CustomButton addButton) {
-
-        if (disabled.getValue()) {
-            findMembers.excludeDisabled(false);
-        } else {
-            findMembers.excludeDisabled(true);
-        }
 
         ScrollPanel tableWrapper = new ScrollPanel();
 
@@ -263,19 +231,35 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
         session.getUiElements().resizeSmallTabPanel(tableWrapper, 350, this);
 
-        // add menu and the table to the main panel
-        setPageWidget(tableWrapper);
+        if (disabled.getValue()) {
+            findMembers.excludeDisabled(false);
+        } else {
+            findMembers.excludeDisabled(true);
+        }
 
         // if not empty - start searching
-        if (!text.equalsIgnoreCase("")) {
-            findMembers.searchFor(text);
+        if (!searchString.equalsIgnoreCase("")) {
+            findMembers.searchFor(searchString);
         }
+
+        firstTabPanel.add(tableWrapper);
+
+        this.contentWidget.setWidget(firstTabPanel);
+        return getWidget();
 
     }
 
-    private void setPageWidget(Widget w) {
-        this.pageWidget.setWidget(w);
+    /**
+     * Rebuild already added widget based on already added members
+     */
+    private void rebuildAlreadyAddedWidget() {
 
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        for (int i=0; i<alreadyAddedList.size(); i++) {
+            alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getUser().getFullName());
+        }
     }
 
     public Widget getWidget() {
