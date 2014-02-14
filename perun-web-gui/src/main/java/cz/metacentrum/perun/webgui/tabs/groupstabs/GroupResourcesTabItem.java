@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedRichResources;
-import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveGroupFromResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveGroupFromResources;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
@@ -122,17 +122,8 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
                     UiElements.showDeleteConfirm(toRemove, text, new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent clickEvent) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                            for (int i = 0; i < toRemove.size(); i++) {
-                                RemoveGroupFromResource request;
-                                // if last, refresh
-                                if (i == toRemove.size() - 1) {
-                                    request = new RemoveGroupFromResource(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                } else {
-                                    request = new RemoveGroupFromResource(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                }
-                                request.removeGroup(groupId, toRemove.get(i).getId());
-                            }
+                            RemoveGroupFromResources request = new RemoveGroupFromResources(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                            request.removeGroupFromResources(group, toRemove);
                         }
                     });
                 }
@@ -199,9 +190,6 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -247,13 +235,11 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 
-	static public GroupResourcesTabItem load(Map<String, String> parameters)
-	{
+	static public GroupResourcesTabItem load(Map<String, String> parameters) {
 		int groupId = Integer.parseInt(parameters.get("id"));
 		return new GroupResourcesTabItem(groupId);
 	}

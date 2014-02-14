@@ -299,7 +299,7 @@ public class JsonUtils {
      * Returns JS Array made from returned JSON (javascript) object
      *
      * @param jso Unknown javascript object
-     * @return JSArray<UnknownObject> array of Unknown javascript objects
+     * @return JSArray<T> array of Unknown javascript objects
      */
     public static native <T extends JavaScriptObject> JsArray<T> jsoAsArray(JavaScriptObject jso) /*-{
         return jso;
@@ -310,7 +310,7 @@ public class JsonUtils {
      * Returns passed unknown javascript object as ArrayList<T>
      *
      * @param jso Unknown javascript object
-     * @return ArrayList<UnknownObject> list of unknown objects
+     * @return ArrayList<T> list of unknown objects
      */
     public static <T extends JavaScriptObject> ArrayList<T> jsoAsList(JavaScriptObject jso) {
 
@@ -319,6 +319,22 @@ public class JsonUtils {
         for (int i = 0; i < arr.length(); i++) {
             l.add(arr.get(i));
         }
+        return l;
+
+    }
+
+    /**
+     * Returns passed single object as ArrayList<T>
+     * of required type.
+     *
+     * @param jso Unknown javascript object
+     * @return ArrayList<T> list of objects of specified type
+     */
+    public static <T extends JavaScriptObject> ArrayList<T> toList(JavaScriptObject jso) {
+
+        ArrayList<T> l = new ArrayList<T>();
+        T object = jso.cast();
+        l.add(object);
         return l;
 
     }

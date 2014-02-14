@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedGroups;
-import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveGroupFromResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveGroupsFromResource;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.tabs.ResourcesTabs;
@@ -113,16 +113,8 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
                 UiElements.showDeleteConfirm(groupsForRemoving, text, new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<groupsForRemoving.size(); i++ ) {
-                            if (i == groupsForRemoving.size()-1) {
-                                RemoveGroupFromResource request = new RemoveGroupFromResource(JsonCallbackEvents.disableButtonEvents(removeGroupButton, localEvents));
-                                request.removeGroup(groupsForRemoving.get(i).getId(), resourceId);
-                            } else {
-                                RemoveGroupFromResource request = new RemoveGroupFromResource(JsonCallbackEvents.disableButtonEvents(removeGroupButton));
-                                request.removeGroup(groupsForRemoving.get(i).getId(), resourceId);
-                            }
-                        }
+                        RemoveGroupsFromResource request = new RemoveGroupsFromResource(JsonCallbackEvents.disableButtonEvents(removeGroupButton, localEvents));
+                        request.removeGroupsFromResource(groupsForRemoving, resource);
                     }
                 });
 			}
@@ -208,8 +200,7 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		session.setActiveVoId(resource.getVoId());
 	}
@@ -226,24 +217,20 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 	
 	public final static String URL = "manage-groups";
 	
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId;
 	}
 	
-	static public ResourceAssignedGroupsTabItem load(Map<String, String> parameters)
-	{
+	static public ResourceAssignedGroupsTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ResourceAssignedGroupsTabItem(id);
 	}
 	
-	static public ResourceAssignedGroupsTabItem load(Resource resource)
-	{
+	static public ResourceAssignedGroupsTabItem load(Resource resource) {
 		return new ResourceAssignedGroupsTabItem(resource);
 	}
 	

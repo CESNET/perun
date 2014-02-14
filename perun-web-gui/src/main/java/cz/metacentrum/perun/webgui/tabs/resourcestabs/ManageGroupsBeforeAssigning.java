@@ -18,10 +18,11 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroupsWithHierarchy;
-import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResource;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupToResources;
 import cz.metacentrum.perun.webgui.json.resourcesManager.AssignGroupsToResource;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.Resource;
+import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.tabs.ResourcesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -149,8 +150,8 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 							}
 						}
 					};
-					AssignGroupToResource request = new AssignGroupToResource(JsonCallbackEvents.disableButtonEvents(finishAssigningButton, localEvents));
-					request.assignGroup(groupsDropDown.getSelectedObject().getId(), resourceId);
+					AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.disableButtonEvents(finishAssigningButton, localEvents));
+					request.assignGroupToResources(groupsDropDown.getSelectedObject(), JsonUtils.<RichResource>toList(resource));
 				}
 			}
 		});

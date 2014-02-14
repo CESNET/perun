@@ -584,8 +584,8 @@ public class AddMemberToResourceTabItem implements TabItem  {
                         public void onFinished(JavaScriptObject jso){
                             Group g = jso.cast();
                             if (g != null) {
-                                AssignGroupToResource assign = new AssignGroupToResource(JsonCallbackEvents.disableButtonEvents(createButton, redirectEvent));
-                                assign.assignGroup(g.getId(), resourcesListbox.getSelectedObject().getId());
+                                AssignGroupToResources assign = new AssignGroupToResources(JsonCallbackEvents.disableButtonEvents(createButton, redirectEvent));
+                                assign.assignGroupToResources(g, JsonUtils.<RichResource>toList(resourcesListbox.getSelectedObject()));
                             }
                         }
                     };
