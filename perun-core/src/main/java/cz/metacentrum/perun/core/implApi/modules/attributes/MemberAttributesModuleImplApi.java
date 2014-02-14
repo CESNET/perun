@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Interface for checking and filling in member's attributes.
  *
- * @author Michal Šťava   <stava.michal@gmail.com>
+ * @author Michal Šťava <stava.michal@gmail.com>
  */
 public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 
@@ -33,7 +33,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
      * @throws WrongReferenceAttributeValueException
      * @throws WrongAttributeAssignmentException 
      */
-    void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+    void checkAttributeValue(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
     /**
      * Tries to fill an attribute to the specified member.
@@ -47,7 +47,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
      *         implementation, the exception is wrapped in InternalErrorException
      * @throws WrongAttributeAssignmentException
      */
-    Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+    Attribute fillAttribute(PerunSessionImpl session, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
     /**
      * If you need to do some further work with other modules, this method do that

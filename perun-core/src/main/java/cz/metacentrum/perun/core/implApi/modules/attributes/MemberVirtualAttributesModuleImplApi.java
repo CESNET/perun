@@ -10,7 +10,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Michal Prochazka   <stavamichal@gmail.com>
+ * @author Michal Prochazka <michalp@ics.muni.cz>
+ * @author Michal Stava <stavamichal@gmail.com>
  */
 public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
@@ -27,7 +28,7 @@ public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesMo
     Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
 
     /**
-     * Method sets attributes' values which are dependend on this virtual attribute.
+     * Method sets attributes' values which are dependent on this virtual attribute.
      *
      * @param perunSession
      * @param member member which is needed for computing the value

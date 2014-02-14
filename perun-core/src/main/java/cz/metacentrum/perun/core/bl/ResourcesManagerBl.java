@@ -354,7 +354,7 @@ public interface ResourcesManagerBl {
   void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
-   * Assign all services from services package to resouce.
+   * Assign all services from services package to resource.
    * 
    * @param perunSession
    * @param resource
@@ -449,7 +449,7 @@ public interface ResourcesManagerBl {
    * 
    * @param sess
    * @param member
-   * @return list of resources which have the member acess on
+   * @return list of resources which have the member access on
    * 
    * @throws InternalErrorException
    */
@@ -603,7 +603,7 @@ public interface ResourcesManagerBl {
   List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
   
   /**
-  * Copy all attributes of the source resource to the destionation resource.
+  * Copy all attributes of the source resource to the destination resource.
   * The attributes, that are in the destination resource and aren't in the source resource, are retained.
   * The common attributes are replaced with attributes from the source resource.
   * The virtual attributes are not copied.
@@ -617,7 +617,7 @@ public interface ResourcesManagerBl {
   public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
 
   /**
-   * Copy all services of the source resource to the destionation resource.
+   * Copy all services of the source resource to the destination resource.
    * The services, that are in the destination resource and aren't in the source resource, are retained.
    * The common services are replaced with services from source resource.
    * 
@@ -630,7 +630,7 @@ public interface ResourcesManagerBl {
   public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
-   * Copy all groups of the source resource to the destionation resource.
+   * Copy all groups of the source resource to the destination resource.
    * The groups, that are in the destination resource and aren't in the source resource, are retained.
    * The common groups are replaced with the groups from source resource.
    * 

@@ -150,9 +150,8 @@ public interface ResourcesManagerImplApi {
    * 
    * @param perunSession
    * @param resource
-   * @param withSubGroups get all group (and subroups) if it's true
-   *                      get only immidiate groups (without subroups) if it's false
-
+   * @param withSubGroups get all group (and subgroups) if it's true
+   *                      get only immediate groups (without subgroups) if it's false
    * 
    * @throws InternalErrorException
    * @return list of assigned groups' id
@@ -195,7 +194,7 @@ public interface ResourcesManagerImplApi {
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Group group) throws InternalErrorException;
   
   /**
-   * Returns all rich resources where the member is assigned throught the groups.
+   * Returns all rich resources where the member is assigned through the groups.
    * 
    * @param sess
    * @param member
@@ -256,7 +255,7 @@ public interface ResourcesManagerImplApi {
    * 
    * @param perunSession
    * @param resource
-   * @return true if resource exists in underlaying data source, false othewise
+   * @return true if resource exists in underlaying data source, false otherwise
    * 
    * @throws InternalErrorException
    */
@@ -368,7 +367,7 @@ public interface ResourcesManagerImplApi {
   List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
   
   /**
-   * Returns all resources where the member is assigned throught the groups.
+   * Returns all resources where the member is assigned through the groups.
    * 
    * @param sess
    * @param member
@@ -378,7 +377,7 @@ public interface ResourcesManagerImplApi {
   List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException;
   
   /**
-   * Returns all resources where the user is assigned throught the vo and groups.
+   * Returns all resources where the user is assigned through the vo and groups.
    * 
    * @param sess
    * @param user

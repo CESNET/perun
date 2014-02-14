@@ -12,12 +12,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.List;
 
-
-
 /**
  * This interface serves as a template for checking facilities attributes.
  *
- * @author Milan Halenar  <mhalenar@gmail.com>
+ * @author Milan Halenar <mhalenar@gmail.com>
  */
 public interface ResourceGroupAttributesModuleImplApi extends AttributesModuleImplApi{
 
@@ -41,7 +39,7 @@ public interface ResourceGroupAttributesModuleImplApi extends AttributesModuleIm
      *
      * @param perunSession perun session
      * @param resource resource for which you want to check validity of attribute
-     * @param group grup
+     * @param group group
      * @param attribute attribute to fill in
      * @return
      * @throws InternalErrorException if an exception is raised in particular

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
@@ -142,7 +139,7 @@ public interface ExtSourcesManagerImplApi {
    * @param perunSession
    * @param extSource
    * 
-   * @return true if extSource exists in underlaying data source, false othewise
+   * @return true if extSource exists in underlaying data source, false otherwise
    * 
    * @throws InternalErrorException
    */

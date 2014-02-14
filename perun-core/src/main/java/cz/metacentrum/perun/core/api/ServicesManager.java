@@ -125,9 +125,9 @@ public interface ServicesManager {
    * Generates the list of attributes per each member associated with the resource. 
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
-   * @return attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+   * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 <pre> 
   Facility 
     +---Attrs 
@@ -162,9 +162,9 @@ public interface ServicesManager {
    * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
-   * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+   * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 <pre> 
   Facility 
     +---Attrs 
@@ -198,12 +198,12 @@ public interface ServicesManager {
    * Generates the list of attributes per each member associated with the resources and groups.
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
    * @return attributes in special structure. Facility is in the root, facility children are resources. 
-   *         Resource first chil is abstract structure which children are groups.
+   *         Resource first child is abstract structure which children are groups.
    *         Resource  second chi is abstract structure which children are members.
-   *         Group first chil is abstract structure which children are groups.
+   *         Group first child is abstract structure which children are groups.
    *         Group second chi is abstract structure which children are members.
 <pre> 
   Facility                          
@@ -542,7 +542,7 @@ public interface ServicesManager {
    * @param perunSession
    * @param services
    * @param facility
-   * @return list of added destiniations (even if they alredy was adedded before)
+   * @return list of added destinations (even if they already was added before)
    * @throws PrivilegeException
    * @throws InternalErrorException
    * @throws ServiceNotExistsException
@@ -551,14 +551,14 @@ public interface ServicesManager {
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException;
   
   /**
-   * Defines services destiniation for all hosts using their hostnames.
+   * Defines services destination for all hosts using their hostnames.
    * Use all assigned services to resources for the facility.
    * 
    * If some destination for service and facility already exist, do not create it but still return back in the list.
    * 
    * @param perunSession
    * @param facility
-   * @return list of added destiniations (even if they alredy was adedded before)
+   * @return list of added destinations (even if they already was added before)
    * @throws PrivilegeException
    * @throws InternalErrorException
    * @throws FacilityNotExistsException 

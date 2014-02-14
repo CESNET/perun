@@ -9,7 +9,6 @@ import java.util.List;
  * Abstract class for all attributes modules
  * 
  * @author Michal Stava <stavamichal@gmail.com>
- * $Id$
  */
 public abstract class AttributesModuleAbstract implements AttributesModuleImplApi {
     

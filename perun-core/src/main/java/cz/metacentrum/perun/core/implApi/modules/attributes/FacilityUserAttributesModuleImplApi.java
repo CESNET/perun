@@ -13,9 +13,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.List;
 
 /**
- *
- *
- * @author Lukáš Pravda   <luky.pravda@gmail.com>
+ * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImplApi{
 
@@ -34,7 +32,7 @@ public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImp
      *         the parameter is to be compared is not available
      * @throws WrongAttributeAssignmentException 
      */
-    void checkAttributeValue(PerunSessionImpl perunsession, Facility facility, User user, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+    void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
     /**
      * Tries to fill an attribute in the relationship between a facility and
@@ -50,7 +48,7 @@ public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImp
      *         implementation, the exception is wrapped in InternalErrorException
      * @throws WrongAttributeAssignmentException
      */
-    Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+    Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
     
     /**
      * If you need to do some further work with other modules, this method do that

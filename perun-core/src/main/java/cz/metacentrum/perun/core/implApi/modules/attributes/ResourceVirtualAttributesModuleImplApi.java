@@ -12,14 +12,14 @@ import org.mockito.stubbing.VoidMethodStubbable;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
     /**
      * This method will return computed value.
      *
-     * @param perunSession perun session
+     * @param sess PerunSession
      * @param resource resource which is needed for computing the value
      * @param attribute attribute to operate on
      * @return
@@ -29,9 +29,9 @@ public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttribut
     Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
 
     /**
-     * Method sets attributes' values which are dependend on this virtual attribute.
+     * Method sets attributes' values which are dependent on this virtual attribute.
      *
-     * @param perunSession
+     * @param sess PerunSession
      * @param resource resource which is needed for computing the value
      * @param attribute attribute to operate on
      * @return true if attribute was really changed
@@ -43,7 +43,7 @@ public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttribut
     /**
      * Currently do nothing.
      *
-     * @param sess
+     * @param sess PerunSession
      * @param resource resource which is needed for computing the value
      * @param attribute attribute to operate on
      * @throws InternalErrorException if an exception is raised in particular

@@ -35,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer
- * @author 
  */
 public interface FacilitiesManager {
 
@@ -239,8 +238,8 @@ public interface FacilitiesManager {
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
 
   /**
-   * Copy all owners of the source facility to the destionation facility.
-   * The owners, that are in the destination facility and aren't in the source faility, are retained.
+   * Copy all owners of the source facility to the destination facility.
+   * The owners, that are in the destination facility and aren't in the source facility, are retained.
    * The common owners are replaced with owners from source facility.
    * 
    * @param sourceFacility 
@@ -745,7 +744,7 @@ public interface FacilitiesManager {
   List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
   
   /**
-   * Returns list of Users, assigned with choosen Facility.
+   * Returns list of Users, assigned with chosen Facility.
    * 
    * @param sess 
    * @param facility 
@@ -773,8 +772,8 @@ public interface FacilitiesManager {
   List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws PrivilegeException, InternalErrorException;
   
   /**
-   * Copy all managers(admins) of the source facility to the destionation facility.
-    * The admins, that are in the destination facility and aren't in the source faility, are retained.
+   * Copy all managers(admins) of the source facility to the destination facility.
+    * The admins, that are in the destination facility and aren't in the source facility, are retained.
     * The common admins are replaced with admins from source facility.
    * 
    * @param sess
@@ -787,8 +786,8 @@ public interface FacilitiesManager {
   void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
   
  /**
-  * Copy all attributes of the source facility to the destionation facility.
-  * The attributes, that are in the destination facility and aren't in the source faility, are retained.
+  * Copy all attributes of the source facility to the destination facility.
+  * The attributes, that are in the destination facility and aren't in the source facility, are retained.
   * The common attributes are replaced with attributes from source facility.
   * 
   * @param sess

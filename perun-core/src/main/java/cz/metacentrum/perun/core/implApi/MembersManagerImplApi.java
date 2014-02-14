@@ -80,7 +80,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
     Member getMemberById(PerunSession perunSession, int id) throws InternalErrorException, MemberNotExistsException;
 
     /**
-     * Returns member by his userid and vo.
+     * Returns member by his user id and vo.
      *
      * @param perunSession  
      * @param vo
@@ -109,7 +109,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * 
      * @param perunSession
      * @param member
-     * @return true if member exists in underlaying data source, false othewise
+     * @return true if member exists in underlaying data source, false otherwise
      * 
      * @throws InternalErrorException
      */
@@ -164,7 +164,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * 
      * @param sess
      * @param vo
-     * @return number of membets
+     * @return number of members
      * @throws InternalErrorException
      */
     int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException;

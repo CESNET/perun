@@ -28,10 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
  * @author Slavek Licehammer
  * @author Zora Sebestianova
  */
-  /**
- * @author michalp
- *
- */
 public interface UsersManagerImplApi {
     /**
      * Returns user by his login in external source.
@@ -346,7 +342,7 @@ public interface UsersManagerImplApi {
      * 
      * @param perunSession 
      * @param user user to check
-     * @return true if user exists in underlaying data source, false othewise
+     * @return true if user exists in underlaying data source, false otherwise
      * @throws InternalErrorException
      */
     boolean userExists(PerunSession perunSession, User user) throws InternalErrorException;
@@ -366,7 +362,7 @@ public interface UsersManagerImplApi {
      * 
      * @param perunSession 
      * @param userExtSource userExtSource to check
-     * @return true if userExtSource exists in underlaying data source, false othewise
+     * @return true if userExtSource exists in underlaying data source, false otherwise
      * @throws InternalErrorException
      */
     boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;

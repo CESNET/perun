@@ -16,14 +16,14 @@ import java.util.List;
  * This interface serves as a template for checking and fillind in attribute
  * for a member at a specified Resource.
  *
- * @author Lukáš Pravda   <luky.pravda@gmail.com>
+ * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleImplApi{
 
     /**
      * This method checks Member's attributes at a specified resource.
      *
-     * @param sessin Perun session
+     * @param perunSession Perun session
      * @param resource Resource
      * @param member Member
      * @param attribute Attribute to be checked.
@@ -40,7 +40,7 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
     /**
      * This method MAY fill Member's attributes at a specified resource.
      * 
-     * @param session Perun session
+     * @param perunSession Perun session
      * @param resource Resource
      * @param member Member
      * @param attribute Attribute to be filled in

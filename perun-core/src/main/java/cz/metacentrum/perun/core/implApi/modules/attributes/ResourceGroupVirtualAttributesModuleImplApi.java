@@ -12,14 +12,14 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface ResourceGroupVirtualAttributesModuleImplApi extends ResourceGroupAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
     /**
      * This method will return computed value.
      *
-     * @param perunSession perun session
+     * @param sess perun session
      * @param resource resource which is needed for computing the value
      * @param group group which is needed for computing the value
      * @param attribute attribute to operate on
@@ -30,9 +30,9 @@ public interface ResourceGroupVirtualAttributesModuleImplApi extends ResourceGro
     Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
 
     /**
-     * Method sets attributes' values which are dependend on this virtual attribute.
+     * Method sets attributes' values which are dependent on this virtual attribute.
      *
-     * @param perunSession
+     * @param sess
      * @param resource resource which is needed for computing the value
      * @param group group which is needed for computing the value
      * @param attribute attribute to operate on
@@ -45,7 +45,7 @@ public interface ResourceGroupVirtualAttributesModuleImplApi extends ResourceGro
     /**
      * Currently do nothing.
      *
-     * @param perunSession
+     * @param sess
      * @param resource resource which is needed for computing the value
      * @param group group which is needed for computing the value
      * @param attribute attribute to operate on

@@ -10,10 +10,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
- * This interface serves as a template for checking and fillind in Virtual
+ * This interface serves as a template for checking and filling in Virtual
  * Organization (Vo) attributes.
  *
- * @author Lukáš Pravda   <luky.pravda@gmail.com>
+ * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 

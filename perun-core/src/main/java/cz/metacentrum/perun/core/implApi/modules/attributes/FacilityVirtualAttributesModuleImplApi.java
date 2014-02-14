@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface FacilityVirtualAttributesModuleImplApi extends FacilityAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
@@ -27,7 +27,7 @@ public interface FacilityVirtualAttributesModuleImplApi extends FacilityAttribut
     Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException;
 
     /**
-     * Method sets attributes' values which are dependend on this virtual attribute.
+     * Method sets attributes' values which are dependent on this virtual attribute.
      *
      * @param perunSession
      * @param facility facility which is needed for computing the value

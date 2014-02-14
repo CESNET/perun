@@ -14,14 +14,14 @@ import java.util.List;
 /**
  * Interface for checking and filling in user's attributes.
  *
- * @author Lukáš Pravda   <luky.pravda@gmail.com>
+ * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 
     /**
      * Checks if assigned attribute to the user is valid.
      *
-     * @param session Perun session
+     * @param perunSession PerunSession
      * @param user User
      * @param attribute Attribute of the user.
      *
@@ -38,7 +38,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
     /**
      * Tries to fill an attribute to the specified user.
      *
-     * @param session Perun Session
+     * @param perunSession PerunSession
      * @param user User 
      * @param attribute Attribute in relationship between facility and user to be filled in.
      * @return Attribute which MAY be filled in
