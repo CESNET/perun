@@ -236,6 +236,20 @@ public interface ResourcesManagerBl {
   void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;   
   
   /**
+   * Assign group to the resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
+   * 
+   * @param perunSession
+   * @param group the group
+   * @param resources list of resources
+   * 
+   * @throws InternalErrorException
+   * @throws WrongAttributeValueException
+   * @throws WrongReferenceAttributeValueException 
+   * @throws GroupAlreadyAssignedException
+   */
+  void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;   
+  
+  /**
    * Remove group from a resource.
    * After removing, check attributes and fix them if it is needed.
    *
@@ -252,7 +266,7 @@ public interface ResourcesManagerBl {
 
   /**
    * Remove groups from a resource.
-   * After removing, check attributes and ifx them if it is needed.
+   * After removing, check attributes and fix them if it is needed.
    * 
    * @param perunSession
    * @param groups list of groups
@@ -263,7 +277,21 @@ public interface ResourcesManagerBl {
    * @throws GroupAlreadyRemovedFromResourceException 
    */
   void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;   
-  
+
+  /**
+   * Remove group from resources.
+   * After removing, check attributes and fix them if it is needed.
+   * 
+   * @param perunSession
+   * @param group the group
+   * @param resources list of resources
+   * 
+   * @throws InternalErrorException
+   * @throws GroupNotDefinedOnResourceException
+   * @throws GroupAlreadyRemovedFromResourceException 
+   */
+  void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;   
+    
   /**
    * List all groups associated with the resource.
    * 
