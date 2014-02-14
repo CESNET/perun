@@ -282,9 +282,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
 
     public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
-        getPerunBl().getAuditer().log(sess, "{} updated.", group);
         group = getGroupsManagerImpl().updateGroup(sess, group);
-
+        getPerunBl().getAuditer().log(sess, "{} updated.", group);
+        
         List<Group> allSubgroups = this.getAllSubGroups(sess, group);
         for(Group g: allSubgroups) {
             getPerunBl().getAuditer().log(sess, "{} updated.", g);
