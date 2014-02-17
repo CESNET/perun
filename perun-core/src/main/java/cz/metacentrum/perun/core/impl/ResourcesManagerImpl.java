@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import java.util.Map;
 
@@ -227,7 +228,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
     public void deleteResource(PerunSession sess, Vo vo, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException {
         try {
             // Delete authz entries for this resource
-            jdbc.update("delete from authz where resource_id=?", resource.getId());
+            AuthzResolverBlImpl.removeAllAuthzForResource(sess, resource);
 
             int numAffected = jdbc.update("delete from resources where id=?", resource.getId());
             if(numAffected == 0) throw new ResourceAlreadyRemovedException("Resource: " + resource + " , Vo: " + vo);

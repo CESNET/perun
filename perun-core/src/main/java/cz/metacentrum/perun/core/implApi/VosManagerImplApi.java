@@ -127,51 +127,6 @@ public interface VosManagerImplApi {
   List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException;
 
   /**
-   * Add a user administrator to the VO.
-   * 
-   * @param sess
-   * @param vo
-   * @param user
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
-  
-  /**
-   * Add a group administrator to the VO.
-   * 
-   * @param sess
-   * @param vo
-   * @param group
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-    
-  /**
-   * Removes a user administrator from the VO.
-   * 
-   * @param sess
-   * @param vo
-   * @param user
-   * @throws InternalErrorException
-   * @throws UserNotAdminException
-   */
-  void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
-  
-    
-  /**
-   * Removes a group administrator from the VO.
-   * 
-   * @param sess
-   * @param vo
-   * @param group
-   * @throws InternalErrorException
-   * @throws GroupNotAdminException
-   */
-  void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-  
-  /**
    * Check if vo exists in underlaying data source.
    * 
    * @param perunSession

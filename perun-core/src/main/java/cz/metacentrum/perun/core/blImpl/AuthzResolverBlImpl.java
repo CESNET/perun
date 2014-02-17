@@ -26,10 +26,14 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
@@ -735,6 +739,101 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
     return authzRoles;
   }
+
+  public static void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForVo(sess, vo);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException {
+    authzResolverImpl.removeAllUserAuthz(sess, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForGroup(sess, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForFacility(sess, facility);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForResource(sess, resource);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForService(sess, service);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, facility, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, facility, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+  
+  public static void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, facility, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, facility, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+ 
+  public static void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, group, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);   
+  }
+  
+  public static void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, group, authorizedGroup);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, group, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+  
+  public static void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, group, authorizedGroup);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, vo, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, vo, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, vo, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, vo, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+    authzResolverImpl.makeUserPerunAdmin(sess, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
   
   // Filled by Spring
   public static AuthzResolverImplApi setAuthzResolverImpl(AuthzResolverImplApi authzResolverImpl) {
@@ -751,4 +850,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   public static PerunBlImpl getPerunBlImpl() {
       return perunBlImpl;
   }
+  
+  
 }
