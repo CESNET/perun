@@ -93,7 +93,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     return getUsersManagerImpl().getUsersByServiceUser(sess, serviceUser);
   }
   
-  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlredyRemovedException {
+  public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException {
     List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
     if(!serviceUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the service user.");
     

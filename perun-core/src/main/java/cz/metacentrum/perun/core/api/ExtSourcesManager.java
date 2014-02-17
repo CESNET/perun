@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
@@ -150,7 +147,7 @@ public interface ExtSourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
 	 * @throws PrivilegeException
-         * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+     * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 */
 	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 	

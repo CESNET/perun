@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -13,7 +10,8 @@ import java.util.List;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Michal Prochazka   <stavamichal@gmail.com>
+ * @author Michal Prochazka <michalp@ics.muni.cz>
+ * @author Michal Stava <stavamichal@gmail.com>
  */
 public interface VirtualAttributesModuleImplApi extends AttributesModuleImplApi {
     

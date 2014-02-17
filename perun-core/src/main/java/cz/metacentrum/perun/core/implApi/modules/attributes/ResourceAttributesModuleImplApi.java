@@ -15,7 +15,7 @@ import java.util.List;
  * This interface serves as a template for checking and filling in resource's
  * attributes.
  *  
- * @author Lukáš Pravda   <luky.pravda@gmail.com>
+ * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi {
 
@@ -24,7 +24,7 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
      *
      * @param perunSession perun session
      * @param resource resource, attribute of which you want to fill
-     * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
+     * @param attribute attribute to fill. If attributes already have set value, this value won't be overwriten. This means the attribute value must be empty otherwise this method won't fill it.
      * @return attribute which MAY have filled value
      *
      * @throws InternalErrorException if an exception is raised in particular

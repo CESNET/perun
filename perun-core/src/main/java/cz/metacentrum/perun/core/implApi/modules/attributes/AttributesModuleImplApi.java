@@ -8,7 +8,6 @@ import java.util.List;
  * This interface serves as a template for defined common properties
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * $Id$
  */
 public interface AttributesModuleImplApi {
     

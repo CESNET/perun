@@ -618,7 +618,7 @@ public interface ResourcesManager {
 
    
  /**
-  * Copy all attributes of the source resource to the destionation resource.
+  * Copy all attributes of the source resource to the destination resource.
   * The attributes, that are in the destination resource and aren't in the source resource, are retained.
   * The common attributes are replaced with the attributes from the source resource.
   * The virtual attributes are not copied.
@@ -633,7 +633,7 @@ public interface ResourcesManager {
   public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongReferenceAttributeValueException;
 
   /**
-   * Copy all services of the source resource to the destionation resource.
+   * Copy all services of the source resource to the destination resource.
    * The services, that are in the destination resource and aren't in the source resource, are retained.
    * The common services are replaced with the services from source resource.
    * 
@@ -648,7 +648,7 @@ public interface ResourcesManager {
   public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
-   * Copy all groups of the source resource to the destionation resource.
+   * Copy all groups of the source resource to the destination resource.
    * The groups, that are in the destination resource and aren't in the source resource, are retained.
    * The common groups are replaced with the groups from source resource.
    * 

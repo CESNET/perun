@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * This interface serves as a template for virtual attributes.
  * 
- * @author Michal Prochazka   <michalp@ics.muni.cz>
- * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ * @author Michal Prochazka <michalp@ics.muni.cz>
+ * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface UserVirtualAttributesModuleImplApi extends UserAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
@@ -29,7 +29,7 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
     Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException;
 
     /**
-     * Method sets attributes' values which are dependend on this virtual attribute.
+     * Method sets attributes' values which are dependent on this virtual attribute.
      *
      * @param perunSession
      * @param user user which is needed for computing the value

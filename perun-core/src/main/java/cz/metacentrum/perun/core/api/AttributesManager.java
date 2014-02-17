@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
@@ -883,7 +880,7 @@ public interface AttributesManager {
   Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException;
 
   /**
-   * Get particular entityless atribute
+   * Get particular entityless attribute
    * 
    * PRIVILEGE: Only PerunAdmin can access to entitylessAttributes.
    * 
@@ -894,7 +891,7 @@ public interface AttributesManager {
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
-   * @throws WrongAttributeAssignmentException if attribute isn't entitiless attribute
+   * @throws WrongAttributeAssignmentException if attribute isn't entityless attribute
    */
   Attribute getAttribute(PerunSession sess, String key, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
@@ -927,7 +924,7 @@ public interface AttributesManager {
   /**
    * Get all (for entities) attributeDefinitions which user has right to READ them and fill attribute writable (if user has also right to WRITE them).
    * For entities means that return only those attributeDefinition which are in namespace of entities or possible combination of entities.
-   * For Example: If enityties are "member, user, resource" then return only AD in namespaces "member, user, resource and resource-member"
+   * For Example: If entities are "member, user, resource" then return only AD in namespaces "member, user, resource and resource-member"
    * 
    * @param sess
    * @param entities list of perunBeans (member, user...)
@@ -954,7 +951,7 @@ public interface AttributesManager {
   List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws PrivilegeException, InternalErrorException, AttributeNotExistsException;
 
   /**
-   * Get attribute defnition (attribute without defined value).
+   * Get attribute definition (attribute without defined value).
    * 
    * PRIVILEGE: No access needed.
    * 
@@ -968,7 +965,7 @@ public interface AttributesManager {
   AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException;
 
   /**
-   * Get attributes defnition (attribute without defined value) with specified namaspace.
+   * Get attributes definition (attribute without defined value) with specified namespace.
    * 
    * PRIVILEGE: No access needed.
    * 
@@ -2276,7 +2273,7 @@ public interface AttributesManager {
   void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
   /**
-   * Check if value of attributes is valied. Attributes can be from namespace: member, user, member-resource and user-facility.
+   * Check if value of attributes is valid. Attributes can be from namespace: member, user, member-resource and user-facility.
    * 
    * PRIVILEGE: Check attributes only when principal has access to write on them.
    * 
@@ -3086,7 +3083,7 @@ public interface AttributesManager {
   void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException, WrongAttributeAssignmentException;
 
   /**
-   * This function takes all member-related attributes (member, user, membrer-resource, user-facility) and tries to fill them and set them.
+   * This function takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
    * If trueMagic is set, this method can remove invalid attribute value (value which didn't pass checkAttributeValue test) and try to fill and set another. In this case, WrongReferenceAttributeValueException, WrongAttributeValueException are thrown if same attribute can't be set corraclty.
    * 
    * PRIVILEGE: Only for PerunAdmin.
@@ -3116,7 +3113,7 @@ public interface AttributesManager {
    AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, InternalErrorException, PrivilegeException;
    
    /**
-    * Gets attribute rights of an attribute with id given as a parametr.
+    * Gets attribute rights of an attribute with id given as a parameter.
     * If the attribute has no rights for a role, it returns empty list. That means the returned list has always 4 items
     * for each of the roles VOADMIN, FACILITYADMIN, GROUPADMIN, SELF.
     * Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
@@ -3131,7 +3128,7 @@ public interface AttributesManager {
    List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
    
    /**
-    * Sets all attribute rights in the list given as a parametr.
+    * Sets all attribute rights in the list given as a parameter.
     * The method sets the rights for attribute and role exactly as it is given in the list of action types. That means it can
     * remove a right, if the right is missing in the list.
     * Info: If there is role VoAdmin in the list, use it for setting also VoObserver rights (only for read) automatic

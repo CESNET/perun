@@ -734,7 +734,7 @@ public class JsonErrorHandler {
 
             return "Same service user was already removed from user.";
 
-        } else if ("ServiceUserOwnerAlredyRemovedException".equalsIgnoreCase(errorName)) {
+        } else if ("ServiceUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
             return "Same user was already removed from owners of service user.";
 

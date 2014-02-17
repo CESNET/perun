@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 /**
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
- * @author 
  * @see Perun
  */
 public interface GroupsManagerImplApi {
@@ -349,7 +348,7 @@ public interface GroupsManagerImplApi {
    * @param perunSession
    * @param group
    * 
-   * @return true if group exists in underlaying data source, false othewise
+   * @return true if group exists in underlaying data source, false otherwise
    * 
    * @throws InternalErrorException
    */
@@ -469,7 +468,6 @@ public interface GroupsManagerImplApi {
 
   /**
    * Return true if Member is member of the Group
-   * 
    * 
    * @param sess
    * @param group

@@ -124,9 +124,9 @@ public interface ServicesManagerBl {
    * Generates the list of attributes per each member associated with the resource. 
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
-   * @return attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+   * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
    * 
    * @throws InternalErrorException
    */
@@ -136,9 +136,9 @@ public interface ServicesManagerBl {
    * Generates the list of attributes per each member associated with the resource. 
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
-   * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all members.
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+   * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all members.
    * 
    * @throws InternalErrorException 
    */
@@ -148,12 +148,12 @@ public interface ServicesManagerBl {
    * Generates the list of attributes per each member associated with the resources and groups.
    * 
    * @param perunSession
-   * @param service attributes reuired by this service you will get
-   * @param facility you will get attributes for this facility, resources asociated with it and members assigned to the resources
+   * @param service attributes required by this service you will get
+   * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
    * @return attributes in special structure. Facility is in the root, facility children are resources. 
-   *         Resource first chil is abstract structure which children are groups.
+   *         Resource first child is abstract structure which children are groups.
    *         Resource  second chi is abstract structure which children are members.
-   *         Group first chil is abstract structure which children are groups.
+   *         Group first child is abstract structure which children are groups.
    *         Group second chi is abstract structure which children are members.
    * 
    * @throws InternalErrorException
@@ -265,12 +265,12 @@ public interface ServicesManagerBl {
    */
   public List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
 
-  /* TODO createPackage
-        getRequiredAttributes(PerunSession perunSession, Service service);
+  /*
+   getRequiredAttributes(PerunSession perunSession, Service service);
    */
 
   /**
-   * Mark the attribute as required for the service. Required attribues are requisite for Service to run.
+   * Mark the attribute as required for the service. Required attributes are requisite for Service to run.
    * If you add attribute which has a default attribute then this default attribute will be automatically add too.
    * 
    * @param perunSession
@@ -290,7 +290,7 @@ public interface ServicesManagerBl {
 
   /**
    * Remove required attribute from service. 
-   * TODO If you try to remove attribute which is default for othed Required attribute ...
+   * TODO If you try to remove attribute which is default for other Required attribute ...
    * 
    * @param perunSession
    * @param service
@@ -387,23 +387,21 @@ public interface ServicesManagerBl {
    * If some destination for service and facility already exist, do not create it but still return back in the list.
    * 
    * @param perunSession
-   * @param service
    * @param facility
-   * @return list of added destiniations (even if they alredy was adedded before)
+   * @return list of added destinations (even if they already was added before)
    * @throws InternalErrorException 
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException;
   
   /**
-   * Defines services destiniation for all hosts using their hostnames.
+   * Defines services destination for all hosts using their hostnames.
    * Use all assigned services to resources for the facility.
    * 
    * If some destination for service and facility already exist, do not create it but still return back in the list.
    * 
    * @param perunSession
-   * @param service
    * @param facility
-   * @return list of added destiniations (even if they alredy was adedded before)
+   * @return list of added destinations (even if they already was added before)
    * @throws InternalErrorException 
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;

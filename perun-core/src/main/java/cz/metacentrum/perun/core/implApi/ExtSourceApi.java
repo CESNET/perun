@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;

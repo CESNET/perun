@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlredyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -27,10 +27,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
- */
-  /**
- * @author michalp
- *
  */
 public interface UsersManagerImplApi {
     /**
@@ -94,9 +90,9 @@ public interface UsersManagerImplApi {
      * @param user the user
      * @param serviceUser the serviceUser
      * @throws InternalErrorException 
-     * @throws ServiceUserOwnerAlredyRemovedException if there are 0 rows affected by deleting from DB
+     * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
      */
-    void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlredyRemovedException;
+    void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException;
     
     /**
      * Add serviceUser owner (the user).
@@ -346,7 +342,7 @@ public interface UsersManagerImplApi {
      * 
      * @param perunSession 
      * @param user user to check
-     * @return true if user exists in underlaying data source, false othewise
+     * @return true if user exists in underlaying data source, false otherwise
      * @throws InternalErrorException
      */
     boolean userExists(PerunSession perunSession, User user) throws InternalErrorException;
@@ -366,7 +362,7 @@ public interface UsersManagerImplApi {
      * 
      * @param perunSession 
      * @param userExtSource userExtSource to check
-     * @return true if userExtSource exists in underlaying data source, false othewise
+     * @return true if userExtSource exists in underlaying data source, false otherwise
      * @throws InternalErrorException
      */
     boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;

@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 
 
 /**
- * This exception raises when some inconsistency in underlaying data sources occured.
+ * This exception raises when some inconsistency in underlaying data sources occur.
  *
  * @author Slavek Licehammer
  */

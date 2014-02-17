@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import java.sql.SQLException;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -72,7 +71,6 @@ public interface FacilitiesManagerImplApi {
    *
    * @param perunSession
    * @param name
-   * @param type
    * 
    * @return Facility with specified name
    * 
@@ -194,7 +192,7 @@ public interface FacilitiesManagerImplApi {
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException;
 
   /**
-   * Return all VO' id which can use this facility. (VO muset have the resource which belongs to this facility).
+   * Return all VO' id which can use this facility. (VO must have the resource which belongs to this facility).
    * 
    * @param perunSession
    * @param facility
@@ -277,7 +275,7 @@ public interface FacilitiesManagerImplApi {
    * @param perunSession
    * @param facility
    * 
-   * @return true if facility exists in underlaying data source, false othewise
+   * @return true if facility exists in underlaying data source, false otherwise
    * 
    * @throws InternalErrorException
    */

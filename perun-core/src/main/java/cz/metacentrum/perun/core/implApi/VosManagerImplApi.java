@@ -176,7 +176,7 @@ public interface VosManagerImplApi {
    * 
    * @param perunSession
    * @param vo
-   * @return true if vo exists in underlaying data source, false othewise
+   * @return true if vo exists in underlaying data source, false otherwise
    *
    * @throws InternalErrorException
    */

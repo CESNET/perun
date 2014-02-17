@@ -219,8 +219,8 @@ public interface ServicesManagerImplApi {
    */
    List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
 
-  /* TODO createPackage
-        getRequiredAttributes(PerunSession perunSession, Service service);
+  /*
+   getRequiredAttributes(PerunSession perunSession, Service service);
    */
 
   /**
@@ -245,7 +245,7 @@ public interface ServicesManagerImplApi {
 
   /**
    * Remove required attribute from service. 
-   * TODO If you try to remove attribute which is default for othed Required attribute ...
+   * TODO If you try to remove attribute which is default for other Required attribute ...
    * 
    * @param perunSession perunSession
    * @param service service from which the attribute will be removed
@@ -279,7 +279,7 @@ public interface ServicesManagerImplApi {
    * 
    * @param perunSession perun session
    * @param service service to check
-   * @return true if service exists in underlaying data source, false othewise
+   * @return true if service exists in underlaying data source, false otherwise
    * 
    * @throws InternalErrorException if unexpected error occured
    */
@@ -301,9 +301,9 @@ public interface ServicesManagerImplApi {
    * 
    * @param perunSession perun session
    * @param servicesPackage services package to check
-   * @return true if services package exists in underlaying data source, false othewise
+   * @return true if services package exists in underlaying data source, false otherwise
    * 
-   * @throws InternalErrorException if unexpected error occured
+   * @throws InternalErrorException if unexpected error occur
    */
   boolean servicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
 
@@ -313,7 +313,7 @@ public interface ServicesManagerImplApi {
    * @param perunSession perun session
    * @param servicesPackage services package to check
    * 
-   * @throws InternalErrorException if unexpected error occured
+   * @throws InternalErrorException if unexpected error occur
    * @throws ServicesPackageNotExistsException if service doesn't exists
    */
   void checkServicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;

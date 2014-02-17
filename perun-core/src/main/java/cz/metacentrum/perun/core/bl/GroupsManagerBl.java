@@ -63,7 +63,7 @@ public interface GroupsManagerBl {
    * 
    * @return newly created top-level group
    * 
-   * @throws InternalErrorException if group.name contains ':' or other internal error occured
+   * @throws InternalErrorException if group.name contains ':' or other internal error occur
    * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, InternalErrorException;
@@ -77,7 +77,7 @@ public interface GroupsManagerBl {
    * 
    * @return newly created sub group with full group.Name with ":"
    * 
-   * @throws InternalErrorException if group.name contains ':' or other internal error occured
+   * @throws InternalErrorException if group.name contains ':' or other internal error occur
    * @throws GroupExistsException
    */
   Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException;
@@ -617,7 +617,7 @@ public interface GroupsManagerBl {
   Vo getVo(PerunSession sess, Group group) throws InternalErrorException;
 
   /**
-   * Get members from parent group. If the parent group desn't exist (this is top level group) return all VO (from which the group is) members instead.
+   * Get members from parent group. If the parent group doesn't exist (this is top level group) return all VO (from which the group is) members instead.
    * 
    * @param sess
    * @param group
@@ -763,4 +763,5 @@ public interface GroupsManagerBl {
    * @return filteredMembers list of members without duplicit after filtering
    */
   List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException;
+
 }

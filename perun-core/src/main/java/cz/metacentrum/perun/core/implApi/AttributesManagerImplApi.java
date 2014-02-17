@@ -275,7 +275,7 @@ public interface AttributesManagerImplApi {
   List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
   
   /**
-   * Returns all attributes with not-null value which fits the attributeDefinition. Can't proscess core or virtual attributes.
+   * Returns all attributes with not-null value which fits the attributeDefinition. Can't process core or virtual attributes.
    * 
    * @param sess
    * @param attributeDefinition
@@ -344,8 +344,6 @@ public interface AttributesManagerImplApi {
    * @throws InternalErrorException
    */
   List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user) throws InternalErrorException;
-
-
 
   /**
    * Get particular attribute for the facility.
@@ -450,7 +448,7 @@ public interface AttributesManagerImplApi {
 
 
   /**
-   * Get particular entityless atribute
+   * Get particular entityless attribute
    * @param sess perun session
    * @param key key to get attribute for
    * @param attributeName
@@ -461,7 +459,7 @@ public interface AttributesManagerImplApi {
   Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException;
 
   /**
-   * Get attibute defnition (attribute without defined value).
+   * Get attributes definition (attribute without defined value).
    * 
    * @param attributeName attribute name defined in the particular manager
    * @return attribute
@@ -472,7 +470,7 @@ public interface AttributesManagerImplApi {
   AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
 
   /**
-   * Get attibutes defnition (attribute without defined value).
+   * Get attributes definition (attribute without defined value).
    * 
    * @return List of attributes
    *
@@ -481,7 +479,7 @@ public interface AttributesManagerImplApi {
   List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException;
 
   /**
-   * Get attibutes defnition (attribute without defined value) with specified namaspace.
+   * Get attributes definition (attribute without defined value) with specified namespace.
    * 
    * @param namespace get only attributes with this namespace
    * @return List of attributes
@@ -491,7 +489,7 @@ public interface AttributesManagerImplApi {
   List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException;
 
   /**
-   * Get attibute defnition (attribute without defined value).
+   * Get attibute definition (attribute without defined value).
    * 
    * @param id attribute id
    * @return attribute
@@ -972,7 +970,7 @@ public interface AttributesManagerImplApi {
    * 
    * @param sess perun session
    * @param facility you get attributes for this facility
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @return list of facility attributes which are required by the service 
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -984,7 +982,7 @@ public interface AttributesManagerImplApi {
    * 
    * @param sess perun session
    * @param resource resource for which you want to get the attributes
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @return list of resource attributes which are required by the service 
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -997,7 +995,7 @@ public interface AttributesManagerImplApi {
    * @param sess perun session
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @return list of attributes which are required by the service. 
    * 
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1008,7 +1006,7 @@ public interface AttributesManagerImplApi {
    * Get member attributes which are required by the service. 
    * 
    * @param sess perun session
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @param member
    * @return list of attributes which are required by the service. 
    * 
@@ -1020,7 +1018,7 @@ public interface AttributesManagerImplApi {
    * Get user-facility attributes which are required by the service. 
    * 
    * @param sess perun session
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @param facility
    * @param user
    * @return list of attributes which are required by the service. 
@@ -1033,7 +1031,7 @@ public interface AttributesManagerImplApi {
    * Get user attributes which are required by the service. 
    * 
    * @param sess perun session
-   * @param service attribute required by this servis you'll get
+   * @param service attribute required by this service you'll get
    * @param user
    * @return list of attributes which are required by the service. 
    * 
@@ -1807,7 +1805,7 @@ public interface AttributesManagerImplApi {
   List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
   /**
-   * Check if this atribute is currently required on this facility. Attribute can be from any namespace.
+   * Check if this attribute is currently required on this facility. Attribute can be from any namespace.
    * 
    * @param sess
    * @param facility
@@ -1819,7 +1817,7 @@ public interface AttributesManagerImplApi {
   boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException;
   
   /**
-   * Check if this atribute is currently required on this group. Attribute can be from any namespace.
+   * Check if this attribute is currently required on this group. Attribute can be from any namespace.
    * 
    * @param sess
    * @param group
@@ -1831,7 +1829,7 @@ public interface AttributesManagerImplApi {
   boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
   /**
-   * Check if this atribute is currently required on this resource. Attribute can be from any namespace.
+   * Check if this attribute is currently required on this resource. Attribute can be from any namespace.
    * 
    * @param sess
    * @param resource
@@ -1854,7 +1852,7 @@ public interface AttributesManagerImplApi {
   List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException;
 
   /**
-   * Get the atributeModule for the attribute
+   * Get the attributeModule for the attribute
    *
    * @param attribute get the attribute module for this attribute
    * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getAttributesModule(PerunSession,String)
@@ -1872,7 +1870,7 @@ public interface AttributesManagerImplApi {
    AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws InternalErrorException;
    
     /**
-    * Gets attribute rights of an attribute with id given as a parametr.
+    * Gets attribute rights of an attribute with id given as a parameter.
     * If the attribute has no rights for a role, it returns empty list. That means the returned list has always 4 items
     * for each of the roles VOADMIN, FACILITYADMIN, GROUPADMIN, SELF.
     * Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
@@ -1885,7 +1883,7 @@ public interface AttributesManagerImplApi {
    List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException;
    
    /**
-    * Sets attribute right given as a parametr.
+    * Sets attribute right given as a parameter.
     * The method sets the rights for attribute and role exactly as it is given in the list of action types. That means it can
     * remove a right, if the right is missing in the list.
     * Info: If there is role VoAdmin in the list, use it for setting also VoObserver rights (only for read) automatic

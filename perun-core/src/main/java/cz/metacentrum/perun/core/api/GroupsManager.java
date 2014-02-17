@@ -593,7 +593,7 @@ public interface GroupsManager {
   Vo getVo(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
   /**
-   * Get members from parent group. If the parent group desn't exist (this is top level group) return all VO (from which the group is) members instead.
+   * Get members from parent group. If the parent group doesn't exist (this is top level group) return all VO (from which the group is) members instead.
    * 
    * @param sess
    * @param group

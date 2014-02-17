@@ -96,9 +96,9 @@ public interface UsersManagerBl {
    * @throws InternalErrorException 
    * @throws RelationNotExistsException if there is no such user (the user) to remove 
    * @throws ServiceUserMustHaveOwnerException if there is the last user to remove
-   * @throws ServiceUserOwnerAlredyRemovedException if there are 0 rows affected by deleting from DB
+   * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
    */
-  void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlredyRemovedException;
+  void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException;
 
   /**
    * Add serviceUser owner (the user)
@@ -265,7 +265,7 @@ public interface UsersManagerBl {
   void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException;
 
   /**
-   *  Deletes user. If forceDelete is true, then removes also associeted members.
+   *  Deletes user. If forceDelete is true, then removes also associated members.
    *
    * @param perunSession        
    * @param user
@@ -313,7 +313,7 @@ public interface UsersManagerBl {
   UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
   /**
-   *  Updates user's userExtSource last access time in DB. We can get infromation which userExtSource has been used as a last one.
+   *  Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
    *
    * @param perunSession
    * @param userExtSource
@@ -413,7 +413,7 @@ public interface UsersManagerBl {
    * @param sess
    * @param facility
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources which have the user access on
    * 
    * @throws InternalErrorException
    */
@@ -425,7 +425,7 @@ public interface UsersManagerBl {
    * @param sess
    * @param facility
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources which have the user access on
    * 
    * @throws InternalErrorException
    */
@@ -436,7 +436,7 @@ public interface UsersManagerBl {
    * 
    * @param sess
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources which have the user access on
    * 
    * @throws InternalErrorException
    */
@@ -447,7 +447,7 @@ public interface UsersManagerBl {
    * 
    * @param sess
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources which have the user access on
    * 
    * @throws InternalErrorException
    */
@@ -458,7 +458,7 @@ public interface UsersManagerBl {
    *
    * @param sess
    * @param user
-   * @return list of rich resources which have the user acess on
+   * @return list of rich resources which have the user access on
    *
    * @throws InternalErrorException
    */
@@ -627,7 +627,7 @@ public interface UsersManagerBl {
   List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException;
 
   /**
-   * Changes user password in defined login-namespace. If checkOldPassword is true, then ask autnetication system if old password is correct. user must exists.
+   * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct. user must exists.
    * 
    * @param sess
    * @param user user object which is used to get userLogin from the loginNamespace
@@ -797,7 +797,7 @@ public interface UsersManagerBl {
    * 
    * @param sess
    * @param richUsers
-   * @return list of Rich Users with attribtues
+   * @return list of Rich Users with attributes
    * @throws InternalErrorException
    * @throws UserNotExistsException 
    */
@@ -834,14 +834,14 @@ public interface UsersManagerBl {
   List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException;
   
   /**
-   * Return list of richusers who matches the searchString, searching name, email and logins 
+   * Return list of RichUsers who matches the searchString, searching name, email and logins
    * and are not member in specific VO and contain selected attributes.
    * 
    * @param sess
    * @param vo
    * @param searchString
    * @param attrsName
-   * @return list of richuser
+   * @return list of RichUser
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws VoNotExistsException
@@ -849,11 +849,11 @@ public interface UsersManagerBl {
   List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException;
   
   /**
-   * Return list of richusers which are not members of any VO and contain selected attributes.
+   * Return list of RichUsers which are not members of any VO and contain selected attributes.
    * 
    * @param sess
    * @param attrsName
-   * @return list of richuser
+   * @return list of RichUsers
    * @throws InternalErrorException
    * @throws VoNotExistsException
    * @throws UserNotExistsException
@@ -861,12 +861,12 @@ public interface UsersManagerBl {
   List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException;
      
   /**
-   * Returns list of richusers with selected attributes who matches the searchString, searching name, email, logins.
+   * Returns list of RichUsers with selected attributes who matches the searchString, searching name, email, logins.
    * 
    * @param sess
    * @param searchString
    * @param attrNames 
-   * @return list of richusers
+   * @return list of RichUsers
    * @throws InternalErrorException
    * @throws UserNotExistsException
    */

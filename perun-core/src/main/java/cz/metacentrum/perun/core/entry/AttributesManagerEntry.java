@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -350,7 +349,7 @@ public class AttributesManagerEntry implements AttributesManager {
        getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
        if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
        List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, resource, group);
        Iterator<Attribute> attrIter = attributes.iterator();
@@ -387,10 +386,10 @@ public class AttributesManagerEntry implements AttributesManager {
     
     public List<Attribute> getAttributes(PerunSession sess, String key) throws PrivilegeException, InternalErrorException{
       Utils.checkPerunSession(sess);
-      Utils.notNull(key, "key for entitiless attribute");
-      if(key.isEmpty()) throw new InternalErrorException("key for entitiless attribute can't be empty string");
+      Utils.notNull(key, "key for entityless attribute");
+      if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
  
-      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attirbutes principal need to be PerunAdmin.");
+      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin.");
       
       return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributes(sess, key));
     }
@@ -398,22 +397,22 @@ public class AttributesManagerEntry implements AttributesManager {
     public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException, InternalErrorException {
       Utils.checkPerunSession(sess);
       Utils.notNull(attrName, "name of entityless attributes");
-      if(attrName.isEmpty()) throw new InternalErrorException("name for entitiless attribute can't be empty string");
-      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attirbutes principal need to be PerunAdmin.");
+      if(attrName.isEmpty()) throw new InternalErrorException("name for entityless attribute can't be empty string");
+      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin.");
       
       return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getEntitylessAttributes(sess, attrName));
     }    
     
     public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
       Utils.checkPerunSession(sess);
-      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attirbutes principal need to be PerunAdmin.");
+      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin.");
       return getAttributesManagerBl().getEntitylessKeys(sess, attributeDefinition);
     }
     
     public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
       Utils.checkPerunSession(sess);
       getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
-      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attirbutes principal need to be PerunAdmin.");
+      if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin.");
       return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attributeDefinition));
     }
     
@@ -694,7 +693,7 @@ public class AttributesManagerEntry implements AttributesManager {
     }
 
     public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException,WrongAttributeAssignmentException {
-        Utils.checkPerunSession(sess);;
+        Utils.checkPerunSession(sess);
         Utils.notNull(attributeName, "attributeName");
         getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
         Attribute attr = getAttributesManagerBl().getAttribute(sess, host, attributeName);
@@ -705,12 +704,12 @@ public class AttributesManagerEntry implements AttributesManager {
     }
 
      public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
-        Utils.checkPerunSession(sess);;
+        Utils.checkPerunSession(sess);
         Utils.notNull(attributeName, "attributeName");
         getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         Attribute attr = getAttributesManagerBl().getAttribute(sess, resource, group, attributeName);
         //Choose to which attributes has the principal access
@@ -720,10 +719,10 @@ public class AttributesManagerEntry implements AttributesManager {
     }
 
     public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-        Utils.checkPerunSession(sess);;
+        Utils.checkPerunSession(sess);
         Utils.notNull(attributeName, "attributeName");
         Utils.notNull(key, "key");
-        if(key.isEmpty()) throw new InternalErrorException("key for entitiless attribute can't be empty string");
+        if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
 
         return getAttributesManagerBl().getAttribute(sess, key, attributeName);
     }
@@ -855,7 +854,7 @@ public class AttributesManagerEntry implements AttributesManager {
        getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
        if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
        }
        Attribute attr = getAttributesManagerBl().getAttributeById(sess, resource, group, id);
       //Choose to which attributes has the principal access
@@ -966,7 +965,7 @@ public class AttributesManagerEntry implements AttributesManager {
       Utils.checkPerunSession(sess);
       getAttributesManagerBl().checkAttributeExists(sess, attribute);
       Utils.notNull(key, "key");
-      if(key.isEmpty()) throw new InternalErrorException("key for entitiless attribute can't be empty string");
+      if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
       if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can set entityless attributes.");
       getAttributesManagerBl().setAttribute(sess, key, attribute);
 
@@ -1480,7 +1479,7 @@ public class AttributesManagerEntry implements AttributesManager {
       getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
       getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
       if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
       }
       List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, service, resource, group);
       Iterator<Attribute> attrIter = attributes.iterator();
@@ -1736,7 +1735,7 @@ public class AttributesManagerEntry implements AttributesManager {
        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
        getAttributesManagerBl().checkAttributeExists(sess, attribute);
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
         if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attribute), resource , group)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
@@ -1752,7 +1751,7 @@ public class AttributesManagerEntry implements AttributesManager {
        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
        getAttributesManagerBl().checkAttributesExists(sess, attributes);
        if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
        }
        //Choose to which attributes has the principal access
        List<Attribute> listOfAttributes = getAttributesManagerBl().fillAttributes(sess, resource, group, attributes);
@@ -1772,7 +1771,7 @@ public class AttributesManagerEntry implements AttributesManager {
        getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
        getAttributesManagerBl().checkAttributesExists(sess, attributes);
        if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
     
@@ -2095,7 +2094,7 @@ public class AttributesManagerEntry implements AttributesManager {
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
         
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
         if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attribute), resource , group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
@@ -2110,7 +2109,7 @@ public class AttributesManagerEntry implements AttributesManager {
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
         for(Attribute attr: attributes) {
@@ -2126,7 +2125,7 @@ public class AttributesManagerEntry implements AttributesManager {
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
         for(Attribute attr: attributes) {
@@ -2505,7 +2504,7 @@ public class AttributesManagerEntry implements AttributesManager {
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose to which attributes has the principal access
        if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, resource , group)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
@@ -2523,7 +2522,7 @@ public class AttributesManagerEntry implements AttributesManager {
             if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, resource , group)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
         }
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         getAttributesManagerBl().removeAttributes(sess, resource, group, attributes);
     }
@@ -2534,7 +2533,7 @@ public class AttributesManagerEntry implements AttributesManager {
         getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
         if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
-            throw new GroupResourceMismatchException("group and resourse are not in the same VO");
+            throw new GroupResourceMismatchException("group and resource are not in the same VO");
         }
         //Choose if principal has access to remove all attributes
         List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group);
