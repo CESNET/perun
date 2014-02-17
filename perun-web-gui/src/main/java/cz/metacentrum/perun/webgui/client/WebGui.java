@@ -30,6 +30,7 @@ import cz.metacentrum.perun.webgui.tabs.userstabs.SelfDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VosSelectTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
 
 /**
@@ -209,6 +210,16 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
                     loadingBox.hide();
                     body.clear();
                     body.add(new NotUserOfPerunWidget());
+                    return;
+                }
+
+                // check if user exists
+                if (session.getUser().isServiceUser()) {
+                    // if not and no role, redraw page body
+                    RootLayoutPanel body = RootLayoutPanel.get();
+                    loadingBox.hide();
+                    body.clear();
+                    body.add(new CantLogAsServiceUserWidget());
                     return;
                 }
 
