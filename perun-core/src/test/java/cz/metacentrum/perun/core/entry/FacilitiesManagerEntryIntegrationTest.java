@@ -297,8 +297,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setUpResource(vo);
 
 		List<Vo> allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
-		// Be aware that there is facility administrators VO
-		assertTrue("our facility should have 1 allowed VO", allowedVos.size() == 2);
+		
+		assertTrue("our facility should have 1 allowed VO", allowedVos.size() == 1);
 		assertTrue("our facility should have our VO as allowed", allowedVos.contains(vo));
 
 	}
@@ -362,8 +362,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Resource resource = setUpResource(vo);
 
 		List<Resource> assignedResources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		// Be aware that there is also facility administrators VO
-		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 2);
+		
+		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 1);
 		assertTrue("our facility should have our Resource assigned", assignedResources.contains(resource));
 
 	}
@@ -395,8 +395,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 		assertTrue("Our VO must be between RichResources VOs",vos.contains(vo));
 
-		// Be aware that there is also facility administrators VO
-		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 2);
+		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 1);
 		assertTrue("our facility should have our Resource assigned", assignedResources.contains(rresource));
 
 	}

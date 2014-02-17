@@ -427,16 +427,6 @@ public interface FacilitiesManagerBl {
    * @throws WrongAttributeAssignmentException
    */
   List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
-
-  /**
-   * Returns VO which contains Facilities Administrators.
-   * 
-   * @param sess
-   * @return VO containing facilities administrators
-   * @throws InternalErrorException
-   */
-  Vo getFacititiesAdminsVo(PerunSession sess) throws InternalErrorException;
-
   /**
    * List hosts of Facility.
    * 

@@ -297,44 +297,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
       host.setHostname(facility.getName());
       this.addHost(sess, host, facility);
     }
-
-    Vo vo;
-    try {
-      vo = perunBl.getVosManagerBl().getVoByShortName(sess, FacilitiesManager.FACADMINVO);
-    } catch (VoNotExistsException e) {
-      throw new ConsistencyErrorException("Facility administrators vo not exists", e);
-    }
-
-    // Create Resource
-    Resource resource = new Resource();
-    resource.setName(this.getFacilityNameForFacAdminVo(facility));
-    resource.setDescription("Resource " + resource.getName());
-
-    try {
-      resource = perunBl.getResourcesManagerBl().createResource(sess, resource, vo, facility);
-    } catch (FacilityNotExistsException e) {
-      throw new ConsistencyErrorException("Newly created facility doesn't exists?");
-    }
-
-    Group group = new Group();
-    group.setName(resource.getName());
-    group.setDescription("Exclusive access to the resource " + resource.getName());
-    try {
-      perunBl.getGroupsManagerBl().createGroup(sess, vo, group);
-    } catch (GroupExistsException e) {
-      // We can silently ignore this exception, it doesn't have any influence on the functionality.
-    }
-
-    // Assign newly created group to resource
-    try {
-      perunBl.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
-    } catch (WrongAttributeValueException e) {
-      throw new InternalErrorException("Group " + group + " shouldn't have any members");
-    } catch (WrongReferenceAttributeValueException e) {
-      throw new InternalErrorException("Group " + group + " shouldn't have any members");
-    } catch (GroupAlreadyAssignedException e) {
-      // We can silently ignore this exception, it doesn't have any influence on the functionality.
-    }
     
     //set creator as Facility manager
     if(sess.getPerunPrincipal().getUser() != null) {
@@ -368,33 +330,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     //if host still exist
     List<Host> hosts = this.getHosts(sess, facility);
     if(!hosts.isEmpty()) throw new RelationExistsException("There are still some hosts on the facility.");
-
-    // Delete from  Facility Administrators VO
-    Vo vo;
-    try {
-      vo = perunBl.getVosManagerBl().getVoByShortName(sess, FacilitiesManager.FACADMINVO);
-    } catch (VoNotExistsException e) {
-      throw new ConsistencyErrorException("FacadminVo not exists", e);
-    }
-    // Delete facadmin group    
-    try {
-      Group group = perunBl.getGroupsManagerBl().getGroupByName(sess, vo, this.getFacilityNameForFacAdminVo(facility));
-      perunBl.getGroupsManagerBl().deleteGroup(sess, group, true);
-    } catch (GroupNotExistsException e) {
-      log.error("Group {} doesn't exists.", this.getFacilityNameForFacAdminVo(facility));
-    }
-
-    // Remove Resource from facAdmins VO
-    String resourceName = facility.getName() + "-" + facility.getType();
-    Resource resource;
-    try {
-      resource = perunBl.getResourcesManagerBl().getResourceByName(sess, vo, facility, resourceName);
-      perunBl.getResourcesManagerBl().deleteResource(sess, resource);
-    } catch (ResourceNotExistsException e1) {
-      log.error("Facility " + facility + " should have resource defined facadmin VO.");
-    }
-    
-    
+        
     if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
       throw new RelationExistsException("Facility is still used as a resource");
     }
@@ -516,23 +452,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     this.perunBl = perunBl;
   }
 
-  public Vo getFacititiesAdminsVo(PerunSession sess) throws InternalErrorException {
-    try {
-      return getPerunBl().getVosManagerBl().getVoByShortName(sess, FacilitiesManager.FACADMINVO);
-    } catch (VoNotExistsException e) {
-      throw new ConsistencyErrorException("Facility administrators VO doesn't exists");
-    }
-  }
-
-  /**
-   * Returns name of the resource/group for the Facility administrators VO
-   * @param facility
-   * @return
-   */
-  protected String getFacilityNameForFacAdminVo(Facility facility) {
-    return facility.getName() + "-" + facility.getType();
-  }
-
   public List<Host> getHosts(PerunSession sess, Facility facility) throws InternalErrorException {
     return getFacilitiesManagerImpl().getHosts(sess, facility);
   }
@@ -613,25 +532,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
   
   public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
-    
-    Vo facadminVO = null;
-    try{
-        facadminVO = getPerunBl().getVosManagerBl().getVoByShortName(sess, getPerunBl().getFacilitiesManager().FACADMINVO);
-    }catch (VoNotExistsException ex){
-        //This Vo must exists
-        throw new ConsistencyErrorException("There is no vo FACADMINVO.", ex);
-    }
-    Group group = null;
-    try{
-        group = getPerunBl().getGroupsManagerBl().getGroupByName(sess, facadminVO, getFacilityNameForFacAdminVo(facility));
-    }catch(GroupNotExistsException ex) {
-        throw new InternalErrorException(ex);
-    }
-    try{
-        getPerunBl().getGroupsManagerBl().addAdmin(sess, group, user);
-    }catch(AlreadyAdminException ex){
-        //This is not a problem, user can be already member but there still can be needed to add rights to DB authz
-    }
     facilitiesManagerImpl.addAdmin(sess, facility, user);
     getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, facility);
   }
@@ -646,24 +546,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
   
   public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
-    Vo facadminVO = null;
-    try{
-        facadminVO = getPerunBl().getVosManagerBl().getVoByShortName(sess, getPerunBl().getFacilitiesManager().FACADMINVO);
-    }catch (VoNotExistsException ex){
-        //This Vo must exists
-        throw new ConsistencyErrorException("There is no vo FACADMINVO.", ex);
-    }
-    
-    Group group = null;
-    try {
-        group = getPerunBl().getGroupsManagerBl().getGroupByName(sess, facadminVO, getFacilityNameForFacAdminVo(facility));
-        getPerunBl().getGroupsManagerBl().removeAdmin(sess, group, user);
-    } catch(GroupNotExistsException ex) {
-        throw new InternalErrorException(ex);
-    } catch (UserNotAdminException e) {
-        log.warn("Removing admin (user {}) from facility {}, where user has never been the admin.", user, facility);
-    }
-    
     facilitiesManagerImpl.removeAdmin(sess, facility, user);
     getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, facility);
   }
