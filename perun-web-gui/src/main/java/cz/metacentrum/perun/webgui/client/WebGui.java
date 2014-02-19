@@ -4,6 +4,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.storage.client.Storage;
@@ -12,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
@@ -31,6 +34,7 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VosSelectTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
 
 /**
@@ -136,50 +140,88 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
         loadPerunPrincipal();
 
         // keep alive
-        final PopupPanel box = new DecoratedPopupPanel();
-        box.setGlassEnabled(true);
-
         VerticalPanel vp = new VerticalPanel();
         vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-        vp.add(new HTML("<h2>Connection to Perun lost.</h2><h2>Connecting...</h2>"));
-        vp.add(new Image(AjaxLoaderImage.IMAGE_URL));
+        vp.add(new HTML("<h2>Connection to Perun was lost.</h2><strong>Please check your internet connection.</strong>"));
+
+        final FlexTable layout = new FlexTable();
+        layout.setVisible(false);
+
+        layout.setHTML(0, 0, "<p>You can also try to <strong>refresh the browser window</strong>. However, all <strong>unsaved changes will be lost</strong>.");
+        layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_TOP);
+
+        vp.add(layout);
         vp.setSpacing(10);
 
-        box.add(vp);
-        box.setModal(true);
-        box.center();
-        box.hide();
+        final Confirm c = new Confirm("", vp, true);
+        c.setAutoHide(false);
+        c.setHideOnButtonClick(false);
+        c.setOkIcon(SmallIcons.INSTANCE.arrowRefreshIcon());
+        c.setOkButtonText("Re-connect");
+        c.setNonScrollable(true);
+        c.setOkClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                KeepAlive call = new KeepAlive(JsonCallbackEvents.disableButtonEvents(c.getOkButton(), new JsonCallbackEvents(){
+                    @Override
+                    public void onLoadingStart(){
+                        checkPending = true;
+                    }
+                    @Override
+                    public void onFinished(JavaScriptObject jso){
+                        BasicOverlayType type = jso.cast();
+                        checkPending = false;
+                        if (type.getString().equals("OK")) {
+                            if (c.isShowing()) {
+                                c.hide();
+                            }
+                        }
+                    }
+                    @Override
+                    public void onError(PerunError error){
+                        checkPending = false;
+                        if (!c.isShowing()) {
+                            c.show();
+                        }
+                        layout.setVisible(true);
+                    }
+                }));
+                call.retrieveData();
+            }
+        });
 
         // Check RPC URL every 15 sec if call not pending
-        Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
 
-                if (!checkPending) {
-                    KeepAlive call = new KeepAlive(new JsonCallbackEvents(){
+                KeepAlive call = new KeepAlive(new JsonCallbackEvents() {
                         @Override
                         public void onLoadingStart(){
                             checkPending = true;
                         }
                         @Override
-                        public void onFinished(JavaScriptObject jso){
-                            checkPending = false;
+                        public void onFinished(JavaScriptObject jso) {
                             BasicOverlayType type = jso.cast();
+                            checkPending = false;
                             if (type.getString().equals("OK")) {
-                                box.hide();
+                                if (c.isShowing()) {
+                                    c.hide();
+                                }
                             }
                         }
                         @Override
-                        public void onError(PerunError error){
+                        public void onError(PerunError error) {
                             checkPending = false;
-                            if (!box.isShowing()) {
-                                box.show();
+                            if (!c.isShowing()) {
+                                c.show();
                             }
                         }
                     });
-                    call.retrieveData();
-                }
+                    if (!checkPending && perunLoaded) {
+                        call.retrieveData();
+                    }
                 return true;
             }
         }, 15000);
