@@ -389,7 +389,7 @@ public class Utils {
    * 
    * @param rawName
    * @return HashMap contains entries with keys titleBefore, firstName, lastName and titleAfter.
-   * @throws InternalErrorException if some exception has been thrown in procc
+   * @throws InternalErrorException if some exception has been thrown in proc
    */
   public static Map<String, String> parseCommonName(String rawName) throws InternalErrorException {  
     Map<String, String> parsedName = new HashMap<String, String>();
@@ -397,6 +397,9 @@ public class Utils {
     String firstName = "";
     String lastName = "";
     String titleAfter = "";
+
+    // replace all (double+)spaces with single space & trim input, so matcher can work correctly
+    rawName = rawName.replaceAll("\\s+", " ").trim();
 
     // If rawName contains only one word then use it only for lastName
     try {
@@ -412,7 +415,7 @@ public class Utils {
           titleAfter = matcher.group(5);
         }
     } catch (Exception ex) {
-        throw new InternalErrorException("Problem with parsing of rawName ='" + rawName + "'",ex);
+        throw new InternalErrorException("Problem with parsing of rawName='" + rawName + "'", ex);
     }
     
     if (titleBefore.isEmpty()) titleBefore = null;
