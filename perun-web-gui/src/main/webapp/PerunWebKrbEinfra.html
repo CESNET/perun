@@ -1,0 +1,94 @@
+<!doctype html>
+
+<html>
+<head>
+
+    <!-- Charset -->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <!-- Default GWT locale -->
+    <meta name="gwt:property" content="locale=en">
+
+    <!-- FavIcons -->
+    <link rel="icon" href="img/perun.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="img/perun.ico" type="image/x-icon">
+
+    <!-- Styles -->
+    <link type="text/css" rel="stylesheet" href="./PerunWeb.css">
+
+    <!-- Title -->
+    <title>Perun web gui</title>
+
+    <!--  jQuery -->
+    <script type="text/javascript" language="javascript" src="./js/jquery-1.7.1.min.js"></script>
+
+    <!--  RPC definition -->
+    <script type="text/javascript" language="javascript" >
+        RPC_SERVER = "einfra";
+    </script>
+
+    <!--  Set language -->
+    <script type="text/javascript" language="javascript" >
+
+        // get URL param function
+        function getURLParameter(name) {
+            return decodeURI(
+                    (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,'default'])[1]
+            );
+        }
+
+        var l_lang;
+        l_lang = getURLParameter('locale');
+
+        /*
+        // if no locale set in URL
+        if (l_lang == 'default') {
+
+            if (typeof(Storage) != "undefined") {
+
+                l_lang = localStorage.getItem("urn:perun:gui:preferences:language")
+
+            }
+
+            // if not set, set from browser settings
+            if (l_lang == null) {
+
+                if (navigator.userLanguage) // Explorer
+                    l_lang = navigator.userLanguage;
+                else if (navigator.language) // FF
+                    l_lang = navigator.language;
+                else
+                    l_lang = "en";
+
+            }
+
+        }
+        */
+
+        if (l_lang == 'default') {
+            l_lang = 'en';
+        }
+        $("meta[name='gwt:property']").attr('content', 'locale='+l_lang);
+
+    </script>
+
+    <!-- Load GWT GUI -->
+    <script type="text/javascript" language="javascript" src="./PerunWeb/PerunWeb.nocache.js"></script>
+
+</head>
+
+<body>
+
+<!-- OPTIONAL: include this if you want history support -->
+<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+        style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+<noscript>
+    <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled in order for this
+        application to display correctly.</div>
+</noscript>
+
+</body>
+</html>
