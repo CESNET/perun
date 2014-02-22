@@ -243,6 +243,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
   
   public User createUser(PerunSession sess, User user) throws InternalErrorException {
+
+      // trim input
+      if(user.getFirstName() != null) user.setFirstName(user.getFirstName().trim());
+      if(user.getLastName() != null) user.setLastName(user.getLastName().trim());
+      if(user.getMiddleName() != null) user.setMiddleName(user.getMiddleName().trim());
+      if(user.getTitleBefore() != null) user.setTitleBefore(user.getTitleBefore().trim());
+      if(user.getTitleAfter() != null) user.setTitleAfter(user.getTitleAfter().trim());
+
     //Convert empty strings to null
     if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
     if(user.getLastName() != null && user.getLastName().isEmpty()) user.setLastName(null);
