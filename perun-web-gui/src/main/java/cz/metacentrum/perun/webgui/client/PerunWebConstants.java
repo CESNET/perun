@@ -45,6 +45,12 @@ public interface PerunWebConstants extends Constants{
      */
     String perunRpcUrlForceAuthnFed();
 
+    /**
+     * Kerberos authz with EINFRA namespace
+     *
+     * @return RPC URL string
+     */
+    String perunRpcUrlKrbEinfra();
 
     /**
      * Base timeout for all callbacks to RPC when callback is

@@ -714,12 +714,12 @@ public class Utils {
             // use default if unknown rpc path
             String path = "/perun-gui/";
 
-            if (urlObject.getPath().contains("/perun-rpc-krb/")) {
-                path = "/perun-gui-krb/";
-            } else if (urlObject.getPath().contains("/perun-rpc-fed/")) {
-                path = "/perun-gui-fed/";
-            } else if (urlObject.getPath().contains("/perun-rpc-cert/")) {
-                path = "/perun-gui-cert/";
+            if (urlObject.getPath().contains("/perun-rpc-krb/") || urlObject.getPath().contains("/krb/perun-rpc/")) {
+                path = "/krb/perun-gui/";
+            } else if (urlObject.getPath().contains("/perun-rpc-fed/") || urlObject.getPath().contains("/fed/perun-rpc/")) {
+                path = "/fed/perun-gui/";
+            } else if (urlObject.getPath().contains("/perun-rpc-cert/") || urlObject.getPath().contains("/cert/perun-rpc/")) {
+                path = "/cert/perun-gui/";
             }
 
             StringBuilder link = new StringBuilder();

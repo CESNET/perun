@@ -66,9 +66,9 @@ public class Utils {
         // always use URL of machine, where GUI runs
         String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
 
-        final String URL_KRB = baseUrl+"/perun-identity-consolidator-krb/";
-        final String URL_FED = baseUrl+"/perun-identity-consolidator-fed/";
-        final String URL_CERT = baseUrl+"/perun-identity-consolidator-cert/";
+        final String URL_KRB = baseUrl+"/krb/perun-identity-consolidator/";
+        final String URL_FED = baseUrl+"/fed/perun-identity-consolidator/";
+        final String URL_CERT = baseUrl+"/cert/perun-identity-consolidator/";
         String rpc = "";
         String link = "";
 
