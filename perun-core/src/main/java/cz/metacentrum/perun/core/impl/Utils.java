@@ -26,7 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,13 +41,11 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.LinkedHashSet;
 /**
  * Utilities.
  */
@@ -165,6 +162,39 @@ public class Utils {
         } catch (IOException e) {
             throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
         }
+    }
+
+    /**
+     * Gets all properties from custom property file.
+     *
+     * @param propertyFile name of properties file
+     * @return all properties with values
+     */
+    public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) throws InternalErrorException {
+        log.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
+        notNull(propertyFile, "propertyFile");
+
+        // Load properties file with configuration
+        Properties properties = new Properties();
+        try {
+
+            // Get the path to the perun.properties file
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + propertyFile));
+            properties.load(is);
+            is.close();
+
+             Map<String, String> myMap = new HashMap<String, String>();
+            for (Object key : properties.keySet()) {
+                myMap.put(key.toString(), properties.get(key).toString());
+            }
+            return myMap;
+
+        } catch (FileNotFoundException e) {
+            throw new InternalErrorException("Cannot find "+propertyFile+" file", e);
+        } catch (IOException e) {
+            throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
+        }
+
     }
 
  /**

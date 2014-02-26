@@ -378,6 +378,14 @@ public class Api extends HttpServlet {
         // closes the request
         out.close();
         return;
+
+      } else if ("utils".equals(manager) && "getGuiConfiguration".equals(method)) {
+
+          ser.write(Utils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
+          // closes the request
+          out.close();
+          return;
+
       }
       
       // In case of GET requests (read ones) set changing state to false
