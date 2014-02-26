@@ -197,7 +197,7 @@ public class HandleApplication {
                     ft.setHTML(ft.getRowCount(), 0,  "<p>Please consider contacting new applicant with question, if he/she is already member of any other VO in Perun." +
                             "<ul><li>If YES, ask user to join his identities before application approval at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a>"+
                     "</li><li>If NO, you can approve this application. " +
-                            "</li><li>If UNSURE, contact <a href=\"mailto:"+ PerunWebConstants.INSTANCE.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+                            "</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
 
                     ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
 

@@ -108,7 +108,7 @@ public class Utils {
         // always use URL of machine, where GUI runs
         String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
 
-        if (PerunWebConstants.INSTANCE.isDevel()) {
+        if (Utils.isDevel()) {
             baseLink = baseUrl+"/PasswordReset.html";
         } else {
             baseLink = baseUrl+"/perun-password-reset/";
@@ -129,13 +129,107 @@ public class Utils {
      */
     public static ArrayList<String> getSupportedPasswordNamespaces() {
 
-        ArrayList<String> supported = new ArrayList<String>();
-        for (String s : PerunWebConstants.INSTANCE.getSupportedPasswordNamespaces()) {
-            supported.add(s);
+        ArrayList<String> attributes = new ArrayList<String>();
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getSupportedPasswordNamespaces");
+            if (value != null && !value.isEmpty()) {
+                String[] urns = value.split(",");
+                for (int i=0; i<urns.length; i++) {
+                    attributes.add(urns[i]);
+                }
+            }
         }
-        return supported;
+        return attributes;
 
     }
+
+    /**
+     * Returns TRUE if logged to Devel instance of Perun
+     *
+     * @return TRUE if instance of Perun is Devel / FALSE otherwise
+     */
+    public static boolean isDevel() {
+
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("isDevel");
+            if (value != null && !value.isEmpty()) {
+                return Boolean.parseBoolean(value);
+            }
+        }
+        return false;
+
+    }
+
+    /**
+     * Returns URL of Perun`s logo
+     *
+     * if not set, use default: "img/logo11.png"
+     *
+     * @return URL of Perun`s logo
+     */
+    public static String logoUrl() {
+
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("logoUrl");
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return "img/logo11.png";
+
+    }
+
+    /**
+     * Returns address to perun support
+     *
+     * @return support email as string
+     */
+    public static String perunReportEmailAddress() {
+
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("perunReportEmailAddress");
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return "";
+
+    }
+
+    /**
+     * Returns default RT queue for errors reporting
+     *
+     * @return default RT queue for errors reporting as string
+     */
+    public static String defaultRtQueue() {
+
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("defaultRtQueue");
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return "";
+
+    }
+
+    /**
+     * Returns default RT queue for errors reporting
+     *
+     * @return default RT queue for errors reporting as string
+     */
+    public static String vosManagerMembersGroup() {
+
+        if (PerunWebSession.getInstance().getConfiguration() != null) {
+            String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("vosManagerMembersGroup");
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return "";
+
+    }
+
 
     public static final native String unAccent(String str) /*-{
 

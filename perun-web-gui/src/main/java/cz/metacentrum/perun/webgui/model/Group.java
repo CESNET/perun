@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 
 /**
  * Overlay type for Group object from Perun
@@ -80,7 +81,7 @@ public class Group extends JavaScriptObject {
      * @return TRUE if core group
      */
 	public final boolean isCoreGroup() {
-        if (PerunWebConstants.INSTANCE.vosManagerMembersGroup().equalsIgnoreCase(getName())) {
+        if (Utils.vosManagerMembersGroup().equalsIgnoreCase(getName())) {
             return true;
         } else {
             return false;
