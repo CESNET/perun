@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
@@ -260,8 +261,8 @@ public class ApplicationFormGui implements EntryPoint {
     private void loadPerunPrincipal(final JsonCallbackEvents externalEvents) {
 
         // events after getting PerunPrincipal from RPC
-        final JsonCallbackEvents events = new JsonCallbackEvents() {
-
+        GetPerunPrincipal principal = new GetPerunPrincipal(new JsonCallbackEvents() {
+            @Override
             public void onFinished(JavaScriptObject jso) {
 
                 // store perun principal into session for future use
@@ -273,105 +274,112 @@ public class ApplicationFormGui implements EntryPoint {
                     session.setRoles(pp.getRoles());
                 }
 
-                // non authz user
-                if (session.getRpcUrl().equalsIgnoreCase("/perun-rpc-non/jsonp/")) {
+                // proceed after GUI configuration is loaded
+                GetGuiConfiguration getConf = new GetGuiConfiguration(new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
 
-                    // CHALLENGE WITH CAPTCHA
+                        // non authz user - is used URL same as default URL (non on production) ?
+                        if (session.getRpcUrl().equalsIgnoreCase(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
-                    FlexTable ft = new FlexTable();
-                    ft.setSize("100%", "500px");
+                            // CHALLENGE WITH CAPTCHA
 
-                    // captcha with public key
-                    final RecaptchaWidget captcha = new RecaptchaWidget("6Lcbdt0SAAAAAGMnlJn57omFv1OCl3O-PbW0NrK7", LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
+                            FlexTable ft = new FlexTable();
+                            ft.setSize("100%", "500px");
 
-                    cz.metacentrum.perun.webgui.widgets.CustomButton cb = new CustomButton();
-                    cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
-                    cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
-                    cb.addClickHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-                            VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), new JsonCallbackEvents(){
-                                public void onFinished(JavaScriptObject jso) {
+                            // captcha with public key
+                            final RecaptchaWidget captcha = new RecaptchaWidget("6Lcbdt0SAAAAAGMnlJn57omFv1OCl3O-PbW0NrK7", LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
 
-                                    BasicOverlayType bt = jso.cast();
-                                    if (bt.getBoolean()) {
+                            cz.metacentrum.perun.webgui.widgets.CustomButton cb = new CustomButton();
+                            cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
+                            cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
+                            cb.addClickHandler(new ClickHandler() {
+                                @Override
+                                public void onClick(ClickEvent clickEvent) {
+                                    VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), new JsonCallbackEvents(){
+                                        public void onFinished(JavaScriptObject jso) {
 
-                                        // OK captcha answer - load GUI
+                                            BasicOverlayType bt = jso.cast();
+                                            if (bt.getBoolean()) {
 
-                                        // Authorized anonymous user
-                                        session.getUiElements().setLogText("Auth OK");
+                                                // OK captcha answer - load GUI
 
-                                        final GetApplicationsForUser request;
-                                        if (session.getUser() == null) {
-                                            // if not yet user in perun, search by actor / extSourceName
-                                            request = new GetApplicationsForUser(0, externalEvents);
-                                        } else {
-                                            // if user in perun
-                                            request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
+                                                // Authorized anonymous user
+                                                session.getUiElements().setLogText("Auth OK");
+
+                                                final GetApplicationsForUser request;
+                                                if (session.getUser() == null) {
+                                                    // if not yet user in perun, search by actor / extSourceName
+                                                    request = new GetApplicationsForUser(0, externalEvents);
+                                                } else {
+                                                    // if user in perun
+                                                    request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
+                                                }
+                                                request.retrieveData();
+
+                                            } else {
+
+                                                // wrong captcha answer
+                                                Confirm c = new Confirm(ApplicationMessages.INSTANCE.captchaErrorHeader(), new HTML(ApplicationMessages.INSTANCE.captchaErrorMessage()),true);
+                                                c.show();
+
+                                            }
                                         }
-                                        request.retrieveData();
-
-                                    } else {
-
-                                        // wrong captcha answer
-                                        Confirm c = new Confirm(ApplicationMessages.INSTANCE.captchaErrorHeader(), new HTML(ApplicationMessages.INSTANCE.captchaErrorMessage()),true);
-                                        c.show();
-
-                                    }
+                                    });
+                                    req.retrieveData();
                                 }
                             });
-                            req.retrieveData();
-                        }
-                    });
 
-                    // set layout
+                            // set layout
 
-                    int row = 0;
+                            int row = 0;
 
-                    // display VO logo if present in attribute
-                    for (int i=0; i<vo.getAttributes().length(); i++) {
-                        if (vo.getAttributes().get(i).getFriendlyName().equalsIgnoreCase("voLogoURL")) {
-                            ft.setWidget(row, 0, new Image(vo.getAttributes().get(i).getValue()));
+                            // display VO logo if present in attribute
+                            for (int i=0; i<vo.getAttributes().length(); i++) {
+                                if (vo.getAttributes().get(i).getFriendlyName().equalsIgnoreCase("voLogoURL")) {
+                                    ft.setWidget(row, 0, new Image(vo.getAttributes().get(i).getValue()));
+                                    ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+                                    row++;
+                                }
+                            }
+
                             ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-                            row++;
+                            ft.setHTML(row, 0, ApplicationMessages.INSTANCE.captchaDescription());
+                            ft.setWidget(row+1, 0, captcha);
+                            ft.getFlexCellFormatter().setHorizontalAlignment(row+1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                            ft.setWidget(row+2, 0, cb);
+                            ft.getFlexCellFormatter().setHorizontalAlignment(row+2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+
+
+                            // finish loading GUI
+                            loadingBox.hide();
+                            bodySplitter.clear();
+                            bodySplitter.add(ft);
+
+                        } else {
+
+                            // Authorized known user
+                            session.getUiElements().setLogText("Auth OK");
+
+                            final GetApplicationsForUser req;
+                            if (session.getUser() == null) {
+                                // if not yet user in perun, search by actor / extSourceName
+                                req = new GetApplicationsForUser(0, externalEvents);
+                            } else {
+                                // if user in perun
+                                req = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
+                            }
+                            req.retrieveData();
+
                         }
+
                     }
-
-                    ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-                    ft.setHTML(row, 0, ApplicationMessages.INSTANCE.captchaDescription());
-                    ft.setWidget(row+1, 0, captcha);
-                    ft.getFlexCellFormatter().setHorizontalAlignment(row+1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-                    ft.setWidget(row+2, 0, cb);
-                    ft.getFlexCellFormatter().setHorizontalAlignment(row+2, 0, HasHorizontalAlignment.ALIGN_CENTER);
-
-
-                    // finish loading GUI
-                    loadingBox.hide();
-                    bodySplitter.clear();
-                    bodySplitter.add(ft);
-
-                } else {
-
-                    // Authorized known user
-                    session.getUiElements().setLogText("Auth OK");
-
-                    final GetApplicationsForUser req;
-                    if (session.getUser() == null) {
-                        // if not yet user in perun, search by actor / extSourceName
-                        req = new GetApplicationsForUser(0, externalEvents);
-                    } else {
-                        // if user in perun
-                        req = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
-                    }
-                    req.retrieveData();
-
-                }
-
+                });
+                getConf.retrieveData();
 
             }
-        };
-        GetPerunPrincipal loggedUserRequst = new GetPerunPrincipal(events);
-        loggedUserRequst.retrieveData();
+        });
+        principal.retrieveData();
 
     }
 

@@ -8,8 +8,10 @@ import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetFo
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetLeftMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
+import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
@@ -25,10 +27,8 @@ public class PasswordResetGui implements EntryPoint {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
+	private PasswordResetLeftMenu leftMenu;
 
-    private static boolean checkPending = false;
-	
-	private PasswordResetLeftMenu leftMenu; 
 	/**
 	 * Main content panel
 	 */
@@ -90,38 +90,70 @@ public class PasswordResetGui implements EntryPoint {
 
 		// events after getting PerunPrincipal from RPC
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
-			public void onFinished(JavaScriptObject jso) {
-				
-				// store perun principal into session for future use
-				PerunPrincipal pp = (PerunPrincipal)jso;
-				session.setPerunPrincipal(pp);
-				
-				// check if user exists
+			@Override
+            public void onFinished(JavaScriptObject jso) {
+
+                // store perun principal into session for future use
+                PerunPrincipal pp = (PerunPrincipal)jso;
+                session.setPerunPrincipal(pp);
+
+                // check if user exists
                 if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {
-					// if not and no role, redraw page body
-					RootLayoutPanel body = RootLayoutPanel.get();
-					loadingBox.hide();
-					body.clear();
-					body.add(new NotUserOfPerunWidget());
-					return;					
-				}
+                    // if not and no role, redraw page body
+                    RootLayoutPanel body = RootLayoutPanel.get();
+                    loadingBox.hide();
+                    body.clear();
+                    body.add(new NotUserOfPerunWidget());
+                    return;
+                }
 
-				// store users roles and editable entities into session
-				session.setRoles(pp.getRoles());
-				
-				// display logged user
-				session.getUiElements().setLoggedUserInfo(pp);
+                // store users roles and editable entities into session
+                session.setRoles(pp.getRoles());
 
-				// hides the loading box
-				loadingBox.hide();
-				
-				// add menu item and load content
-                contentPanel.setWidget(new PasswordResetFormPage().getContent());
-                //Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
-                //a.fireEvent(new ClickEvent(){});
+                // display logged user
+                session.getUiElements().setLoggedUserInfo(pp);
+
+                GetGuiConfiguration getConf = new GetGuiConfiguration(new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+
+                        session.setConfiguration((BasicOverlayType)jso.cast());
+
+                        // hides the loading box
+                        loadingBox.hide();
+
+                        // add menu item and load content
+                        contentPanel.setWidget(new PasswordResetFormPage().getContent());
+                        //Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
+                        //a.fireEvent(new ClickEvent(){});
+
+                    }
+                    @Override
+                    public void onError(PerunError error){
+                        // hides the loading box
+                        loadingBox.hide();
+
+                        // shows error box
+                        PopupPanel loadingFailedBox;
+                        if (error == null) {
+                            loadingFailedBox = session.getUiElements().perunLoadingFailedBox("Request timeout exceeded.");
+                        } else {
+                            if (error.getName().contains("UserNotExistsException")) {
+                                loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
+                            } else {
+                                loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
+                            }
+                        }
+                        loadingFailedBox.show();
+
+                        leftMenu.addItem("Password reset", SmallIcons.INSTANCE.keyIcon(), null);
+
+                    }
+                });
+                getConf.retrieveData();
 
             }
-
+            @Override
 			public void onError(PerunError error){
 				// hides the loading box
 				loadingBox.hide();

@@ -64,6 +64,8 @@ public class PerunWebSession {
 	
 	// History of entities which user edited
 	private ArrayList<GeneralObject> entitiesHistoryList = new ArrayList<GeneralObject>();
+
+    private BasicOverlayType configuration;
 	
 	// RPC URL
 	private String rpcUrl = "";
@@ -112,7 +114,7 @@ public class PerunWebSession {
 		}else if (rpcType.equals("cert")){
 			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlCert();
 		}else if (rpcType.equals("forceAuthn-fed")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlForceAuthnFed();
+			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlForceAuthFed();
 		}else if (rpcType.equals("einfra")){
             rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrbEinfra();
         }else{
@@ -659,4 +661,11 @@ public class PerunWebSession {
 
     }
 
+    public BasicOverlayType getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(BasicOverlayType configuration) {
+        this.configuration = configuration;
+    }
 }
