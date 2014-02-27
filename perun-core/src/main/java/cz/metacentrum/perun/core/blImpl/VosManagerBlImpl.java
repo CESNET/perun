@@ -83,11 +83,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 
   public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException, RelationExistsException {
     log.debug("Deleting vo {}", vo);
-
-    if (vo.getShortName().equals(FacilitiesManager.FACADMINVO)) {
-      log.error("Cannot remove Facility Administrators VO");
-      return;
-    }
     
     try {
       List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);

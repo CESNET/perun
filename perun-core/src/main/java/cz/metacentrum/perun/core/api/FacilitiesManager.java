@@ -45,9 +45,6 @@ public interface FacilitiesManager {
   public final static String GENERALTYPE = "general";
   public final static String STORAGE = "storage";
   
-  public final static String FACADMINVO = "facadmins";
-  public final static String FACADMINVONAME = "Facilities Administrators";
-  
   /**
    * Searches for the Facility with specified id.
    *
