@@ -66,9 +66,10 @@ public class Utils {
         // always use URL of machine, where GUI runs
         String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
 
-        final String URL_KRB = baseUrl+"/krb/perun-identity-consolidator/";
-        final String URL_FED = baseUrl+"/fed/perun-identity-consolidator/";
-        final String URL_CERT = baseUrl+"/cert/perun-identity-consolidator/";
+        // FIXME - production consolidator is still unsing old URL scheme
+        final String URL_KRB = baseUrl+"/perun-identity-consolidator-krb/";
+        final String URL_FED = baseUrl+"/perun-identity-consolidator-fed/";
+        final String URL_CERT = baseUrl+"/perun-identity-consolidator-cert/";
         String rpc = "";
         String link = "";
 
@@ -111,7 +112,7 @@ public class Utils {
         if (Utils.isDevel()) {
             baseLink = baseUrl+"/PasswordReset.html";
         } else {
-            baseLink = baseUrl+"/perun-password-reset/";
+            baseLink = baseUrl+"/pwd-reset/";
         }
 
         if (namespace != null && !namespace.isEmpty()) {

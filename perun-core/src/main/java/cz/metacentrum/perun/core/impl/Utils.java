@@ -742,14 +742,14 @@ public class Utils {
             URL urlObject = new URL(url);
 
             // use default if unknown rpc path
-            String path = "/perun-gui/";
+            String path = "/gui/";
 
-            if (urlObject.getPath().contains("/perun-rpc-krb/") || urlObject.getPath().contains("/krb/perun-rpc/")) {
-                path = "/krb/perun-gui/";
-            } else if (urlObject.getPath().contains("/perun-rpc-fed/") || urlObject.getPath().contains("/fed/perun-rpc/")) {
-                path = "/fed/perun-gui/";
-            } else if (urlObject.getPath().contains("/perun-rpc-cert/") || urlObject.getPath().contains("/cert/perun-rpc/")) {
-                path = "/cert/perun-gui/";
+            if (urlObject.getPath().contains("/krb/rpc/")) {
+                path = "/krb/gui/";
+            } else if (urlObject.getPath().contains("/fed/rpc/")) {
+                path = "/fed/gui/";
+            } else if (urlObject.getPath().contains("/cert/rpc/")) {
+                path = "/cert/gui/";
             }
 
             StringBuilder link = new StringBuilder();
