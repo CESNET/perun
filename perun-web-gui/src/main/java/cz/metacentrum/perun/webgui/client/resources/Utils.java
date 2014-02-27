@@ -112,7 +112,7 @@ public class Utils {
         if (Utils.isDevel()) {
             baseLink = baseUrl+"/PasswordReset.html";
         } else {
-            baseLink = baseUrl+"/pwd-reset/";
+            baseLink = baseUrl+"/fed-force/pwd-reset/";
         }
 
         if (namespace != null && !namespace.isEmpty()) {
