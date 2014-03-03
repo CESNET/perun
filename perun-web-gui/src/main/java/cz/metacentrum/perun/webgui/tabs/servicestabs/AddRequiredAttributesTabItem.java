@@ -20,7 +20,6 @@ import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
-import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -52,7 +51,8 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	// data
 	private int serviceId;
 	private Service service;
-    private boolean attributeAdded = false;
+    private ArrayList<AttributeDefinition> alreadyAddedList = new ArrayList<AttributeDefinition>();
+    private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
 	 * Tab with form for adding attribute definition as required attribute to service
@@ -96,12 +96,6 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		TabMenu menu = new TabMenu();
         final TabItem tab = this;
 
-        // already added
-        final SimplePanel alreadyAdded = new SimplePanel();
-        alreadyAdded.setStyleName("alreadyAdded");
-        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-        alreadyAdded.setVisible(false);
-
         final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedRequiredAttribute());
 
         final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDefs.getOracle());
@@ -122,11 +116,12 @@ public class AddRequiredAttributesTabItem implements TabItem {
                         AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
-                                attributeAdded = true;
-                                alreadyAdded.setVisible(true);
-                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + attributesToAdd.get(n).getName() + ", ");
                                 // unselect added attribute
                                 attrDefs.getSelectionModel().setSelected(attributesToAdd.get(n), false);
+                                alreadyAddedList.add(attributesToAdd.get(n));
+                                rebuildAlreadyAddedWidget();
+                                // clear search
+                                box.getSuggestBox().setText("");
                             }
                         }));
                         request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
@@ -141,7 +136,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, attributeAdded);
+                session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
             }
         }));
 
@@ -165,6 +160,19 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		
 		return getWidget();
 	}
+
+    /**
+     * Rebuild already added widget based on already added attributes
+     */
+    private void rebuildAlreadyAddedWidget() {
+
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        for (int i=0; i<alreadyAddedList.size(); i++) {
+            alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
+        }
+    }
 
 	public Widget getWidget() {
 		return this.contentWidget;
@@ -204,8 +212,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		
 	}
 	
