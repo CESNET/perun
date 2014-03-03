@@ -70,12 +70,17 @@ public class MemberGroupsTabItem implements TabItem {
 
         final GetMemberGroups groupsCall = new GetMemberGroups(memberId);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new group", new ClickHandler() {
+        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 session.getTabManager().addTabToCurrentTab(new MemberAddToGroupTabItem(member), true);
             }
-        }));
+        });
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) {
+            addButton.setEnabled(false);
+            groupsCall.setCheckable(false);
+        }
+        menu.addWidget(addButton);
 
         final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected group(s)", new ClickHandler() {
             @Override
@@ -120,7 +125,7 @@ public class MemberGroupsTabItem implements TabItem {
             }
         });
 
-        JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
+        if (session.isVoAdmin(member.getVoId())) JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
         table.addStyleName("perun-table");
         ScrollPanel sp = new ScrollPanel(table);
         sp.addStyleName("perun-tableScrollPanel");

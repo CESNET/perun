@@ -129,7 +129,6 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return SmallIcons.INSTANCE.buildingIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 13;
@@ -138,9 +137,6 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -180,13 +176,11 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
     }
 
-    static public VosSelectTabItem load(Map<String, String> parameters)
-    {
+    static public VosSelectTabItem load(Map<String, String> parameters) {
         return new VosSelectTabItem();
     }
 

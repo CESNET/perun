@@ -129,6 +129,8 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 							request.createApplicationForm();
 						}
 					});
+
+                    if (!session.isVoAdmin(voId)) create.setEnabled(false);
 					
 					FlexTable ft = new FlexTable();
 					ft.setSize("100%", "300px");
@@ -157,23 +159,15 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		// save button
 		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
 		menu.addWidget(save);
+        if (!session.isVoAdmin(voId)) save.setEnabled(false);
         save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				UpdateFormItems request = new UpdateFormItems(PerunEntity.VIRTUAL_ORGANIZATION, voId, new JsonCallbackEvents(){
+				UpdateFormItems request = new UpdateFormItems(PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.disableButtonEvents(save, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						itemsRequest.retrieveData();
-						save.setProcessing(false);
 					}
-					@Override
-					public void onLoadingStart() {
-                        save.setProcessing(true);
-					}
-					@Override
-					public void onError(PerunError error) {
-                        save.setProcessing(false);
-					}
-				});
+				}));
 				// reset item ordnum to correct state defined by list
 				int counter = 0; // keep counter
 				// process
@@ -192,38 +186,46 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		});
 		
 		// add button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
             }
-        }));
+        });
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+        menu.addWidget(addButton);
 
-		menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+		CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CopyFormTabItem(vo.getId(), 0));
 			}
-		}));
-		
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
+		});
+        if (!session.isVoAdmin(voId)) copyButton.setEnabled(false);
+		menu.addWidget(copyButton);
+
+		CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 GeneralObject go = vo.cast();
                 session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
             }
-        }));
+        });
+        if (!session.isVoAdmin(voId)) previewButton.setEnabled(false);
+        menu.addWidget(previewButton);
 		
-		// AUTO APROVAL + NOTIFICATIONS
+		// AUTO APPROVAL + NOTIFICATIONS
 		
-		// autoaproval widget already defined
+		// auto-approval widget already defined
 		GetApplicationForm form = new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId);
 		form.setHidden(true);
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());
 		
-		menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
+		CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new MailsTabItem(voId, 0));
 			}
-		}));
+		});
+        if (!session.isVoAdmin(voId)) emailButton.setEnabled(false);
+        menu.addWidget(emailButton);
 		
 		// load elements
 		itemsRequest.retrieveData();

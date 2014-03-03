@@ -124,6 +124,12 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
+        if (forceAll) {
+            loaderImage.setEmptyResultMessage("No VOs found.");
+        } else {
+            loaderImage.setEmptyResultMessage("You are not manager of any VO.");
+        }
+
 		// columns
 		if (checkable) {
             table.addCheckBoxColumn();

@@ -324,9 +324,6 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -362,7 +359,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(groupId)) {
+        if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
             return true;
         } else {
             return false;

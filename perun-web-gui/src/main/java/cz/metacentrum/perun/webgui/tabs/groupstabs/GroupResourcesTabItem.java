@@ -100,6 +100,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// get VO resources
 		final GetAssignedRichResources resources = new GetAssignedRichResources(groupId, PerunEntity.GROUP);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) resources.setCheckable(false);
 
 		// custom events for viewResource
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
@@ -156,7 +157,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
         }
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resources, table, removeButton);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
@@ -220,7 +221,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(groupId)) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

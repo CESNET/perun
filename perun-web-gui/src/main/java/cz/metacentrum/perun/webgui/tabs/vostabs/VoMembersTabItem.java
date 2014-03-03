@@ -134,17 +134,22 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
         // CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, "", null);
-		
+
+        if (!session.isVoAdmin(voId)) members.setCheckable(false);
+        if (!session.isVoAdmin(voId)) findMembers.setCheckable(false);
+
 		// ADD
 		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
             }
         });
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
         tabMenu.addWidget(addButton);
 
 		// REMOVE
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromVo());
+        if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
         tabMenu.addWidget(removeButton);
 
         final CustomButton addServiceButton = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton(), ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {

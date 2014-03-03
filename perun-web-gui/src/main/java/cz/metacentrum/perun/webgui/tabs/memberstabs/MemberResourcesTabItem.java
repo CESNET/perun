@@ -15,8 +15,8 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
+import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 /**
  * Displays members resources
@@ -58,27 +58,16 @@ public class MemberResourcesTabItem implements TabItem {
         vp.add(menu);
         vp.setCellHeight(menu, "30px");
 
-        if (session.isVoAdmin()) {
-            menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new resource", new ClickHandler() {
+        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new resource", new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     AddMemberToResourceTabItem tab = new AddMemberToResourceTabItem(member.getVoId());
                     tab.startAtStageTwo(member);
                     session.getTabManager().addTabToCurrentTab(tab);
                 }
-            }));
-        }
-
-        /*
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected resource(s)", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                // TODO - create tab for deleting member from resources ??
-            }
-        });
-        removeButton.setEnabled(false);
-        menu.addWidget(removeButton);
-        */
+            });
+        if (!session.isVoAdmin(member.getVoId())) addButton.setEnabled(false);
+        menu.addWidget(addButton);
 
         final GetAssignedRichResources resourcesCall = new GetAssignedRichResources(memberId, PerunEntity.MEMBER);
         resourcesCall.setCheckable(false);

@@ -186,7 +186,10 @@ public class GetApplicationForm implements JsonCallback {
 		} else {
 			appStyle = appStyle + " <span style=\"color:red;\">Manual</span> (EXTENSION)";
 		}
-		
+
+        if (form.getGroup() == null && !session.isVoAdmin(form.getVo().getId())) button.setEnabled(false);
+        if (form.getGroup() != null && (!session.isGroupAdmin(form.getGroup().getId()) && !session.isVoAdmin(form.getVo().getId()))) button.setEnabled(false);
+
 		content.setHTML(0, 0, appStyle + module);
 		content.setWidget(0, 1, button);
         content.getFlexCellFormatter().getElement(0, 0).setAttribute("style", "padding-right: 10px");

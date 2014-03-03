@@ -134,6 +134,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
         final Map<String,Integer> ids = new HashMap<String,Integer>();
         ids.put("resource", resourceId);
         resAttrs.setIds(ids);
+        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) resAttrs.setCheckable(false);
 
         // puts first table
         final CellTable<Attribute> table = resAttrs.getEmptyTable();
@@ -241,7 +242,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
             resAttrs.retrieveData();
         }
 
-        // refresh table envent - refresh only on finished / on error keep selected
+        // refresh table event - refresh only on finished / on error keep selected
         final JsonCallbackEvents refreshTable = new JsonCallbackEvents(){
             public void onFinished(JavaScriptObject jso) {
                 resAttrs.clearTable();
@@ -255,7 +256,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
         // set button disable event
         final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshTable);
-
+        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) saveChangesButton.setEnabled(false);
         saveChangesButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -270,13 +271,14 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
         });
 
         // add set new to menu
-        Button setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+        CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 Map<String, Integer> ids = new HashMap<String, Integer>();
                 ids.put("resource", resourceId);
                 session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, resAttrs.getList()), true);
             }
         });
+        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) setNewAttributeButton.setEnabled(false);
         menu.addWidget(setNewAttributeButton);
 
         // fill button
@@ -288,7 +290,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
         // remove button event
         final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, refreshTable);
-
+        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) removeButton.setEnabled(false);
         removeButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -357,6 +359,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
                 }
             }
         });
+        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) fillDefaultButton.setEnabled(false);
 		
 		/* TODO - not implemented
 		
@@ -426,8 +429,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.setActiveVoId(resource.getVoId());
         session.setActiveFacilityId(resource.getFacilityId());
     }
@@ -449,13 +451,11 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId + "&service=" + serviceId;
     }
 
-    static public ResourceSettingsTabItem load(Map<String, String> parameters)
-    {
+    static public ResourceSettingsTabItem load(Map<String, String> parameters) {
         int id = Integer.parseInt(parameters.get("id"));
         int srv = Integer.parseInt(parameters.get("service"));
         return new ResourceSettingsTabItem(id, srv);

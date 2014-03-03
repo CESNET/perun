@@ -246,5 +246,4 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
         return new VoExtSourcesTabItem(voId);
     }
 
-
 }

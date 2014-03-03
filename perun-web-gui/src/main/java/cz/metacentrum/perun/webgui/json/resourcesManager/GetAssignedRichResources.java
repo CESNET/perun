@@ -118,6 +118,11 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
         // set empty content & loader
         table.setEmptyTableWidget(loaderImage);
+        if (PerunEntity.GROUP.equals(entity)) {
+            loaderImage.setEmptyResultMessage("Group is not assigned to any resource.");
+        } else if (PerunEntity.MEMBER.equals(entity)) {
+            loaderImage.setEmptyResultMessage("Member has no access to VO resources.");
+        }
 
         // columns
         if (checkable) {

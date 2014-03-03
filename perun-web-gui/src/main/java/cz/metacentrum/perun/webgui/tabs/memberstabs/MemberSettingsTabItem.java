@@ -92,28 +92,12 @@ public class MemberSettingsTabItem implements TabItem {
         callback.getMemberAttributes(member.getId(), 1); // member & user attrs
         final CellTable<Attribute> table = callback.getEmptyTable();
 
-        // fill table by other callbacks event
-        JsonCallbackEvents fillEvents = new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                callback.onFinished(jso);
-            }
-            @Override
-            public void onLoadingStart() {
-                callback.onLoadingStart();
-            }
-            @Override
-            public void onError(PerunError error) {
-                callback.onError(error);
-            }
-        };
-
         // others callbacks
         final Map<String, Integer> ids = new HashMap<String, Integer>();
         ids.put("member", member.getId());
         ids.put("workWithUserAttributes", 1); // work with user
-        final GetResourceRequiredAttributesV2 resourceRequired = new GetResourceRequiredAttributesV2(ids, fillEvents);
-        final GetRequiredAttributes required = new GetRequiredAttributes(ids, fillEvents);
+        final GetResourceRequiredAttributesV2 resourceRequired = new GetResourceRequiredAttributesV2(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
+        final GetRequiredAttributes required = new GetRequiredAttributes(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
 
         if (lastSelectedFilterIndex == 1 || lastSelectedResourceId == 0) {
             required.retrieveData(); // load required by default
@@ -183,8 +167,7 @@ public class MemberSettingsTabItem implements TabItem {
                     } else if (filter.getSelectedIndex() == 2) {
                         callback.clearTable();
                         table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
-                        Confirm c = new Confirm("Not valid option", new Label("You must select resource first."), true);
-                        c.show();
+                        UiElements.generateInfo("Not valid option", "You must select resource first.");
                     }
                 }
             }
@@ -267,6 +250,7 @@ public class MemberSettingsTabItem implements TabItem {
 
         // save changes in attributes
         final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) saveChangesButton.setEnabled(false);
         saveChangesButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -354,6 +338,7 @@ public class MemberSettingsTabItem implements TabItem {
                 session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
             }
         });
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) setNewMemberAttributeButton.setEnabled(false);
         menu.addWidget(setNewMemberAttributeButton);
 
         // REMOVE ATTRIBUTES BUTTON
@@ -431,6 +416,7 @@ public class MemberSettingsTabItem implements TabItem {
 
             }
         });
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) removeButton.setEnabled(false);
         menu.addWidget(removeButton);
 
         // add listbox to menu

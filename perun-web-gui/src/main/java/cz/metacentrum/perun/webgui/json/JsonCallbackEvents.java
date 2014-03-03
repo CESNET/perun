@@ -252,4 +252,34 @@ public class JsonCallbackEvents {
 
     }
 
+    /**
+     * Return event, which will pass all of its content
+     * to another callback's event.
+     *
+     * Used for filling tables with data from different callbacks
+     * than table origins.
+     *
+     * @param callback Callback to pass event results too.
+     * @return content passing events
+     */
+    static public JsonCallbackEvents passDataToAnotherCallback(final JsonCallback callback) {
+
+        return new JsonCallbackEvents(){
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+                callback.onFinished(jso);
+            }
+            @Override
+            public void onError(PerunError error) {
+                callback.onError(error);
+            }
+            @Override
+            public void onLoadingStart() {
+                callback.onLoadingStart();
+            }
+        };
+
+    }
+
+
 }

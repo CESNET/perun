@@ -102,6 +102,7 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
 
         // get VO resources
         final GetRichResources resources = new GetRichResources(voId);
+        if (!session.isVoAdmin(voId)) resources.setCheckable(false);
 
         // custom events for viewResource
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
@@ -148,7 +149,7 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         });
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resources, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(resources, table, removeButton);
 
         table.addStyleName("perun-table");
         table.setWidth("100%");
@@ -209,7 +210,6 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
         }
         session.setActiveVoId(voId);
     }
-
 
     public boolean isAuthorized() {
 

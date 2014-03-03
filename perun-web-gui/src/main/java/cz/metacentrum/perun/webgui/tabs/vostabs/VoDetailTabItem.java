@@ -150,6 +150,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
             }
         });
 
+        if (!session.isVoAdmin(voId)) change.setEnabled(false);
         dp.add(change);
         change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 

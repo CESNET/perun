@@ -125,11 +125,9 @@ public class GetFormItems implements JsonCallback {
 	/**
 	 * Returns contents
 	 */
-	public Widget getContents()
-	{
+	public Widget getContents() {
 		return this.contents;		
 	}
-
 
 	/**
 	 * Called when an error occurs.
@@ -169,14 +167,13 @@ public class GetFormItems implements JsonCallback {
 		events.onFinished(jso);
 		loaderImage.loadingFinished();
 	}
-	
-	
+
 	/**
 	 * Prepares the widgets from the items as A FORM FOR SETTINGS
 	 * 
 	 * @param items
 	 */
-	public void prepareSettings(final ArrayList<ApplicationFormItem> items){
+	public void prepareSettings(final ArrayList<ApplicationFormItem> items) {
 		
 		// refresh table events
 		final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
@@ -353,7 +350,14 @@ public class GetFormItems implements JsonCallback {
 				}
 			});
 			editTable.setWidget(0, 3, removeButton);
-			
+
+            if ((PerunEntity.GROUP.equals(entity) && (!session.isGroupAdmin(id) && !session.isVoAdmin(id)))
+                    || (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id))) {
+                editButton.setEnabled(false);
+                upButton.setEnabled(false);
+                downButton.setEnabled(false);
+                removeButton.setEnabled(false);
+            }
 			
 			// format 
 			fcf.setHeight(i, 0, "28px");
@@ -366,17 +370,17 @@ public class GetFormItems implements JsonCallback {
 		}
 		
 		contents.setWidget(ft);
+
 	}
-	
-	
+
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
-     *  DEPRECATED: Use GetFormItemsWithPrefilledValues instead 
+     * DEPRECATED: Use GetFormItemsWithPrefilledValues instead
 	 * 
 	 * @param items
-	 * @deprecated
 	 */
-	public void prepareApplicationForm(final ArrayList<ApplicationFormItem> items){
+    @Deprecated
+	public void prepareApplicationForm(final ArrayList<ApplicationFormItem> items) {
 		
 		FlexTable ft = new FlexTable();
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
@@ -389,7 +393,7 @@ public class GetFormItems implements JsonCallback {
 		}
 		
 		int i = 0;
-		for(final ApplicationFormItem item : items){
+		for(final ApplicationFormItem item : items) {
 			
 			String value = "";
 			if(item.getShortname().equals("affiliation") || item.getShortname().equals("mail") || item.getShortname().equals("displayName")){
@@ -444,8 +448,7 @@ public class GetFormItems implements JsonCallback {
 	 * Generates the values from the form
 	 * @return
 	 */
-	public ArrayList<ApplicationFormItemData> getValues()
-	{
+	public ArrayList<ApplicationFormItemData> getValues() {
 		ArrayList<ApplicationFormItemData> formItemDataList = new ArrayList<ApplicationFormItemData>();
 		
 		// goes through all the item generators and retrieves the value
@@ -468,10 +471,6 @@ public class GetFormItems implements JsonCallback {
 		}
 		return formItemDataList;
 	}
-	
-	
-	
-	
 
 	public String getType() {
 		return type;
@@ -484,8 +483,5 @@ public class GetFormItems implements JsonCallback {
 	public ArrayList<ApplicationFormItem> getList() {
 		return this.applFormItems;
 	}
-
-
-
 
 }

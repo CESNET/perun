@@ -111,12 +111,18 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		// menu
 		TabMenu menu = new TabMenu();
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
+		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 // creates a new form
                 session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));
             }
-        }));
+        });
+
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
+            createButton.setEnabled(false);
+            subgroups.setCheckable(false);
+        }
+        menu.addWidget(createButton);
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSubGroup());
         removeButton.addClickHandler(new ClickHandler(){
@@ -163,7 +169,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		});
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(subgroups, table, removeButton);
+        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
 
 		// adds the table into the panel
 		table.addStyleName("perun-table");
@@ -191,7 +197,6 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.groupGoIcon();
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -200,9 +205,6 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -225,8 +227,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(group, "Subgroups", getUrlWithParameters());
 		if(group != null){
@@ -238,7 +239,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
 			return true; 
 		} else {
 			return false;
@@ -253,13 +254,11 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 	
-	static public SubgroupsTabItem load(Map<String, String> parameters)
-	{
+	static public SubgroupsTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new SubgroupsTabItem(gid);
 	}

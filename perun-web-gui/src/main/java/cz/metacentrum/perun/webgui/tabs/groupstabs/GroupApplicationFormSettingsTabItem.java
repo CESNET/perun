@@ -42,7 +42,7 @@ import java.util.Map;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl{
+public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -67,7 +67,6 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 	// source list with items
 	protected ArrayList<ApplicationFormItem> sourceList;
 
-	
 	/**
 	 * Creates a tab instance
 	 *
@@ -124,6 +123,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 							request.createApplicationForm();
 						}
 					});
+                    if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) create.setEnabled(false);
 					
 					FlexTable ft = new FlexTable();
 					ft.setSize("100%", "300px");
@@ -159,21 +159,12 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
 		save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				UpdateFormItems request = new UpdateFormItems(PerunEntity.GROUP, groupId, new JsonCallbackEvents(){
+				UpdateFormItems request = new UpdateFormItems(PerunEntity.GROUP, groupId, JsonCallbackEvents.disableButtonEvents(save, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						itemsRequest.retrieveData();
-						save.setProcessing(false);
 					}
-					@Override
-					public void onLoadingStart() {
-                        save.setProcessing(true);
-					}
-					@Override
-					public void onError(PerunError error) {
-                        save.setProcessing(false);
-					}
-				});
+				}));
 				// reset item ordnum to correct state defined by list
 				int counter = 0; // keep counter
 				// process
@@ -190,6 +181,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 				
 			}
 		});
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) save.setEnabled(false);
         menu.addWidget(save);
 		
 		// add button
@@ -198,34 +190,41 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
                 session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
             }
         });
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
         menu.addWidget(addButton);
 
-        menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+        CustomButton copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CopyFormTabItem(group.getVoId(), groupId));
             }
-        }));
+        });
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) copy.setEnabled(false);
+        menu.addWidget(copy);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
+        CustomButton preview = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 GeneralObject go = group.cast();
                 session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
             }
-        }));
+        });
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) preview.setEnabled(false);
+        menu.addWidget(preview);
 		
-		// AUTO APROVAL + NOTIFICATIONS
+		// AUTO APPROVAL + NOTIFICATIONS
 		
-		// autoaproval widget already defined
+		// auto-approval widget already defined
 		GetApplicationForm form = new GetApplicationForm(PerunEntity.GROUP, groupId);
 		form.setHidden(true);
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());
 
-        menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
+        CustomButton email = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTab(new MailsTabItem(group.getVoId(), group.getId()));
             }
-        }));
+        });
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) email.setEnabled(false);
+        menu.addWidget(email);
 		
 		// load elements
 		itemsRequest.retrieveData();
@@ -282,9 +281,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(group, "Application form", getUrlWithParameters());
 		if(group != null){
@@ -296,7 +293,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 
 	public boolean isAuthorized() {
 		
-		if (session.isVoAdmin() || session.isGroupAdmin(groupId)) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;
@@ -311,13 +308,11 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?group=" + groupId;
 	}
 	
-	static public GroupApplicationFormSettingsTabItem load(Map<String, String> parameters)
-	{
+	static public GroupApplicationFormSettingsTabItem load(Map<String, String> parameters) {
 		int groupId = Integer.parseInt(parameters.get("group"));
 		return new GroupApplicationFormSettingsTabItem(groupId);
 	}

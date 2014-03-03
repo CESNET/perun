@@ -96,6 +96,7 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 
 		final GetAssignedGroups resourceGroups = new GetAssignedGroups(resourceId);
 
+
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(resourceGroups);
 
 		CustomButton assignGroupButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToResource(), new ClickHandler() {
@@ -119,6 +120,11 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
                 });
 			}
 		});
+
+        if (!session.isVoAdmin(resource.getVoId())) {
+            resourceGroups.setCheckable(false);
+            assignGroupButton.setEnabled(false);
+        }
 
 		menu.addWidget(assignGroupButton);
 		menu.addWidget(removeGroupButton);
@@ -147,7 +153,7 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		});
 
         removeGroupButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resourceGroups, table, removeGroupButton);
+        if (session.isVoAdmin(resource.getVoId())) JsonUtils.addTableManagedButton(resourceGroups, table, removeGroupButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
@@ -207,7 +213,7 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(resource.getVoId())) {
+		if (session.isVoAdmin(resource.getVoId()) || session.isVoObserver(resource.getVoId())) {
 			return true; 
 		} else {
 			return false;

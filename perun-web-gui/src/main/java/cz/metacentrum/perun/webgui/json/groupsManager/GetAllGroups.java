@@ -130,6 +130,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("VO has no groups.");
 		
 		Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
 				new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {

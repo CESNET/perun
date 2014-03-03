@@ -49,22 +49,9 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	 */
 	private Label titleWidget = new Label("Loading group");
 
-	/**
-	 * Group
-	 */
 	private Group group;
 	private int groupId;
     private VirtualOrganization vo;
-	
-	// Group name label widget
-	private Label groupNameLabel = new Label();
-	
-	// Group description label widget
-	private Label groupDescriptionLabel = new Label();
-	
-	// Group ID label widget
-	private Label groupIdLabel = new Label();
-
     // sub panels
     TabPanelForTabItems tabPanel;
 	
@@ -95,22 +82,13 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
         tabPanel = new TabPanelForTabItems(this);
     }
 	
-	
 	public boolean isPrepared(){
 		return !(group == null);
 	}
 
-	private void setTitles()
-	{
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()));
-		groupIdLabel.setText(String.valueOf(group.getId()));
-		groupNameLabel.setText(group.getName());
-		groupDescriptionLabel.setText(group.getDescription());
-	}
-	
 	public Widget draw() {
-		
-		setTitles();
+
+        titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()));
 		
 		// main panel
 		VerticalPanel vp = new VerticalPanel();
@@ -129,26 +107,6 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
         groupName.setStyleName("now-managing");
         groupName.setTitle(group.getName());
         menu.setWidget(0, 1, groupName);
-
-	    /*
-        GetEntityById parent = new GetEntityById(PerunEntity.GROUP_PARENT, groupId, new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso){
-                Group g = jso.cast();
-                if (session.isGroupAdmin(g.getId()) || session.isVoAdmin(g.getVoId())) {
-                    Hyperlink link = new Hyperlink(g.getName(),session.getTabManager().getLinkForTab(new GroupDetailTabItem(session, g)));
-                    menu.setWidget(0, 5, link);
-                } else {
-                    menu.setHTML(0, 5, g.getName());
-                }
-            }
-        });
-        if (group.getParentGroupId() != 0) {
-            parent.retrieveData();
-        } else {
-            menu.setHTML(0, 5, "Group is top-level");
-        }
-        */
 
         final JsonCallbackEvents events = new JsonCallbackEvents(){
             public void onFinished(JavaScriptObject jso){
@@ -192,6 +150,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
         } else {
             change = new CustomButton("", ButtonTranslation.INSTANCE.editGroupDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
         }
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) change.setEnabled(false);
         change.addClickHandler(new ClickHandler(){
 	    	public void onClick(ClickEvent event) {
 	    		session.getTabManager().addTabToCurrentTab(new EditGroupDetailsTabItem(group, events));
@@ -249,7 +208,6 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.groupIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -258,9 +216,6 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -313,7 +268,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	
 	public boolean isAuthorized() {
 				
-		if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(groupId)) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;
@@ -321,7 +276,6 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		
 	}
 
-	
 	public final static String URL = "detail";
 	
 	public String getUrl()
@@ -329,13 +283,11 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 	
-	static public GroupDetailTabItem load(Map<String, String> parameters)
-	{
+	static public GroupDetailTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new GroupDetailTabItem(gid);
 	}

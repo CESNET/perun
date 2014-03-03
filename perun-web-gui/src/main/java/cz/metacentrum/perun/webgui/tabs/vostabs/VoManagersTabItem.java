@@ -120,6 +120,9 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
         final GetRichAdminsWithAttributes admins = new GetRichAdminsWithAttributes(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
         final GetAdminGroups adminGroups = new GetAdminGroups(PerunEntity.VIRTUAL_ORGANIZATION, voId);
 
+        if (!session.isVoAdmin(voId)) admins.setCheckable(false);
+        if (!session.isVoAdmin(voId)) adminGroups.setCheckable(false);
+
         box.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
@@ -168,8 +171,8 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
             }
         });
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
         menu.addWidget(0, addButton);
-
 
         final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromVo());
         menu.addWidget(1, removeButton);
@@ -211,7 +214,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
         table.addStyleName("perun-table");
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(admins, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(admins, table, removeButton);
 
         return table;
 
@@ -229,8 +232,8 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().addTabToCurrentTab(new AddVoManagerGroupTabItem(vo, events), true);
             }
         });
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
         menu.addWidget(0, addButton);
-
 
         final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerGroupFromVo());
         menu.addWidget(1, removeButton);
@@ -267,9 +270,10 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
         table.addStyleName("perun-table");
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(adminGroups, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(adminGroups, table, removeButton);
 
         return table;
+
     }
 
 	public Widget getWidget() {

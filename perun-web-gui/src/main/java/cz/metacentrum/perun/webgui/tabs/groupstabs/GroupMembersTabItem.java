@@ -97,12 +97,10 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
-	
-	
+
 	public boolean isPrepared(){
 		return !(group == null);
 	}
-	
 
 	public Widget draw() {
 		
@@ -122,6 +120,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		// CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, disableCheckboxEvent);
 		members.setIndirectCheckable(false);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) members.setCheckable(false);
 
 		// refreshMembers
 		final JsonCallbackEvents refreshMembersEvent = JsonCallbackEvents.refreshTableEvents(members);
@@ -140,6 +139,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
                     session.getTabManager().addTabToCurrentTab(new AddMemberToGroupTabItem(group), true);
                 }
             });
+            if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
             tabMenu.addWidget(addButton);
 	
 			// REMOVE
@@ -169,7 +169,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
                     });
 				}
 			});
+            if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
             tabMenu.addWidget(removeButton);
+
         } else {
 
             // is core group
@@ -251,7 +253,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        JsonUtils.addTableManagedButton(members, table, removeButton);
+        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(members, table, removeButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -323,7 +325,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(groupId)) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

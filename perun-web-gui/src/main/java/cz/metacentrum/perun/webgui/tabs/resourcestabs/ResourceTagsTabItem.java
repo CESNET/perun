@@ -125,6 +125,11 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
             }
         });
 
+        if (!session.isVoAdmin(resource.getVoId())) {
+            assignTagsButton.setEnabled(false);
+            removeTagsButton.setEnabled(false);
+            tags.setCheckable(false);
+        }
 		menu.addWidget(assignTagsButton);
 		menu.addWidget(removeTagsButton);
 
@@ -196,15 +201,14 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		session.setActiveVoId(resource.getVoId());
 	}
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(resource.getVoId())) {
+		if (session.isVoAdmin(resource.getVoId()) || session.isVoObserver(resource.getVoId())) {
 			return true; 
 		} else {
 			return false;
@@ -219,19 +223,16 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId;
 	}
 	
-	static public ResourceTagsTabItem load(Map<String, String> parameters)
-	{
+	static public ResourceTagsTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ResourceTagsTabItem(id);
 	}
 	
-	static public ResourceTagsTabItem load(Resource resource)
-	{
+	static public ResourceTagsTabItem load(Resource resource) {
 		return new ResourceTagsTabItem(resource);
 	}
 	

@@ -171,8 +171,7 @@ public class CreateVoResourceTagTabItem implements TabItem {
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 	}
 	
 	public boolean isAuthorized() {

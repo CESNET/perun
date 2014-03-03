@@ -122,6 +122,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
         // define GET ATTRIBUTES callback
         final GetAttributesV2 jsonCallback = new GetAttributesV2();
         jsonCallback.setIds(ids);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) jsonCallback.setCheckable(false);
         final CellTable<Attribute> table = jsonCallback.getEmptyTable();
         table.setWidth("100%");
         table.addStyleName("perun-table");
@@ -131,23 +132,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
         vp.add(sp);
 
         // define GET RES. REQ ATTRIBUTES callback
-        final GetResourceRequiredAttributesV2 reqAttrs = new GetResourceRequiredAttributesV2(null, new JsonCallbackEvents(){
-            // fill jsonCallback table
-            public void onFinished(JavaScriptObject jso) {
-                ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
-                for (Attribute a : list) {
-                    jsonCallback.addToTable(a);
-                }
-                jsonCallback.sortTable();
-                ((AjaxLoaderImage) table.getEmptyTableWidget()).loadingFinished();
-            }
-            public void onError(PerunError error) {
-                ((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
-            }
-            public void onLoadingStart() {
-                ((AjaxLoaderImage) table.getEmptyTableWidget()).loadingStart();
-            }
-        });
+        final GetResourceRequiredAttributesV2 reqAttrs = new GetResourceRequiredAttributesV2(null, JsonCallbackEvents.passDataToAnotherCallback(jsonCallback));
 
         // GROUP RESOURCES LISTBOX
         final ListBoxWithObjects<Resource> resourceDropDown = new ListBoxWithObjects<Resource>();
@@ -258,6 +243,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
         // SAVE CHANGES BUTTON
         final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) saveChangesButton.setEnabled(false);
 
         // click handler to save group and member-user attributes
         final ClickHandler saveAttrsClickHandler = new ClickHandler() {
@@ -363,6 +349,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
         // REMOVE BUTTON
         final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
 
         // click handler to remove group and member-user attributes
         final ClickHandler removeAttrsClickHandler = new ClickHandler() {
@@ -467,7 +454,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
         // SET NEW ATTR BUTTON
         final CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes());
-
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) setNewAttributeButton.setEnabled(false);
         // click handler
         setNewAttributeButton.addClickHandler(new ClickHandler(){
             public void onClick(ClickEvent event) {
@@ -661,7 +648,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(groupId)) {
+        if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
             return true;
         } else {
             return false;
@@ -671,8 +658,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
     public final static String URL = "settings";
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return URL;
     }
 

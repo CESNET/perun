@@ -125,6 +125,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("User is not member of any group.");
 		
 		// checkbox column column
         Column<Group, Group> checkBoxColumn = new Column<Group, Group>(

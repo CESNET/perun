@@ -72,12 +72,16 @@ public class MemberApplicationsTabItem implements TabItem {
         vp.setCellHeight(menu, "30px");
 
         // set proper request
-        if (session.isVoAdmin()) {
+        if (session.isVoAdmin(member.getVoId())) {
             applicationsRequest = new GetApplicationsForMember(memberId, 0);
-        } else if (session.isGroupAdmin()) {
+        } else if (session.isGroupAdmin(groupId)) {
             // group admin can see only apps for his group
             applicationsRequest = new GetApplicationsForMember(memberId, groupId);
+        } else if (session.isVoObserver(member.getVoId())) {
+            applicationsRequest = new GetApplicationsForMember(memberId, 0);
+            applicationsRequest.setCheckable(false);
         }
+
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
 
         // verify button
@@ -207,10 +211,12 @@ public class MemberApplicationsTabItem implements TabItem {
         reject.setEnabled(false);
         delete.setEnabled(false);
 
-        JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) {
+            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+        }
 
 		this.contentWidget.setWidget(vp);
 		
@@ -262,7 +268,7 @@ public class MemberApplicationsTabItem implements TabItem {
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin()) {
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

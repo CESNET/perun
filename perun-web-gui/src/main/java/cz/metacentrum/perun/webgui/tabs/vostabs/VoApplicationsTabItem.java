@@ -99,6 +99,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		// request
 		final GetApplicationsForVo applicationsRequest = new GetApplicationsForVo(vo.getId());
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
+        if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"applications");
 		
@@ -261,10 +262,13 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
         approve.setEnabled(false);
         reject.setEnabled(false);
         delete.setEnabled(false);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+
+        if (session.isVoAdmin(voId)) {
+            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+        }
 
         session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);

@@ -302,7 +302,6 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
         return SmallIcons.INSTANCE.addIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -311,9 +310,6 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -332,8 +328,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         if(vo != null){
             session.setActiveVo(vo);
@@ -359,13 +354,11 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return MembersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + voId;
     }
 
-    static public AddMemberToVoTabItem load(Map<String, String> parameters)
-    {
+    static public AddMemberToVoTabItem load(Map<String, String> parameters) {
         int gid = Integer.parseInt(parameters.get("vo"));
         return new AddMemberToVoTabItem(gid);
     }

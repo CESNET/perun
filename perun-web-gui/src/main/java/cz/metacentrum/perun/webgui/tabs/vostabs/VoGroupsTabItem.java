@@ -89,7 +89,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public Widget draw() {
-		
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"groups");
 		
@@ -103,13 +102,16 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		// VO Groups request
 		final GetAllGroups groups = new GetAllGroups(voId);
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
+        if (!session.isVoAdmin(voId)) groups.setCheckable(false);
 
 		// add new group button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
+		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
             }
-        }));
+        });
+        if (!session.isVoAdmin(voId)) createButton.setEnabled(false);
+        menu.addWidget(createButton);
 
 		// delete selected groups button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteGroup());
@@ -161,7 +163,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(sp);
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(groups, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 

@@ -97,6 +97,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Vo has no external source of members.");
 
 		// content
 		if(checkable){
