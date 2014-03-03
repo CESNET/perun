@@ -117,6 +117,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
 		
 		// checkbox column column
         if (checkable) {

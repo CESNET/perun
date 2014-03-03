@@ -184,6 +184,7 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No settings found. Use 'Add' button to add new setting.");
 
 		// because of tab index
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);

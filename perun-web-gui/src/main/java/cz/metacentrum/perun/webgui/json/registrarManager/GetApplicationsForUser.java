@@ -119,6 +119,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("User has no applications submitted.");
 
 		// columns
 		if (checkable) {

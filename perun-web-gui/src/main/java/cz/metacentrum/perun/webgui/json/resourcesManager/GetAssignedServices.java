@@ -106,6 +106,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Resource has no services assigned.");
 		
 		// checkbox column column
 		if (checkable) {

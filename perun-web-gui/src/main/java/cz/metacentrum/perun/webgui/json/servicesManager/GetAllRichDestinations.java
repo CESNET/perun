@@ -80,9 +80,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * Returns table with destinations
 	 * @return table widget
 	 */
-	public CellTable<Destination> getTable()
-	{
-		// retrieves data
+	public CellTable<Destination> getTable() {
 		retrieveData();
 		return getEmptyTable();
 	}
@@ -105,7 +103,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
         if (showFac) {
             loaderImage.setEmptyResultMessage("Service has no destination.");
         } else {
-            loaderImage.setEmptyResultMessage("Facility has no service destination.");
+            loaderImage.setEmptyResultMessage("Facility has no services destinations. Service configuration can't be propagated.");
         }
 
 		// Sorting

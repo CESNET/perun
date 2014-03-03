@@ -126,6 +126,7 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Member has no applications submitted for this VO or it's groups.");
 
 		// columns
 		if (checkable) {

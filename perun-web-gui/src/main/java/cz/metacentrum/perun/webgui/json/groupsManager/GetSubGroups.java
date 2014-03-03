@@ -115,6 +115,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Group has no sub-groups.");
 		
 		// checkbox column column
 		table.addCheckBoxColumn();

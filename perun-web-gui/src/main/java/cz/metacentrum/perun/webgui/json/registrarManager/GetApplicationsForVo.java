@@ -121,7 +121,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No applications found by search criteria.");
+        loaderImage.setEmptyResultMessage("No applications matching search criteria found for this VO or it's groups.");
 
 		// columns
 		if (checkable) {

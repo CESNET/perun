@@ -207,6 +207,8 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
+        loaderImage.setEmptyResultMessage("No members matching search criteria found.");
+
         Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
                 new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
             @Override

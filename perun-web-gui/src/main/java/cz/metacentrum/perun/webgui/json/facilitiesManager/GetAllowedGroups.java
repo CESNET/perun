@@ -123,6 +123,7 @@ public class GetAllowedGroups implements JsonCallback, JsonCallbackTable<Group> 
 
         // set empty content & loader
         table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No groups are allowed to access/use this facility.");
 
         if (checkable) {
             table.addCheckBoxColumn();

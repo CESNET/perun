@@ -358,9 +358,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		return true;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
 		if(facility != null) {
@@ -387,8 +385,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
 
@@ -396,13 +393,11 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	static public FacilitySettingsTabItem load(Facility facility)
-	{
+	static public FacilitySettingsTabItem load(Facility facility) {
 		return new FacilitySettingsTabItem(facility);
 	}
 	
-	static public FacilitySettingsTabItem load(Map<String, String> parameters)
-	{
+	static public FacilitySettingsTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilitySettingsTabItem(fid);
 	}

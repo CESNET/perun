@@ -109,6 +109,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Facility has no resources.");
 		
 		// checkbox column column
 		table.addCheckBoxColumn();

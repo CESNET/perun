@@ -101,6 +101,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Can't configure services propagation. No service assigned to this facility.");
 
 		// checkbox column column
 		/*

@@ -118,6 +118,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No applications matching search criteria found for this group.");
 
 		// columns
 		if (checkable) {

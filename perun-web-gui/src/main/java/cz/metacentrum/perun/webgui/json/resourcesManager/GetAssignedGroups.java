@@ -125,6 +125,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Resource has no groups assigned.");
 
         // checkbox column column
 		if (checkable){

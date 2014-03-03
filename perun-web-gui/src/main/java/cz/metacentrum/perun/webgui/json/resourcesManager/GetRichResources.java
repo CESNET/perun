@@ -80,8 +80,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 	 * @param fu Field updater 
 	 * @return
 	 */
-	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu)
-	{
+	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu) {
 		this.tableFieldUpdater = fu;	
 		return this.getTable();
 	}
@@ -113,6 +112,8 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+
+        loaderImage.setEmptyResultMessage("Vo has no resources.");
 
 		// columns
 		if (checkable) {
