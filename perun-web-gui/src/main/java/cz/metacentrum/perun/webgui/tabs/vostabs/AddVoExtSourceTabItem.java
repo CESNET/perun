@@ -59,7 +59,8 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 	private VirtualOrganization vo;
 
-    private boolean somethingAdded = false;
+    private ArrayList<ExtSource> alreadyAddedList = new ArrayList<ExtSource>();
+    private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
 	 * Creates a tab instance
@@ -106,6 +107,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 		// remove already assigned ext sources from offering
 		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
+            @Override
 			public void onFinished(JavaScriptObject jso){
 				// second callback
 				final GetVoExtSources alreadyAssigned = new GetVoExtSources(voId, new JsonCallbackEvents() {
@@ -123,17 +125,12 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 
         final ExtendedSuggestBox box = new ExtendedSuggestBox(extSources.getOracle());
 
-        // already added
-        final SimplePanel alreadyAdded = new SimplePanel();
-        alreadyAdded.setStyleName("alreadyAdded");
-        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-        alreadyAdded.setVisible(false);
-
 		// button
 		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
         final TabItem tab = this;
 
         assignButton.addClickHandler(new ClickHandler() {
+            @Override
 			public void onClick(ClickEvent event) {
 				final ArrayList<ExtSource> extSourcesToAdd = extSources.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(extSourcesToAdd)) {
@@ -143,14 +140,12 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
                         AddExtSource request = new AddExtSource(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
                             @Override
                             public void onFinished(JavaScriptObject jso) {
-                                // put names to already added
-                                alreadyAdded.setVisible(true);
-                                alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + extSourcesToAdd.get(n).getName() + ", ");
                                 // unselect added person
                                 extSources.getSelectionModel().setSelected(extSourcesToAdd.get(n), false);
+                                alreadyAddedList.add(extSourcesToAdd.get(n));
+                                rebuildAlreadyAddedWidget();
                                 // clear search
                                 box.getSuggestBox().setText("");
-                                somethingAdded = true;
                             }
                         }));
                         request.addExtSource(voId, extSourcesToAdd.get(i).getId());
@@ -171,7 +166,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, somethingAdded);
+                session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
             }
         }));
 
@@ -199,6 +194,19 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		return getWidget();
 	}
 
+    /**
+     * Rebuild already added widget based on already added ext sources
+     */
+    private void rebuildAlreadyAddedWidget() {
+
+        alreadyAdded.setStyleName("alreadyAdded");
+        alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+        for (int i=0; i<alreadyAddedList.size(); i++) {
+            alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
+        }
+    }
+
 	public Widget getWidget() {
 		return this.contentWidget;
 	}
@@ -211,7 +219,6 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		return  SmallIcons.INSTANCE.addIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -220,9 +227,6 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -241,8 +245,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		if(vo != null){
 			session.setActiveVo(vo);
