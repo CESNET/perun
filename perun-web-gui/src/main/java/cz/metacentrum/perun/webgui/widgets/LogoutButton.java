@@ -3,18 +3,14 @@ package cz.metacentrum.perun.webgui.widgets;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.authzResolver.Logout;
-import cz.metacentrum.perun.webgui.model.PerunError;
-
-import java.util.Collection;
 
 /**
  * Logout button with image
@@ -23,8 +19,6 @@ import java.util.Collection;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class LogoutButton extends Composite {
-
-    static final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
 
     private CustomButton button;
 
@@ -49,40 +43,18 @@ public class LogoutButton extends Composite {
      */
     private void logout() {
 
-        Logout call = new Logout(new JsonCallbackEvents(){
+        Logout call = new Logout(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
             @Override
             public void onFinished(JavaScriptObject jso){
 
-                // retrieves all the cookies
-                Collection<String> cookies = Cookies.getCookieNames();
+                Utils.clearFederationCookies();
 
-                // regexp
-                RegExp regExp = RegExp.compile(SHIBBOLETH_COOKIE_FORMAT);
+                History.newItem("logout");
 
-                for(String cookie : cookies)
-                {
-                    // shibboleth cookie?
-                    MatchResult matcher = regExp.exec(cookie);
-                    boolean matchFound = (matcher != null); // equivalent to regExp.test(inputStr);
-                    if(matchFound){
-                        // remove it
-                        Cookies.removeCookieNative(cookie, "/");
-                    }
-                }
-
-                button.setProcessing(false);
                 RootLayoutPanel.get().clear();
                 RootLayoutPanel.get().add(new LogoutWidget());
             }
-            @Override
-            public void onError(PerunError error){
-                button.setProcessing(false);
-            }
-            @Override
-            public void onLoadingStart() {
-                button.setProcessing(true);
-            }
-        });
+        }));
         // do the logout
         call.retrieveData();
 

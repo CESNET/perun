@@ -12,9 +12,7 @@ import cz.metacentrum.perun.webgui.client.ApplicationFormGui;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.applicationresources.SendsApplicationForm;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
-import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
@@ -40,7 +38,8 @@ public class ApplicationFormPage extends ApplicationPage {
 	/**
 	 * Main body contents
 	 */
-	private VerticalPanel bodyContents = new VerticalPanel();
+	private SimplePanel bodyContents = new SimplePanel();
+    private VerticalPanel formContent = new VerticalPanel();
 
 	/**
 	 * Data
@@ -90,11 +89,10 @@ public class ApplicationFormPage extends ApplicationPage {
 		this.group = group;
 		this.type = type;
 
-        bodyContents.setStyleName("mainPanel");
         bodyContents.setSize("100%", "100%");
+        bodyContents.setStyleName("formContent");
 		
 	}
-	
 	
 	/**
 	 * Prepares the buttons for local languages
@@ -154,14 +152,14 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * Prepares a VO form
 	 */
 	protected void prepareVoForm() {
-		bodyContents.clear();
+
+        bodyContents.setWidget(formContent);
         submittedOrError = false;
 		
 		// try to get user for initial application if not found
 		if (type.equalsIgnoreCase("INITIAL") && (session.getUser() == null || session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL"))) {
             tryToFindUserByName(null);
 		}
-
 
 		FlexTable header = new FlexTable();
 		header.setWidth("100%");
@@ -204,7 +202,7 @@ public class ApplicationFormPage extends ApplicationPage {
 		header.setWidget(0, 1, lang);
 		header.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
 		
-		bodyContents.add(header);
+		formContent.add(header);
 
 		final GetFormItemsWithPrefilledValues fitems;
 		if (group != null) {
@@ -233,9 +231,9 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		fitems.retrieveData();
 
-		bodyContents.add(fitems.getContents());
+		formContent.add(fitems.getContents());
 		
-		bodyContents.add(new HTML("<br /><br /><br />"));
+		formContent.add(new HTML("<br /><br /><br />"));
 		
 		JsonCallbackEvents formEvent = new JsonCallbackEvents(){
 			@Override
@@ -285,26 +283,23 @@ public class ApplicationFormPage extends ApplicationPage {
 		final PopupPanel loadingBox = session.getUiElements().perunLoadingBox(ApplicationMessages.INSTANCE.processing());
 		
 		// Create application request
-		CreateApplication ca = new CreateApplication(new JsonCallbackEvents() {
-
+		CreateApplication ca = new CreateApplication(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+            @Override
 			public void onLoadingStart() {
 				// show loading box
 				loadingBox.show();
-				button.setProcessing(true);
 			}
-
+            @Override
 			public void onFinished(JavaScriptObject jso) {
-                button.setProcessing(false);
-				loadingBox.hide();
+                loadingBox.hide();
 				formOk(jso);
 			}
-
+            @Override
 			public void onError(PerunError err) {
-                button.setProcessing(false);
-				loadingBox.hide();
+                loadingBox.hide();
 				formError(err);
 			}
-		});
+		}));
 
 		// Send the request
 		ca.createApplication(app, data);
@@ -355,7 +350,6 @@ public class ApplicationFormPage extends ApplicationPage {
 		
 		if (type.equalsIgnoreCase("INITIAL")) {
 
-			bodyContents.clear();
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
 			
@@ -367,7 +361,7 @@ public class ApplicationFormPage extends ApplicationPage {
 			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ succSendText +"</h2>" + validationText + approveText);
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-			bodyContents.add(ft);
+			bodyContents.setWidget(ft);
 
             if (Location.getParameter("targetnew") != null) {
                 Location.replace(Location.getParameter("targetnew"));
@@ -375,14 +369,13 @@ public class ApplicationFormPage extends ApplicationPage {
 			
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
 			
-			bodyContents.clear();
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
 			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>" + ApplicationMessages.INSTANCE.membershipExtensionSuccessfullySent(vo.getName()) + "</h2>" +
 					approveText);
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-			bodyContents.add(ft);
+			bodyContents.setWidget(ft);
 			
 			if (autoApproval) {
 				// automatically extended
@@ -406,24 +399,44 @@ public class ApplicationFormPage extends ApplicationPage {
 	protected void formError(PerunError error) {
 
 		if (error != null ) {
-			// if not timeout
+
             submittedOrError = true;
-			bodyContents.clear();
-			FlexTable ft = new FlexTable();
+
+            FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
+            bodyContents.setWidget(ft);
+
             if (error.getName().equalsIgnoreCase("ApplicationNotCreatedException")) {
+
                 // application WAS NOT SAVED
                 ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
                         "<p><strong>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage() + "</strong></p>");
+
+                // back to form button to prevent user from losing data
+                final CustomButton back = new CustomButton("Back", "Back to application form", SmallIcons.INSTANCE.arrowLeftIcon());
+
+                ft.setWidget(1, 0, back);
+                ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+
+                back.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        submittedOrError = false;
+                        bodyContents.setWidget(formContent);
+                    }
+                });
+
             } else {
                 // some minor error - application WAS SAVED
                 ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
                         "<p><strong>" + ApplicationMessages.INSTANCE.voAdministratorWasNotified() + "</strong>"+
                         "<p>" + ApplicationMessages.INSTANCE.ifEmailProvidedCheckInbox() + "</p>");
             }
+
             ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-			bodyContents.add(ft);
+
 		}
 		
 	}
@@ -432,7 +445,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	public void menuClick() {
 		
 		// load application only once and also when submitted or on error
-		if (bodyContents.getWidgetCount() == 0 || submittedOrError) {
+		if (formContent.getWidgetCount() == 0 || submittedOrError) {
 			prepareVoForm();
 		} else {
 			// do nothing
@@ -484,9 +497,9 @@ public class ApplicationFormPage extends ApplicationPage {
 			protected int usersLoginsLoaded = 0;
 			protected int usersCount = 0;
 			protected Map<User,ArrayList<Attribute>> usersLogins = new HashMap<User,ArrayList<Attribute>>();
-			
-			public void onFinished(JavaScriptObject jso)
-			{
+
+            @Override
+			public void onFinished(JavaScriptObject jso) {
 				ArrayList<User> users = JsonUtils.jsoAsList(jso);
 
                 for (User u : users) {
@@ -527,11 +540,11 @@ public class ApplicationFormPage extends ApplicationPage {
     }
 	
 	/**
-	 * When simmilar users found, display a message
+	 * When similar users found, display a message
+     *
 	 * @param usersLogins
 	 */
-	protected void similarUsersFound(Map<User,ArrayList<Attribute>> usersLogins)
-	{
+	protected void similarUsersFound(Map<User,ArrayList<Attribute>> usersLogins) {
 
 		FlexTable ft = new FlexTable();
 
@@ -546,15 +559,15 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		int i = 2;
 		
-		for(Map.Entry<User, ArrayList<Attribute>> entry : usersLogins.entrySet())
-		{
+		for (Map.Entry<User, ArrayList<Attribute>> entry : usersLogins.entrySet()) {
+
 			final User user = entry.getKey();
 			ArrayList<Attribute> logins = entry.getValue();
 			
 			String loginsStr = "";
 			
 			// join array
-			for(Attribute login : logins){
+			for (Attribute login : logins) {
 				loginsStr += login.getFriendlyNameParameter()+ ": " + login.getValue() + ", ";
 			}
 			loginsStr = loginsStr.substring(0, loginsStr.length() - 2);
@@ -571,27 +584,7 @@ public class ApplicationFormPage extends ApplicationPage {
         final Confirm confirm = new Confirm(ApplicationMessages.INSTANCE.similarUsersFound(), ft, new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
-                final String URL_KRB = "https://perun.metacentrum.cz/perun-identity-consolidator-krb/?target=";
-                final String URL_FED = "https://perun.metacentrum.cz/perun-identity-consolidator-fed/?target=";
-                final String URL_CERT = "https://perun.metacentrum.cz/perun-identity-consolidator-cert/?target=";
-                String rpc = "";
-
-                if (session.getRpcServer() != null) {
-                    rpc = session.getRpcServer();
-                }
-
-                if (rpc.equalsIgnoreCase("krb")) {
-                    Window.Location.replace(URL_KRB+Window.Location.getHref());
-                } else if (rpc.equalsIgnoreCase("fed")) {
-                    Window.Location.replace(URL_FED+Window.Location.getHref());
-                } else if (rpc.equalsIgnoreCase("cert")) {
-                    Window.Location.replace(URL_CERT+Window.Location.getHref());
-                } else {
-                    // KRB AS BACKUP - "default"
-                    Window.Location.replace(URL_KRB+Window.Location.getHref());
-                }
-
+                Window.Location.replace(Utils.getIdentityConsolidatorLink(true));
             }
         }, true);
 

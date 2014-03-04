@@ -71,6 +71,7 @@ public class JsonErrorHandler {
         // build confirm
         Confirm conf = new Confirm(getCaption(type) + ((!error.getErrorId().equals("")) ? " ("+error.getErrorId()+")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
         conf.setNonScrollable(true);
+        conf.setAutoHide(false);
         conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
 
         conf.show();
@@ -143,6 +144,7 @@ public class JsonErrorHandler {
 
                         Confirm c = new Confirm("Error report is not working", layout, true);
                         c.setNonScrollable(true);
+                        c.setAutoHide(false);
                         c.show();
 
                     };
@@ -156,7 +158,7 @@ public class JsonErrorHandler {
         FlexTable baseLayout = new FlexTable();
         baseLayout.setStyleName("alert-box-table");
 
-        baseLayout.setHTML(0, 0, "You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
+        baseLayout.setHTML(0, 0, "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
         baseLayout.setHTML(1, 0, "<strong>Message:</strong>");
         baseLayout.setWidget(2, 0, messageTextBox);
 
@@ -164,6 +166,7 @@ public class JsonErrorHandler {
         final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
         conf.setOkIcon(SmallIcons.INSTANCE.emailIcon());
         conf.setNonScrollable(true);
+        conf.setAutoHide(false);
         conf.show();
 
         messageTextBox.setFocus(true);

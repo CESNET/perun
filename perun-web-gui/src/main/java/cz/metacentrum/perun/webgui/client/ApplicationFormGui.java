@@ -280,7 +280,7 @@ public class ApplicationFormGui implements EntryPoint {
                     public void onFinished(JavaScriptObject jso) {
 
                         // non authz user - is used URL same as default URL (non on production) ?
-                        if (session.getRpcUrl().equalsIgnoreCase(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+                        if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
                             // CHALLENGE WITH CAPTCHA
 
@@ -541,6 +541,8 @@ public class ApplicationFormGui implements EntryPoint {
                 });
                 request.retrieveData();
 
+                leftMenu.addLogoutItem();
+
                 return;
 
             }
@@ -598,6 +600,8 @@ public class ApplicationFormGui implements EntryPoint {
             a.fireEvent(new ClickEvent(){});
             //formPage.menuClick(); // load application form
         }
+
+        leftMenu.addLogoutItem();
 
     }
 

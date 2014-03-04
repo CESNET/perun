@@ -204,4 +204,7 @@ public interface ApplicationMessages extends Messages {
     @DefaultMessage("In order to apply for group membership, you must be VO member first.")
     String mustBeVoMemberFirst();
 
+    @DefaultMessage("Logout")
+    String logout();
+
 }

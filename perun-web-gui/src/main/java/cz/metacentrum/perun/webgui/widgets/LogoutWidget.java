@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.widgets;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -57,6 +58,7 @@ public class LogoutWidget extends Composite {
             CustomButton loginButton = new CustomButton("Log-in back to Perun", SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    History.back();
                     Window.Location.reload();
                 }
             });
@@ -66,6 +68,7 @@ public class LogoutWidget extends Composite {
                     Window.Location.replace("http://perun.metacentrum.cz/web/guide.php");
                 }
             });
+            perunWebButton.setImageAlign(true);
 
             links.setWidget(0, 0, loginButton);
             links.setWidget(0, 1, perunWebButton);
