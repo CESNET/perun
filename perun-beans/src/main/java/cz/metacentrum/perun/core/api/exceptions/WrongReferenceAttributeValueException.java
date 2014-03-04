@@ -66,6 +66,18 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
         this.attribute = attribute;
         this.referenceAttribute = referenceAttribute;
     }
+    
+    public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute, Object attributeHolderPrimary, Object attributeHolderSecondary, Object refAttributeHolderPrimary, Object refAttributeHolderSecondary, String message) {
+        super("Attribute: " + (attribute == null ? "null" : attribute) + 
+                ", reference attribute: " + (referenceAttribute == null ? "null" : referenceAttribute) + 
+                ", attributePrimary holder: " + (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) +
+                ", attributeSecondary holder: " + (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
+                ", referenceAttributePrimary holder: " + (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
+                ", referenceAttributeSecondary holder: " + (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
+                ", " + message);
+        this.attribute = attribute;
+        this.referenceAttribute = referenceAttribute;
+    }
 
     public AttributeDefinition getAttribute() {
         return attribute;
