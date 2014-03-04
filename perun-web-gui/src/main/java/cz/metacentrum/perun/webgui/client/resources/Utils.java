@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.webgui.client.resources;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -66,7 +70,7 @@ public class Utils {
         // always use URL of machine, where GUI runs
         String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
 
-        // FIXME - production consolidator is still unsing old URL scheme
+        // FIXME - production consolidator is still using old URL scheme
         final String URL_KRB = baseUrl+"/perun-identity-consolidator-krb/";
         final String URL_FED = baseUrl+"/perun-identity-consolidator-fed/";
         final String URL_CERT = baseUrl+"/perun-identity-consolidator-cert/";
@@ -231,6 +235,30 @@ public class Utils {
 
     }
 
+    /**
+     * Clear all cookies provided by federation IDP in user's browser.
+     */
+    public static void clearFederationCookies() {
+
+        final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
+
+        // retrieves all the cookies
+        Collection<String> cookies = Cookies.getCookieNames();
+
+        // regexp
+        RegExp regExp = RegExp.compile(SHIBBOLETH_COOKIE_FORMAT);
+
+        for(String cookie : cookies) {
+            // shibboleth cookie?
+            MatchResult matcher = regExp.exec(cookie);
+            boolean matchFound = (matcher != null); // equivalent to regExp.test(inputStr);
+            if(matchFound){
+                // remove it
+                Cookies.removeCookieNative(cookie, "/");
+            }
+        }
+
+    }
 
     public static final native String unAccent(String str) /*-{
 

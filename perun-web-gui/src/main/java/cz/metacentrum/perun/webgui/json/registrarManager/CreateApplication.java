@@ -53,8 +53,7 @@ public class CreateApplication {
 	 * @param application
 	 * @param formData
 	 */
-	public void createApplication(Application application, ArrayList<ApplicationFormItemData> formData)
-	{
+	public void createApplication(Application application, ArrayList<ApplicationFormItemData> formData) {
 		this.application = application;
 		this.formData = formData;
 
@@ -95,8 +94,7 @@ public class CreateApplication {
 	 * Prepares a JSON object.
 	 * @return JSONObject - the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
+	private JSONObject prepareJSONObject() {
 		// data to JSON array
 		JSONArray data = new JSONArray();
 		for(int i = 0; i<formData.size(); i++){
