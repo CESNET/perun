@@ -14,6 +14,7 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
@@ -138,11 +139,11 @@ public class HandleApplication {
 	/**
 	 * Approve application
 	 *
-	 * @param appId
+	 * @param app
 	 */
-	public void approveApplication(int appId) {
+	public void approveApplication(Application app) {
 		
-		this.appId = appId;
+		this.appId = app.getId();
 
 		// test arguments
 		if(!this.testApplication()){
@@ -172,68 +173,78 @@ public class HandleApplication {
         JSONObject jso = new JSONObject();
         jso.put("appId", new JSONNumber(appId));
 
-        JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
-            @Override
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Approving application failed.");
-                events.onError(error);
-            };
-            @Override
-            public void onFinished(JavaScriptObject jso) {
+        if (app.getUser() != null) {
 
-                ArrayList<User> users = JsonUtils.jsoAsList(jso);
-                if (users != null && !users.isEmpty()) {
+            // ok approve sending data
+            JsonPostClient jspc = new JsonPostClient(newEvents);
+            jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
-                    FlexTable ft = new FlexTable();
-                    ft.setWidth("400px");
-                    ft.setHTML(0, 0, "<p><strong>Following user(s) with similar name as new applicant were found in Perun system:");
+        } else {
 
-                    for (int i=0; i<users.size(); i++) {
-                        if (!users.get(i).isServiceUser()) {
-                            ft.setHTML(i+1, 0, users.get(i).getFullNameWithTitles() + " (User ID: "+users.get(i).getId()+")");
+            JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
+                @Override
+                public void onError(PerunError error) {
+                    session.getUiElements().setLogErrorText("Approving application failed.");
+                    events.onError(error);
+                };
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+
+                    ArrayList<User> users = JsonUtils.jsoAsList(jso);
+                    if (users != null && !users.isEmpty()) {
+
+                        FlexTable ft = new FlexTable();
+                        ft.setWidth("400px");
+                        ft.setHTML(0, 0, "<p><strong>Following user(s) with similar name as new applicant were found in Perun system:");
+
+                        for (int i=0; i<users.size(); i++) {
+                            if (!users.get(i).isServiceUser()) {
+                                ft.setHTML(i+1, 0, users.get(i).getFullNameWithTitles() + " (User ID: "+users.get(i).getId()+")");
+                            }
                         }
+
+                        ft.setHTML(ft.getRowCount(), 0,  "<p>Please consider contacting new applicant with question, if he/she is already member of any other VO in Perun." +
+                                "<ul><li>If YES, ask user to join his identities before application approval at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a>"+
+                                "</li><li>If NO, you can approve this application. " +
+                                "</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+
+                        ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+
+                        Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent clickEvent) {
+
+                                // ok approve sending data
+                                JsonPostClient jspc = new JsonPostClient(newEvents);
+                                jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
+                            }
+                        }, new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent clickEvent) {
+                                events.onFinished(null);
+                            }
+                        }, true);
+                        c.setNonScrollable(true);
+                        c.show();
+
+                    } else {
+
+                        // ok approve sending data
+                        JsonPostClient jspc = new JsonPostClient(newEvents);
+                        jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
                     }
 
-                    ft.setHTML(ft.getRowCount(), 0,  "<p>Please consider contacting new applicant with question, if he/she is already member of any other VO in Perun." +
-                            "<ul><li>If YES, ask user to join his identities before application approval at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a>"+
-                    "</li><li>If NO, you can approve this application. " +
-                            "</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+                };
+                @Override
+                public void onLoadingStart() {
+                    events.onLoadingStart();
+                };
+            });
+            checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
 
-                    ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
-
-                    Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-
-                            // ok approve sending data
-                            JsonPostClient jspc = new JsonPostClient(newEvents);
-                            jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
-
-                        }
-                    }, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-                            events.onFinished(null);
-                        }
-                    }, true);
-                    c.setNonScrollable(true);
-                    c.show();
-
-                } else {
-
-                    // ok approve sending data
-                    JsonPostClient jspc = new JsonPostClient(newEvents);
-                    jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
-
-                }
-
-            };
-            @Override
-            public void onLoadingStart() {
-                events.onLoadingStart();
-            };
-        });
-        checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
+        }
 
 	}
 

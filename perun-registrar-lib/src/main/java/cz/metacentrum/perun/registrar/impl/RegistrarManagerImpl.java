@@ -1744,12 +1744,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
     @Override
     public List<User> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException {
 
-        // TODO authz
-
+        String email = "";
         String name = "";
         List<User> result = new ArrayList<User>();
 
         Application app = getApplicationById(appId);
+
+        if (app.getGroup() == null) {
+            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
+                throw new PrivilegeException("checkForSimilarUsers");
+            }
+        } else {
+            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
+                    !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+                    throw new PrivilegeException("checkForSimilarUsers");
+            }
+        }
+
         // only for initial VO applications if user==null
         if (app.getType().equals(AppType.INITIAL) && app.getGroup() == null && app.getUser() == null) {
 
@@ -1773,8 +1784,45 @@ public class RegistrarManagerImpl implements RegistrarManager {
             }
 
             List<ApplicationFormItemData> data = getApplicationDataById(sess, appId);
+
+            // search by email, which should be unique (check is more precise)
             for (ApplicationFormItemData item : data) {
-                if ("urn:perun:user:attribute-def:core:displayName".equals(item.getFormItem().getPerunDestinationAttribute())) {
+                if ("urn:perun:user:attribute-def:def:preferredMail".equals(item.getFormItem().getPerunDestinationAttribute())) {
+                    email = item.getValue();
+                }
+                if (email != null && !email.isEmpty()) break;
+            }
+
+            List<User> users = usersManager.findUsers(registrarSession, email);
+
+            if (users.isEmpty()) {
+
+                // clear previous value
+                email = "";
+                // search by different mail
+                for (ApplicationFormItemData item : data) {
+                    if ("urn:perun:member:attribute-def:def:mail".equals(item.getFormItem().getPerunDestinationAttribute())) {
+                        email = item.getValue();
+                    }
+                    if (email != null && !email.isEmpty()) break;
+                }
+
+                List<User> users2 = usersManager.findUsers(registrarSession, email);
+                if (!users2.isEmpty()) {
+                    // found by member mail
+                    return users2;
+                }
+                // continue to search by name
+
+            } else {
+                // found by preferredMail
+                return users;
+            }
+
+            // search by name
+
+            for (ApplicationFormItemData item : data) {
+                if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
                     // use parsed name to drop mistakes on IDP side
                     try {
@@ -1794,25 +1842,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
                             name = newName;
                         }
                     } catch (Exception ex) {
-                        log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for simillar users. Exception: {}", ex);
+                        log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users. Exception: {}", ex);
                     }
                     if (name != null && !name.isEmpty()) break;
-                } else if ("urn:perun:user:attribute-def:core:lastName".equals(item.getFormItem().getPerunDestinationAttribute())) {
+                } else if (URN_USER_FIRST_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
                     if (name != null && !name.isEmpty()) break;
                 }
             }
 
             if (name != null && !name.isEmpty()) {
-                return usersManager.findUsersByName(registrarSession, name);
+                // what was found by name
+                return usersManager.findUsers(registrarSession, name);
             } else {
+                // not found by name
                 return result;
             }
 
         } else {
-
+            // not found, since not proper type of application to check users for
             return result;
-
         }
 
     }
