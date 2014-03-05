@@ -140,11 +140,11 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
                     for (int i=0; i<list.size(); i++) {
                         if (i != list.size()-1) {
                             HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve));
-                            request.approveApplication(list.get(i).getId());
+                            request.approveApplication(list.get(i));
                         } else {
                             // refresh table on last call
                             HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, events));
-                            request.approveApplication(list.get(i).getId());
+                            request.approveApplication(list.get(i));
                         }
                     }
 				}

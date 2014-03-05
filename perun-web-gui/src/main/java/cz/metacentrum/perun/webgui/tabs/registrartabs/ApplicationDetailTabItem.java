@@ -167,7 +167,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
                             session.getTabManager().closeTab(tab, true);
                         }
                     }));
-                    request.approveApplication(appId);
+                    request.approveApplication(app);
                 }
             });
 
