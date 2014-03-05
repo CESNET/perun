@@ -157,6 +157,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
                 session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
             }
         });
+        if (!session.isVoAdmin(voId)) addServiceButton.setEnabled(false);
         tabMenu.addWidget(addServiceButton);
 
         // refreshMembers

@@ -341,6 +341,16 @@ public class GetAllResourcesTags implements JsonCallback, JsonCallbackTable<Reso
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No resource tag matching '"+filter+"' found.");
+        } else {
+            if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+                loaderImage.setEmptyResultMessage("VO has no resource tags defined.");
+            } else if (PerunEntity.RESOURCE.equals(entity)) {
+                loaderImage.setEmptyResultMessage("Resource has no tags assigned.");
+            }
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

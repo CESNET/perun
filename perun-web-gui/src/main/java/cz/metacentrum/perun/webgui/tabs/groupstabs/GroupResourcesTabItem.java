@@ -146,7 +146,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		CellTable<RichResource> table;
 
         // perun / vo admin can set attributes
-        if (session.isVoAdmin(group.getVoId())) {
+        if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId())) {
             table = resources.getTable(new FieldUpdater<RichResource, String>() {
                 public void update(int index, RichResource object, String value) {
                     session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
@@ -157,7 +157,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
         }
 
         removeButton.setEnabled(false);
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
+        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");

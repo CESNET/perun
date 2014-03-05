@@ -107,7 +107,7 @@ public class MemberOverviewTabItem implements TabItem {
 
         memberLayout.setHTML(0, 0, "Status:");
         PerunStatusWidget<RichMember> statusWidget;
-        if (session.isVoAdmin()) {
+        if (session.isVoAdmin(member.getVoId())) {
             SetStatus statCall = new SetStatus(memberId, new JsonCallbackEvents(){
                 @Override
                 public void onFinished(JavaScriptObject jso) {

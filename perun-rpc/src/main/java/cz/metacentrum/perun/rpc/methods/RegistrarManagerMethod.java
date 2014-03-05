@@ -142,21 +142,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			if (parms.contains("vo")) {
 				if (parms.contains("type")) {
-					return ac.getRegistrarManager().getFormItems(
-							ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))), 
+					return ac.getRegistrarManager().getFormItems(ac.getSession(),
+                            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
 							AppType.valueOf(parms.readString("type")));
 				} else {
-					return ac.getRegistrarManager().getFormItems(
+					return ac.getRegistrarManager().getFormItems(ac.getSession(),
 							ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));				
 				}
 			} else if ( parms.contains("group")) {
 
 				if (parms.contains("type")) {
-					return ac.getRegistrarManager().getFormItems(
+					return ac.getRegistrarManager().getFormItems(ac.getSession(),
 							ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))), 
 							AppType.valueOf(parms.readString("type")));
 				} else {
-					return ac.getRegistrarManager().getFormItems(
+					return ac.getRegistrarManager().getFormItems(ac.getSession(),
 							ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))));				
 				}
 			} else {

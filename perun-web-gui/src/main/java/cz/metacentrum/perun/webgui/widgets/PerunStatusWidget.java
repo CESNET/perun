@@ -10,6 +10,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonStatusSetCallback;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
+import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 
@@ -100,15 +101,29 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 
         // if a callback set
         if(callback != null) {
-            // 	change button
-            statusWidget.setWidget(0, 2, getChangeStatusButton());
-            statusWidget.getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_MIDDLE);
+
+            // FIXME better usage
+            if (object.getObjectType().equals("Member") || object.getObjectType().equals("RichMember")) {
+
+                Member m = object.cast();
+                if (PerunWebSession.getInstance().isVoAdmin(m.getVoId())) {
+                    // 	change button
+                    statusWidget.setWidget(0, 2, getChangeStatusButton());
+                    statusWidget.getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_MIDDLE);
+                }
+
+            } else {
+                // 	change button
+                statusWidget.setWidget(0, 2, getChangeStatusButton());
+                statusWidget.getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_MIDDLE);
+            }
+
         }
 
     }
 
     /**
-     * Return's the widget with image
+     * Return the widget with image
      * @return image
      */
     private Widget getImage() {
@@ -169,12 +184,10 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
     /**
      * When new status confirmed, the widget is reloaded
      */
-    protected void confirmChange()
-    {
-        if(newStatus.equals("")){
-            return;
-        }
+    protected void confirmChange() {
+        if(newStatus.equals("")) return;
         object.setStatus(newStatus);
         build();
     }
+
 }

@@ -166,11 +166,13 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
         if(!isMembersGroup){
 
-            menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
+            CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
                 }
-            }));
+            });
+            if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(group.getId())) addButton.setEnabled(false);
+            menu.addWidget(0, addButton);
 
             removeButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -223,7 +225,9 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         }
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(admins, table, removeButton);
+        if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+            JsonUtils.addTableManagedButton(admins, table, removeButton);
+        }
 
         table.setStyleName("perun-table");
 
@@ -244,11 +248,13 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
         if(!isMembersGroup){
 
-            menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToGroup(), new ClickHandler() {
+            CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToGroup(), new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     session.getTabManager().addTabToCurrentTab(new AddGroupManagerGroupTabItem(group, events), true);
                 }
-            }));
+            });
+            if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(group.getId())) addButton.setEnabled(false);
+            menu.addWidget(0, addButton);
 
             removeButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -296,7 +302,9 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
         });
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(admins, table, removeButton);
+        if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+            JsonUtils.addTableManagedButton(admins, table, removeButton);
+        }
 
         table.setStyleName("perun-table");
 

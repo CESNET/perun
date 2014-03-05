@@ -1228,7 +1228,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // authz ex post
         if (app.getGroup() == null) {
-            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
+            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+                    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())) {
                 throw new PrivilegeException(sess, "getApplicationById");
             }
         } else {
@@ -1246,7 +1247,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state) throws PerunException {
 
         // authz
-        if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, vo)) {
+        if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, vo) &&
+                !AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(userSession, "getApplicationsForVo");
         }
         if (state == null) {
@@ -1279,6 +1281,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // authz
         if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, group) &&
+                !AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, group) &&
                 !AuthzResolver.isAuthorized(userSession, Role.GROUPADMIN, group)) {
             throw new PrivilegeException(userSession, "getApplicationsForGroup");
         }
@@ -1334,7 +1337,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     public List<Application> getApplicationsForMember(PerunSession sess, Group group, Member member) throws PerunException {
 
         // authz
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member)) {
             if (group != null) {
                 if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
                     throw new PrivilegeException(sess, "getApplicationsForMember");
@@ -1357,7 +1360,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
     };
 
     @Override
-    public List<ApplicationFormItem> getFormItems(ApplicationForm form, AppType appType) {
+    public List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form, AppType appType) throws PerunException {
+
+        // authz
+        if (form.getGroup() == null) {
+            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
+                    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())) {
+                throw new PrivilegeException("getFormItems");
+            }
+        } else {
+            if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
+                    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
+                    && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
+                throw new PrivilegeException("getFormItems");
+            }
+        }
 
         List<ApplicationFormItem> items;
         if (appType == null) {
@@ -1561,7 +1578,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         // PROCEED
         Map<String, String> parsedName = extractNames(federValues);
-        List<ApplicationFormItem> formItems = getFormItems(form, appType);
+        List<ApplicationFormItem> formItems = getFormItems(registrarSession, form, appType);
 
         List<ApplicationFormItemWithPrefilledValue> itemsWithValues = new ArrayList<ApplicationFormItemWithPrefilledValue>();
         for (ApplicationFormItem item : formItems) {
@@ -1679,8 +1696,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     @Override
-    public List<ApplicationFormItem> getFormItems(ApplicationForm form) {
-        return getFormItems(form, null);
+    public List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form) throws PerunException {
+        return getFormItems(sess, form, null);
     }
 
     @Override
@@ -1710,7 +1727,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
             throw new PrivilegeException(sess, "copyFormFromVoToVo");
         }
 
-        List<ApplicationFormItem> items = getFormItems(getFormForVo(fromVo));
+        List<ApplicationFormItem> items = getFormItems(sess, getFormForVo(fromVo));
         for (ApplicationFormItem item : items) {
             item.setOrdnum(null); // reset order, id is always new inside add method
             addFormItem(sess, getFormForVo(toVo), item);
@@ -1726,7 +1743,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
             throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
         }
 
-        List<ApplicationFormItem> items = getFormItems(getFormForGroup(fromGroup));
+        List<ApplicationFormItem> items = getFormItems(sess, getFormForGroup(fromGroup));
         for (ApplicationFormItem item : items) {
             item.setOrdnum(null); // reset order, id is always new inside add method
             addFormItem(sess, getFormForGroup(toGroup), item);

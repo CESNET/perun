@@ -138,18 +138,20 @@ public interface RegistrarManager {
 
     /**
      * Gets all form items.
+     * @param sess PerunSession
      * @param applicationForm the form
      * @return all form items regardless of type
      */
-    List<ApplicationFormItem> getFormItems(ApplicationForm applicationForm);
+    List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm applicationForm) throws PerunException;
 
     /**
-     * Gets form items of specified type, for initital registration or extension of account.
+     * Gets form items of specified type, for initial registration or extension of account.
+     *
      * @param form the form
      * @param appType the type or null for all items
      * @return items of specified type
      */
-    List<ApplicationFormItem> getFormItems(ApplicationForm form, AppType appType);
+    List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form, AppType appType) throws PerunException;
 
     /**
      * Gets the content for an application form for a given type of application,vo, group and user.

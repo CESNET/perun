@@ -674,7 +674,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.notNull(perunSession, "perunSession");  
     getPerunBl().getVosManagerBl().checkVoExists(perunSession, vo);
     
-    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo)) {
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo) &&
+            !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo)) {
       throw new PrivilegeException(perunSession, "getAllResourcesTagsForVo");
       //TODO: what about GROUPADMIN?
     }
@@ -686,7 +687,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
     Utils.notNull(perunSession, "perunSession");  
     resourcesManagerBl.checkResourceExists(perunSession, resource);
     
-    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource)) {
+    if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
+            !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, resource)) {
       throw new PrivilegeException(perunSession, "getAllResourcesTagsForResource");
       //TODO: What about GROUPADMIN?
     }

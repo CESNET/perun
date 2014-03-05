@@ -76,7 +76,7 @@ public class MemberGroupsTabItem implements TabItem {
                 session.getTabManager().addTabToCurrentTab(new MemberAddToGroupTabItem(member), true);
             }
         });
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) {
+        if (session.isVoObserver(member.getVoId()) && !session.isVoAdmin(member.getVoId())) {
             addButton.setEnabled(false);
             groupsCall.setCheckable(false);
         }
@@ -117,15 +117,16 @@ public class MemberGroupsTabItem implements TabItem {
         CellTable<Group> table = groupsCall.getTable(new FieldUpdater<Group, String>() {
             @Override
             public void update(int i, Group group, String s) {
-                if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+                if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
                     session.getTabManager().addTab(new GroupDetailTabItem(group));
                 } else {
-                    UiElements.generateInfo("Not privileged", "You are not manager of selected group.");
+                    UiElements.generateInfo("Not privileged", "You are not manager of selected group or it's VO.");
                 }
             }
         });
 
-        if (session.isVoAdmin(member.getVoId())) JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
+        if (session.isVoAdmin(member.getVoId()) || (session.isGroupAdmin() && !session.isVoObserver(member.getVoId())))
+            JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
         table.addStyleName("perun-table");
         ScrollPanel sp = new ScrollPanel(table);
         sp.addStyleName("perun-tableScrollPanel");
