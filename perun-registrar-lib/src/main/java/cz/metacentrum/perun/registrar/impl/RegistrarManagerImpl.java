@@ -39,7 +39,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -49,7 +48,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
@@ -1765,15 +1763,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (app.getType().equals(AppType.INITIAL) && app.getGroup() == null && app.getUser() == null) {
 
             try {
-
-                UserExtSource ues = new UserExtSource();
-                ExtSource es = new ExtSource();
-                es.setName(app.getExtSourceName());
-                es.setType(app.getExtSourceType());
-                ues.setLogin(app.getCreatedBy());
-                ues.setExtSource(es);
-
-                User u = usersManager.getUserByUserExtSource(registrarSession, ues);
+                User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
                 if (u != null) {
                     // user connected his identity after app creation and before it's approval.
                     // do not show error message in GUI by returning an empty array.
