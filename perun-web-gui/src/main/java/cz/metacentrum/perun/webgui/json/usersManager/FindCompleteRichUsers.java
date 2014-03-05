@@ -240,6 +240,13 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 	 * @param query
 	 */
 	public void searchFor(String query){
+
+        if(query==null || query.isEmpty()) return;
+
+        if (!query.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No user matching '"+query+"' found.");
+        }
+
 		this.searchString = query;
 		clearTable();
 		retrieveData();
@@ -400,10 +407,6 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 
 	public void setEvents(JsonCallbackEvents event) {
 		this.events = event;
-	}
-
-	public void setSearchString(String text) {
-		this.searchString = text;
 	}
 
     public boolean isHideService() {

@@ -90,6 +90,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No external sources found in Perun.");
 
 		// checkable
 		if(this.checkable)
@@ -292,6 +293,12 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
                     list.add(src);
                 }
             }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No external source matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("No external sources found in Perun.");
         }
 
         dataProvider.flush();

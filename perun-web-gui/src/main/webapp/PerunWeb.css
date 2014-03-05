@@ -731,13 +731,22 @@ html>body .gwt-DialogBox {
     border-collapse:collapse;
 }
 
-.borderTable td, .borderTable th{
+.borderTable td {
     border-bottom: 1px solid #cccccc;
     padding: 6px;
 }
 
-.noBorder, .noBorder th, .noBorder td{
-    border-width:0px;
+td.header {
+    border-bottom: 2px solid #6F7277;
+    color: #4B4A4A;
+    overflow: hidden;
+    padding: 3px 15px;
+    text-align: left;
+    text-shadow: 1px 1px 0 #DDDDFF;
+}
+
+.noBorder, .noBorder th, .noBorder td {
+    border: 0px !important;
 }
 
 /* APPLICATION */
@@ -787,9 +796,15 @@ html>body .gwt-DialogBox {
 .appFormPasswordTable tr td:first-child {
     padding-bottom: 5px;
 }
+.appFormPasswordTable td {
+    border: 0px !important;
+}
 /* Checkboxes */
 .appFormCheckBoxTable tr td {
     padding-bottom: 5px;
+}
+.appFormCheckBoxTable td {
+    border: 0px !important;
 }
 .appFormCheckBoxTable tr td span {
     vertical-align: middle;
@@ -801,6 +816,10 @@ html>body .gwt-DialogBox {
     vertical-align: middle;
     min-width: 350px;
     max-width: 550px;
+}
+/* ComboBox table */
+.appFormComboBoxTable td {
+    border: 0px !important;
 }
 
 .alreadyAdded {

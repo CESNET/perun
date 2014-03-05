@@ -113,7 +113,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        loaderImage.setEmptyResultMessage("Vo has no resources.");
+        loaderImage.setEmptyResultMessage("VO has no resources.");
 
 		// columns
 		if (checkable) {
@@ -170,8 +170,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		final String param = "vo=" + this.voId;
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
@@ -333,6 +332,12 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
                 }
 			}
 		}
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No resource matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("VO has no resources.");
+        }
 
         dataProvider.flush();
         dataProvider.refresh();

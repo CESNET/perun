@@ -177,7 +177,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 		table.setEmptyTableWidget(loaderImage);
 
         if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-            loaderImage.setEmptyResultMessage("Vo has no members.");
+            loaderImage.setEmptyResultMessage("VO has no members.");
         } else {
             loaderImage.setEmptyResultMessage("Group has no members.");
         }
@@ -393,6 +393,17 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
                 }
             }
         }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No member matching '"+filter+"' found.");
+        } else {
+            if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+                loaderImage.setEmptyResultMessage("VO has no members.");
+            } else {
+                loaderImage.setEmptyResultMessage("Group has no members.");
+            }
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

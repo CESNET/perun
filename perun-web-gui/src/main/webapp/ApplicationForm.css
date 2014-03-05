@@ -187,9 +187,15 @@ input[type=text], input[type=password] {
 .appFormPasswordTable tr td:first-child {
     padding-bottom: 5px;
 }
+.appFormPasswordTable td {
+    border: 0px !important;
+}
 /* Checkboxes */
 .appFormCheckBoxTable tr td {
     padding-bottom: 5px;
+}
+.appFormCheckBoxTable td {
+    border: 0px !important;
 }
 .appFormCheckBoxTable tr td span {
     vertical-align: middle;
@@ -201,6 +207,10 @@ input[type=text], input[type=password] {
     vertical-align: middle;
     min-width: 350px;
     max-width: 550px;
+}
+/* ComboBox table */
+.appFormComboBoxTable td {
+    border: 0px !important;
 }
 
 /* AlertBox content */

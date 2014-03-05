@@ -95,8 +95,16 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	/**
 	 * Sets a new search string (future member login / name / mail ...)
 	 */
-	public void setSearchString(String searchString) {
+	public void searchFor(String searchString) {
+
+        if (searchString == null || searchString.isEmpty()) return;
+
+        loaderImage.setEmptyResultMessage("No user matching '"+searchString+"' found.");
 		this.searchString = searchString;
+
+        clearTable();
+        retrieveData();
+
 	}
 
 	/**

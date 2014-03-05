@@ -102,8 +102,7 @@ public class GetFormItems implements JsonCallback {
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		
 		String param = "";
 		
@@ -155,14 +154,12 @@ public class GetFormItems implements JsonCallback {
 		applFormItems.addAll(JsonUtils.<ApplicationFormItem>jsoAsList(jso));
 		applFormGenerators.clear();
 		
-		if(settings)
-		{
+		if (settings) {
 			prepareSettings(applFormItems);
-		}else{
+		} else {
 			prepareApplicationForm(applFormItems);
 		}
-		
-		
+
 		session.getUiElements().setLogText("Loading application form items in selected VO finished:" + applFormItems.size());
 		events.onFinished(jso);
 		loaderImage.loadingFinished();
@@ -183,20 +180,21 @@ public class GetFormItems implements JsonCallback {
 		};
 				
 		FlexTable ft = new FlexTable();
-		ft.addStyleName("borderTable");
 		ft.setWidth("100%");
 		ft.setCellPadding(8);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		
+
+        ft.addStyleName("borderTable");
+
 		ft.setHTML(0, 0, "<strong>Short name</strong>");
 		ft.setHTML(0, 1, "<strong>Type</strong>");
 		ft.setHTML(0, 2, "<strong>Preview</strong>");
 		ft.setHTML(0, 3, "<strong>Edit</strong>");
-		
-		fcf.setStyleName(0, 0, "GPBYFDEFD");
-		fcf.setStyleName(0, 1, "GPBYFDEFD");
-		fcf.setStyleName(0, 2, "GPBYFDEFD");
-		fcf.setStyleName(0, 3, "GPBYFDEFD");
+
+		fcf.setStyleName(0, 0, "header");
+		fcf.setStyleName(0, 1, "header");
+		fcf.setStyleName(0, 2, "header");
+		fcf.setStyleName(0, 3, "header");
 		
 		String locale = "en";
 		
@@ -368,6 +366,13 @@ public class GetFormItems implements JsonCallback {
 			i++;
 			
 		}
+
+        // set empty table widget
+        if (items == null || items.isEmpty()) {
+            ft.setWidget(1, 0, new HTML("<h2 align=\"center\" class=\"now-managing\">Application form has no form items.</h2>"));
+            ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
+            ft.getFlexCellFormatter().setColSpan(1, 0, 4);
+        }
 		
 		contents.setWidget(ft);
 

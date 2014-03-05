@@ -232,9 +232,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
                         searchCandidates = true;
                     }
                     tabMenu.addWidget(0, addCandidatesButton);
-                    candidates.setSearchString(searchBox.getText());
-                    candidates.clearTable();
-                    candidates.retrieveData();
+                    candidates.searchFor(searchBox.getText());
                 }
             }
         }));
@@ -249,9 +247,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
                         searchCandidates = false;
                     }
                     tabMenu.addWidget(0, addUsersButton);
-                    users.setSearchString(searchBox.getText());
-                    users.clearTable();
-                    users.retrieveData();
+                    users.searchFor(searchBox.getText());
                 }
             }
         }));
@@ -273,11 +269,9 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl{
 
         // load if stored search string is not empty
         if (searchCandidates) {
-            candidates.setSearchString(searchString);
-            candidates.retrieveData();
+            candidates.searchFor(searchString);
         } else {
-            users.setSearchString(searchString);
-            users.retrieveData();
+            users.searchFor(searchString);
         }
 
         // style

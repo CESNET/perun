@@ -292,6 +292,16 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No VO matching '"+filter+"' found.");
+        } else {
+            if (forceAll) {
+                loaderImage.setEmptyResultMessage("No VOs found.");
+            } else {
+                loaderImage.setEmptyResultMessage("You are not manager of any VO.");
+            }
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

@@ -339,6 +339,13 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 				}
 			}
 		}
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("VO has no groups.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();
