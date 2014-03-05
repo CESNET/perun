@@ -638,11 +638,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       if (Compatibility.isOracle()) {
         // Search users' names
         return (jdbc.query("select " + userMappingSelectQuery + " from users " +
-          "where lower("+Compatibility.convertToAscii("users.title_before || users.first_name || users.middle_name || users.last_name || users.title_after")+") like '%' || ? || '%'",
+          "where lower("+Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name")+") like '%' || ? || '%'",
           USER_MAPPER, searchString));
       } else if (Compatibility.isPostgreSql()) {
         return jdbc.query("select " + userMappingSelectQuery + "  from users " +
-            "where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.title_before,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'') ||  COALESCE(users.title_after,'')")+"),?) > 0",
+            "where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"),?) > 0",
             USER_MAPPER, searchString);
       } else {
         throw new InternalErrorException("Unsupported db type");
