@@ -413,9 +413,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 richAttr.setPrimaryHolder(host1OnFacility2);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-
+                
                 //Return facilities Administrator too if exists
-                assertTrue("return at least 2 vos", listOfRichAttributes.size() > 2);
+                assertTrue("return at least 2 vos", listOfRichAttributes.size() >= 2);
                 assertTrue("return maximum of 3 vos", listOfRichAttributes.size() <= 3);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
@@ -441,7 +441,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
                 //Return facilities Administrator too if exists
-                assertTrue("return at least 1 vos", listOfRichAttributes.size() > 1);
+                assertTrue("return at least 1 vos", listOfRichAttributes.size() >= 1);
                 assertTrue("return max 2 vos", listOfRichAttributes.size() <= 2);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
