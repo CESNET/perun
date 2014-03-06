@@ -311,6 +311,12 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No facility owner matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Facility has no owners.");
+        }
+
         loaderImage.loadingFinished();
         dataProvider.flush();
         dataProvider.refresh();

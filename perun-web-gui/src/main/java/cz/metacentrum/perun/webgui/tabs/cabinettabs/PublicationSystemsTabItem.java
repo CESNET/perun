@@ -20,7 +20,6 @@ import java.util.Map;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
@@ -91,9 +90,6 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -110,8 +106,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
 	}
 	
@@ -125,7 +120,6 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 
 	}
 	
-	
 	public final static String URL = "systems";
 	
 	public String getUrl()
@@ -133,13 +127,12 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public PublicationSystemsTabItem load(Map<String, String> parameters)
-	{
+	static public PublicationSystemsTabItem load(Map<String, String> parameters) {
 		return new PublicationSystemsTabItem();
 	}
+
 }

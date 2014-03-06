@@ -116,9 +116,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-		if(this.checkable)
-		{
-			// checkbox column column
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 
@@ -427,6 +425,16 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 			}
 
 		}
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No destination matching '"+text+"' found.");
+        } else {
+            if (showFac) {
+                loaderImage.setEmptyResultMessage("Service has no destination.");
+            } else {
+                loaderImage.setEmptyResultMessage("Facility has no services destinations. Service configuration can't be propagated.");
+            }
+        }
 
         dataProvider.flush();
         dataProvider.refresh();

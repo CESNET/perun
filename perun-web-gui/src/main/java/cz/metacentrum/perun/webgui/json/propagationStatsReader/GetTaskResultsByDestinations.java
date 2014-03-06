@@ -104,6 +104,7 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No propagation results found for this destination.");
 
 		table.addIdColumn("Result Id", null, 85);
 

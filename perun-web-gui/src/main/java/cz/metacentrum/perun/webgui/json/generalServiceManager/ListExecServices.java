@@ -26,8 +26,8 @@ import java.util.Comparator;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class ListExecServices implements JsonCallback, JsonCallbackTable<ExecService>
-{
+public class ListExecServices implements JsonCallback, JsonCallbackTable<ExecService> {
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// service ID
@@ -109,10 +109,9 @@ public class ListExecServices implements JsonCallback, JsonCallbackTable<ExecSer
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
-		if(this.checkable)
-		{
-			// checkbox column column
+		loaderImage.setEmptyResultMessage("Service has no Exec services.");
+
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 		
@@ -214,8 +213,7 @@ public class ListExecServices implements JsonCallback, JsonCallbackTable<ExecSer
 	/**
 	 * Retrieves members from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		final String param = "service=" + this.serviceId;
 		JsonClient js = new JsonClient();
 		if (serviceId != 0) {

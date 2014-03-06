@@ -116,10 +116,9 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 
         // set empty content & loader
         table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("You are not manager of any facility.");
 
-        if(checkable)
-        {
-            // checkbox column column
+        if(checkable) {
             table.addCheckBoxColumn();
         }
 
@@ -341,19 +340,26 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
             for (Facility fac : fullBackup){
                 // store facility by filter
                 if (fac.getName().toLowerCase().startsWith(text.toLowerCase())) {
-                    addToTable(fac);
+                    list.add(fac);
                 } else if (provideRich) {
                     // if name doesn't match, try to match owners
                     JsArray<Owner> owners = fac.getOwners();
                     for (int n=0; n<owners.length(); n++){
                         if ("technical".equals(owners.get(n).getType()) &&
                                 owners.get(n).getName().toLowerCase().equals(text.toLowerCase())) {
-                            addToTable(fac);
+                            list.add(fac);
                         }
                     }
                 }
             }
         }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No facility matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("You are not manager of any facility.");
+        }
+
         loaderImage.loadingFinished();
         dataProvider.flush();
         dataProvider.refresh();

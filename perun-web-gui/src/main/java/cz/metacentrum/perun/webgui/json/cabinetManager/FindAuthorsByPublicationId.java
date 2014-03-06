@@ -113,6 +113,7 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Publication has no authors.");
 
 		// show checkbox column
 		if(this.checkable) {

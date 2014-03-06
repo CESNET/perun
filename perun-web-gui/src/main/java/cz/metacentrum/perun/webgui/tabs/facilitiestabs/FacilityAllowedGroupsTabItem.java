@@ -38,7 +38,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl{
+public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -289,8 +289,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Allowed groups", getUrlWithParameters());
 		if(facility != null) {
@@ -317,18 +316,15 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
 	
-	static public FacilityAllowedGroupsTabItem load(Facility facility)
-	{
+	static public FacilityAllowedGroupsTabItem load(Facility facility) {
 		return new FacilityAllowedGroupsTabItem(facility);
 	}
 	
-	static public FacilityAllowedGroupsTabItem load(Map<String, String> parameters)
-	{
+	static public FacilityAllowedGroupsTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityAllowedGroupsTabItem(fid);
 	}

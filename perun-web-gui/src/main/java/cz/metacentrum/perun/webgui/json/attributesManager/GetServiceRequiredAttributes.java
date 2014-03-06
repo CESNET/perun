@@ -91,6 +91,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Service has no required attribute.");
 
 		// checkbox column column
 		table.addCheckBoxColumn();

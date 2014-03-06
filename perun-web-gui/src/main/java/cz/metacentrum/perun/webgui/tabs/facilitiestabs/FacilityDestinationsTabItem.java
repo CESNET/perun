@@ -147,7 +147,6 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
         removeButton.setEnabled(false);
         JsonUtils.addTableManagedButton(callback, table, removeButton);
 
-
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {

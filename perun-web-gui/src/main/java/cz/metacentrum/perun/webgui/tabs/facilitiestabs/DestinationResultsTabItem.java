@@ -150,6 +150,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
                     }
                 }
                 if (listbox.isEmpty()){
+                    listbox.addItem("No service available");
                     cb.setEnabled(false);
                 }
             }

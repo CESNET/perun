@@ -180,7 +180,6 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.attributesDisplayIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -189,9 +188,6 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -208,16 +204,13 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 	    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Attributes", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {
-
 		return session.isPerunAdmin();
-
 	}
 	
 	public final static String URL = "attr-def";
@@ -227,13 +220,11 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return AttributesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public AttributeDefinitionsTabItem load(Map<String, String> parameters)
-	{
+	static public AttributeDefinitionsTabItem load(Map<String, String> parameters) {
 		return new AttributeDefinitionsTabItem();
 	}
 	

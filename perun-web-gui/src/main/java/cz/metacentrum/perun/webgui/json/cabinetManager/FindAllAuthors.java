@@ -104,6 +104,7 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No authors found.");
 
         table.setHyperlinksAllowed(false);
 

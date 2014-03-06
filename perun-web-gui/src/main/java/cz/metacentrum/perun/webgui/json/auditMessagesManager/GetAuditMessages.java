@@ -113,9 +113,9 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 	
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-	
-		if(checkable)
-		{
+	    loaderImage.setEmptyResultMessage("No audit messages found.");
+
+		if(checkable) {
 			// checkbox column column
 			table.addCheckBoxColumn();
 		}

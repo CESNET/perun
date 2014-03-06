@@ -93,9 +93,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
         loaderImage.setEmptyResultMessage("No external sources found in Perun.");
 
 		// checkable
-		if(this.checkable)
-		{
-			// Checkbox column. This table will use a checkbox column for selection.
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 		

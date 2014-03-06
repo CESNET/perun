@@ -10,10 +10,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.propagationStatsReader.ListAllRichTasksForFacility;
@@ -23,6 +20,7 @@ import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
@@ -34,7 +32,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
+public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -119,6 +117,13 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl{
 		
 		TabMenu menu = new TabMenu();
 		menu.addWidget(refreshButton);
+
+        menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                callback.filterTable(text);
+            }
+        }, "Filter propagations by service name or type");
 		
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");

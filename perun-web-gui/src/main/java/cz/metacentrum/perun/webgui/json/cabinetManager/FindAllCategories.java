@@ -106,6 +106,7 @@ public class FindAllCategories implements JsonCallback, JsonCallbackTable<Catego
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No publications categories found.");
 
 		// tab index for values
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
