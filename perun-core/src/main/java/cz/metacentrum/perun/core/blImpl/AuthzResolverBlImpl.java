@@ -432,7 +432,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
             if(roles.contains(Role.FACILITYADMIN)); //Not allowed
             if(roles.contains(Role.SELF)) {
                 User u = getPerunBlImpl().getUsersManagerBl().getUserByMember(sess, member);
-                if(isAuthorized(sess, Role.SELF, user)) return true;
+                if(isAuthorized(sess, Role.SELF, u)) return true;
             }
         } else if(vo != null) {
             if(roles.contains(Role.VOADMIN)) {
