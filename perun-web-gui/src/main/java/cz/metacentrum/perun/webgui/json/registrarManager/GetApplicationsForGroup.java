@@ -486,6 +486,13 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
                 }
 			}
 		}
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No applications with username matching '"+filter+"' found for this group.");
+        } else {
+            loaderImage.setEmptyResultMessage("No applications matching search criteria found for this group.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

@@ -351,6 +351,16 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No resource matching '"+filter+"' found.");
+        } else {
+            if (PerunEntity.GROUP.equals(entity)) {
+                loaderImage.setEmptyResultMessage("Group is not assigned to any resource.");
+            } else if (PerunEntity.MEMBER.equals(entity)) {
+                loaderImage.setEmptyResultMessage("Member has no access to VO resources.");
+            }
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

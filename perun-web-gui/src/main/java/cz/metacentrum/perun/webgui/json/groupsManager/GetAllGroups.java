@@ -130,8 +130,12 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("VO has no groups.");
-		
+        if (!session.isVoAdmin(voId)) {
+            loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
+        } else {
+            loaderImage.setEmptyResultMessage("VO has no groups.");
+        }
+
 		Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
 				new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
 			@Override
@@ -343,7 +347,11 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
         if (list.isEmpty() && !text.isEmpty()) {
             loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
         } else {
-            loaderImage.setEmptyResultMessage("VO has no groups.");
+            if (!session.isVoAdmin(voId)) {
+                loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
+            } else {
+                loaderImage.setEmptyResultMessage("VO has no groups.");
+            }
         }
 
         dataProvider.flush();

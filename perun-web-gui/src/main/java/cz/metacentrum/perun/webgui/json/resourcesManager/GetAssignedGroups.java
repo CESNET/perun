@@ -367,6 +367,12 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
             }
         }
 
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Resource has no groups assigned.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

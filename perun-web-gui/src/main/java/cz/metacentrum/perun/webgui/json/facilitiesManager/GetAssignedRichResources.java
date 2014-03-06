@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichResource;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,7 +29,7 @@ import java.util.Comparator;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource> {
+public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
 	
 	// params
 	static private final String JSON_URL = "facilitiesManager/getAssignedRichResources";
@@ -41,6 +42,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private ArrayList<RichResource> list = new ArrayList<RichResource>();
 	private FieldUpdater<RichResource, String> tableFieldUpdater;
 	final MultiSelectionModel<RichResource> selectionModel = new MultiSelectionModel<RichResource>(new GeneralKeyProvider<RichResource>());
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+    private ArrayList<RichResource> backupList = new ArrayList<RichResource>();
+    private boolean checkable = true;
 	
 	/**
 	 * Creates a new callback
@@ -112,7 +116,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         loaderImage.setEmptyResultMessage("Facility has no resources.");
 		
 		// checkbox column column
-		table.addCheckBoxColumn();
+		if (checkable) {
+            table.addCheckBoxColumn();
+        }
 
 		// TABLE CONTENT
 
@@ -185,6 +191,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
      */
     public void addToTable(RichResource object) {
         list.add(object);
+        oracle.add(object.getName());
+        oracle.add(object.getVo().getName());
+        oracle.add(object.getVo().getShortName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -207,6 +216,8 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+        oracle.clear();
+        backupList.clear();
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();
@@ -258,6 +269,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
     public void insertToTable(int index, RichResource object) {
         list.add(index, object);
+        oracle.add(object.getName());
+        oracle.add(object.getVo().getName());
+        oracle.add(object.getVo().getShortName());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -267,18 +281,65 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     }
 
     public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
+        this.checkable = checkable;
     }
 
     public void setList(ArrayList<RichResource> list) {
         clearTable();
         this.list.addAll(list);
+        for (RichResource rr : list) {
+            oracle.add(rr.getVo().getName());
+            oracle.add(rr.getVo().getShortName());
+            oracle.add(rr.getName());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
 
     public ArrayList<RichResource> getList() {
         return this.list;
+    }
+
+    public UnaccentMultiWordSuggestOracle getOracle(){
+        return this.oracle;
+    }
+
+    public void filterTable(String text){
+
+        // store list only for first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (text.equalsIgnoreCase("")) {
+            list.addAll(backupList);
+        } else {
+            for (RichResource r : backupList){
+                if ((r.getName().toLowerCase().startsWith(text.toLowerCase())) ||
+                        (r.getVo().getName().toLowerCase().startsWith(text.toLowerCase())) ||
+                        (r.getVo().getShortName().toLowerCase().startsWith(text.toLowerCase()))) {
+                    list.add(r);
+                }
+            }
+        }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No resource matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Facility has no resources.");
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+    }
+
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
     }
 
 }

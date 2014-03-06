@@ -272,6 +272,12 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
             }
         }
 
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No service matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Resource has no services assigned.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

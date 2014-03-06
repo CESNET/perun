@@ -126,7 +126,11 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Member has no applications submitted for this VO or it's groups.");
+        if (groupId == 0) {
+            loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this VO or it's groups.");
+        } else {
+            loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this group.");
+        }
 
 		// columns
 		if (checkable) {
@@ -506,6 +510,18 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
                 }
 			}
 		}
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            // filtering is on groups only
+            loaderImage.setEmptyResultMessage("No member's applications for group matching '"+filter+"' found.");
+        } else {
+            if (groupId == 0) {
+                loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this VO or it's groups.");
+            } else {
+                loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this group.");
+            }
+        }
+
         loaderImage.loadingFinished();
         dataProvider.flush();
         dataProvider.refresh();

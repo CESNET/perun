@@ -11,10 +11,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -29,6 +26,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.CreateFacilityResourceTabItem;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -138,6 +136,13 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
             }
         });
 
+        menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
+            @Override
+            public void searchFor(String text) {
+                resources.filterTable(text);
+            }
+        }, "Filter resources by name or VO name");
+
 		CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
 			public void update(int index, RichResource object, String value) {
 				session.getTabManager().addTab(new ResourceDetailTabItem(object, facilityId));
@@ -182,9 +187,6 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -205,8 +207,7 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Resources", getUrlWithParameters());
 		if(facility != null) {
@@ -233,18 +234,15 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
 	
-	static public FacilityResourcesTabItem load(Facility facility)
-	{
+	static public FacilityResourcesTabItem load(Facility facility) {
 		return new FacilityResourcesTabItem(facility);
 	}
 	
-	static public FacilityResourcesTabItem load(Map<String, String> parameters)
-	{
+	static public FacilityResourcesTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityResourcesTabItem(fid);
 	}
