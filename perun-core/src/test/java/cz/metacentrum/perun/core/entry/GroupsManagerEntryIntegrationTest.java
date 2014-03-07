@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -25,9 +23,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
-import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -37,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
-import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -46,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
     // these must be setUp"type" before every method to be in DB
@@ -69,6 +62,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
         // vo = setUpVo();
         // setUpGroup(vo);
         // moved to every method to save testing time
+
+    }
+
+    @Test
+    public void getGroupsUsers() throws Exception {
+        System.out.println("GroupsManager.getGroupsUsers");
+
+        vo = setUpVo();
+        setUpGroup(vo);
+
+        Member member = setUpMember(vo);
+        groupsManagerBl.addMember(sess, group, member);
+        User u = perun.getUsersManager().getUserByMember(sess, member);
+
+        List<User> users = groupsManagerBl.getGroupUsers(sess, group);
+        assertTrue("Users of group can't be null", users != null);
+        assertTrue("Group must have exactly 1 user", users.size() == 1);
+        assertTrue("User of group is not same as originally added", users.contains(u));
 
     }
 
