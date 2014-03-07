@@ -7,7 +7,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -15,7 +14,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.registrarManager.CreateApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItems;
 import cz.metacentrum.perun.webgui.json.registrarManager.UpdateFormItems;
@@ -104,42 +102,25 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 
         final TabMenu menu = new TabMenu();
 
+        final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
+        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
+        final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+        final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
+        final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
+
         // request
-		final GetFormItems itemsRequest = new GetFormItems(PerunEntity.GROUP, group.getId(), true, new JsonCallbackEvents(){
-			@Override
-			public void onError(PerunError error) {
-				if (error.getName().equalsIgnoreCase("FormNotExistsException")) {
-					// no form, add create button
-					final CustomButton create = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createEmptyApplicationForm());
-					create.addClickHandler(new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							// disable button event with refresh page on finished
-							CreateApplicationForm request = new CreateApplicationForm(PerunEntity.GROUP, groupId, JsonCallbackEvents.disableButtonEvents(create, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									draw(); // refresh page
-								}
-							}));
-							request.createApplicationForm();
-						}
-					});
-                    if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) create.setEnabled(false);
-					
-					FlexTable ft = new FlexTable();
-					ft.setSize("100%", "300px");
-					ft.setHTML(0, 0, "<h2>"+ WidgetTranslation.INSTANCE.formDoesntExists()+"</h2>");
-					ft.setWidget(1, 0, create);
-					ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-					ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-					
-					vp.clear();
-					vp.add(ft);
-					
-				}
-			}
-		});
+		final GetFormItems itemsRequest = new GetFormItems(PerunEntity.GROUP, group.getId(), true, group, new JsonCallbackEvents(){
+            @Override
+            public void onError(PerunError error) {
+                // DISABLE BUTTONS
+                save.setEnabled(false);
+                addButton.setEnabled(false);
+                emailButton.setEnabled(false);
+                copyButton.setEnabled(false);
+                previewButton.setEnabled(false);
+            }
+
+        });
 		sourceList = itemsRequest.getList();
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+": "+"application form");
@@ -156,7 +137,6 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		};
 
 		// save button
-		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
 		save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				UpdateFormItems request = new UpdateFormItems(PerunEntity.GROUP, groupId, JsonCallbackEvents.disableButtonEvents(save, new JsonCallbackEvents(){
@@ -185,7 +165,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
         menu.addWidget(save);
 		
 		// add button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem(), new ClickHandler() {
+		addButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
             }
@@ -193,22 +173,22 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
         if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
         menu.addWidget(addButton);
 
-        CustomButton copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+        copyButton.addClickHandler(new ClickHandler(){
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CopyFormTabItem(group.getVoId(), groupId));
             }
         });
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) copy.setEnabled(false);
-        menu.addWidget(copy);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) copyButton.setEnabled(false);
+        menu.addWidget(copyButton);
 
-        CustomButton preview = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
+        previewButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 GeneralObject go = group.cast();
                 session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
             }
         });
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) preview.setEnabled(false);
-        menu.addWidget(preview);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) previewButton.setEnabled(false);
+        menu.addWidget(previewButton);
 		
 		// AUTO APPROVAL + NOTIFICATIONS
 		
@@ -218,13 +198,13 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());
 
-        CustomButton email = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
+        emailButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTab(new MailsTabItem(group.getVoId(), group.getId()));
             }
         });
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) email.setEnabled(false);
-        menu.addWidget(email);
+        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) emailButton.setEnabled(false);
+        menu.addWidget(emailButton);
 		
 		// load elements
 		itemsRequest.retrieveData();

@@ -7,7 +7,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -15,7 +14,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.registrarManager.CreateApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItems;
 import cz.metacentrum.perun.webgui.json.registrarManager.UpdateFormItems;
@@ -109,44 +107,26 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
         final TabMenu menu = new TabMenu();
         vp.add(menu);
         vp.setCellHeight(menu, "30px");
-		
-		// request
-		final GetFormItems itemsRequest = new GetFormItems(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), true, new JsonCallbackEvents(){
-			@Override
-			public void onError(PerunError error) {
-				if (error.getName().equalsIgnoreCase("FormNotExistsException")) {
-					// no form, add create button
-					final CustomButton create = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createEmptyApplicationForm());
-					create.addClickHandler(new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							// disable button event with refresh page on finished
-							CreateApplicationForm request = new CreateApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.disableButtonEvents(create, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									draw(); // refresh page
-								}
-							}));
-							request.createApplicationForm();
-						}
-					});
 
-                    if (!session.isVoAdmin(voId)) create.setEnabled(false);
-					
-					FlexTable ft = new FlexTable();
-					ft.setSize("100%", "300px");
-					ft.setHTML(0, 0, "<h2>"+ WidgetTranslation.INSTANCE.formDoesntExists()+"</h2>");
-					ft.setWidget(1, 0, create);
-					ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-					ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-					
-					vp.clear();
-					vp.add(ft);
-					
-				}
-			}
-		});
+        final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
+        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
+        final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+        final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
+        final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
+
+        // request
+        final GetFormItems itemsRequest = new GetFormItems(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), true, null, new JsonCallbackEvents(){
+            @Override
+            public void onError(PerunError error) {
+                // DISABLE BUTTONS
+                save.setEnabled(false);
+                addButton.setEnabled(false);
+                emailButton.setEnabled(false);
+                copyButton.setEnabled(false);
+                previewButton.setEnabled(false);
+            }
+
+        });
 		sourceList = itemsRequest.getList();
 		
 		// refresh table events
@@ -157,7 +137,6 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		};
 
 		// save button
-		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
 		menu.addWidget(save);
         if (!session.isVoAdmin(voId)) save.setEnabled(false);
         save.addClickHandler(new ClickHandler() {
@@ -186,7 +165,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		});
 		
 		// add button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem(), new ClickHandler() {
+		addButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
             }
@@ -194,7 +173,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
         if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
         menu.addWidget(addButton);
 
-		CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+		copyButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CopyFormTabItem(vo.getId(), 0));
 			}
@@ -202,7 +181,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
         if (!session.isVoAdmin(voId)) copyButton.setEnabled(false);
 		menu.addWidget(copyButton);
 
-		CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm(), new ClickHandler() {
+		previewButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 GeneralObject go = vo.cast();
                 session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
@@ -219,7 +198,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());
 		
-		CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
+		emailButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new MailsTabItem(voId, 0));
 			}
@@ -302,8 +281,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 	
 	public final static String URL = "appl-form";
 	
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 	
