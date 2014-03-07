@@ -251,7 +251,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
     try {
       return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from groups_members join members on members.id=member_id join " +
           "users on members.user_id=users.id where group_id=? order by "+Compatibility.orderByBinary("users.last_name")+", " +
-          Compatibility.orderByBinary("users.first_name")+")", UsersManagerImpl.USER_MAPPER, group.getId());
+          Compatibility.orderByBinary("users.first_name"), UsersManagerImpl.USER_MAPPER, group.getId());
     } catch(RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
