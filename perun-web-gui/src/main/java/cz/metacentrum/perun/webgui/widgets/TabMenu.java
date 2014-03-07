@@ -129,7 +129,7 @@ public class TabMenu extends Composite {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                if (UiElements.searchStingCantBeEmpty(textBox.getTextBox().getText())) {
+                if (UiElements.searchStingCantBeEmpty(textBox.getTextBox().getText().trim())) {
                     searchEvent.searchFor(textBox.getTextBox().getText().trim());
                 }
             }
@@ -170,7 +170,7 @@ public class TabMenu extends Composite {
                 if (!textBox.getTextBox().getText().trim().isEmpty()) {
                     button.setEnabled(true);
                     if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-                        searchEvent.searchFor(textBox.getTextBox().getText());
+                        searchEvent.searchFor(textBox.getTextBox().getText().trim());
                     }
                 } else {
                     button.setEnabled(false);
@@ -197,7 +197,7 @@ public class TabMenu extends Composite {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 if(UiElements.searchStingCantBeEmpty(textBox.getTextBox().getText().trim())){
-                    searchEvent.searchFor(textBox.getTextBox().getText());
+                    searchEvent.searchFor(textBox.getTextBox().getText().trim());
                 }
             }
         });

@@ -107,14 +107,25 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 
 	}
 
-	/**
-	 * Returns the table widget with Candidates
-	 * 
-	 * @return table widget
-	 */
-	public CellTable<Candidate> getTable(){
+    /**
+     * Returns the table widget with Candidates
+     *
+     * @return table widget
+     */
+    public CellTable<Candidate> getTable(){
 
-		retrieveData();
+        retrieveData();
+        return getEmptyTable();
+
+    }
+
+    /**
+     * Returns the empty table widget
+     *
+     * @return table widget
+     */
+    public CellTable<Candidate> getEmptyTable(){
+
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<Candidate>(list);

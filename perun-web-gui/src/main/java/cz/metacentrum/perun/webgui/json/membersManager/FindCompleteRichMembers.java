@@ -138,14 +138,12 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	}
 
     public void searchFor(String searchString) {
-
-        if (!searchString.isEmpty()) {
+        if (searchString != null && !searchString.isEmpty()) {
             loaderImage.setEmptyResultMessage("No member matching '"+searchString+"' found.");
+            this.searchString = searchString;
+            clearTable();
+            retrieveData();
         }
-        this.searchString = searchString;
-        clearTable();
-        retrieveData();
-
     }
 
 	/**
