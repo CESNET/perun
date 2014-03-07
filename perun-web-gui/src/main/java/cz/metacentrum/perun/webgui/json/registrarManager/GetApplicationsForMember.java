@@ -127,9 +127,9 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         if (groupId == 0) {
-            loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this VO or it's groups.");
+            loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
         } else {
-            loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this group.");
+            loaderImage.setEmptyResultMessage("No member's applications found for this group.");
         }
 
 		// columns
@@ -516,9 +516,9 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
             loaderImage.setEmptyResultMessage("No member's applications for group matching '"+filter+"' found.");
         } else {
             if (groupId == 0) {
-                loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this VO or it's groups.");
+                loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
             } else {
-                loaderImage.setEmptyResultMessage("No member's applications matching search criteria found for this group.");
+                loaderImage.setEmptyResultMessage("No member's applications found for this group.");
             }
         }
 

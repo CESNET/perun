@@ -59,15 +59,17 @@ public class MemberSettingsTabItem implements TabItem {
     // 0 = NO RESOURCE SELECTED
     private int lastSelectedResourceId = 0;
     private int lastSelectedFilterIndex = 1;  // 1 = required as default
+    private int groupId = 0;
 
     /**
      * Constructor
      *
      * @param member RichMember object, typically from table
      */
-    public MemberSettingsTabItem(RichMember member){
+    public MemberSettingsTabItem(RichMember member, int groupId){
         this.member = member;
         this.memberId = member.getId();
+        this.groupId = groupId;
     }
 
     public boolean isPrepared(){
@@ -89,6 +91,9 @@ public class MemberSettingsTabItem implements TabItem {
 
         // callbacks
         final GetAttributesV2 callback = new GetAttributesV2();
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) {
+            callback.setCheckable(false);
+        }
         callback.getMemberAttributes(member.getId(), 1); // member & user attrs
         final CellTable<Attribute> table = callback.getEmptyTable();
 
@@ -130,8 +135,7 @@ public class MemberSettingsTabItem implements TabItem {
                     } else if (filter.getSelectedIndex() == 1) {
                         callback.clearTable();
                         ids.clear();
-                        Confirm c = new Confirm("Not valid option", new Label("Skiping to \"Resource required\""), true);
-                        c.show();
+                        UiElements.generateInfo("Not valid option", "Skipping to \"Resource required\" option.");
                         filter.setSelectedIndex(2);
                         lastSelectedFilterIndex = 2;
                         ids.put("member", member.getId());
@@ -166,7 +170,7 @@ public class MemberSettingsTabItem implements TabItem {
                         // if resource required
                     } else if (filter.getSelectedIndex() == 2) {
                         callback.clearTable();
-                        table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+                        ((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
                         UiElements.generateInfo("Not valid option", "You must select resource first.");
                     }
                 }
@@ -215,9 +219,16 @@ public class MemberSettingsTabItem implements TabItem {
         JsonCallbackEvents events = new JsonCallbackEvents(){
             public void onFinished(JavaScriptObject jso) {
                 listbox.clear();
-                listbox.addNotSelectedOption();
+
                 ArrayList<Resource> res = JsonUtils.jsoAsList(jso);
                 res = new TableSorter<Resource>().sortByName(res);
+
+                if (res != null && !res.isEmpty()) {
+                    listbox.addNotSelectedOption();
+                } else {
+                    listbox.addItem("No resource available");
+                }
+
                 for (int i=0; i<res.size(); i++) {
                     listbox.addItem(res.get(i));
                     // select last selected
@@ -250,7 +261,7 @@ public class MemberSettingsTabItem implements TabItem {
 
         // save changes in attributes
         final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) saveChangesButton.setEnabled(false);
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) saveChangesButton.setEnabled(false);
         saveChangesButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -338,7 +349,7 @@ public class MemberSettingsTabItem implements TabItem {
                 session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
             }
         });
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) setNewMemberAttributeButton.setEnabled(false);
+        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) setNewMemberAttributeButton.setEnabled(false);
         menu.addWidget(setNewMemberAttributeButton);
 
         // REMOVE ATTRIBUTES BUTTON
@@ -416,7 +427,9 @@ public class MemberSettingsTabItem implements TabItem {
 
             }
         });
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin()) removeButton.setEnabled(false);
+
+        removeButton.setEnabled(false);
+        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(callback, table, removeButton);
         menu.addWidget(removeButton);
 
         // add listbox to menu
@@ -468,18 +481,15 @@ public class MemberSettingsTabItem implements TabItem {
         return true;
     }
 
-
     public boolean multipleInstancesEnabled() {
         return false;
     }
 
-    public void open() {
-
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin()) {
+        if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
             return true;
         } else {
             return false;

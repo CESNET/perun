@@ -31,15 +31,17 @@ public class MemberResourcesTabItem implements TabItem {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
+    private int groupId = 0;
 
 	/**
 	 * Constructor
 	 *
      * @param member RichMember object, typically from table
      */
-	public MemberResourcesTabItem(RichMember member){
+	public MemberResourcesTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
+        this.groupId = groupId;
 	}
 	
 	public boolean isPrepared(){
@@ -146,7 +148,7 @@ public class MemberResourcesTabItem implements TabItem {
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin()) {
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

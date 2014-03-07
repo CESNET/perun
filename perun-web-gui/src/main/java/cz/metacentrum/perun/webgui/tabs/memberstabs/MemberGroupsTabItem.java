@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -41,15 +40,17 @@ public class MemberGroupsTabItem implements TabItem {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
+    private int groupId = 0;
 
 	/**
 	 * Constructor
 	 *
      * @param member RichMember object, typically from table
      */
-	public MemberGroupsTabItem(RichMember member){
+	public MemberGroupsTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
+        this.groupId = groupId;
 	}
 	
 	public boolean isPrepared(){
@@ -125,8 +126,7 @@ public class MemberGroupsTabItem implements TabItem {
             }
         });
 
-        if (session.isVoAdmin(member.getVoId()) || (session.isGroupAdmin() && !session.isVoObserver(member.getVoId())))
-            JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
+        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
         table.addStyleName("perun-table");
         ScrollPanel sp = new ScrollPanel(table);
         sp.addStyleName("perun-tableScrollPanel");
@@ -178,13 +178,11 @@ public class MemberGroupsTabItem implements TabItem {
 		return false;
 	}
 	
-	public void open() {
-
-	}
+	public void open() { }
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin()) {
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

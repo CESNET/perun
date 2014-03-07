@@ -169,11 +169,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
             }
         };
 
-        tabPanel.add(new MemberOverviewTabItem(member, refreshEvent), "Overview");
-        tabPanel.add(new MemberGroupsTabItem(member), "Groups");
-        tabPanel.add(new MemberResourcesTabItem(member), "Resources");
+        tabPanel.add(new MemberOverviewTabItem(member, groupId, refreshEvent), "Overview");
+        tabPanel.add(new MemberGroupsTabItem(member, groupId), "Groups");
+        tabPanel.add(new MemberResourcesTabItem(member, groupId), "Resources");
         tabPanel.add(new MemberApplicationsTabItem(member, groupId), "Applications");
-        tabPanel.add(new MemberSettingsTabItem(member), "Settings");
+        tabPanel.add(new MemberSettingsTabItem(member, groupId), "Settings");
 
         // Resize must be called after page fully displays
         Scheduler.get().scheduleDeferred(new Command() {
