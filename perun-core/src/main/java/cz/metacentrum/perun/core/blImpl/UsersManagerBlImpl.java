@@ -396,19 +396,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
     List<Integer> ueasIds = getUsersManagerImpl().getUserExtSourcesIds(sess, user);
-
-    List<UserExtSource> ueas = new ArrayList<UserExtSource>();
-    for(Integer ueaId: ueasIds) {
-      try {
-        ueas.add(getUsersManagerImpl().getUserExtSourceById(sess, ueaId));
-      } catch (UserExtSourceNotExistsException e) {
-        throw new ConsistencyErrorException("User has assigned non existent UserExtSource", e);
-      }
-    }
+    List<UserExtSource> ueas = getUsersManagerImpl().getUserExtsourcesByIds(sess, ueasIds);
 
     return ueas;
   }
 
+  public List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException {
+    return getUsersManagerImpl().getUserExtsourcesByIds(sess, ids);
+  }
+  
   public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
     return getUsersManagerImpl().getUserExtSourceById(sess, id);
   }

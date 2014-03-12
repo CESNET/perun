@@ -344,6 +344,16 @@ public interface UsersManagerBl {
   UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
   
   /**
+   * Get list of user ext sources be their ids.
+   * 
+   * @param sess
+   * @param ids
+   * @return list of user external sources for ids
+   * @throws InternalErrorException 
+   */
+  List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException;
+    
+  /**
    * Adds user's external sources.
    * 
    * @param perunSession       
