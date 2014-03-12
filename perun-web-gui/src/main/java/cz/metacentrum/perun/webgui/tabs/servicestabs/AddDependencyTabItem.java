@@ -106,7 +106,7 @@ public class AddDependencyTabItem implements TabItem {
             public void onFinished(JavaScriptObject jso) {
 				listBox.clear();
                 ArrayList<ExecService> execs = JsonUtils.jsoAsList(jso);
-				if (execs != null && execs.isEmpty()) {
+				if (execs != null && !execs.isEmpty()) {
                     execs = new TableSorter<ExecService>().sortByService(execs);
                     for (int i=0; i<execs.size(); i++){
                         listBox.addItem(execs.get(i));
