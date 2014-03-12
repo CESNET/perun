@@ -472,6 +472,25 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     }
   }
 
+  public List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException {
+    if (ids.size() == 0) {
+      return new ArrayList<UserExtSource>();
+    }
+    
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("ids", ids);
+    
+    try {
+      return namedParameterJdbcTemplate.query("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+          " from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where" +
+          " user_ext_sources.id in ( :ids )", parameters, USEREXTSOURCE_MAPPER);
+    } catch(EmptyResultDataAccessException ex) {
+      return new ArrayList<UserExtSource>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }    
+  }
+  
   public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
     try {
       return jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
