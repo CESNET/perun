@@ -1048,112 +1048,138 @@ public class RegistrarFormItemGenerator {
 		} else {
 			
 			// get namespace
-			final String loginNamespace = item.getPerunDestinationAttribute().substring(PERUN_ATTRIBUTE_LOGIN_NAMESPACE_POSITION);
-			
-			// check if login is new
-			inputChecker = new FormInputChecker() {
+            if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
 
-				private boolean validating = false;
+                final String loginNamespace = item.getPerunDestinationAttribute().substring(PERUN_ATTRIBUTE_LOGIN_NAMESPACE_POSITION);
 
-				private boolean valid = true;
+                // check if login is new
+                inputChecker = new FormInputChecker() {
 
-				private Map<String, Boolean> validMap = new HashMap<String, Boolean>();
+                    private boolean validating = false;
 
-				public boolean isValid(boolean forceNewValidation) {
+                    private boolean valid = true;
 
-					// if not new, don't force
-					if(!forceNewValidation) return valid;
+                    private Map<String, Boolean> validMap = new HashMap<String, Boolean>();
 
-					final String str = tbox.getValue();
-					
+                    public boolean isValid(boolean forceNewValidation) {
 
-					// missing?
-					valid = (!(item.isRequired() && str.equals("")));
-					if(!valid){
-						
-						statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));					
-						return false;
-					}
-					
-					// length
-					valid = checkLength();
-					if(!valid){
-						return false;
-					}
+                        // if not new, don't force
+                        if(!forceNewValidation) return valid;
 
-					valid = checkValueRegex();
-					// regex check
-					if(!valid){
-						return false;
-					}
+                        final String str = tbox.getValue();
 
-                    // force check for base REGEX used in login attribute module
-                    RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
-                    boolean match = regExp.test(str);
-                    if (!match) return false;
+                        // missing?
+                        valid = (!(item.isRequired() && str.equals("")));
+                        if(!valid){
 
-					// has already checked it?
-					if(validMap.containsKey(str)){
-						valid = validMap.get(str);
-						if(valid){
-							
-							statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
-						} else {
-							
-							statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
-						}
-						return valid;
-					}
+                            statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
+                            return false;
+                        }
 
-					// check login
-					validating = true;
+                        // length
+                        valid = checkLength();
+                        if(!valid){
+                            return false;
+                        }
 
-					statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.validating(), Status.LOADING));
+                        valid = checkValueRegex();
+                        // regex check
+                        if(!valid){
+                            return false;
+                        }
 
-					// check login
-					new IsLoginAvailable(loginNamespace, str, new JsonCallbackEvents(){
-                        @Override
-						public void onFinished(JavaScriptObject jso){
+                        // force check for base REGEX used in login attribute module
+                        RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+                        boolean match = regExp.test(str);
+                        if (!match) return false;
 
-							// store result for the requested login
-							BasicOverlayType bo = jso.cast();
-							validMap.put(str, bo.getBoolean());
+                        // has already checked it?
+                        if(validMap.containsKey(str)){
+                            valid = validMap.get(str);
+                            if(valid){
 
-							if(!str.equals(strValueBox.getValue())){
-								// value changed before request finished, don't update the valid value
-								return;
-							}
+                                statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
+                            } else {
 
-							valid = bo.getBoolean(); 
+                                statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
+                            }
+                            return valid;
+                        }
 
-							validating = false;
+                        // check login
+                        validating = true;
 
-							if(valid){
-							
-								statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
-							} else {
-						
-								statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
-							}
-							validationTrigger.triggerValidation();
-						}
-					}).retrieveData();
+                        statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.validating(), Status.LOADING));
+
+                        // check login
+                        new IsLoginAvailable(loginNamespace, str, new JsonCallbackEvents(){
+                            @Override
+                            public void onFinished(JavaScriptObject jso){
+
+                                // store result for the requested login
+                                BasicOverlayType bo = jso.cast();
+                                validMap.put(str, bo.getBoolean());
+
+                                if(!str.equals(strValueBox.getValue())){
+                                    // value changed before request finished, don't update the valid value
+                                    return;
+                                }
+
+                                valid = bo.getBoolean();
+
+                                validating = false;
+
+                                if(valid){
+
+                                    statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
+                                } else {
+
+                                    statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
+                                }
+                                validationTrigger.triggerValidation();
+                            }
+                        }).retrieveData();
 
 
-					// check login end
+                        // check login end
 
-					valid = false;
-					return false;
-				}
+                        valid = false;
+                        return false;
+                    }
 
-				public boolean isValidating() {
-					return validating;
-				}
+                    public boolean isValidating() {
+                        return validating;
+                    }
 
-				public boolean useDefaultOkMessage() {
-					return false;
-				}
-			};
+                    public boolean useDefaultOkMessage() {
+                        return false;
+                    }
+                };
+
+            } else {
+
+                // Username has no "login-namespace"
+                // prevent such malformed applications from submission
+                tbox.setEnabled(false);
+                tbox.setValue("Wrong form item configuration !!");
+                inputChecker = new FormInputChecker() {
+                    @Override
+                    public boolean isValid(boolean forceNewValidation) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isValidating() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean useDefaultOkMessage() {
+                        return false;
+                    }
+                };
+
+            }
 
 		}
 
