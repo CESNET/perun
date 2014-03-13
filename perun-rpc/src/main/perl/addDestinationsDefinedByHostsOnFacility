@@ -8,33 +8,30 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes selected destination from the facility. Facility id or name, attribute id and destination and type are required.
+	Adds facility destination. Facility and service are required fields.
 	--------------------------------------
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
 	--serviceId    | -s service id
-	--destination  | -D destination
-	--type         | -t destination type
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($facilityId, $facilityName, $serviceId, $destination, $typ, $batch);
+our $batch;
+my ($facilityId, $facilityName, $serviceId );
+
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId, "serviceId|s=i" => \$serviceId,
- "facilityName|F=s" => \$facilityName,
- "destination|D=s" => \$destination,
- "type|t=s" => \$typ) || die help();
+"facilityId|f=i" => \$facilityId,
+"facilityName|F=s" => \$facilityName,
+"serviceId|s=i" => \$serviceId
+) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
-unless (defined($destination)) { die "ERROR: destination is required \n";}
-unless (defined($typ)) { die "ERROR: destination type is required \n";}
-unless ($destination !~ /^\s*$/) { die "ERROR: destination cannot be empty string\n";}
 
 my $agent = Perun::Agent->new();
 
@@ -46,6 +43,8 @@ unless($facilityId) {
 
 my $servicesAgent = $agent->getServicesAgent;
 
-$servicesAgent->removeDestination(facility => $facilityId, service => $serviceId, destination => $destination, type => $typ);
+my $facilitiesAgent= $agent->getFacilitiesAgent;
 
-printMessage("Destination:$destination removed from the facility Id:$facilityId and service Id:$serviceId", $batch);
+$servicesAgent->addDestinationsForAllServicesOnFacility(service => $serviceId, facility => $facilityId);
+
+printMessage("Destinations successfully added for the service Id:$serviceId on the facility Id:$facilityId", $batch);

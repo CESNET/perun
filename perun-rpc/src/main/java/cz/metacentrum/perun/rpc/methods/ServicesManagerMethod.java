@@ -675,25 +675,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Defines service destination for all cluster hosts using theirs hostnames.
-	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
-	 * @return List<Destinations> Added destinations
-	 */
-	addDestinationsDefinedByHostsOnCluster {
-
-		@Override
-		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			return ac.getServicesManager().addDestinationsDefinedByHostsOnCluster(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
-		}
-	},
-
-	/*#
 	 * Add services destinations for all services currently available on facility
 	 * (assigned to all facility's resources). Destinations names are taken from
 	 * all facility's host hostnames.

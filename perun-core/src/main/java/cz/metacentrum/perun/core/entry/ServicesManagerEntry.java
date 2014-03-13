@@ -684,25 +684,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, ClusterNotExistsException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-			throw new PrivilegeException(sess, "addDestinationsDefinedByHostsOnCluster");
-		}
-
-		// Check if the facility is cluster
-		if (!facility.getType().equals(FacilitiesManager.CLUSTERTYPE) && !facility.getType().equals(FacilitiesManager.VIRTUALCLUSTERTYPE)) {
-			throw new ClusterNotExistsException("Facility " + facility + " is not cluster or vcluster");
-		}
-		getServicesManagerBl().checkServiceExists(sess, service);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		return getServicesManagerBl().addDestinationsDefinedByHostsOnCluster(sess, service, facility);
-	}
-
-	@Override
 	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
 		Utils.checkPerunSession(perunSession);
 

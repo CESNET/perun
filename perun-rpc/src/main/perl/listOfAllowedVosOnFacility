@@ -14,7 +14,6 @@ sub help {
 	Available options:
 	--facilityId   | -f  facility identifier
 	--facilityName | -F  facility name
-	--facilityType | -t  facility type
 	--orderById    | -i  order by numeric id
 	--orderByName  | -n  order by short name (default)
 	--batch        | -b  batch
@@ -22,37 +21,36 @@ sub help {
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $batch, $sortingFunction);
+my ($facilityId, $facilityName, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-	"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-					 "facilityType|t=s" => \$facilityType,
-				 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-				 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) },
-				 "batch|b" => \$batch) || die help;
+					"facilityId|f=i" => \$facilityId,
+					"facilityName|F=s" => \$facilityName,
+					"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+					"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) },
+					"batch|b" => \$batch) || die help;
 
 #options check
-		 unless(defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required\n";}
-		 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getShortName", 1); }
+			 unless(defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required\n";}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getShortName", 1); }
 
-		 my $agent = Perun::Agent->new();
-		 my $facAgent = $agent->getFacilitiesAgent;
+			 my $agent = Perun::Agent->new();
+			 my $facAgent = $agent->getFacilitiesAgent;
 
-		 unless($facilityId) {
-			 my $facility = $facAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-			 $facilityId = $facility->getId;
-		 }
+			 unless($facilityId) {
+				 my $facility = $facAgent->getFacilityByName(name => $facilityName);
+				 $facilityId = $facility->getId;
+			 }
 
-		 my @vos = $facAgent->getAllowedVos(facility=>$facilityId);
+			 my @vos = $facAgent->getAllowedVos(facility=>$facilityId);
 
 
 #output
-		 unless(@vos) { printMessage "No VOs assigned", $batch; exit 0; }
-		 my $table = Text::ASCIITable->new();
-		 $table->setCols('VO id','VO shortName');
+			 unless(@vos) { printMessage "No VOs assigned", $batch; exit 0; }
+			 my $table = Text::ASCIITable->new();
+			 $table->setCols('VO id','VO shortName');
 
-		 foreach my $vo (sort $sortingFunction @vos) {
-			 $table->addRow($vo->getId, $vo->getShortName);
-		 }
+			 foreach my $vo (sort $sortingFunction @vos) {
+				 $table->addRow($vo->getId, $vo->getShortName);
+			 }
 
-		 print tableToPrint($table, $batch);
+			 print tableToPrint($table, $batch);

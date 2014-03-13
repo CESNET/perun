@@ -788,24 +788,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		}
 
 	@Test
-	public void addDestinationsDefinedByHostsOnCluster() throws Exception {
-		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnCluster");
-
-		service = setUpService();
-		facility = setUpClusterFacility();
-		destination = setUpHostDestination();
-
-		List<Destination> newDestinations = perun.getServicesManager().addDestinationsDefinedByHostsOnCluster(sess, service, facility);
-
-		assertTrue("addDestinationsDefinedByHostsOnCluster should create 1 destination",newDestinations.size() == 1);
-
-		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, service, facility);
-		assertTrue("service should have 1 destination",destinations.size() == 1);
-		assertTrue("our destination should have the same destination",destinations.get(0).getDestination().equals(destination.getDestination()));
-
-	}
-
-	@Test
 	public void addDestinationsDefinedByHostsOnFacility() throws Exception {
 		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacility");
 
@@ -1508,7 +1490,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		Facility facility = new Facility();
 		facility.setName("ServicesManagerTestFacility");
-		facility.setType("Testing");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 		return facility;
@@ -1519,7 +1500,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		Facility facility = new Facility();
 		facility.setName("ServicesManagerTestClusterFacility");
-		facility.setType(FacilitiesManager.CLUSTERTYPE);
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 		// add one host
@@ -1538,7 +1518,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		Facility facility = new Facility();
 		facility.setName("ServicesManagerTestNonClusterFacility");
-		facility.setType(FacilitiesManager.STORAGE);
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 		// add first host

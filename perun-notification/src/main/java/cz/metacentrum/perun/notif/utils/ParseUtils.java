@@ -56,7 +56,6 @@ public class ParseUtils {
 		Facility facility = new Facility();
 		facility.setId(123736);
 		facility.setName("AttrTestFacility");
-		facility.setType("cluster");
 		result.add(facility);
 
 		Resource resource = new Resource();

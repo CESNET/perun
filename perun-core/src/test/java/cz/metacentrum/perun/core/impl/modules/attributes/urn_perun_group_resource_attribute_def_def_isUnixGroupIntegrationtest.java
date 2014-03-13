@@ -205,7 +205,6 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 
 		Facility facility = new Facility();
 		facility.setName("IsUnixGroupTestFacility");
-		facility.setType("Testing");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 		return facility;

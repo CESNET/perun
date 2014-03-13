@@ -13,12 +13,10 @@ sub toString {
 
 	my $id = $self->{_id};
 	my $name = $self->{_name};
-	my $type = $self->{_type};
 
 	my $str = 'Facility (';
 	$str .= "id: $id, " if ($id);
 	$str .= "name: $name, " if ($name);
-	$str .= "type: $type" if ($type);
 	$str .= ')';
 
 	return $str;
@@ -52,14 +50,7 @@ sub TO_JSON
 		$name = undef;
 	}
 
-	my $type;
-	if (defined($self->{_type})) {
-		$type = "$self->{_type}";
-	} else {
-		$type = undef;
-	}
-
-	return {id => $id, name => $name, type => $type};
+	return {id => $id, name => $name};
 }
 
 sub getId
@@ -80,7 +71,6 @@ sub setId
 sub getName
 {
 	my $self = shift;
-
 	return $self->{_name};
 }
 
@@ -92,28 +82,13 @@ sub setName
 	return;
 }
 
-sub getType
-{
-	my $self = shift;
-
-	return $self->{_type};
-}
-
-sub setType
-{
-	my $self = shift;
-	$self->{_type} = shift;
-
-	return;
-}
-
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name}, $self->{_type});
+	return ($self->{_id}, $self->{_name});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Type');
+	return ('ID', 'Name');
 }
 
 1;

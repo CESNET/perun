@@ -68,21 +68,6 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param perunSession
 	 * @param name
-	 * @param type
-	 *
-	 * @return Facility with specified name
-	 *
-	 * @throws InternalErrorException
-	 * @deprecated use {@link #getFacilityByName(PerunSession, String)} instead
-	 */
-	@Deprecated
-	Facility getFacilityByName(PerunSession perunSession, String name, String type) throws InternalErrorException, FacilityNotExistsException;
-
-	/**
-	 * Searches for the Facility by its name.
-	 *
-	 * @param perunSession
-	 * @param name
 	 *
 	 * @return Facility with specified name
 	 *
@@ -132,34 +117,6 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Facility> getFacilities(PerunSession perunSession) throws InternalErrorException;
-
-	/**
-	 * Searches for the Facilities by theirs type.
-	 *
-	 * @param perunSession
-	 * @param type type of facility
-	 *
-	 * @return Facilities with specified types
-	 *
-	 * @throws InternalErrorException
-	 * @deprecated the type attribute of the bean Facility will not be supported
-	 */
-	@Deprecated
-	List<Facility> getFacilitiesByType(PerunSession perunSession, String type) throws InternalErrorException;
-
-	/**
-	 * Get count of facilities of specified type
-	 *
-	 * @param perunSession
-	 * @param type type of facility
-	 *
-	 * @return count of facilities of specified types
-	 *
-	 * @throws InternalErrorException
-	 * @deprecated the type attribute of the bean Facility will not be supported
-	 */
-	@Deprecated
-	int getFacilitiesCountByType(PerunSession perunSession, String type) throws InternalErrorException;
 
 	/**
 	 * Get count of all facilities.
@@ -699,7 +656,6 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException;
-
 
 	/**
 	 * Returns list of Facilities, where the user is an admin.

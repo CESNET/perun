@@ -97,7 +97,7 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 			}
 		} else if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
 
-			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), facility.getName() + '-' + facility.getType(), destination.getDestination(), destination.getType());
+			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), facility.getName(), destination.getDestination(), destination.getType());
 			pb.directory(new File("send")); ///FIXME get from config file
 
 			try {

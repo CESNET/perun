@@ -198,7 +198,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		Facility newFacility = new Facility();
 		newFacility.setName("ResourcesManagerTestFacility2");
-		newFacility.setType("TestingFacility2");
 		newFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
 		/*
 			 Owner owner = new Owner();
@@ -1076,7 +1075,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		Facility facility = new Facility();
 		facility.setName("ResourcesManagerTestFacility");
-		facility.setType("Testing");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 		/*
 			 Owner owner = new Owner();

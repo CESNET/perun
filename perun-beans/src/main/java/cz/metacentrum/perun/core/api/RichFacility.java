@@ -16,7 +16,8 @@ public class RichFacility extends Facility {
 	}
 
 	public RichFacility(Facility facility, List<Owner> facilityOwners) {
-		super(facility.getId(), facility.getName(), facility.getType(), facility.getCreatedAt(), facility.getCreatedBy(),
+
+		super(facility.getId(), facility.getName(), facility.getCreatedAt(), facility.getCreatedBy(),
 				facility.getModifiedAt(), facility.getModifiedBy(), facility.getCreatedByUid(), facility.getModifiedByUid());
 		this.facilityOwners = facilityOwners;
 	}
@@ -80,13 +81,12 @@ public class RichFacility extends Facility {
 		return this.getClass().getSimpleName() +":[" +
 			"id=<" + getId() + ">" +
 			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
 			", facilityOwners=<" + sFacilityOwnersNew + ">" +
 			']';
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + this.getName() + "', type='" + this.getType() + "', facilityOwners='" + facilityOwners + "']";
+		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + this.getName() + "', facilityOwners='" + facilityOwners + "']";
 	}
 }
