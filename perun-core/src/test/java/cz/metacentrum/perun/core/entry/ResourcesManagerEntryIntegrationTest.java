@@ -532,6 +532,54 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+        @Test
+	public void getAssignedResourcesForMember() throws Exception {
+		System.out.println("ResourcesManager.getAssignedResourcesForMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+                Resource sndResource = setUpResource();
+                service = setUpService();
+
+                // both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group, resource);
+                resourcesManager.assignGroupToResource(sess, group, sndResource);
+                // but only one of them assign to the service
+                resourcesManager.assignService(sess, resource, service);
+
+		List<Resource> resources = resourcesManager.getAssignedResources(sess, member, service);
+		assertTrue("there should have been only 1 assigned resource",resources.size() == 1);
+		assertTrue("our resource should be in our resource list",resources.contains(resource));
+	}
+        
+        @Test
+	public void getAssignedRichResourcesForMember() throws Exception {
+		System.out.println("ResourcesManager.getAssignedRichResourcesForMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+                resource = setUpResource();
+		RichResource richResource = new RichResource(resource);
+                richResource.setFacility(facility);
+                Resource sndResource = setUpResource();
+                service = setUpService();
+
+                // both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group, resource);
+                resourcesManager.assignGroupToResource(sess, group, sndResource);
+                // but only one of them assign to the service
+                resourcesManager.assignService(sess, resource, service);
+                
+		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
+		assertTrue("there should have been only 1 assigned rich resource",resources.size() == 1);
+		assertTrue("our rich resource should be in our resource list",resources.contains(richResource));
+	}
+        
 	@Test
 	public void assignService() throws Exception {
 		System.out.println("ResourcesManager.assignService");

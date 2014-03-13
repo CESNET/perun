@@ -467,6 +467,18 @@ public interface ResourcesManagerBl {
   List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException;
   
   /**
+   * Get all resources where the member and the service are assigned.
+   * 
+   * @param sess
+   * @param member
+   * @param service
+   * @return list of resources
+   * 
+   * @throws InternalErrorException
+   */
+  List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+
+  /**
    * Return List of assigned resources to user on the vo.
    * If user is not member of Vo, return empty List;
    * 
@@ -488,7 +500,19 @@ public interface ResourcesManagerBl {
    * @throws InternalErrorException
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException;
-  
+ 
+  /**
+   * Get all rich resources where the service and the member are assigned with facility property filled.
+   * 
+   * @param sess
+   * @param member
+   * @param service
+   * @return list of resources
+   * 
+   * @throws InternalErrorException
+   */
+  List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+ 
   /**
    * Updates Resource.
    *

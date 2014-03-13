@@ -395,6 +395,21 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
             throw new InternalErrorException(e);
         }
     }
+    
+    @Override
+    public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+        try  {
+            return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources join groups_resources on resources.id=groups_resources.resource_id " +
+                    " join groups on groups_resources.group_id=groups.id" +
+                    " join groups_members on groups.id=groups_members.group_id" +
+                    " join resource_services on resource_services.resource_id=resources.id" +
+                    " where groups_members.member_id=? and resource_services.service_id=?", RESOURCE_MAPPER, member.getId(), service.getId());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Resource>();
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
 
     @Override
     public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException {
@@ -433,6 +448,26 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
                     + "join facilities on resources.facility_id=facilities.id join groups_resources on "
                     + "resources.id=groups_resources.resource_id join groups on groups_resources.group_id=groups.id "
                     + "join groups_members on groups.id=groups_members.group_id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where groups_members.member_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<RichResource>();
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
+    
+    @Override
+    public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+        try  {
+            return temp.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+                    FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources join vos on resources.vo_id=vos.id "
+                    + "join facilities on resources.facility_id=facilities.id "
+                    + "join groups_resources on resources.id=groups_resources.resource_id "
+                    + "join groups on groups_resources.group_id=groups.id "
+                    + "join groups_members on groups.id=groups_members.group_id "
+                    + "join resource_services on resource_services.resource_id=resources.id "
+                    + "left outer join tags_resources on resources.id=tags_resources.resource_id "
+                    + "left outer join res_tags on tags_resources.tag_id=res_tags.id "
+                    + "where groups_members.member_id=? and resource_services.service_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId(), service.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<RichResource>();
         } catch (RuntimeException e) {
