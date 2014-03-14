@@ -490,9 +490,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedResources(sess, member);
   }
+  
+  public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+    return getResourcesManagerImpl().getAssignedResources(sess, member, service);
+  }
 
   public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedRichResources(sess, member);
+  }
+  
+  public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+    return getResourcesManagerImpl().getAssignedRichResources(sess, member, service);
   }
   
   public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException {

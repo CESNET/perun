@@ -204,6 +204,17 @@ public interface ResourcesManagerImplApi {
   List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException;
   
   /**
+   * Returns all rich resources where the service and the member are assigned through the groups.
+   * 
+   * @param sess
+   * @param member
+   * @param service 
+   * @return list of rich resources
+   * @throws InternalErrorException
+   */
+  List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+
+  /**
    * List of all resources assigned to the member defined by user and vo.
    * 
    * @param sess
@@ -375,7 +386,18 @@ public interface ResourcesManagerImplApi {
    * @throws InternalErrorException
    */
   List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException;
-  
+ 
+  /**
+   * Returns all resources where the service and the member are assigned through the groups.
+   * 
+   * @param sess
+   * @param member
+   * @param service 
+   * @return list of resources
+   * @throws InternalErrorException
+   */
+  List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+
   /**
    * Returns all resources where the user is assigned through the vo and groups.
    * 

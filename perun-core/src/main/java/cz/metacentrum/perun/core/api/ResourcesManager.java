@@ -464,6 +464,21 @@ public interface ResourcesManager {
   List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
 
   /**
+   * Get all resources where the member and the service are assigned.
+   * 
+   * @param sess
+   * @param member
+   * @param service
+   * @return list of resources
+   * 
+   * @throws InternalErrorException
+   * @throws MemberNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws PrivilegeException
+   */
+  List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ServiceNotExistsException;
+  
+  /**
    * Get all rich resources where the member is assigned with facility property filled.
    * 
    * @param sess
@@ -475,6 +490,21 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
+  /**
+   * Get all rich resources where the service and the member are assigned with facility property filled.
+   * 
+   * @param sess
+   * @param member
+   * @param service 
+   * @return list of rich resources
+   * 
+   * @throws InternalErrorException
+   * @throws MemberNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws PrivilegeException
+   */
+  List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ServiceNotExistsException;
 
   /**
    * Updates Resource.

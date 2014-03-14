@@ -348,9 +348,14 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
         @Override
         public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-            if(parms.contains("member")) {
-                return ac.getResourcesManager().getAssignedResources(ac.getSession(),
-                        ac.getMemberById(parms.readInt("member")));
+            if (parms.contains("member")) {
+                if (parms.contains("service")) {
+                    return ac.getResourcesManager().getAssignedResources(ac.getSession(), 
+                            ac.getMemberById(parms.readInt("member")), ac.getServiceById(parms.readInt("service")));
+                } else {
+                    return ac.getResourcesManager().getAssignedResources(ac.getSession(),
+                    ac.getMemberById(parms.readInt("member")));
+                }
             } else {
                 return ac.getResourcesManager().getAssignedResources(ac.getSession(),
                         ac.getGroupById(parms.readInt("group")));
@@ -375,8 +380,13 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         @Override
         public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
             if(parms.contains("member")) {
+                if (parms.contains("service")) {
+                    return ac.getResourcesManager().getAssignedRichResources(ac.getSession(), 
+                            ac.getMemberById(parms.readInt("member")), ac.getServiceById(parms.readInt("service")));
+                } else {
                 return ac.getResourcesManager().getAssignedRichResources(ac.getSession(),
                         ac.getMemberById(parms.readInt("member")));
+                }
             } else {
                 return ac.getResourcesManager().getAssignedRichResources(ac.getSession(),
                         ac.getGroupById(parms.readInt("group")));
