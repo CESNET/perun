@@ -510,6 +510,24 @@ public class ResourcesManagerEntry implements ResourcesManager {
     return getResourcesManagerBl().getAssignedResources(sess, member);
   }
   
+   public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ServiceNotExistsException {
+    Utils.checkPerunSession(sess);
+  
+    getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+    getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+    Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+      throw new PrivilegeException(sess, "getAssignedResources");
+    }
+
+    return getResourcesManagerBl().getAssignedResources(sess, member, service);
+  }
+  
   public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 	  Utils.checkPerunSession(sess);
 
@@ -527,6 +545,24 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	  return getResourcesManagerBl().getAssignedRichResources(sess, member);
   }
   
+  public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ServiceNotExistsException {
+      Utils.checkPerunSession(sess);
+
+      getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+      getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+      Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+	  
+      // Authorization
+      if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
+        !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
+        !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+      throw new PrivilegeException(sess, "getAssignedRichResources");
+      }
+
+      return getResourcesManagerBl().getAssignedRichResources(sess, member, service);
+  }
+   
   public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException {
     Utils.notNull(sess, "sess");
     resourcesManagerBl.checkResourceExists(sess, resource);
