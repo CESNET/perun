@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -136,11 +137,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
             }
         });
         dp.add(cb);
-        cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-
-
-        /* uncomment for editing facility name
-        also change other button right position from 5 to 50.
+        cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
         final JsonCallbackEvents events = new JsonCallbackEvents(){
             public void onFinished(JavaScriptObject jso){
@@ -163,7 +160,6 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
         });
         dp.add(change);
         change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-        */
 
         dp.add(menu);
         vp.add(dp);
@@ -274,4 +270,5 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	static public FacilityDetailTabItem load(Facility fac) {
 		return new FacilityDetailTabItem(fac);
 	}
+
 }
