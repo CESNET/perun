@@ -100,7 +100,9 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 
 		// members request
 		final GetAllResourcesTags resTags = new GetAllResourcesTags(PerunEntity.VIRTUAL_ORGANIZATION, voId);
-        resTags.setEditable(true);
+
+        if (!session.isVoAdmin(voId)) resTags.setCheckable(false);
+        if (session.isVoAdmin(voId)) resTags.setEditable(true);
 
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resTags);
@@ -111,10 +113,11 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
             }
         });
 		menu.addWidget(addButton);
-
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteResourceTag());
-		menu.addWidget(removeButton);
+        if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
+        menu.addWidget(removeButton);
         removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<ResourceTag> tagsToRemove = resTags.getTableSelectedList();
@@ -146,6 +149,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 
         final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.updateResourceTag());
         menu.addWidget(saveButton);
+        if (!session.isVoAdmin(voId)) saveButton.setEnabled(false);
         saveButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -179,9 +183,9 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(sp);
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resTags, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(resTags, table, removeButton);
         saveButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resTags, table, saveButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(resTags, table, saveButton);
 
 
         session.getUiElements().resizePerunTable(sp, 350, this);
@@ -229,8 +233,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources tags", getUrlWithParameters());
 		if(vo != null){
@@ -243,7 +246,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(voId) ) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
@@ -258,13 +261,11 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoResourcesTagsTabItem load(Map<String, String> parameters)
-	{
+	static public VoResourcesTagsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoResourcesTagsTabItem(voId);
 	}

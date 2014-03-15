@@ -89,8 +89,7 @@ public class VoOverviewTabItem implements TabItem {
         return !(vo == null);
     }
 
-    private void setLabels()
-    {
+    private void setLabels() {
         this.titleWidget.setText(vo.getName());
         this.voNameLabel.setText(vo.getName());
         this.voIdLabel.setText(String.valueOf(vo.getId()));
@@ -177,6 +176,11 @@ public class VoOverviewTabItem implements TabItem {
         toolsLayout.setWidget(3, 0, createGroup);
         toolsLayout.setWidget(4, 0, addToResource);
 
+        if (!session.isVoAdmin(voId)) addMember.setEnabled(false);
+        if (!session.isVoAdmin(voId)) addServiceMember.setEnabled(false);
+        if (!session.isVoAdmin(voId)) addManager.setEnabled(false);
+        if (!session.isVoAdmin(voId)) createGroup.setEnabled(false);
+        if (!session.isVoAdmin(voId)) addToResource.setEnabled(false);
 
         toolsLayout.setHTML(0, 1, "Add new member into your VO. Candidates can be searched for in VO's external sources or among user already existing in Perun.");
         toolsLayout.setHTML(1, 1, "Create new member which represent service account (account usually used by more users with separate login and password).");
@@ -234,7 +238,6 @@ public class VoOverviewTabItem implements TabItem {
             }
         });
 
-
         vosTable.setWidget(0, 0, new HTML("<strong>" + "Members" + "</strong>"));
         vosTable.setWidget(0, 1, countMembers.getMembersCountLabel());
         vosTable.setWidget(1, 0, new HTML(" - valid"));
@@ -283,9 +286,6 @@ public class VoOverviewTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -304,11 +304,8 @@ public class VoOverviewTabItem implements TabItem {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        // TODO - there should be link
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Overview", "");
         if(vo != null){
             session.setActiveVo(vo);
             return;
@@ -316,10 +313,9 @@ public class VoOverviewTabItem implements TabItem {
         session.setActiveVoId(voId);
     }
 
-
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId) ) {
+        if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
             return true;
         } else {
             return false;

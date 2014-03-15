@@ -36,7 +36,7 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class UsersTabItem implements TabItem, TabItemWithUrl{
+public class UsersTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -72,7 +72,6 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-
         CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
 		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
@@ -101,10 +100,8 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-
 		// if some text has been searched before
-		if(!searchString.equals(""))
-		{
+		if(!searchString.equals("")) {
 			searchBox.getTextBox().setText(searchString);
 			startSearching(searchString);
 		}
@@ -194,7 +191,6 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.userGrayIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -203,9 +199,6 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -223,8 +216,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", getUrlWithParameters());
 	}
@@ -246,13 +238,11 @@ public class UsersTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public UsersTabItem load(Map<String, String> parameters)
-	{
+	static public UsersTabItem load(Map<String, String> parameters) {
 		return new UsersTabItem();
 	}
 

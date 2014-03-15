@@ -122,7 +122,7 @@ public class MainMenu {
         }
 
         // SECTION VO ADMIN
-        if(session.isVoAdmin() || session.isPerunAdmin())
+        if(session.isVoAdmin() || session.isVoObserver() || session.isPerunAdmin())
         {
             MainMenuSection voAdmin = new MainMenuSection("VO manager", new VosSelectTabItem(), iconsLarge.buildingIcon(), VO_ADMIN);
             this.sectionsMap.put(VO_ADMIN, voAdmin);

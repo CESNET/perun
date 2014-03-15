@@ -124,6 +124,12 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
+        if (forceAll) {
+            loaderImage.setEmptyResultMessage("No VOs found.");
+        } else {
+            loaderImage.setEmptyResultMessage("You are not manager of any VO.");
+        }
+
 		// columns
 		if (checkable) {
             table.addCheckBoxColumn();
@@ -283,6 +289,16 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
                 if (vo.getName().toLowerCase().startsWith(filter.toLowerCase()) || vo.getShortName().toLowerCase().startsWith(filter.toLowerCase())) {
                     list.add(vo);
                 }
+            }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No VO matching '"+filter+"' found.");
+        } else {
+            if (forceAll) {
+                loaderImage.setEmptyResultMessage("No VOs found.");
+            } else {
+                loaderImage.setEmptyResultMessage("You are not manager of any VO.");
             }
         }
 

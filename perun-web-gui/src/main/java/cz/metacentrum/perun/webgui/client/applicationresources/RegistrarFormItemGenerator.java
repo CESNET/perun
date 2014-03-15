@@ -26,8 +26,7 @@ import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.ItemTexts;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Creates GWT widgets from the ApplicationFormItems
@@ -788,13 +787,14 @@ public class RegistrarFormItemGenerator {
 		String options = getOptions();
 		
 		Map<String,String> boxContents = parseSelectionBox(options);
-		
+
+        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+        //Collections.sort(keyList);
+
 		int i = 0;
-		for(Map.Entry<String, String> entry : boxContents.entrySet()){
-			
-			boolean selected = strValue.equals(entry.getKey());
-			
-			lbox.addItem(entry.getValue(), entry.getKey());
+		for(String key : keyList){
+			boolean selected = strValue.equals(key);
+			lbox.addItem(boxContents.get(key), key);
 			lbox.setItemSelected(i, selected);
 			i++;
 		}
@@ -831,16 +831,20 @@ public class RegistrarFormItemGenerator {
         final Map<CheckBox, String> boxValueMap = new HashMap<CheckBox, String>();
 
         int i = 0;
-        for(final Map.Entry<String, String> entry : boxContents.entrySet()){
 
-            final CheckBox checkbox = new CheckBox(entry.getValue());
+        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+        //Collections.sort(keyList);
+
+        for(String key : keyList){
+
+            final CheckBox checkbox = new CheckBox(boxContents.get(key));
             // pre-fill
             for (String s : prefilledValue.split("\\|")) {
-                if (entry.getKey().trim().equals(s.trim())) {
+                if (key.trim().equals(s.trim())) {
                     checkbox.setValue(true);
                 }
             }
-            boxValueMap.put(checkbox, entry.getKey());
+            boxValueMap.put(checkbox, key);
 
             checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
@@ -932,13 +936,15 @@ public class RegistrarFormItemGenerator {
 		String options = getOptions();
 		
 		Map<String,String> boxContents = parseSelectionBox(options);
+        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+        //Collections.sort(keyList);
 		
 		int i = 0;
-		for(Map.Entry<String, String> entry : boxContents.entrySet()){
+		for(String key : keyList){
 			
-			boolean selected = strValue.equals(entry.getKey());
+			boolean selected = strValue.equals(key);
 			
-			lbox.addItem(entry.getValue(), entry.getKey());
+			lbox.addItem(boxContents.get(key), key);
 			lbox.setItemSelected(i, selected);
 			if(selected == true){
 				anyValueSelected = true;
@@ -949,7 +955,7 @@ public class RegistrarFormItemGenerator {
 		if(strValue == null){
 			strValue = "";
 		}
-		lbox.addItem(" - other value - ", strValue);		
+		lbox.addItem("--- other value ---", strValue);
 		final int otherValueIndex = i;
 		if(!anyValueSelected && !strValue.equals("")){
 			lbox.setItemSelected(otherValueIndex, true);
@@ -996,6 +1002,7 @@ public class RegistrarFormItemGenerator {
 		
 		// container
 		FlexTable ft = new FlexTable();
+        ft.setStyleName("appFormComboBoxTable");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 		ft.setWidget(0, 0, lbox);
 		ft.setWidget(1, 0, textBox);

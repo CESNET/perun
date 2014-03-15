@@ -483,7 +483,9 @@ public class GroupsManagerEntry implements GroupsManager {
     List<Group> groups = getGroupsManagerBl().getAllGroups(sess, vo);
     
     // Return all groups for VOADMIN and PERUNADMIN
-    if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) ||AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+    if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+            || AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+            || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
       return groups;
     } 
     

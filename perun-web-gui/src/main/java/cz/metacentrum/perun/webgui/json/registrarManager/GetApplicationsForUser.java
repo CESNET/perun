@@ -119,6 +119,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("You have no applications submitted.");
 
 		// columns
 		if (checkable) {
@@ -304,8 +305,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		
 		String param = "";
 		
@@ -487,6 +487,10 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
                     }
                 }
             }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("You have no applications submitted for VO/group matching '"+filter+"'.");
         }
 
         loaderImage.loadingFinished();

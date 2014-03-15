@@ -33,16 +33,18 @@ public class MemberOverviewTabItem implements TabItem {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
-    JsonCallbackEvents refreshEvent = new JsonCallbackEvents();
+    private JsonCallbackEvents refreshEvent = new JsonCallbackEvents();
+    private int groupId = 0;
 
 	/**
 	 * Constructor
 	 *
      * @param member RichMember object, typically from table
      */
-	public MemberOverviewTabItem(RichMember member, JsonCallbackEvents refreshEvent){
+	public MemberOverviewTabItem(RichMember member, int groupId, JsonCallbackEvents refreshEvent){
 		this.member = member;
 		this.memberId = member.getId();
+        this.groupId = groupId;
         this.refreshEvent = refreshEvent;
 	}
 	
@@ -107,7 +109,7 @@ public class MemberOverviewTabItem implements TabItem {
 
         memberLayout.setHTML(0, 0, "Status:");
         PerunStatusWidget<RichMember> statusWidget;
-        if (session.isVoAdmin()) {
+        if (session.isVoAdmin(member.getVoId())) {
             SetStatus statCall = new SetStatus(memberId, new JsonCallbackEvents(){
                 @Override
                 public void onFinished(JavaScriptObject jso) {
@@ -320,9 +322,6 @@ public class MemberOverviewTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -347,7 +346,7 @@ public class MemberOverviewTabItem implements TabItem {
 	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin()) {
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;

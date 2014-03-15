@@ -119,6 +119,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No service defined in Perun.");
 
 		// checkbox column column
 		if (checkable) {
@@ -290,6 +291,12 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
                     list.add(s);
                 }
             }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No service matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("No service defined in Perun.");
         }
 
         dataProvider.flush();

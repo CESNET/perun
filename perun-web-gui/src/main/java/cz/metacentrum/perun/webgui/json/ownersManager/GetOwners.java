@@ -88,6 +88,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No owners defined in Perun.");
 		
 		// checkbox column column
         if (checkable) {
@@ -313,6 +314,12 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
                     list.add(o);
                 }
             }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No owner matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("No owners defined in Perun.");
         }
 
         loaderImage.loadingFinished();

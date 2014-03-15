@@ -175,6 +175,9 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 	 * Do search
 	 */
 	public void search(){
+
+        loaderImage.setEmptyResultMessage("No users found.");
+
 		clearTable();
 		retrieveData();
 	}
@@ -189,11 +192,9 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 	/**
 	 * Retrieves data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		// empty
 		if(this.attributesToSearchBy.size() == 0){
-			
 			session.getUiElements().setLogText("No keywords.");
 			return;
 		}
@@ -204,8 +205,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		// build request
 			
 		JSONObject attributesWithSearchingValues = new JSONObject();
-		for(Map.Entry<String, String> entry : attributesToSearchBy.entrySet())
-		{
+		for(Map.Entry<String, String> entry : attributesToSearchBy.entrySet()) {
 			String name = entry.getKey();
 			String value = entry.getValue();
 			

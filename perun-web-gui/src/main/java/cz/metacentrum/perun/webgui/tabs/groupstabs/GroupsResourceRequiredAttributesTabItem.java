@@ -24,6 +24,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,7 +149,7 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
         final ScrollPanel sp = new ScrollPanel(reqAttrsTable);
         sp.addStyleName("perun-tableScrollPanel");
 
-        Button saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes(), new ClickHandler() {
+        CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes(), new ClickHandler() {
             public void onClick(ClickEvent event) {
 
                 ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
@@ -193,6 +194,7 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
         });
 
         menu.addWidget(saveChangesButton);
+        if (!session.isGroupAdmin() && !session.isVoAdmin()) saveChangesButton.setEnabled(false);
 
         // table content
         session.getUiElements().resizePerunTable(sp, 350, this);
@@ -228,9 +230,6 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -257,14 +256,13 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
     }
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin()) {
+        if (session.isVoAdmin() || session.isVoObserver()) {
             return true;
         } else {
             return false;
@@ -279,8 +277,7 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?groups=" + groups.toString() + "&res=" + resourceId;
     }
 

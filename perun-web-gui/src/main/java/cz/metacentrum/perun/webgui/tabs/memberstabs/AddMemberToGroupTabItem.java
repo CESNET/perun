@@ -18,12 +18,15 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.AddMember;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
+import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -63,6 +66,8 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
     private int groupId;
     private ArrayList<RichMember> alreadyAddedList = new ArrayList<RichMember>();
     private SimplePanel alreadyAdded = new SimplePanel();
+
+    private boolean search = true;
 
     /**
      * Creates a tab instance
@@ -108,7 +113,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         if(isMembersGroup){
 
             firstTabPanel.add(new HTML("<p>Group \""+group.getName()+"\" can't have members managed from Group admin. Please use VO admin section.</p>"));
-
             this.contentWidget.setWidget(firstTabPanel);
             return getWidget();
 
@@ -123,21 +127,77 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         final FindCompleteRichMembers findMembers;
 
         // elements handled by callback events
-        final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInParentGroup());
+        final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInVo());
+        final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.searchMemberInVo());
+
         final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
 
         // search through whole VO
         findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
-        findMembers.setCustomEmptyTableMessage("Search for members to add by name, login or email.");
+        final GetCompleteRichMembers getAllMembers = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null);
+
+        final CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
+            // when user click on a row -> open new tab
+            public void update(int index, RichMember object, RichMember value) {
+                session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
+            }
+        });
+
+        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+            public void searchFor(String text) {
+                searchString = text;
+                findMembers.searchFor(searchString);
+                search = true;
+            }
+        }, searchButton);
+        searchBox.getTextBox().setText(searchString);
+
+
         findMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
                 new JsonCallbackEvents(){
                     @Override
                     public void onFinished(JavaScriptObject jso) {
                         // if found 1 item, select
+                        listAllButton.setEnabled(true);
+                        searchBox.getTextBox().setEnabled(true);
                         ArrayList<RichMember> list = JsonUtils.jsoAsList(jso);
                         if (list != null && list.size() == 1) {
                             findMembers.getSelectionModel().setSelected(list.get(0), true);
                         }
+                    }
+                    @Override
+                    public void onError(PerunError error) {
+                        listAllButton.setEnabled(true);
+                        searchBox.getTextBox().setEnabled(true);
+                    }
+                    @Override
+                    public void onLoadingStart(){
+                        listAllButton.setEnabled(false);
+                        searchBox.getTextBox().setEnabled(false);
+                    }
+                }));
+
+        getAllMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(listAllButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
+                new JsonCallbackEvents(){
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        // pass data to table handling callback
+                        findMembers.onFinished(jso);
+                        ((AjaxLoaderImage)table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
+                        searchButton.setEnabled(true);
+                        searchBox.getTextBox().setEnabled(true);
+                    }
+                    @Override
+                    public void onError(PerunError error) {
+                        // pass data to table handling callback
+                        findMembers.onError(error);
+                        searchButton.setEnabled(true);
+                        searchBox.getTextBox().setEnabled(true);
+                    }
+                    @Override
+                    public void onLoadingStart(){
+                        searchButton.setEnabled(false);
+                        searchBox.getTextBox().setEnabled(false);
                     }
                 }));
 
@@ -152,25 +212,29 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
         // checkbox click handler
         disabled.addClickHandler(new ClickHandler(){
             public void onClick(ClickEvent event) {
-                findMembers.excludeDisabled(!disabled.getValue());
-                if (!searchString.equalsIgnoreCase("")) {
+                if (search) {
+                    // case when update but not triggered by button
+                    searchString = searchBox.getTextBox().getText();
+                    findMembers.excludeDisabled(!disabled.getValue());
+                    findMembers.searchFor(searchString);
+                } else {
+                    getAllMembers.excludeDisabled(!disabled.getValue());
                     findMembers.clearTable();
-                    findMembers.retrieveData();
+                    getAllMembers.retrieveData();
                 }
             }
         });
 
-        // SEARCH FOR BUTTON
-        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-            public void searchFor(String text) {
-                searchString = text;
-                findMembers.excludeDisabled(!disabled.getValue());
-                if (!searchString.equalsIgnoreCase("")) {
-                    findMembers.searchFor(searchString);
-                }
+        listAllButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                search = false;
+                searchString = "";
+                searchBox.getTextBox().setText("");
+                findMembers.clearTable();
+                getAllMembers.retrieveData();
             }
-        }, searchButton);
-        searchBox.getTextBox().setText(searchString);
+        });
 
         // click handler
         addButton.addClickHandler(new ClickHandler() {
@@ -199,6 +263,8 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
             }
         });
 
+        tabMenu.addWidget(listAllButton);
+
         tabMenu.addWidget(addButton);
 
         tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
@@ -215,13 +281,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
         ScrollPanel tableWrapper = new ScrollPanel();
 
-        CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
-            // when user click on a row -> open new tab
-            public void update(int index, RichMember object, RichMember value) {
-                session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
-            }
-        });
-
         addButton.setEnabled(false);
         JsonUtils.addTableManagedButton(findMembers, table, addButton);
 
@@ -231,15 +290,13 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
         session.getUiElements().resizeSmallTabPanel(tableWrapper, 350, this);
 
-        if (disabled.getValue()) {
-            findMembers.excludeDisabled(false);
-        } else {
-            findMembers.excludeDisabled(true);
-        }
-
         // if not empty - start searching
-        if (!searchString.equalsIgnoreCase("")) {
+        if (search) {
+            findMembers.excludeDisabled(!disabled.getValue());
             findMembers.searchFor(searchString);
+        } else {
+            getAllMembers.excludeDisabled(!disabled.getValue());
+            getAllMembers.retrieveData();
         }
 
         firstTabPanel.add(tableWrapper);

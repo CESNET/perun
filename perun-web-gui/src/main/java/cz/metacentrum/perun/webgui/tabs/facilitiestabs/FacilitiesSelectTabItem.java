@@ -35,7 +35,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
+public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -160,7 +160,6 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.databaseServerIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -169,9 +168,6 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -180,8 +176,6 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
-
 		return true;
 	}
 
@@ -211,15 +205,12 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public FacilitiesSelectTabItem load(Map<String, String> parameters)
-	{
+	static public FacilitiesSelectTabItem load(Map<String, String> parameters) {
 		return new FacilitiesSelectTabItem();
 	}
-	
 
 }

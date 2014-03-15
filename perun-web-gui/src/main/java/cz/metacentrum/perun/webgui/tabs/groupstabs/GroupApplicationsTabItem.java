@@ -263,10 +263,19 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
         approve.setEnabled(false);
         reject.setEnabled(false);
         delete.setEnabled(false);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+
+        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId()))  {
+
+            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+
+        } else {
+
+            applicationsRequest.setCheckable(false);
+
+        }
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
@@ -310,9 +319,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(group, "Applications", getUrlWithParameters());
 		if(group != null){
@@ -322,10 +329,9 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		session.setActiveGroupId(groupId);
 	}
 
-
 	public boolean isAuthorized() {
 		
-		if (session.isVoAdmin() || session.isGroupAdmin(groupId)) {
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true; 
 		} else {
 			return false;
@@ -340,13 +346,11 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 	
-	static public GroupApplicationsTabItem load(Map<String, String> parameters)
-	{
+	static public GroupApplicationsTabItem load(Map<String, String> parameters) {
 		int groupId = Integer.parseInt(parameters.get("id"));
 		return new GroupApplicationsTabItem(groupId);
 	}

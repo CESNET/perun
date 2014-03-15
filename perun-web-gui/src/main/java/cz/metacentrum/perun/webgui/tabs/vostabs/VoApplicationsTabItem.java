@@ -99,6 +99,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		// request
 		final GetApplicationsForVo applicationsRequest = new GetApplicationsForVo(vo.getId());
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
+        if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"applications");
 		
@@ -261,10 +262,13 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
         approve.setEnabled(false);
         reject.setEnabled(false);
         delete.setEnabled(false);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-        JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+
+        if (session.isVoAdmin(voId)) {
+            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+        }
 
         session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
@@ -312,9 +316,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Applications", getUrlWithParameters());
 		if(vo != null){
@@ -324,10 +326,9 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		session.setActiveVoId(voId);
 	}
 
-
 	public boolean isAuthorized() {
 		
-		if (session.isVoAdmin(voId)) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
@@ -342,13 +343,11 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoApplicationsTabItem load(Map<String, String> parameters)
-	{
+	static public VoApplicationsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoApplicationsTabItem(voId);
 	}

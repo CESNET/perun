@@ -53,7 +53,7 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 	/**
 	 * Creates instance of this callback for specified ExecService
 	 * 
-	 * @param exesServiceId execService to get dependancies for
+	 * @param exesServiceId execService to get dependencies for
 	 */
 	public ListExecServicesThisExecServiceDependsOn(int exesServiceId){
 		this.execServiceId = exesServiceId;
@@ -62,7 +62,7 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 	/**
 	 * Creates instance of this callback for specified ExecService with external events
 	 *
-	 * @param exesServiceId execService to get dependancies for 
+	 * @param exesServiceId execService to get dependencies for
 	 * @param events external events
 	 */
 	public ListExecServicesThisExecServiceDependsOn(int exesServiceId, JsonCallbackEvents events){
@@ -109,10 +109,9 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Exec services doesn't depend on other Exec services.");
 		
-		if(this.checkable)
-		{
-			// checkbox column column
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 		

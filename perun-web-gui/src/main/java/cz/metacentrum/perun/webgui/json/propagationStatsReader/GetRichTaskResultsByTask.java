@@ -100,6 +100,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No propagation results found.");
 
 		table.addIdColumn("Result Id", null, 85);
 

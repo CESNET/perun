@@ -211,8 +211,7 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "External sources", getUrlWithParameters());
         if(vo != null){
@@ -222,16 +221,14 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
         session.setActiveVoId(voId);
     }
 
-
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId) ) {
+        if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
             return true;
         } else {
             return false;
         }
     }
-
 
     public final static String URL = "ext-sources";
 
@@ -240,16 +237,13 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
     }
 
-    static public VoExtSourcesTabItem load(Map<String, String> parameters)
-    {
+    static public VoExtSourcesTabItem load(Map<String, String> parameters) {
         int voId = Integer.parseInt(parameters.get("id"));
         return new VoExtSourcesTabItem(voId);
     }
-
 
 }

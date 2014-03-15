@@ -125,7 +125,6 @@ public class VoColumnProvider {
 
     }
 
-
     public static IsClickableCell<GeneralObject> getDefaultClickableAuthz() {
 
         return new IsClickableCell<GeneralObject>() {
@@ -133,7 +132,7 @@ public class VoColumnProvider {
             @Override
             public boolean isClickable(GeneralObject object) {
                 VirtualOrganization vo = object.cast();
-                return PerunWebSession.getInstance().isVoAdmin(vo.getId());
+                return (PerunWebSession.getInstance().isVoAdmin(vo.getId()) || PerunWebSession.getInstance().isVoObserver(vo.getId()));
             }
 
             @Override

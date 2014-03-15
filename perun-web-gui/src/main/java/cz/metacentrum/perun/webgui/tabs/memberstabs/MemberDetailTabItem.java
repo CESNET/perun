@@ -169,11 +169,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
             }
         };
 
-        tabPanel.add(new MemberOverviewTabItem(member, refreshEvent), "Overview");
-        tabPanel.add(new MemberGroupsTabItem(member), "Groups");
-        tabPanel.add(new MemberResourcesTabItem(member), "Resources");
+        tabPanel.add(new MemberOverviewTabItem(member, groupId, refreshEvent), "Overview");
+        tabPanel.add(new MemberGroupsTabItem(member, groupId), "Groups");
+        tabPanel.add(new MemberResourcesTabItem(member, groupId), "Resources");
         tabPanel.add(new MemberApplicationsTabItem(member, groupId), "Applications");
-        tabPanel.add(new MemberSettingsTabItem(member), "Settings");
+        tabPanel.add(new MemberSettingsTabItem(member, groupId), "Settings");
 
         // Resize must be called after page fully displays
         Scheduler.get().scheduleDeferred(new Command() {
@@ -203,7 +203,6 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
         return SmallIcons.INSTANCE.userGreenIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -212,9 +211,6 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -303,7 +299,7 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) {
+        if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
             return true;
         } else {
             return false;
@@ -318,13 +314,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return MembersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + memberId + "&gid=" + groupId;
     }
 
-    static public MemberDetailTabItem load(Map<String, String> parameters)
-    {
+    static public MemberDetailTabItem load(Map<String, String> parameters) {
         int id = Integer.parseInt(parameters.get("id"));
         int gid = Integer.parseInt(parameters.get("gid"));
         return new MemberDetailTabItem(id, gid);

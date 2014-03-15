@@ -290,6 +290,12 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No host matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Facility has no hosts.");
+        }
+
         loaderImage.loadingFinished();
         dataProvider.flush();
         dataProvider.refresh();

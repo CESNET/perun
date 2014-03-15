@@ -71,12 +71,15 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         firstTabPanel.add(tabMenu);
         firstTabPanel.setCellHeight(tabMenu, "30px");
 
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createVo(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());
-            }
-        }));
+        if (session.isVoAdmin()) {
+            // do not display to VO observer
+            tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createVo(), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());
+                }
+            }));
+        }
 
         // filter
         tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
@@ -126,7 +129,6 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return SmallIcons.INSTANCE.buildingIcon();
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 13;
@@ -135,9 +137,6 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -154,8 +153,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return false;
     }
 
-    public void open()
-    {
+    public void open() {
         // update links in both
         session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.VO_ADMIN, "Select VO", getUrlWithParameters());
@@ -163,7 +161,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin()) {
+        if (session.isVoAdmin() || session.isVoObserver()) {
             return true;
         } else {
             return false;
@@ -178,13 +176,11 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
     }
 
-    static public VosSelectTabItem load(Map<String, String> parameters)
-    {
+    static public VosSelectTabItem load(Map<String, String> parameters) {
         return new VosSelectTabItem();
     }
 

@@ -28,7 +28,6 @@ import java.util.Comparator;
  * 
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class GetServicesPackages implements JsonCallback, JsonCallbackTable<ServicesPackage>, JsonCallbackOracle<ServicesPackage> {
 
 	// session
@@ -114,8 +113,6 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
-        loaderImage.setEmptyResultMessage("There are no services packages.");
-
 		// Sorting
 		ListHandler<ServicesPackage> columnSortHandler = new ListHandler<ServicesPackage>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
@@ -125,8 +122,9 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("There are no services packages.");
 
-		// checkbox column column
+        // checkbox column column
 		if (checkable) {
             table.addCheckBoxColumn();
         }
@@ -364,6 +362,12 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
                     list.add(s);
                 }
             }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No services package matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("There are no services packages.");
         }
 
         dataProvider.flush();

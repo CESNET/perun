@@ -157,7 +157,6 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.databaseServerIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -166,9 +165,6 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -185,7 +181,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	}
 	
 	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Facilities", getUrlWithParameters());
 	}
 	
@@ -213,6 +209,5 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	static public FacilitiesTabItem load(Map<String, String> parameters) {
 		return new FacilitiesTabItem();
 	}
-	
 
 }

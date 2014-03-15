@@ -101,6 +101,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 
         // set empty content & loader
         table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Service identity has no owners (users) assigned.");
 
         // columns
         table.addCheckBoxColumn();
@@ -129,8 +130,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
     /**
      * Retrieves data from RPC
      */
-    public void retrieveData()
-    {
+    public void retrieveData() {
         JsonClient js = new JsonClient();
         js.retrieveData(JSON_URL, "serviceUser="+userId, this);
     }

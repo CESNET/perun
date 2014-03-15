@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
@@ -39,7 +40,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
+public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -109,8 +110,11 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 		// get the table
 		CellTable<Attribute> table = jsonCallback.getTable();
 
+        if (!session.isVoAdmin(voId)) jsonCallback.setCheckable(false);
+
 		final CustomButton setButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		menu.addWidget(setButton);
+        menu.addWidget(setButton);
+        if (!session.isVoAdmin(voId)) setButton.setEnabled(false);
 
 		// refresh table
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(jsonCallback);
@@ -132,39 +136,42 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 Map<String, Integer> ids = new HashMap<String, Integer>();
                 ids.put("vo", voId);
                 session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, jsonCallback.getList()), true);
             }
-        }));
-		
+        });
+        menu.addWidget(addButton);
+        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+
 		// remove attr button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
 		menu.addWidget(removeButton);
+        if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
 
 		// remove button event
 		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
 		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				
+			@Override
+            public void onClick(ClickEvent event) {
 				ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
-				
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					Map<String, Integer> ids = new HashMap<String,Integer>();
 					ids.put("vo", voId);
 					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
 					request.removeAttributes(ids, list);
 				}
-								
 			}
 		});
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(menu);
@@ -216,8 +223,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 	
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
 		if(vo != null){
@@ -227,10 +233,9 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 		session.setActiveVoId(voId);
 	}
 
-	
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(voId) ) {
+		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true; 
 		} else {
 			return false;
@@ -245,13 +250,11 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoSettingsTabItem load(Map<String, String> parameters)
-	{
+	static public VoSettingsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoSettingsTabItem(voId);
 	}

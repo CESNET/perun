@@ -85,8 +85,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 	 * @param fu Field updater 
 	 * @return
 	 */
-	public CellTable<ApplicationMail> getTable(FieldUpdater<ApplicationMail, String> fu)
-	{
+	public CellTable<ApplicationMail> getTable(FieldUpdater<ApplicationMail, String> fu) {
 		this.tableFieldUpdater = fu;	
 		return this.getTable();
 	}
@@ -118,6 +117,12 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+
+        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+            loaderImage.setEmptyResultMessage("No mail notifications found for this VO.");
+        } else if (PerunEntity.GROUP.equals(entity)) {
+            loaderImage.setEmptyResultMessage("No mail notifications found for this group.");
+        }
 
 		// columns
 		if (checkable) {
@@ -184,8 +189,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		
 		String param = "";
 		

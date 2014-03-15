@@ -176,6 +176,12 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
+        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+            loaderImage.setEmptyResultMessage("VO has no members.");
+        } else {
+            loaderImage.setEmptyResultMessage("Group has no members.");
+        }
+
         Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
                 new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
             @Override
@@ -387,6 +393,17 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
                 }
             }
         }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No member matching '"+filter+"' found.");
+        } else {
+            if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+                loaderImage.setEmptyResultMessage("VO has no members.");
+            } else {
+                loaderImage.setEmptyResultMessage("Group has no members.");
+            }
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

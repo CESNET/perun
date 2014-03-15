@@ -95,18 +95,37 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	/**
 	 * Sets a new search string (future member login / name / mail ...)
 	 */
-	public void setSearchString(String searchString) {
+	public void searchFor(String searchString) {
+
+        if (searchString == null || searchString.isEmpty()) return;
+
+        loaderImage.setEmptyResultMessage("No user matching '"+searchString+"' found.");
 		this.searchString = searchString;
+
+        clearTable();
+        retrieveData();
+
 	}
 
-	/**
-	 * Returns the table widget with Candidates
-	 * 
-	 * @return table widget
-	 */
-	public CellTable<Candidate> getTable(){
+    /**
+     * Returns the table widget with Candidates
+     *
+     * @return table widget
+     */
+    public CellTable<Candidate> getTable(){
 
-		retrieveData();
+        retrieveData();
+        return getEmptyTable();
+
+    }
+
+    /**
+     * Returns the empty table widget
+     *
+     * @return table widget
+     */
+    public CellTable<Candidate> getEmptyTable(){
+
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<Candidate>(list);

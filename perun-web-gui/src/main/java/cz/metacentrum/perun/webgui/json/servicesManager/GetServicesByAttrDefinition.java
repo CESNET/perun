@@ -121,6 +121,7 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Attribute is not required by any service.");
 
 		// checkbox column column
 		if (checkable) {

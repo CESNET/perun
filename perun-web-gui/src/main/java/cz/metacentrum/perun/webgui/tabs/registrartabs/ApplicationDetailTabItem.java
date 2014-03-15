@@ -88,6 +88,9 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
         tab = this;
 
+        boolean buttonsEnabled = ((session.isVoAdmin(app.getVo().getId())) ||
+                (app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId()))) ? true : false;
+
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
 
@@ -137,6 +140,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
             // verify button
             final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
+            verify.setEnabled(buttonsEnabled);
             menu.addWidget(verify);
             verify.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -158,6 +162,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
             // accept button
             final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
+            approve.setEnabled(buttonsEnabled);
             menu.addWidget(approve);
             approve.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -173,6 +178,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
             //reject button
             final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
+            reject.setEnabled(buttonsEnabled);
             menu.addWidget(reject);
             reject.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -207,6 +213,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
             // delete button
             final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
+            delete.setEnabled(buttonsEnabled);
             menu.addWidget(delete);
             delete.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
@@ -277,14 +284,11 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         return false;
     }
 
-
-    public void open(){
-    }
-
+    public void open(){ }
 
     public boolean isAuthorized() {
 
-        if (session.isVoAdmin() || session.isGroupAdmin()) {
+        if (session.isVoAdmin() || session.isVoObserver() || session.isGroupAdmin()) {
             return true;
         } else {
             return false;
@@ -299,13 +303,11 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
         return URL;
     }
 
-    public String getUrlWithParameters()
-    {
+    public String getUrlWithParameters() {
         return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + appId;
     }
 
-    static public ApplicationDetailTabItem load(Map<String, String> parameters)
-    {
+    static public ApplicationDetailTabItem load(Map<String, String> parameters) {
         int appId = Integer.parseInt(parameters.get("id"));
         return new ApplicationDetailTabItem(appId);
     }

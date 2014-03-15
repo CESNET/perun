@@ -137,11 +137,10 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No publications found. Try to change filtering options.");
 
 		// show checkbox column
-		if(this.checkable)
-		{
-			// checkbox column column
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 

@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Task;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 
@@ -45,7 +46,9 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	// entities
 	private int facilityId = 0;
 	private FieldUpdater<Task, String> tableFieldUpdater;
-    private boolean checkable = true;
+    private ArrayList<Task> backupList = new ArrayList<Task>();
+    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+    private boolean checkable = true; // default is checkable
 	
 	/**
 	 * New instance of callback
@@ -72,11 +75,9 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * 
 	 * @return table
 	 */
-	public CellTable<Task> getTable() { 
-		
+	public CellTable<Task> getTable() {
 		retrieveData();
 		return getEmptyTable();
-		
 	}
 	
 	/**
@@ -85,11 +86,9 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * @return table widget
 	 */
 	public CellTable<Task> getTable(FieldUpdater<Task, String> tfu) {
-		
 		this.tableFieldUpdater=tfu;
 		retrieveData();
 		return getEmptyTable();
-		
 	}
 	
 	/**
@@ -117,6 +116,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
 		
 		// checkbox column column
         if (checkable) {
@@ -228,6 +228,8 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
      */
     public void addToTable(Task object) {
         list.add(object);
+        oracle.add(object.getExecService().getService().getName());
+        oracle.add(object.getExecService().getType());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -302,6 +304,8 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 
     public void insertToTable(int index, Task object) {
         list.add(index, object);
+        oracle.add(object.getExecService().getService().getName());
+        oracle.add(object.getExecService().getType());
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -317,6 +321,10 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
     public void setList(ArrayList<Task> list) {
         clearTable();
         this.list.addAll(list);
+        for (Task object : list) {
+            oracle.add(object.getExecService().getService().getName());
+            oracle.add(object.getExecService().getType());
+        }
         dataProvider.flush();
         dataProvider.refresh();
     }
@@ -328,5 +336,49 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
     public void setEvents(JsonCallbackEvents events) {
         this.events = events;
     }
+
+    public void filterTable(String filter){
+
+        // store list only for first time
+        if (backupList.isEmpty() || backupList == null) {
+            backupList.addAll(list);
+        }
+
+        // always clear selected items
+        selectionModel.clear();
+        list.clear();
+
+        if (filter.equalsIgnoreCase("")) {
+            list.addAll(backupList);
+        } else {
+            for (Task tsk : backupList){
+                if (tsk.getExecService().getService().getName().toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(tsk);
+                } else if (tsk.getExecService().getType().toLowerCase().startsWith(filter.toLowerCase())) {
+                    list.add(tsk);
+                }
+            }
+        }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No service propagation results matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
+        }
+
+        dataProvider.flush();
+        dataProvider.refresh();
+        loaderImage.loadingFinished();
+
+    }
+
+    public UnaccentMultiWordSuggestOracle getOracle() {
+        return this.oracle;
+    }
+
+    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+        this.oracle = oracle;
+    }
+
 
 }

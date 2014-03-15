@@ -139,7 +139,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
             }
         });
 
-        // inicial fill listbox and trigger groups loading
+        // initial fill listbox and trigger groups loading
         GetVos vosCall = new GetVos(new JsonCallbackEvents(){
             public void onLoadingStart(){
                 vos.clear();
@@ -212,9 +212,6 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -238,7 +235,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isGroupAdmin() || session.isVoAdmin()) {
+		if (session.isGroupAdmin() || session.isVoAdmin() || session.isVoObserver()) {
 			return true; 
 		} else {
 			return false;
@@ -253,13 +250,11 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?vo="+voId;
 	}
 	
-	static public GroupsTabItem load(Map<String, String> parameters)
-	{
+	static public GroupsTabItem load(Map<String, String> parameters) {
         int id = Integer.parseInt(parameters.get("vo"));
 		return new GroupsTabItem(id);
 	}

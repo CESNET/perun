@@ -360,7 +360,7 @@ public class RegistrarBaseIntegrationTest {
         assertEquals("Application form not same as expected", applicationForm, registrarManager.getFormForVo(vo));
         
         // test form items
-        List<ApplicationFormItem> items = registrarManager.getFormItems(applicationForm);
+        List<ApplicationFormItem> items = registrarManager.getFormItems(session, applicationForm);
         
         assertTrue("Item i0 was not returned from form", items.contains(i0));
         assertTrue("Item i0b was not returned from form", items.contains(i0b));

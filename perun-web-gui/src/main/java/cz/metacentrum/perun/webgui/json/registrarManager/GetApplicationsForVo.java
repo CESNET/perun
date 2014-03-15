@@ -121,6 +121,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No applications matching search criteria found for this VO or it's groups.");
 
 		// columns
 		if (checkable) {
@@ -331,8 +332,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	/**
 	 * Retrieve data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		String param = "vo=" + this.voId;
 		
 		if(state.length() != 0){
@@ -522,6 +522,13 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
                 }
             }
         }
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No applications with username matching '"+filter+"' found for this VO or it's groups.");
+        } else {
+            loaderImage.setEmptyResultMessage("No applications matching search criteria found for this VO or it's groups.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

@@ -102,12 +102,10 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-
+        loaderImage.setEmptyResultMessage("No publications systems found.");
 
 		// show checkbox column
-		if(this.checkable)
-		{
-			// checkbox column column
+		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
 
@@ -226,8 +224,7 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 	/**
 	 * Retrieves data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL,this);
 	}

@@ -193,9 +193,6 @@ public class ChangeStatusTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -214,9 +211,7 @@ public class ChangeStatusTabItem implements TabItem {
         return false;
     }
 
-    public void open() {
-
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

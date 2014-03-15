@@ -125,6 +125,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("User is not member of any group.");
 		
 		// checkbox column column
         Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
@@ -326,6 +327,13 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
                 }
             }
         }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("User is not member of any group.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

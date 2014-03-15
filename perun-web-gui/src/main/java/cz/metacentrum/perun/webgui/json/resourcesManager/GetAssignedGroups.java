@@ -125,6 +125,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Resource has no groups assigned.");
 
         // checkbox column column
 		if (checkable){
@@ -364,6 +365,12 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
                     list.add(grp);
                 }
             }
+        }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Resource has no groups assigned.");
         }
 
         dataProvider.flush();

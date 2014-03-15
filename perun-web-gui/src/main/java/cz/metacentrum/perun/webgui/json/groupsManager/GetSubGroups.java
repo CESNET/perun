@@ -115,6 +115,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Group has no sub-groups.");
 		
 		// checkbox column column
 		table.addCheckBoxColumn();
@@ -272,6 +273,13 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
                 }
             }
         }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No sub-group matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Group has no sub-groups.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();

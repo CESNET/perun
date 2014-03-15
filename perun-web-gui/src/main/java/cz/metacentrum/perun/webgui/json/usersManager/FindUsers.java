@@ -166,6 +166,9 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 	 * @param query
 	 */
 	public void searchFor(String query){
+
+        if (query == null || query.isEmpty()) return;
+        loaderImage.setEmptyResultMessage("No user matching '"+query+"' found.");
 		this.searchString = query;
 		clearTable();
 		retrieveData();
@@ -174,8 +177,7 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 	/**
 	 * Retrieves data from RPC
 	 */
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		if(this.searchString==null || searchString.isEmpty()) return;
 		loaderImage.loadingStart();
 		JsonClient js = new JsonClient();

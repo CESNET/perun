@@ -103,6 +103,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		this.contentWidget.setWidget(firstTabPanel);
 		
 		return getWidget();
+
 	}
 
 	public Widget getWidget() {
@@ -117,7 +118,6 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		return SmallIcons.INSTANCE.booksIcon(); 
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -126,9 +126,6 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -137,8 +134,6 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
-
 		return true;
 	}
 
@@ -146,9 +141,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Publications", getUrlWithParameters());
 	}
@@ -170,13 +163,12 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
 	
-	static public PublicationsTabItem load(Map<String, String> parameters)
-	{
+	static public PublicationsTabItem load(Map<String, String> parameters) {
 		return new PublicationsTabItem();
 	}
+
 }

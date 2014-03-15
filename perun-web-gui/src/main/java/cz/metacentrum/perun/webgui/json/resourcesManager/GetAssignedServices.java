@@ -106,6 +106,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Resource has no services assigned.");
 		
 		// checkbox column column
 		if (checkable) {
@@ -269,6 +270,12 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
                     list.add(s);
                 }
             }
+        }
+
+        if (list.isEmpty() && !text.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No service matching '"+text+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("Resource has no services assigned.");
         }
 
         dataProvider.flush();

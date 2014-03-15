@@ -254,9 +254,6 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -265,12 +262,10 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
             return false;
         if (getClass() != obj.getClass())
             return false;
-
         AddFacilityManagerGroupTabItem create = (AddFacilityManagerGroupTabItem) obj;
         if (facilityId != create.facilityId){
             return false;
         }
-
         return true;
     }
 
@@ -278,8 +273,7 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
         return false;
     }
 
-    public void open() {
-    }
+    public void open() { }
 
     public boolean isAuthorized() {
 

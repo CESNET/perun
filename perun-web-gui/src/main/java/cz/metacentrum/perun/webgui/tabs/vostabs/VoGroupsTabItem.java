@@ -89,7 +89,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public Widget draw() {
-		
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"groups");
 		
@@ -103,13 +102,16 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		// VO Groups request
 		final GetAllGroups groups = new GetAllGroups(voId);
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
+        if (!session.isVoAdmin(voId)) groups.setCheckable(false);
 
 		// add new group button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
+		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
             }
-        }));
+        });
+        if (!session.isVoAdmin(voId)) createButton.setEnabled(false);
+        menu.addWidget(createButton);
 
 		// delete selected groups button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteGroup());
@@ -161,7 +163,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(sp);
 
         removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(groups, table, removeButton);
+        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -209,7 +211,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		return false;
 	}
 
-
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Groups", getUrlWithParameters());
@@ -219,7 +220,6 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		}
 		session.setActiveVoId(voId);
 	}
-
 
 	public boolean isAuthorized() {
 		
@@ -238,13 +238,11 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 	
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
 	
-	static public VoGroupsTabItem load(Map<String, String> parameters)
-	{
+	static public VoGroupsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoGroupsTabItem(voId);
 	}

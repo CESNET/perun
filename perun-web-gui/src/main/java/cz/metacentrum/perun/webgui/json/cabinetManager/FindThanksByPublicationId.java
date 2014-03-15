@@ -91,6 +91,7 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("Publication has no acknowledgements.");
 		
 		// checkbox column column
 		if (checkable == true){

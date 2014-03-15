@@ -1426,10 +1426,12 @@ public class UiElements {
         // process roles to display
         String roles = "";
         // only self
-        if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin())) {
+        if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver())) {
             roles += "SELF";
         } else if (session.isPerunAdmin()) {
             roles += "PERUN ADMIN";
+        } else if (session.isVoObserver() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
+            roles += "VO OBSERVER";
         } else {
 
             // display only if not Perun admin

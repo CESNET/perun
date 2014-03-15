@@ -97,6 +97,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("VO has no external source of members.");
 
 		// content
 		if(checkable){
@@ -297,6 +298,12 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
             }
         }
 
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No external source matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("VO has no external source of members.");
+        }
+
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();
@@ -312,4 +319,5 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
     public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
         this.oracle = oracle;
     }
+
 }

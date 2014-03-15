@@ -112,6 +112,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+        loaderImage.setEmptyResultMessage("No attribute defined in Perun.");
 
 		// checkbox column column
 		if (checkable) {
@@ -429,8 +430,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	 * @param add true if adding
 	 */
 	public void setEntity(String entity, boolean add) {
-		if(!add)
-		{
+		if(!add) {
 			this.entities.clear();
 		}
 		this.entities.add(entity);
@@ -484,6 +484,12 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 				}
 			}
 		}
+
+        if (list.isEmpty() && !filter.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No attribute definition matching '"+filter+"' found.");
+        } else {
+            loaderImage.setEmptyResultMessage("No attribute defined in Perun.");
+        }
 
         dataProvider.flush();
         dataProvider.refresh();

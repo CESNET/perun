@@ -138,11 +138,12 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	}
 
     public void searchFor(String searchString) {
-
-        this.searchString = searchString;
-        clearTable();
-        retrieveData();
-
+        if (searchString != null && !searchString.isEmpty()) {
+            loaderImage.setEmptyResultMessage("No member matching '"+searchString+"' found.");
+            this.searchString = searchString;
+            clearTable();
+            retrieveData();
+        }
     }
 
 	/**
@@ -206,6 +207,8 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
+
+        loaderImage.setEmptyResultMessage("No member found.");
 
         Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
                 new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
