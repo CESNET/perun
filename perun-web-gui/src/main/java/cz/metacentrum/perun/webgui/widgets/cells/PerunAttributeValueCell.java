@@ -19,38 +19,51 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Attribute;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Custom cell for Perun attributes
+ * Custom cell for Perun attributes. Draws input fields based on attribute value type.
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute> {
+public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 
 	static private int cellsCount = 0;
 
 	static public final String ADD_ICON = new Image(SmallIcons.INSTANCE.addIcon()).getElement().getString();
 	static public final String REMOVE_ICON = new Image(SmallIcons.INSTANCE.deleteIcon()).getElement().getString();
 
+	/*
+
+	Note for GWT 2.5.1 -> 2.6.0
+
+	Since GWT 2.6.0 impl requires event.currentTarget to be filled (which is not by jQuery) we can't use
+	simple call "parent.change()". New way is:
+
+	var event = jQuery.Event('change'); event.currentTarget = event.target = parent[0]; parent.trigger(event);
+
+	*/
+
 	static public final String LIST_ITEM_TABLE_ROW = "<tr %s>"
-		+ "<td><input onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" style=\"width:250px\" type=\"text\" class=\"list-item-value gwt-TextBox\" value=\"%s\" /></td>"
-		+ "<td class=\"PerunAttributeRemoveButton\"><button title=\""+ WidgetTranslation.INSTANCE.removeValue()+"\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); parent.change();\">" + REMOVE_ICON + "</button></td>"
-		+ "</tr>";
+			+ "<td><input onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" style=\"width:250px\" type=\"text\" class=\"list-item-value gwt-TextBox\" value=\"%s\" /></td>"
+			+ "<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.removeValue() + "\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); var event = jQuery.Event('change'); event.currentTarget = event.target = parent[0]; parent.trigger(event); \">" + REMOVE_ICON + "</button></td>"
+			+ "</tr>";
 
 	static public final String MAP_ITEM_TABLE_ROW = "<tr %s>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-key gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
-		"<td>=</td>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-value gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
-		"<td class=\"PerunAttributeRemoveButton\"><button title=\""+ WidgetTranslation.INSTANCE.removeValue()+"\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); parent.change(); \">" + REMOVE_ICON + "</button></td>" + "</tr>";
+			"<td>=</td>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-value gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
+			"<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.removeValue() + "\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); var event = jQuery.Event('change'); event.currentTarget = event.target = parent[0]; parent.trigger(event); \">" + REMOVE_ICON + "</button></td>" + "</tr>";
 
 	static public final String LIST_ITEM_TABLE_ROW_READONLY = "<tr %s>"
-		+ "<td><input title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" readonly onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" style=\"width:250px\" type=\"text\" class=\"list-item-value gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" /></td>"
-		+ "<td class=\"PerunAttributeRemoveButton\"><button title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" class=\"gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + REMOVE_ICON + "</button></td>"
-		+ "</tr>";
+			+ "<td><input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" style=\"width:250px\" type=\"text\" class=\"list-item-value gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" /></td>"
+			+ "<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" class=\"gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + REMOVE_ICON + "</button></td>"
+			+ "</tr>";
 
-	static public final String MAP_ITEM_TABLE_ROW_READONLY = "<tr %s>" + "<td><input style=\"width:200px\" title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" readonly type=\"text\" class=\"map-entry-key gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
-		"<td>=</td>" + "<td><input style=\"width:200px\" title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" readonly type=\"text\" class=\"map-entry-value gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
-		"<td class=\"PerunAttributeRemoveButton\"><button title=\""+ WidgetTranslation.INSTANCE.notWritable() +"\" class=\"gwt-Button PerunAttributeControllButton customButtonImageDisabled\" \">" + REMOVE_ICON + "</button></td>" + "</tr>";
+	static public final String MAP_ITEM_TABLE_ROW_READONLY = "<tr %s>" + "<td><input style=\"width:200px\" title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"text\" class=\"map-entry-key gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
+			"<td>=</td>" + "<td><input style=\"width:200px\" title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"text\" class=\"map-entry-value gwt-TextBox gwt-TextBox-readonly\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
+			"<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" class=\"gwt-Button PerunAttributeControllButton customButtonImageDisabled\" \">" + REMOVE_ICON + "</button></td>" + "</tr>";
 
 	private boolean editing = false;
 
@@ -61,14 +74,14 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
 	 */
 	public PerunAttributeValueCell(SafeHtmlRenderer<Attribute> renderer) {
-		super(renderer, "click", "change", "keydown", "blur", "focus");
+		super(renderer, "change", "click", "keydown", "blur", "focus");
 	}
 
 	/**
 	 * Creates a new PerunAttributeValueCell with default renderer
 	 */
-	public PerunAttributeValueCell()
-	{
+	public PerunAttributeValueCell() {
+
 		// custom renderer, creates a link from the object
 		this(new SafeHtmlRenderer<Attribute>() {
 
@@ -121,6 +134,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 	/**
 	 * Returns unique cell ID based on the attribute
+	 *
 	 * @param attr
 	 * @return
 	 */
@@ -139,7 +153,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 */
 	protected static void generateCode(SafeHtmlBuilder sb, String widget, String cellId) {
 
-		if(widget == null || sb == null) {
+		if (widget == null || sb == null) {
 			return;
 		}
 
@@ -155,7 +169,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	@Override
 	public void onBrowserEvent(Context context, Element parent, Attribute value, NativeEvent event, ValueUpdater<Attribute> valueUpdater) {
 
-		if ("change".equals(event.getType())){
+		if ("change".equals(event.getType())) {
 			editing = false;
 			valueChanged(value, valueUpdater);
 		}
@@ -164,9 +178,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		if ("keydown".equals(event.getType())) {
 			editing = true;
 			// prevent special keys to enable editing
-			if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+			if (KeyCodes.KEY_ENTER == event.getKeyCode()) {
 				onEnterKeyDown(context, parent, value, event, valueUpdater);
-			} else if (event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+			} else if (KeyCodes.KEY_ESCAPE == event.getKeyCode()) {
 				// GWT 2.4.0 - condition for editing=false must be triggered for arrow keys too
 				// GWT > 2.5.0 - working out of the box
 				editing = false;
@@ -201,7 +215,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	private void valueChanged(Attribute value, ValueUpdater<Attribute> valueUpdater) {
 
 		// if value OK
-		if(setNewValue(value)) {
+		if (setNewValue(value)) {
 			value.setAttributeValid(true);
 		} else {
 			value.setAttributeValid(false);
@@ -214,18 +228,19 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 	/**
 	 * Sets the new value from cells
+	 *
 	 * @param attr
 	 * @return True if success
 	 */
 	private boolean setNewValue(Attribute attr) {
 
-		if(attr.getType().equals("java.util.LinkedHashMap")) {
+		if (attr.getType().equals("java.util.LinkedHashMap")) {
 			return generateValueFromMap(attr, getUniqueCellId(attr));
 		}
-		if(attr.getType().equals("java.lang.Integer")) {
+		if (attr.getType().equals("java.lang.Integer")) {
 			return generateValueFromNumber(attr, getUniqueCellId(attr));
 		}
-		if(attr.getType().equals("java.util.ArrayList")) {
+		if (attr.getType().equals("java.util.ArrayList")) {
 			return generateValueFromList(attr, getUniqueCellId(attr));
 		}
 
@@ -235,12 +250,13 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 	/**
 	 * Gets the attribute with the new value
+	 *
 	 * @param attr
 	 * @return True if success
 	 */
 	public Attribute getValue(Attribute attr) {
 		boolean ok = setNewValue(attr);
-		if(!ok){
+		if (!ok) {
 			attr.setValueAsJso(null);
 		}
 		return attr;
@@ -254,121 +270,120 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromString(Attribute attr, String uniqueId) /*-{
-				var str = $wnd.jQuery("#" + uniqueId + " .textbox-value").val().trim();
-				if (str.length != 0) {
-		attr.value = str;
-		} else {
-		attr.value = null;
+        var str = $wnd.jQuery("#" + uniqueId + " .textbox-value").val().trim();
+        if (str.length != 0) {
+            attr.value = str;
+        } else {
+            attr.value = null;
+        }
+        return true;
+    }-*/;
+
+	/**
+	 * Gets the value from Number TextBox and saves it to the object
+	 *
+	 * @param attr
+	 * @param uniqueId
+	 * @return true if success
+	 */
+	private final native boolean generateValueFromNumber(Attribute attr, String uniqueId) /*-{
+        // gets the value
+        var newValue = $wnd.jQuery("#" + uniqueId + " .numberbox-value").val().trim();
+        // true on any number format, false otherwise
+        if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
+            $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
+            attr.value = parseInt(newValue);
+            return true;
+        }
+        // true on empty value
+        if (newValue.length == 0) {
+            $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
+            attr.value = null;
+            return true;
+        }
+        // wrong
+        $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "red");
+        return false;
+    }-*/;
+
+	/**
+	 * Gets the value from the list of TextBoxes and saves it to the object
+	 *
+	 * @param attr
+	 * @param uniqueId
+	 * @return true if success
+	 */
+	private final native boolean generateValueFromList(Attribute attr, String uniqueId) /*-{
+        attr.value = [];
+        var i = 0;
+        $wnd.jQuery("#" + uniqueId + " .list-item-value").each(function () {
+            var val = $wnd.jQuery(this).val();
+            if (val != null && typeof val != undefined && val != "" && val.length != 0) {
+                attr.value[i] = val.trim();
+                i++;
+            }
+        });
+        // empty value
+        if (i == 0) {
+            attr.value = null;
+        }
+        return true;
+    }-*/;
+
+
+	/**
+	 * Gets the value from the list of TextBoxes and saves it to the object
+	 *
+	 * @param attr
+	 * @param uniqueId
+	 * @return true if success
+	 */
+	private final native boolean generateValueFromMap(Attribute attr, String uniqueId) /*-{
+        attr.value = {};
+        var i = 0;
+        $wnd.jQuery("#" + uniqueId + " .map-entry").each(function () {
+            var key = $wnd.jQuery(this).find(".map-entry-key").val().trim();
+            var tempval = $wnd.jQuery(this).find(".map-entry-value").val().trim();
+            // necessary for CERTIFICATE VALUES
+            var val = tempval.replace(/\\n/g, '\n');
+            if (key != "") {
+                if (key != "Enter new key first!") {
+                    attr.value[key] = val;
+                }
+            }
+            i++;
+        });
+        // if empty
+        if (i == 0) {
+            attr.value = null;
+        }
+        return true;
+    }-*/;
+
+
+	/**
+	 * Creates a HTML from the object
+	 *
+	 * @param attr
+	 * @return HTML contents
+	 */
+	private static String getWidget(Attribute attr) {
+
+		if (attr.getType() == null) {
+			return "type = null";
 		}
-				return true;
-			}-*/;
 
-		/**
-		 * Gets the value from Number TextBox and saves it to the object
-		 *
-		 * @param attr
-		 * @param uniqueId
-		 * @return true if success
-		 */
-		private final native boolean generateValueFromNumber(Attribute attr, String uniqueId) /*-{
-						// gets the value
-			var newValue = $wnd.jQuery("#" + uniqueId + " .numberbox-value").val().trim();
-						// true on any number format, false otherwise
-			if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
-			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
-			attr.value = parseInt(newValue);
-			return true;
-			}
-			// true on empty value
-			if (newValue.length == 0) {
-			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
-			attr.value = null;
-			return true;
-			}
-						// wrong
-			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "red");
-			return false;
-					}-*/;
+		if (attr.getType().equals("java.util.LinkedHashMap")) {
+			return generateMap(attr.getValueAsMap(), attr.isWritable());
 
-		/**
-		 * Gets the value from the list of TextBoxes and saves it to the object
-		 *
-		 * @param attr
-		 * @param uniqueId
-		 * @return true if success
-		 */
-		private final native boolean generateValueFromList(Attribute attr, String uniqueId) /*-{
-			attr.value = [];
-			var i = 0;
-			$wnd.jQuery("#" + uniqueId + " .list-item-value").each(function(){
-			var val = $wnd.jQuery(this).val();
-			if(val != null && typeof val != undefined && val != "" && val.length != 0)
-			{
-			attr.value[i] = val.trim();
-			i++;
-			}
-			});
-						// empty value
-			if (i == 0) {
-			attr.value = null;
-			}
-			return true;
-					}-*/;
-
-
-		/**
-		 * Gets the value from the list of TextBoxes and saves it to the object
-		 *
-		 * @param attr
-		 * @param uniqueId
-		 * @return true if success
-		 */
-		private final native boolean generateValueFromMap(Attribute attr, String uniqueId) /*-{
-						attr.value = {};
-						var i = 0;
-						$wnd.jQuery("#" + uniqueId + " .map-entry").each(function(){
-						var key = $wnd.jQuery(this).find(".map-entry-key").val().trim();
-			var tempval = $wnd.jQuery(this).find(".map-entry-value").val().trim();
-						// necessary for CERTIFICATE VALUES
-			var val = tempval.replace(/\\n/g,'\n');
-						if (key != "") {
-			if (key != "Enter new key first!") {
-			attr.value[key] = val;
-			}
-			}
-						i++;
-						});
-			// if empty
-			if (i == 0) {
-			attr.value = null;
-			}
-			return true;
-					}-*/;
-
-
-		/**
-		 * Creates a HTML from the object
-		 * @param attr
-		 * @return HTML contents
-		 */
-		private static String getWidget(Attribute attr){
-
-			if(attr.getType() == null){
-				return "type = null";
-			}
-
-			if(attr.getType().equals("java.util.LinkedHashMap")){
-				return generateMap(attr.getValueAsMap(), attr.isWritable());
-
-			}else if(attr.getType().equals("java.lang.Integer")){
-				return generateNumberBox(attr.getValue(), attr.isWritable());
-			}
-			else if(attr.getType().equals("java.util.ArrayList")){
-				return generateList(attr.getValueAsJsArray(), attr.isWritable());
-			}
-
-			return generateTextBox(attr.getValue(), attr.isWritable());
+		} else if (attr.getType().equals("java.lang.Integer")) {
+			return generateNumberBox(attr.getValue(), attr.isWritable());
+		} else if (attr.getType().equals("java.util.ArrayList")) {
+			return generateList(attr.getValueAsJsArray(), attr.isWritable());
 		}
+
+		return generateTextBox(attr.getValue(), attr.isWritable());
+	}
 
 	/**
 	 * TextBox
@@ -376,16 +391,16 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @param value
 	 * @return
 	 */
-	private static String generateTextBox(String value, boolean writable){
+	private static String generateTextBox(String value, boolean writable) {
 		// check for emptiness
 		if (value == null || value.equalsIgnoreCase("null")) {
-			value ="";
+			value = "";
 		}
 
 		if (writable) {
 			return "<input type=\"text\" style=\"width:250px\" class=\"textbox-value gwt-TextBox \" value=\"" + value + "\" />";
 		} else {
-			return "<input title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" readonly type=\"text\" style=\"width:250px\" class=\"textbox-value gwt-TextBox gwt-TextBox-readonly\" value=\"" + value + "\" />";
+			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"text\" style=\"width:250px\" class=\"textbox-value gwt-TextBox gwt-TextBox-readonly\" value=\"" + value + "\" />";
 		}
 
 	}
@@ -396,16 +411,16 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @param value
 	 * @return
 	 */
-	private static String generateNumberBox(String value, boolean writable){
+	private static String generateNumberBox(String value, boolean writable) {
 		// check for emptiness
 		if (value == null || value.equalsIgnoreCase("null")) {
-			value ="";
+			value = "";
 		}
 
 		if (writable) {
 			return "<input type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox\" value=\"" + value + "\" />";
 		} else {
-			return "<input title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" readonly type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox gwt-TextBox-readonly\" value=\"" + value + "\" />";
+			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox gwt-TextBox-readonly\" value=\"" + value + "\" />";
 		}
 
 	}
@@ -417,16 +432,15 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @param list
 	 * @return
 	 */
-	private static String generateList(JsArrayString list, boolean writable){
+	private static String generateList(JsArrayString list, boolean writable) {
 
 		String output = "<table class=\"PerunAttributeTableBorder\" >";
 
 		if (list != null) { // check for emptiness
 
-			for(int i = 0; i < list.length(); i++)
-			{
+			for (int i = 0; i < list.length(); i++) {
 				String val = list.get(i);
-				if(val == null){
+				if (val == null) {
 					val = "";
 				}
 
@@ -445,11 +459,11 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		if (writable) {
 			output += JsonUtils.stringFormat(LIST_ITEM_TABLE_ROW, " style=\"display:none;\" class=\"attribute-list-item-source\"", "");
 			output += "<tr>";
-			output += "<td colspan=\"2\" style=\"text-align:center\"><button title=\""+ WidgetTranslation.INSTANCE.addValue()+"\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton\" onclick=\"$(this).parent().parent().before('<tr>' + $('.attribute-list-item-source').html() + '</tr>');\">" + ADD_ICON + "</button></td>";
+			output += "<td colspan=\"2\" style=\"text-align:center\"><button title=\"" + WidgetTranslation.INSTANCE.addValue() + "\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton\" onclick=\"$(this).parent().parent().before('<tr>' + $('.attribute-list-item-source').html() + '</tr>');\">" + ADD_ICON + "</button></td>";
 
 		} else {
 			output += "<tr>";
-			output += "<td colspan=\"2\" style=\"text-align:center\"><button title=\""+WidgetTranslation.INSTANCE.notWritable()+"\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + ADD_ICON + "</button></td>";
+			output += "<td colspan=\"2\" style=\"text-align:center\"><button title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + ADD_ICON + "</button></td>";
 		}
 
 		output += "</tr>";
@@ -463,7 +477,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @param map
 	 * @return
 	 */
-	private static String generateMap(Map<String, JSONValue> map, boolean writable){
+	private static String generateMap(Map<String, JSONValue> map, boolean writable) {
 
 		String output = "<table class=\"PerunAttributeTableBorder\" >";
 
@@ -472,13 +486,12 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 			output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, " style=\"display:none;\" class=\"attribute-map-item-source\"", "Enter new key first!", "Then enter new value.");
 		}
 
-		for(String key : map.keySet())
-		{
+		for (String key : map.keySet()) {
 			String str = "";
 			SafeHtmlBuilder sb = new SafeHtmlBuilder();
 			if (map.get(key) != null) {
 				// all JSONValues take as strings
-				str = ((JSONString)map.get(key)).stringValue();
+				str = ((JSONString) map.get(key)).stringValue();
 				// convert new lines
 				sb.appendEscapedLines(str);
 			}
@@ -498,9 +511,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		output += "<tr>";
 		if (writable) {
 			// adds default (hidden) definition of new row and adds it map-entry class param.
-			output += "<td colspan=\"3\" style=\"text-align:center\"><button title=\""+ WidgetTranslation.INSTANCE.addValue()+"\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton\" onclick=\"$(this).parent().parent().before('<tr>' + $('.attribute-map-item-source').html() + '</tr>'); $(this).parent().parent().prev().addClass('map-entry');   \">" + ADD_ICON + "</button></td>";
+			output += "<td colspan=\"3\" style=\"text-align:center\"><button title=\"" + WidgetTranslation.INSTANCE.addValue() + "\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton\" onclick=\"$(this).parent().parent().before('<tr>' + $('.attribute-map-item-source').html() + '</tr>'); $(this).parent().parent().prev().addClass('map-entry');   \">" + ADD_ICON + "</button></td>";
 		} else {
-			output += "<td colspan=\"3\" style=\"text-align:center\"><button title=\""+ WidgetTranslation.INSTANCE.notWritable()+"\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + ADD_ICON + "</button></td>";
+			output += "<td colspan=\"3\" style=\"text-align:center\"><button title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" class=\"PerunAttributeAddButton gwt-Button PerunAttributeControllButton customButtonImageDisabled\">" + ADD_ICON + "</button></td>";
 		}
 
 		output += "</tr>";
@@ -508,6 +521,18 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 		return output;
 
+	}
+
+	@Override
+	public Set<String> getConsumedEvents() {
+
+		HashSet<String> set = new HashSet<String>();
+		set.add("click");
+		set.add("change");
+		set.add("focus");
+		set.add("blur");
+		set.add("keydown");
+		return set;
 	}
 
 }
