@@ -59,6 +59,7 @@ public class Api extends HttpServlet {
   private final static String PERUNREQUESTS = "perunRequests";
   private final static String PERUNREQUESTSURL = "getPendingRequests";
   private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
+  private final static String VOOTPROTOCOL = "voot";
 
   @Override
   public void init() {
@@ -398,7 +399,12 @@ public class Api extends HttpServlet {
       ((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
 
       // Process request and sent the response back
-      ser.write(caller.call(fcm[1], fcm[2], des));
+      if (VOOTPROTOCOL.equals(manager)) {
+          // Process VOOT protocol
+          ser.write(caller.getVOOTManager().process(caller.getSession(), method, des.readAll()));
+      } else {
+          ser.write(caller.call(manager, method, des));
+      }
     } catch (PerunException pex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if(!isJsonp) {

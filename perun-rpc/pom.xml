@@ -128,6 +128,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-voot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- SPRING -->
 
         <dependency>

@@ -78,7 +78,7 @@ public class UrlDeserializer extends Deserializer {
         StringBuffer stringParams = new StringBuffer();
         for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
             String paramName = (String) parameters.nextElement();
-            stringParams.append(paramName + "=" + req.getParameter(paramName) + " ");
+            stringParams.append(paramName + "=" + req.getParameter(paramName) + ",");
         }
         return stringParams.toString();
     }
