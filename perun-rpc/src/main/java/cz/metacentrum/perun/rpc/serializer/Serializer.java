@@ -34,7 +34,7 @@ public abstract interface Serializer {
     /**
      * Serializes {@code PerunRuntimeException}.
      *
-     * @param pex {@code PerunRuntimeException} to serialize
+     * @param prex {@code PerunRuntimeException} to serialize
      * @throws IOException If an IO error occurs
      */
     void writePerunRuntimeException(PerunRuntimeException prex) throws IOException;
