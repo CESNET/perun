@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.serializer;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
@@ -36,6 +37,10 @@ public final class JsonSerializer implements Serializer {
     private interface UserMixIn {
     }
 
+    @JsonIgnoreProperties({"userExtSources"})
+    private interface CandidateMixIn {
+    }
+
     @JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
     private interface PerunExceptionMixIn {
     }
@@ -47,6 +52,7 @@ public final class JsonSerializer implements Serializer {
         mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
+        mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
     }
@@ -105,7 +111,7 @@ public final class JsonSerializer implements Serializer {
 
         JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
         if (prex == null) {
-            throw new IllegalArgumentException("pex is null");
+            throw new IllegalArgumentException("prex is null");
         } else {
             gen.writeObject(prex);
             gen.flush();
