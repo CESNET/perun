@@ -59,7 +59,7 @@ public class Api extends HttpServlet {
   private final static String PERUNREQUESTS = "perunRequests";
   private final static String PERUNREQUESTSURL = "getPendingRequests";
   private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
-  private final static String VOOTPROTOCOL = "voot";
+  private final static String VOOTMANAGER = "vootManager";
 
   @Override
   public void init() {
@@ -399,7 +399,7 @@ public class Api extends HttpServlet {
       ((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
 
       // Process request and sent the response back
-      if (VOOTPROTOCOL.equals(manager)) {
+      if (VOOTMANAGER.equals(manager)) {
           // Process VOOT protocol
           ser.write(caller.getVOOTManager().process(caller.getSession(), method, des.readAll()));
       } else {
@@ -446,6 +446,8 @@ public class Api extends HttpServlet {
       return new JsonSerializerJSONP(out, req, resp);
     case urlinjsonout:
       return new JsonSerializer(out);
+    case voot:
+      return new JsonSerializer(out);
     default:
       throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
     }
@@ -457,6 +459,7 @@ public class Api extends HttpServlet {
     case jsonp:
       return new JsonDeserializer(req);
     case urlinjsonout:
+    case voot:
       return new UrlDeserializer(req);
     default:
       throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
@@ -471,7 +474,8 @@ public class Api extends HttpServlet {
     NOMATCH,
     urlinjsonout,
     json,
-    jsonp;
+    jsonp,
+    voot;
     
 
     /**
