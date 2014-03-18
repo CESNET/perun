@@ -241,6 +241,30 @@ public interface AttributesManager {
    * @throws MemberNotExistsException if the member doesn't have access to this resource
    */
   List<Attribute> getAttributes(PerunSession sess, Member member) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
+  
+  /**
+   * Get all <b>non-empty</b> attributes associated with the group and resource.
+   * Virtual attribute too.
+   * 
+   * PRIVILEGE: Get only those attributes the principal has access to.
+   *
+   * If workWithUserAttribute is true, return also all group attributes in list of attrNames (with virutal attributes too).
+   * 
+   * @param sess perun session
+   * @param resource to get the attributes from
+   * @param group to get the attributes from
+   * @param workWithGroupAttributes if group attributes need to be return too
+   * @return list of attributes
+   * 
+   * @throws PrivilegeException if privileges are not given
+   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+   * @throws ResourceNotExistsException if the resource doesn't exist
+   * @throws GroupNotExistsException if the group doesn't exist
+   * @throws GroupResourceMismatchException if group and resource are from the same vo
+   * @throws WrongAttributeAssignmentException 
+   */
+  List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException;
+  
 
   /**
    * Get all <b>non-empty</b> attributes associated with the group starts with name startPartOfName.
@@ -695,6 +719,31 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException if attribute is not group-resource attribute
    */
   void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException,AttributeNotExistsException, WrongReferenceAttributeValueException;
+  
+  /**
+   * Store the attributes associated with group and resource if workWithUserAttributes is true then also from group itself. 
+   * If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+   * 
+   * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+   * 
+   * @param sess perun session
+   * @param group group to set on
+   * @param resource resource to set on
+   * @param attributes attribute to set
+   * @param workWithUserAttributes true/false If true, we can use group attributes too
+   * 
+   * @throws PrivilegeException if privileges are not given
+   * @throws GroupNotExistsException if the group doesn't exists in the underlaying data source
+   * @throws ResourceNotExistsException if the resource (get from this member after workWithUserAttributes=true) doesn't exists in the underlaying data source
+   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+   * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+   * @throws WrongAttributeValueException if the attribute value is illegal
+   * @throws WrongAttributeAssignmentException if attribute is not member attribute or with workWithUserAttributes=true, if its not member or user attribute.
+   * @throws GroupResourceMismatchException if group and resource are from the same vo
+   * @throws WrongReferenceAttributeValueException 
+   */
+  void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException,AttributeNotExistsException, WrongReferenceAttributeValueException;
+  
   /**
    * Get particular attribute for the facility.
    * 

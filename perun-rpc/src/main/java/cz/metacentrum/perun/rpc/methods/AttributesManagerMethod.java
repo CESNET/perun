@@ -46,6 +46,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Attributes
 	 */
+        /*#
+	 * Returns all Group-Resource attributes.
+	 * @param group int Group ID
+         * @param resource int Resource ID
+	 * @param workWithGroupAttributes int Must = 1
+	 * @return List<Attribute> Attributes
+	 */ 
 	/*#
 	 * Returns Resource attributes.
 	 * @param resource int Resource ID
@@ -117,9 +124,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getResourceById(parms.readInt("resource")),
 							ac.getMemberById(parms.readInt("member")));
 				}  else if (parms.contains("group")) {
-					return ac.getAttributesManager().getAttributes(ac.getSession(),
-							ac.getResourceById(parms.readInt("resource")),
-							ac.getGroupById(parms.readInt("group")));
+                                        if (parms.contains("workWithGroupAttributes")) {
+                                            return ac.getAttributesManager().getAttributes(ac.getSession(),
+                                                            ac.getResourceById(parms.readInt("resource")),
+                                                            ac.getGroupById(parms.readInt("group")),
+                                                            parms.readInt("workWithGroupAttributes") == 1);
+                                        } else {
+                                            return ac.getAttributesManager().getAttributes(ac.getSession(),
+                                                            ac.getResourceById(parms.readInt("resource")),
+                                                            ac.getGroupById(parms.readInt("group")));
+                                        }
 				} else {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")));
@@ -292,10 +306,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getMemberById(parms.readInt("member")),
 							parms.readList("attributes", Attribute.class));
 				} else if (parms.contains("group")) {
-					ac.getAttributesManager().setAttributes(ac.getSession(),
-							ac.getResourceById(parms.readInt("resource")),
-							ac.getGroupById(parms.readInt("group")),
-							parms.readList("attributes", Attribute.class));
+                                    if (parms.contains("workWithGroupAttributes")) {
+                                            ac.getAttributesManager().setAttributes(ac.getSession(),
+                                                            ac.getResourceById(parms.readInt("resource")),
+                                                            ac.getGroupById(parms.readInt("group")),
+                                                            parms.readList("attributes", Attribute.class),
+                                                            parms.readInt("workWithGroupAttributes") == 1);
+                                    } else {
+                                            ac.getAttributesManager().setAttributes(ac.getSession(),
+                                                            ac.getResourceById(parms.readInt("resource")),
+                                                            ac.getGroupById(parms.readInt("group")),
+                                                            parms.readList("attributes", Attribute.class));
+                                    }
 				} else {
 					ac.getAttributesManager().setAttributes(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
