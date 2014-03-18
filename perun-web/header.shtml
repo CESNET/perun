@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Perun</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Virtual organizations, project, user and resource management system">
+        <meta name="keywords" content="users,resources,services,propagations,management,distributed systems,grids,virtual organization,project">
+        <meta name="author" content="CESNET, CERIT-SC">
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <div class="masthead">
+                <div class="title">
+                      <a href="index.shtml">                                                                                                                                                                                <h1>Perun</h1>
+                      </a>
+                </div>
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <ul class="nav">
+                                <!--#if expr="$REQUEST_URI == /index.shtml$/ || $REQUEST_URI == ''" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="index.shtml">Home</a></li>
+
+                                <!--#if expr="$REQUEST_URI == /overview.shtml$/" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="overview.shtml">Overview</a></li>
+
+                                  <li>
+                                <a href="http://wiki.metacentrum.cz/wiki/Perun">Documentation</a></li>
+
+                                <!--#if expr="$REQUEST_URI == /media.shtml$/" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="media.shtml">Media</a></li>
+
+                                <!--#if expr="$REQUEST_URI == /about.shtml$/" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="about.shtml">About Us</a></li>
+
+                                <!--#if expr="$REQUEST_URI == /contact.shtml$/" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="contact.shtml">Contact</a></li>
+
+                                <!--#if expr="$REQUEST_URI == /guide.php$/" -->
+                                  <li class="active">
+                                <!--#else -->
+                                  <li>
+                                <!--#endif -->
+                                <a href="guide.php">Guide Post</a></li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div><!-- /.navbar -->
+            </div>
+          </div>
+          <div class="container">
+

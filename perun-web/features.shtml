@@ -1,0 +1,27 @@
+<!--#include virtual="header.shtml" -->
+
+            
+            <h3>Features</h3>
+            <div class="row-fluid">
+                    <ul>
+                        <li>Virtual organization management</li>
+                        <li>User management</li>
+                        <li>Group management</li>
+                        <li>Resource management</li>
+                        <li>Service management</li>
+                        <li>Customizable for your use-cases</li>
+                    </ul>
+            </div>
+            <!--#include virtual="footer.shtml" --> 
+
+
+            - sjednoceni identit + identity consolidator
+            - sprava zdroju, pridelovani zdroju do jednotlivych VO vcetne prav/omezeni
+            - samosprava VO, moznost delegace spravy skupin
+            - prihlaska do skupiny
+            - sync. s extermin zdrojem
+            - konfiguruje sluzby (ve smyslu seznamu lidi, kteri je smi pouzivat)  - snadno lze pridat podporu dalsich sluzeb
+             - validace nastaveni/pozadovanych informaci (moduly)
+              - monitorovani stavu propagaci
+              - API (java, RPC, perl, php, WOOT?)
+              - Perun je (bude) poskytovan "as a service" 

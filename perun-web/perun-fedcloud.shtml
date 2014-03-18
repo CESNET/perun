@@ -1,0 +1,47 @@
+<!--#include virtual="header.shtml" -->   
+
+            <div>
+                <h2>Using Perun in Fedcloud</h2>
+<div>
+<img src="img/perun-in-fedcloud/pf1.png" style="float: left" />
+<h3>Possible problems without identity management system</h3>
+<p class="lead">
+This illustrates the situation <strong>without identity management system</strong> which is connected to CMF (cloud management framework).
+The manager creates and deletes users directly in VOMS server, then the users can access CMF using VOMS credentials. After a user creates virtual machine he or she can access it directly (e.g. over ssh) without having VOMS credentials.
+The problem is that the CMF doesn't have direct access to VOMS therefore the <strong>CMF cannot decide</strong> if running VMs (virtual machines) are owned by valid users (i.e. users that have a a valid VOMS account).
+</p>
+</div>
+
+
+
+<div style="clear: both">
+<img src="img/perun-in-fedcloud/pf2.png" style="float: right" />
+<h3>1) Management using Perun</h3>
+<p class="lead">
+The manager creates and deletes users in Perun, then Perun will push those changes to VOMS and to CMF. This solution can <strong>solve the problem</strong> mentioned in the first section. <br />
+Perun can notify CMF when the user is no longer a member of the VO (e.g. when his membership expires) or some other change in membership or member metadata occurs. CMF can respond to such notification according to internal policies (for example stop VMs owned by the expired user).<br /> 
+Moreover both managers and users can utilize <strong>additional Perun features</strong> like identity management, rights delegation, enrollment management and so on.
+</p>
+</div>
+
+
+<div style="clear: both">
+<img src="img/perun-in-fedcloud/pf3.png" style="float: left" />
+<h3>2) Management in VOMS with utilization of Perun</h3>
+<p class="lead">
+The manager creates and deletes users in VOMS. Perun periodically imports data from VOMS, detects changes and then pushes notifications about those changes to CMF. This solution also solves the problem mentioned earlier. But on the other hand it <strong>is not recommended</strong> because if we want to use other features in Perun then the manager must perform some operation in VOMS and some in Perun, and even then he would <strong>not be able to benefit</strong> from all Perun features.
+</p>
+</div>
+
+<div style="clear: both">
+<img src="img/perun-in-fedcloud/pf4.png" style="float: right" />
+<h3>3) How to migrate from user management in VOMS to Perun?</h3>
+<p class="lead">
+Perun can import data from VOMS, as was suggested in 2), but in this case the <strong>import will run only once</strong>. After that manager will perform all actions in Perun and Perun will propagate these changes back to VOMS and also it will notify CMF about changes.<br />
+Basically after initial import data from VOMS this solution is <strong>the same as was described in 1)</strong>.
+</p>
+</div>
+
+            </div>
+
+            <!--#include virtual="footer.shtml" -->

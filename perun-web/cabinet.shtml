@@ -1,0 +1,10 @@
+<!--#include virtual="header.shtml" -->   
+
+            <div>
+                <h2>Cabinet</h2>
+                <p class="lean">
+                Cabinet is a component where users can report theirs publications where they acknowlege to the project or resource providers. Cabinet is able to import publications from various publication management systems run on universities. Projcet manager or resources provider can consider giving you more resources or privileges for future research based on reported publications.
+                </p>
+            </div>
+
+            <!--#include virtual="footer.shtml" -->
