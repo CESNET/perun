@@ -1,0 +1,35 @@
+.header {
+  background-color: #00529b;
+  color: #ffffff;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.header .logo {
+  padding-top: 15px;
+}
+
+.header .title {
+}
+
+.tab-content {
+  padding-top: 20px;
+}
+
+.red {
+  color: #FF0000;
+}
+
+#newSSHKey {
+  vertical-align: baseline;
+}
+
+.hidden {
+  color: #ffffff;
+  width: 0px;
+  height: 0px;
+}
+
+#message {
+  display: none;
+}
