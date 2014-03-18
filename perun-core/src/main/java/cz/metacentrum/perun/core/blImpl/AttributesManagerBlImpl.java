@@ -4513,7 +4513,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
             for(Member memberElement: members) {
                 if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
                     groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-                    resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member));
+                    resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
                 }
             }
             groupsFromUser = new ArrayList<Group>(new HashSet<Group>(groupsFromUser));
