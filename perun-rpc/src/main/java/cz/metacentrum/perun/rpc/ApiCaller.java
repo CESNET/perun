@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import cz.metacentrum.perun.cabinet.api.ICabinetApi;
@@ -80,7 +81,7 @@ public class ApiCaller {
   private ICabinetApi cabinetManager;
   private RegistrarManager registrarManager;
   private PerunNotifNotificationManager notificationManager;
-  
+  private VOOT vootManager = null;
 
   private final static String RPCPRINCIPAL = "perunRpc";
   
@@ -196,6 +197,13 @@ public class ApiCaller {
   
   public PerunNotifNotificationManager getNotificationManager() {
     return notificationManager;
+  }
+
+  public VOOT getVOOTManager(){
+      if(vootManager == null){
+          vootManager = new VOOT();
+      }
+      return vootManager;
   }
   
   public Vo getVoById(int id) throws PerunException {
