@@ -1,0 +1,43 @@
+<!--#include virtual="header.shtml" -->   
+
+            <div>
+                <h2>Use cases</h2>
+                <p class="lean">
+                  On this page we are providing very basic use cases. Perun is highly configurable, so it is not impossible to support special use cases, like managing an access to the cloud infrastructure, configuration of the licence servers used by applications like Matlab, Gaussian, ...
+                </p>
+                
+                <h3>1. User management in the project</h3>
+                <ul>
+                  <li>Do you need to manage members of the project?</li>
+                  <li>Do you want registration form of each of the member?</li>
+                  <li>Do you need to organize member into the groups?</li>
+                  <li>Do you want delegate rights of the group membership manamgement to others?</li>
+                  <li>Do you need to distribute list of project members or groups to some services?</li>
+                </ul>
+                <p class="lean">
+                  If you answered yes to any of the question, then Perun can help you. Example of such use case:
+                  </p>
+                  <p class="lean">
+                    Project called ABC which puts together researchers from the all of the World wants to manage access to the dataset of DNA sequences. Project manager asks for creating virtual organization (VO) in Perun. He/she just provide name of the VO and who will be reponsible person. Virtual organization is created within a minutes. Responsible person becomes VO manager, who can define what will be on the registration form. Potential users uses registration form to request an access to the VO. VO manager can approve or reject each user's application. When some of users are members of the VO (theirs application was approved), VO manager can organize members into the groups. Now we can setup a resource which represents the service where DNA sequences are stored. VO manager assignes selected groups to the resource which means group members have an access to the resource. Perun will publish a list of allowed users to the service in required format. Finally only allowed users can access service with DNA sequences.
+                  </p>
+                <h3>2. Setting up Identity provider</h3>
+                <p class="lean">
+                If you want to provide an identity provider for your users, so they can access services within identity federations, you have to setup some identity management system. The identity management system then stores date in the database or in the LDAP, so identity provider can access that data and provide it to the service providers.
+                </p>
+                <p class="lean">
+                If you do not have resouces (human or HW) to setup such system, you can use Perun. Simply ask for creation of virtual organization, create registration form, invite users and let them fill the registration form with required information. Perun provides LDAP interface and also build in identity provider. So only negotiation with service providers or identity federation operator is only think you have to take care of, the rest will do Perun.
+                </p>
+                <h3>3. Supporting certificate authority (CA)</h3>
+                <p class="lean">
+                If you would like to have and certificate authority (CA), you have to register applicants for the digital certificates and store several required informations about them. You can setup virtual organization in Perun, create group of person who will be register authorities (RA) and have rights to approve user's application to such virtual organization. These information than ca n be pushed to the software which signs certificates requests.
+              </p>
+              <h3>4. Managing access to the Wiki, mailing lists, unix accounts, ...</h3>
+                <p class="lean">
+                Similarly as in use case 1., we will setup a VO, then we setup resources for wiki, mailing list, ... Providers of wiki services, maling list service or machines accessible through SSH will create an entries in Perun and set basic configuration options, such as which wiki will be managed, where the mailing list management software is located, where we want to create user's home directories, ... VO manager can other options, like what kind of langueage will be preferred for the mailing list, which groups will have a right to acces which part of the wiki, etc.
+                </p>
+                <h3>5. User's identities consolidation</h3>
+                <p class="lean">
+                  If your users have several digital identities (institutional account, Google account, Facebook account, digital certificate, eduroam account, ...) and usually every new service presents new digital idenity (login/password), so it is very hard for the user to manage such identities. User can register all his/her main identities in Perun (user registers only the login/DN, <b>NOT</b> the passwords/private keys). Perun than can publish corresponding user's identity to the end services, so the services won't need another new identity from the users. 
+                  </p>
+              </div>
+            <!--#include virtual="footer.shtml" -->

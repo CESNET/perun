@@ -1,0 +1,59 @@
+<!--#include virtual="header.shtml" -->
+            <div>
+              <h3>User and Resource Management System</h3>
+
+              <p class="lead">Perun covers management of the whole ecosystem around the users' identities, groups, resources and services. Perun is well suited for managing users within organizations and projects, managing access rights to the services. It provides functionality to manage all entities (e.g. users, groups, virtual organizations, resources, services) and theirs relationships.</p>
+              <p class="lead">As the concept of virtual organization is well established in computational grids, Perun use them as a core unit for user management. This concept can be successfully used outside the grid environment due to its nature of defining membership restrictions and delegation responsibilities among the members. </p>
+              <p class="lead">Resources are managed separately from the virtual organizations, therefore resource owners can provide theirs resources to the several virtual organizations by defining rules under which members of virtual organization can utilize the resources.</p>
+
+              <p class="lead">Perun can be provided as a service or as an virtual appliance. If you are interested <strong><a href="contact.shtml">contact us</a></strong>.</p>
+
+              <div class="alert alert-info text-center">
+                Source code is available at GitHub: <a href="https://github.com/CESNET/perun/wiki">https://github.com/CESNET/perun/wiki</a>. 
+              </div>
+             </div>
+
+            <hr>
+
+            <div class="row-fluid">
+                <div class="span4">
+                  <p><h3>Overview</h3>Brief description of basic Perun features which helps you to organize users or resources.</p>
+                  <a class="btn text-right" href="overview.shtml"><i class="icon-chevron-right"></i>&nbsp;More</a>
+                </div>
+                <div class="span4">
+                  <p><h3>Project Managers</h3>What Perun provides for project managers.</p>
+                  <a class="btn" href="vo.shtml"><i class="icon-chevron-right"></i>&nbsp;More</a>
+                </div>
+                <div class="span4">
+                  <p><h3>Resource Providers</h3>How Perun helps resource providers to manage users from virtual organizations.</p>
+                  <a class="btn" href="resource.shtml"><i class="icon-chevron-right"></i>&nbsp;More</a>
+                </div>
+             </div>
+
+            <div class="row-fluid">
+                <div class="span6">
+                  <p><h3>Generic use cases</h3>Use cases where Perun can help do the things better and easier.</p>
+                  <a class="btn" href="usecases.shtml"><i class="icon-chevron-right"></i>&nbsp;More</a>
+                </div>
+                <div class="span6">
+                  <p><h3>Use cases from production deployment</h3>Real experiences and use cases which Perun helps with.</p>
+                  <a class="btn" href="realusecases.shtml"><i class="icon-chevron-right"></i>&nbsp;More</a>
+                </div>
+             </div>
+
+            <hr>
+            
+            </div>
+            <div class="container text-center">
+            <div class="span4 offset3">
+              <h3>Perun instance at CESNET currently manages</h3>
+              <table class="table table-striped">
+                <tr><td>Virtual organizations</td><td>102</td></tr>
+                <tr><td>Users</td><td>approx. 3000</td></tr>
+                <tr><td>Groups</td><td>>780</td></tr>
+                <tr><td>Machines</td><td>>1760</td></tr>
+                <tr><td>Services</td><td>40</td></tr>
+              </table>
+            </div>
+
+            <!--#include virtual="footer.shtml" -->

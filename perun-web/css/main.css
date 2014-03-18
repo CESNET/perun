@@ -1,0 +1,173 @@
+/* Customize the navbar links to be fill the entire space of the .navbar */
+.navbar .navbar-inner {
+    padding: 0;
+}
+.navbar .nav {
+    margin: 0;
+    display: table;
+    width: 100%;
+}
+.navbar .nav li {
+    display: table-cell;
+    width: 1%;
+    float: none;
+}
+.navbar .nav li a {
+    font-weight: bold;
+    text-align: center;
+    border-left: 1px solid rgba(255,255,255,.75);
+    border-right: 1px solid rgba(0,0,0,.1);
+}
+.navbar .nav li:first-child a {
+    border-left: 0;
+    border-radius: 3px 0 0 3px;
+}
+.navbar .nav li:last-child a {
+    border-right: 0;
+    border-radius: 0 3px 3px 0;
+}
+
+.container{
+    max-width: 1000px;
+}
+
+.logo{
+    max-height: 50px;;
+    max-width: 120px;
+}
+
+.right{
+    text-align: right;
+}
+
+.copyright{
+    padding-top: 35px;
+    font-size: 80%;
+}
+
+.lead{
+    text-align: justify;
+    font-size: 120%;
+}
+
+.navbar-inner{
+    background-image: linear-gradient(to bottom, #ffffff, #e2f1ff);
+    color: #303030;
+    text-shadow: none;
+    border-color: #bcbcbc;
+}
+
+.navbar .navbar-inner .container .nav li a{
+    color: #303030;
+    text-shadow: none;
+}
+
+.navbar .navbar-inner .container .nav li a:hover{
+    color: #4169e1;
+}
+
+.navbar .nav > .active > a, .navbar .nav > .active > a:hover, .navbar .nav > .active > a:focus {
+    background-color: #c4d5e1;
+}
+
+.navbar .nav li a {
+    border-left: 1px solid rgba(0, 0, 74, 0.2);
+}
+
+.btn-large{
+    font-size: 30px;
+    padding: 18px 28px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    background-image: linear-gradient(to bottom, #ffffff, #e2f1ff);
+    color: #303030;
+    text-shadow: none;
+    border-color: #bcbcbc;
+}
+
+.btn-large:hover{
+    color: #4169e1;
+    transition: none;
+    background-position: 0 0;
+}
+
+hr{
+    border-color: #bcbcbc;
+}
+
+.title h1{
+    font-family: 'Verdena', sans-serif;
+    /*font-family: 'Montserrat Subrayada', sans-serif;*/
+    /*font-family: 'Alegreya SC', serif;*/
+    /*font-family: 'Cinzel', serif;*/
+    font-size: 80px;
+    background-image: url('../img/perun-logo.gif');
+    background-repeat: no-repeat;
+    background-size: 85px 74px;
+    min-height: 100px;
+    padding-left: 110px;
+    line-height: 75px;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.masthead a:hover{
+    color: #303030;
+    text-decoration: none;
+}
+
+.footer{
+    margin-top: 50px;
+    padding-top: 10px;
+    padding-left: 40px;
+    padding-bottom: 0px;
+    background-color: #e5f0fd;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+a{
+    color: #303030;
+}
+
+.nav > li > a:hover{
+    color: #eeeeee;
+    background-color: #085aa5;
+}
+
+.bigger{
+    font-size: 120%;
+    padding-left: 20px;
+}
+
+.bigger dt, .bigger li{
+    padding-bottom: 2px;
+}
+
+.bigger dd{
+    padding-bottom: 5px;
+}
+
+.bigger-spaces dt {
+  margin-top: 30px;
+}
+
+dl.bigger-spaces {
+  margin-bottom: 50px;
+}
+
+dd a {
+    color: #303080;
+}
+
+.photo {
+  width: 100px;
+}
+
+.file-icon {
+  width: 30px;
+}

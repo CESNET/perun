@@ -1,0 +1,66 @@
+<!--#include virtual="header.shtml" -->
+
+            <div>
+                <h2>How can Perun help resources providers</h2>
+                <dl class="bigger-spaces bigger">
+                    <dt>Resource management</dt>
+                      <dd>Easily allocate your resources to virtual organizations/projects</dd>
+                      <dd>Set up various rights or other specific configuration for each organization</dd>
+                      <dd>Setup your resource for users or service identities</dd>
+
+                    <dt>Propagations</dt>
+                      <dd>Configure your resources</dd>
+                      <dd>Monitor status of the configuration propagation</dd>
+                      <dd>Send the new configuration every times some change occures</dd>
+                    <dt>Perun-services</dt>    
+                      <dd>Perun-services are automatically activated tools which allow to keep situation stated at database the same as status of all resources controlled by system Perun. List of perun-services can be increased by adding of new services which can have special functionality according needing of administrators and users of system</dd>
+                      <dd>Actually system can use following services:</dd>
+                      <ul service is targets>
+                        <li>Common perun-services used for ussual control of sources</li>
+                         <ul>
+
+                          <li><b>afs</b> service is target to maintenance of structure of shared directory system AFS</li>
+                          <li><b>fs_home</b> service is used for maintenance user's home directories on target facilities. Directories which have not beed existed yet are created. At formerly created directories is checked owner and his permissions for access. Deleting of home directories is not executed, old or invalid directories must be deleted by hand. Service sets home files quotas and limits for their number</li>
+                          <li><b>fs_scratch</b> service is used for maintenance user's scratch directories on target facilities. Directories which have not beed existed yet are created. At formerly created directories is checked owner and his permissions for access. Deleting of scratch directories is not executed, old or invalid directories must be deleted by hand.</li>
+                          <li><b>fs_scratch_global</b> service has the similar functionality as <i>fs_scratch</i> and it is used if shared scratch file at whole cluster is needed</li>
+                          <li><b>fs_scratch_local</b> service has the same functionality as <i>fs_scratch</i> and it is used if more then one scratch file is needed</li>
+                          <li><b>gridmap</b> service is target for mainenance of GRIDMAP file of virtual organizations</li>
+                          <li><b>group</b> service is determined to maintanance of file /etc/group at target UNIX machine. Propagation of this service is activated by change at set of groups or set of group memberships (having an account on target machine) or is activated by changes at attributes concerning these members</li>
+                          <li><b>group_nfs4</b> service is special version of <i>group</i> service for NFS4. Maintained file is /etc/group-nfs4</li>
+                          <li><b>k5login</b> service updates KERBEROS principals in files .k5login at home directories</li>
+                          <li><b>k5login_root</b> service takes care about KERBEROS principals for root access to target facility, file /root/.k5login</li>
+                          <li><b>mailman</b> service sets mailinglists for Mailman</li>
+                          <li><b>mailman_owners</b> service sets owners of mailinglists</li>
+                          <li><b>passwd</b> service is used for meintenance of /etc/passwd file at target UNIX machine. Propagation of this service is activated by change in set of users having an account on target machine or is activated by changes at attributes concerning these users.  </li>
+                          <li><b>passwd_nfs4</b> service is special version of <i>passwd</i> service for NFS4. Maintained file is /etc/passwd-nfs4</li>
+                          <li><b>passwd_scp</b> service maintens file contains users and their shells for using scp</li>
+                          <li><b>pbs_phys_cluster</b> service is used for upkeep of file containing names of physical clusters and their nodes needed for scheduler (pbs) of user's tasks</li>
+                          <li><b>pbs_pre</b> service target for updating of file used by users's tasks scheduler (pbs) containig list of users with hosts and clusters where users can run their tasks</li>
+                          <li><b>sshkeys</b> service upkeeps the file containing users ssh keys</li>
+                          <li><b>sshkeys_root</b> service upkeeps the file containing ssh keys of users with root access</li>
+                          <li><b>voms</b> service updates file used by system VOMS. File contains list of virtual organizations mainteined by VOMS and for each member of VO DN of certification autority and DN of user's certificate issued by this CA</li>
+                         </ul>
+                        <li>Perun-services with special functions</li>
+                         <ul>
+                          <li><b>apache_basic_auth</b></li>
+                          <li><b>apache_ssl</b></li>
+                          <li><b>cloudidp</b></li>
+                          <li><b>docdb</b></li>
+                          <li><b>du_users_export</b></li>
+                          <li><b>eduroam_radius</b> service is used for update of user's identities in EDUROAM</li>
+                          <li><b>fedcloud_export</b> service is target for updating users at fedcloud infrastructure</li>
+                          <li><b>flexlm_iptables</b> service sets access to licence server Flexlm by IP address. Each user can prepare list of IP addresses from which he wants to access server and according this list is set the firwall  </li>
+                          <li><b>mailman_meta</b> service has similar functionality as <i>mailman</i>, it is special version for VO MetaCenter</li>
+                          <li><b>openvpn</b> service generates list of IGTF certificates of users who can use OpewnVPN system</li>
+                          <li><b>owncloud_vo_mapping</b></li>
+                          <li><b>pbsmon_json</b> service generates information (in JSON format) for special web tool displaying current status of computational hardware machines</li>
+                          <li><b>pbsmon_users</b> service generates list of users who are permitted to use web tool mentioned with <i>pbsmon_json</i> service</li>
+                          <li><b>pbs_publication_fairshare</b></li>
+                          <li><b>users_export</b> special service generates list of users for external information system</li>
+                          </ul> 
+                      </ul>  
+
+                </dl>
+            </div>
+
+            <!--#include virtual="footer.shtml" -->
