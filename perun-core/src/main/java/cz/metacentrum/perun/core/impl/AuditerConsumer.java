@@ -33,6 +33,13 @@ public class AuditerConsumer {
   /**
    * Auditer log mapper
    */
+  private static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = new RowMapper<String>() {
+    public String mapRow(ResultSet rs, int i) throws SQLException {
+      AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER.mapRow(rs, i);
+      return auditMessage.getFullMessage();
+    }
+  };
+  
   private static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
     public String mapRow(ResultSet rs, int i) throws SQLException {
       AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER.mapRow(rs, i);
@@ -81,6 +88,21 @@ public class AuditerConsumer {
       int maxId = jdbc.queryForInt("select max(id) from auditer_log");
       if(maxId > lastProcessedId) {
         List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, this.lastProcessedId, maxId);
+        this.lastProcessedId = maxId;
+        jdbc.update("update auditer_consumers set last_processed_id=? where name=?", this.lastProcessedId,this.consumerName);
+        return messages;
+      }
+      return new ArrayList<String>();
+    } catch(Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+  
+  public List<String> getFullMessages() throws InternalErrorException {
+    try {
+      int maxId = jdbc.queryForInt("select max(id) from auditer_log");
+      if(maxId > lastProcessedId) {
+        List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_FULL_LOG_MAPPER, this.lastProcessedId, maxId);
         this.lastProcessedId = maxId;
         jdbc.update("update auditer_consumers set last_processed_id=? where name=?", this.lastProcessedId,this.consumerName);
         return messages;

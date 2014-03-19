@@ -28,9 +28,7 @@ public class AuditMessage {
 
     public String getFullMessage() {
         StringBuilder sb = new StringBuilder();
-        sb.append(actor);
-        sb.append(": " );
-        sb.append(msg);
+        sb.append(id).append(" \"").append(createdAt).append("\" \"").append(actor).append("\" ").append(msg);
         return sb.toString();
     }
 
