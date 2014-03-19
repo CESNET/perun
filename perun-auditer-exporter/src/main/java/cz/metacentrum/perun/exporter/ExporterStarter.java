@@ -116,7 +116,7 @@ public class ExporterStarter
         do {
             try {
               // Get messages
-              messages = auditerConsumer.getMessages();
+              messages = auditerConsumer.getFullMessages();
             } catch (InternalErrorException ex) {
                 Thread.sleep(sleepTime);
                 sleepTime+=sleepTime;
