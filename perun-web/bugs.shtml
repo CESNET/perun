@@ -1,0 +1,16 @@
+<!--#include virtual="header.shtml" -->
+
+<h2>Known bugs</h2>
+
+<p>You might encounter these bugs when using Perun, which are not about to be fixed anytime soon.
+
+<ul>
+    <li>
+        When using Perun with Oracle DB backend, you might encounter errors when storing non-ASCII (like UTF-8) strings longer than 1000 characters. Storing bigger loads of textual data like certificate is not affected, since it's not stored as simple string.
+    </li>
+    <li>
+        When using Perun with Postgre DB and storing attribute values via CLI or programatically you can store empty string values, which are not allowed. When using GUI, this is not the case, since it handles input by itslef. On Oracle DB empty strings are stored as nulls by DB design, therfore when read, handled like "attribute not set" by Perun. But on Postgre DB is value stored as valid, therefore handled by Perun like "attribute set with value". This can cause unknown errors, especially when service configuration is about to be propagated to your resources.
+    </li>
+</ul>
+
+<!--#include virtual="footer.shtml" -->
