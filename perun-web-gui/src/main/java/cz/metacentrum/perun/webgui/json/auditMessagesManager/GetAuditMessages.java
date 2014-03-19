@@ -20,11 +20,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax qeury to logIn to RPC and get PerunPrincipal
- * 
+ * Ajax query to logIn to RPC and get PerunPrincipal
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMessage> {
 
 	// Session
@@ -34,7 +33,7 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	/// default: 0 = all messages
-	private int count = 0; 
+	private int count = 0;
 	private ListDataProvider<AuditMessage> dataProvider = new ListDataProvider<AuditMessage>();
 	// The table itself
 	private PerunTable<AuditMessage> table;
@@ -59,19 +58,19 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 	public GetAuditMessages(JsonCallbackEvents events) {
 		this.events = events;
 	}
-	
+
 	/**
 	 * Sets count of messages to be retrieved from RPC
-	 * 
+	 *
 	 * @param count / 0 = all
 	 */
 	public void setCount(int count){
 		this.count = count;
 	}
-	
+
 	/**
 	 * Get currently set number for messages
-	 * 
+	 *
 	 * @return number of messages to be retrieved
 	 */
 	public int getCount(){
@@ -85,7 +84,7 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 		// retrieve data
 		JsonClient js = new JsonClient(true);
 		if (count > 0) {
-			js.retrieveData(JSON_URL, "count="+count, this);					
+			js.retrieveData(JSON_URL, "count="+count, this);
 		} else {
 			js.retrieveData(JSON_URL,this);
 		}
@@ -94,23 +93,23 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 	public CellTable<AuditMessage> getTable() {
 
 		retrieveData();
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<AuditMessage>(list);
 
 		// Cell table
 		table = new PerunTable<AuditMessage>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
-	
+
 		// Sorting
 		ListHandler<AuditMessage> columnSortHandler = new ListHandler<AuditMessage>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<AuditMessage> createCheckboxManager());
-	
+
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 	    loaderImage.setEmptyResultMessage("No audit messages found.");
@@ -119,27 +118,26 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 			// checkbox column column
 			table.addCheckBoxColumn();
 		}
-		
+
 		table.addIdColumn("Message ID", null, 120);
 		// MESSAGE COLUMN
 		TextColumn<AuditMessage> messageColumn = new TextColumn<AuditMessage>() {
 			public String getValue(AuditMessage msg) {
-				return String.valueOf(msg.getFullMessage());
+				return msg.getActor() +": "+msg.getMessage();
 			}
 		};
 
 		messageColumn.setSortable(true);
 		columnSortHandler.setComparator(messageColumn, new Comparator<AuditMessage>() {
 			public int compare(AuditMessage o1, AuditMessage o2) {
-				return o1.getFullMessage().compareToIgnoreCase(o2.getFullMessage());
+				return (o1.getActor() +": "+o1.getMessage()).compareToIgnoreCase(o2.getActor() +": "+o2.getMessage());
 			}
 		});
 
-	
 		// TIME COLUMN
 		TextColumn<AuditMessage> timeColumn = new TextColumn<AuditMessage>() {
 			public String getValue(AuditMessage msg) {
-				return String.valueOf(msg.getCreatedAt());
+                return msg.getCreatedAt().substring(0, msg.getCreatedAt().indexOf("."));
 			}
 		};
 
@@ -153,9 +151,9 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 		table.addColumn(timeColumn, "Created at");
 		table.setColumnWidth(timeColumn, "180px");
 		table.addColumn(messageColumn, "Message");
-		
+
 		return table;
-		
+
 	}
 
     /**
@@ -256,7 +254,7 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
     }
 
     public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
+        this.checkable = checkable;
     }
 
     public void setList(ArrayList<AuditMessage> list) {
