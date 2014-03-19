@@ -1,28 +1,35 @@
-<!--#include virtual="header.shtml" -->   
+<!--#include virtual="header.shtml" -->
 
-            <div>
-                <h3>Changelog</h3>
-                <p class="lean">
-                <em>10. 1. 2014</em> - Also groups can be assigned as the administrators of the VO.
-                </p>
-                
-                <p class="lean">
-                <em>11. 3. 2014</em> 
-                <ul>
-                  <li> Applications:</li>
-                   <ul>
-                    <li> newly user can log out from registration form, in case of error (application is not saved) user can by displayed button come back to filled registration form (he needs not all fill again).</li>   
-                    <li> better check for user's identity duplicities (newly e-mail address is checked too), error message for administrator is more understandable, so he can know how to solve this duplicity. In case that user fill the academic degrees, these are saved after approving of application.</li>
-                   </ul>  
+<div>
+    <h3>Changelog</h3>
 
-                  <li>GUI</li>
-                  <ul>
-                    <li><i>redesign of user's detail:</i> user can change degrees and titles by himself, he can set by himself preferred mail, shell and timezone. He cane remove himself from mailinglist, if he has service identities he can switch his identity, for his service identity he can add login from different namespace (if it is not occupied).</li>
-                    <li>from now publication can be removed if user enters it by differrent identity (but HIS identity), unfortunately it is not possible on recenty entered publications (we should to fill user_id into DB tables by hand for each publication). Slightly updated wizard for entering of publications (check of input, better check of duplicity)</li>
-                    <li>more secure and designing tuned check of accessibility of login during creating or adding of service identity.</li>
-                  </ul>   
-                </ul>  
-                </p>
-            </div>
+    <p class="lean">
+        <em>18.3.2014</em> - Added new role VoObserver. User athorized by this role is able to see all data, which are accessible to VO Manager, but he is not permitted to change it.</em>
 
-            <!--#include virtual="footer.shtml" -->
+    </p>
+
+    <p class="lean">
+        <em>11. 3. 2014</em>
+    <ul>
+        <li> Applications:</li>
+        <ul>
+            <li> newly user can log out from registration form, in case of error (application is not saved) user can by displayed button come back to filled registration form (he needs not all fill again).</li>
+            <li> better check for user's identity duplicities (newly e-mail address is checked too), error message for administrator is more understandable, so he can know how to solve this duplicity. In case that user fill the academic degrees, these are saved after approving of application.</li>
+        </ul>
+
+        <li>GUI</li>
+        <ul>
+            <li><i>redesign of user's detail:</i> user can change degrees and titles by himself, he can set by himself preferred mail, shell and timezone. He cane remove himself from mailinglist, if he has service identities he can switch his identity, for his service identity he can add login from different namespace (if it is not occupied).</li>
+            <li>from now publication can be removed if user enters it by differrent identity (but HIS identity), unfortunately it is not possible on recenty entered publications (we should to fill user_id into DB tables by hand for each publication). Slightly updated wizard for entering of publications (check of input, better check of duplicity)</li>
+            <li>more secure and designing tuned check of accessibility of login during creating or adding of service identity.</li>
+        </ul>
+    </ul>
+    </p>
+
+    <p class="lean">
+        <em>10. 1. 2014</em> - Also groups can be assigned as the administrators of the VO.
+    </p>
+
+</div>
+
+<!--#include virtual="footer.shtml" -->
