@@ -4,8 +4,11 @@
     <h3>Changelog</h3>
 
     <p class="lean">
-        <em>18.3.2014</em> - Added new role VoObserver. User athorized by this role is able to see all data, which are accessible to VO Manager, but he is not permitted to change it.</em>
+        <em>19.3.2014</em> - Added new service fs_project. Service creates on selected resources special directory for projects. Project are realized by groups, for each project group service creates sub-directory. Names, permissions and owners of these sub-directories are implemented by attributes.
+    </p>
 
+    <p class="lean">
+        <em>18.3.2014</em> - Added new role VoObserver. User athorized by this role is able to see all data, which are accessible to VO Manager, but he is not permitted to change it.
     </p>
 
     <p class="lean">
