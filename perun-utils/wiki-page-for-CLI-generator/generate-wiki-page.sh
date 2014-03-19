@@ -52,6 +52,6 @@ echo -e "\n\n\n"
 #generate helps
 for FILE in `ls $CLI_DIR/{add,assign,create,delete,list,remove,set,update,validate,propagate}*`
  do echo -n "==== $FILE ===="
- [ -x $FILE ] && perl $FILE --help | ./wiki-formater
+ [ -x $FILE ] && perl $FILE --help | ./wiki-formater.pl
  echo -e "\n\n"
 done
