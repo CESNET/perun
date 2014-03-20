@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Overlay type for PerunException object from Perun
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -58,18 +58,18 @@ public class PerunError extends JavaScriptObject {
 		}
     	return this.reason;
 	}-*/;
-	
+
 	public final native void setType(String type) /*-{
 		this.type = type;
 	}-*/;
-	
+
 	public final native String getErrorInfo() /*-{
         if (typeof this.message === 'undefined' || !this.message) {
             return "";
         }
 		return this.message;
     }-*/;
-	
+
 	public final native void setErrorInfo(String info) /*-{
 		this.message = info;
 	}-*/;
@@ -242,10 +242,22 @@ public class PerunError extends JavaScriptObject {
         return this.service;
     }-*/;
 
+    /**
+     * Get referenced form item related to error message
+     *
+     * @return form item or null
+     */
+    public final native ApplicationFormItemWithPrefilledValue getFormItem() /*-{
+        if (!this.formItem) {
+            return null;
+        }
+        return this.formItem;
+    }-*/;
+
 
     /**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final String getObjectType() {
@@ -266,26 +278,26 @@ public class PerunError extends JavaScriptObject {
             return this.beanName;
         }
     }-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -293,7 +305,7 @@ public class PerunError extends JavaScriptObject {
 	 */
 	public final boolean equals(PerunError o)
 	{
-		return o.getErrorId() == this.getErrorId();		
+		return o.getErrorId() == this.getErrorId();
 	}
-	
+
 }

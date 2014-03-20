@@ -21,8 +21,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
-import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
-import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -1632,6 +1629,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
             ApplicationFormItemWithPrefilledValue itemW = it.next();
             String fa = itemW.getFormItem().getFederationAttribute();
             if (fa != null && !fa.isEmpty()) {
+
+                // We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required
+                // we don't care, that form items can be wrongly configured (to fill value in editable box)
+                if (itemW.getFormItem().isRequired() && !federValues.containsKey(fa)) {
+                    throw new MissingRequiredDataException("Your IDP doesn't provide required data for application form item: {}", itemW);
+                }
+
                 String s = federValues.get(fa);
                 if (s != null && !s.isEmpty()) {
                     // In case of email, value from the federation can contain more than one entries, entries are separated by semi-colon
