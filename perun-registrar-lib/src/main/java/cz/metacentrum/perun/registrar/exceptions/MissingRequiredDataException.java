@@ -3,6 +3,9 @@ package cz.metacentrum.perun.registrar.exceptions;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Exception thrown when any required application form item
  * is missing it's pre-filled value from federation, during
@@ -14,28 +17,35 @@ public class MissingRequiredDataException extends PerunException {
 
 	private static final long serialVersionUID = 1L;
 
-    private ApplicationFormItemWithPrefilledValue formItem;
+    private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
 
 	public MissingRequiredDataException(String message) {
         super(message);
     }
 
-    public MissingRequiredDataException(String message, ApplicationFormItemWithPrefilledValue object) {
+    public MissingRequiredDataException(String message, List<ApplicationFormItemWithPrefilledValue> items) {
         super(message);
-        this.formItem = object;
+        this.formItems = items;
     }
 
     public MissingRequiredDataException(String message, Throwable ex) {
         super(message, ex);
     }
 
-    public MissingRequiredDataException(String message, Throwable ex, ApplicationFormItemWithPrefilledValue object) {
+    public MissingRequiredDataException(String message, Throwable ex, List<ApplicationFormItemWithPrefilledValue> items) {
         super(message, ex);
-        this.formItem = object;
+        this.formItems = items;
     }
 
-    public Object getFormItem() {
-        return formItem;
+    public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
+        return formItems;
+    }
+
+    public void addFormItem(ApplicationFormItemWithPrefilledValue item) {
+        if (formItems == null) formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+        if (item != null) {
+            formItems.add(item);
+        }
     }
 
 }

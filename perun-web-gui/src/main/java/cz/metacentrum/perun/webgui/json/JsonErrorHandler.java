@@ -825,8 +825,17 @@ public class JsonErrorHandler {
         }  else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
             String result = "Your IDP doesn't provide all required data for this application form. Please contact your IDP to resolve this issue or log-in using different IDP.";
-            result+="<p><strong>Application form item:</strong> "+error.getFormItem().getShortname()+"</br>";
-            result+="<strong>Missing IDP attribute:</strong> "+error.getFormItem().getFormItem().getFederationAttribute()+"</p>";
+
+            String missingItems = "<p>";
+            if (error.getFormItems() != null) {
+                for (int i=0; i<error.getFormItems().length(); i++) {
+                    missingItems += "<strong>Missing attribute: </strong>";
+                    missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+                    missingItems += "<br />";
+                }
+            }
+
+            result += missingItems;
 
             return result;
 

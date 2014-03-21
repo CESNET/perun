@@ -175,6 +175,18 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
                 Location.replace(Location.getParameter("targetnew"));
             }
 
+        } if (error.getName().equalsIgnoreCase("MissingRequiredDataException")) {
+
+            String missingItems = "<p>";
+            if (error.getFormItems() != null) {
+                for (int i=0; i<error.getFormItems().length(); i++) {
+                    missingItems += ApplicationMessages.INSTANCE.missingIDPAttribute();
+                    missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+                    missingItems += "<br />";
+                }
+            }
+            ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.missingDataFromIDP()+missingItems);
+
         } else if (error.getName().equalsIgnoreCase("ExtendMembershipException")) {
 
             if ("NOUSERLOA".equalsIgnoreCase(error.getReason())) {

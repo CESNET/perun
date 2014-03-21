@@ -1623,6 +1623,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 }
             }
         }
+
+        List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+
         // get user attributes from federation
         Iterator<ApplicationFormItemWithPrefilledValue> it = ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
         while (it.hasNext()) {
@@ -1633,7 +1636,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 // We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required
                 // we don't care, that form items can be wrongly configured (to fill value in editable box)
                 if (itemW.getFormItem().isRequired() && !federValues.containsKey(fa)) {
-                    throw new MissingRequiredDataException("Your IDP doesn't provide required data for application form item: {}", itemW);
+                    itemsWithMissingData.add(itemW);
                 }
 
                 String s = federValues.get(fa);
@@ -1654,6 +1657,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     itemW.setAssuranceLevel(loa);
                 }
             }
+        }
+
+        if (!itemsWithMissingData.isEmpty()) {
+            String IDP = federValues.get("Shib-Identity-Provider");
+            log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
+            throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
         }
 
         // set names from federation attributes if not empty

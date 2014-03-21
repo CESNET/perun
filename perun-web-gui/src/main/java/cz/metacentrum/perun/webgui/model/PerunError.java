@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 
 /**
  * Overlay type for PerunException object from Perun
@@ -243,15 +244,15 @@ public class PerunError extends JavaScriptObject {
     }-*/;
 
     /**
-     * Get referenced form item related to error message
+     * Get referenced form items related to error message
      *
-     * @return form item or null
+     * @return form items or null
      */
-    public final native ApplicationFormItemWithPrefilledValue getFormItem() /*-{
-        if (!this.formItem) {
+    public final native JsArray<ApplicationFormItemWithPrefilledValue> getFormItems() /*-{
+        if (!this.formItems) {
             return null;
         }
-        return this.formItem;
+        return this.formItems;
     }-*/;
 
 
