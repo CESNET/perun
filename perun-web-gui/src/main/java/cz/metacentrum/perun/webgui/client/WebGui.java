@@ -65,6 +65,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
     private WebGui webgui = this;
     private RootLayoutPanel body;
+    private boolean connected = true;
 
     /**
      * This is ENTRY POINT method. It's called automatically when web page
@@ -224,15 +225,19 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
                                     public void onFinished(JavaScriptObject jso){
                                         BasicOverlayType type = jso.cast();
                                         checkPending = false;
+                                        connected = true;
                                         if (type.getString().equals("OK")) {
                                             if (c.isShowing()) {
                                                 c.hide();
                                             }
                                         }
+                                        // If ok, append new keepalive checker
+                                        appendKeepAliveChecker(c);
                                     }
                                     @Override
                                     public void onError(PerunError error){
                                         checkPending = false;
+                                        connected = false;
                                         if (!c.isShowing()) {
                                             c.show();
                                         }
@@ -243,40 +248,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
                             }
                         });
 
-                        // Check RPC URL every 15 sec if call not pending
-                        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-                            @Override
-                            public boolean execute() {
-
-                                KeepAlive call = new KeepAlive(new JsonCallbackEvents() {
-                                    @Override
-                                    public void onLoadingStart(){
-                                        checkPending = true;
-                                    }
-                                    @Override
-                                    public void onFinished(JavaScriptObject jso) {
-                                        BasicOverlayType type = jso.cast();
-                                        checkPending = false;
-                                        if (type.getString().equals("OK")) {
-                                            if (c.isShowing()) {
-                                                c.hide();
-                                            }
-                                        }
-                                    }
-                                    @Override
-                                    public void onError(PerunError error) {
-                                        checkPending = false;
-                                        if (!c.isShowing()) {
-                                            c.show();
-                                        }
-                                    }
-                                });
-                                if (!checkPending && perunLoaded) {
-                                    call.retrieveData();
-                                }
-                                return true;
-                            }
-                        }, 15000);
+                        appendKeepAliveChecker(c);
 
                         // store users roles and editable entities into session
                         session.setRoles(pp.getRoles());
@@ -580,6 +552,51 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
         }
 
         return false;
+
+    }
+
+    /**
+     * Append keep-alive checker.
+     *
+     * @param c Confirm displayed when connection is lost
+     */
+    private void appendKeepAliveChecker(final Confirm c) {
+
+        // Check RPC URL every 15 sec if call not pending
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+
+                KeepAlive call = new KeepAlive(new JsonCallbackEvents() {
+                    @Override
+                    public void onLoadingStart(){
+                        checkPending = true;
+                    }
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                        BasicOverlayType type = jso.cast();
+                        checkPending = false;
+                        if (type.getString().equals("OK")) {
+                            if (c.isShowing()) {
+                                c.hide();
+                            }
+                        }
+                    }
+                    @Override
+                    public void onError(PerunError error) {
+                        checkPending = false;
+                        if (!c.isShowing()) {
+                            c.show();
+                        }
+                        connected = false;
+                    }
+                });
+                if (!checkPending && perunLoaded && connected) {
+                    call.retrieveData();
+                }
+                return connected;
+            }
+        }, 15000);
 
     }
 
