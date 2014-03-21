@@ -21,8 +21,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
-import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
-import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -1461,6 +1458,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         User user = sess.getPerunPrincipal().getUser();
         String actor = sess.getPerunPrincipal().getActor();
         String extSourceName = sess.getPerunPrincipal().getExtSourceName();
+        String extSourceType = sess.getPerunPrincipal().getExtSourceType();
         int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
         Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
 
@@ -1626,12 +1624,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 }
             }
         }
+
+        List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+
         // get user attributes from federation
         Iterator<ApplicationFormItemWithPrefilledValue> it = ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
         while (it.hasNext()) {
             ApplicationFormItemWithPrefilledValue itemW = it.next();
             String fa = itemW.getFormItem().getFederationAttribute();
             if (fa != null && !fa.isEmpty()) {
+
+                // We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
+                if (itemW.getFormItem().isRequired() &&
+                        (Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType())) &&
+                        !federValues.containsKey(fa)) {
+                    itemsWithMissingData.add(itemW);
+                }
+
                 String s = federValues.get(fa);
                 if (s != null && !s.isEmpty()) {
                     // In case of email, value from the federation can contain more than one entries, entries are separated by semi-colon
@@ -1650,6 +1659,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
                     itemW.setAssuranceLevel(loa);
                 }
             }
+        }
+
+        if (!itemsWithMissingData.isEmpty() && extSourceType.equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+            // throw exception only if user is logged-in by Federation IDP
+            String IDP = federValues.get("Shib-Identity-Provider");
+            log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
+            throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
         }
 
         // set names from federation attributes if not empty

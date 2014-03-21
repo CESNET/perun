@@ -69,7 +69,7 @@ public class JsonErrorHandler {
         }
 
         // build confirm
-        Confirm conf = new Confirm(getCaption(type) + ((!error.getErrorId().equals("")) ? " ("+error.getErrorId()+")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
+        Confirm conf = new Confirm(getCaption(error) + ((!error.getErrorId().equals("")) ? " ("+error.getErrorId()+")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
         conf.setNonScrollable(true);
         conf.setAutoHide(false);
         conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
@@ -176,10 +176,12 @@ public class JsonErrorHandler {
     /**
      * Return caption text for error box
      *
-     * @param errorName type of error
+     * @param error error object
      * @return text for caption
      */
-    private static String getCaption(String errorName) {
+    private static String getCaption(PerunError error) {
+
+        String errorName = error.getName();
 
         if ("PrivilegeException".equalsIgnoreCase(errorName)) {
 
@@ -187,15 +189,19 @@ public class JsonErrorHandler {
 
         } else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
 
-            return "Wrong attribute assignment";
+            return "Wrong attribute assignment ("+error.getErrorId()+")";
 
         } else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
 
-            return "Wrong attribute value";
+            return "Wrong attribute value ("+error.getErrorId()+")";
 
         } else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
 
-            return "Wrong value of related attributes";
+            return "Wrong value of related attributes ("+error.getErrorId()+")";
+
+        } else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
+
+            return "IDP doesn't provide required data ("+error.getErrorId()+")";
 
         }
 
@@ -815,6 +821,23 @@ public class JsonErrorHandler {
 
             // meaningful message
             return error.getErrorInfo();
+
+        }  else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
+
+            String result = "Your IDP doesn't provide all required data for this application form. Please contact your IDP to resolve this issue or log-in using different IDP.";
+
+            String missingItems = "<p>";
+            if (error.getFormItems() != null) {
+                for (int i=0; i<error.getFormItems().length(); i++) {
+                    missingItems += "<strong>Missing attribute: </strong>";
+                    missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+                    missingItems += "<br />";
+                }
+            }
+
+            result += missingItems;
+
+            return result;
 
         }
 
