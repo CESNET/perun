@@ -1458,6 +1458,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         User user = sess.getPerunPrincipal().getUser();
         String actor = sess.getPerunPrincipal().getActor();
         String extSourceName = sess.getPerunPrincipal().getExtSourceName();
+        String extSourceType = sess.getPerunPrincipal().getExtSourceType();
         int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
         Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
 
@@ -1633,9 +1634,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
             String fa = itemW.getFormItem().getFederationAttribute();
             if (fa != null && !fa.isEmpty()) {
 
-                // We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required
-                // we don't care, that form items can be wrongly configured (to fill value in editable box)
-                if (itemW.getFormItem().isRequired() && !federValues.containsKey(fa)) {
+                // We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
+                if (itemW.getFormItem().isRequired() &&
+                        (Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType())) &&
+                        !federValues.containsKey(fa)) {
                     itemsWithMissingData.add(itemW);
                 }
 
@@ -1659,7 +1661,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
             }
         }
 
-        if (!itemsWithMissingData.isEmpty()) {
+        if (!itemsWithMissingData.isEmpty() && extSourceType.equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+            // throw exception only if user is logged-in by Federation IDP
             String IDP = federValues.get("Shib-Identity-Provider");
             log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
             throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
