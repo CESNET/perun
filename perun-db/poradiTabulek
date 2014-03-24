@@ -68,3 +68,5 @@ service_service_packages
 tags_resources
 tasks
 tasks_results
+mailchange
+configurations
