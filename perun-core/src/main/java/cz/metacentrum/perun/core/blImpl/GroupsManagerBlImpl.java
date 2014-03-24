@@ -1046,15 +1046,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                     }
                 }
 
-                // Try to validate member
-                try {
-                    getPerunBl().getMembersManagerBl().validateMember(sess, member);
-                } catch (WrongAttributeValueException e) {
-                    log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
-                } catch (WrongReferenceAttributeValueException e) {
-                    log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
-                }
-
                 try {
                     // Add the member to the group
                     if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -1072,6 +1063,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                 } catch (AttributeValueException e) {
                     // There is a problem with attribute value, so set INVALID status of the member
                     getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
+                }
+                
+                // Try to validate member
+                try {
+                    getPerunBl().getMembersManagerBl().validateMember(sess, member);
+                } catch (WrongAttributeValueException e) {
+                    log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
+                } catch (WrongReferenceAttributeValueException e) {
+                    log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
                 }
             }
 
