@@ -1800,33 +1800,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 if (email != null && !email.isEmpty()) break;
             }
 
-            List<User> users = usersManager.findUsers(registrarSession, email);
+            List<User> users = (email != null && !email.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
 
-            if (users.isEmpty()) {
-
-                // clear previous value
-                email = "";
-                // search by different mail
-                for (ApplicationFormItemData item : data) {
-                    if ("urn:perun:member:attribute-def:def:mail".equals(item.getFormItem().getPerunDestinationAttribute())) {
-                        email = item.getValue();
-                    }
-                    if (email != null && !email.isEmpty()) break;
-                }
-
-                List<User> users2 = usersManager.findUsers(registrarSession, email);
-                if (!users2.isEmpty()) {
-                    // found by member mail
-                    return users2;
-                }
-                // continue to search by name
-
-            } else {
+            if (users != null && !users.isEmpty()) {
                 // found by preferredMail
                 return users;
             }
 
-            // search by name
+            // search by different mail
+
+            email = ""; // clear previous value
+            for (ApplicationFormItemData item : data) {
+                if ("urn:perun:member:attribute-def:def:mail".equals(item.getFormItem().getPerunDestinationAttribute())) {
+                    email = item.getValue();
+                }
+                if (email != null && !email.isEmpty()) break;
+            }
+
+            users = (email != null && !email.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
+            if (users != null && !users.isEmpty()) {
+                // found by member mail
+                return users;
+            }
+
+            // continue to search by display name
 
             for (ApplicationFormItemData item : data) {
                 if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
@@ -1852,7 +1849,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
                         log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users. Exception: {}", ex);
                     }
                     if (name != null && !name.isEmpty()) break;
-                } else if (URN_USER_FIRST_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
+                }
+            }
+
+            users = (name != null && !name.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
+            if (users != null && !users.isEmpty()) {
+                // found by member display name
+                return users;
+            }
+
+            // continue to search by last name
+
+            name = ""; // clear previous value
+            for (ApplicationFormItemData item : data) {
+                if (URN_USER_LAST_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
                     name = item.getValue();
                     if (name != null && !name.isEmpty()) break;
                 }
