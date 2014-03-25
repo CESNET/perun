@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.rpc.serializer;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.rpc.RpcException;
@@ -22,20 +20,32 @@ import java.io.OutputStream;
 /**
  * JSONP serializer.
  *
+ * This serializer strips all auditing data from PerunBean objects
+ * before sending an output with exception of Authorship.class.
+ *
+ * Please note, that many objects (especially from perun-registrar or
+ * perun-cabinet) aren't PerunBeans and contain similar properties.
+ *
+ * By default stripped properties are: createdAt, createdBy,
+ * modifiedAt, modifiedBy, createdByUid, modifiedByUid, valueCreatedAt,
+ * valueCreatedBy, valueModifiedAt, valueModifiedBy.
+ *
  * @author Michal Karm Babacek <michal.babacek@gmail.com>
  * @since 0.1
  */
 public final class JsonSerializerJSONP implements Serializer {
 
-    @JsonIgnoreProperties({"name"})
+    @JsonIgnoreProperties({"name", "createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid",
+            "modifiedByUid", "valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy"})
     private interface AttributeMixIn {
     }
 
-    @JsonIgnoreProperties({"name"})
+    @JsonIgnoreProperties({"name", "createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
     private interface AttributeDefinitionMixIn {
     }
 
-    @JsonIgnoreProperties({"commonName", "displayName"})
+    @JsonIgnoreProperties({"commonName", "displayName", "createdAt", "createdBy", "modifiedAt", "modifiedBy",
+            "createdByUid", "modifiedByUid"})
     private interface UserMixIn {
     }
 
@@ -45,6 +55,14 @@ public final class JsonSerializerJSONP implements Serializer {
 
     @JsonIgnoreProperties({"userExtSources"})
     private interface CandidateMixIn {
+    }
+
+    @JsonIgnoreProperties({"createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
+    private interface PerunBeanMixIn {
+    }
+
+    @JsonIgnoreProperties({})
+    private interface AuthorshipMixIn {
     }
 
     public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
@@ -57,6 +75,8 @@ public final class JsonSerializerJSONP implements Serializer {
         mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, ExceptionMixIn.class);
         mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, ExceptionMixIn.class);
+        mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
+        mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, AuthorshipMixIn.class);
     }
 
     private static final JsonFactory jsonFactory = new JsonFactory();

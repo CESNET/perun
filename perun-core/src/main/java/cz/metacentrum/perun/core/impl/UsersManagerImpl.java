@@ -54,12 +54,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
           "users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
           "users.created_at as users_created_at, users.created_by as users_created_by, users.modified_by as users_modified_by, users.modified_at as users_modified_at, " +
           "users.service_acc as users_service_acc, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
-  
+
   protected final static String userExtSourceMappingSelectQuery = "user_ext_sources.id as user_ext_sources_id, user_ext_sources.login_ext as user_ext_sources_login_ext, " +
   		"user_ext_sources.user_id as user_ext_sources_user_id, user_ext_sources.loa as user_ext_sources_loa, user_ext_sources.created_at as user_ext_sources_created_at, user_ext_sources.created_by as user_ext_sources_created_by, " +
                 "user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
                 "user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
-  
+
   private SimpleJdbcTemplate jdbc;
   private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
@@ -86,14 +86,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       else extSource.setModifiedByUid(rs.getInt("ext_sources_modified_by_uid"));
       if(rs.getInt("ext_sources_created_by_uid") == 0) extSource.setCreatedByUid(null);
       else extSource.setCreatedByUid(rs.getInt("ext_sources_created_by_uid"));
-      return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"), rs.getInt("user_ext_sources_user_id"), 
-          rs.getInt("user_ext_sources_loa"),rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"), 
+      return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"), rs.getInt("user_ext_sources_user_id"),
+          rs.getInt("user_ext_sources_loa"),rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
           rs.getString("user_ext_sources_modified_at"), rs.getString("user_ext_sources_modified_by"),
-          rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"), 
+          rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"),
           rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"));
     }
   };
-  
+
    private static class AttributeAndUserRowMapper<User> implements RowMapper<Pair<User,Attribute>> {
 
      private final RowMapper<Attribute> attributeRowMapper;
@@ -111,8 +111,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
      }
 
    }
-  
- 
+
+
 
   /**
    * Constructor.
@@ -123,7 +123,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     this.jdbc = new SimpleJdbcTemplate(perunPool);
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
   }
-  
+
   public List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
     AttributeAndUserRowMapper<User> attributeAndUserRowMapper = new AttributeAndUserRowMapper<User>(USER_MAPPER, AttributesManagerImpl.ATTRIBUTE_MAPPER);
     try {
@@ -134,7 +134,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<Pair<User,Attribute>>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }   
+    }
   }
 
   public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {
@@ -171,7 +171,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             throw new InternalErrorException(ex);
         }
     }
-  
+
   public User getUserByMember(PerunSession sess, Member member) throws InternalErrorException {
     try {
       return jdbc.queryForObject("select " + userMappingSelectQuery + " from users, members " +
@@ -182,7 +182,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<User> getUsersByVo(PerunSession sess, Vo vo) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery + " from users, members " +
@@ -191,7 +191,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }  
+    }
   }
 
   public List<User> getUsers(PerunSession sess) throws InternalErrorException {
@@ -205,7 +205,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
@@ -215,9 +215,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }  
+    }
   }
-          
+
   public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
@@ -227,29 +227,29 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }      
+    }
   }
-  
+
   public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException {
     try {
       int numAffected = jdbc.update("delete from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
       if(numAffected == 0) throw new ServiceUserOwnerAlreadyRemovedException("ServiceUser-Owner: " + user + " , ServiceUser: " + serviceUser);
-      
+
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
-    }    
+    }
   }
-  
+
   public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
     try {
-      jdbc.update("insert into service_user_users(user_id,service_user_id,status,created_by_uid,modified_at) values (?,?,'0',?," + Compatibility.getSysdate() + ")", 
+      jdbc.update("insert into service_user_users(user_id,service_user_id,status,created_by_uid,modified_at) values (?,?,'0',?," + Compatibility.getSysdate() + ")",
               user.getId(), serviceUser.getId(), sess.getPerunPrincipal().getUserId());
-      
+
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
-    }    
+    }
   }
-  
+
   public void enableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
     try {
       jdbc.update("update service_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
@@ -258,16 +258,16 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(er);
     }
   }
-  
+
   public void disableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
     try {
       jdbc.update("update service_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
               sess.getPerunPrincipal().getUserId(), user.getId(), serviceUser.getId());
     } catch (RuntimeException er) {
       throw new InternalErrorException(er);
-    }    
+    }
   }
-  
+
   public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
       try {
          return 1 == jdbc.queryForInt("select 1 from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
@@ -277,7 +277,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
          throw new InternalErrorException(e);
       }
   }
-  
+
   public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
@@ -287,7 +287,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }    
+    }
   }
 
   public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException {
@@ -299,7 +299,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(err);
     }
   }
-  
+
   public void deleteServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException, ServiceUserAlreadyRemovedException {
     try {
       jdbc.update("delete from service_user_users where service_user_id=?", serviceUser.getId());
@@ -307,7 +307,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       if(numAffected == 0) throw new ServiceUserAlreadyRemovedException("ServiceUser: " + serviceUser);
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
-    }    
+    }
   }
 
   public User createUser(PerunSession sess, User user) throws InternalErrorException {
@@ -337,11 +337,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       }
 
       if (user.getFirstName() != null && !user.getFirstName().equals(userDb.getFirstName())) {
-        jdbc.update("update users set first_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", 
+        jdbc.update("update users set first_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
             user.getFirstName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
       }
       if (user.getLastName() != null && !user.getLastName().equals(userDb.getLastName())) {
-        jdbc.update("update users set last_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", 
+        jdbc.update("update users set last_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
             user.getLastName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
       }
       if (user.getMiddleName() != null && !user.getMiddleName().equals(userDb.getMiddleName())) {
@@ -353,7 +353,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             user.getTitleBefore(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
       }
       if (user.getTitleAfter() != null && !user.getTitleAfter().equals(userDb.getTitleAfter())) {
-        jdbc.update("update users set title_after=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", 
+        jdbc.update("update users set title_after=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
             user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
       }
 
@@ -397,7 +397,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
           try {
 	      UserExtSource userExtSourceDb = jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
@@ -407,7 +407,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	      if (userExtSourceDb == null) {
 	        throw new ConsistencyErrorException("Updating non existing userExtSource");
 	      }
-	      
+
 	      if (userExtSource.getLoa() != userExtSourceDb.getLoa()) {
 	    	  jdbc.update("update user_ext_sources set loa=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 	    			  userExtSource.getLoa(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
@@ -416,7 +416,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	    	  jdbc.update("update user_ext_sources set login_ext=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 	    			  userExtSource.getLogin(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 	      }
-	      
+
 	      return userExtSource;
 	  } catch (RuntimeException e) {
 		  throw new InternalErrorException(e);
@@ -433,10 +433,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
           "sess.getPerunPrincipal().getActor() {}, sess.getPerunPrincipal().getActor() {}, " +
           "sess.getPerunPrincipal().getUser().getId() {}, sess.getPerunPrincipal().getUser().getId() {}", new Object[]{ueaId, user.getId(), userExtSource.getLogin(),
           userExtSource.getLoa(), userExtSource.getExtSource().getId(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), 
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
           sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId()});
       jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-          "values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", 
+          "values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
           ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),
           sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
@@ -476,10 +476,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     if (ids.size() == 0) {
       return new ArrayList<UserExtSource>();
     }
-    
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("ids", ids);
-    
+
     try {
       return namedParameterJdbcTemplate.query("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
           " from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where" +
@@ -488,9 +488,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<UserExtSource>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }    
+    }
   }
-  
+
   public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
     try {
       return jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
@@ -528,7 +528,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<Group>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }    
+    }
   }
 
   public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
@@ -539,7 +539,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return new ArrayList<Vo>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }   
+    }
   }
 
   public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException {
@@ -558,15 +558,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     try {
       return jdbc.query("select " + userMappingSelectQuery +
           " from users, user_attr_values where " +
-          " user_attr_values.attr_value=? and users.id=user_attr_values.user_id and user_attr_values.attr_id=?", 
+          " user_attr_values.attr_value=? and users.id=user_attr_values.user_id and user_attr_values.attr_id=?",
           USER_MAPPER, BeansUtils.attributeValueToString(attribute), attribute.getId());
-    } catch (EmptyResultDataAccessException e) {      
+    } catch (EmptyResultDataAccessException e) {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefitintion, String attributeValue) throws InternalErrorException {
     String value = "";;
     String operator = "=";
@@ -580,17 +580,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       value = "%" + attributeValue.trim() + "%";
       operator = "like";
     }
-    
+
     String query = "select " + userMappingSelectQuery + " from users, user_attr_values where " +
         " user_attr_values.attr_value " + operator + " :value and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";
-    
+
     MapSqlParameterSource namedParams = new MapSqlParameterSource();
     namedParams.addValue("value", value);
     namedParams.addValue("attr_id", attributeDefitintion.getId());
 
     try {
       return namedParameterJdbcTemplate.query(query, namedParams, USER_MAPPER);
-    } catch (EmptyResultDataAccessException e) {      
+    } catch (EmptyResultDataAccessException e) {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
@@ -598,29 +598,36 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   }
 
   public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
-   Set<User> users = new HashSet<User>();
-    
+    Set<User> users = new HashSet<User>();
+
     log.debug("Searching for users using searchString '{}'", searchString);
-    
-    // Search emails
+
+    // Search by mail (member)
     users.addAll(jdbc.query("select " + userMappingSelectQuery +
           " from users, members, member_attr_values, attr_names " +
         "where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
-        "(attr_names.attr_name='urn:perun:member:attribute-def:def:mail' or attr_names.attr_name='urn:perun:member:attribute-def:def:preferedMail') and " +
+        "attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
         "member_attr_values.attr_value=lower(?)", USER_MAPPER, searchString.toLowerCase()));
-    
+
+      // Search preferred email (user)
+      users.addAll(jdbc.query("select " + userMappingSelectQuery +
+              " from users, user_attr_values, attr_names " +
+              "where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
+              "attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
+              "user_attr_values.attr_value=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+
     // Search logins in userExtSources
     users.addAll(jdbc.query("select " + userMappingSelectQuery +
           " from users, user_ext_sources " +
         "where user_ext_sources.login_ext=? and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
-    
+
     // Search logins in attributes: login-namespace:*
     users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
           " from attr_names, user_attr_values, users " +
         "where attr_names.friendly_name like 'login-namespace:%' and user_attr_values.attr_value=? " +
-        "and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id", 
+        "and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
         USER_MAPPER, searchString));
-    
+
     // Search by userId
     try {
     	int userId = Integer.parseInt(searchString);
@@ -628,12 +635,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     } catch (NumberFormatException e) {
     	// IGNORE
     }
-    
+
     users.addAll(findUsersByName(sess, searchString));
-    
+
     return new ArrayList<User>(users);
   }
-  
+
   public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
     if (searchString == null || searchString.isEmpty()) {
       return new ArrayList<User>();
@@ -642,11 +649,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     // Convert to lower case
     searchString = searchString.toLowerCase();
     log.debug("Search string '{}' converted into the lowercase", searchString);
-    
+
     // Convert to ASCII
     searchString = utftoasci(searchString);
     log.debug("Search string '{}' converted into the ASCII", searchString);
-    
+
     // remove spaces from the search string
     searchString = searchString.replaceAll(" ", "");
 
@@ -691,11 +698,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       titleAfter = "%";
     }
 
-    // the searchString is already lower cased 
+    // the searchString is already lower cased
     try {
       return jdbc.query("select " + userMappingSelectQuery + " from users " +
           " where coalesce(lower(users.title_before), '%') like ? and lower(users.first_name) like ? and coalesce(lower(users.middle_name),'%') like ? and " +
-          "lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?", 
+          "lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?",
           USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
     } catch (EmptyResultDataAccessException e) {
       return new ArrayList<User>();
@@ -703,7 +710,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
     try {
       jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNADMIN.getRoleName());
@@ -711,7 +718,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
     try {
       return 1 == jdbc.queryForInt("select 1 from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName());
@@ -736,15 +743,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   public void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException {
     if(!userExtSourceExists(sess, userExtSource)) throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
   }
-  
+
   public void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException {
     if(isLoginReserved(sess, namespace, login)) throw new AlreadyReservedLoginException(namespace, login);
   }
-  
+
   public boolean isLoginReserved(PerunSession sess, String namespace, String login) throws InternalErrorException {
     Utils.notNull(namespace, "loginNamespace");
     Utils.notNull(login, "userLogin");
-    
+
     try {
         return 1 == jdbc.queryForInt("select 1 from application_reserved_logins where namespace=? and login=?",
             namespace, login);
@@ -780,13 +787,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     if (usersIds.size() == 0) {
       return new ArrayList<User>();
     }
-    
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("ids", usersIds);
 
     try {
       return namedParameterJdbcTemplate.query("select " + userMappingSelectQuery +
-          "  from users where users.id in ( :ids )", 
+          "  from users where users.id in ( :ids )",
           parameters, USER_MAPPER);
     } catch(EmptyResultDataAccessException ex) {
       return new ArrayList<User>();
@@ -794,7 +801,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException {
     try {
       return jdbc.query("select " + userMappingSelectQuery + " from users where " +
@@ -805,45 +812,45 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public void removeAllAuthorships(PerunSession sess, User user) throws InternalErrorException {
-	  
+
 	  try {
 		  jdbc.update("delete from cabinet_authorships where userid=?", user.getId());
 	  } catch (RuntimeException e) {
 		  throw new InternalErrorException(e);
 	  }
-	  
+
   }
-  
+
   public List<Pair<String, String>> getUsersReservedLogins(User user) {
-	  
+
 	  List<Pair<String, String>> result = new ArrayList<Pair<String,String>>();
-	  
+
 	  List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
 		  @Override
 		  public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
 			  return rs.getInt("id");
 		  }
 	  },user.getId());
-	  
+
 	  for (Integer id : ids) {
-		  
+
 		  result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
 			  @Override
 			  public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
 				  return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
 			  }
 		  }, id));
- 
+
 	  }
-	  
+
 	  return result;
-	  
+
   }
-  
+
   public void deleteUsersReservedLogins(User user) {
-	  
+
 	  List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
 		  @Override
 		  public Integer mapRow(ResultSet rs, int arg1)
@@ -851,13 +858,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			  return rs.getInt("id");
 		  }
 	  },user.getId());
-	  
+
 	  for (Integer id : ids) {
-		  
+
 		  jdbc.update("delete from application_reserved_logins where app_id=?", id);
- 
+
 	  }
-	  
+
   }
 
   public int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException {
@@ -948,7 +955,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
   }
-  
+
   private synchronized static String utftoasci(String s){
     final StringBuffer sb = new StringBuffer( s.length() * 2 );
 
@@ -994,7 +1001,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       if(Character.toString(ch).equals("ú")){sb.append("u");f=true;}
       if(Character.toString(ch).equals("ů")){sb.append("u");f=true;}
       if(Character.toString(ch).equals(" ")){sb.append(" ");f=true;}
-      
+
       if(!f){
        sb.append("?");
       }
