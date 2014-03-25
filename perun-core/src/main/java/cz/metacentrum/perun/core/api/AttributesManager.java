@@ -1650,6 +1650,30 @@ public interface AttributesManager {
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException;
   
   /**
+   * Get group_resource attributes which are required by services defined on specified resource
+   * Get also group attributes, if workWithGroupAttributes is true.
+   * 
+   * PRIVILEGE: Get only those required attributes principal has access to.
+   * 
+   * @param sess
+   * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
+   * @param group
+   * @param resource
+   * @param workWithGroupAttributes if true, get also group required attributes
+   * 
+   * @return list of group_resource and (if workWithGroupAttributes is true) group required attributes
+   * 
+   * @throws PrivilegeException
+   * @throws InternalErrorException
+   * @throws ResourceNotExistsException
+   * @throws GroupNotExistsException 
+   * @throws GroupResourceMismatchException
+   * @throws WrongAttributeAssignmentException
+   * 
+   */
+  List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws WrongAttributeAssignmentException, PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException;
+  
+  /**
    * Get member-resource attributes which are required by services which are relater to this member-resource.
    * 
    * PRIVILEGE: Get only those required attributes principal has access to.
