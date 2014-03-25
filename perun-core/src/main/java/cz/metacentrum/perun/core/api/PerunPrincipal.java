@@ -19,11 +19,11 @@ public class PerunPrincipal {
   private int extSourceLoa = 0; // 0 by default
   private User user; 
   // Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
-  private AuthzRoles authzRoles = new AuthzRoles();
+  private volatile AuthzRoles authzRoles = new AuthzRoles();
   // Map contains additional attributes, e.g. from authentication system  
   private Map<String, String> additionalInformations = new HashMap<String, String>();
   // Specifies if the principal has initialized authZResolver
-  private boolean authzInitialized = false;
+  private volatile boolean authzInitialized = false;
 
   /**
    * Creates a new instance for a given string.

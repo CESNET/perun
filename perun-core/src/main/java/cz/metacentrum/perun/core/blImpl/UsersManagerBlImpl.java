@@ -361,9 +361,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new ConsistencyErrorException(ex);
     }
 
-    // TODO
-    // Remove all authz entries
-    // AuthzResolverImpl.removeAllAuthz
+    //Remove user authz
+    AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
     
     // Finally delete the user
     if(user.isServiceUser()) {
@@ -685,7 +684,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
-    getUsersManagerImpl().makeUserPerunAdmin(sess, user);
+    AuthzResolverBlImpl.makeUserPerunAdmin(sess, user);
   }
 
   public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {

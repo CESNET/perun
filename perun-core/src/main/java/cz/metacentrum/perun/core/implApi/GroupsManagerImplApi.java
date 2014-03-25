@@ -261,51 +261,6 @@ public interface GroupsManagerImplApi {
    */
   List<Group> getSubGroups(PerunSession perunSession, Group parentGroup) throws InternalErrorException;
 
-  /** Adds an administrator of the group.
-   * 
-   * @param perunSession
-   * @param group
-   * @param user
-   * 
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException;
-
-  /** Adds a group administrator to the group.
-   * 
-   * @param perunSession
-   * @param group group that will be assigned admins (users) from authorizedGroup
-   * @param authorizedGroup group that will be given the privilege
-   * 
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession perunSession, Group group,  Group authorizedGroup) throws InternalErrorException, AlreadyAdminException;
-
-  /** Removes an administrator form the group.
-   * 
-   * @param perunSession
-   * @param group
-   * @param user
-   * 
-   * @throws InternalErrorException
-   * @throws UserNotAdminException
-   */
-  void removeAdmin(PerunSession perunSession, Group group, User user) throws InternalErrorException, UserNotAdminException;
-
-  
-  /** Removes a group administrator of the group.
-   * 
-   * @param perunSession
-   * @param group
-   * @param authorizedGroup group that will be removed the privilege
-   * 
-   * @throws InternalErrorException
-   * @throws GroupNotAdminException
-   */
-  void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
-
   /** Gets list of all administrators of this group.
    * If some group is administrator of the given group, all members are included in the list.
    * 

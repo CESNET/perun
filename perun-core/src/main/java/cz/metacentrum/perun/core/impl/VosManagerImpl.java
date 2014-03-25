@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
 import java.util.HashSet;
 import java.util.Set;
@@ -136,7 +137,7 @@ public class VosManagerImpl implements VosManagerImplApi {
   public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
     try {  
       // Delete authz entries for this VO
-      jdbc.update("delete from authz where vo_id=?", vo.getId());
+      AuthzResolverBlImpl.removeAllAuthzForVo(sess, vo);
       
       if (jdbc.update("delete from vos where id=?", vo.getId()) == 0) {
         throw new ConsistencyErrorException("no record was deleted from the DB.");
@@ -211,50 +212,6 @@ public class VosManagerImpl implements VosManagerImplApi {
       }   catch (RuntimeException ex) {
         throw new InternalErrorException(ex);
       }
-  }
-  
-  public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(), 
-          Role.VOADMIN.getRoleName(), vo.getId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in vo " + vo, e, user, vo);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-  
-  @Override
-  public void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (role_id, vo_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
-          Role.VOADMIN.getRoleName(), vo.getId(), group.getId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in vo " + vo, e, group, vo);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-  
-  public void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
-    try {
-      if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), Role.VOADMIN.getRoleName())) {
-        throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the vo " + vo);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-  
-  @Override
-  public void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
-    try {
-      if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), Role.VOADMIN.getRoleName())) {
-        throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the vo " + vo);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
   }
   
   public boolean voExists(PerunSession sess, Vo vo) throws InternalErrorException {

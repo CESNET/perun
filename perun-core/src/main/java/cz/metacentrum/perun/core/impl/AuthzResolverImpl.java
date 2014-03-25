@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,12 +25,18 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 public class AuthzResolverImpl implements AuthzResolverImplApi {
@@ -174,5 +181,180 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       } catch (RuntimeException e) {
           throw new InternalErrorException(e);
       }
+  }
+
+  public void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException {
+    try {
+      jdbc.update("delete from authz where vo_id=?", vo.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+  
+  public void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
+    try {
+      jdbc.update("delete from authz where group_id=?", group.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+  
+  public void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+    try {
+      jdbc.update("delete from authz where facility_id=?", facility.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }    
+  }
+  
+  public void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException {
+    try {
+      jdbc.update("delete from authz where resource_id=?", resource.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }    
+  }
+  
+  public void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException {
+    try {
+      jdbc.update("delete from authz where service_id=?", service.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }    
+  }
+  
+  public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
+    try {
+      jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the facility " + facility, e, user, facility);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
+    try {
+      jdbc.update("insert into authz (authorized_group_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the facility " + facility, e, group, facility);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where user_id=? and facility_id=? and role_id=(select id from roles where name=?)", user.getId(), facility.getId(), Role.FACILITYADMIN.getRoleName())) {
+        throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the facility " + facility);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where authorized_group_id=? and facility_id=? and role_id=(select id from roles where name=?)", group.getId(), facility.getId(), Role.FACILITYADMIN.getRoleName())) {
+        throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the facility " + facility);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
+    try {
+      // Add GROUPADMIN role + groupId and voId
+      jdbc.update("insert into authz (user_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)", 
+          user.getId(), Role.GROUPADMIN.getRoleName(), group.getId(), group.getVoId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in group " + group, e, user, group);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
+    try {
+      jdbc.update("insert into authz (authorized_group_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)", 
+          authorizedGroup.getId(), Role.GROUPADMIN.getRoleName(), group.getId(), group.getVoId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("Group id=" + authorizedGroup.getId() + " is already group admin in group " + group, e, authorizedGroup, group);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where user_id=? and group_id=? and role_id=(select id from roles where name=?)", 
+          user.getId(), group.getId(), Role.GROUPADMIN.getRoleName())) {
+        throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the group " + group);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where authorized_group_id=? and group_id=? and role_id=(select id from roles where name=?)", 
+          authorizedGroup.getId(), group.getId(), Role.GROUPADMIN.getRoleName())) {
+        throw new GroupNotAdminException("Group id=" + authorizedGroup.getId() + " is not admin of the group " + group);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }  
+  
+  public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+    try {
+      jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(), 
+          Role.VOADMIN.getRoleName(), vo.getId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in vo " + vo, e, user, vo);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  public void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+    try {
+      jdbc.update("insert into authz (role_id, vo_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
+          Role.VOADMIN.getRoleName(), vo.getId(), group.getId());
+    } catch (DataIntegrityViolationException e) {
+      throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in vo " + vo, e, group, vo);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), Role.VOADMIN.getRoleName())) {
+        throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the vo " + vo);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  public void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+    try {
+      if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), Role.VOADMIN.getRoleName())) {
+        throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the vo " + vo);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+  
+  public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+    try {
+      jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNADMIN.getRoleName());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
   }
 }

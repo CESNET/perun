@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.HashSet;
 import java.util.Set;
@@ -137,7 +138,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityAlreadyRemovedException {
     try {
       // Delete authz entries for this facility
-      jdbc.update("delete from authz where facility_id=?", facility.getId());
+      AuthzResolverBlImpl.removeAllAuthzForFacility(sess, facility);
       
       // Delete user-facility attributes - members are already deleted because all resources were removed
       jdbc.update("delete from user_facility_attr_values where facility_id=?", facility.getId());
@@ -388,48 +389,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
    */
   public void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException {
     if(!facilityExists(sess, facility)) throw new FacilityNotExistsException("Facility: " + facility);
-  }
-
-  public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the facility " + facility, e, user, facility);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-  
-  @Override
-   public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (authorized_group_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the facility " + facility, e, group, facility);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
-    try {
-      if (0 == jdbc.update("delete from authz where user_id=? and facility_id=? and role_id=(select id from roles where name=?)", user.getId(), facility.getId(), Role.FACILITYADMIN.getRoleName())) {
-        throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the facility " + facility);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-  
-  @Override
-  public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
-    try {
-      if (0 == jdbc.update("delete from authz where authorized_group_id=? and facility_id=? and role_id=(select id from roles where name=?)", group.getId(), facility.getId(), Role.FACILITYADMIN.getRoleName())) {
-        throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the facility " + facility);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
   }
 
   public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException {

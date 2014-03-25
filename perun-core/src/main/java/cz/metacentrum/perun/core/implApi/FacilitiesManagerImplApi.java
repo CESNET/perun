@@ -393,51 +393,6 @@ public interface FacilitiesManagerImplApi {
   List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException;   
   
   /**
-   * Adds user administrator to the Facility.
-   * 
-   * @param sess
-   * @param facility
-   * @param user
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException;
-  
-   
-  /**
-   * Adds group administrator to the Facility.
-   * 
-   * @param sess
-   * @param facility
-   * @param group
-   * @throws InternalErrorException
-   * @throws AlreadyAdminException
-   */
-  void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException;
- 
-  /**
-   * Removes a user administrator from the Facility.
-   * 
-   * @param sess
-   * @param facility
-   * @param user
-   * @throws InternalErrorException
-   * @throws UserNotAdminException
-   */
-  void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException;
-  
-   /**
-   * Removes a group administrator from the Facility.
-   * 
-   * @param sess
-   * @param facility
-   * @param group
-   * @throws InternalErrorException
-   * @throws GroupNotAdminException
-   */
-  void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException;
-
-  /**
    * Gets list of all user administrators of the Facility.
    * If some group is administrator of the given group, all members are included in the list.
    * 

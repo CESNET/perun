@@ -532,7 +532,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
   
   public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
-    facilitiesManagerImpl.addAdmin(sess, facility, user);
+    AuthzResolverBlImpl.addAdmin(sess, facility, user);
     getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, facility);
   }
   
@@ -541,12 +541,12 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
       List<Group> listOfAdmins = getAdminGroups(sess, facility);
       if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
       
-      facilitiesManagerImpl.addAdmin(sess, facility, group);
+      AuthzResolverBlImpl.addAdmin(sess, facility, group);
       getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, facility);
   }
   
   public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
-    facilitiesManagerImpl.removeAdmin(sess, facility, user);
+    AuthzResolverBlImpl.removeAdmin(sess, facility, user);
     getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, facility);
   }
   
@@ -555,7 +555,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
       List<Group> listOfAdmins = getAdminGroups(sess, facility);
       if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
       
-      facilitiesManagerImpl.removeAdmin(sess, facility, group);
+      AuthzResolverBlImpl.removeAdmin(sess, facility, group);
       getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, facility);
   }
   

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +24,22 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -48,7 +52,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private final static Logger log = LoggerFactory.getLogger(AuthzResolverBlImpl.class);
   private static AuthzResolverImplApi authzResolverImpl;
   private static PerunBlImpl perunBlImpl;
-
+  
   /**
    * Retrieves information about the perun principal (in which VOs the principal is admin, ...)
    * 
@@ -56,65 +60,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @throws InternalErrorException 
    */
   protected static void init(PerunSession sess) throws InternalErrorException {
-
+      
     log.trace("Initializing AuthzResolver for [{}]", sess.getPerunPrincipal());
-
-    // Load list of perunAdmins from the configuration, split the list by the comma
-    List<String> perunAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
-
-    // Check if the PerunPrincipal is in a group of Perun Admins
-    if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-      sess.getPerunPrincipal().setAuthzInitialized(true);
-      // We can quit, because perun admin has all privileges
-      log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
-      return;
-    }  
-
-    String perunRpcAdmin = Utils.getPropertyFromConfiguration("perun.rpc.principal");
-    if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
-      log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
-    }
-
-    List<String> perunServiceAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.service.principals").split("[ \t]*,[ \t]*")));
-    if (perunServiceAdmins.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICE);
-      log.trace("AuthzResolver.init: Perun Service {} loaded", perunServiceAdmins);
-    }
-
-    List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
-    if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
-      log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
-    }
-
-    List<String> perunSynchronizers = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.synchronizer.principals").split("[ \t]*,[ \t]*")));
-    if (perunSynchronizers.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SYNCHRONIZER);
-      log.trace("AuthzResolver.init: Perun Synchronizer {} loaded", perunSynchronizers);
-    }
     
-    List<String> perunNotifications = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
-    if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
-      
-      //FIXME ted pridame i roli plneho admina
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-      
-      log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
-    }
-
-    List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
-    if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
-
-      //FIXME ted pridame i roli plneho admina
-      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-
-      log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
-    }
-
+    //Prepare service roles like engine, service, registrar, perunAdmin etc.
+    prepareServiceRoles(sess);
+    
     if (!sess.getPerunPrincipal().getRoles().isEmpty()) {
       // We have some of the service principal, so we can quit
       sess.getPerunPrincipal().setAuthzInitialized(true);
@@ -138,6 +89,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
     sess.getPerunPrincipal().setAuthzInitialized(true);
     log.debug("AuthzResolver: Complete PerunPrincipal: {}", sess.getPerunPrincipal());
+  }
+  
+  private static AuthzRoles getRoles(PerunSession sess) throws InternalErrorException {
+      if(sess == null || sess.getPerunPrincipal() == null || sess.getPerunPrincipal().getUser() == null) {
+          return new AuthzRoles();
+      }
+      AuthzRoles authzRoles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(sess.getPerunPrincipal().getUser()));
+      return authzRoles;
   }
 
   public static boolean isAuthorized(PerunSession sess, Role role, PerunBean complementaryObject) throws InternalErrorException {
@@ -686,20 +645,26 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       throw new InternalErrorException(e);
     }
   }
-
-  public static void refreshAuthz(PerunSession sess) throws InternalErrorException {
+  
+  public static synchronized void refreshAuthz(PerunSession sess) throws InternalErrorException {
     Utils.checkPerunSession(sess);
+    log.debug("Refreshing authz roles for session {}.", sess);
     
-    if (sess.getPerunPrincipal().isAuthzInitialized()) {
-      log.debug("Refreshing authz roles for session {}.", sess);
-      sess.getPerunPrincipal().getRoles().clear();
-      sess.getPerunPrincipal().setAuthzInitialized(false);
-      init(sess);
-    } else {
-      log.debug("Authz roles for session {} haven't been initialized yet, doing initialization.", sess);
-      init(sess);
+    sess.getPerunPrincipal().setRoles(AuthzResolverBlImpl.getRoles(sess));
+    prepareServiceRoles(sess);
+    
+    // Add self role for the user
+    if (sess.getPerunPrincipal().getUser() != null) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SELF, sess.getPerunPrincipal().getUser());
+      
+      // Add service user role
+      if (sess.getPerunPrincipal().getUser().isServiceUser()) {
+        sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICEUSER);
+      }
     }
-  }
+    
+    sess.getPerunPrincipal().setAuthzInitialized(true);
+ }
 
   /**
    * For role GroupAdmin with association to "Group" add also all subgroups to authzRoles.
@@ -735,6 +700,101 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
     return authzRoles;
   }
+
+  public static void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForVo(sess, vo);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException {
+    authzResolverImpl.removeAllUserAuthz(sess, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForGroup(sess, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForFacility(sess, facility);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForResource(sess, resource);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException {
+    authzResolverImpl.removeAllAuthzForService(sess, service);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, facility, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, facility, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+  
+  public static void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, facility, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, facility, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+ 
+  public static void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, group, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);   
+  }
+  
+  public static void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, group, authorizedGroup);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, group, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);  
+  }
+  
+  public static void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, group, authorizedGroup);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, vo, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+    authzResolverImpl.addAdmin(sess, vo, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+    authzResolverImpl.removeAdmin(sess, vo, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+
+  public static void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+    authzResolverImpl.removeAdmin(sess, vo, group);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
+  
+  public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+    authzResolverImpl.makeUserPerunAdmin(sess, user);
+    AuthzResolverBlImpl.refreshAuthz(sess);
+  }
   
   // Filled by Spring
   public static AuthzResolverImplApi setAuthzResolverImpl(AuthzResolverImplApi authzResolverImpl) {
@@ -750,5 +810,69 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   
   public static PerunBlImpl getPerunBlImpl() {
       return perunBlImpl;
+  }
+  
+  /**
+   * Prepare service roles to session AuthzRoles (perunadmin, service, rpc, engine etc.)
+   * 
+   * @param sess use session to add roles
+   * @throws InternalErrorException 
+   */
+  private static void prepareServiceRoles(PerunSession sess) throws InternalErrorException {
+     // Load list of perunAdmins from the configuration, split the list by the comma
+    List<String> perunAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
+
+    // Check if the PerunPrincipal is in a group of Perun Admins
+    if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
+      sess.getPerunPrincipal().setAuthzInitialized(true);
+      // We can quit, because perun admin has all privileges
+      log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
+      return;
+    }  
+
+    String perunRpcAdmin = Utils.getPropertyFromConfiguration("perun.rpc.principal");
+    if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
+      log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
+    }
+
+    List<String> perunServiceAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.service.principals").split("[ \t]*,[ \t]*")));
+    if (perunServiceAdmins.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICE);
+      log.trace("AuthzResolver.init: Perun Service {} loaded", perunServiceAdmins);
+    }
+
+    List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
+    if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
+      log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
+    }
+
+    List<String> perunSynchronizers = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.synchronizer.principals").split("[ \t]*,[ \t]*")));
+    if (perunSynchronizers.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SYNCHRONIZER);
+      log.trace("AuthzResolver.init: Perun Synchronizer {} loaded", perunSynchronizers);
+    }
+    
+    List<String> perunNotifications = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
+    if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
+      
+      //FIXME ted pridame i roli plneho admina
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
+      
+      log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
+    }
+
+    List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
+    if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
+
+      //FIXME ted pridame i roli plneho admina
+      sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
+
+      log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
+    }  
   }
 }
