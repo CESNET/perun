@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
+import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -257,27 +258,25 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
                     if (memChb.getValue() == true) {
                         // to all members selected
-                        Confirm c = new Confirm("Warning",
-                                new HTML("<p>Same value(s) for selected attribute(s) will be set to ALL members of group. Do you want to continue ?"),
-                                // ok click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    ArrayList<RichMember> memList = membersDropDown.getAllObjects();
-                                    for (int i=0; i<memList.size(); i++){
-                                        SetAttributes request = new SetAttributes();
-                                        if (i == memList.size()-1) {
-                                            request.setEvents(events);
-                                        } else {
-                                            request.setEvents(JsonCallbackEvents.disableButtonEvents(saveChangesButton));
+                        UiElements.generateInfo(WidgetTranslation.INSTANCE.saveConfirmTitle(),"Same value(s) for selected attribute(s) will be set to ALL members of group.",
+                                new ClickHandler() {
+                                    public void onClick(ClickEvent event) {
+                                        ArrayList<RichMember> memList = membersDropDown.getAllObjects();
+                                        for (int i=0; i<memList.size(); i++){
+                                            SetAttributes request = new SetAttributes();
+                                            if (i == memList.size()-1) {
+                                                request.setEvents(events);
+                                            } else {
+                                                request.setEvents(JsonCallbackEvents.disableButtonEvents(saveChangesButton));
+                                            }
+                                            Map<String, Integer> ids = new HashMap<String, Integer>();
+                                            ids.put("member", memList.get(i).getId());
+                                            ids.put("workWithUserAttributes", 1);
+                                            request.setAttributes(ids, list);
                                         }
-                                        Map<String, Integer> ids = new HashMap<String, Integer>();
-                                        ids.put("member", memList.get(i).getId());
-                                        ids.put("workWithUserAttributes", 1);
-                                        request.setAttributes(ids, list);
                                     }
-                                }},true);
-                        c.setNonScrollable(true);
-                        c.show();
-
+                                }
+                        );
                     } else {
                         // just one group / memeber
                         SetAttributes request = new SetAttributes(events);
@@ -307,6 +306,9 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
                             if (ids.containsKey("user")) {
                                 ids.put("workWithUserAttributes", 1);
                             }
+                            if (ids.containsKey("resource") && ids.containsKey("group")) {
+                                ids.put("workWithGroupAttributes", 1);
+                            }
                             reqAttrs.setIds(ids);
                             reqAttrs.retrieveData();
                         }
@@ -316,27 +318,25 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
                     if (memChb.getValue() == true) {
                         // to all members selected
-                        Confirm c = new Confirm("Warning",
-                                new Label("Same value(s) for selected attribute(s) will be set to ALL members of group. Do you want to continue ?"),
-                                // ok click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    ArrayList<RichMember> memList = membersDropDown.getAllObjects();
-                                    for (int i=0; i<memList.size(); i++){
-                                        if (i==0) { events.onLoadingStart(); } // trigger disable button if first
-                                        Map<String, Integer> ids = new HashMap<String, Integer>();
-                                        ids.put("member", memList.get(i).getId());
-                                        ids.put("user", memList.get(i).getUserId());
-                                        ids.put("resource", resourceDropDown.getSelectedObject().getId());
-                                        ids.put("facility", resourceDropDown.getSelectedObject().getFacilityId());
-                                        if (i==memList.size()-1) { request.setEvents(events); } // set events to last to get refresh and button enable
-                                        request.setAttributes(ids, list);
-                                    }
-                                }},
-                                // cancel click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    return; // do nothing
-                                }},true);
-                        c.show();
+                        UiElements.generateInfo(WidgetTranslation.INSTANCE.saveConfirmTitle(),"Same value(s) for selected attribute(s) will be set to ALL members of group.", new ClickHandler() {
+                            public void onClick(ClickEvent event) {
+                                ArrayList<RichMember> memList = membersDropDown.getAllObjects();
+                                for (int i = 0; i < memList.size(); i++) {
+                                    if (i == 0) {
+                                        events.onLoadingStart();
+                                    } // trigger disable button if first
+                                    Map<String, Integer> ids = new HashMap<String, Integer>();
+                                    ids.put("member", memList.get(i).getId());
+                                    ids.put("user", memList.get(i).getUserId());
+                                    ids.put("resource", resourceDropDown.getSelectedObject().getId());
+                                    ids.put("facility", resourceDropDown.getSelectedObject().getFacilityId());
+                                    if (i == memList.size() - 1) {
+                                        request.setEvents(events);
+                                    } // set events to last to get refresh and button enable
+                                    request.setAttributes(ids, list);
+                                }
+                            }
+                        });
                     } else {
                         // group or member
                         request.setEvents(events); // disable button events
@@ -364,25 +364,17 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
                     if (memChb.getValue() == true) {
                         // to all members selected
-                        Confirm c = new Confirm("Warning",
-                                new Label("Selected attribute(s) will be removed from ALL members of group. Do you want to continue ?"),
-                                // ok click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    ArrayList<RichMember> memList = membersDropDown.getAllObjects();
-                                    for (int i=0; i<memList.size(); i++){
-                                        if (i==0) { events.onLoadingStart(); } // trigger disable button if first
-                                        Map<String, Integer> ids = new HashMap<String, Integer>();
-                                        ids.put("member", memList.get(i).getId());
-                                        ids.put("workWithUserAttributes", 1);
-                                        if (i==memList.size()-1) { request.setEvents(events); } // set events to last to get refresh and button enable
-                                        request.removeAttributes(ids, list);
-                                    }
-                                }},
-                                // cancel click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    return; // do nothing
-                                }},true);
-                        c.show();
+                        UiElements.generateInfo(WidgetTranslation.INSTANCE.deleteConfirmTitle(),"Selected attribute(s) will be removed from ALL members of group.", new ClickHandler() {
+                            public void onClick(ClickEvent event) {
+                                ArrayList<RichMember> memList = membersDropDown.getAllObjects();
+                                for (int i=0; i<memList.size(); i++){
+                                    if (i==0) { events.onLoadingStart(); } // trigger disable button if first
+                                    Map<String, Integer> ids = new HashMap<String, Integer>();
+                                    ids.put("member", memList.get(i).getId());
+                                    ids.put("workWithUserAttributes", 1);
+                                    if (i==memList.size()-1) { request.setEvents(events); } // set events to last to get refresh and button enable
+                                    request.removeAttributes(ids, list);
+                                }}});
                     } else {
                         // just one group / memeber
                         request.setEvents(events); // disable button events
@@ -412,6 +404,9 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
                             if (ids.containsKey("user")) {
                                 ids.put("workWithUserAttributes", 1);
                             }
+                            if (ids.containsKey("resource") && ids.containsKey("group")) {
+                                ids.put("workWithGroupAttributes", 1);
+                            }
                             reqAttrs.setIds(ids);
                             reqAttrs.retrieveData();
                         }
@@ -421,29 +416,24 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
                     if (memChb.getValue() == true) {
                         // to all members selected
-                        Confirm c = new Confirm("Warning",
-                                new Label("Selected attribute(s) will be removed from ALL members of group. Do you want to continue ?"),
-                                // ok click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    ArrayList<RichMember> memList = membersDropDown.getAllObjects();
-                                    for (int i=0; i<memList.size(); i++){
-                                        if (i==0) { events.onLoadingStart(); } // trigger disable button if first
-                                        Map<String, Integer> ids = new HashMap<String, Integer>();
-                                        ids.put("member", memList.get(i).getId());
-                                        ids.put("user", memList.get(i).getUserId());
-                                        ids.put("resource", resourceDropDown.getSelectedObject().getId());
-                                        ids.put("facility", resourceDropDown.getSelectedObject().getFacilityId());
-                                        if (i==memList.size()-1) { request.setEvents(events); } // set events to last to get refresh and button enable
-                                        request.removeAttributes(ids, list);
-                                    }
-                                }},
-                                // cancel click handler
-                                new ClickHandler(){public void onClick(ClickEvent event) {
-                                    return; // do nothing
-                                }},true);
-                        c.show();
+                        UiElements.generateInfo(WidgetTranslation.INSTANCE.deleteConfirmTitle(), "Selected attribute(s) will be removed from ALL members of group.", new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent event) {
+                                ArrayList<RichMember> memList = membersDropDown.getAllObjects();
+                                for (int i=0; i<memList.size(); i++){
+                                    if (i==0) { events.onLoadingStart(); } // trigger disable button if first
+                                    Map<String, Integer> ids = new HashMap<String, Integer>();
+                                    ids.put("member", memList.get(i).getId());
+                                    ids.put("user", memList.get(i).getUserId());
+                                    ids.put("resource", resourceDropDown.getSelectedObject().getId());
+                                    ids.put("facility", resourceDropDown.getSelectedObject().getFacilityId());
+                                    if (i==memList.size()-1) { request.setEvents(events); } // set events to last to get refresh and button enable
+                                    request.removeAttributes(ids, list);
+                                }
+                            }
+                        });
                     } else {
-                        // just one group / memeber
+                        // just one group / member
                         request.setEvents(events); // disable button events
                         request.removeAttributes(reqAttrs.getIds(), list);
                     }
@@ -468,6 +458,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
                     } else {
                         ids.put("resource", resourceDropDown.getSelectedObject().getId());
                         ids.put("group", groupId);
+                        ids.put("workWithGroupAttributes", 1);
                     }
                 } else {
                     if (membersDropDown.getSelectedIndex() > 0) {
@@ -535,6 +526,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
                     ids.put("group", groupId);
                     ids.put("resource", resourceDropDown.getSelectedObject().getId());
                     ids.put("resourceToGetServicesFrom", ids.get("resource"));
+                    ids.put("workWithGroupAttributes", 1);
                     reqAttrs.setIds(ids);
                     reqAttrs.retrieveData();
                     // set ids back to make saveChanges work

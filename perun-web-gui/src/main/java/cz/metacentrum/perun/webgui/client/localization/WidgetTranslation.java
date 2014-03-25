@@ -222,4 +222,9 @@ public interface WidgetTranslation extends Messages {
     @DefaultMessage("Form doesn`t exists, do you wish to create new one ?")
     String formDoesntExists();
 
+     /* SAVE CONFIRM WIDGET */
+
+    @DefaultMessage("Confirm save action")
+    String saveConfirmTitle();
+
 }

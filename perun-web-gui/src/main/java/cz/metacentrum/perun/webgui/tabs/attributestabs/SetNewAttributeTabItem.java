@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -86,7 +85,7 @@ public class SetNewAttributeTabItem implements TabItem {
         VerticalPanel mainTab = new VerticalPanel();
         mainTab.setSize("100%","100%");
 
-        // correct IDS
+        // correct IDS for getting attrDefs
         if (ids.containsKey("resourceToGetServicesFrom")) {
             if (!ids.containsKey("resource")){
                 ids.put("resource", ids.get("resourceToGetServicesFrom"));
@@ -95,6 +94,9 @@ public class SetNewAttributeTabItem implements TabItem {
         }
         if (ids.containsKey("workWithUserAttributes")) {
             ids.remove("workWithUserAttributes");
+        }
+        if (ids.containsKey("workWithGroupAttributes")) {
+            ids.remove("workWithGroupAttributes");
         }
 
         // set tab name
@@ -111,7 +113,7 @@ public class SetNewAttributeTabItem implements TabItem {
             entityIds = entityIds.concat(" "+item.getKey() + ": "+item.getValue());
         }
         HTML helper = new HTML();
-        String helperInside = "<p>Enter new values inside textboxes and press Enter key. Confirm changes by clicking on \"Save changes\" button. Values will be set for<strong>"+entityIds+".</strong></p>";
+        String helperInside = "<p>Enter new values and press Enter key. Save changes by clicking on \"Save changes\" button. Values will be set for<strong>"+entityIds+".</strong></p>";
         helper.setHTML(helperInside);
 
         // callback
@@ -235,7 +237,8 @@ public class SetNewAttributeTabItem implements TabItem {
                         ArrayList sendList = new ArrayList();
                         sendList.addAll(groupList);
                         sendList.addAll(groupResourceList);
-
+                        // call proper method in RPC
+                        ids.put("workWithGroupAttributes", 1);
                         request.setAttributes(ids, sendList);
 
                     } else if (ids.size() == 2 && ids.containsKey("member") && ids.containsKey("user")) {
@@ -277,8 +280,7 @@ public class SetNewAttributeTabItem implements TabItem {
 
                     } else {
 
-                        // TODO
-                        Window.alert("Unsupported combination of attributes to set.");
+                        UiElements.generateAlert("Wrong entities combination", "Unsupported combination of attributes to set.");
 
                     }
 
@@ -326,9 +328,8 @@ public class SetNewAttributeTabItem implements TabItem {
     }
 
     public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.scriptAddIcon();
+        return SmallIcons.INSTANCE.addIcon();
     }
-
 
     @Override
     public int hashCode() {
@@ -338,9 +339,6 @@ public class SetNewAttributeTabItem implements TabItem {
         return result;
     }
 
-    /**
-     * @param obj
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -358,8 +356,6 @@ public class SetNewAttributeTabItem implements TabItem {
     public boolean multipleInstancesEnabled() {
         return false;
     }
-
-
 
     /**
      * Returns the namespaces available for the entities (it's not exact complete set,
@@ -411,9 +407,7 @@ public class SetNewAttributeTabItem implements TabItem {
         return namespaces;
     }
 
-
-    public void open()
-    {
+    public void open() {
 
     }
 

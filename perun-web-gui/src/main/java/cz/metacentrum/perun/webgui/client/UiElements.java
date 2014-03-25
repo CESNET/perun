@@ -275,8 +275,9 @@ public class UiElements {
      *
      * @param header
      * @param text
+     * @param okClickHandler
      */
-    static public void generateAlert(String header, String text, ClickHandler handler) {
+    static public void generateAlert(String header, String text, ClickHandler okClickHandler) {
 
         FlexTable layout = new FlexTable();
 
@@ -287,7 +288,7 @@ public class UiElements {
         layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
         layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
 
-        Confirm c = new Confirm(header, layout, handler, true);
+        Confirm c = new Confirm(header, layout, okClickHandler, true);
         c.setNonScrollable(true);
         c.show();
 
@@ -312,6 +313,31 @@ public class UiElements {
         layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
 
         Confirm c = new Confirm(header, layout, true);
+        c.setNonScrollable(true);
+        c.show();
+
+    }
+
+    /**
+     * Generates standardized info box for info messages based on passed params
+     * It's used for GUI internal events, not for errors from RPC.
+     *
+     * @param header
+     * @param text
+     * @param okClickHandler
+     */
+    static public void generateInfo(String header, String text, ClickHandler okClickHandler) {
+
+        FlexTable layout = new FlexTable();
+
+        layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+        layout.setHTML(0, 1, "<p>" + text);
+
+        layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+        layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+        layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+        Confirm c = new Confirm(header, layout, okClickHandler, true);
         c.setNonScrollable(true);
         c.show();
 
