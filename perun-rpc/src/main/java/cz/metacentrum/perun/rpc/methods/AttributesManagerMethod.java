@@ -1613,8 +1613,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					Member member = ac.getMemberById(parms.readInt("member"));
 					ac.getAttributesManager().removeAttributes(ac.getSession(), resource, member, attributes);
                                 } else if (parms.contains("group")) {
-                                        Group group = ac.getGroupById(parms.readInt("group"));
-        				ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes);
+                                            Group group = ac.getGroupById(parms.readInt("group"));
+                                        if (parms.contains("workWithGroupAttributes")) {
+                                            ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, parms.readInt("workWithGroupAttributes") == 1 );
+                                        } else {                                            
+                                            ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes);
+                                        }
 				} else {
 					ac.getAttributesManager().removeAttributes(ac.getSession(), resource, attributes);
 				}
@@ -1841,9 +1845,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getMemberById(parms.readInt("member")));
 					return null;
 				}else if(parms.contains("group")) {
-					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-							ac.getResourceById(parms.readInt("resource")),
-							ac.getGroupById(parms.readInt("group")));
+                                        if (parms.contains("workWithGroupAttributes")) {
+                                            ac.getAttributesManager().removeAllAttributes(ac.getSession(),
+                                                		ac.getResourceById(parms.readInt("resource")),
+                                                        	ac.getGroupById(parms.readInt("group")),
+                                                                parms.readInt("workWithGroupAttributes") == 1);
+                                        } else {
+                                            ac.getAttributesManager().removeAllAttributes(ac.getSession(),
+                                                		ac.getResourceById(parms.readInt("resource")),
+                                                        	ac.getGroupById(parms.readInt("group")));
+                                        }
 					return null;
 				} else {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),

@@ -2031,6 +2031,47 @@ public interface AttributesManagerBl {
    */
   void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException,  WrongReferenceAttributeValueException;
 
+    /**
+   * Unset the group_resource attributes. If an attribute is core attribute, then the attribute isn't unseted (it's skipped without notification).
+   * If workWithGroupAttributes is true, unset also group attributes.
+   * 
+   * Remove only attributes which are in list of attributes.
+   * 
+   * PRIVILEGE: Remove attributes only when principal has access to write on them.
+   * 
+   * @param sess perun session
+   * @param group group to set on
+   * @param resource resource to set on
+   * @param attributes attributes which will be used to removing
+   * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
+   * 
+   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+   * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+   * @throws WrongAttributeAssignmentException if attribute is not group-resource or group attribute
+   * @throws WrongAttributeValueException if the attribute value is illegal
+   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value 
+   */
+  void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+  
+  /**
+   * Unset all attributes for the group and resource.
+   * If workWithGroupAttributes is true, remove also all group attributes.
+   * 
+   * PRIVILEGE: Remove attributes only when principal has access to write on them.
+   * 
+   * @param sess perun session
+   * @param group group to set on
+   * @param resource resource to set on
+   * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
+   * 
+   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value is illegal
+   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value 
+   * @throws WrongAttributeAssignmentException if attribute is not group-resource or group attribute
+   */
+  void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+  
+  
   /**
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession,Facility,AttributeDefinition)
