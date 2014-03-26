@@ -5416,6 +5416,58 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find vo attribute on facility
 
 	}
+        
+        @Test
+	public void removeAllGroupResourceAndGroupAttributes() throws Exception {
+		System.out.println("attributesManager.removeAllGroupResourceAttributes");
+
+                vo = setUpVo();
+		facility = setUpFacility();
+                resource = setUpResource();
+                group = setUpGroup();
+                
+		attributes = setUpGroupResourceAttribute();
+                attributes.addAll(setUpGroupAttribute());
+                
+		attributesManager.setAttributes(sess, resource, group, attributes, true);
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, group, true);
+                for(Attribute a: attributes) {
+                    assertTrue("our group or group and resource has set this attribute", retAttr.contains(a));
+                }
+                
+                //remove all of them
+                attributesManager.removeAllAttributes(sess, resource, group, true);
+                retAttr = attributesManager.getAttributes(sess, resource, group, true);
+                for(Attribute a: attributes) {
+                    assertFalse("our group or group and resource has not set this attribute", retAttr.contains(a));
+                }               
+	}
+        
+        @Test
+	public void removeGroupResourceAndGroupAttributes() throws Exception {
+		System.out.println("attributesManager.removeAllGroupResourceAttributes");
+
+                vo = setUpVo();
+		facility = setUpFacility();
+                resource = setUpResource();
+                group = setUpGroup();
+                
+		attributes = setUpGroupResourceAttribute();
+                attributes.addAll(setUpGroupAttribute());
+                
+		attributesManager.setAttributes(sess, resource, group, attributes, true);
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, group, true);
+                for(Attribute a: attributes) {
+                    assertTrue("our group or group and resource has set this attribute", retAttr.contains(a));
+                }
+                
+                //remove all of them
+                attributesManager.removeAttributes(sess, resource, group, attributes, true);
+                retAttr = attributesManager.getAttributes(sess, resource, group, true);
+                for(Attribute a: attributes) {
+                    assertFalse("our group or group and resource has not set this attribute", retAttr.contains(a));
+                }               
+	}
 
 	@Test
 	public void removeAllFacilityAttributes() throws Exception {

@@ -2452,6 +2452,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       }
     }
     
+    public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+      removeAllAttributes(sess, resource, group);
+      if (workWithGroupAttributes) {
+        removeAllAttributes(sess, group);
+      }
+    }
+    
     public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
       removeAllAttributes(sess, facility);
       if(removeAlsoUserFacilityAttributes) {

@@ -2218,6 +2218,27 @@ public class AttributesManagerEntry implements AttributesManager {
        getAttributesManagerBl().removeAttribute(sess, key, attribute);
     }
 
+    public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+      Utils.checkPerunSession(sess);
+      getAttributesManagerBl().checkAttributesExists(sess, attributes);
+      getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+      getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+      if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
+        throw new GroupResourceMismatchException("group and resource are not in the same VO");
+      }
+      //Choose to which attributes has the principal access
+      for(AttributeDefinition attrDef: attributes) {
+          if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_ATTR)) {
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+          } else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+          } else {
+              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+          }
+      }
+      getAttributesManagerBl().removeAttributes(sess, resource, group, attributes, workWithGroupAttributes);
+    }
+
     public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
       Utils.checkPerunSession(sess);
       getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -2281,6 +2302,27 @@ public class AttributesManagerEntry implements AttributesManager {
           if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, facility , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
       }
       getAttributesManagerBl().removeAllAttributes(sess, facility);
+    }
+
+    public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+      Utils.checkPerunSession(sess);
+      getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+      getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+      if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
+        throw new GroupResourceMismatchException("group and resource are not in the same VO");
+      }
+      List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, workWithGroupAttributes);
+      //Choose to which attributes has the principal access
+      for(AttributeDefinition attrDef: allAttributes) {
+          if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_ATTR)) {
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+          } else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+          } else {
+              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+          }
+      }
+      getAttributesManagerBl().removeAllAttributes(sess, resource, group, workWithGroupAttributes);
     }
 
     public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
