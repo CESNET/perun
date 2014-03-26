@@ -2,23 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -94,15 +78,15 @@ public interface AttributesManager {
 
   public static final String ENTITY_MEMBER = "member";
   public static final String ENTITY_USER = "user";
-  
+
   public static final String LOGIN_NAMESPACE = "login-namespace";
-  
+
   //public static final String NS_ATTR_DEF_FACILITY= NS_ATTR_DEF + ":facility";
 
   /**
    * Get all <b>non-empty</b> attributes associated with the facility.
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility facility to get the attributes from
    * @return list of attributes
@@ -116,7 +100,7 @@ public interface AttributesManager {
   /**
    * Get all <b>non-empty</b> attributes associated with the vo.
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param vo vo to get the attributes from
    * @return list of attributes
@@ -130,7 +114,7 @@ public interface AttributesManager {
   /**
    * Get all <b>non-empty</b> attributes associated with the group.
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param group group to get the attributes from
    * @return list of attributes
@@ -144,7 +128,7 @@ public interface AttributesManager {
   /**
    * Get all <b>non-empty</b> attributes associated with the resource.
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to get the attributes from
    * @return list of attributes
@@ -158,7 +142,7 @@ public interface AttributesManager {
   /**
    * Get all <b>non-empty</b> attributes associated with the member on the resource.
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource to get the attributes from
    * @param member to get the attributes from
@@ -174,18 +158,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * TODO @inherit
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
    */
   List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException;
-  
-  
+
+
   /**
    * Get all entiteless attributes with subject equaled String key
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can get Entityless attributes.
-   * 
+   *
    * @param sess perun session
    * @param key string of subject of entiteless attributes
    * @return
@@ -193,32 +177,32 @@ public interface AttributesManager {
    * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    */
   List<Attribute> getAttributes(PerunSession sess, String key) throws PrivilegeException, InternalErrorException;
-  
+
     /**
    * Get all entityless attributes with attributeName
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin has access to entityless attributes.
-   * 
+   *
    * @param sess perun session
    * @param attrName
-   * @return attribute 
+   * @return attribute
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    */
   List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException, InternalErrorException;
-  
+
   /**
    * Get all <b>non-empty</b> member, user, member-resource and user-facility attributes.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess
    * @param facility
    * @param resource
    * @param user
    * @param member
    * @return
-   * 
+   *
    * @throws PrivilegeException
    * @throws ResourceNotExistsException
    * @throws InternalErrorException
@@ -229,9 +213,9 @@ public interface AttributesManager {
 
   /**
    * Get all <b>non-empty</b> attributes associated with the member.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member to get the attributes from
    * @return list of attributes
@@ -241,42 +225,42 @@ public interface AttributesManager {
    * @throws MemberNotExistsException if the member doesn't have access to this resource
    */
   List<Attribute> getAttributes(PerunSession sess, Member member) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
-  
+
   /**
    * Get all <b>non-empty</b> attributes associated with the group and resource.
    * Virtual attribute too.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
    *
    * If workWithUserAttribute is true, return also all group attributes in list of attrNames (with virutal attributes too).
-   * 
+   *
    * @param sess perun session
    * @param resource to get the attributes from
    * @param group to get the attributes from
    * @param workWithGroupAttributes if group attributes need to be return too
    * @return list of attributes
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws ResourceNotExistsException if the resource doesn't exist
    * @throws GroupNotExistsException if the group doesn't exist
    * @throws GroupResourceMismatchException if group and resource are from the same vo
-   * @throws WrongAttributeAssignmentException 
+   * @throws WrongAttributeAssignmentException
    */
   List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException;
-  
+
 
   /**
    * Get all <b>non-empty</b> attributes associated with the group starts with name startPartOfName.
    * Get only nonvirtual attributes with notNull value.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param group to get the attributes from
    * @param startPartOfName attribute name start with this part
    * @return list of attributes which name start with startPartOfName
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws GroupNotExistsException if the group doesn't exist
@@ -286,93 +270,93 @@ public interface AttributesManager {
   /**
    * Get all <b>non-empty</b> attributes associated with the resource starts with name startPartOfName.
    * Get only nonvirtual attributes with notNull value.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource to get the attributes from
    * @param startPartOfName attribute name start with this part
    * @return list of attributes which name start with startPartOfName
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws ResourceNotExistsException if the resource doesn't exist
    */
-  List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws PrivilegeException, ResourceNotExistsException, InternalErrorException;   
+  List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws PrivilegeException, ResourceNotExistsException, InternalErrorException;
 
   /**
-   * Get all attributes associated with the member which have name in list attrNames (empty too). 
+   * Get all attributes associated with the member which have name in list attrNames (empty too).
    * Virtual attribute too.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member to get the attributes from
    * @param attrNames list of attributes' names
    * @return list of attributes
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws MemberNotExistsException if the member doesn't have access to this resource
    */
   List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
-  
+
   /**
    * Get all attributes associated with the member which have name in list attrNames (empty too)
    * Virtual attributes too.
-   * 
+   *
    * If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virutal attributes too).
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member to get the attributes from
    * @param attrNames  list of attributes' names
    * @param workWithUserAttributes if user attributes need to be return too
-   * @return list of member (and also if needed user) attributes 
+   * @return list of member (and also if needed user) attributes
    * @throws PrivilegeException
    * @throws InternalErrorException
-   * @throws MemberNotExistsException 
+   * @throws MemberNotExistsException
    */
   List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
-  
+
   /**
    * Get all attributes associated with the vo which have name in list attrNames (empty too).
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param vo to get the attributes from
    * @param attrNames list of attributes' names
    * @return list of attributes
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws VoNotExistsException if the vo doesn't have access to this resource
    */
   List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws PrivilegeException, InternalErrorException, VoNotExistsException;
-  
+
   /**
    * Get all attributes associated with the user which have name in list attrNames (empty too).
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param user to get the attributes from
    * @param attrNames list of attributes' names
    * @return list of attributes
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws UserNotExistsException if the user doesn't exists
    */
   List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, UserNotExistsException;
-  
+
   /**
    * Get all <b>non-empty</b> attributes associated with the user on the facility.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility to get the attributes from
    * @param user to get the attributes from
@@ -387,9 +371,9 @@ public interface AttributesManager {
 
   /**
    * Get all <b>non-empty</b> attributes associated with the user.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param user to get the attributes from
    * @return list of attributes
@@ -402,9 +386,9 @@ public interface AttributesManager {
 
   /**
    * Get all <b>non-empty</b> attributes associated with the host
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param host host to get attributes from
    * @return list of attributes
@@ -416,9 +400,9 @@ public interface AttributesManager {
 
   /**
    * Get all <b>non-empty</b> attributes associated with the group on resource
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource
    * @param group
@@ -430,13 +414,13 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException
    */
   List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException,GroupResourceMismatchException, WrongAttributeAssignmentException;
-  
+
    /**
    * Get all <b>non-empty</b> attributes associated with the member and if workWithUserAttributes is
    * true, get all <b>non-empty</b> attributes associated with user, who is this member.
-   * 
+   *
    * PRIVILEGE: Get only those attributes the principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member to get the attributes from
    * @return list of attributes
@@ -449,9 +433,9 @@ public interface AttributesManager {
 
   /**
    * Returns list of Keys which fits the attributeDefinition.
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin has access to entityless keys.
-   * 
+   *
    * @param sess perun session
    * @param attributeDefinition
    * @return
@@ -461,12 +445,12 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException if attribute is not facility attribute
    */
   List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
-  
+
   /**
    * Returns all attributes with not-null value which fits the attributeDefinition. Can't proscess core or virtual attributes.
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin has access to get Attributes by AttributeDefinition
-   * 
+   *
    * @param sess
    * @param attributeDefinition
    * @return list of attributes
@@ -475,12 +459,12 @@ public interface AttributesManager {
    * @throws AttributeNotExistsException
    */
   List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
-  
+
   /**
    * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param facility facility to set on
    * @param attributes attribute to set
@@ -497,9 +481,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the vo. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param vo vo to set on
    * @param attributes attribute to set
@@ -516,9 +500,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the group. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param group group to set on
    * @param attributes attribute to set
@@ -535,9 +519,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to set on
    * @param attributes attribute to set
@@ -555,9 +539,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to set on
    * @param member member to set on
@@ -576,7 +560,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
    * //TODO inheritDoc
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
@@ -584,11 +568,11 @@ public interface AttributesManager {
   void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
   /**
-   * Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true. 
+   * Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true.
    * If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param member member to set on
    * @param attributes attribute to set
@@ -600,15 +584,15 @@ public interface AttributesManager {
    * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
    * @throws WrongAttributeValueException if the attribute value is illegal
    * @throws WrongAttributeAssignmentException if attribute is not member attribute or with workWithUserAttributes=true, if its not member or user attribute.
-   * @throws WrongReferenceAttributeValueException 
+   * @throws WrongReferenceAttributeValueException
    */
   void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Store the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param facility
    * @param resource resource to set on
@@ -630,9 +614,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param member member to set on
    * @param attributes attribute to set
@@ -649,9 +633,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the facility and user combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param facility facility to set on
    * @param user user to set on
@@ -670,9 +654,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the user. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param user user to set on
    * @param attributes attribute to set
@@ -688,9 +672,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the host. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perunsession
    * @param host host to set attributes set
    * @throws PrivilegeException if privileges are not given
@@ -704,9 +688,9 @@ public interface AttributesManager {
 
   /**
    * Store the attributes associated with the group on resource.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource
    * @param group
@@ -719,19 +703,19 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException if attribute is not group-resource attribute
    */
   void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException,AttributeNotExistsException, WrongReferenceAttributeValueException;
-  
+
   /**
-   * Store the attributes associated with group and resource if workWithUserAttributes is true then also from group itself. 
+   * Store the attributes associated with group and resource if workWithUserAttributes is true then also from group itself.
    * If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param group group to set on
    * @param resource resource to set on
    * @param attributes attribute to set
    * @param workWithUserAttributes true/false If true, we can use group attributes too
-   * 
+   *
    * @throws PrivilegeException if privileges are not given
    * @throws GroupNotExistsException if the group doesn't exists in the underlaying data source
    * @throws ResourceNotExistsException if the resource (get from this member after workWithUserAttributes=true) doesn't exists in the underlaying data source
@@ -740,15 +724,15 @@ public interface AttributesManager {
    * @throws WrongAttributeValueException if the attribute value is illegal
    * @throws WrongAttributeAssignmentException if attribute is not member attribute or with workWithUserAttributes=true, if its not member or user attribute.
    * @throws GroupResourceMismatchException if group and resource are from the same vo
-   * @throws WrongReferenceAttributeValueException 
+   * @throws WrongReferenceAttributeValueException
    */
   void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException,AttributeNotExistsException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Get particular attribute for the facility.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param facility to get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -764,9 +748,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the vo.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param vo to get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -782,9 +766,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the group.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param group group get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -800,9 +784,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the resource.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param resource to get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -818,11 +802,11 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the member on this resource.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
-   * @param resource to get attribute from 
+   * @param resource to get attribute from
    * @param member to get attribute from
    * @param attributeName attribute name defined in the particular manager
    * @return attribute
@@ -838,9 +822,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the member.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param member to get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -856,11 +840,11 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the user on this facility.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
-   * @param facility to get attribute from 
+   * @param facility to get attribute from
    * @param user to get attribute from
    * @param attributeName attribute name defined in the particular manager
    * @return attribute
@@ -876,9 +860,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the user.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param user to get attribute from
    * @param attributeName attribute name defined in the particular manager
@@ -894,9 +878,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the host
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess perun session
    * @param host to get attribute from
    * @param attributeName attribute name defined in host manager
@@ -911,18 +895,18 @@ public interface AttributesManager {
 
   /**
    * Get particular group attribute on resource
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to get attributes from
    * @param group group to get attributes for
    * @param attributeName
-   * @return attribute 
+   * @return attribute
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
-   * @throws ResourceNotExistsException 
+   * @throws ResourceNotExistsException
    * @throws GroupNotExistsException
    * @throws WrongAttributeAssignmentException if attribute isn't group-resource attribute
    */
@@ -930,13 +914,13 @@ public interface AttributesManager {
 
   /**
    * Get particular entityless attribute
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can access to entitylessAttributes.
-   * 
+   *
    * @param sess perun session
    * @param key key to get attribute for
    * @param attributeName
-   * @return attribute 
+   * @return attribute
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
@@ -946,9 +930,9 @@ public interface AttributesManager {
 
   /**
    * Get attribute definition (attribute without defined value).
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param attributeName attribute name defined in the particular manager
    * @return attribute
    *
@@ -960,9 +944,9 @@ public interface AttributesManager {
 
   /**
    * Get all attributes definition (attribute without defined value).
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @return List of attributes definitions
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -974,36 +958,36 @@ public interface AttributesManager {
    * Get all (for entities) attributeDefinitions which user has right to READ them and fill attribute writable (if user has also right to WRITE them).
    * For entities means that return only those attributeDefinition which are in namespace of entities or possible combination of entities.
    * For Example: If entities are "member, user, resource" then return only AD in namespaces "member, user, resource and resource-member"
-   * 
+   *
    * @param sess
    * @param entities list of perunBeans (member, user...)
-   * 
+   *
    * @return list of AttributeDefinitions with rights (writable will be filled correctly by user in session)
    * @throws PrivilegeException
    * @throws InternalErrorException
-   * @throws AttributeNotExistsException 
+   * @throws AttributeNotExistsException
    */
   List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws PrivilegeException, InternalErrorException, AttributeNotExistsException;
-  
+
   /**
    * From listOfAttributesNames get list of attributeDefinitions
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param listOfAttributesNames
    * @return list of AttributeDefinitions
    * @throws PrivilegeException
    * @throws InternalErrorException
-   * @throws AttributeNotExistsException 
+   * @throws AttributeNotExistsException
    */
   List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws PrivilegeException, InternalErrorException, AttributeNotExistsException;
 
   /**
    * Get attribute definition (attribute without defined value).
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param id attribute id
    * @return attribute
    *
@@ -1015,9 +999,9 @@ public interface AttributesManager {
 
   /**
    * Get attributes definition (attribute without defined value) with specified namespace.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param namespace get only attributes with this namespace
    * @return List of attributes
    *
@@ -1028,14 +1012,14 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the facility.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param facility to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
-   *  
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws FacilityNotExistsException if the facility doesn't exists in the underlaying data source
@@ -1046,14 +1030,14 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the vo.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param vo to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
-   *  
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws VoNotExistsException if the vo doesn't exists in the underlaying data source
@@ -1064,12 +1048,12 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the resource.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param resource to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1082,13 +1066,13 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the member on this resource.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
-   * @param resource to get attribute from 
+   * @param resource to get attribute from
    * @param member to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1102,12 +1086,12 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the member.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param member to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1120,13 +1104,13 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the user on this facility.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
-   * @param facility to get attribute from 
+   * @param facility to get attribute from
    * @param user to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1140,12 +1124,12 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the user.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param user to get attribute from
-   * @param id attribute id 
+   * @param id attribute id
    * @return attribute
    *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -1158,9 +1142,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for the host
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess perun session
    * @param host
    * @param id
@@ -1175,9 +1159,9 @@ public interface AttributesManager {
 
   /**
    * Get particular group attribute on this resource
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param resource
    * @param group
@@ -1194,9 +1178,9 @@ public interface AttributesManager {
 
   /**
    * Get particular attribute for group
-   * 
+   *
    * PRIVILEGE: Principal need to have access to attribute which wants to get.
-   * 
+   *
    * @param sess
    * @param group
    * @param id
@@ -1208,12 +1192,12 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException
    */
   Attribute getAttributeById(PerunSession sess, Group group, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException,GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException;
-  
+
   /**
    * Store the particular attribute associated with the facility. Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attribute which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param facility facility to set on
    * @param attribute attribute to set
@@ -1230,9 +1214,9 @@ public interface AttributesManager {
 
   /**
    * Store the particular attribute associated with the vo. Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param vo vo to set on
    * @param attribute attribute to set
@@ -1249,9 +1233,9 @@ public interface AttributesManager {
 
   /**
    * Store the particular attribute associated with the group. Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param group group to set on
    * @param attribute attribute to set
@@ -1268,9 +1252,9 @@ public interface AttributesManager {
 
   /**
    * Store the particular attribute associated with the resource. Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to set on
    * @param attribute attribute to set
@@ -1287,9 +1271,9 @@ public interface AttributesManager {
 
   /**
    * Store the particular attribute associated with the resource and member combination.  Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to set on
    * @param member member to set on
@@ -1308,9 +1292,9 @@ public interface AttributesManager {
 
   /**
    * Store the particular attribute associated with the member.  Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param member member to set on
    * @param attribute attribute to set
@@ -1327,9 +1311,9 @@ public interface AttributesManager {
 
   /**
    * Store the attribute associated with the facility and user combination.  Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param facility facility to set on
    * @param user user to set on
@@ -1348,9 +1332,9 @@ public interface AttributesManager {
 
   /**
    * Store the attribute associated with the user.  Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param user user to set on
    * @param attribute attribute to set
@@ -1367,7 +1351,7 @@ public interface AttributesManager {
 
   /**
    * Store the attribute associated with the host.  Core attributes can't be set this way.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
    *
    * @param sess perunsession
@@ -1383,12 +1367,12 @@ public interface AttributesManager {
 
    */
   void setAttribute(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, HostNotExistsException,AttributeNotExistsException,WrongAttributeValueException,WrongAttributeAssignmentException;
-  
+
   /**
    * Stores attribute associated with group resource combination.
-   * 
+   *
    * PRIVILEGE: Principal need to have access to all attributes which wants to set.
-   * 
+   *
    * @param sess perun session
    * @param resource to set attributes on
    * @param group
@@ -1406,9 +1390,9 @@ public interface AttributesManager {
 
   /**
    * Stores entityless attribute (associateed witk string key).
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can get entityless attributes.
-   * 
+   *
    * @param sess perun session
    * @param key stopre the attribute for this key
    * @param attribute attribute to set
@@ -1424,9 +1408,9 @@ public interface AttributesManager {
 
   /**
    * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can create new attribute.
-   * 
+   *
    * @param sess perun session
    * @param attributeDefinition attribute to create
    *
@@ -1440,10 +1424,10 @@ public interface AttributesManager {
 
   /**
    * Deletes the attribute.
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can delete existing attribute.
-   * 
-   * @param sess 
+   *
+   * @param sess
    * @param attributeDefinition
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws RelationExistsException
@@ -1454,9 +1438,9 @@ public interface AttributesManager {
 
   /**
    * Deletes the attribute.
-   * 
+   *
    * PRIVILEGE: Only PerunAdmin can delete existing attribute.
-   * 
+   *
    * @param sess
    * @param attributeDefinition attribute to delete
    * @param force delete also all existing relation. If this parameter is true the RelationExistsException is never thrown.
@@ -1469,28 +1453,28 @@ public interface AttributesManager {
 
   /**
    * Get facility attributes which are required by all services which are related to this facility.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility you get attributes for this facility
-   * @return list of facility attributes which are required by services 
-   * 
+   * @return list of facility attributes which are required by services
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws FacilityNotExistsException if the facility wasn't created from this resource 
+   * @throws FacilityNotExistsException if the facility wasn't created from this resource
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException;
 
   /**
    * Get resource attributes which are required by services which is relatod to this resource.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource resource for which you want to get the attributes
-   * @return list of resource attributes which are required by services which are assigned to resource. 
-   * 
+   * @return list of resource attributes which are required by services which are assigned to resource.
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1499,15 +1483,15 @@ public interface AttributesManager {
 
   /**
    * Get member-resource attributes which are required by services which are defined on "resourceToGetServicesFrom" resource.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
    * @return list of member-resource attributes which are required by services which are assigned to specified resource
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1518,7 +1502,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
    * //TODO inheritDoc
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
@@ -1527,9 +1511,9 @@ public interface AttributesManager {
 
   /**
    * Get member, user, member-resource and user-facility attributes which are required by services which are defined on "resourceToGetServicesFrom" resource.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @param facility
@@ -1537,7 +1521,7 @@ public interface AttributesManager {
    * @param user
    * @param member you get attributes for this member and the resource
    * @return list of member-resource attributes which are required by services which are assigned to specified resource
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1550,15 +1534,15 @@ public interface AttributesManager {
 
   /**
    * Get user-facility attributes which are required by services which are defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @param facility facility from which the services are taken
    * @param user you get attributes for this user
    * @return list of user-facility attributes which are required by services defined on specified resource
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws UserNotExistsException
    * @throws FacilityNotExistsException
@@ -1569,30 +1553,30 @@ public interface AttributesManager {
 
   /**
    * Get member attributes which are required by services defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member you get attributes for this member
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @return list of member attributes which are required by services defined on specified resource
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws MemberNotExistsException 
+   * @throws MemberNotExistsException
    */
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws PrivilegeException, InternalErrorException, MemberNotExistsException, ResourceNotExistsException;
 
   /**
    * Get user attributes which are required by services defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param user
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @return list of user's attributes which are required by services defined on specified resource
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws UserNotExistsException
@@ -1601,9 +1585,9 @@ public interface AttributesManager {
 
   /**
    * Get host attributes which are required by services defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param resourceToGetServicesFrom  getRequired attributes from services which are assigned on this resource
    * @param host
@@ -1614,12 +1598,12 @@ public interface AttributesManager {
    * @throws ResourceNotExistsException
    */
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws PrivilegeException, InternalErrorException, HostNotExistsException, ResourceNotExistsException;
-  
+
   /**
    * Get group-resource attributes which are required by services defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @param resource
@@ -1632,12 +1616,12 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException
    */
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, GroupNotExistsException;
-  
+
   /**
    * Get group attributes which are required by services defined on specified resource
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param resourceToGetServicesFrom
    * @param group
@@ -1645,44 +1629,45 @@ public interface AttributesManager {
    * @throws PrivilegeException
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
-   * @throws GroupNotExistsException 
+   * @throws GroupNotExistsException
    */
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException;
-  
+
   /**
    * Get group_resource attributes which are required by services defined on specified resource
    * Get also group attributes, if workWithGroupAttributes is true.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
    * @param group
    * @param resource
    * @param workWithGroupAttributes if true, get also group required attributes
-   * 
+   *
    * @return list of group_resource and (if workWithGroupAttributes is true) group required attributes
-   * 
+   *
    * @throws PrivilegeException
    * @throws InternalErrorException
+   * @throws ConsistencyErrorException
    * @throws ResourceNotExistsException
-   * @throws GroupNotExistsException 
+   * @throws GroupNotExistsException
    * @throws GroupResourceMismatchException
    * @throws WrongAttributeAssignmentException
-   * 
+   *
    */
-  List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws WrongAttributeAssignmentException, PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException;
-  
+  List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws WrongAttributeAssignmentException, PrivilegeException, InternalErrorException, ConsistencyErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException;
+
   /**
    * Get member-resource attributes which are required by services which are relater to this member-resource.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
-   * @return list of member-resource attributes which are required by services which are assigned to resource. 
-   * 
+   * @return list of member-resource attributes which are required by services which are assigned to resource.
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1694,9 +1679,9 @@ public interface AttributesManager {
   /**
    * If workWithUserAttribute is false => Get member-resource attributes which are required by services which are relater to this member-resource.
    * If workWithUserAttributes is true => Get member-resource, user-facility, user and member attributes. (user is get from member and facility from resource)
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
@@ -1708,21 +1693,21 @@ public interface AttributesManager {
    * @throws ResourceNotExistsException
    * @throws MemberNotExistsException
    * @throws WrongAttributeAssignmentException
-   * 
+   *
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException;
 
   /**
    * Get user-facility attributes which are required by services which are related to this user-facility.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility facility from which the services are taken
    * @param user you get attributes for this user
-   * @return list of user-facility attributes which are required by services which are assigned to facility. 
-   * 
+   * @return list of user-facility attributes which are required by services which are assigned to facility.
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws UserNotExistsException
    * @throws FacilityNotExistsException
@@ -1733,29 +1718,29 @@ public interface AttributesManager {
 
   /**
    * Get member attributes which are required by services which are relater to this member.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member you get attributes for this member
    * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
    * @return list of member and user attributes which are required by services which are related to this member
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws MemberNotExistsException 
+   * @throws MemberNotExistsException
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
 
   /**
    * Get user attributes which are required by services which are relater to this user.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param user
    * @return list of user's attributes which are required by services which are related to this user
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws UserNotExistsException
@@ -1765,14 +1750,14 @@ public interface AttributesManager {
   /**
    * Get all attributes which are required by service.
    * Required attribues are requisite for Service to run.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess sess
    * @param service service from which the attributes will be listed
    *
    * @return All attributes which are required by service.
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
@@ -1781,13 +1766,13 @@ public interface AttributesManager {
 
   /*
    *  Get facility attributes which are required by all services which are connected to this facility.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility you get attributes for this facility
    * @return list of facility attributes which are required by all services which are connected to this facility.
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws FacilityNotExistsException if the facility doesn't exists in underlaying data source
@@ -1795,18 +1780,18 @@ public interface AttributesManager {
    */
 
   /**
-   * Get facility attributes which are required by the service. 
-   * 
+   * Get facility attributes which are required by the service.
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param facility you get attributes for this facility
    * @param service attribute required by this servis you'll get
-   * @return list of facility attributes which are required by the service 
-   * 
+   * @return list of facility attributes which are required by the service
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws FacilityNotExistsException if the facility wasn't created from this resource 
+   * @throws FacilityNotExistsException if the facility wasn't created from this resource
    * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException;
@@ -1829,15 +1814,15 @@ public interface AttributesManager {
     List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException;
 
   /**
-   * Get resource attributes which are required by the service. 
-   * 
+   * Get resource attributes which are required by the service.
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource resource for which you want to get the attributes
    * @param service attributes required by this service you'll get
-   * @return list of resource attributes which are required by the service 
-   * 
+   * @return list of resource attributes which are required by the service
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1863,16 +1848,16 @@ public interface AttributesManager {
   public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException;
 
   /**
-   * Get member-resource attributes which are required by the service. 
-   * 
+   * Get member-resource attributes which are required by the service.
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param resource you get attributes for this resource and the member
    * @param member you get attributes for this member and the resource
    * @param service attributes required by this services you'll get
-   * @return list of attributes which are required by the service. 
-   * 
+   * @return list of attributes which are required by the service.
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -1891,15 +1876,15 @@ public interface AttributesManager {
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member, boolean workWithUserAttributes) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException;
 
   /**
-   * Get member attributes which are required by the service. 
-   * 
+   * Get member attributes which are required by the service.
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param member you get attributes for this member and the resource
    * @param service attribute required by this servis you'll get
-   * @return list of attributes which are required by the service. 
-   * 
+   * @return list of attributes which are required by the service.
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws MemberNotExistsException if the member doesn't exists in underlaying data source
@@ -1913,7 +1898,7 @@ public interface AttributesManager {
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
    *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess perun session
    * @param service you will get attributes required by this service
    * @param resource
@@ -1928,12 +1913,12 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException;
- 
+
   /**
    * Get group-resource attributes required for the service.
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param service
    * @param resource
@@ -1944,16 +1929,16 @@ public interface AttributesManager {
    * @throws ServiceNotExistsException
    * @throws ResourceNotExistsException
    * @throws GroupNotExistsException
-   * @throws GroupResourceMismatchException 
+   * @throws GroupResourceMismatchException
    * @throws WrongAttributeAssignmentException
    */
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException,GroupResourceMismatchException;
 
   /**
    * Get host required attributes for the service
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param service
    * @param host
@@ -1967,9 +1952,9 @@ public interface AttributesManager {
 
    /**
    * Get group required attributes for the service
-   * 
+   *
    * PRIVILEGE: Get only those required attributes principal has access to.
-   * 
+   *
    * @param sess
    * @param service
    * @param group
@@ -1982,26 +1967,26 @@ public interface AttributesManager {
   List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, GroupNotExistsException;
 
   /**
-   * This method try to fill a value of the resource attribute. Value may be copied from some facility attribute. 
-   * 
+   * This method try to fill a value of the resource attribute. Value may be copied from some facility attribute.
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource resource, attribute of which you want to fill
    * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
    * @return attribute which MAY have filled value
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    */
   Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute. This method skips all attributes with not-null value.
    *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession,Resource,Attribute)
    */
@@ -2009,27 +1994,27 @@ public interface AttributesManager {
 
   /**
    * This method try to fill value of the member-resource attribute. This value is automatically generated, but not all atrributes can be filled this way.
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource  attribute of this resource (and member) and you want to fill
    * @param member attribute of this member (and resource) and you want to fill
    * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
    * @return attribute which MAY have filled value
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
    * @throws MemberNotExistsException if member doesn't exists in underlaying data source or he doesn't have access to this resource
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    */
   Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute. This method skips all attributes with not-null value.
    *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession,Resource,Member,Attribute)
    */
@@ -2037,19 +2022,19 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
    * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
    */
   List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
-   * 
+   *
    * This method try to fill value of the user, member, member-resource and user-facility attributes. This value is automatically generated, but not all atrributes can be filled this way.
    * This method skips all attributes with not-null value.
-   * 
+   *
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess
    * @param facility
    * @param resource
@@ -2057,7 +2042,7 @@ public interface AttributesManager {
    * @param member
    * @param attributes
    * @return
-   * 
+   *
    * @throws PrivilegeException
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
@@ -2071,25 +2056,25 @@ public interface AttributesManager {
 
   /**
    * This method try to fill value of the member attribute. This value is automatically generated, but not all atrributes can be filled this way.
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param member attribute of this member (and resource) and you want to fill
    * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
    * @return attribute which MAY have filled value
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws MemberNotExistsException if member doesn't exists in underlaying data source or he doesn't have access to this resource
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    */
   Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute. This method skips all attributes with not-null value.
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession,Resource,Member,Attribute)
@@ -2098,27 +2083,27 @@ public interface AttributesManager {
 
   /**
    * This method try to fill value of the user-facility attribute. This value is automatically generated, but not all atrributes can be filled this way.
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param facility  attribute of this facility (and user) and you want to fill
    * @param user attribute of this user (and facility) and you want to fill
    * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
    * @return attribute which MAY have filled value
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws FacilityNotExistsException if the facility doesn't exists in underlaying data source
    * @throws UserNotExistsException if user doesn't exists in underlaying data source or he doesn't have access to this facility
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    */
   Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute. This method skips all attributes with not-null value.
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession,Facility,User,Attribute)
@@ -2127,25 +2112,25 @@ public interface AttributesManager {
 
   /**
    * This method try to fill value of the user attribute. This value is automatically generated, but not all atrributes can be filled this way.
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param user attribute of this user (and facility) and you want to fill
    * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
    * @return attribute which MAY have filled value
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws UserNotExistsException if user doesn't exists in underlaying data source or he doesn't have access to this facility
    * @throws WrongAttributeAssignmentException
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    */
   Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute. This method skips all attributes with not-null value.
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession,Facility,User,Attribute)
@@ -2156,7 +2141,7 @@ public interface AttributesManager {
    * This method tries to fill group-resource attribute. This value is automatically generated, but not all atrributes can be filled this way.
    *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource resource which attr you want to fill
    * @param group group which attr you want to fill
@@ -2173,17 +2158,17 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    * batch version of fillAttribute, this method skips attributes with non-null value
-   * @see AttributesManager#fillAttribute(PerunSession, Resource, Group, Attribute) 
+   * @see AttributesManager#fillAttribute(PerunSession, Resource, Group, Attribute)
    */
   List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException,GroupResourceMismatchException;
-  
+
   /**
    * This method tries to fill host attribute. This value is automatically generated, but not all atrributes can be filled this way.
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param host host for which you want have attribute filled
    * @param attribute attr which you want to fill
@@ -2198,16 +2183,16 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Fill attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of fillAttribute
    * @see AttributesManager#fillAttribute(PerunSession, Host, Attribute)
    */
   List<Attribute> fillAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException,InternalErrorException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
-   * 
+   *
    * PRIVILEGE: Fill attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess
    * @param group
    * @param attribute
@@ -2216,17 +2201,17 @@ public interface AttributesManager {
    * @throws InternalErrorException
    * @throws GroupNotExistsException
    * @throws AttributeNotExistsException
-   * @throws WrongAttributeAssignmentException 
+   * @throws WrongAttributeAssignmentException
    */
   Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws  PrivilegeException,InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
   List<Attribute> fillAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
-  
+
   /**
    * Check if value of this facility attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param facility facility for which you want to check validity of attribute
    * @param attribute attribute to check
@@ -2239,11 +2224,11 @@ public interface AttributesManager {
    * @throws WrongReferenceAttributeValueException
    */
   void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
- 
-  
+
+
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of checkAttributeValue
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Facility,Attribute)
@@ -2252,9 +2237,9 @@ public interface AttributesManager {
 
   /**
    * Check if value of this vo attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param vo vo for which you want to check validity of attribute
    * @param attribute attribute to check
@@ -2271,7 +2256,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of checkAttributeValue
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Vo,Attribute)
@@ -2280,13 +2265,13 @@ public interface AttributesManager {
 
   /**
    * Check if value of this resource attribute is valid.
-   * 
+   *
    * @param sess perun session
    * @param resource resource for which you want to check validity of attribute
    * @param attribute attribute to check
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -2300,7 +2285,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of checkAttributeValue
    *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Resource,Attribute)
@@ -2309,14 +2294,14 @@ public interface AttributesManager {
 
   /**
    * Check if value of this member-resource attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource resource for which (and for specified member) you want to check validity of attribute
    * @param member member for which (and for specified resource) you want to check validity of attribute
    * @param attribute attribute to check
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
@@ -2329,7 +2314,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Resource,Member,Attribute)
    */
@@ -2337,7 +2322,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of fillAttribute
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Resource,Member,Attribute)
    * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
@@ -2347,16 +2332,16 @@ public interface AttributesManager {
 
   /**
    * Check if value of attributes is valid. Attributes can be from namespace: member, user, member-resource and user-facility.
-   * 
+   *
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess
    * @param facility
    * @param resource
    * @param user
    * @param member
    * @param attributes
-   * 
+   *
    * @throws PrivilegeException
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
@@ -2372,13 +2357,13 @@ public interface AttributesManager {
 
   /**
    * Check if value of this member attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param member member for which (and for specified resource) you want to check validity of attribute
    * @param attribute attribute to check
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws WrongAttributeValueException if the attribute value is wrong/illegal
@@ -2390,7 +2375,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them
-   * 
+   *
    *  Batch version of fillAttribute
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Resource,Member,Attribute)
    */
@@ -2398,14 +2383,14 @@ public interface AttributesManager {
 
   /**
    * Check if value of this user-facility attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param facility facility for which (and for specified user) you want to check validity of attribute
    * @param user user for which (and for specified facility) you want to check validity of attribute
    * @param attribute attribute to check
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws FacilityNotExistsException if the facility doesn't exists in underlaying data source
@@ -2418,7 +2403,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them
-   * 
+   *
    *  Batch version of checkAttributeValue
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Facility,User,Attribute)
    */
@@ -2426,13 +2411,13 @@ public interface AttributesManager {
 
   /**
    * Check if value of this user attribute is valid.
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param user user for which (and for specified facility) you want to check validity of attribute
    * @param attribute attribute to check
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws WrongAttributeValueException if the attribute value is wrong/illegal
@@ -2444,7 +2429,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    *  Batch version of checkAttributeValue
    *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,User,Attribute)
    */
@@ -2452,9 +2437,9 @@ public interface AttributesManager {
 
 /**
  * Checks if value of this host attribute is valid
- * 
+ *
  * PRIVILEGE: Check attribute only when principal has access to write on it.
- * 
+ *
  * @param sess perun session
  * @param host host for which attribute validity is checked
  * @param attribute
@@ -2469,7 +2454,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    * batch version of checkAttributeValue
    * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, Host, Attribute)
    */
@@ -2495,10 +2480,10 @@ public interface AttributesManager {
 
     /**
    * Checks if value of this group-resource attribute is valid
-   * 
+   *
    * PRIVILEGE: Check attribute only when principal has access to write on it.
-   * 
-   * @param sess perun session 
+   *
+   * @param sess perun session
    * @param resource resource which attr you want check
    * @param group group which attr you want to check
    * @param attribute attribute to be checked
@@ -2512,25 +2497,25 @@ public interface AttributesManager {
    * @throws WrongReferenceAttributeValueException
    */
   void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException, WrongReferenceAttributeValueException;
- 
+
   /**
    * PRIVILEGE: Check attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of checkAttributeValue
-   * @see AttributesManager#checkAttributeValue(PerunSession, Resource, Group, Attribute) 
+   * @see AttributesManager#checkAttributeValue(PerunSession, Resource, Group, Attribute)
    */
   void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException,GroupResourceMismatchException, WrongReferenceAttributeValueException;
   /**
    * Unset particular attribute for the facility. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param facility remove attribute from this facility
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws FacilityNotExistsException if the facility doesn't exists in underlaying data source
    * @throws WrongAttributeAssignmentException if attribute isn't facility attribute or if it is core attribute
    * @throws WrongReferenceAttributeValueException if the attribute isn't entityless attribute
@@ -2541,35 +2526,35 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Facility, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset particular entityless attribute with subject equals key.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param key subject of entityless attribute
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-   * @throws WrongReferenceAttributeValueException 
+   * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeAssignmentException
    */
   void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Unset all attributes for the facility.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param facility remove attributes from this facility
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2583,9 +2568,9 @@ public interface AttributesManager {
   /**
    * Unset all attributes for the facility.
    * If removeAlsoUserFacilityAttributes is true, remove all user-facility attributes of this facility and any user allowed in this facility.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param facility remove attributes from this facility
    * @param removeAlsoUserFacilityAttributes if true, remove all user-facility attributes for any user in this facility too
@@ -2599,15 +2584,15 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the vo. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param vo remove attribute from this vo
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws VoNotExistsException if the vo doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
@@ -2617,18 +2602,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Vo, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the vo.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param vo remove attributes from this vo
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2641,15 +2626,15 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the group. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param group remove attribute from this group
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws GroupNotExistsException if the group doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
@@ -2659,18 +2644,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Group, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the group.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param group remove attributes from this group
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2683,15 +2668,15 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the resource. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource remove attribute from this resource
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
@@ -2701,18 +2686,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Resource, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't unseted (It's skkiped whithout any notification).
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param facility
    * @param resource resource to set on
@@ -2732,12 +2717,12 @@ public interface AttributesManager {
    */
   void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
-  
+
   /**
    * Unset all attributes for the resource.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param resource remove attributes from this resource
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2750,16 +2735,16 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the member on the resource. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param resource remove attributes for this resource
    * @param member remove attribute from this member
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws MemberNotExistsException if the member doesn't exists in underlaying data source
    * @throws ResourceNotExistsException if the resource doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
@@ -2770,18 +2755,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Resource, Member, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the member on the resource.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param resource
    * @param member remove attributes from this member
@@ -2797,56 +2782,56 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the member. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param member remove attribute from this member
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws MemberNotExistsException if the member doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
    * @throws WrongAttributeAssignmentException if attribute isn't member attribute or if it is core attribute
    */
   void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Unset all <b>non-empty</b> attributes associated with the member and if workWithUserAttributes is
    * true, unset all <b>non-empty</b> attributes associated with user, who is this member.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param member remove attribute from this member
    * @param workWithUserAttributes true if I want to unset all attributes associated with user, who is the member too
    * @param attributes attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws MemberNotExistsException if the member doesn't exists in underlaying data source
    * @throws WrongAttributeAssignmentException
    * @throws WrongAttributeValueException
    * @throws WrongReferenceAttributeValueException if attribute isn't member attribute or if it is core attribute
    */
   void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Member, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the member.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param member remove attributes from this member
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2859,16 +2844,16 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the user on the facility. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param facility remove attributes for this facility
    * @param user remove attribute from this user
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws UserNotExistsException if the user doesn't exists in underlaying data source
    * @throws FacilityNotExistsException if the facility doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
@@ -2879,18 +2864,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Facility, User, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the user on the facility.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param facility
    * @param user remove attributes from this user
@@ -2905,15 +2890,15 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the user. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perun session
    * @param user remove attribute from this user
    * @param attribute attribute to remove
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
-   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
    * @throws UserNotExistsException if the user doesn't exists in underlaying data source
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
@@ -2923,18 +2908,18 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
-   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source 
+   * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlaying data source
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, User, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Unset all attributes for the user.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param user remove attributes from this user
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2947,9 +2932,9 @@ public interface AttributesManager {
 
   /**
    * Unset particular attribute for the host. Core attributes can't be removed this way.
-   * 
+   *
    * PRIVILEGE: Remove attribute only when principal has access to write on it.
-   * 
+   *
    * @param sess perunSession
    * @param host remove attributes from this host
    * @param attribute to remove
@@ -2965,7 +2950,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
    * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Host, AttributeDefinition)
    * @throws PrivilegeException if privileges are not given
@@ -2978,9 +2963,9 @@ public interface AttributesManager {
 
   /**
    * Unset all attributes for the host
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perunsession
    * @param host remove attributes from this host
    * @throws PrivilegeException if privileges are not given
@@ -2991,12 +2976,12 @@ public interface AttributesManager {
    * @throws WrongAttributeAssignmentException
    */
    void removeAllAttributes(PerunSession sess, Host host) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException,HostNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
    /**
     * Unset particular group attribute on the resource
     *
     * PRIVILEGE: Remove attribute only when principal has access to write on it.
-    * 
+    *
     * @param sess perun session
     * @param resource remove attribute for this resource
     * @param group remove attribute for this group
@@ -3012,26 +2997,26 @@ public interface AttributesManager {
     * @throws WrongAttributeAssignmentException if attribute is not group-resource attribute
     */
   void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws PrivilegeException,InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException,GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * Batch version of removeAttribute
    * @see AttributesManager#removeAttribute(PerunSession, Resource, Group, AttributeDefinition)
    */
   void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException,AttributeNotExistsException, WrongAttributeAssignmentException,GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Remove all attributes for group on resource
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param resource resource to have attributes removed
    * @param group group to have attribute removed
    * @throws PrivilegeException if privileges are not given
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-   * @throws ResourceNotExistsException 
+   * @throws ResourceNotExistsException
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeValueException
    * @throws GroupResourceMismatchException
@@ -3041,9 +3026,9 @@ public interface AttributesManager {
   void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException,GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException;
   /**
    * Determine if attribute is core attribute.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param attribute
    * @return true if attribute is core attribute
@@ -3052,9 +3037,9 @@ public interface AttributesManager {
 
   /**
    * Determine if attribute is optional (opt) attribute.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param attribute
    * @return true if attribute is optional attribute
@@ -3064,9 +3049,9 @@ public interface AttributesManager {
 
   /**
    * Determine if attribute is core-managed attribute.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param attribute
    * @return true if attribute is core-managed
@@ -3075,9 +3060,9 @@ public interface AttributesManager {
 
   /**
    * Determine if attribute is from specified namespace.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param attribute
    * @param namespace
@@ -3087,35 +3072,35 @@ public interface AttributesManager {
 
   /**
    * Determine if attribute is from specified namespace.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
    * @param attribute
    * @param namespace
-   * 
+   *
    * @throws WrongAttributeAssignmentException if the attribute isn't from specified namespace
    */
   void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException;
 
   /**
    * Determine if attributes are from specified namespace.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param sess
-   * @param attributes 
+   * @param attributes
    * @param namespace
-   * 
+   *
    * @throws WrongAttributeAssignmentException if any of the attribute isn't from specified namespace
    */
   void checkNamespace(PerunSession sess, List<? extends AttributeDefinition> attributes, String namespace) throws WrongAttributeAssignmentException;
-  
+
   /**
    * Gets the namespace from the attribute name.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param attributeName
    * @return the namespace from the attribute name
    * @throws InternalErrorException
@@ -3124,9 +3109,9 @@ public interface AttributesManager {
 
   /**
    * Gets the friendly name from the attribute name.
-   * 
+   *
    * PRIVILEGE: No access needed.
-   * 
+   *
    * @param attributeName
    * @return the friendly name from the attribute name
    * @throws InternalErrorException
@@ -3135,13 +3120,13 @@ public interface AttributesManager {
 
   /**
    * Get all attributes with user's logins.
-   * 
+   *
    * PRIVILEGE: Get only those logins principal has access to.
-   * 
+   *
    * @param sess
    * @param user
    * @return list of attributes with login
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws UserNotExistsException
@@ -3150,7 +3135,7 @@ public interface AttributesManager {
 
   /**
    * PRIVILEGE: Only for PerunAdmin.
-   * 
+   *
    * Same as doTheMagic(sess, member, false);
    */
   void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException, WrongAttributeAssignmentException;
@@ -3158,20 +3143,20 @@ public interface AttributesManager {
   /**
    * This function takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
    * If trueMagic is set, this method can remove invalid attribute value (value which didn't pass checkAttributeValue test) and try to fill and set another. In this case, WrongReferenceAttributeValueException, WrongAttributeValueException are thrown if same attribute can't be set corraclty.
-   * 
+   *
    * PRIVILEGE: Only for PerunAdmin.
-   * 
+   *
    * @param sess
    * @param member
    * @param trueMagic
-   * 
+   *
    * @throws InternalErrorException
    * @throws WrongAttributeValueException
    * @throws WrongReferenceAttributeValueException
    * @throws WrongAttributeAssignmentException
    */
   void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException, WrongAttributeAssignmentException;
- 
+
   /**
    * Updates AttributeDefinition.
    * PRIVILEGE: only PerunAdmin
@@ -3184,13 +3169,13 @@ public interface AttributesManager {
    * @throws InternalErrorException
    */
    AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, InternalErrorException, PrivilegeException;
-   
+
    /**
     * Gets attribute rights of an attribute with id given as a parameter.
     * If the attribute has no rights for a role, it returns empty list. That means the returned list has always 4 items
     * for each of the roles VOADMIN, FACILITYADMIN, GROUPADMIN, SELF.
     * Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
-    * 
+    *
     * @param sess perun session
     * @param attributeId id of the attribute
     * @return all rights of the attribute
@@ -3199,13 +3184,13 @@ public interface AttributesManager {
     * @throws AttributeNotExistsException
     */
    List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
-   
+
    /**
     * Sets all attribute rights in the list given as a parameter.
     * The method sets the rights for attribute and role exactly as it is given in the list of action types. That means it can
     * remove a right, if the right is missing in the list.
     * Info: If there is role VoAdmin in the list, use it for setting also VoObserver rights (only for read) automatic
-    * 
+    *
     * @param sess perun session
     * @param rights list of attribute rights
     * @throws InternalErrorException
