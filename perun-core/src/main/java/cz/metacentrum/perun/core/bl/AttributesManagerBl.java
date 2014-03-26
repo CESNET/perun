@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -132,7 +131,6 @@ public interface AttributesManagerBl {
    * Get all <b>non-empty</b> attributes associated with the group starts with name startPartOfName.
    * Get only nonvirtual attributes with notNull Value.
    * 
-   * PRIVILEGE: Get only those attributes the principal has access to.
    * 
    * @param sess perun session
    * @param group to get the attributes from
@@ -146,8 +144,6 @@ public interface AttributesManagerBl {
   /**
    * Get all <b>non-empty</b> attributes associated with the resource starts with name startPartOfName.
    * Get only nonvirtual attributes with notNull value.
-   * 
-   * PRIVILEGE: Get only those attributes the principal has access to.
    * 
    * @param sess perun session
    * @param resource to get the attributes from
@@ -163,8 +159,6 @@ public interface AttributesManagerBl {
    * Virtual attributes too.
    * 
    * If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virtual attributes too).
-   * 
-   * PRIVILEGE: Get only those attributes the principal has access to.
    * 
    * @param sess perun session
    * @param member to get the attributes from
@@ -1324,7 +1318,7 @@ public interface AttributesManagerBl {
    */
   List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException, WrongAttributeAssignmentException;
 
-    List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+  List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
   /**
    *  Get the host attributes which are required by services. Services are known from the resource.
