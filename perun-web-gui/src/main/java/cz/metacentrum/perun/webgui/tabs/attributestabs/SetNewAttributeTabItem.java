@@ -240,6 +240,7 @@ public class SetNewAttributeTabItem implements TabItem {
                         // call proper method in RPC
                         ids.put("workWithGroupAttributes", 1);
                         request.setAttributes(ids, sendList);
+                        ids.remove("workWithGroupAttributes");
 
                     } else if (ids.size() == 2 && ids.containsKey("member") && ids.containsKey("user")) {
 
@@ -249,6 +250,7 @@ public class SetNewAttributeTabItem implements TabItem {
                         // call proper method in RPC
                         ids.put("workWithUserAttributes", 1);
                         request.setAttributes(ids, sendList);
+                        ids.remove("workWithUserAttributes");
 
                     } else if (ids.size() == 1 && ids.containsKey("group")) {
 
@@ -280,7 +282,11 @@ public class SetNewAttributeTabItem implements TabItem {
 
                     } else {
 
-                        UiElements.generateAlert("Wrong entities combination", "Unsupported combination of attributes to set.");
+                        String combination = "";
+                        for (String key : ids.keySet()) {
+                            combination += key +": "+ids.get(key)+" | ";
+                        }
+                        UiElements.generateAlert("Wrong entities combination", "Unsupported combination of attributes to set: "+combination);
 
                     }
 
