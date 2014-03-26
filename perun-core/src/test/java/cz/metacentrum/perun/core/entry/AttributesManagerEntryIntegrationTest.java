@@ -4156,6 +4156,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("should have only 1 req facility attribute",reqAttr.size() == 1);
 
 	}
+        
+        @Test
+	public void getResourceRequiredGroupResourceAndGroupAttributesForItsServices() throws Exception {
+		System.out.println("attributesManager.getRequiredFacilityAttributesForItsServices");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+                group = setUpGroup();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+                for(Attribute a: attributes) {
+                    if(attributesManager.isFromNamespace(sess, a, AttributesManager.NS_GROUP_ATTR)) {
+                        attributesManager.setAttribute(sess, group, a);
+                    } else if(attributesManager.isFromNamespace(sess, a, AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
+                        attributesManager.setAttribute(sess, resource, group, a);
+                    }
+                }
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group, true);
+		
+                assertNotNull("unable to get required group_resource and group attributes for its services",reqAttr);
+		assertTrue("should have only 2 req group_resource and group attributes",reqAttr.size() == 2);
+
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
 	public void getRequiredFacilityAttributesForItsServicesWhenFacilityNotExists() throws Exception {

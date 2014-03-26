@@ -1194,6 +1194,34 @@ public class AttributesManagerEntry implements AttributesManager {
       return attributes;
     }
 
+    public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException {
+      Utils.checkPerunSession(sess);
+      getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
+      getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+      getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+      
+      if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
+        throw new GroupResourceMismatchException("group and resource are not in the same VO");
+      }
+      
+      List<Attribute> attributes = getAttributesManagerBl().getResourceRequiredAttributes(sess, resourceToGetServicesFrom, resource, group, workWithGroupAttributes);
+      Iterator<Attribute> attrIter = attributes.iterator();
+      //Choose to which attributes has the principal access
+      while(attrIter.hasNext()) {
+          Attribute attrNext = attrIter.next();
+          if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, group)) attrIter.remove();
+              else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, group));
+          } else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)){
+              if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, group, null)) attrIter.remove();
+              else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, group, null));
+          } else {
+              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+          }
+      }
+      return attributes;
+    }
+    
     public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException {
       Utils.checkPerunSession(sess);
       getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);

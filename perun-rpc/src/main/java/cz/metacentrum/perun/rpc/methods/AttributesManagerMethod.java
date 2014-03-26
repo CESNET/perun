@@ -1221,11 +1221,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								ac.getUserById(parms.readInt("user")));
 					}
 				} else if (parms.contains("group")) {
-					if(parms.contains("resource")) {
-						return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
-								ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-								ac.getResourceById(parms.readInt("resource")),
-								ac.getGroupById(parms.readInt("group")));
+					if (parms.contains("resource")) {
+                                                if (parms.contains("workWithGroupAttributes")) {
+                                                    return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+                                                                	ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+                                                        		ac.getResourceById(parms.readInt("resource")),
+                                                                	ac.getGroupById(parms.readInt("group")),
+                                                                        parms.readInt("workWithGroupAttributes") == 1);
+                                                } else {
+                                                    return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+                                                                	ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+                                                        		ac.getResourceById(parms.readInt("resource")),
+                                                                	ac.getGroupById(parms.readInt("group")));
+                                                }
 					} else {
 						return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
