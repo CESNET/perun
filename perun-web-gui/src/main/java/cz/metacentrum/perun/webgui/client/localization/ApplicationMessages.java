@@ -99,10 +99,10 @@ public interface ApplicationMessages extends Messages {
     @DefaultMessage("My applications")
 	String applications();
 
-	@DefaultMessage("Similar users found")
+	@DefaultMessage("Similar user(s) found")
 	String similarUsersFound();
 
-	@DefaultMessage("There is/are similar user(s) registered already. Is it you?")
+	@DefaultMessage("Similar user(s) are already registered in system. Is it you ? If yes, please join your identity used now with the one existing in system.")
 	String similarUsersFoundIsItYou();
 
 	@DefaultMessage("Name")
