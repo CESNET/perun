@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 
 /**
  * Main menu item
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -22,32 +22,32 @@ public class MainMenuItem {
 	 * Current PerunWebSession
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Widget containing the menu item
 	 */
 	private Widget widget = null;
-	
+
 	/**
 	 * TabItem for link
 	 */
 	private TabItemWithUrl tabItem;
-	
+
 	/**
 	 * Image next to the link
 	 */
 	private Image image;
-	
+
 	/**
 	 * Link text
 	 */
 	private String title = "";
-	
+
 	/**
 	 * Whether is the link active - the user is on the page
 	 */
 	private boolean active = false;
-	
+
 	/**
 	 * Creates new menu item
 	 *
@@ -57,9 +57,8 @@ public class MainMenuItem {
 	public MainMenuItem(String title, TabItemWithUrl tabItem){
 		this.title = title;
 		this.tabItem = tabItem;
-		this.session = session;
 	}
-	
+
 	/**
 	 * Creates new menu item with custom image
 	 *
@@ -72,7 +71,7 @@ public class MainMenuItem {
 		this.image = image;
 		build();
 	}
-	
+
 	/**
 	 * Creates new menu item with custom image
 	 *
@@ -86,7 +85,7 @@ public class MainMenuItem {
 
 	/**
 	 * Returns the link widget
-	 * 
+	 *
 	 * @return
 	 */
 	public Widget getWidget(){
@@ -101,13 +100,12 @@ public class MainMenuItem {
     public Widget getIcon(){
         return this.image;
     }
-	
+
 	/**
 	 * Re-build main menu item
      * (check if item is selected)
 	 */
-	public void build()
-	{
+	public void build() {
 
         Widget widget = new Widget();
 

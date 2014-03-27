@@ -254,6 +254,7 @@ table.perun-tabPanelItem{
 .mainMenuItems td {
     padding-top: 3px;
     padding-left: 3px;
+    vertical-align: text-top;
 }
 .mainMenuItems {
     border-collapse: collapse;
@@ -307,13 +308,15 @@ table.perun-tabPanelItem{
 /* LIGHT - FlexTable styles */
 .inputFormFlexTable td {
     text-align: left;
-    vertical-align: middle;
+    vertical-align: text-top;
     padding-bottom: 10px;
     padding-top: 5px;
 }
 .inputFormFlexTable td.itemName {
     font-weight: bolder;
     text-wrap: avoid;
+    vertical-align: text-top;
+    /*line-height: 27px;*/
     padding-right: 10px;
 }
 
@@ -325,18 +328,18 @@ table.perun-tabPanelItem{
 /* DARK - FlexTable styles */
 .inputFormFlexTableDark td {
     text-align: left;
-    vertical-align: middle;
+    vertical-align: text-top;
     padding: 7px;
 }
 .inputFormFlexTableDark td.itemName {
     font-weight: bolder;
     text-wrap: avoid;
+    vertical-align: text-top;
     padding-right: 10px !important;
     /*background: #d5d5d5;*/
     background: #ccc;
     border: 1px solid white;
     text-align: left;
-    vertical-align: middle;
 }
 
 table.inputFormFlexTableDark {
