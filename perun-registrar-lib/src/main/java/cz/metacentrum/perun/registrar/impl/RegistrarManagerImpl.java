@@ -1868,7 +1868,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 }
             }
 
-            users = (name != null && !name.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
+            users = (name != null && !name.isEmpty()) ? usersManager.findUsers(registrarSession, name) : new ArrayList<User>();
             if (users != null && !users.isEmpty()) {
                 // found by member display name
                 return users;
