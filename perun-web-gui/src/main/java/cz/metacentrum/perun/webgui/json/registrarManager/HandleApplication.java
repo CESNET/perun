@@ -7,7 +7,6 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.FlexTable;
-import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 
 /**
  * Common request, which handles applications (VERIFY, REJECT, APPROVE, DELETE)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class HandleApplication {
@@ -39,10 +38,10 @@ public class HandleApplication {
 
     // custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// application form
 	private int appId = 0;
-	
+
 	private String reason;
 
 	/**
@@ -65,7 +64,7 @@ public class HandleApplication {
 	 * @param appId
 	 */
 	public void verifyApplication(int appId) {
-		
+
 		this.appId = appId;
 
 		// test arguments
@@ -77,7 +76,7 @@ public class HandleApplication {
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			@Override
             public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Verifing application failed.");
+				session.getUiElements().setLogErrorText("Verifying application failed.");
 				events.onError(error);
 			};
             @Override
@@ -96,7 +95,7 @@ public class HandleApplication {
 		jspc.sendData(JSON_URL_VERIFY, prepareJSONObject());
 
 	}
-	
+
 	/**
 	 * Reject application
 	 *
@@ -104,7 +103,7 @@ public class HandleApplication {
 	 * @param reason
 	 */
 	public void rejectApplication(int appId, String reason) {
-		
+
 		this.appId = appId;
 		this.reason = reason;
 
@@ -135,14 +134,14 @@ public class HandleApplication {
 		jspc.sendData(JSON_URL_REJECT, prepareJSONObject());
 
 	}
-	
+
 	/**
 	 * Approve application
 	 *
 	 * @param app
 	 */
 	public void approveApplication(Application app) {
-		
+
 		this.appId = app.getId();
 
 		// test arguments
@@ -195,7 +194,7 @@ public class HandleApplication {
 
                         FlexTable ft = new FlexTable();
                         ft.setWidth("400px");
-                        ft.setHTML(0, 0, "<p><strong>Following user(s) with similar name as new applicant were found in Perun system:");
+                        ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
 
                         for (int i=0; i<users.size(); i++) {
                             if (!users.get(i).isServiceUser()) {
@@ -203,9 +202,9 @@ public class HandleApplication {
                             }
                         }
 
-                        ft.setHTML(ft.getRowCount(), 0,  "<p>Please consider contacting new applicant with question, if he/she is already member of any other VO in Perun." +
-                                "<ul><li>If YES, ask user to join his identities before application approval at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a>"+
-                                "</li><li>If NO, you can approve this application. " +
+                        ft.setHTML(ft.getRowCount(), 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
+                                "<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
+                                "</li><li>If NO, you can approve this application anyway. " +
                                 "</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
 
                         ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
