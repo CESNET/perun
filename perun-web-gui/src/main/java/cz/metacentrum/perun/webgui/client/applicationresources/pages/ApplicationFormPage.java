@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * Page with VO application form
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class ApplicationFormPage extends ApplicationPage {
@@ -50,7 +50,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * VO
 	 */
 	private VirtualOrganization vo;
-	
+
 	/**
 	 * Group
 	 */
@@ -65,9 +65,9 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * Form type
 	 */
 	private String type = "INITIAL";
-	
+
 	private ApplicationForm form;
-	
+
 	/**
 	 * Switch languages button
 	 */
@@ -91,25 +91,25 @@ public class ApplicationFormPage extends ApplicationPage {
 
         bodyContents.setSize("100%", "100%");
         bodyContents.setStyleName("formContent");
-		
+
 	}
-	
+
 	/**
 	 * Prepares the buttons for local languages
 	 */
-	
+
 	private void prepareToggleLanguageButton() {
-		
+
 		languageButtonCzech = new PushButton(new Image(SmallIcons.INSTANCE.flagCzechRepublicIcon()));
 		languageButtonCzech.setTitle(ApplicationMessages.INSTANCE.changeLanguageToCzech());
 		languageButtonCzech.setStyleName("gwt-Button");
 		languageButtonCzech.setPixelSize(17, 17);
-		
+
 		languageButtonEnglish = new PushButton(new Image(SmallIcons.INSTANCE.flagGreatBritainIcon()));
 		languageButtonEnglish.setTitle(ApplicationMessages.INSTANCE.changeLanguageToEnglish());
 		languageButtonEnglish.setStyleName("gwt-Button");
 		languageButtonEnglish.setPixelSize(17, 17);
-		
+
 		languageButtonCzech.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Confirm conf = new Confirm(languageButtonCzech.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
@@ -117,17 +117,17 @@ public class ApplicationFormPage extends ApplicationPage {
 					// on OK
 					UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "cs");
 			        Window.Location.replace(builder.buildString());
-			        
+
 				}}, new ClickHandler(){
 					public void onClick(ClickEvent event) {
 						// on CANCEL
 					}
 				}, true);
 				conf.setNonScrollable(true);
-				conf.show();				
+				conf.show();
 			}
 		});
-		
+
 		languageButtonEnglish.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Confirm conf = new Confirm(languageButtonEnglish.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
@@ -135,17 +135,17 @@ public class ApplicationFormPage extends ApplicationPage {
 					// on OK
 					UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "en");
 			        Window.Location.replace(builder.buildString());
-			        
+
 				}}, new ClickHandler(){
 					public void onClick(ClickEvent event) {
 						// on CANCEL
 					}
 				}, true);
 				conf.setNonScrollable(true);
-				conf.show();				
+				conf.show();
 			}
 		});
-		
+
 	}
 
 	/**
@@ -154,8 +154,9 @@ public class ApplicationFormPage extends ApplicationPage {
 	protected void prepareVoForm() {
 
         bodyContents.setWidget(formContent);
+        formContent.setWidth("100%");
         submittedOrError = false;
-		
+
 		// try to get user for initial application if not found
 		if (type.equalsIgnoreCase("INITIAL") && (session.getUser() == null || session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL"))) {
             tryToFindUserByName(null);
@@ -164,44 +165,44 @@ public class ApplicationFormPage extends ApplicationPage {
 		FlexTable header = new FlexTable();
 		header.setWidth("100%");
 		header.setCellPadding(5);
-		
+
 		int row = 0;
-		
+
 		// display VO logo if present in attribute
 		for (int i=0; i<vo.getAttributes().length(); i++) {
 			if (vo.getAttributes().get(i).getFriendlyName().equalsIgnoreCase("voLogoURL")) {
 				header.setWidget(row, 0, new Image(vo.getAttributes().get(i).getValue()));
 				row++;
 			}
-		}   
-		
-		String headerString = "";		
-		
+		}
+
+		String headerString = "";
+
 		// display application header
 		if (type.equalsIgnoreCase("INITIAL")) {
 			if (group != null) {
 				headerString = ApplicationMessages.INSTANCE.applicationFormForGroup(group.getName());
 			} else {
-				headerString = ApplicationMessages.INSTANCE.applicationFormForVo(vo.getName());				
+				headerString = ApplicationMessages.INSTANCE.applicationFormForVo(vo.getName());
 			}
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
 			if (group != null) {
 				headerString = ApplicationMessages.INSTANCE.membershipExtensionForGroup(group.getName());
 			} else {
 				headerString = ApplicationMessages.INSTANCE.membershipExtensionForVo(vo.getName());
-			}			
+			}
 		}
 		header.setHTML(row, 0, "<h1>" + headerString + "</h1>");
-		
+
 		// language button
 		prepareToggleLanguageButton();
-		
+
 		FlexTable lang = new FlexTable();
 		lang.setWidget(0, 1, languageButtonCzech);
 		lang.setWidget(0, 2, languageButtonEnglish);
 		header.setWidget(0, 1, lang);
 		header.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
-		
+
 		formContent.add(header);
 
 		final GetFormItemsWithPrefilledValues fitems;
@@ -210,18 +211,18 @@ public class ApplicationFormPage extends ApplicationPage {
 		} else {
 			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId());
 		}
-		
+
 		// pass valid app type in URL or use default
-		
-		if (Location.getParameter("type") != null && 
+
+		if (Location.getParameter("type") != null &&
 				(Location.getParameter("type").equalsIgnoreCase("INITIAL") || Location.getParameter("type").equalsIgnoreCase("EXTENSION"))) {
 			fitems.setType(Location.getParameter("type").toUpperCase());
 		} else {
 			fitems.setType(type);
 		}
-		
+
 		fitems.setHidden(true);
-		
+
 		fitems.setSendFormHandler(new SendsApplicationForm() {
 			public void sendApplicationForm(CustomButton button) {
 				data = fitems.getValues();
@@ -232,25 +233,25 @@ public class ApplicationFormPage extends ApplicationPage {
 		fitems.retrieveData();
 
 		formContent.add(fitems.getContents());
-		
+
 		formContent.add(new HTML("<br /><br /><br />"));
-		
+
 		JsonCallbackEvents formEvent = new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				form = jso.cast();
 			}
 		};
-		
+
 		GetApplicationForm formRequest;
-		
+
 		if (group != null) {
 			formRequest = new GetApplicationForm(PerunEntity.GROUP, group.getId(), formEvent);
 		} else {
 			formRequest = new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), formEvent);
 		}
 		formRequest.retrieveData();
-		
+
 	}
 
 	/**
@@ -259,7 +260,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	protected void sendForm(final CustomButton button) {
 
 		PerunPrincipal pp = session.getPerunPrincipal();
-		
+
 		// fed info
 		String fedInfo = "";
 		fedInfo += "{";
@@ -271,9 +272,9 @@ public class ApplicationFormPage extends ApplicationPage {
 		fedInfo += " mail=\"" + pp.getAdditionInformations("mail")+"\"";
 		fedInfo += " organization=\"" + pp.getAdditionInformations("o")+"\"";
 		fedInfo += " }";
-		
+
 		Application app = Application.construct(vo, group, type, fedInfo, pp.getActor(), pp.getExtSource(), pp.getExtSourceType(), pp.getExtSourceLoa());
-		
+
 		if (session.getUser() != null) {
 			// set user association if known from perun
 			app.setUser(session.getUser());
@@ -281,7 +282,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		// loading
 		final PopupPanel loadingBox = session.getUiElements().perunLoadingBox(ApplicationMessages.INSTANCE.processing());
-		
+
 		// Create application request
 		CreateApplication ca = new CreateApplication(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
             @Override
@@ -335,7 +336,7 @@ public class ApplicationFormPage extends ApplicationPage {
 		}
 
         approveText = "<p><strong>" + approveText + "</strong></p>";
-		
+
 		// conditional sending of validation email
 		String validationText = "";
 		ArrayList<ApplicationFormItemData> data = JsonUtils.jsoAsList(jso);
@@ -347,17 +348,17 @@ public class ApplicationFormPage extends ApplicationPage {
 				}
 			}
 		}
-		
+
 		if (type.equalsIgnoreCase("INITIAL")) {
 
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			
+
 			String succSendText = ApplicationMessages.INSTANCE.applicationSuccessfullySent(vo.getName());
 			if (group != null) {
 				succSendText = ApplicationMessages.INSTANCE.applicationSuccessfullySent(group.getName());
 			}
-			
+
 			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ succSendText +"</h2>" + validationText + approveText);
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -366,9 +367,9 @@ public class ApplicationFormPage extends ApplicationPage {
             if (Location.getParameter("targetnew") != null) {
                 Location.replace(Location.getParameter("targetnew"));
             }
-			
+
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
-			
+
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
 			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>" + ApplicationMessages.INSTANCE.membershipExtensionSuccessfullySent(vo.getName()) + "</h2>" +
@@ -376,7 +377,7 @@ public class ApplicationFormPage extends ApplicationPage {
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			bodyContents.setWidget(ft);
-			
+
 			if (autoApproval) {
 				// automatically extended
                 if (Location.getParameter("targetextended") != null) {
@@ -388,9 +389,9 @@ public class ApplicationFormPage extends ApplicationPage {
                     Location.replace(Location.getParameter("targetexisting"));
                 }
 			}
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -438,24 +439,24 @@ public class ApplicationFormPage extends ApplicationPage {
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
 		}
-		
+
 	}
 
 	@Override
 	public void menuClick() {
-		
+
 		// load application only once and also when submitted or on error
 		if (formContent.getWidgetCount() == 0 || submittedOrError) {
 			prepareVoForm();
 		} else {
 			// do nothing
 		}
-		
+
 	}
 
 	/**
 	 * Try to find user by name
-	 * 
+	 *
 	 * If user found, message box shown
      *
      * @param jso returned data
@@ -493,7 +494,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		// try to find
         FindUsersByName find = new FindUsersByName(new JsonCallbackEvents(){
-			
+
 			protected int usersLoginsLoaded = 0;
 			protected int usersCount = 0;
 			protected Map<User,ArrayList<Attribute>> usersLogins = new HashMap<User,ArrayList<Attribute>>();
@@ -505,7 +506,7 @@ public class ApplicationFormPage extends ApplicationPage {
                 for (User u : users) {
                     if (!u.isServiceUser()) usersCount++;
                 }
-				
+
 				// users found, found logins for them
 				for(final User user : users) {
 
@@ -513,32 +514,32 @@ public class ApplicationFormPage extends ApplicationPage {
                     if (user.isServiceUser()) continue;
 
 					new GetLogins(user.getId(), new JsonCallbackEvents(){
-						
+
 						public void onFinished(JavaScriptObject jso){
-								
+
 							usersLoginsLoaded++;
 							ArrayList<Attribute> logins = JsonUtils.jsoAsList(jso);
-							
+
 							usersLogins.put(user, logins);
-							
+
 							// if last, show window
 							if(usersLoginsLoaded == usersCount){
 								similarUsersFound(usersLogins);
 							}
-							
+
 						}
 					}).retrieveData();
-					
+
 				}
 			}
-			
-		
+
+
 		}, displayName);
 
         find.retrieveData();
 
     }
-	
+
 	/**
 	 * When similar users found, display a message
      *
@@ -550,32 +551,32 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		ft.setWidth("400px");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
-		
+
 		ft.setHTML(0, 0, ApplicationMessages.INSTANCE.similarUsersFoundIsItYou() + "<br /><br />");
 		ftf.setColSpan(0, 0, 2);
-		
+
 		ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
 		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.logins() +"</strong>");
 
 		int i = 2;
-		
+
 		for (Map.Entry<User, ArrayList<Attribute>> entry : usersLogins.entrySet()) {
 
 			final User user = entry.getKey();
 			ArrayList<Attribute> logins = entry.getValue();
-			
+
 			String loginsStr = "";
-			
+
 			// join array
 			for (Attribute login : logins) {
 				loginsStr += login.getFriendlyNameParameter()+ ": " + login.getValue() + ", ";
 			}
 			loginsStr = loginsStr.substring(0, loginsStr.length() - 2);
-			
-			
+
+
 			ft.setHTML(i, 0, user.getFullNameWithTitles());
 			ft.setHTML(i, 1, loginsStr);
-			
+
 			i++;
 
 		}
@@ -593,5 +594,5 @@ public class ApplicationFormPage extends ApplicationPage {
 		confirm.show();
 
 	}
-	
+
 }

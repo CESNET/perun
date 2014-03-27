@@ -7,6 +7,7 @@ import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -123,8 +124,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
     /**
      * Retrieve data from RPC
      */
-    public void retrieveData()
-    {
+    public void retrieveData() {
 
         String param = "";
 
@@ -175,7 +175,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
                 Location.replace(Location.getParameter("targetnew"));
             }
 
-        } if (error.getName().equalsIgnoreCase("MissingRequiredDataException")) {
+        } else if (error.getName().equalsIgnoreCase("MissingRequiredDataException")) {
 
             String missingItems = "<p>";
             if (error.getFormItems() != null) {
@@ -280,6 +280,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
         FlexTable ft = new FlexTable();
         ft.setCellPadding(10);
+        ft.setWidth("100%");
         FlexCellFormatter fcf = ft.getFlexCellFormatter();
         String locale;
 
