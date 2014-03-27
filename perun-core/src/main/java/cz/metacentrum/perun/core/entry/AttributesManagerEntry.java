@@ -146,7 +146,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, member)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, member));
           } else {
-              throw new InternalErrorException("One of getting attributes is not correct type : " + attrNext);
+              throw new ConsistencyErrorException("One of getting attributes is not correct type : " + attrNext);
           }
       }
       return attributes;
@@ -177,7 +177,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, member)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, member));
           } else {
-              throw new InternalErrorException("One of getting attributes is not correct type_: " + attrNext);
+              throw new ConsistencyErrorException("One of getting attributes is not correct type_: " + attrNext);
           }
       }
       return attributes;
@@ -365,7 +365,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, group, resource)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, group, resource));
           } else {
-              throw new InternalErrorException("One of getting attribute is not type of group or group_resource : " + attrNext);
+              throw new ConsistencyErrorException("One of getting attribute is not type of group or group_resource : " + attrNext);
           }
        }
 
@@ -388,7 +388,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
           } else {
-              throw new InternalErrorException("One of getting attribute is not type of member or user : " + attrNext);
+              throw new ConsistencyErrorException("One of getting attribute is not type of member or user : " + attrNext);
           }
       }
       return attributes;
@@ -502,7 +502,7 @@ public class AttributesManagerEntry implements AttributesManager {
               User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), u, null)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
+              throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
           }
       }
       getAttributesManagerBl().setAttributes(sess, resource, member, attributes, workWithUserAttributes);
@@ -521,7 +521,7 @@ public class AttributesManagerEntry implements AttributesManager {
               User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), u, null)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
+              throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
           }
       }
       getAttributesManagerBl().setAttributes(sess, member, attributes, workWithUserAttributes);
@@ -546,7 +546,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), user, null)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
+              throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
           }
       }
       getAttributesManagerBl().setAttributes(sess, facility, resource, user, member, attributes);
@@ -628,7 +628,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_RESOURCE_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
+              throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
           }
       }
       getAttributesManagerBl().setAttributes(sess, resource, group, attributes, workWithGroupAttributes);
@@ -1080,7 +1080,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, f)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, f));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1111,7 +1111,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, facility)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, facility));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1279,7 +1279,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, f)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, f));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1316,7 +1316,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, null)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, null));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1489,7 +1489,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, f)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, f));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1527,7 +1527,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, group, null)) attrIter.remove();
               else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, group, null));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       return attributes;
@@ -1651,7 +1651,7 @@ public class AttributesManagerEntry implements AttributesManager {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attrNext), u, f)) attrIter.remove();
               else attrNext.setWritable(true);
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
 
@@ -1696,7 +1696,7 @@ public class AttributesManagerEntry implements AttributesManager {
                   attrNext.setWritable(true);
               }
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
 
@@ -1853,7 +1853,7 @@ public class AttributesManagerEntry implements AttributesManager {
                     attrNext.setWritable(true);
                 }
             } else {
-                throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+                throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
             }
         }
 
@@ -2021,7 +2021,7 @@ public class AttributesManagerEntry implements AttributesManager {
               Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), u , f)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
           }
       }
       getAttributesManagerBl().checkAttributesValue(sess, resource, member, attributes, workWithUserAttributes);
@@ -2045,7 +2045,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
           }
       }
       getAttributesManagerBl().checkAttributesValue(sess, facility, resource, user, member, attributes);
@@ -2233,7 +2233,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
           }
       }
       getAttributesManagerBl().removeAttributes(sess, resource, group, attributes, workWithGroupAttributes);
@@ -2268,7 +2268,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
           }
       }
       getAttributesManagerBl().removeAttributes(sess, facility, resource, user, member, attributes);
@@ -2287,7 +2287,7 @@ public class AttributesManagerEntry implements AttributesManager {
                User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
                if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, u , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
            } else {
-               throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+               throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
            }
        }
        getAttributesManagerBl().removeAttributes(sess, member, workWithUserAttributes, attributes);
@@ -2319,7 +2319,7 @@ public class AttributesManagerEntry implements AttributesManager {
           } else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
               if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
           } else {
-              throw new InternalErrorException("There is some attribute which is not type of any possible choice.");
+              throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
           }
       }
       getAttributesManagerBl().removeAllAttributes(sess, resource, group, workWithGroupAttributes);
