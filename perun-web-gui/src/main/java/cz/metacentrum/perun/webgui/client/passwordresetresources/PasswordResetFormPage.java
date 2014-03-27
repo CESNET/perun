@@ -161,20 +161,20 @@ public class PasswordResetFormPage {
                             }
                         }
                     }
-                    // DO NOT HAVE LOGIN IN NAMESPACE
-                    bodyContents.clear();
-                    FlexTable ft = new FlexTable();
-                    ft.setSize("100%", "300px");
-
-                    if (namespace != null && !namespace.isEmpty()) {
-                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You don't have login in selected namespace !</h2>");
-                    } else {
-                        ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You must specify login-namespace in URL !</h2>");
-                    }
-                    ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-                    ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-                    bodyContents.setWidget(ft);
                 }
+                // DO NOT HAVE LOGIN IN NAMESPACE
+                bodyContents.clear();
+                FlexTable ft = new FlexTable();
+                ft.setSize("100%", "300px");
+
+                if (namespace != null && !namespace.isEmpty()) {
+                    ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You don't have login in selected namespace !</h2>");
+                } else {
+                    ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>You must specify login-namespace in URL !</h2>");
+                }
+                ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+                ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+                bodyContents.setWidget(ft);
 
             }
         });
