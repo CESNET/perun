@@ -399,9 +399,8 @@ public interface GroupsManager {
    * @throws AlreadyAdminException
    * @throws InternalErrorRuntimeException
    * @throws UserNotExistsException
-   * @throws NotServiceUserExpectedException when use of this member is serviceUser
    */
-  void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, NotServiceUserExpectedException, UserNotExistsException;
+  void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
    /** 
    * Adds a group administrator to the group.

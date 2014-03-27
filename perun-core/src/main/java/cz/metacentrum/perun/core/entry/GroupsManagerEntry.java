@@ -321,12 +321,10 @@ public class GroupsManagerEntry implements GroupsManager {
     return getGroupsManagerBl().getGroupMembersCount(sess, group);
   }
 
-  public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, NotServiceUserExpectedException, UserNotExistsException {
+  public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
     Utils.checkPerunSession(sess);
     getGroupsManagerBl().checkGroupExists(sess, group); 
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-    if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
 
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
