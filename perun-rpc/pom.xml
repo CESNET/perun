@@ -59,6 +59,14 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <warName>perun-rpc-devel</warName>
+                    <webResources>
+                        <resource>
+                            <!-- Enable custom location of log4j.xml per webapp -->
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp/WEB-INF/</directory>
+                            <targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
 
@@ -209,6 +217,14 @@
                         <artifactId>maven-war-plugin</artifactId>
                         <configuration>
                             <warName>perun-rpc</warName>
+                            <webResources>
+                                <!-- Enable custom location of log4j.xml per webapp -->
+                                <resource>
+                                    <filtering>true</filtering>
+                                    <directory>src/main/webapp/WEB-INF/</directory>
+                                    <targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
+                                </resource>
+                            </webResources>
                         </configuration>
                     </plugin>
 
