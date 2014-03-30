@@ -44,7 +44,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
             Attribute userPrefferedShells = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"));
             List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
             Set<String> resourcesShells = new HashSet<String>();
-            
+
             for (Resource resource : resources) {
                 List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells").getValue();
                 if (resourcesShellsForTest != null) resourcesShells.addAll(resourcesShellsForTest);
@@ -92,7 +92,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         List<String> strongDependencies = new ArrayList<String>();
         strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
         strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
-        strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells");
+        strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":preferredShells");
         strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
         return strongDependencies;
     }
@@ -102,7 +102,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
         attr.setFriendlyName("shell");
         attr.setType(String.class.getName());
-        attr.setDescription("Computed Shell from user preferrences");
+        attr.setDescription("Computed Shell from user preferences");
         return attr;
     }
 }
