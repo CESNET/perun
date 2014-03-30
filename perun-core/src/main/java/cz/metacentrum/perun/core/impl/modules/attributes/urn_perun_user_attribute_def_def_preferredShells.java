@@ -42,7 +42,7 @@ public class urn_perun_user_attribute_def_def_preferredShells extends UserAttrib
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
       attr.setFriendlyName("preferredShells");
       attr.setType(List.class.getName());
-      attr.setDescription("User preferred shells, ordered by user's personal preferrences.");
+      attr.setDescription("User preferred shells, ordered by user's personal preferences");
       return attr;
   }
 }
