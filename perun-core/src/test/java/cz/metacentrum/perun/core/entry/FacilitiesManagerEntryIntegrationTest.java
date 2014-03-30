@@ -322,6 +322,27 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
         
         @Test
+	public void getAllowedUsersCheckUniqueness() throws Exception {
+		System.out.println("FacilitiesManager.getAllowedUsersCheckUniqueness");
+
+		Vo vo = setUpVo();
+		Resource resource1 = setUpResource(vo);
+                Resource resource2 = setUpResource2(vo);
+
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+                Group group2 = setUpGroup2(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource1);
+                perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);                
+
+		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
+		assertTrue("our facility should have 1 allowed user",users.size() == 1);
+		assertTrue("our user should be between allowed on facility",users.contains(user));
+
+	}
+        
+        @Test
 	public void getAllowedUsersWithVoAndServiceFilter() throws Exception {
 		System.out.println("FacilitiesManager.getAllowedUsers");
                 
@@ -896,6 +917,17 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return resource;
 
 	}
+        
+        private Resource setUpResource2(Vo vo) throws Exception {
+
+		Resource resource = new Resource();
+		resource.setName("FacilitiesManagerTestSecondResource");
+		resource.setDescription("testing second resource");
+		assertNotNull("unable to create resource",perun.getResourcesManager().createResource(sess, resource, vo, facility));
+
+		return resource;
+
+	}
 
 	private Member setUpMember(Vo vo) throws Exception {
 
@@ -934,6 +966,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	private Group setUpGroup(Vo vo, Member member) throws Exception {
 
 		Group group = new Group("ResourcesManagerTestGroup","");
+		group = perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().addMember(sess, group, member);
+		return group;
+
+	}
+        
+        private Group setUpGroup2(Vo vo, Member member) throws Exception {
+
+		Group group = new Group("ResourcesManagerTestSecondGroup","");
 		group = perun.getGroupsManager().createGroup(sess, vo, group);
 		perun.getGroupsManager().addMember(sess, group, member);
 		return group;

@@ -69,6 +69,7 @@ import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 /**
@@ -228,12 +229,12 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     //Get all facilities resources
     List<Resource> resources = this.getAssignedResources(sess, facility);
     
-    List<User> users =  new ArrayList<User>();
+    Set<User> users =  new TreeSet<User>();
     for (Resource resource: resources) {
       users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource));
     }
 
-    return users;
+    return new ArrayList<>(users);
   }
   
   @Override
