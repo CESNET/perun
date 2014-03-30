@@ -92,7 +92,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
         List<String> strongDependencies = new ArrayList<String>();
         strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
         strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
-        strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":prefferedShells");
+        strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells");
         strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
         return strongDependencies;
     }
