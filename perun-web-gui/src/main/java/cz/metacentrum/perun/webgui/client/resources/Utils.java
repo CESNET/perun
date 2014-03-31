@@ -108,23 +108,63 @@ public class Utils {
      */
     public static String getPasswordResetLink(String namespace) {
 
-        String baseLink = "";
+        String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getPasswordResetUrl");
 
-        // always use URL of machine, where GUI runs
-        String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
+        if (value != null && !value.isEmpty()) {
 
-        if (Utils.isDevel()) {
-            baseLink = baseUrl+"/PasswordReset.html";
+            // PWD-RESET URL IS CONFIGURED AS FIXED
+            if (namespace != null && !namespace.isEmpty()) {
+                return value+"?login-namespace="+namespace;
+            } else {
+                return value;
+            }
+
         } else {
-            baseLink = baseUrl+"/fed-force/pwd-reset/";
-        }
 
-        if (namespace != null && !namespace.isEmpty()) {
-            return baseLink+"?login-namespace="+namespace;
-        } else {
-            return baseLink;
-        }
+            // USE RELATIVE PWD-RESET URL
 
+            String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
+
+            if (!Utils.isDevel()) {
+
+                // VALID URL FOR PRODUCTION
+
+                String rpc = "";
+                if (PerunWebSession.getInstance().getRpcServer() != null) {
+                    rpc = PerunWebSession.getInstance().getRpcServer();
+                }
+
+                if (rpc.equalsIgnoreCase("krb")) {
+                    baseUrl+="/krb";
+                } else if (rpc.equalsIgnoreCase("fed")) {
+                    baseUrl+="/fed";
+                } else if (rpc.equalsIgnoreCase("forceAuthn-fed")) {
+                    baseUrl+="/fed-force";
+                } else if (rpc.equalsIgnoreCase("cert")) {
+                    baseUrl+="/cert";
+                } else if (rpc.equalsIgnoreCase("einfra")) {
+                    baseUrl+="/krb-einfra";
+                } else {
+                    // KRB AS BACKUP - "default"
+                    baseUrl+="/krb";
+                }
+
+                baseUrl+="/pwd-reset/";
+
+            } else {
+
+                // VALID URL FOR DEVEL
+                baseUrl+="/PasswordResetKrb.html";
+
+            }
+
+            if (namespace != null && !namespace.isEmpty()) {
+                return baseUrl+"?login-namespace="+namespace;
+            } else {
+                return baseUrl;
+            }
+
+        }
     }
 
     /**
