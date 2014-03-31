@@ -22,7 +22,7 @@
     <!--<inherits name="gwtquery.plugins.droppable.Droppable"/>-->
 
 	<!-- Allow translations - 'default' = English strings, add 'cs' = Czech strings -->
-	<extend-property name="locale" values="cs" />
+	<!-- <extend-property name="locale" values="cs" /> -->
 	<!-- <extend-property name="locale" values="en"/> -->
 	<!-- <set-property-fallback name="locale" value="en"/> -->
 
