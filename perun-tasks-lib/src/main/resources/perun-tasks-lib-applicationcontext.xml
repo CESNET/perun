@@ -14,7 +14,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <aop:aspectj-autoproxy/>
 
     <!-- Scans for @Repository, @Service and @Component -->
-    <context:component-scan base-package="cz.metacentrum.perun.taskslib"/>  
+    <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>  
     
     <!-- DAOs -->
     <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
