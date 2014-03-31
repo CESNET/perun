@@ -21,7 +21,6 @@ public class CreateFacility {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// facility
 	private String name = "";
-	private String type = "";
 	// URL to call
 	final String JSON_URL = "facilitiesManager/createFacility";
 	// custom events
@@ -71,7 +70,6 @@ public class CreateFacility {
 	public void createFacility(final String name) {
 
         this.name = name;
-		this.type = "general"; // FIXME - fake type, while transition to removing this property
 
 		// test arguments
 		if(!this.testCreating()){
@@ -114,7 +112,6 @@ public class CreateFacility {
 		// facility
 		JSONObject facility = new JSONObject();
 		facility.put("name", new JSONString(name));
-		facility.put("type", new JSONString(type));
 		facility.put("id", new JSONNumber(0));
 
 		// whole JSON query

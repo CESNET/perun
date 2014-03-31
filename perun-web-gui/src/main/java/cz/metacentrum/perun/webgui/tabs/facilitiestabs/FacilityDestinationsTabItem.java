@@ -87,7 +87,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 		
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Destinations");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Destinations");
 		
 		// main content
 		final VerticalPanel vp = new VerticalPanel();

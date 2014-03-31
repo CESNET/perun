@@ -147,7 +147,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		// FACILITY COLUMN
 		TextColumn<Destination> facilityColumn = new TextColumn<Destination>(){
 			public String getValue(Destination object) {
-				return object.getFacility().getName() + " ("+object.getFacility().getType()+")";
+				return object.getFacility().getName();
 			}
 		};
 

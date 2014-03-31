@@ -160,7 +160,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 		// FACILITY COLUMN
 		Column<Destination, String> facilityColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
 					public String getValue(Destination dest) {
-						if (dest.getService() != null ) { return dest.getFacility().getName() + " ("+dest.getFacility().getType()+")"; } 
+						if (dest.getService() != null ) { return dest.getFacility().getName(); }
 						else { return ""; }
 					}
 				}, tableFieldUpdater);

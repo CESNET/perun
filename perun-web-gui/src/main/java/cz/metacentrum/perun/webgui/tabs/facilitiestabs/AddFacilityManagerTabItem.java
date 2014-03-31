@@ -77,22 +77,22 @@ public class AddFacilityManagerTabItem implements TabItem {
      *
      * @param facilityId ID of facility
      */
-    public AddFacilityManagerTabItem(int facilityId){
-        this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
-    }
-
-    public boolean isPrepared(){
-        return !(facility == null);
-    }
-
-    public Widget draw() {
-
-        titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add manager");
+	public AddFacilityManagerTabItem(int facilityId){
+		this.facilityId = facilityId;
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();			
+			}
+		}).retrieveData();
+	}
+	
+	public boolean isPrepared(){
+		return !(facility == null);
+	}
+	
+	public Widget draw() {
+		
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": add manager");
 
         final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
         this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents(){

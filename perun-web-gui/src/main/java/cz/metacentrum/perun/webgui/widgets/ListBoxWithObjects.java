@@ -51,17 +51,6 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 	}	
 	}
 
-	// facility ?
-	if (value.name){
-		if (!value.user) { 
-			if (!value.lastName) { 
-				if (value.type) {
-					return value.name + " (" + value.type + ")";
-				}
-			}
-		}
-	}
-
 	// User
 	if (!value.name){
 		if (!value.user) { return value.lastName + " " +value.firstName; }
@@ -86,8 +75,6 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 	return value.lastName + " " +value.firstName;
 	 } else if (value.beanName == "Author") {
 	 	return value.lastName + " " +value.firstName;
-	 } else if (value.beanName == "Facility") {
-	 	return value.name + " (" + value.type + ")";
 	 } else if (value.beanName == "ExecService") {
 	 	return value.service.name + " " + value.execServiceType;
 	 } else if (value.beanName == "AttributeDefinition") {

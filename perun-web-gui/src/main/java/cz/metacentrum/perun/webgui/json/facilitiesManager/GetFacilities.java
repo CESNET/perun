@@ -123,18 +123,6 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
         }
 
         table.addIdColumn("Facility ID", tableFieldUpdater);
-
-        // Create type column.
-        Column<Facility, String> typeColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<Facility, String>() {
-                    public String getValue(Facility object) {
-                        return object.getType();
-                    }
-                }, this.tableFieldUpdater);
-
-        // Add the columns.
-        table.addColumn(typeColumn, "Type");
-        table.setColumnWidth(typeColumn, "100px");
         table.addNameColumn(tableFieldUpdater, 200);
 
         // Create owners column.
@@ -159,13 +147,6 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
             table.addColumn(ownersColumn, "Technical owners");
         }
 
-        // SORTING
-        typeColumn.setSortable(true);
-        columnSortHandler.setComparator(typeColumn, new Comparator<Facility>() {
-            public int compare(Facility o1, Facility o2) {
-                return o1.getType().compareToIgnoreCase(o2.getType());
-            }
-        });
         return table;
     }
 
