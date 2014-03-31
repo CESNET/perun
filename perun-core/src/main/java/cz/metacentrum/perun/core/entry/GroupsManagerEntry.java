@@ -193,17 +193,14 @@ public class GroupsManagerEntry implements GroupsManager {
     getGroupsManagerBl().checkGroupExists(sess, group);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
-    //TODO: Really need to check if member's vo.id and vo id are the same?
-    Vo vo = getGroupsManagerBl().getVo(sess, group);
-
     // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
         && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
       throw new PrivilegeException(sess, "addMember");
     }
 
     // Check if the member and group are from the same VO
-    if (member.getVoId() != (vo.getId())) {
+    if (member.getVoId() != (group.getVoId())) {
       throw new MembershipMismatchException("Member and group are form the different VO");
     }
     
