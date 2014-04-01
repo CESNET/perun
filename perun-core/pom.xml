@@ -376,57 +376,6 @@
 
         </profile>
 
-        <!--
-
-        <profile>
-            <id>api</id>
-            <properties>
-                <perun.build.type>api</perun.build.type>
-            </properties>
-            <build>
-                <defaultGoal>package</defaultGoal>
-                <plugins>
-
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <tasks>
-                                        <delete file="${project.build.outputDirectory}/perun-core-trace-log.xml"/>
-                                        <copy file="src/main/resources/production/perun-core-trace-log.xml"
-                                              tofile="${project.build.outputDirectory}/perun-core-trace-log.xml"/>
-                                        <delete dir="${project.build.outputDirectory}/devel" includeemptydirs="true"/>
-                                        <delete dir="${project.build.outputDirectory}/beta" includeemptydirs="true"/>
-                                        <delete dir="${project.build.outputDirectory}/production"
-                                                includeemptydirs="true"/>
-                                        <delete dir="${project.build.outputDirectory}/samples" includeemptydirs="true"/>
-                                    </tasks>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>tomcat-dbcp</artifactId>
-                    <version>7.0.27</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>ojdbc5</artifactId>
-                    <version>11.1.0.7.0</version>
-                </dependency>
-            </dependencies>
-        </profile>
-          -->
-
     </profiles>
 
 </project>
