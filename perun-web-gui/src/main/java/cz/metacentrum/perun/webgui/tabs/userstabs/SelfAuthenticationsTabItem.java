@@ -155,7 +155,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 							fw.addStyleName("padding-vertical");
 							CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
-									session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
+									session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 								}
 							});
 							CustomButton cb2 = new CustomButton("Reset password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
