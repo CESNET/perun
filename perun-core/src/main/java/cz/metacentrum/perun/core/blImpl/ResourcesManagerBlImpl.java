@@ -79,42 +79,51 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     return resource;
   }
 
-  public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
-    //Get facility for audit messages
-    Facility facility = this.getFacility(sess, resource);
+    public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+        //Get facility for audit messages
+        Facility facility = this.getFacility(sess, resource);
 
-    // Remove binding between resource and service
-    List<Service> services = getAssignedServices(sess, resource);
-    for (Service service: services) {
-      try {
-        getResourcesManagerImpl().removeService(sess, resource, service);
-      } catch (ServiceNotAssignedException e) {
-        throw new ConsistencyErrorException(e);
-      }
+        // Remove binding between resource and service
+        List<Service> services = getAssignedServices(sess, resource);
+        for (Service service : services) {
+            try {
+                getResourcesManagerImpl().removeService(sess, resource, service);
+            } catch (ServiceNotAssignedException e) {
+                throw new ConsistencyErrorException(e);
+            }
+        }
+
+        List<Group> groups = getAssignedGroups(sess, resource);
+        for (Group group : groups) {
+            getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
+            //IMPORTANT: If removeGroupFromResource called from BlImpl, this logging must be deleted
+            getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
+        }
+
+        // Remove attr values for the resource
+        try {
+            perunBl.getAttributesManagerBl().removeAllAttributes(sess, resource);
+        } catch (AttributeValueException ex) {
+            throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed without problem.", ex);
+        }
+        // Remove group-resource attr values for all group and resource
+        try {
+            this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
+        } catch (WrongAttributeValueException ex) {
+            throw new InternalErrorException(ex);
+        } catch (WrongAttributeAssignmentException ex) {
+            throw new InternalErrorException(ex);
+        } catch (WrongReferenceAttributeValueException ex) {
+            throw new InternalErrorException(ex);
+        }
+        //Remove all resources tags
+        this.removeAllResourcesTagFromResource(sess, resource);
+
+		// Get the resource VO
+		Vo vo = this.getVo(sess, resource);
+		getResourcesManagerImpl().deleteResource(sess, vo, resource);
+        getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}.", resource, facility, services);
     }
-
-    List<Group> groups = getAssignedGroups(sess, resource);
-    for (Group group: groups){
-        getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
-        //IMPORTANT: If removeGroupFromResource called from BlImpl, this logging must be deleted
-        getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
-    }
-
-    // Remove attr values for the resource
-    try {
-      perunBl.getAttributesManagerBl().removeAllAttributes(sess, resource);
-    } catch(AttributeValueException ex) {
-      throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed withou problem.", ex);
-    }
-    
-    //Remove all resources tags
-    this.removeAllResourcesTagFromResource(sess, resource);
-
-    // Get the resource VO
-    Vo vo = this.getVo(sess, resource);
-    getResourcesManagerImpl().deleteResource(sess, vo, resource);
-    getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}.", resource, facility, services);
-  }
 
   public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
     for(Resource r: this.getResources(sess, vo)) {

@@ -3316,6 +3316,15 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       }
     }
     
+    public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+        try {
+            jdbc.update("delete from group_resource_attr_values where resource_id=?", resource.getId());
+        } catch (RuntimeException ex) {
+            throw new InternalErrorException(ex);
+        }
+
+    }
+
     public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
       try {
         if(0 < jdbc.update("delete from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId())) {
