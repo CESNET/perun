@@ -57,7 +57,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 
 	/**
 	 * Creates a new getResources method instance
-     *
+	 *
 	 * @param id VO ID
 	 */
 	public GetRichResources(int id) {
@@ -66,7 +66,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 
 	/**
 	 * Creates a new getResources method instance
-     *
+	 *
 	 * @param id VO ID
 	 * @param events Custom events
 	 */
@@ -113,7 +113,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        loaderImage.setEmptyResultMessage("VO has no resources.");
+		loaderImage.setEmptyResultMessage("VO has no resources.");
 
 		// columns
 		if (checkable) {
@@ -122,45 +122,45 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		table.addIdColumn("Resource ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
 
-        // FACILITY COLUMN
-        Column<RichResource, String> facilityColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<RichResource, String>() {
-                    public String getValue(RichResource object) {
-                        return object.getFacility().getName() + " - " + object.getFacility().getType();
-                    }
-                }, tableFieldUpdater);
-
-        facilityColumn.setSortable(true);
-        columnSortHandler.setComparator(facilityColumn, new Comparator<RichResource>(){
-            public int compare(RichResource arg0, RichResource arg1) {
-                return (arg0.getFacility().getName() + " - " + arg0.getFacility().getType()).compareToIgnoreCase(arg1.getFacility().getName() + " - " + arg1.getFacility().getType());
-            }
-        });
-        table.addColumn(facilityColumn, "Facility - Type");
-
-		// TAGS COLUMN
-		Column<RichResource, String> tagsColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<RichResource, String>() {
+		// FACILITY COLUMN
+		Column<RichResource, String> facilityColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<RichResource, String>() {
 					public String getValue(RichResource object) {
-
-                        ArrayList<ResourceTag> tags = object.getResourceTags();
-                        if (tags != null && !tags.isEmpty()) {
-                            String s = "";
-                            tags = new TableSorter<ResourceTag>().sortByName(tags);
-                            for (ResourceTag tag : tags) {
-                                s += tag.getName() + ", ";
-                            }
-                            s = s.substring(0, s.length()-2);
-                            return s;
-                        } else {
-                            return "";
-                        }
+						return object.getFacility().getName() + " - " + object.getFacility().getType();
 					}
 				}, tableFieldUpdater);
 
-        // TODO - sorting
+		facilityColumn.setSortable(true);
+		columnSortHandler.setComparator(facilityColumn, new Comparator<RichResource>(){
+			public int compare(RichResource arg0, RichResource arg1) {
+				return (arg0.getFacility().getName() + " - " + arg0.getFacility().getType()).compareToIgnoreCase(arg1.getFacility().getName() + " - " + arg1.getFacility().getType());
+			}
+		});
+		table.addColumn(facilityColumn, "Facility - Type");
+
+		// TAGS COLUMN
+		Column<RichResource, String> tagsColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<RichResource, String>() {
+					public String getValue(RichResource object) {
+
+						ArrayList<ResourceTag> tags = object.getResourceTags();
+						if (tags != null && !tags.isEmpty()) {
+							String s = "";
+							tags = new TableSorter<ResourceTag>().sortByName(tags);
+							for (ResourceTag tag : tags) {
+								s += tag.getName() + ", ";
+							}
+							s = s.substring(0, s.length()-2);
+							return s;
+						} else {
+							return "";
+						}
+					}
+				}, tableFieldUpdater);
+
+		// TODO - sorting
 		table.addColumn(tagsColumn, "Tags");
-        table.setColumnWidth(tagsColumn, "200px");
+		table.setColumnWidth(tagsColumn, "200px");
 
 		table.addDescriptionColumn(tableFieldUpdater);
 
@@ -176,133 +176,133 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<RichResource>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<RichResource>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(RichResource object) {
-        list.add(object);
-        oracle.add(object.getName());
-        for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add(rt.getName()+" (tag)");
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(RichResource object) {
+		list.add(object);
+		oracle.add(object.getName());
+		for (ResourceTag rt : object.getResourceTags()) {
+			oracle.add(rt.getName()+" (tag)");
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(RichResource object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(RichResource object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        oracle.clear();
-        fullBackup.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		oracle.clear();
+		fullBackup.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<RichResource> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<RichResource> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading VO resources.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading VO resources.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading VO resources started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading VO resources started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<RichResource>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Resources loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<RichResource>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Resources loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, RichResource object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add(rt.getName()+" (tag)");
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, RichResource object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		for (ResourceTag rt : object.getResourceTags()) {
+			oracle.add(rt.getName()+" (tag)");
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<RichResource> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (RichResource r : list) {
-            oracle.add(r.getName());
-            for (ResourceTag rt : r.getResourceTags()) {
-                oracle.add(rt.getName()+" (tag)");
-            }
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<RichResource> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (RichResource r : list) {
+			oracle.add(r.getName());
+			for (ResourceTag rt : r.getResourceTags()) {
+				oracle.add(rt.getName()+" (tag)");
+			}
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<RichResource> getList() {
-        return this.list;
-    }
+	public ArrayList<RichResource> getList() {
+		return this.list;
+	}
 
 	public void filterTable(String filter) {
 
@@ -311,37 +311,37 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
 		} else {
 			for (RichResource res : fullBackup){
 				// store facility by filter
 				if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
 					list.add(res);
 				}
-                for (ResourceTag r : res.getResourceTags()) {
-                    // remove " (tag)" from tag name
-                    if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
-                        list.add(res);
-                        break;
-                    }
-                }
+				for (ResourceTag r : res.getResourceTags()) {
+					// remove " (tag)" from tag name
+					if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
+						list.add(res);
+						break;
+					}
+				}
 			}
 		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No resource matching '"+filter+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("VO has no resources.");
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No resource matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("VO has no resources.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
 	}
 
@@ -353,8 +353,8 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		this.oracle = oracle;
 	}
 
-    public void setEvents(JsonCallbackEvents events) {
-        this.events = events;
-    }
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
 
 }

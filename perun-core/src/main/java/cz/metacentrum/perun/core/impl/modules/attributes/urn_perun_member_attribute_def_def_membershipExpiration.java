@@ -28,77 +28,77 @@ import java.util.Date;
  */
 public class urn_perun_member_attribute_def_def_membershipExpiration extends MemberAttributesModuleAbstract implements MemberAttributesModuleImplApi {
 
-    @Override
-    /**
-     * Checks if the corresponding attribute um:membershipExpiration is null or
-     * matches with regular expression yyyy-MM-dd HH:mm:ss.S where HH(0-23)
-     */
-    public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	@Override
+	/**
+	 * Checks if the corresponding attribute um:membershipExpiration is null or
+	 * matches with regular expression yyyy-MM-dd HH:mm:ss.S where HH(0-23)
+	 */
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
-        String membershipExpTime = (String) attribute.getValue();
+		String membershipExpTime = (String) attribute.getValue();
 
-        if(membershipExpTime == null) return; // NULL is ok
+		if(membershipExpTime == null) return; // NULL is ok
 
-        SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-        Date testDate = null;
+		SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+		Date testDate = null;
 
-        try {
-            testDate = correctDateFormat.parse(membershipExpTime);
+		try {
+			testDate = correctDateFormat.parse(membershipExpTime);
 
-        } catch (ParseException ex) {
+		} catch (ParseException ex) {
 
-            throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
-        }
+			throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
+		}
 
-        if (!correctDateFormat.format(testDate).equals(membershipExpTime)) {
+		if (!correctDateFormat.format(testDate).equals(membershipExpTime)) {
 
-            throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd hh:mm:ss.S expected.");
-        }
+			throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd hh:mm:ss.S expected.");
+		}
 
-    }
+	}
 
-    @Override
-    /**
-     * Fill membership expiration time.
-     * If membership starts from Janury to September, time will be the last day of starting year,
-     * if membership start from October, to December, time will be the last day of next year.
-     */
-    public Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-       /*Attribute ret = new Attribute(attribute);
-        Calendar now = Calendar.getInstance();
-        int currentMonth = now.get(Calendar.MONTH);
-        int currentYear = now.get(Calendar.YEAR);
+	@Override
+	/**
+	 * Fill membership expiration time.
+	 * If membership starts from Janury to September, time will be the last day of starting year,
+	 * if membership start from October, to December, time will be the last day of next year.
+	 */
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		/*Attribute ret = new Attribute(attribute);
+			Calendar now = Calendar.getInstance();
+			int currentMonth = now.get(Calendar.MONTH);
+			int currentYear = now.get(Calendar.YEAR);
 
-        if(currentMonth>8) currentYear++;
-        ret.setValue(currentYear + "-12-31 23:59:59.9");*/
-        return new Attribute(attribute);
-    }
+			if(currentMonth>8) currentYear++;
+			ret.setValue(currentYear + "-12-31 23:59:59.9");*/
+		return new Attribute(attribute);
+	}
 
-    @Override
-    public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-      String value = null;
-      if(attribute.getValue() != null) value = (String) attribute.getValue();
-      //If there is some value and member is in status expired or disabled
-      if(value != null && (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED))) {
-          SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-          Date expirationDate = null;
-          try {
-             expirationDate = correctDateFormat.parse(value);
-          } catch (ParseException ex) {
-             throw new InternalErrorException("Date parsing failed in setHook, even if parsing in checkMethod was correct.", ex);
-          }
-          Date date = new Date();
-          if(expirationDate.compareTo(date) > 0) session.getPerunBl().getMembersManagerBl().validateMemberAsync(session, member);
-      }
-    }
+	@Override
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		String value = null;
+		if(attribute.getValue() != null) value = (String) attribute.getValue();
+		//If there is some value and member is in status expired or disabled
+		if(value != null && (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED))) {
+			SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+			Date expirationDate = null;
+			try {
+				expirationDate = correctDateFormat.parse(value);
+			} catch (ParseException ex) {
+				throw new InternalErrorException("Date parsing failed in setHook, even if parsing in checkMethod was correct.", ex);
+			}
+			Date date = new Date();
+			if(expirationDate.compareTo(date) > 0) session.getPerunBl().getMembersManagerBl().validateMemberAsync(session, member);
+		}
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-      attr.setFriendlyName("membershipExpTime");
-      attr.setType(String.class.getName());
-      attr.setDescription("When the membership expires");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attr.setFriendlyName("membershipExpTime");
+		attr.setType(String.class.getName());
+		attr.setDescription("When the membership expires");
+		return attr;
+	}
 
 }

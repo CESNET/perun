@@ -12,32 +12,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.HostNotExistsRuntimeException
  * @author Michal Karm Babacek
  */
 public class HostNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Host host;
+	private Host host;
 
-    public HostNotExistsException(HostNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public HostNotExistsException(HostNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public HostNotExistsException(String message) {
-        super(message);
-    }
+	public HostNotExistsException(String message) {
+		super(message);
+	}
 
-    public HostNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public HostNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public HostNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public HostNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public HostNotExistsException(Host host) {
-      super(host.toString());
-      this.host = host;
-    }
+	public HostNotExistsException(Host host) {
+		super(host.toString());
+		this.host = host;
+	}
 
-    public Host getHost() {
-        return this.host;
-    }
+	public Host getHost() {
+		return this.host;
+	}
 }

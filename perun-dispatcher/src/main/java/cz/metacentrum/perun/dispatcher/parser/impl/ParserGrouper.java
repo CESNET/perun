@@ -43,33 +43,33 @@ public class ParserGrouper implements Parser {
 		BufferedReader input = null;
 
 		try {
-			//input = new BufferedReader(new FileReader(new File(file)));
-			input = new BufferedReader(new InputStreamReader(in));
-			String line = null;
-			while ((line = input.readLine()) != null) {
-				data.add(line);
-			}
+	//input = new BufferedReader(new FileReader(new File(file)));
+	input = new BufferedReader(new InputStreamReader(in));
+	String line = null;
+	while ((line = input.readLine()) != null) {
+	data.add(line);
+	}
 
-			while (running) {
-				for (String string : data) {
-					Event event = new Event();
-					event.setTimeStamp(System.currentTimeMillis());
-					String[] headerData = string.split(";");
-					event.setHeader(headerData[0]);
-					event.setData(headerData[1]);
-					eventQueue.add(event);
-					//Thread.yield();
-					Thread.sleep(1);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			log.error(e.toString()+"\n"+e.getCause());
-		} catch (IOException e) {
-			log.error(e.toString()+"\n"+e.getCause());
-		} catch (Exception e) {
-			log.error(e.toString()+"\n"+e.getCause());
-		}
-		// END JUST A TEST DUMMY !!!*/
+	while (running) {
+	for (String string : data) {
+	Event event = new Event();
+	event.setTimeStamp(System.currentTimeMillis());
+	String[] headerData = string.split(";");
+	event.setHeader(headerData[0]);
+	event.setData(headerData[1]);
+	eventQueue.add(event);
+		//Thread.yield();
+		Thread.sleep(1);
+	}
+	}
+	} catch (FileNotFoundException e) {
+	log.error(e.toString()+"\n"+e.getCause());
+	} catch (IOException e) {
+	log.error(e.toString()+"\n"+e.getCause());
+	} catch (Exception e) {
+	log.error(e.toString()+"\n"+e.getCause());
+	}
+	// END JUST A TEST DUMMY !!!*/
 	}
 
 	@Override

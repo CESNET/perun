@@ -30,7 +30,7 @@ public class ThanksServiceImpl implements IThanksService {
 	private IAuthorService authorService;
 	private IPerunService perunService;
 
-    // setters -------------------------
+	// setters -------------------------
 
 	public void setThanksDao(IThanksDao thanksDao) {
 		this.thanksDao = thanksDao;
@@ -94,10 +94,10 @@ public class ThanksServiceImpl implements IThanksService {
 		// or user who created record (thanks.createdBy property)
 		try {
 			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-                    (!t.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor())) &&
-                    (!t.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId()))) {
+					(!t.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor())) &&
+					(!t.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId()))) {
 				throw new CabinetException("You are not allowed to delete thanks you didn't created.", ErrorCodes.NOT_AUTHORIZED);
-			}
+					}
 		} catch (PerunException pe) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}

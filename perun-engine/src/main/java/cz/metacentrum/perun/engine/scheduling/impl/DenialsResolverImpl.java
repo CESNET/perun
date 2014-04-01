@@ -18,36 +18,36 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 @org.springframework.stereotype.Service(value = "denialsResolver")
 public class DenialsResolverImpl implements DenialsResolver {
 
-    @Autowired
-    private EngineManager engineManager;
+	@Autowired
+	private EngineManager engineManager;
 
-    @Override
-    public boolean isExecServiceDeniedOnFacility(ExecService execService, Facility facility) throws InternalErrorException {
-        try {
-            return Rpc.GeneralServiceManager.isExecServiceDeniedOnFacility(engineManager.getRpcCaller(), execService, facility);
-        } catch (PrivilegeException e) {
-            throw new InternalErrorException(e);
-        }
-    }
+	@Override
+	public boolean isExecServiceDeniedOnFacility(ExecService execService, Facility facility) throws InternalErrorException {
+		try {
+			return Rpc.GeneralServiceManager.isExecServiceDeniedOnFacility(engineManager.getRpcCaller(), execService, facility);
+		} catch (PrivilegeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
-    @Override
-    public boolean isExecServiceDeniedOnDestination(ExecService execService, int destination) throws InternalErrorException {
-        try {
-            if (0 == Rpc.GeneralServiceManager.isExecServiceDeniedOnDestination(engineManager.getRpcCaller(), execService, destination)) {
-                return true;
-            } else
-                return false;
-        } catch (PrivilegeException e) {
-            throw new InternalErrorException(e);
-        }
-    }
+	@Override
+	public boolean isExecServiceDeniedOnDestination(ExecService execService, int destination) throws InternalErrorException {
+		try {
+			if (0 == Rpc.GeneralServiceManager.isExecServiceDeniedOnDestination(engineManager.getRpcCaller(), execService, destination)) {
+				return true;
+			} else
+				return false;
+		} catch (PrivilegeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
-    public EngineManager getEngineManager() {
-        return engineManager;
-    }
+	public EngineManager getEngineManager() {
+		return engineManager;
+	}
 
-    public void setEngineManager(EngineManager engineManager) {
-        this.engineManager = engineManager;
-    }
+	public void setEngineManager(EngineManager engineManager) {
+		this.engineManager = engineManager;
+	}
 
 }

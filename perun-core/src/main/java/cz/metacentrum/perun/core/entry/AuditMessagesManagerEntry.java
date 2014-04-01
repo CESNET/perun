@@ -24,60 +24,60 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  */
 public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
-  private AuditMessagesManagerBl auditMessagesManagerBl;
-  private PerunBl perunBl;
+	private AuditMessagesManagerBl auditMessagesManagerBl;
+	private PerunBl perunBl;
 
-  public AuditMessagesManagerEntry() {
-  }
+	public AuditMessagesManagerEntry() {
+	}
 
-  public List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException, WrongRangeOfCountException {
-      return this.getMessages(perunSession, AuditMessagesManager.COUNTOFMESSAGES);
-  }
+	public List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException, WrongRangeOfCountException {
+		return this.getMessages(perunSession, AuditMessagesManager.COUNTOFMESSAGES);
+	}
 
-  public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
-   if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
-   return getAuditMessagesManagerBl().getMessages(perunSession, count);
-  }
+	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
+		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
+		return getAuditMessagesManagerBl().getMessages(perunSession, count);
+	}
 
-  public void log(PerunSession sess, String message) throws InternalErrorException, PrivilegeException {
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-      throw new PrivilegeException(sess, "log");
-    }
+	public void log(PerunSession sess, String message) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "log");
+		}
 
-    getAuditMessagesManagerBl().log(sess, message);
-  }
+		getAuditMessagesManagerBl().log(sess, message);
+	}
 
-  /**
-   * Gets the AuditMessagesManagerBl for this instance.
-   *
-   * @return The AuditMessagesManagerBl.
-   */
-  public AuditMessagesManagerBl getAuditMessagesManagerBl() {
-    return this.auditMessagesManagerBl;
-  }
+	/**
+	 * Gets the AuditMessagesManagerBl for this instance.
+	 *
+	 * @return The AuditMessagesManagerBl.
+	 */
+	public AuditMessagesManagerBl getAuditMessagesManagerBl() {
+		return this.auditMessagesManagerBl;
+	}
 
-  /**
-   * Sets the AuditMessagesManagerBl for this instance.
-   *
-   * @param auditMessagesManagerBl The AuditMessagesManagerBl.
-   */
-  public void setAuditMessagesManagerBl(AuditMessagesManagerBl auditMessagesManagerBl)
-  {
-        this.auditMessagesManagerBl = auditMessagesManagerBl;
-  }
+	/**
+	 * Sets the AuditMessagesManagerBl for this instance.
+	 *
+	 * @param auditMessagesManagerBl The AuditMessagesManagerBl.
+	 */
+	public void setAuditMessagesManagerBl(AuditMessagesManagerBl auditMessagesManagerBl)
+	{
+		this.auditMessagesManagerBl = auditMessagesManagerBl;
+	}
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
+	public PerunBl getPerunBl() {
+		return this.perunBl;
+	}
 
-  /**
-   * Sets the perunBl for this instance.
-   *
-   * @param perunBl The perunBl.
-   */
-  public void setPerunBl(PerunBl perunBl)
-  {
-        this.perunBl = perunBl;
-  }
+	/**
+	 * Sets the perunBl for this instance.
+	 *
+	 * @param perunBl The perunBl.
+	 */
+	public void setPerunBl(PerunBl perunBl)
+	{
+		this.perunBl = perunBl;
+	}
 }

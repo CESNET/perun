@@ -43,144 +43,144 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 @org.springframework.stereotype.Service(value = "engineManager")
 public class EngineManagerImpl implements EngineManager {
 
-    private final static Logger log = LoggerFactory.getLogger(EngineManagerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(EngineManagerImpl.class);
 
-    @Autowired
-    private EngineDao engineDao;
-    @Autowired
-    private JMSQueueManager jmsQueueManager;
-    @Autowired
-    private Properties propertiesBean;
-    @Autowired
-    private SchedulingPool schedulingPool;
-    @Autowired
-    private TaskManager taskManager;
-    private RpcCaller rpcCaller;
+	@Autowired
+	private EngineDao engineDao;
+	@Autowired
+	private JMSQueueManager jmsQueueManager;
+	@Autowired
+	private Properties propertiesBean;
+	@Autowired
+	private SchedulingPool schedulingPool;
+	@Autowired
+	private TaskManager taskManager;
+	private RpcCaller rpcCaller;
 
-    @Override
-    public void registerEngine() throws EngineNotConfiguredException, DispatcherNotConfiguredException {
-        engineDao.registerEngine();
-        engineDao.loadDispatcherAddress();
-    }
+	@Override
+	public void registerEngine() throws EngineNotConfiguredException, DispatcherNotConfiguredException {
+		engineDao.registerEngine();
+		engineDao.loadDispatcherAddress();
+	}
 
-    @Override
-    public void checkIn() {
-        engineDao.checkIn();
-    }
+	@Override
+	public void checkIn() {
+		engineDao.checkIn();
+	}
 
-    @Override
-    public void startMessaging() {
-        jmsQueueManager.initiateConnection();
-        jmsQueueManager.registerForReceivingMessages();
-    }
+	@Override
+	public void startMessaging() {
+		jmsQueueManager.initiateConnection();
+		jmsQueueManager.registerForReceivingMessages();
+	}
 
-    @Override
-    public RpcCaller getRpcCaller() {
-        if (this.rpcCaller != null) {
-            return rpcCaller;
-        }
-        try {
-            String perunPrincipal = propertiesBean.getProperty("perun.principal.name");
-            String extSourceName = propertiesBean.getProperty("perun.principal.extSourceName");
-            String extSourceType = propertiesBean.getProperty("perun.principal.extSourceType");
-            PerunPrincipal pp = new PerunPrincipal(perunPrincipal, extSourceName, extSourceType);
-            this.rpcCaller = new RpcCallerImpl(pp);
-        } catch (InternalErrorException e) {
-            log.error(e.toString());
-        }
-        return this.rpcCaller;
-    }
+	@Override
+	public RpcCaller getRpcCaller() {
+		if (this.rpcCaller != null) {
+			return rpcCaller;
+		}
+		try {
+			String perunPrincipal = propertiesBean.getProperty("perun.principal.name");
+			String extSourceName = propertiesBean.getProperty("perun.principal.extSourceName");
+			String extSourceType = propertiesBean.getProperty("perun.principal.extSourceType");
+			PerunPrincipal pp = new PerunPrincipal(perunPrincipal, extSourceName, extSourceType);
+			this.rpcCaller = new RpcCallerImpl(pp);
+		} catch (InternalErrorException e) {
+			log.error(e.toString());
+		}
+		return this.rpcCaller;
+	}
 
-    public void setEngineDao(EngineDao engineDao) {
-        this.engineDao = engineDao;
-    }
+	public void setEngineDao(EngineDao engineDao) {
+		this.engineDao = engineDao;
+	}
 
-    public EngineDao getEngineDao() {
-        return engineDao;
-    }
+	public EngineDao getEngineDao() {
+		return engineDao;
+	}
 
-    public void setJmsQueueManager(JMSQueueManager jmsQueueManager) {
-        this.jmsQueueManager = jmsQueueManager;
-    }
+	public void setJmsQueueManager(JMSQueueManager jmsQueueManager) {
+		this.jmsQueueManager = jmsQueueManager;
+	}
 
-    public JMSQueueManager getJmsQueueManager() {
-        return jmsQueueManager;
-    }
+	public JMSQueueManager getJmsQueueManager() {
+		return jmsQueueManager;
+	}
 
-    public void setPropertiesBean(Properties propertiesBean) {
-        this.propertiesBean = propertiesBean;
-    }
+	public void setPropertiesBean(Properties propertiesBean) {
+		this.propertiesBean = propertiesBean;
+	}
 
-    public Properties getPropertiesBean() {
-        return propertiesBean;
-    }
+	public Properties getPropertiesBean() {
+		return propertiesBean;
+	}
 
-    @Override
-    public void loadSchedulingPool() {
-        log.info("I am going to load ExecService:Facility pairs from SchedulingPool.txt");
-        try {
-            BufferedReader input = new BufferedReader(new FileReader("SchedulingPool.txt"));
-            String line = null;
-            while ((line = input.readLine()) != null) {
-                //timestamp execserviceID facilityID
-                String[] data = line.split(" ");
-                ExecService execService = Rpc.GeneralServiceManager.getExecService(getRpcCaller(), Integer.parseInt(data[1]));
-                Facility facility = Rpc.FacilitiesManager.getFacilityById(getRpcCaller(), Integer.parseInt(data[2]));
-                schedulingPool.addToPool(new Pair<ExecService, Facility>(execService, facility));
-            }
-        } catch (IOException e) {
-            log.error(e.toString(), "loadSchedulingPool from file has failed. You might have lost some ExecService:facility pairs.");
-        } catch (FacilityNotExistsException e) {
-            log.error(e.toString());
-        } catch (NumberFormatException e) {
-            log.error(e.toString());
-        } catch (InternalErrorException e) {
-            log.error(e.toString());
-        } catch (PrivilegeException e) {
-            log.error(e.toString());
-        } catch (ServiceNotExistsException e) {
-            log.error(e.toString());
-        }
-        log.info("Loading ExecService:Facility pairs from SchedulingPool.txt has completed.");
-    }
+	@Override
+	public void loadSchedulingPool() {
+		log.info("I am going to load ExecService:Facility pairs from SchedulingPool.txt");
+		try {
+			BufferedReader input = new BufferedReader(new FileReader("SchedulingPool.txt"));
+			String line = null;
+			while ((line = input.readLine()) != null) {
+				//timestamp execserviceID facilityID
+				String[] data = line.split(" ");
+				ExecService execService = Rpc.GeneralServiceManager.getExecService(getRpcCaller(), Integer.parseInt(data[1]));
+				Facility facility = Rpc.FacilitiesManager.getFacilityById(getRpcCaller(), Integer.parseInt(data[2]));
+				schedulingPool.addToPool(new Pair<ExecService, Facility>(execService, facility));
+			}
+		} catch (IOException e) {
+			log.error(e.toString(), "loadSchedulingPool from file has failed. You might have lost some ExecService:facility pairs.");
+		} catch (FacilityNotExistsException e) {
+			log.error(e.toString());
+		} catch (NumberFormatException e) {
+			log.error(e.toString());
+		} catch (InternalErrorException e) {
+			log.error(e.toString());
+		} catch (PrivilegeException e) {
+			log.error(e.toString());
+		} catch (ServiceNotExistsException e) {
+			log.error(e.toString());
+		}
+		log.info("Loading ExecService:Facility pairs from SchedulingPool.txt has completed.");
+	}
 
-    @Override
-    public void switchUnfinishedTasksToERROR() {
-        log.info("I am going to switched all unfinished tasks to ERROR and finished GEN tasks which data wasn't send to NONE");
-        for (Task task : taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
-            if(task.getStatus().equals(TaskStatus.DONE)) {
-                ExecService execService = task.getExecService();
+	@Override
+	public void switchUnfinishedTasksToERROR() {
+		log.info("I am going to switched all unfinished tasks to ERROR and finished GEN tasks which data wasn't send to NONE");
+		for (Task task : taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
+			if(task.getStatus().equals(TaskStatus.DONE)) {
+				ExecService execService = task.getExecService();
 
-                if(execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
-                  task.setStatus(TaskStatus.NONE);
-                  task.setEndTime(new Date(System.currentTimeMillis()));
-                  taskManager.updateTask(task, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
-                }
-            } else {
-                if (!task.getStatus().equals(TaskStatus.ERROR) && !task.getStatus().equals(TaskStatus.NONE)) {
-                    task.setStatus(TaskStatus.ERROR);
-                    task.setEndTime(new Date(System.currentTimeMillis()));
-                    taskManager.updateTask(task, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
-                }
-            }
-        }
-        log.info("I'm done with it.");
-    }
+				if(execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
+					task.setStatus(TaskStatus.NONE);
+					task.setEndTime(new Date(System.currentTimeMillis()));
+					taskManager.updateTask(task, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
+				}
+			} else {
+				if (!task.getStatus().equals(TaskStatus.ERROR) && !task.getStatus().equals(TaskStatus.NONE)) {
+					task.setStatus(TaskStatus.ERROR);
+					task.setEndTime(new Date(System.currentTimeMillis()));
+					taskManager.updateTask(task, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
+				}
+			}
+		}
+		log.info("I'm done with it.");
+	}
 
-    public SchedulingPool getSchedulingPool() {
-        return schedulingPool;
-    }
+	public SchedulingPool getSchedulingPool() {
+		return schedulingPool;
+	}
 
-    public void setSchedulingPool(SchedulingPool schedulingPool) {
-        this.schedulingPool = schedulingPool;
-    }
+	public void setSchedulingPool(SchedulingPool schedulingPool) {
+		this.schedulingPool = schedulingPool;
+	}
 
-    public TaskManager getTaskManager() {
-        return taskManager;
-    }
+	public TaskManager getTaskManager() {
+		return taskManager;
+	}
 
-    public void setTaskManager(TaskManager taskManager) {
-        this.taskManager = taskManager;
-    }
+	public void setTaskManager(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
 
 }

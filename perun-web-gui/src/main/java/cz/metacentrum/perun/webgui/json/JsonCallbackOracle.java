@@ -25,8 +25,8 @@ public interface JsonCallbackOracle <T extends JavaScriptObject> extends JsonCal
 	/**
 	 * Set new suggestion oracle for table
 	 *
-     * @param oracle
-     */
+	 * @param oracle
+	 */
 	void setOracle(UnaccentMultiWordSuggestOracle oracle);
 
 }

@@ -29,7 +29,7 @@ public class RemoveGroupsFromResource {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// ids
 	private Resource resource;
-    private ArrayList<Group> groups = new ArrayList<Group>();
+	private ArrayList<Group> groups = new ArrayList<Group>();
 
 	/**
 	 * Creates a new request
@@ -48,13 +48,13 @@ public class RemoveGroupsFromResource {
 	/**
 	 * Attempts to remove group from resource
 	 *
-     * @param groups groups which should be removed
-     * @param resource resource where should be removed
+	 * @param groups groups which should be removed
+	 * @param resource resource where should be removed
 	 */
 	public void removeGroupsFromResource(final ArrayList<Group> groups, final Resource resource) {
 
-        this.resource = resource;
-        this.groups = groups;
+		this.resource = resource;
+		this.groups = groups;
 
 		// test arguments
 		if(!this.testRemoving()){
@@ -91,24 +91,24 @@ public class RemoveGroupsFromResource {
 	 */
 	private boolean testRemoving() {
 
-        boolean result = true;
-        String errorMsg = "";
+		boolean result = true;
+		String errorMsg = "";
 
-        if(groups == null || groups.isEmpty()){
-            errorMsg += "Wrong parameter <strong>Groups</strong>.<br />";
-            result = false;
-        }
+		if(groups == null || groups.isEmpty()){
+			errorMsg += "Wrong parameter <strong>Groups</strong>.<br />";
+			result = false;
+		}
 
-        if(resource == null){
-            errorMsg += "Wrong parameter <strong>Resource</strong>.";
-            result = false;
-        }
+		if(resource == null){
+			errorMsg += "Wrong parameter <strong>Resource</strong>.";
+			result = false;
+		}
 
-        if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
-        }
+		if(errorMsg.length()>0){
+			UiElements.generateAlert("Parameter error", errorMsg);
+		}
 
-        return result;
+		return result;
 
 	}
 
@@ -119,16 +119,16 @@ public class RemoveGroupsFromResource {
 	 */
 	private JSONObject prepareJSONObject() {
 
-        JSONObject jsonQuery = new JSONObject();
+		JSONObject jsonQuery = new JSONObject();
 
-        JSONArray array = new JSONArray();
-        for (int i=0; i<groups.size(); i++) {
-            array.set(i, new JSONNumber(groups.get(i).getId()));
-        }
-        jsonQuery.put("groups", array);
-        jsonQuery.put("resource", new JSONNumber(resource.getId()));
+		JSONArray array = new JSONArray();
+		for (int i=0; i<groups.size(); i++) {
+			array.set(i, new JSONNumber(groups.get(i).getId()));
+		}
+		jsonQuery.put("groups", array);
+		jsonQuery.put("resource", new JSONNumber(resource.getId()));
 
-        return jsonQuery;
+		return jsonQuery;
 
 	}
 

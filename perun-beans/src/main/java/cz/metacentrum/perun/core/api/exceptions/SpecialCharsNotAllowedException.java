@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Michal Šťava
  */
 public class SpecialCharsNotAllowedException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public SpecialCharsNotAllowedException(String message) {
-        super(message);
-    }
+	public SpecialCharsNotAllowedException(String message) {
+		super(message);
+	}
 
-    public SpecialCharsNotAllowedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public SpecialCharsNotAllowedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public SpecialCharsNotAllowedException(Throwable cause) {
-        super(cause);
-    }
+	public SpecialCharsNotAllowedException(Throwable cause) {
+		super(cause);
+	}
 }

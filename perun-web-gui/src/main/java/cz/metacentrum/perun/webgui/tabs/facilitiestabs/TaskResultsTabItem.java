@@ -49,8 +49,8 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param task RichTask
-     */
+	 * @param task RichTask
+	 */
 	public TaskResultsTabItem(Task task){
 		this.task = task;
 		this.taskId = task.getId();
@@ -59,8 +59,8 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param taskId
-     */
+	 * @param taskId
+	 */
 	public TaskResultsTabItem(int taskId){
 		this.taskId = taskId;
 		new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents(){
@@ -146,11 +146,11 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getExecService().getService().getName(), getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getExecService().getService().getName(), getUrlWithParameters());
 		if(task != null) {
 			if (task.getFacility() != null) {
-                session.setActiveFacility(task.getFacility());
-            }
+				session.setActiveFacility(task.getFacility());
+			}
 		}
 	}
 

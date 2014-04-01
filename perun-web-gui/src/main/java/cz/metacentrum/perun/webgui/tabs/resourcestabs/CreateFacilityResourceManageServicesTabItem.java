@@ -65,9 +65,9 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 	/**
 	 * Create new instance
 	 *
-     * @param facility facility to have resource added
-     * @param resource created resource definition
-     */
+	 * @param facility facility to have resource added
+	 * @param resource created resource definition
+	 */
 	public CreateFacilityResourceManageServicesTabItem(Facility facility, Resource resource){
 		this.facility = facility;
 		this.resource = resource;
@@ -78,9 +78,9 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 	/**
 	 * Create new instance
 	 *
-     * @param facilityId facility to have resource added
-     * @param resourceId created resource definition
-     */
+	 * @param facilityId facility to have resource added
+	 * @param resourceId created resource definition
+	 */
 	public CreateFacilityResourceManageServicesTabItem(final int facilityId, final int resourceId){
 		this.facilityId = facilityId;
 		this.resourceId = resourceId;
@@ -136,7 +136,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		JsonCallbackEvents fillEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
 				ArrayList<Service> services = JsonUtils.jsoAsList(jso);
-                services = new TableSorter<Service>().sortByName(services);
+				services = new TableSorter<Service>().sortByName(services);
 				servicesListbox.clear();
 				for (Service serv : services) {
 					servicesListbox.addItem(serv);

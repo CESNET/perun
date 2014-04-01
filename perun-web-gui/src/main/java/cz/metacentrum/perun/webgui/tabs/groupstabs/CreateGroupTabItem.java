@@ -53,7 +53,7 @@ public class CreateGroupTabItem implements TabItem {
 	 * Entity ID to set
 	 */
 	private int groupId = 0;
-    private int voId = 0;
+	private int voId = 0;
 
 	/**
 	 * Entity type
@@ -63,23 +63,23 @@ public class CreateGroupTabItem implements TabItem {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public CreateGroupTabItem(VirtualOrganization vo){
 		this.entity = PerunEntity.VIRTUAL_ORGANIZATION;
-        this.voId = vo.getId();
+		this.voId = vo.getId();
 	}
 
-    /**
-     * Creates a tab instance for group
-     *
-     * @param group
-     */
-    public CreateGroupTabItem(Group group){
-        this.entity = PerunEntity.GROUP;
-        this.groupId = group.getId();
-        this.voId = group.getVoId();
-    }
+	/**
+	 * Creates a tab instance for group
+	 *
+	 * @param group
+	 */
+	public CreateGroupTabItem(Group group){
+		this.entity = PerunEntity.GROUP;
+		this.groupId = group.getId();
+		this.voId = group.getVoId();
+	}
 
 	public boolean isPrepared(){
 		return true;
@@ -87,134 +87,134 @@ public class CreateGroupTabItem implements TabItem {
 
 	public Widget draw() {
 
-        VerticalPanel vp = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 
-        // used for closing
-        final TabItem tab = this;
+		// used for closing
+		final TabItem tab = this;
 
-        // form inputs
-        final ExtendedTextBox groupNameTextBox = new ExtendedTextBox();
-        final TextBox groupDescriptionTextBox  = new TextBox();
-        final ListBoxWithObjects<Group> vosGroups = new ListBoxWithObjects<Group>();
-        vosGroups.setVisible(false);
-        final CheckBox asSubGroup = new CheckBox("", false);
-        TabMenu menu = new TabMenu();
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, "");
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        final HTML parentGroupText = new HTML("Parent group:");
-        parentGroupText.setVisible(false);
+		// form inputs
+		final ExtendedTextBox groupNameTextBox = new ExtendedTextBox();
+		final TextBox groupDescriptionTextBox  = new TextBox();
+		final ListBoxWithObjects<Group> vosGroups = new ListBoxWithObjects<Group>();
+		vosGroups.setVisible(false);
+		final CheckBox asSubGroup = new CheckBox("", false);
+		TabMenu menu = new TabMenu();
+		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, "");
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		final HTML parentGroupText = new HTML("Parent group:");
+		parentGroupText.setVisible(false);
 
-        final GetAllGroups groupsCall = new GetAllGroups(voId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                vosGroups.clear();
-                ArrayList<Group> retGroups = JsonUtils.jsoAsList(jso);
-                retGroups = new TableSorter<Group>().sortByName(retGroups);
-                for (Group g : retGroups) {
-                    if (!g.isCoreGroup()) {
-                        // SKIP CORE GROUPS !!
-                        vosGroups.addItem(g);
-                        if (g.getId() == groupId) {
-                            // select default if passed to tab
-                            vosGroups.setSelected(g, true);
-                        }
-                    }
-                }
-                if (vosGroups.getAllObjects().isEmpty()) {
-                    vosGroups.addItem("No groups found");
-                } else {
-                    createButton.setEnabled(true);
-                }
-            }
-            public void onLoadingStart(){
-                vosGroups.clear();
-                vosGroups.addItem("Loading...");
-                createButton.setEnabled(false);
-            }
-            public void onError(PerunError error) {
-                vosGroups.clear();
-                vosGroups.addItem("Error while loading");
-            }
-        });
+		final GetAllGroups groupsCall = new GetAllGroups(voId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				vosGroups.clear();
+				ArrayList<Group> retGroups = JsonUtils.jsoAsList(jso);
+				retGroups = new TableSorter<Group>().sortByName(retGroups);
+				for (Group g : retGroups) {
+					if (!g.isCoreGroup()) {
+						// SKIP CORE GROUPS !!
+						vosGroups.addItem(g);
+						if (g.getId() == groupId) {
+							// select default if passed to tab
+							vosGroups.setSelected(g, true);
+						}
+					}
+				}
+				if (vosGroups.getAllObjects().isEmpty()) {
+					vosGroups.addItem("No groups found");
+				} else {
+					createButton.setEnabled(true);
+				}
+			}
+			public void onLoadingStart(){
+				vosGroups.clear();
+				vosGroups.addItem("Loading...");
+				createButton.setEnabled(false);
+			}
+			public void onError(PerunError error) {
+				vosGroups.clear();
+				vosGroups.addItem("Error while loading");
+			}
+		});
 
-        // set title
-        if (PerunEntity.GROUP.equals(entity)) {
-            this.titleWidget.setText("Create sub-group");
-            asSubGroup.setValue(true);
-            createButton.setTitle(ButtonTranslation.INSTANCE.createSubGroup());
-            parentGroupText.setVisible(true);
-            vosGroups.setVisible(true);
-            groupsCall.retrieveData();
-        } else {
-            this.titleWidget.setText("Create group");
-            createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
-        }
+		// set title
+		if (PerunEntity.GROUP.equals(entity)) {
+			this.titleWidget.setText("Create sub-group");
+			asSubGroup.setValue(true);
+			createButton.setTitle(ButtonTranslation.INSTANCE.createSubGroup());
+			parentGroupText.setVisible(true);
+			vosGroups.setVisible(true);
+			groupsCall.retrieveData();
+		} else {
+			this.titleWidget.setText("Create group");
+			createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
+		}
 
-        asSubGroup.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
-                if (booleanValueChangeEvent.getValue() == true) {
-                    // set title
-                    titleWidget.setText("Create sub-group");
-                    vosGroups.setVisible(true);
-                    parentGroupText.setVisible(true);
-                    groupsCall.retrieveData();
-                    createButton.setTitle(ButtonTranslation.INSTANCE.createSubGroup());
-                } else {
-                    titleWidget.setText("Create group");
-                    vosGroups.setVisible(false);
-                    parentGroupText.setVisible(false);
-                    createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
-                }
-            }
-        });
+		asSubGroup.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+				if (booleanValueChangeEvent.getValue() == true) {
+					// set title
+					titleWidget.setText("Create sub-group");
+					vosGroups.setVisible(true);
+					parentGroupText.setVisible(true);
+					groupsCall.retrieveData();
+					createButton.setTitle(ButtonTranslation.INSTANCE.createSubGroup());
+				} else {
+					titleWidget.setText("Create group");
+					vosGroups.setVisible(false);
+					parentGroupText.setVisible(false);
+					createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
+				}
+			}
+		});
 
 		// layout
 		FlexTable layout = new FlexTable();
 		layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (groupNameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    groupNameTextBox.setError("Name can't be empty.");
-                } else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
-                    groupNameTextBox.setError("Name can contain only letters, numbers, spaces, dots, '_' and '-'.");
-                } else {
-                    groupNameTextBox.setOk();
-                    return true;
-                }
-                return false;
-            }
-        };
-        groupNameTextBox.setValidator(validator);
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (groupNameTextBox.getTextBox().getText().trim().isEmpty()) {
+					groupNameTextBox.setError("Name can't be empty.");
+				} else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
+					groupNameTextBox.setError("Name can contain only letters, numbers, spaces, dots, '_' and '-'.");
+				} else {
+					groupNameTextBox.setOk();
+					return true;
+				}
+				return false;
+			}
+		};
+		groupNameTextBox.setValidator(validator);
 
 		// send button
-        createButton.addClickHandler(new ClickHandler() {
+		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
-                if (!validator.validateTextBox()) return;
+				if (!validator.validateTextBox()) return;
 
 				// creates a new request
-                CreateGroup cg = new CreateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                if (asSubGroup.getValue()) {
-                    if (vosGroups.getSelectedObject() != null) {
-                        cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());
-                    } else {
-                        new Confirm("No parent group selected", new HTML("You checked create this group as sub-group, but no parent group is selected. Please select parent group."),true).show();
-                    }
-                } else {
-                    cg.createGroupInVo(voId, groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());
-                }
+				CreateGroup cg = new CreateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+				if (asSubGroup.getValue()) {
+					if (vosGroups.getSelectedObject() != null) {
+						cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());
+					} else {
+						new Confirm("No parent group selected", new HTML("You checked create this group as sub-group, but no parent group is selected. Please select parent group."),true).show();
+					}
+				} else {
+					cg.createGroupInVo(voId, groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());
+				}
 			}
 		});
-        // cancel button
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
 
 
@@ -223,24 +223,24 @@ public class CreateGroupTabItem implements TabItem {
 		layout.setWidget(0, 1, groupNameTextBox);
 		layout.setHTML(1, 0, "Description:");
 		layout.setWidget(1, 1, groupDescriptionTextBox);
-        layout.setHTML(2, 0, "As sub-group:");
-        layout.setWidget(2, 1, asSubGroup);
-        layout.setWidget(3, 0, parentGroupText);
-        layout.setWidget(3, 1, vosGroups);
+		layout.setHTML(2, 0, "As sub-group:");
+		layout.setWidget(2, 1, asSubGroup);
+		layout.setWidget(3, 0, parentGroupText);
+		layout.setWidget(3, 1, vosGroups);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        // button align
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		// button align
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}
@@ -285,9 +285,9 @@ public class CreateGroupTabItem implements TabItem {
 		if (voId != create.voId){
 			return false;
 		}
-        if ((voId == create.voId) && groupId != create.groupId) {
-            return false;
-        }
+		if ((voId == create.voId) && groupId != create.groupId) {
+			return false;
+		}
 
 		return true;
 	}
@@ -298,16 +298,16 @@ public class CreateGroupTabItem implements TabItem {
 
 	public void open()
 	{
-        // no open for inner tab
+		// no open for inner tab
 	}
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }

@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected attribute from the user. User id and attribute id are required.
---------------------------------------
-Available options:
- --userId       | -u user id
- --attributeId  | -a attribute id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected attribute from the user. User id and attribute id are required.
+	--------------------------------------
+	Available options:
+	--userId       | -u user id
+	--attributeId  | -a attribute id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($userId, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "userId|u=i" => \$userId, "attributeId|a=i" => \$attributeId) || die help();
+"userId|u=i" => \$userId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}

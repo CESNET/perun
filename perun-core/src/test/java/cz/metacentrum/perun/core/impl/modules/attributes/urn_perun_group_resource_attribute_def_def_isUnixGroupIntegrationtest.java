@@ -32,7 +32,7 @@ import java.util.HashMap;
  */
 public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationtest extends AbstractPerunIntegrationTest {
 
-        private User user;                             // our User
+	private User user;                             // our User
 	String userFirstName = "";
 	String userLastName = "";
 	String extLogin = "";              // his login in external source
@@ -41,19 +41,19 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;
-        private static final String A_GR_unixGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT + ":unixGroupName";
-        private static final String A_GR_unixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT + ":unixGID";
-        private static final String A_GR_isUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup";
-        private Attribute groupGID;
-        private Attribute groupGroupName;
-        private Attribute groupIsUnixGroup;
-        private Group group;
-        private Resource resource;
-        private Facility facility;
-        private Vo vo;
-        private Member member;
+	private static final String A_GR_unixGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT + ":unixGroupName";
+	private static final String A_GR_unixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT + ":unixGID";
+	private static final String A_GR_isUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup";
+	private Attribute groupGID;
+	private Attribute groupGroupName;
+	private Attribute groupIsUnixGroup;
+	private Group group;
+	private Resource resource;
+	private Facility facility;
+	private Vo vo;
+	private Member member;
 
-        @Before
+	@Before
 	public void setUp() throws Exception {
 
 
@@ -66,49 +66,49 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		setUpUser();
 		setUpUserExtSource();
-                this.vo = setUpVo();
-                this.facility = setUpFacility();
-                this.member = setUpMember(vo);
-                this.group = setUpGroup(vo, member);
-                this.resource = setUpResource(vo, facility);
-                setUpAttributes(resource, group);
+		this.vo = setUpVo();
+		this.facility = setUpFacility();
+		this.member = setUpMember(vo);
+		this.group = setUpGroup(vo, member);
+		this.resource = setUpResource(vo, facility);
+		setUpAttributes(resource, group);
 	}
 
-        @Ignore
-        @Test
+	@Ignore
+	@Test
 	public void automaticGenerationOfGID() throws Exception {
 		System.out.println("IsUnixGroup.automaticGenerationOfGID");
-                groupGID.setValue(null);
-                groupGroupName.setValue("Test");
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGID);
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGroupName);
-                groupIsUnixGroup.setValue(1);
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupIsUnixGroup);
-                assertNotNull(perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGID).getValue());
+		groupGID.setValue(null);
+		groupGroupName.setValue("Test");
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGID);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGroupName);
+		groupIsUnixGroup.setValue(1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupIsUnixGroup);
+		assertNotNull(perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGID).getValue());
 
 	}
 
-        @Ignore
-        @Test (expected=WrongReferenceAttributeValueException.class)
+	@Ignore
+	@Test (expected=WrongReferenceAttributeValueException.class)
 	public void notAbleToSetIfNotHaveGroupName() throws Exception {
 		System.out.println("IsUnixGroup.notAbleToSetIfNotHaveGroupName");
-                groupGID.setValue(null);
-                groupGroupName.setValue(null);
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGID);
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGroupName);
-                groupIsUnixGroup.setValue(1);
-                perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupIsUnixGroup);
+		groupGID.setValue(null);
+		groupGroupName.setValue(null);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGID);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupGroupName);
+		groupIsUnixGroup.setValue(1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, groupIsUnixGroup);
 	}
 
 
-        // --PRIVATE METHODS ---------------------------------------------------
-        private void setUpAttributes(Resource resource, Group group) throws Exception {
-                groupGroupName = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGroupName);
-                groupGID = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGID);
-                groupIsUnixGroup = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_isUnixGroup);
-        }
+	// --PRIVATE METHODS ---------------------------------------------------
+	private void setUpAttributes(Resource resource, Group group) throws Exception {
+		groupGroupName = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGroupName);
+		groupGID = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_unixGID);
+		groupIsUnixGroup = perun.getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_isUnixGroup);
+	}
 
-    	private void setUpUser() throws Exception {
+	private void setUpUser() throws Exception {
 
 		user = new User();
 		user.setFirstName(userFirstName);
@@ -168,14 +168,14 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 
 		Group group = new Group("IsUnixGroupTestGroup","");
 		group = perun.getGroupsManager().createGroup(sess, vo, group);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		perun.getGroupsManager().addMember(sess, group, member);
 		perun.getGroupsManager().addAdmin(sess, group, user);
 		return group;
 
 	}
 
-        private Resource setUpResource(Vo vo, Facility facility) throws Exception {
+	private Resource setUpResource(Vo vo, Facility facility) throws Exception {
 
 		Resource resource = new Resource();
 		resource.setName("IsUnixGroupTestResource");
@@ -201,7 +201,7 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 
 	}
 
-        	private Facility setUpFacility() throws Exception {
+	private Facility setUpFacility() throws Exception {
 
 		Facility facility = new Facility();
 		facility.setName("IsUnixGroupTestFacility");

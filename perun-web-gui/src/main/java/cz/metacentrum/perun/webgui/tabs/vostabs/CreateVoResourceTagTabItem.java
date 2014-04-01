@@ -39,18 +39,18 @@ public class CreateVoResourceTagTabItem implements TabItem {
 	 */
 	private Label titleWidget = new Label("Create resource tag");
 
-    private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+	private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
 
-    private int voId = 0;
+	private int voId = 0;
 
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId ID of VO to create resource tag for
-     */
+	 * @param voId ID of VO to create resource tag for
+	 */
 	public CreateVoResourceTagTabItem(int voId){
-        this.voId = voId;
-    }
+		this.voId = voId;
+	}
 
 	public boolean isPrepared(){
 		return true;
@@ -58,31 +58,31 @@ public class CreateVoResourceTagTabItem implements TabItem {
 
 	public Widget draw() {
 
-        VerticalPanel vp = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 
 		// textboxes which set the class data when updated
 		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
 
-        nameTextBox.getTextBox().setMaxLength(128);
+		nameTextBox.getTextBox().setMaxLength(128);
 
-        final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
+		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
 
-                if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setOk();
-                    return true;
-                } else {
-                    nameTextBox.setError("Name can't be empty.");
-                    return false;
-                }
+				if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
+					nameTextBox.setOk();
+					return true;
+				} else {
+					nameTextBox.setError("Name can't be empty.");
+					return false;
+				}
 
-            }
-        };
+			}
+		};
 
-        nameTextBox.setValidator(nameValidator);
+		nameTextBox.setValidator(nameValidator);
 
-        // prepares layout
+		// prepares layout
 		FlexTable layout = new FlexTable();
 		layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
@@ -90,41 +90,41 @@ public class CreateVoResourceTagTabItem implements TabItem {
 		// close tab events
 		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        // send button
+		// send button
 		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createResourceTag());
-        createButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (!nameValidator.validateTextBox()) return;
-                CreateResourceTag request = new CreateResourceTag(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                request.createResourceTag(nameTextBox.getTextBox().getText().trim(), voId);
-            }
-        });
+		createButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (!nameValidator.validateTextBox()) return;
+				CreateResourceTag request = new CreateResourceTag(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+				request.createResourceTag(nameTextBox.getTextBox().getText().trim(), voId);
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
 		// Add some standard form options
 		layout.setHTML(0, 0, "Tag name:");
 		layout.setWidget(0, 1, nameTextBox);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
-	    vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
 

@@ -34,13 +34,13 @@ public class UpdateVo {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public UpdateVo() {}
 
 	/**
 	 * Creates a new request with custom events
-     * @param events Custom events
-     */
+	 * @param events Custom events
+	 */
 	public UpdateVo(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -80,7 +80,7 @@ public class UpdateVo {
 	 */
 	public void updateVo(final VirtualOrganization vo) {
 
-        this.vo = vo;
+		this.vo = vo;
 
 		// test arguments
 		if(!this.testCreating()){
@@ -118,9 +118,9 @@ public class UpdateVo {
 	{
 		// vo
 		JSONObject newVo = new JSONObject();
-        newVo.put("id", new JSONNumber(vo.getId()));
-        newVo.put("name", new JSONString(vo.getName()));
-        newVo.put("shortName", new JSONString(vo.getShortName()));
+		newVo.put("id", new JSONNumber(vo.getId()));
+		newVo.put("name", new JSONString(vo.getName()));
+		newVo.put("shortName", new JSONString(vo.getShortName()));
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();

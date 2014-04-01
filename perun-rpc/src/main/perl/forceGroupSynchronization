@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Synchronize the group with the external source.
-------------------------------------
-Available options:
- --groupId     | -g group id
- --groupName   | -G group name
- --voId        | -v vo id
- --voShortName | -V vo short name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Synchronize the group with the external source.
+	------------------------------------
+	Available options:
+	--groupId     | -g group id
+	--groupName   | -G group name
+	--voId        | -v vo id
+	--voShortName | -V vo short name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
+"groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
  "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
@@ -35,13 +35,13 @@ my $groupsAgent = $agent->getGroupsAgent;
 
 
 if (!defined($groupId)) {
-  if (!defined($voId)) {
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId = $vo->getId;
-  }
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
 
-  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-  $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
 }
 
 $groupsAgent->forceGroupSynchronization(group => $groupId);

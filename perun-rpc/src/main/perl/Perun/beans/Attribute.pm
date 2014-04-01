@@ -6,55 +6,55 @@ use Switch;
 use Data::Dumper;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $id = $self->getId;
-    my $value = $self->getValue;
-    my $friendlyName = $self->getFriendlyName;
-    my $namespace = $self->getNamespace;
-    my $description = $self->getDescription;
-    my $type = $self->getType;
+	my $id = $self->getId;
+	my $value = $self->getValue;
+	my $friendlyName = $self->getFriendlyName;
+	my $namespace = $self->getNamespace;
+	my $description = $self->getDescription;
+	my $type = $self->getType;
 
-    my $str = 'Attribute (';
-    $str .= "id: $id, " if (defined($id));
-    $str .= "value: $value, " if (defined($value));
-    $str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
-    $str .= "namespace: $namespace, " if (defined($namespace));
-    $str .= "description: $description, " if (defined($description));
-    $str .= "type: $type, " if (defined($type));
-    $str .= ")";
+	my $str = 'Attribute (';
+	$str .= "id: $id, " if (defined($id));
+	$str .= "value: $value, " if (defined($value));
+	$str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
+	$str .= "namespace: $namespace, " if (defined($namespace));
+	$str .= "description: $description, " if (defined($description));
+	$str .= "type: $type, " if (defined($type));
+	$str .= ")";
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub fromAttributeDefinition
 {
-    my $class = shift;
-    $class = ref $class if ref $class;
-    my $self = {};
-    my $definition = $_[0];
+	my $class = shift;
+	$class = ref $class if ref $class;
+	my $self = {};
+	my $definition = $_[0];
 
-    $self->{'_id'} = $definition->{'_id'};
-    $self->{'_friendlyName'} = $definition->{'_friendlyName'};
-    $self->{'_namespace'} = $definition->{'_namespace'};
-    $self->{'_description'} = $definition->{'_description'};
-    $self->{'_type'} = $definition->{'_type'};
-    $self->{'_value'} = undef;
+	$self->{'_id'} = $definition->{'_id'};
+	$self->{'_friendlyName'} = $definition->{'_friendlyName'};
+	$self->{'_namespace'} = $definition->{'_namespace'};
+	$self->{'_description'} = $definition->{'_description'};
+	$self->{'_type'} = $definition->{'_type'};
+	$self->{'_value'} = undef;
 
-    bless ($self,$class);
+	bless ($self,$class);
 }
 
 sub TO_JSON
@@ -91,7 +91,7 @@ sub TO_JSON
 		$description = undef;
 	}
 
-    my $type;
+	my $type;
 	if (defined($self->{_type})) {
 		$type = "$self->{_type}";
 	} else {
@@ -104,173 +104,173 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return ($self->{_namespace} . ':' . $self->{_friendlyName});
+	return ($self->{_namespace} . ':' . $self->{_friendlyName});
 }
 
 sub getFriendlyName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_friendlyName};
+	return $self->{_friendlyName};
 }
 
 sub setFriendlyName
 {
-    my $self = shift;
-    $self->{_friendlyName} = shift;
+	my $self = shift;
+	$self->{_friendlyName} = shift;
 
-    return;
+	return;
 }
 
 sub getNamespace
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_namespace};
+	return $self->{_namespace};
 }
 
 sub setNamespace
 {
-    my $self = shift;
-    $self->{_namespace} = shift;
+	my $self = shift;
+	$self->{_namespace} = shift;
 
-    return;
+	return;
 }
 
 sub getDescription
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_description};
+	return $self->{_description};
 }
 
 sub setDescription
 {
-    my $self = shift;
-    $self->{_description} = shift;
+	my $self = shift;
+	$self->{_description} = shift;
 
-    return;
+	return;
 }
 
 sub getValue
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_value};
+	return $self->{_value};
 }
 
 sub setValue
 {
-    my $self = shift;
-    $self->{_value} = shift;
+	my $self = shift;
+	$self->{_value} = shift;
 
-    return;
+	return;
 }
 
 sub getType
 {
-    my $self = shift;
-    my $type = $self->{_type};
+	my $self = shift;
+	my $type = $self->{_type};
 
-    if ($type eq 'java.lang.Integer') {
-        $type = 'integer';
-    } elsif ($type eq 'java.lang.String') {
-        $type = 'string';
-    } elsif ($type eq 'java.util.ArrayList') {
-        $type = 'array';
-    } elsif ($type eq 'java.util.LinkedHashMap') {
-        $type = 'hash';
-    }
+	if ($type eq 'java.lang.Integer') {
+		$type = 'integer';
+	} elsif ($type eq 'java.lang.String') {
+		$type = 'string';
+	} elsif ($type eq 'java.util.ArrayList') {
+		$type = 'array';
+	} elsif ($type eq 'java.util.LinkedHashMap') {
+		$type = 'hash';
+	}
 
-    return $type;
+	return $type;
 }
 
 sub setType
 {
-    my $self = shift;
-    my $type = shift;
+	my $self = shift;
+	my $type = shift;
 
-    if ($type eq 'integer') {
-        $type = 'java.lang.Integer';
-    } elsif ($type eq 'string') {
-        $type = 'java.lang.String';
-    } elsif ($type eq 'array') {
-        $type = 'java.util.ArrayList';
-    } elsif ($type eq 'hash') {
-        $type = 'java.util.LinkedHashMap';
-    }
+	if ($type eq 'integer') {
+		$type = 'java.lang.Integer';
+	} elsif ($type eq 'string') {
+		$type = 'java.lang.String';
+	} elsif ($type eq 'array') {
+		$type = 'java.util.ArrayList';
+	} elsif ($type eq 'hash') {
+		$type = 'java.util.LinkedHashMap';
+	}
 
-    $self->{_type} = $type;
-    return;
+	$self->{_type} = $type;
+	return;
 }
 
 sub getValueAsScalar {
-  my $self = shift;
-  my $value = $self->getValue;
+	my $self = shift;
+	my $value = $self->getValue;
 
-  switch(ref $value) {
-    case ""       { return $value }
-    case "SCALAR" { return $value }
-    case "ARRAY"  { return '["' . join('", "', @$value) . '"]' }
-    case "HASH"   {
-                    local $Data::Dumper::Terse = 1;
-                    local $Data::Dumper::Indent = 0;
-                    local $Data::Dumper::Useqq = 1;
+	switch(ref $value) {
+		case ""       { return $value }
+		case "SCALAR" { return $value }
+		case "ARRAY"  { return '["' . join('", "', @$value) . '"]' }
+		case "HASH"   {
+			local $Data::Dumper::Terse = 1;
+			local $Data::Dumper::Indent = 0;
+			local $Data::Dumper::Useqq = 1;
 
-                    { no warnings 'redefine';
-                      sub Data::Dumper::qquote {
-                        my $s = shift;
-                        return "'$s'";
-                      }
-                    }
+			{ no warnings 'redefine';
+				sub Data::Dumper::qquote {
+					my $s = shift;
+					return "'$s'";
+				}
+			}
 
-                    return Dumper($value);
-                  }
-    else          { return 'UNKNOWN VALUE TYPE' }
-  }
+			return Dumper($value);
+		}
+		else          { return 'UNKNOWN VALUE TYPE' }
+	}
 }
 
 sub setValueFromArray {
-  my $attribute = shift; #self
+	my $attribute = shift; #self
 
-  switch ($attribute->getType) {
-    case "string" {
-      if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-      $attribute->setValue($_[0]);
-    }
-    case "integer" {
-      if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-      my $attributeIntegerValue = $_[0]*1;
-      $attribute->setValue($attributeIntegerValue);
-    }
-    case "array" {
-      $attribute->setValue(\@_);
-    }
-    case "hash" {
-      my %hash = @_;
-      $attribute->setValue(\%hash);
-    }
-    else {
-      die "Unknown attribute type. Type=" . $attribute->getType;
-    }
-  }
+	switch ($attribute->getType) {
+		case "string" {
+			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			$attribute->setValue($_[0]);
+		}
+		case "integer" {
+			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			my $attributeIntegerValue = $_[0]*1;
+			$attribute->setValue($attributeIntegerValue);
+		}
+		case "array" {
+			$attribute->setValue(\@_);
+	}
+	case "hash" {
+		my %hash = @_;
+		$attribute->setValue(\%hash);
+}
+else {
+	die "Unknown attribute type. Type=" . $attribute->getType;
+}
+	}
 }
 
 1;

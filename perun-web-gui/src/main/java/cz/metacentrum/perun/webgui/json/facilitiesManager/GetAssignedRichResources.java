@@ -42,9 +42,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private ArrayList<RichResource> list = new ArrayList<RichResource>();
 	private FieldUpdater<RichResource, String> tableFieldUpdater;
 	final MultiSelectionModel<RichResource> selectionModel = new MultiSelectionModel<RichResource>(new GeneralKeyProvider<RichResource>());
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private ArrayList<RichResource> backupList = new ArrayList<RichResource>();
-    private boolean checkable = true;
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<RichResource> backupList = new ArrayList<RichResource>();
+	private boolean checkable = true;
 
 	/**
 	 * Creates a new callback
@@ -113,12 +113,12 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Facility has no resources.");
+		loaderImage.setEmptyResultMessage("Facility has no resources.");
 
 		// checkbox column column
 		if (checkable) {
-            table.addCheckBoxColumn();
-        }
+			table.addCheckBoxColumn();
+		}
 
 		// TABLE CONTENT
 
@@ -175,171 +175,171 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		cl.retrieveData(JSON_URL, "facility="+facilityId, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<RichResource>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<RichResource>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object RichResource to be added as new row
-     */
-    public void addToTable(RichResource object) {
-        list.add(object);
-        oracle.add(object.getName());
-        oracle.add(object.getVo().getName());
-        oracle.add(object.getVo().getShortName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object RichResource to be added as new row
+	 */
+	public void addToTable(RichResource object) {
+		list.add(object);
+		oracle.add(object.getName());
+		oracle.add(object.getVo().getName());
+		oracle.add(object.getVo().getShortName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object RichResource to be removed as row
-     */
-    public void removeFromTable(RichResource object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object RichResource to be removed as row
+	 */
+	public void removeFromTable(RichResource object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        oracle.clear();
-        backupList.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		oracle.clear();
+		backupList.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<RichResource> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<RichResource> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading assigned resources.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading assigned resources.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading assigned resources started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading assigned resources started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<RichResource>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Assigned resources loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<RichResource>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Assigned resources loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, RichResource object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        oracle.add(object.getVo().getName());
-        oracle.add(object.getVo().getShortName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, RichResource object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		oracle.add(object.getVo().getName());
+		oracle.add(object.getVo().getShortName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<RichResource> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (RichResource rr : list) {
-            oracle.add(rr.getVo().getName());
-            oracle.add(rr.getVo().getShortName());
-            oracle.add(rr.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<RichResource> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (RichResource rr : list) {
+			oracle.add(rr.getVo().getName());
+			oracle.add(rr.getVo().getShortName());
+			oracle.add(rr.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<RichResource> getList() {
-        return this.list;
-    }
+	public ArrayList<RichResource> getList() {
+		return this.list;
+	}
 
-    public UnaccentMultiWordSuggestOracle getOracle(){
-        return this.oracle;
-    }
+	public UnaccentMultiWordSuggestOracle getOracle(){
+		return this.oracle;
+	}
 
-    public void filterTable(String text){
+	public void filterTable(String text){
 
-        // store list only for first time
-        if (backupList.isEmpty() || backupList == null) {
-            backupList.addAll(list);
-        }
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
-            list.addAll(backupList);
-        } else {
-            for (RichResource r : backupList){
-                if ((r.getName().toLowerCase().startsWith(text.toLowerCase())) ||
-                        (r.getVo().getName().toLowerCase().startsWith(text.toLowerCase())) ||
-                        (r.getVo().getShortName().toLowerCase().startsWith(text.toLowerCase()))) {
-                    list.add(r);
-                }
-            }
-        }
+		if (text.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (RichResource r : backupList){
+				if ((r.getName().toLowerCase().startsWith(text.toLowerCase())) ||
+						(r.getVo().getName().toLowerCase().startsWith(text.toLowerCase())) ||
+						(r.getVo().getShortName().toLowerCase().startsWith(text.toLowerCase()))) {
+					list.add(r);
+						}
+			}
+		}
 
-        if (list.isEmpty() && !text.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No resource matching '"+text+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("Facility has no resources.");
-        }
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No resource matching '"+text+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("Facility has no resources.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
-    }
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+	}
 
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 }

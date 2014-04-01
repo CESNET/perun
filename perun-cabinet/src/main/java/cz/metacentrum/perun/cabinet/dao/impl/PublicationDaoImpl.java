@@ -153,7 +153,7 @@ public class PublicationDaoImpl implements IPublicationDao {
 		params.put("rank", p.getRank());
 		params.put("doi", p.getDoi());
 		params.put("locked", p.getLocked());
-        params.put("createdByUid", p.getCreatedByUid());
+		params.put("createdByUid", p.getCreatedByUid());
 
 		if (sp != null) {
 			params.put("limit1", sp.getPage()*sp.getSize());

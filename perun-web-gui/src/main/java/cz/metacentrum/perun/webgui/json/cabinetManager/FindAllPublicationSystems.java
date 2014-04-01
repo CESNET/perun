@@ -50,14 +50,14 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public FindAllPublicationSystems() {}
 
 	/**
 	 * Creates a new request
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public FindAllPublicationSystems(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -102,7 +102,7 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No publications systems found.");
+		loaderImage.setEmptyResultMessage("No publications systems found.");
 
 		// show checkbox column
 		if(this.checkable) {
@@ -166,35 +166,35 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 
 		// USERNAME COLUMN
 		Column<PublicationSystem, String> usernameColumn = JsonUtils.addColumn(
-				new CustomClickableTextCell(), "",
-				new JsonUtils.GetValue<PublicationSystem, String>() {
-					public String getValue(PublicationSystem object) {
-						return object.getUsername();
-					}
-				}, this.tableFieldUpdater);
+		new CustomClickableTextCell(), "",
+		new JsonUtils.GetValue<PublicationSystem, String>() {
+		public String getValue(PublicationSystem object) {
+		return object.getUsername();
+		}
+		}, this.tableFieldUpdater);
 
 		usernameColumn.setSortable(true);
 		columnSortHandler.setComparator(usernameColumn, new Comparator<PublicationSystem>() {
-			public int compare(PublicationSystem o1, PublicationSystem o2) {
-				return o1.getUsername().compareToIgnoreCase(o2.getUsername());
-			}
+		public int compare(PublicationSystem o1, PublicationSystem o2) {
+		return o1.getUsername().compareToIgnoreCase(o2.getUsername());
+		}
 		});
 		table.addColumn(usernameColumn, "Username");
 
 		// PASSWORD COLUMN
 		Column<PublicationSystem, String> passColumn = JsonUtils.addColumn(
-				new CustomClickableTextCell(), "",
-				new JsonUtils.GetValue<PublicationSystem, String>() {
-					public String getValue(PublicationSystem object) {
-						return object.getPassword();
-					}
-				}, this.tableFieldUpdater);
+		new CustomClickableTextCell(), "",
+		new JsonUtils.GetValue<PublicationSystem, String>() {
+		public String getValue(PublicationSystem object) {
+		return object.getPassword();
+		}
+		}, this.tableFieldUpdater);
 
 		passColumn.setSortable(true);
 		columnSortHandler.setComparator(passColumn, new Comparator<PublicationSystem>() {
-			public int compare(PublicationSystem o1, PublicationSystem o2) {
-				return o1.getPassword().compareToIgnoreCase(o2.getPassword());
-			}
+		public int compare(PublicationSystem o1, PublicationSystem o2) {
+		return o1.getPassword().compareToIgnoreCase(o2.getPassword());
+		}
 		});
 		table.addColumn(passColumn, "Password");
 		 *
@@ -229,116 +229,116 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 		js.retrieveData(JSON_URL,this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<PublicationSystem>().sortByFriendlyName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<PublicationSystem>().sortByFriendlyName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object PublicationSystem to be added as new row
-     */
-    public void addToTable(PublicationSystem object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object PublicationSystem to be added as new row
+	 */
+	public void addToTable(PublicationSystem object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object PublicationSystem to be removed as row
-     */
-    public void removeFromTable(PublicationSystem object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object PublicationSystem to be removed as row
+	 */
+	public void removeFromTable(PublicationSystem object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<PublicationSystem> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<PublicationSystem> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading publication systems.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading publication systems.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading publication systems started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading publication systems started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<PublicationSystem>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Publication systems loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<PublicationSystem>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Publication systems loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, PublicationSystem object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, PublicationSystem object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<PublicationSystem> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<PublicationSystem> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<PublicationSystem> getList() {
-        return this.list;
-    }
+	public ArrayList<PublicationSystem> getList() {
+		return this.list;
+	}
 
 }

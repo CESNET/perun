@@ -28,14 +28,14 @@ public class DeleteAuthorship {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public DeleteAuthorship() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public DeleteAuthorship(JsonCallbackEvents events) {
 		this.events = events;
 	}

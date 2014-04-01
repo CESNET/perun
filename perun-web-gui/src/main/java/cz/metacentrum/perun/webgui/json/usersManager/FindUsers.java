@@ -52,8 +52,8 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 	// checkable
 	private boolean checkable = true;
 
-    private boolean hideService = false;
-    private boolean hidePerson = false;
+	private boolean hideService = false;
+	private boolean hidePerson = false;
 
 
 	/**
@@ -64,7 +64,7 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 	/**
 	 * Creates a new request with custom events
 	 * @param events
-     * @param searchString
+	 * @param searchString
 	 */
 	public FindUsers(JsonCallbackEvents events, String searchString) {
 		this.events = events;
@@ -167,8 +167,8 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 	 */
 	public void searchFor(String query){
 
-        if (query == null || query.isEmpty()) return;
-        loaderImage.setEmptyResultMessage("No user matching '"+query+"' found.");
+		if (query == null || query.isEmpty()) return;
+		loaderImage.setEmptyResultMessage("No user matching '"+query+"' found.");
 		this.searchString = query;
 		clearTable();
 		retrieveData();
@@ -184,126 +184,126 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 		js.retrieveData(JSON_URL, "searchString=" + this.searchString, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<User>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<User>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object user to be added as new row
-     */
-    public void addToTable(User object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object user to be added as new row
+	 */
+	public void addToTable(User object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object user to be removed as row
-     */
-    public void removeFromTable(User object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object user to be removed as row
+	 */
+	public void removeFromTable(User object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<User> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<User> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading users.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading users.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading users started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading users started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        ArrayList<User> list = JsonUtils.jsoAsList(jso);
-        for (User u : list) {
-            if (hideService && u.isServiceUser())  {
-                // if service hidden, skip service users
-            } else if (hidePerson && !u.isServiceUser()) {
-                // if person hidden, skip person
-            } else {
-                addToTable(u);
-            }
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Users loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		ArrayList<User> list = JsonUtils.jsoAsList(jso);
+		for (User u : list) {
+			if (hideService && u.isServiceUser())  {
+				// if service hidden, skip service users
+			} else if (hidePerson && !u.isServiceUser()) {
+				// if person hidden, skip person
+			} else {
+				addToTable(u);
+			}
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Users loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, User object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, User object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<User> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<User> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<User> getList() {
-        return this.list;
-    }
+	public ArrayList<User> getList() {
+		return this.list;
+	}
 
 	public void setSelected(User user) {
 		selectionModel.setSelected(user, true);
@@ -317,19 +317,19 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 		this.searchString = text;
 	}
 
-    public boolean isHideService() {
-        return hideService;
-    }
+	public boolean isHideService() {
+		return hideService;
+	}
 
-    public void hideService(boolean hideService) {
-        this.hideService = hideService;
-    }
+	public void hideService(boolean hideService) {
+		this.hideService = hideService;
+	}
 
-    public boolean isHidePerson() {
-        return hidePerson;
-    }
+	public boolean isHidePerson() {
+		return hidePerson;
+	}
 
-    public void hidePerson(boolean hidePerson) {
-        this.hidePerson = hidePerson;
-    }
+	public void hidePerson(boolean hidePerson) {
+		this.hidePerson = hidePerson;
+	}
 }

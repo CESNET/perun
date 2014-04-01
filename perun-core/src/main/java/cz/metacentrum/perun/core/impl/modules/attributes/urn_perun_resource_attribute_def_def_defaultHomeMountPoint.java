@@ -29,75 +29,75 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-    private static final String A_R_homeMountPoints = AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints";
+	private static final String A_R_homeMountPoints = AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints";
 
-    /**
-     * Checks if the homemountpoint is contained in list of homemountpoint at underlying facility
-     * Allows valid unix paths
-     * @param perunSession
-     * @param resource
-     * @param attribute
-     * @throws InternalErrorException
-     * @throws WrongAttributeValueException
-     * @throws WrongReferenceAttributeValueException
-     * @throws WrongAttributeAssignmentException
-     */
-    public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	/**
+	 * Checks if the homemountpoint is contained in list of homemountpoint at underlying facility
+	 * Allows valid unix paths
+	 * @param perunSession
+	 * @param resource
+	 * @param attribute
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-        if (attribute.getValue() == null) {
-            throw new WrongAttributeValueException(attribute);
-        }
+		if (attribute.getValue() == null) {
+			throw new WrongAttributeValueException(attribute);
+		}
 
-        Attribute resourceAttribute = null;
-        try {
-            resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
-        } catch (AttributeNotExistsException ex) {
-            throw new InternalErrorException(ex);
-        }
+		Attribute resourceAttribute = null;
+		try {
+			resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
 
-        if(resourceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(resourceAttribute);
+		if(resourceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(resourceAttribute);
 
-        List<?> homeMntPoints = (List<?>) resourceAttribute.getValue();
-        if (!homeMntPoints.contains(attribute.getValue())) {
-            throw new WrongAttributeValueException(attribute, "Attribute value ins't defined in underlying resource. Attribute name=" + A_R_homeMountPoints);
-        }
-        Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
-        Matcher match = pattern.matcher((String) attribute.getValue());
-        if (!match.matches()) {
-            throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
-        }
+		List<?> homeMntPoints = (List<?>) resourceAttribute.getValue();
+		if (!homeMntPoints.contains(attribute.getValue())) {
+			throw new WrongAttributeValueException(attribute, "Attribute value ins't defined in underlying resource. Attribute name=" + A_R_homeMountPoints);
+		}
+		Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
+		Matcher match = pattern.matcher((String) attribute.getValue());
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
+		}
 
-    }
+	}
 
-    public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        Attribute resourceAttribute = null;
-        try {
-            resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
-        } catch (AttributeNotExistsException ex) {
-            throw new InternalErrorException("no homemountpoints set on this resource", ex);
-        }
-        Attribute retAttribute = new Attribute(attribute);
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		Attribute resourceAttribute = null;
+		try {
+			resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException("no homemountpoints set on this resource", ex);
+		}
+		Attribute retAttribute = new Attribute(attribute);
 
-        List<?> homeMntPoints = (List<?>) resourceAttribute.getValue();
-        if (homeMntPoints != null && homeMntPoints.size() > 0) {
-            retAttribute.setValue(homeMntPoints.get(0));
-        }
-        return retAttribute;
-    }
+		List<?> homeMntPoints = (List<?>) resourceAttribute.getValue();
+		if (homeMntPoints != null && homeMntPoints.size() > 0) {
+			retAttribute.setValue(homeMntPoints.get(0));
+		}
+		return retAttribute;
+	}
 
-    @Override
-    public List<String> getDependencies() {
-      List<String> dependecies = new ArrayList<String>();
-      dependecies.add(A_R_homeMountPoints);
-      return dependecies;
-    }
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependecies = new ArrayList<String>();
+		dependecies.add(A_R_homeMountPoints);
+		return dependecies;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-      attr.setFriendlyName("defaultHomeMountPoint");
-      attr.setType(String.class.getName());
-      attr.setDescription("Default home mount point for all members on this resource.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("defaultHomeMountPoint");
+		attr.setType(String.class.getName());
+		attr.setDescription("Default home mount point for all members on this resource.");
+		return attr;
+	}
 }

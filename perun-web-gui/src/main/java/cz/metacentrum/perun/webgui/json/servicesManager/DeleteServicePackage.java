@@ -93,7 +93,7 @@ public class DeleteServicePackage {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter Error", errorMsg);
+			UiElements.generateAlert("Parameter Error", errorMsg);
 		}
 
 		return result;

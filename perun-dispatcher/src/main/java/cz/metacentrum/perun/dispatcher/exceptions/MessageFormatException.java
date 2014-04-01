@@ -10,14 +10,14 @@ public class MessageFormatException extends DispatcherException {
 	private static final long serialVersionUID = 1L;
 
 	public MessageFormatException(String message) {
-        super(message);
-    }
+		super(message);
+	}
 
-    public MessageFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MessageFormatException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public MessageFormatException(Throwable cause) {
-        super(cause);
-    }
+	public MessageFormatException(Throwable cause) {
+		super(cause);
+	}
 }

@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds a service to service package. Package id or name and service id or name are required fields.
------------------------------------------------------
-Available options:
- --packageId   | -p package id
- --packageName | -P package name
- --serviceId   | -s service id
- --serviceName | -S service name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Adds a service to service package. Package id or name and service id or name are required fields.
+	-----------------------------------------------------
+	Available options:
+	--packageId   | -p package id
+	--packageName | -P package name
+	--serviceId   | -s service id
+	--serviceName | -S service name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($packageName,$packageId,$serviceName,$serviceId,$batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "packageName|P=s" => \$packageName,
+"packageName|P=s" => \$packageName,
  "packageId|p=i" => \$packageId,
  "serviceName|S=s" => \$serviceName,
  "serviceId|s=i" => \$serviceId) || die help();
@@ -36,13 +36,13 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 unless ($packageId) {
-    my $package = $servicesAgent->getServicesPackageByName(name => $packageName);
-    $packageId=$package->getId;
+	my $package = $servicesAgent->getServicesPackageByName(name => $packageName);
+	$packageId=$package->getId;
 }
 
 unless($serviceId) {
-    my $service = $servicesAgent->getServiceByName(name => $serviceName);
-    $serviceId=$service->getId;
+	my $service = $servicesAgent->getServiceByName(name => $serviceName);
+	$serviceId=$service->getId;
 }
 
 $servicesAgent->addServiceToServicesPackage(servicesPackage => $packageId, service => $serviceId);

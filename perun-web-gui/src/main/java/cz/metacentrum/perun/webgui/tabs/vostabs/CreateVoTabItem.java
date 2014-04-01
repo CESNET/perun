@@ -43,12 +43,12 @@ public class CreateVoTabItem implements TabItem {
 	 */
 	private Label titleWidget = new Label("Create virtual organization");
 
-    private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+	private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
 
 	/**
 	 * Creates a tab instance
 	 *
-     */
+	 */
 	public CreateVoTabItem(){ }
 
 	public boolean isPrepared(){
@@ -57,48 +57,48 @@ public class CreateVoTabItem implements TabItem {
 
 	public Widget draw() {
 
-        VerticalPanel vp = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 
 		// textboxes which set the class data when updated
 		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
 		final ExtendedTextBox shortNameTextBox = new ExtendedTextBox();
 
-        nameTextBox.getTextBox().setMaxLength(128);
-        shortNameTextBox.getTextBox().setMaxLength(16);
+		nameTextBox.getTextBox().setMaxLength(128);
+		shortNameTextBox.getTextBox().setMaxLength(16);
 
-        final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
+		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
 
-                if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setOk();
-                    return true;
-                } else {
-                    nameTextBox.setError("Name can't be empty.");
-                    return false;
-                }
+				if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
+					nameTextBox.setOk();
+					return true;
+				} else {
+					nameTextBox.setError("Name can't be empty.");
+					return false;
+				}
 
-            }
-        };
-        final ExtendedTextBox.TextBoxValidator shortNameValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (shortNameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    shortNameTextBox.setError("Short name can't be empty.");
-                } else if (!shortNameTextBox.getTextBox().getText().trim().matches(Utils.VO_SHORT_NAME_MATCHER)) {
-                    shortNameTextBox.setError("Short name can contain only letters, numbers, dash and underscore.");
-                } else {
-                    shortNameTextBox.setOk();
-                    return true;
-                }
-                return false;
-            }
-        };
+			}
+		};
+		final ExtendedTextBox.TextBoxValidator shortNameValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (shortNameTextBox.getTextBox().getText().trim().isEmpty()) {
+					shortNameTextBox.setError("Short name can't be empty.");
+				} else if (!shortNameTextBox.getTextBox().getText().trim().matches(Utils.VO_SHORT_NAME_MATCHER)) {
+					shortNameTextBox.setError("Short name can contain only letters, numbers, dash and underscore.");
+				} else {
+					shortNameTextBox.setOk();
+					return true;
+				}
+				return false;
+			}
+		};
 
-        nameTextBox.setValidator(nameValidator);
-        shortNameTextBox.setValidator(shortNameValidator);
+		nameTextBox.setValidator(nameValidator);
+		shortNameTextBox.setValidator(shortNameValidator);
 
-        // prepares layout
+		// prepares layout
 		FlexTable layout = new FlexTable();
 		layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
@@ -106,36 +106,36 @@ public class CreateVoTabItem implements TabItem {
 		// close tab events
 		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        // send button
+		// send button
 		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createVo());
-        createButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		createButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                if (!nameValidator.validateTextBox()) return;
-                if (!shortNameValidator.validateTextBox()) return;
+				if (!nameValidator.validateTextBox()) return;
+				if (!shortNameValidator.validateTextBox()) return;
 
-                CreateVo request = new CreateVo(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, new JsonCallbackEvents() {
-                    @Override
-                    public void onFinished(JavaScriptObject jso) {
-                        // new VO must be editable by user in GUI, because it is already in PERUN
-                        VirtualOrganization vo = jso.cast();
-                        session.addEditableVo(vo.getId());
-                    }
-                }));
-                request.createVo(nameTextBox.getTextBox().getText().trim(), shortNameTextBox.getTextBox().getText().trim());
-            }
-        });
+				CreateVo request = new CreateVo(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// new VO must be editable by user in GUI, because it is already in PERUN
+						VirtualOrganization vo = jso.cast();
+						session.addEditableVo(vo.getId());
+					}
+				}));
+				request.createVo(nameTextBox.getTextBox().getText().trim(), shortNameTextBox.getTextBox().getText().trim());
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
 		// Add some standard form options
 		layout.setHTML(0, 0, "Full name:");
@@ -143,16 +143,16 @@ public class CreateVoTabItem implements TabItem {
 		layout.setHTML(1, 0, "Short name:");
 		layout.setWidget(1, 1, shortNameTextBox);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
-	    vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
 

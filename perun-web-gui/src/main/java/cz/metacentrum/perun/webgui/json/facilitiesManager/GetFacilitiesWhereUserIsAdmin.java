@@ -49,7 +49,7 @@ public class GetFacilitiesWhereUserIsAdmin implements JsonCallback, JsonCallback
 	/**
 	 * Creates a new callback
 	 *
-     * @param id
+	 * @param id
 	 */
 	public GetFacilitiesWhereUserIsAdmin(int id) {
 		this.userId = id;
@@ -57,9 +57,9 @@ public class GetFacilitiesWhereUserIsAdmin implements JsonCallback, JsonCallback
 
 	/**
 	 * Creates a new callback
-     *
+	 *
 	 * @param id
-     * @param events
+	 * @param events
 	 */
 	public GetFacilitiesWhereUserIsAdmin(int id, JsonCallbackEvents events) {
 		this.userId = id;
@@ -124,116 +124,116 @@ public class GetFacilitiesWhereUserIsAdmin implements JsonCallback, JsonCallback
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<Facility>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<Facility>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(Facility object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(Facility object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(Facility object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(Facility object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Facility> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Facility> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Facilities where user is admin.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Facilities where user is admin.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Facilities where user is admin started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Facilities where user is admin started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Facility>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Facilities loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Facility>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Facilities loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Facility object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Facility object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<Facility> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Facility> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Facility> getList() {
-        return this.list;
-    }
+	public ArrayList<Facility> getList() {
+		return this.list;
+	}
 
 }

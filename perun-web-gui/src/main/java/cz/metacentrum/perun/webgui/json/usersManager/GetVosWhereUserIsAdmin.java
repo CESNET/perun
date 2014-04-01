@@ -48,7 +48,7 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	private FieldUpdater<VirtualOrganization, VirtualOrganization> tableFieldUpdater;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private boolean checkable = true;
+	private boolean checkable = true;
 
 	/**
 	 * Creates a new instance of the request
@@ -119,14 +119,14 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 
 		// checkbox column column
 		if (checkable) {
-            table.addCheckBoxColumn();
-        }
+			table.addCheckBoxColumn();
+		}
 
-        VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
-        IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
-        columnProvider.addIdColumn(authz, 100);
-        columnProvider.addShortNameColumn(authz, 200);
-        columnProvider.addNameColumn(authz, 0);
+		VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
+		IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
+		columnProvider.addIdColumn(authz, 100);
+		columnProvider.addShortNameColumn(authz, 200);
+		columnProvider.addNameColumn(authz, 0);
 
 		return table;
 	}
@@ -135,9 +135,9 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	 * Sorts table by objects Name
 	 */
 	public void sortTable() {
-        list = new TableSorter<VirtualOrganization>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
+		list = new TableSorter<VirtualOrganization>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -162,9 +162,9 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	 * @param object VO to be added as new row
 	 */
 	public void addToTable(VirtualOrganization object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -173,21 +173,21 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	 * @param object VO to be removed as row
 	 */
 	public void removeFromTable(VirtualOrganization object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
 	 * Clear all table content
 	 */
 	public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -195,11 +195,11 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	 * @param jso The JavaScript object returned by the query.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+		setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 	}
 
 	/**
@@ -220,9 +220,9 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	}
 
 	public void insertToTable(int index, VirtualOrganization object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public void setEditable(boolean editable) {
@@ -234,14 +234,14 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	}
 
 	public void setList(ArrayList<VirtualOrganization> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public ArrayList<VirtualOrganization> getList() {
-        return this.list;
+		return this.list;
 	}
 
 }

@@ -53,7 +53,7 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Saves publication. Keep in mind that properties title, year, categoryId, createdBy are obligatory. Also keep in mind, that authors property is irrevelant in this method.
 	 *
-     * @param sess PerunSession
+	 * @param sess PerunSession
 	 * @param p publication
 	 * @return id of new publication
 	 * @throws CabinetException

@@ -67,9 +67,9 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 	private ArrayList<Group> allGroups = new ArrayList<Group>();
 
 	/**
-     * @param resource ID of resource to have groups assigned
-     * @param groupsToAssign list of groups to be configured and assigned
-     */
+	 * @param resource ID of resource to have groups assigned
+	 * @param groupsToAssign list of groups to be configured and assigned
+	 */
 	public ManageGroupsBeforeAssigning(Resource resource, ArrayList<Group> groupsToAssign){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -84,22 +84,22 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 	}
 
 	/**
-     * @param resourceId ID of resource to have groups assigned
-     * @param grpToAssign list of groups to be configured and assigned
-     */
+	 * @param resourceId ID of resource to have groups assigned
+	 * @param grpToAssign list of groups to be configured and assigned
+	 */
 	protected ManageGroupsBeforeAssigning(int resourceId, ArrayList<Group> grpToAssign) {
 		this.resourceId = resourceId;
 		this.groupsToAssign = grpToAssign;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-                new GetAllGroupsWithHierarchy(resource.getVoId(), new JsonCallbackEvents(){
-                    public void onFinished(JavaScriptObject jso) {
-                        allGroups = JsonUtils.jsoAsList(jso);
-                    }
-                }).retrieveData();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+				new GetAllGroupsWithHierarchy(resource.getVoId(), new JsonCallbackEvents(){
+					public void onFinished(JavaScriptObject jso) {
+						allGroups = JsonUtils.jsoAsList(jso);
+					}
+				}).retrieveData();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -177,10 +177,10 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 					subgroupsDropDown.clear();
 					subgroupsDropDown.addNotSelectedOption();
 					for (Group grp : findSubgroups(groupsDropDown.getSelectedObject())){
-						subgroupsDropDown.addItem(grp);
+					subgroupsDropDown.addItem(grp);
 					}
 					subgroupsDropDown.addAllOption();
-					 */
+					*/
 					// some group selected
 					TabItem ti = new GroupResourceRequiredAttributesTabItem(resourceId, groupsDropDown.getSelectedObject().getId());
 					ti.draw();
@@ -209,151 +209,151 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 
 		/*
 
-		subgroupsDropDown.addChangeHandler(new ChangeHandler(){
-			public void onChange(ChangeEvent event) {
-				if (vp.getWidgetCount() == 2) { vp.remove(1); } // removes previous table
-				if (subgroupsDropDown.getSelectedIndex() > 1){
-					// sub-group selected
-					TabItem ti = new GroupResourceRequiredAttributesTabItem(session, resourceId, subgroupsDropDown.getSelectedObject().getId());
-					ti.draw();
-					Widget w = ti.getWidget();
-					vp.add(w);
-					vp.setCellHeight(w, "100%");
-				} else if (subgroupsDropDown.getSelectedIndex() == 1){
-					// all selected
-					if (groupsDropDown.getSelectedIndex() > 0) {
-						// all subgroups of selected group
-						TabItem ti = new GroupsResourceRequiredAttributesTabItem(session, resourceId, subgroupsDropDown.getAllObjects());
-						ti.draw();
-						Widget w = ti.getWidget();
-						vp.add(w);
-						vp.setCellHeight(w, "100%");
-					} else {
-						// all groups and subgroups
-						TabItem ti = new GroupsResourceRequiredAttributesTabItem(session, resourceId, allGroups);
-						ti.draw();
-						Widget w = ti.getWidget();
-						vp.add(w);
-						vp.setCellHeight(w, "100%");
-					}
-				} else {
-					// parent-group selected / subgroup not selected
-					TabItem ti = new GroupResourceRequiredAttributesTabItem(session, resourceId, groupsDropDown.getSelectedObject().getId());
-					ti.draw();
-					Widget w = ti.getWidget();
-					vp.add(w);
-					vp.setCellHeight(w, "100%");
-				}
-			}
-		});
-
-		*/
-
-		TabItem ti = new GroupResourceRequiredAttributesTabItem(resourceId, groupsDropDown.getSelectedObject().getId());
+			 subgroupsDropDown.addChangeHandler(new ChangeHandler(){
+			 public void onChange(ChangeEvent event) {
+			 if (vp.getWidgetCount() == 2) { vp.remove(1); } // removes previous table
+			 if (subgroupsDropDown.getSelectedIndex() > 1){
+// sub-group selected
+TabItem ti = new GroupResourceRequiredAttributesTabItem(session, resourceId, subgroupsDropDown.getSelectedObject().getId());
+ti.draw();
+Widget w = ti.getWidget();
+vp.add(w);
+vp.setCellHeight(w, "100%");
+} else if (subgroupsDropDown.getSelectedIndex() == 1){
+// all selected
+if (groupsDropDown.getSelectedIndex() > 0) {
+// all subgroups of selected group
+TabItem ti = new GroupsResourceRequiredAttributesTabItem(session, resourceId, subgroupsDropDown.getAllObjects());
+ti.draw();
+Widget w = ti.getWidget();
+vp.add(w);
+vp.setCellHeight(w, "100%");
+} else {
+		// all groups and subgroups
+		TabItem ti = new GroupsResourceRequiredAttributesTabItem(session, resourceId, allGroups);
 		ti.draw();
 		Widget w = ti.getWidget();
 		vp.add(w);
 		vp.setCellHeight(w, "100%");
+}
+} else {
+		// parent-group selected / subgroup not selected
+		TabItem ti = new GroupResourceRequiredAttributesTabItem(session, resourceId, groupsDropDown.getSelectedObject().getId());
+		ti.draw();
+		Widget w = ti.getWidget();
+		vp.add(w);
+		vp.setCellHeight(w, "100%");
+}
+			 }
+			 });
 
-		groupsDropDown.addAllOption();
+*/
 
-		/*
-		// if some group selected
-		if (groupsDropDown.getSelectedObject() != null){
-			// fill subgroups listbox with groups
-			subgroupsDropDown.addNotSelectedOption();
-			for (Group grp : findSubgroups(groupsDropDown.getSelectedObject())){
-				subgroupsDropDown.addItem(grp);
-			}
-			subgroupsDropDown.addAllOption();
-		}
-		 */
-		this.contentWidget.setWidget(vp);
+TabItem ti = new GroupResourceRequiredAttributesTabItem(resourceId, groupsDropDown.getSelectedObject().getId());
+ti.draw();
+Widget w = ti.getWidget();
+vp.add(w);
+vp.setCellHeight(w, "100%");
 
-		return getWidget();
+groupsDropDown.addAllOption();
+
+/*
+// if some group selected
+if (groupsDropDown.getSelectedObject() != null){
+// fill subgroups listbox with groups
+subgroupsDropDown.addNotSelectedOption();
+for (Group grp : findSubgroups(groupsDropDown.getSelectedObject())){
+subgroupsDropDown.addItem(grp);
+}
+subgroupsDropDown.addAllOption();
+}
+*/
+this.contentWidget.setWidget(vp);
+
+return getWidget();
 	}
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+public Widget getWidget() {
+	return this.contentWidget;
+}
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+public Widget getTitle() {
+	return this.titleWidget;
+}
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon();
-	}
+public ImageResource getIcon() {
+	return SmallIcons.INSTANCE.groupGoIcon();
+}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + resourceId;
-		return result;
-	}
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + resourceId;
+	return result;
+}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ManageGroupsBeforeAssigning other = (ManageGroupsBeforeAssigning) obj;
-		if (resourceId != other.resourceId)
-			return false;
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
 		return true;
-	}
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	ManageGroupsBeforeAssigning other = (ManageGroupsBeforeAssigning) obj;
+	if (resourceId != other.resourceId)
+		return false;
+	return true;
+}
 
-	public boolean multipleInstancesEnabled() {
+public boolean multipleInstancesEnabled() {
+	return false;
+}
+
+/**
+ * Finds subgroups for selected group and fills the listbox with subgroups.
+ *
+ * @return list of all subgroups
+ */
+private ArrayList<Group> findSubgroups(Group group){
+
+	ArrayList<Group> subgroups = new ArrayList<Group>();
+	for (int i = allGroups.indexOf(group)+1; i<allGroups.size(); i++){
+		if (allGroups.get(i).getIndent() >= group.getIndent()+1) {
+			// if subgroup anywhere in this tree
+			subgroups.add(allGroups.get(i));
+		} else {
+			// if same level group or subgroup of some other parent - break
+			break;
+		}
+	}
+	return subgroups;
+}
+
+public void open()
+{
+	session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+}
+
+public boolean isAuthorized() {
+
+	if (session.isVoAdmin(resource.getVoId())) {
+		return true;
+	} else {
 		return false;
 	}
 
-	/**
-	 * Finds subgroups for selected group and fills the listbox with subgroups.
-	 *
-	 * @return list of all subgroups
-	 */
-	private ArrayList<Group> findSubgroups(Group group){
+}
 
-		ArrayList<Group> subgroups = new ArrayList<Group>();
-		for (int i = allGroups.indexOf(group)+1; i<allGroups.size(); i++){
-			if (allGroups.get(i).getIndent() >= group.getIndent()+1) {
-				// if subgroup anywhere in this tree
-				subgroups.add(allGroups.get(i));
-			} else {
-				// if same level group or subgroup of some other parent - break
-				break;
-			}
-		}
-		return subgroups;
-	}
+static public String URL = "manage-before-assigning";
 
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-	}
+public String getUrl() {
+	return URL;
+}
 
-	public boolean isAuthorized() {
-
-		if (session.isVoAdmin(resource.getVoId())) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	static public String URL = "manage-before-assigning";
-
-	public String getUrl() {
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?resId=" + resourceId + "&" + UrlMapper.getUrlFromList("to-assign", groupsToAssign)+"&length="+groupsToAssign.size();
-	}
+public String getUrlWithParameters() {
+	return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?resId=" + resourceId + "&" + UrlMapper.getUrlFromList("to-assign", groupsToAssign)+"&length="+groupsToAssign.size();
+}
 
 }

@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of ExtSources
----------------------------------
-Available options:
- --orderById   | -i order by ExtSource identifier
- --orderByName | -n order by ExtSource name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Prints list of ExtSources
+	---------------------------------
+	Available options:
+	--orderById   | -i order by ExtSource identifier
+	--orderByName | -n order by ExtSource name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-           "batch|b" => \$batch) || die help;
+	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
@@ -41,7 +41,7 @@ my $table = Text::ASCIITable->new();
 $table->setCols('Id','Name', 'Type');
 
 foreach my $source (sort $sortingFunction @sources) {
-  $table->addRow($source->getId, $source->getName, $source->getType);
+	$table->addRow($source->getId, $source->getName, $source->getType);
 }
 
 print tableToPrint($table, $batch);

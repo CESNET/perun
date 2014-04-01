@@ -78,25 +78,25 @@ public interface MailManager {
 	 */
 	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException;
 
-    /**
-     * Copy all mail definitions from one VO's form into another VO's form.
-     *
-     * @param sess PerunSession
-     * @param fromVo VO to get application mails from
-     * @param toVo VO to add application mails to
-     * @throws PerunException
-     */
-    public void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
+	/**
+	 * Copy all mail definitions from one VO's form into another VO's form.
+	 *
+	 * @param sess PerunSession
+	 * @param fromVo VO to get application mails from
+	 * @param toVo VO to add application mails to
+	 * @throws PerunException
+	 */
+	public void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
 
-    /**
-     * Copy all mail definitions from one group into another group.
-     *
-     * @param sess PerunSession
-     * @param fromGroup Group to get application mails from
-     * @param toGroup Group to add application mails to
-     * @throws PerunException
-     */
-    public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
+	/**
+	 * Copy all mail definitions from one group into another group.
+	 *
+	 * @param sess PerunSession
+	 * @param fromGroup Group to get application mails from
+	 * @param toGroup Group to add application mails to
+	 * @throws PerunException
+	 */
+	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
 
 	/**
 	 * Send mail notification for specific application and mail type.
@@ -121,12 +121,12 @@ public interface MailManager {
 	 */
 	public String getMessageAuthenticationCode(String input);
 
-    /**
-     * Get property from configuration
-     *
-     * @param input property to get
-     * @return property value or empty string on any error or when not found
-     */
-    public String getPropertyFromConfiguration(String input);
+	/**
+	 * Get property from configuration
+	 *
+	 * @param input property to get
+	 * @return property value or empty string on any error or when not found
+	 */
+	public String getPropertyFromConfiguration(String input);
 
 }

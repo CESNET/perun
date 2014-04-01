@@ -16,42 +16,42 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public interface ResourceGroupVirtualAttributesModuleImplApi extends ResourceGroupAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
-    /**
-     * This method will return computed value.
-     *
-     * @param sess perun session
-     * @param resource resource which is needed for computing the value
-     * @param group group which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
+	/**
+	 * This method will return computed value.
+	 *
+	 * @param sess perun session
+	 * @param resource resource which is needed for computing the value
+	 * @param group group which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
 
-    /**
-     * Method sets attributes' values which are dependent on this virtual attribute.
-     *
-     * @param sess
-     * @param resource resource which is needed for computing the value
-     * @param group group which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return true if attribute was really changed
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	/**
+	 * Method sets attributes' values which are dependent on this virtual attribute.
+	 *
+	 * @param sess
+	 * @param resource resource which is needed for computing the value
+	 * @param group group which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
-    /**
-     * Currently do nothing.
-     *
-     * @param sess
-     * @param resource resource which is needed for computing the value
-     * @param group group which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    void removeAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	/**
+	 * Currently do nothing.
+	 *
+	 * @param sess
+	 * @param resource resource which is needed for computing the value
+	 * @param group group which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	void removeAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

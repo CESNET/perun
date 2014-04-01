@@ -31,13 +31,13 @@ public class DeleteAttribute {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public DeleteAttribute() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public DeleteAttribute(final JsonCallbackEvents events) {
 		this.events = events;
 	}

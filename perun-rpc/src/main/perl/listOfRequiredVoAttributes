@@ -8,26 +8,26 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Lists all required VO attributes. VO id or VO short name is required option.
------------------------------------------------------------------------
-Available options:
- --voId         | -v VO id
- --voShortName  | -V  VO short name
- --orderById    | -i order by attribute id
- --orderByName  | -n order by attribute friendly name
- --batch        | -b batch
- --help         | -h help
+	return qq{
+	Lists all required VO attributes. VO id or VO short name is required option.
+	-----------------------------------------------------------------------
+	Available options:
+	--voId         | -v VO id
+	--voShortName  | -V  VO short name
+	--orderById    | -i order by attribute id
+	--orderByName  | -n order by attribute friendly name
+	--batch        | -b batch
+	--help         | -h help
 
-};
+	};
 }
 
 my ($voId, $voShortName, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-  "voId|v=i" => \$voId,
-  "voShortName|V=s" => \$voShortName,
-  "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-  "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+"voId|v=i" => \$voId,
+	"voShortName|V=s" => \$voShortName,
+"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
@@ -37,8 +37,8 @@ unless (defined($voId) or defined($voShortName)) { die "ERROR: voId  or voShotNa
 my $agent = Perun::Agent->new();
 
 unless(defined $voId) {
-  my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
+	my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+	$voId = $vo->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
@@ -50,6 +50,6 @@ my $table = Text::ASCIITable->new();
 $table->setCols('attribute Id','attribute friendly name','namespace', 'value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-    $table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
+	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
 }
 print tableToPrint($table, $batch);

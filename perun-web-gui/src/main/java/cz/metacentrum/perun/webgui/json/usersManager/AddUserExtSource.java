@@ -31,7 +31,7 @@ public class AddUserExtSource {
 	private ExtSource extSource = null;
 	private String login = "";
 	private int userId = 0;
-    private int loa = 0;
+	private int loa = 0;
 
 	/**
 	 * Creates a new request
@@ -40,24 +40,24 @@ public class AddUserExtSource {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     *
+	 *
 	 * @param events custom events
 	 */
 	public AddUserExtSource(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
-    /**
-     * Attempts to add new user ext source to specified user
-     *
-     * @param userId ID of user, which should get this external source
-     * @param login login of user in external source
-     * @param extSource object of external source from Perun
-     * @param loa level of assurance
-     */
-    public void addUserExtSource(final int userId, final String login, final ExtSource extSource, int loa) {
+	/**
+	 * Attempts to add new user ext source to specified user
+	 *
+	 * @param userId ID of user, which should get this external source
+	 * @param login login of user in external source
+	 * @param extSource object of external source from Perun
+	 * @param loa level of assurance
+	 */
+	public void addUserExtSource(final int userId, final String login, final ExtSource extSource, int loa) {
 
-        this.loa = loa;
+		this.loa = loa;
 		this.userId = userId;
 		this.login = login;
 		this.extSource = extSource;
@@ -142,7 +142,7 @@ public class AddUserExtSource {
 		userExtSource.put("id", new JSONNumber(0));
 		userExtSource.put("extSource", newExtSource);
 		userExtSource.put("login", new JSONString(login));
-        userExtSource.put("loa", new JSONNumber(loa));
+		userExtSource.put("loa", new JSONNumber(loa));
 
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();

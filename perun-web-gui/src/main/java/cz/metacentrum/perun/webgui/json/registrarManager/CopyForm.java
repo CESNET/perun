@@ -27,30 +27,30 @@ public class CopyForm {
 
 	private int fromId;
 	private int toId;
-    private PerunEntity entity;
+	private PerunEntity entity;
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param fromId
 	 * @param toId
 	 */
 	public CopyForm(PerunEntity entity, int fromId, int toId) {
 		this.entity = entity;
-        this.fromId = fromId;
+		this.fromId = fromId;
 		this.toId = toId;
 	}
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param fromId
 	 * @param toId
 	 * @param events Custom events
 	 */
 	public CopyForm(PerunEntity entity, int fromId, int toId, JsonCallbackEvents events) {
 		this.entity = entity;
-        this.fromId = fromId;
+		this.fromId = fromId;
 		this.toId = toId;
 		this.events = events;
 	}
@@ -102,17 +102,17 @@ public class CopyForm {
 		// query
 		JSONObject query = new JSONObject();
 
-        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
 
-            query.put("fromVo", new JSONNumber(fromId));
-            query.put("toVo", new JSONNumber(toId));
+			query.put("fromVo", new JSONNumber(fromId));
+			query.put("toVo", new JSONNumber(toId));
 
-        } else if (PerunEntity.GROUP.equals(entity)) {
+		} else if (PerunEntity.GROUP.equals(entity)) {
 
-            query.put("fromGroup", new JSONNumber(fromId));
-            query.put("toGroup", new JSONNumber(toId));
+			query.put("fromGroup", new JSONNumber(fromId));
+			query.put("toGroup", new JSONNumber(toId));
 
-        }
+		}
 
 		return query;
 

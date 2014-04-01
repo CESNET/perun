@@ -6,28 +6,28 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $status = $self->{_status};
+	my $status = $self->{_status};
 
-    my $str = 'Status (';
-    $str .= "status: $status, " if ($status);
-    $str .= ')';
+	my $str = 'Status (';
+	$str .= "status: $status, " if ($status);
+	$str .= ')';
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -46,16 +46,16 @@ sub TO_JSON
 
 sub getStatus
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_status};
+	return $self->{_status};
 }
 
 sub setStatus
 {
-    my $self = shift;
-    $self->{_status} = shift;
+	my $self = shift;
+	$self->{_status} = shift;
 
-    return;
+	return;
 }
 1;

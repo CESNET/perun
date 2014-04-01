@@ -11,12 +11,12 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 @SuppressWarnings("serial")
 public class HostNotExistsRuntimeException extends EntityNotExistsRuntimeException {
 
-    public HostNotExistsRuntimeException() {
-        super();
-    }
+	public HostNotExistsRuntimeException() {
+		super();
+	}
 
-    public HostNotExistsRuntimeException(Throwable cause) {
-        super(cause);
-    }
+	public HostNotExistsRuntimeException(Throwable cause) {
+		super(cause);
+	}
 
 }

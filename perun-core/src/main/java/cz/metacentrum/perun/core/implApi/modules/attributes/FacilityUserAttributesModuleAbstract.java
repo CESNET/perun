@@ -23,15 +23,15 @@ import java.util.List;
  */
 public abstract class FacilityUserAttributesModuleAbstract extends AttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
-    }
+	}
 
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        return new Attribute(attribute);
-    }
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public void changedAttributeHook(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
-    }
+	}
 }

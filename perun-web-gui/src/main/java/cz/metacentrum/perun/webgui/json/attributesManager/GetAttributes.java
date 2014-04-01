@@ -70,15 +70,15 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Creates new instance of callback
-     */
+	 */
 	public GetAttributes() {}
 
 
 	/**
 	 * Creates new instance of callback
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public GetAttributes(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -284,42 +284,42 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 		if(checkable)
 		{
 
-            // checkbox column column
-            Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
-                    new PerunCheckboxCell<Attribute>(true, false, false)) {
-                @Override
-                public Attribute getValue(Attribute object) {
-                    // Get the value from the selection model.
-                    GeneralObject go = object.cast();
-                    go.setChecked(selectionModel.isSelected(object));
-                    return go.cast();
-                }
-            };
+			// checkbox column column
+			Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
+					new PerunCheckboxCell<Attribute>(true, false, false)) {
+				@Override
+				public Attribute getValue(Attribute object) {
+					// Get the value from the selection model.
+					GeneralObject go = object.cast();
+					go.setChecked(selectionModel.isSelected(object));
+					return go.cast();
+				}
+			};
 
-            // updates the columns size
-            table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
+			// updates the columns size
+			table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
 
-            // Add the columns
+			// Add the columns
 
-            // Checkbox column header
-            CheckboxCell cb = new CheckboxCell();
-            Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-                public Boolean getValue() {
-                    return false;//return true to see a checked checkbox.
-                }
-            };
-            checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-                public void update(Boolean value) {
-                    // sets selected to all, if value = true, unselect otherwise
-                    for(Attribute obj : list){
-                        if (obj.isWritable()) {
-                            selectionModel.setSelected(obj, value);
-                        }
-                    }
-                }
-            });
+			// Checkbox column header
+			CheckboxCell cb = new CheckboxCell();
+			Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+				public Boolean getValue() {
+					return false;//return true to see a checked checkbox.
+				}
+			};
+			checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+				public void update(Boolean value) {
+					// sets selected to all, if value = true, unselect otherwise
+					for(Attribute obj : list){
+						if (obj.isWritable()) {
+							selectionModel.setSelected(obj, value);
+						}
+					}
+				}
+			});
 
-            table.addColumn(checkBoxColumn, checkBoxHeader);
+			table.addColumn(checkBoxColumn, checkBoxHeader);
 
 		}
 
@@ -402,58 +402,58 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getFriendlyName().compareToIgnoreCase(
-						o2.getFriendlyName());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getFriendlyName().compareToIgnoreCase(
+							o2.getFriendlyName());
+					}
+				});
 
 
 		// Sorting type column
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getType().compareToIgnoreCase(o2.getType());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getType().compareToIgnoreCase(o2.getType());
+					}
+				});
 
 		// Sorting description column
 		descriptionColumn.setSortable(true);
 		columnSortHandler.setComparator(descriptionColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getDescription().compareToIgnoreCase(
-						o2.getDescription());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getDescription().compareToIgnoreCase(
+							o2.getDescription());
+					}
+				});
 
 		// Sorting value column
 		valueColumn.setSortable(true);
 		columnSortHandler.setComparator(valueColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getValue().compareToIgnoreCase(o2.getValue());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getValue().compareToIgnoreCase(o2.getValue());
+					}
+				});
 
 		// Sorting value column
 		entityColumn.setSortable(true);
 		columnSortHandler.setComparator(entityColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getEntity().compareToIgnoreCase(o2.getEntity());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getEntity().compareToIgnoreCase(o2.getEntity());
+					}
+				});
 
 		// Sorting value column
 		defTypeColumn.setSortable(true);
 		columnSortHandler.setComparator(defTypeColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
+					}
+				});
 
 		// column size
 		this.table.setColumnWidth(typeColumn, 120.0, Unit.PX);
@@ -474,127 +474,127 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Attribute>().sortByFriendlyName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Attribute>().sortByFriendlyName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Attribute to be added as new row
-     */
-    public void addToTable(Attribute object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Attribute to be added as new row
+	 */
+	public void addToTable(Attribute object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Attribute to be removed as row
-     */
-    public void removeFromTable(Attribute object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Attribute to be removed as row
+	 */
+	public void removeFromTable(Attribute object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Attribute> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Attribute> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading attributes.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading attributes.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading attributes started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading attributes started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        clearTable();
-        friendlyTable.clear();
-        int counter = 0;
-        for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
-            if (!a.getDefinition().equals("core")) {
-                addToTable(a);
-            }
-            friendlyTable.setWidget(counter, 0, new HTML("<strong>" + a.getFriendlyName() + "</strong>"));
-            friendlyTable.setText(counter, 1, a.getValue());
-            counter++;
-        }
-        sortTable();
-        session.getUiElements().setLogText("Attributes loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		clearTable();
+		friendlyTable.clear();
+		int counter = 0;
+		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
+			if (!a.getDefinition().equals("core")) {
+				addToTable(a);
+			}
+			friendlyTable.setWidget(counter, 0, new HTML("<strong>" + a.getFriendlyName() + "</strong>"));
+			friendlyTable.setText(counter, 1, a.getValue());
+			counter++;
+		}
+		sortTable();
+		session.getUiElements().setLogText("Attributes loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Attribute object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Attribute object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        this.editable = editable;
-    }
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Attribute> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Attribute> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Attribute> getList() {
-        return this.list;
-    }
+	public ArrayList<Attribute> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Return substring of input text - start on index 10

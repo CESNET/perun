@@ -34,9 +34,9 @@ public class HandleApplication {
 	final String JSON_URL_VERIFY = "registrarManager/verifyApplication";
 	final String JSON_URL_APPROVE = "registrarManager/approveApplication";
 	final String JSON_URL_REJECT = "registrarManager/rejectApplication";
-    final String JSON_URL_DELETE = "registrarManager/deleteApplication";
+	final String JSON_URL_DELETE = "registrarManager/deleteApplication";
 
-    // custom events
+	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
 	// application form
@@ -51,7 +51,7 @@ public class HandleApplication {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param events Custom events
 	 */
 	public HandleApplication(JsonCallbackEvents events) {
@@ -75,16 +75,16 @@ public class HandleApplication {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			@Override
-            public void onError(PerunError error) {
+			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Verifying application failed.");
 				events.onError(error);
 			};
-            @Override
+			@Override
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Application verified.");
 				events.onFinished(jso);
 			};
-            @Override
+			@Override
 			public void onLoadingStart() {
 				events.onLoadingStart();
 			};
@@ -149,175 +149,175 @@ public class HandleApplication {
 			return;
 		}
 
-        // new events
-        final JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-            @Override
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Approving application failed.");
-                events.onError(error);
-            };
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Application approved.");
-                events.onFinished(jso);
-            };
-            @Override
-            public void onLoadingStart() {
-                events.onLoadingStart();
-            };
-        };
+		// new events
+		final JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			@Override
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Approving application failed.");
+				events.onError(error);
+			};
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Application approved.");
+				events.onFinished(jso);
+			};
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
 
-        // check for similar users before approving
+		// check for similar users before approving
 
-        JSONObject jso = new JSONObject();
-        jso.put("appId", new JSONNumber(appId));
+		JSONObject jso = new JSONObject();
+		jso.put("appId", new JSONNumber(appId));
 
-        if (app.getUser() != null) {
+		if (app.getUser() != null) {
 
-            // ok approve sending data
-            JsonPostClient jspc = new JsonPostClient(newEvents);
-            jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+			// ok approve sending data
+			JsonPostClient jspc = new JsonPostClient(newEvents);
+			jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
-        } else {
+		} else {
 
-            JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
-                @Override
-                public void onError(PerunError error) {
-                    session.getUiElements().setLogErrorText("Approving application failed.");
-                    events.onError(error);
-                };
-                @Override
-                public void onFinished(JavaScriptObject jso) {
+			JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
+				@Override
+				public void onError(PerunError error) {
+					session.getUiElements().setLogErrorText("Approving application failed.");
+					events.onError(error);
+				};
+			@Override
+			public void onFinished(JavaScriptObject jso) {
 
-                    ArrayList<User> users = JsonUtils.jsoAsList(jso);
-                    if (users != null && !users.isEmpty()) {
+				ArrayList<User> users = JsonUtils.jsoAsList(jso);
+				if (users != null && !users.isEmpty()) {
 
-                        FlexTable ft = new FlexTable();
-                        ft.setWidth("400px");
-                        ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
+					FlexTable ft = new FlexTable();
+					ft.setWidth("400px");
+					ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
 
-                        for (int i=0; i<users.size(); i++) {
-                            if (!users.get(i).isServiceUser()) {
-                                ft.setHTML(i+1, 0, users.get(i).getFullNameWithTitles() + " (User ID: "+users.get(i).getId()+")");
-                            }
-                        }
+					for (int i=0; i<users.size(); i++) {
+						if (!users.get(i).isServiceUser()) {
+							ft.setHTML(i+1, 0, users.get(i).getFullNameWithTitles() + " (User ID: "+users.get(i).getId()+")");
+						}
+					}
 
-                        ft.setHTML(ft.getRowCount(), 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
-                                "<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
-                                "</li><li>If NO, you can approve this application anyway. " +
-                                "</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+					ft.setHTML(ft.getRowCount(), 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
+							"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
+							"</li><li>If NO, you can approve this application anyway. " +
+							"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
 
-                        ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+					ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
 
-                        Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent clickEvent) {
+					Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
 
-                                // ok approve sending data
-                                JsonPostClient jspc = new JsonPostClient(newEvents);
-                                jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+							// ok approve sending data
+							JsonPostClient jspc = new JsonPostClient(newEvents);
+							jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
-                            }
-                        }, new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent clickEvent) {
-                                events.onFinished(null);
-                            }
-                        }, true);
-                        c.setNonScrollable(true);
-                        c.show();
+						}
+					}, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+							events.onFinished(null);
+						}
+					}, true);
+					c.setNonScrollable(true);
+					c.show();
 
-                    } else {
+				} else {
 
-                        // ok approve sending data
-                        JsonPostClient jspc = new JsonPostClient(newEvents);
-                        jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+					// ok approve sending data
+					JsonPostClient jspc = new JsonPostClient(newEvents);
+					jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
-                    }
+				}
 
-                };
-                @Override
-                public void onLoadingStart() {
-                    events.onLoadingStart();
-                };
-            });
-            checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
+			};
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+			});
+			checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
 
-        }
+		}
 
 	}
 
-    /**
-     * Delete application
-     *
-     * @param appId
-     */
-    public void deleteApplication(int appId) {
+	/**
+	 * Delete application
+	 *
+	 * @param appId
+	 */
+	public void deleteApplication(int appId) {
 
-        this.appId = appId;
+		this.appId = appId;
 
-        // test arguments
-        if(!this.testApplication()){
-            return;
-        }
+		// test arguments
+		if(!this.testApplication()){
+			return;
+		}
 
-        // new events
-        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-            @Override
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Deleting application failed.");
-                events.onError(error);
-            };
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Application deleted.");
-                events.onFinished(jso);
-            };
-            @Override
-            public void onLoadingStart() {
-                events.onLoadingStart();
-            };
-        };
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			@Override
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Deleting application failed.");
+				events.onError(error);
+			};
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Application deleted.");
+				events.onFinished(jso);
+			};
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
 
-        // sending data
-        JsonPostClient jspc = new JsonPostClient(newEvents);
-        jspc.sendData(JSON_URL_DELETE, prepareJSONObject());
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(JSON_URL_DELETE, prepareJSONObject());
 
-    }
+	}
 
 
-    private boolean testApplication() {
+	private boolean testApplication() {
 
-        boolean result = true;
-        String errorMsg = "";
+		boolean result = true;
+		String errorMsg = "";
 
-        if(appId == 0){
-            errorMsg += "Application ID can't be 0.";
-            result = false;
-        }
+		if(appId == 0){
+			errorMsg += "Application ID can't be 0.";
+			result = false;
+		}
 
-        if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
-        }
+		if(errorMsg.length()>0){
+			UiElements.generateAlert("Parameter error", errorMsg);
+		}
 
-        return result;
+		return result;
 
-    }
+	}
 
-    /**
-     * Prepares a JSON object.
-     * @return JSONObject - the whole query
-     */
-    private JSONObject prepareJSONObject() {
-        // query
-        JSONObject query = new JSONObject();
-        query.put("id", new JSONNumber(appId));
+	/**
+	 * Prepares a JSON object.
+	 * @return JSONObject - the whole query
+	 */
+	private JSONObject prepareJSONObject() {
+		// query
+		JSONObject query = new JSONObject();
+		query.put("id", new JSONNumber(appId));
 
-        if (reason != null) {
-            query.put("reason", new JSONString(reason));
-        }
+		if (reason != null) {
+			query.put("reason", new JSONString(reason));
+		}
 
-        return query;
-    }
+		return query;
+	}
 
 }

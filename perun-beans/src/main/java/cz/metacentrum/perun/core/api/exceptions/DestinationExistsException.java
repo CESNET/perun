@@ -10,37 +10,37 @@ import cz.metacentrum.perun.core.api.exceptions.rt.DestinationExistsRuntimeExcep
  * @author Michal Prochazka
  */
 public class DestinationExistsException extends EntityExistsException {
-  static final long serialVersionUID = 0;
-  private Destination destination;
+	static final long serialVersionUID = 0;
+	private Destination destination;
 
-  public DestinationExistsException(DestinationExistsRuntimeException rt) {
-    super(rt.getMessage(),rt);
-  }
+	public DestinationExistsException(DestinationExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-  public DestinationExistsException(String message) {
-    super(message);
-  }
+	public DestinationExistsException(String message) {
+		super(message);
+	}
 
-  public DestinationExistsException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public DestinationExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-  public DestinationExistsException(Throwable cause) {
-    super(cause);
-  }
+	public DestinationExistsException(Throwable cause) {
+		super(cause);
+	}
 
-  public DestinationExistsException(Destination destination) {
-    super(destination.toString());
-    this.destination = destination;
-  }
+	public DestinationExistsException(Destination destination) {
+		super(destination.toString());
+		this.destination = destination;
+	}
 
-  /**
-   * Gets the destination for this instance.
-   *
-   * @return The destination.
-   */
-  public Destination getDestination()
-  {
-        return this.destination;
-  }
+	/**
+	 * Gets the destination for this instance.
+	 *
+	 * @return The destination.
+	 */
+	public Destination getDestination()
+	{
+		return this.destination;
+	}
 }

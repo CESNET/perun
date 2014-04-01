@@ -43,9 +43,9 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private String type = "";
 
-    private boolean checkable = true;
-    private ArrayList<Owner> backupList = new ArrayList<Owner>();
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private boolean checkable = true;
+	private ArrayList<Owner> backupList = new ArrayList<Owner>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
 	 * New instance of get owners
@@ -88,12 +88,12 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No owners defined in Perun.");
+		loaderImage.setEmptyResultMessage("No owners defined in Perun.");
 
 		// checkbox column column
-        if (checkable) {
-            table.addCheckBoxColumn();
-        }
+		if (checkable) {
+			table.addCheckBoxColumn();
+		}
 
 		table.addIdColumn("Owner Id");
 
@@ -143,141 +143,141 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 		js.retrieveData(JSON_URL, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<Owner>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<Owner>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(Owner object) {
-        list.add(object);
-        oracle.add(object.getName());
-        oracle.add(object.getContact());
-        oracle.add(Owner.getTranslatedType(object.getType()));
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(Owner object) {
+		list.add(object);
+		oracle.add(object.getName());
+		oracle.add(object.getContact());
+		oracle.add(Owner.getTranslatedType(object.getType()));
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(Owner object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(Owner object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        backupList.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-        oracle.clear();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		backupList.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+		oracle.clear();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Owner> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Owner> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Owners.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Owners.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Owners started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Owners started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        if (type.isEmpty()) {
-            // don't filter
-            setList(JsonUtils.<Owner>jsoAsList(jso));
-        } else {
-            // filter
-            for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
-                if (type.equalsIgnoreCase(o.getType())) {
-                    addToTable(o);
-                }
-            }
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Owners loaded: " + list.size());
-        events.onFinished(jso);
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		if (type.isEmpty()) {
+			// don't filter
+			setList(JsonUtils.<Owner>jsoAsList(jso));
+		} else {
+			// filter
+			for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
+				if (type.equalsIgnoreCase(o.getType())) {
+					addToTable(o);
+				}
+			}
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Owners loaded: " + list.size());
+		events.onFinished(jso);
 
-    }
+	}
 
-    public void insertToTable(int index, Owner object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        oracle.add(object.getContact());
-        oracle.add(Owner.getTranslatedType(object.getType()));
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Owner object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		oracle.add(object.getContact());
+		oracle.add(Owner.getTranslatedType(object.getType()));
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Owner> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Owner o : list) {
-            oracle.add(o.getName());
-            oracle.add(o.getContact());
-            oracle.add(Owner.getTranslatedType(o.getType()));
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Owner> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Owner o : list) {
+			oracle.add(o.getName());
+			oracle.add(o.getContact());
+			oracle.add(Owner.getTranslatedType(o.getType()));
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Owner> getList() {
-        return this.list;
-    }
+	public ArrayList<Owner> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Set filtering of received owners by their type
@@ -291,51 +291,51 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 		this.type = type;
 	}
 
-    @Override
-    public void filterTable(String filter) {
+	@Override
+	public void filterTable(String filter) {
 
-        // store list only for first time
-        if (backupList.isEmpty() || backupList == null) {
-            backupList.addAll(list);
-        }
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(backupList);
-        } else {
-            for (Owner o: backupList){
-                // store owner by filter
-                if (o.getName().toLowerCase().startsWith(filter.toLowerCase()) ||
-                    o.getContact().toLowerCase().startsWith(filter.toLowerCase()) ||
-                    Owner.getTranslatedType(o.getType()).toLowerCase().startsWith(Owner.getTranslatedType(filter).toLowerCase())) {
-                    list.add(o);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (Owner o: backupList){
+				// store owner by filter
+				if (o.getName().toLowerCase().startsWith(filter.toLowerCase()) ||
+						o.getContact().toLowerCase().startsWith(filter.toLowerCase()) ||
+						Owner.getTranslatedType(o.getType()).toLowerCase().startsWith(Owner.getTranslatedType(filter).toLowerCase())) {
+					list.add(o);
+						}
+			}
+		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No owner matching '"+filter+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("No owners defined in Perun.");
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No owner matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("No owners defined in Perun.");
+		}
 
-        loaderImage.loadingFinished();
-        dataProvider.flush();
-        dataProvider.refresh();
+		loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
 
-    }
+	}
 
-    @Override
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    @Override
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 }

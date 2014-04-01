@@ -19,15 +19,15 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class EntitylessAttributesModuleAbstract extends AttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-    }
+	}
 
-    public Attribute fillAttribute(PerunSessionImpl session, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        return new Attribute(attribute);
-    }
+	public Attribute fillAttribute(PerunSessionImpl session, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
-    }
+	}
 }

@@ -9,21 +9,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * @author Slavek Licehammer
  */
 public class RelationExistsException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public RelationExistsException(RelationExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public RelationExistsException(RelationExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public RelationExistsException(String message) {
-        super(message);
-    }
+	public RelationExistsException(String message) {
+		super(message);
+	}
 
-    public RelationExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public RelationExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public RelationExistsException(Throwable cause) {
-        super(cause);
-    }
+	public RelationExistsException(Throwable cause) {
+		super(cause);
+	}
 }

@@ -8,26 +8,26 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Lists all required user attributes. User id is required option. Resource id is optional.
------------------------------------------------------------------------
-Available options:
- --userId       | -u user id
- --resourceId   | -r resource to get services from
- --orderById    | -i order by attribute id
- --orderByName  | -n order by attribute friendly name
- --batch        | -b batch
- --help         | -h help
+	return qq{
+	Lists all required user attributes. User id is required option. Resource id is optional.
+	-----------------------------------------------------------------------
+	Available options:
+	--userId       | -u user id
+	--resourceId   | -r resource to get services from
+	--orderById    | -i order by attribute id
+	--orderByName  | -n order by attribute friendly name
+	--batch        | -b batch
+	--help         | -h help
 
-};
+	};
 }
 
 my ($userId, $resourceId, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-  "userId|u=i" => \$userId,
-  "resourceId|r=i" => \$resourceId,
-  "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-  "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+"userId|u=i" => \$userId,
+	"resourceId|r=i" => \$resourceId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
@@ -40,9 +40,9 @@ my $attributesAgent = $agent->getAttributesAgent;
 
 my @attributes;
 if ($resourceId) {
-    @attributes = $attributesAgent->getResourceRequiredAttributes(user =>$userId, resourceToGetServicesFrom =>$resourceId);
+	@attributes = $attributesAgent->getResourceRequiredAttributes(user =>$userId, resourceToGetServicesFrom =>$resourceId);
 } else {
-    @attributes = $attributesAgent->getRequiredAttributes(user =>$userId);
+	@attributes = $attributesAgent->getRequiredAttributes(user =>$userId);
 }
 
 unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
@@ -51,6 +51,6 @@ my $table = Text::ASCIITable->new();
 $table->setCols('attribute Id','attribute friendly name','namespace', 'value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-    $table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
+	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
 }
 print tableToPrint($table, $batch);

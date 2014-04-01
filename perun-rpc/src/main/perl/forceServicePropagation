@@ -7,24 +7,24 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Forces service propagation. Facility and service are required fields.
---------------------------------------
-Available options:
- --serviceId    | -s service id
- --serviceName  | -S service name
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Forces service propagation. Facility and service are required fields.
+	--------------------------------------
+	Available options:
+	--serviceId    | -s service id
+	--serviceName  | -S service name
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $serviceName, $schedule, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId,
+"facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
  "serviceId|s=i" => \$serviceId,
@@ -36,21 +36,21 @@ unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or
 my $agent = Perun::Agent->new();
 
 unless($serviceId) {
-    my $servicesAgent = $agent->getServicesAgent;
-    my $service = $servicesAgent->getServiceByName(name => $serviceName);
-    $serviceId=$service->getId;
+	my $servicesAgent = $agent->getServicesAgent;
+	my $service = $servicesAgent->getServiceByName(name => $serviceName);
+	$serviceId=$service->getId;
 }
 
 my %params = (service => $serviceId);
 
 if(defined($facilityId) or (defined($facilityName) and defined($facilityType))) {
-  unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
-  }
+	unless($facilityId) {
+		my $facilitiesAgent = $agent->getFacilitiesAgent;
+		my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+		$facilityId=$facility->getId;
+	}
 
-  $params{facility} = $facilityId;
+	$params{facility} = $facilityId;
 }
 
 my $generelServicesAgent = $agent->getGeneralServicesAgent;

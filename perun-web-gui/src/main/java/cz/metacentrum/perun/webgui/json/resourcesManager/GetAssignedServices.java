@@ -44,9 +44,9 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 	private int resourceId;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
-    // oracle
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private ArrayList<Service> fullBackup = new ArrayList<Service>();
+	// oracle
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<Service> fullBackup = new ArrayList<Service>();
 
 	/**
 	 * Creates a new ajax query
@@ -106,7 +106,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Resource has no services assigned.");
+		loaderImage.setEmptyResultMessage("Resource has no services assigned.");
 
 		// checkbox column column
 		if (checkable) {
@@ -130,162 +130,162 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Service>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Service>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Service to be added as new row
-     */
-    public void addToTable(Service object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Service to be added as new row
+	 */
+	public void addToTable(Service object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Service to be removed as row
-     */
-    public void removeFromTable(Service object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Service to be removed as row
+	 */
+	public void removeFromTable(Service object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Service> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Service> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading assigned services.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading assigned services.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading assigned services started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading assigned services started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Service>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Assigned services loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Service>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Assigned services loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Service object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Service object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Service> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Service object : list) {
-            oracle.add(object.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Service> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Service object : list) {
+			oracle.add(object.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Service> getList() {
-        return this.list;
-    }
+	public ArrayList<Service> getList() {
+		return this.list;
+	}
 
-    public UnaccentMultiWordSuggestOracle getOracle(){
-        return this.oracle;
-    }
+	public UnaccentMultiWordSuggestOracle getOracle(){
+		return this.oracle;
+	}
 
-    public void filterTable(String text){
+	public void filterTable(String text){
 
-        // store list only for first time
-        if (fullBackup.isEmpty() || fullBackup == null) {
-            fullBackup.addAll(list);
-        }
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
-        } else {
-            for (Service s : fullBackup){
-                // store facility by filter
-                if (s.getName().toLowerCase().startsWith(text.toLowerCase())) {
-                    list.add(s);
-                }
-            }
-        }
+		if (text.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (Service s : fullBackup){
+				// store facility by filter
+				if (s.getName().toLowerCase().startsWith(text.toLowerCase())) {
+					list.add(s);
+				}
+			}
+		}
 
-        if (list.isEmpty() && !text.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No service matching '"+text+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("Resource has no services assigned.");
-        }
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No service matching '"+text+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("Resource has no services assigned.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 }

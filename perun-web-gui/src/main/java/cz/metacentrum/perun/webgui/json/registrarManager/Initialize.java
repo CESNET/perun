@@ -30,9 +30,9 @@ public class Initialize implements JsonCallback {
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param voShortName vo name
-     * @param group group name
+	 * @param group group name
 	 */
 	public Initialize(String voShortName, String group) {
 		this.vo = voShortName;
@@ -41,9 +41,9 @@ public class Initialize implements JsonCallback {
 
 	/**
 	 * Creates a new request with custom events
-     *
-     * @param voShortName vo name
-     * @param group group name
+	 *
+	 * @param voShortName vo name
+	 * @param group group name
 	 * @param events Custom events
 	 */
 	public Initialize(String voShortName, String group, JsonCallbackEvents events) {

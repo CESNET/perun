@@ -51,8 +51,8 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param publicationId
-     */
+	 * @param publicationId
+	 */
 	public FindThanksByPublicationId(int publicationId) {
 		this.publicationId = publicationId;
 	}
@@ -60,9 +60,9 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param publicationId
-     * @param events external events
-     */
+	 * @param publicationId
+	 * @param events external events
+	 */
 	public FindThanksByPublicationId(int publicationId, JsonCallbackEvents events) {
 		this(publicationId);
 		this.events = events;
@@ -91,7 +91,7 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Publication has no acknowledgements.");
+		loaderImage.setEmptyResultMessage("Publication has no acknowledgements.");
 
 		// checkbox column column
 		if (checkable == true){
@@ -124,117 +124,117 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Thanks>().sortById(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Thanks>().sortById(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Thanks to be added as new row
-     */
-    public void addToTable(Thanks object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Thanks to be added as new row
+	 */
+	public void addToTable(Thanks object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Thanks to be removed as row
-     */
-    public void removeFromTable(Thanks object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Thanks to be removed as row
+	 */
+	public void removeFromTable(Thanks object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Thanks> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Thanks> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading thanks.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading thanks.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading thanks started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading thanks started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Thanks>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Thanks loaded: " + list.size());
-        loaderImage.loadingFinished();
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Thanks>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Thanks loaded: " + list.size());
+		loaderImage.loadingFinished();
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Thanks object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Thanks object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Thanks> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Thanks> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Thanks> getList() {
-        return this.list;
-    }
+	public ArrayList<Thanks> getList() {
+		return this.list;
+	}
 
 	public void retrieveData() {
 		JsonClient js = new JsonClient();

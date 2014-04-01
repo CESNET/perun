@@ -18,7 +18,7 @@ public class AttributesTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public AttributesTabs(){}
 
 	/**

@@ -26,7 +26,7 @@ public class CreateCategoryTabItem implements TabItem {
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -40,7 +40,7 @@ public class CreateCategoryTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public CreateCategoryTabItem(){}
 
 	public boolean isPrepared(){
@@ -52,88 +52,88 @@ public class CreateCategoryTabItem implements TabItem {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        final CustomButton addCategory = TabMenu.getPredefinedButton(ButtonType.ADD, "Add category");
-        menu.addWidget(addCategory);
+		final CustomButton addCategory = TabMenu.getPredefinedButton(ButtonType.ADD, "Add category");
+		menu.addWidget(addCategory);
 
-        FlexTable table = new FlexTable();
-        table.setStyleName("inputFormFlexTable");
+		FlexTable table = new FlexTable();
+		table.setStyleName("inputFormFlexTable");
 
-        // textboxes which set the class data when updated
+		// textboxes which set the class data when updated
 		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
-        final ExtendedTextBox rankTextBox = new ExtendedTextBox();
+		final ExtendedTextBox rankTextBox = new ExtendedTextBox();
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setError("Name can't be empty.");
-                    return false;
-                }
-                nameTextBox.setOk();
-                return true;
-            }
-        };
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
+					nameTextBox.setError("Name can't be empty.");
+					return false;
+				}
+				nameTextBox.setOk();
+				return true;
+			}
+		};
 
-        final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (rankTextBox.getTextBox().getText().trim().isEmpty()) {
-                    rankTextBox.setError("Rank value can't be empty.");
-                    return false;
-                } else {
-                    try{
-                        Double.parseDouble(rankTextBox.getTextBox().getText().trim());
-                    }catch(Exception e){
-                        rankTextBox.setError("Value must be in like: 0.5, 1.0 etc.");
-                        return false;
-                    }
-                }
-                rankTextBox.setOk();
-                return true;
-            }
-        };
+		final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (rankTextBox.getTextBox().getText().trim().isEmpty()) {
+					rankTextBox.setError("Rank value can't be empty.");
+					return false;
+				} else {
+					try{
+						Double.parseDouble(rankTextBox.getTextBox().getText().trim());
+					}catch(Exception e){
+						rankTextBox.setError("Value must be in like: 0.5, 1.0 etc.");
+						return false;
+					}
+				}
+				rankTextBox.setOk();
+				return true;
+			}
+		};
 
-        nameTextBox.setValidator(validator);
-        rankTextBox.setValidator(validator2);
+		nameTextBox.setValidator(validator);
+		rankTextBox.setValidator(validator2);
 
 		final TabItem tab = this;
 
 		addCategory.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-                if (validator.validateTextBox() && validator2.validateTextBox()) {
-                    CreateCategory request = new CreateCategory(JsonCallbackEvents.closeTabDisableButtonEvents(addCategory, tab));
-                    request.createCategory(nameTextBox.getTextBox().getText().trim(), Double.parseDouble(rankTextBox.getTextBox().getText().trim()));
-                }
-            }
+				if (validator.validateTextBox() && validator2.validateTextBox()) {
+					CreateCategory request = new CreateCategory(JsonCallbackEvents.closeTabDisableButtonEvents(addCategory, tab));
+					request.createCategory(nameTextBox.getTextBox().getText().trim(), Double.parseDouble(rankTextBox.getTextBox().getText().trim()));
+				}
+			}
 		});
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        vp.add(table);
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(table);
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		table.setHTML(0, 0, "Name:");
 		table.setWidget(0, 1, nameTextBox);
 		table.setHTML(1, 0, "Rank:");
 		table.setWidget(1, 1, rankTextBox);
 
-        for (int i=0; i<table.getRowCount(); i++) {
-            table.getFlexCellFormatter().setStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<table.getRowCount(); i++) {
+			table.getFlexCellFormatter().setStyleName(i, 0, "itemName");
+		}
 
-        table.setHTML(2, 1, "Values like: 0.0 , 0.5 , 1.2 , etc.");
-        table.getFlexCellFormatter().setStyleName(2, 1, "inputFormInlineComment");
+		table.setHTML(2, 1, "Values like: 0.0 , 0.5 , 1.2 , etc.");
+		table.getFlexCellFormatter().setStyleName(2, 1, "inputFormInlineComment");
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}

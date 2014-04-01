@@ -64,60 +64,60 @@ public class GetFormItems implements JsonCallback {
 	private boolean settings = false;
 
 	private PerunEntity entity;
-    private Group group = null;
+	private Group group = null;
 
 	// RegistrarFormItemGenerators for getting values
 	private ArrayList<RegistrarFormItemGenerator> applFormGenerators = new ArrayList<RegistrarFormItemGenerator>();
 
 	/**
 	 * Creates a new method instance
-     *
-     * @param entity entity
+	 *
+	 * @param entity entity
 	 * @param id entity ID
 	 * @param settings Whether to show settings
-     * @param g Group for authz if for group admin
+	 * @param g Group for authz if for group admin
 	 */
 	public GetFormItems(PerunEntity entity, int id, boolean settings, Group g) {
 		this.id = id;
 		this.entity = entity;
 		this.settings = settings;
-        this.group = g;
+		this.group = g;
 
-        FlexTable ft = new FlexTable();
-        ft.setWidth("100%");
-        ft.setCellPadding(8);
-        FlexCellFormatter fcf = ft.getFlexCellFormatter();
+		FlexTable ft = new FlexTable();
+		ft.setWidth("100%");
+		ft.setCellPadding(8);
+		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 
-        ft.addStyleName("borderTable");
+		ft.addStyleName("borderTable");
 
-        ft.setHTML(0, 0, "<strong>Short name</strong>");
-        ft.setHTML(0, 1, "<strong>Type</strong>");
-        ft.setHTML(0, 2, "<strong>Preview</strong>");
-        ft.setHTML(0, 3, "<strong>Edit</strong>");
+		ft.setHTML(0, 0, "<strong>Short name</strong>");
+		ft.setHTML(0, 1, "<strong>Type</strong>");
+		ft.setHTML(0, 2, "<strong>Preview</strong>");
+		ft.setHTML(0, 3, "<strong>Edit</strong>");
 
-        fcf.setStyleName(0, 0, "header");
-        fcf.setStyleName(0, 1, "header");
-        fcf.setStyleName(0, 2, "header");
-        fcf.setStyleName(0, 3, "header");
+		fcf.setStyleName(0, 0, "header");
+		fcf.setStyleName(0, 1, "header");
+		fcf.setStyleName(0, 2, "header");
+		fcf.setStyleName(0, 3, "header");
 
-        contents.setWidget(ft);
+		contents.setWidget(ft);
 
-        ft.setWidget(1, 0, loaderImage);
-        fcf.addStyleName(1, 0, "noBorder");
-        fcf.setColSpan(1, 0, 4);
+		ft.setWidget(1, 0, loaderImage);
+		fcf.addStyleName(1, 0, "noBorder");
+		fcf.setColSpan(1, 0, 4);
 
-        loaderImage.asWidget().getElement().setAttribute("style", "text-align: center; vertical-align: middle");
-        loaderImage.setEmptyResultMessage("Application form has no form items.");
+		loaderImage.asWidget().getElement().setAttribute("style", "text-align: center; vertical-align: middle");
+		loaderImage.setEmptyResultMessage("Application form has no form items.");
 
 	}
 
 	/**
 	 * Creates a new getResources method instance
 	 *
-     * @param entity entity
+	 * @param entity entity
 	 * @param id entity ID
 	 * @param settings Whether to show settings
-     * @param g Group for authz if for group admin
+	 * @param g Group for authz if for group admin
 	 * @param events Custom events
 	 */
 	public GetFormItems(PerunEntity entity, int id, boolean settings, Group g, JsonCallbackEvents events) {
@@ -162,12 +162,12 @@ public class GetFormItems implements JsonCallback {
 		events.onError(error);
 		loaderImage.loadingError(error);
 
-        applFormItems.clear();
-        applFormGenerators.clear();
+		applFormItems.clear();
+		applFormGenerators.clear();
 
-        if (settings) {
-            prepareErrorSettings(error);
-        }
+		if (settings) {
+			prepareErrorSettings(error);
+		}
 
 	}
 
@@ -218,7 +218,7 @@ public class GetFormItems implements JsonCallback {
 		ft.setCellPadding(8);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 
-        ft.addStyleName("borderTable");
+		ft.addStyleName("borderTable");
 
 		ft.setHTML(0, 0, "<strong>Short name</strong>");
 		ft.setHTML(0, 1, "<strong>Type</strong>");
@@ -239,20 +239,20 @@ public class GetFormItems implements JsonCallback {
 		}
 
 		int i = 1;
-        for(final ApplicationFormItem item : items){
+		for(final ApplicationFormItem item : items){
 
 			final int index = i - 1;
 
 			// not yet set locale on config page
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, locale);
 
-            // 0 = label
-            String label = "";
-            label = item.getShortname();
+			// 0 = label
+			String label = "";
+			label = item.getShortname();
 
-            if (item.isRequired() == true) {
-                label += "*";
-            }
+			if (item.isRequired() == true) {
+				label += "*";
+			}
 			ft.setHTML(i, 0, label);
 
 			// 1 = type
@@ -267,13 +267,13 @@ public class GetFormItems implements JsonCallback {
 			editTable.setStyleName("noBorder");
 			ft.setWidget(i, 3, editTable);
 
-            // color for items with unsaved changes
-            if (item.wasEdited() == true) {
-                ft.getFlexCellFormatter().setStyleName(i, 0, "log-changed");
-                ft.getFlexCellFormatter().setStyleName(i, 1, "log-changed");
-                ft.getFlexCellFormatter().setStyleName(i, 2, "log-changed");
-                ft.getFlexCellFormatter().setStyleName(i, 3, "log-changed");
-            }
+			// color for items with unsaved changes
+			if (item.wasEdited() == true) {
+				ft.getFlexCellFormatter().setStyleName(i, 0, "log-changed");
+				ft.getFlexCellFormatter().setStyleName(i, 1, "log-changed");
+				ft.getFlexCellFormatter().setStyleName(i, 2, "log-changed");
+				ft.getFlexCellFormatter().setStyleName(i, 3, "log-changed");
+			}
 
 			// mark row for deletion
 			if (item.isForDelete()) {
@@ -300,7 +300,7 @@ public class GetFormItems implements JsonCallback {
 
 			}
 
-            // color for new items to be saved
+			// color for new items to be saved
 			if (item.getId() == 0) {
 				ft.getFlexCellFormatter().setStyleName(i, 0, "log-success");
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-success");
@@ -320,14 +320,14 @@ public class GetFormItems implements JsonCallback {
 					items.add(index - 1, item);
 					item.setOrdnum(item.getOrdnum()-1);
 
-                    item.setEdited(true);
+					item.setEdited(true);
 
 					// refresh
 					prepareSettings(items);
 				}
 			});
 			editTable.setWidget(0, 0, upButton);
-            upButton.setTitle(ButtonTranslation.INSTANCE.moveFormItemUp());
+			upButton.setTitle(ButtonTranslation.INSTANCE.moveFormItemUp());
 
 			// down
 			PushButton downButton = new PushButton(new Image(SmallIcons.INSTANCE.arrowDownIcon()), new ClickHandler() {
@@ -341,21 +341,21 @@ public class GetFormItems implements JsonCallback {
 					items.add(index + 1, item);
 					item.setOrdnum(item.getOrdnum()+1);
 
-                    item.setEdited(true);
+					item.setEdited(true);
 
 					// refresh
 					prepareSettings(items);
 				}
 			});
 			editTable.setWidget(0, 1, downButton);
-            downButton.setTitle(ButtonTranslation.INSTANCE.moveFormItemDown());
+			downButton.setTitle(ButtonTranslation.INSTANCE.moveFormItemDown());
 
 			// edit
 			CustomButton editButton = new CustomButton(ButtonTranslation.INSTANCE.editFormItemButton(), ButtonTranslation.INSTANCE.editFormItem(), SmallIcons.INSTANCE.applicationFormEditIcon());
 			editButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, refreshEvents));
-                }
+				}
 			});
 			editTable.setWidget(0, 2, editButton);
 
@@ -377,19 +377,19 @@ public class GetFormItems implements JsonCallback {
 							prepareSettings(items);
 						}
 					}, true);
-                    c.setNonScrollable(true);
+					c.setNonScrollable(true);
 					c.show();
 				}
 			});
 			editTable.setWidget(0, 3, removeButton);
 
-            if ((PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id) && !session.isVoAdmin(group.getVoId()))
-                    || (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id))) {
-                editButton.setEnabled(false);
-                upButton.setEnabled(false);
-                downButton.setEnabled(false);
-                removeButton.setEnabled(false);
-            }
+			if ((PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id) && !session.isVoAdmin(group.getVoId()))
+					|| (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id))) {
+				editButton.setEnabled(false);
+				upButton.setEnabled(false);
+				downButton.setEnabled(false);
+				removeButton.setEnabled(false);
+					}
 
 			// format
 			fcf.setHeight(i, 0, "28px");
@@ -401,101 +401,101 @@ public class GetFormItems implements JsonCallback {
 
 		}
 
-        // set empty table widget
-        if (items == null || items.isEmpty()) {
-            ft.setWidget(1, 0, loaderImage);
-            ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
-            ft.getFlexCellFormatter().setColSpan(1, 0, 4);
-        }
+		// set empty table widget
+		if (items == null || items.isEmpty()) {
+			ft.setWidget(1, 0, loaderImage);
+			ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
+			ft.getFlexCellFormatter().setColSpan(1, 0, 4);
+		}
 
 		contents.setWidget(ft);
 
 	}
 
-    private void prepareErrorSettings(PerunError error) {
+	private void prepareErrorSettings(PerunError error) {
 
-        FlexTable ft = new FlexTable();
-        ft.setWidth("100%");
-        ft.setCellPadding(8);
-        FlexCellFormatter fcf = ft.getFlexCellFormatter();
+		FlexTable ft = new FlexTable();
+		ft.setWidth("100%");
+		ft.setCellPadding(8);
+		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 
-        ft.addStyleName("borderTable");
+		ft.addStyleName("borderTable");
 
-        ft.setHTML(0, 0, "<strong>Short name</strong>");
-        ft.setHTML(0, 1, "<strong>Type</strong>");
-        ft.setHTML(0, 2, "<strong>Preview</strong>");
-        ft.setHTML(0, 3, "<strong>Edit</strong>");
+		ft.setHTML(0, 0, "<strong>Short name</strong>");
+		ft.setHTML(0, 1, "<strong>Type</strong>");
+		ft.setHTML(0, 2, "<strong>Preview</strong>");
+		ft.setHTML(0, 3, "<strong>Edit</strong>");
 
-        fcf.setStyleName(0, 0, "header");
-        fcf.setStyleName(0, 1, "header");
-        fcf.setStyleName(0, 2, "header");
-        fcf.setStyleName(0, 3, "header");
+		fcf.setStyleName(0, 0, "header");
+		fcf.setStyleName(0, 1, "header");
+		fcf.setStyleName(0, 2, "header");
+		fcf.setStyleName(0, 3, "header");
 
-        if (error != null && error.getName().equalsIgnoreCase("FormNotExistsException")) {
+		if (error != null && error.getName().equalsIgnoreCase("FormNotExistsException")) {
 
-            // no form, add create button
-            final CustomButton create = new CustomButton("Create empty form", ButtonTranslation.INSTANCE.createEmptyApplicationForm(), SmallIcons.INSTANCE.addIcon());
-            create.addClickHandler(new ClickHandler(){
-                public void onClick(ClickEvent event) {
-                    // disable button event with refresh page on finished
-                    CreateApplicationForm request = new CreateApplicationForm(entity, id, JsonCallbackEvents.disableButtonEvents(create, new JsonCallbackEvents(){
-                        private TabItem item = null;
-                        @Override
-                        public void onFinished(JavaScriptObject jso) {
-                            if (item != null) {
-                                item.draw();
-                            }
-                        }
-                        @Override
-                        public void onLoadingStart(){
-                            item = session.getTabManager().getActiveTab();
-                        }
-                    }));
-                    request.createApplicationForm();
-                }
-            });
+			// no form, add create button
+			final CustomButton create = new CustomButton("Create empty form", ButtonTranslation.INSTANCE.createEmptyApplicationForm(), SmallIcons.INSTANCE.addIcon());
+			create.addClickHandler(new ClickHandler(){
+				public void onClick(ClickEvent event) {
+					// disable button event with refresh page on finished
+					CreateApplicationForm request = new CreateApplicationForm(entity, id, JsonCallbackEvents.disableButtonEvents(create, new JsonCallbackEvents(){
+						private TabItem item = null;
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+							if (item != null) {
+								item.draw();
+							}
+						}
+					@Override
+					public void onLoadingStart(){
+						item = session.getTabManager().getActiveTab();
+					}
+					}));
+					request.createApplicationForm();
+				}
+			});
 
-            if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) {
-                create.setEnabled(false);
-            } else if (PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id) && !session.isVoAdmin(group.getVoId())) {
-                create.setEnabled(false);
-            }
+			if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) {
+				create.setEnabled(false);
+			} else if (PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id) && !session.isVoAdmin(group.getVoId())) {
+				create.setEnabled(false);
+			}
 
-            loaderImage.setEmptyResultMessage("Application form doesn't exists.");
-            loaderImage.loadingFinished();
+			loaderImage.setEmptyResultMessage("Application form doesn't exists.");
+			loaderImage.loadingFinished();
 
-            ft.setWidget(1, 0, loaderImage);
-            ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
-            ft.getFlexCellFormatter().setColSpan(1, 0, 4);
+			ft.setWidget(1, 0, loaderImage);
+			ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
+			ft.getFlexCellFormatter().setColSpan(1, 0, 4);
 
-            ft.setWidget(2, 0, create);
-            ft.getFlexCellFormatter().addStyleName(2, 0, "noBorder");
-            ft.getFlexCellFormatter().setColSpan(2, 0, 4);
+			ft.setWidget(2, 0, create);
+			ft.getFlexCellFormatter().addStyleName(2, 0, "noBorder");
+			ft.getFlexCellFormatter().setColSpan(2, 0, 4);
 
-            ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-            ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-            ft.getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_CENTER);
-            ft.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+			ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+			ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+			ft.getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+			ft.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
-        } else {
+		} else {
 
-            // standard error
-            ft.setWidget(1, 0, loaderImage);
-            fcf.setColSpan(1, 0, 4);
+			// standard error
+			ft.setWidget(1, 0, loaderImage);
+			fcf.setColSpan(1, 0, 4);
 
-        }
+		}
 
-        contents.setWidget(ft);
+		contents.setWidget(ft);
 
-    }
+	}
 
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
-     * DEPRECATED: Use GetFormItemsWithPrefilledValues instead
+	 * DEPRECATED: Use GetFormItemsWithPrefilledValues instead
 	 *
 	 * @param items
 	 */
-    @Deprecated
+	@Deprecated
 	public void prepareApplicationForm(final ArrayList<ApplicationFormItem> items) {
 
 		FlexTable ft = new FlexTable();
@@ -513,7 +513,7 @@ public class GetFormItems implements JsonCallback {
 
 			String value = "";
 			if(item.getShortname().equals("affiliation") || item.getShortname().equals("mail") || item.getShortname().equals("displayName")){
-				 value = "from federation";
+				value = "from federation";
 			}
 
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, value, locale);
@@ -539,7 +539,7 @@ public class GetFormItems implements JsonCallback {
 				w.setTitle(itemTexts.getHelp());
 				ft.setWidget(i, 1, w);
 
-			// ELSE HTML COMMENT
+				// ELSE HTML COMMENT
 			}else{
 
 				ft.setWidget(i, 0, gen.getWidget());

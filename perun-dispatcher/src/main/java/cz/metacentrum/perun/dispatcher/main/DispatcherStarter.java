@@ -26,11 +26,11 @@ public class DispatcherStarter {
 	private AbstractApplicationContext springCtx;
 
 	public DispatcherStarter() {
-            springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher-applicationcontext.xml", "/perun-dispatcher-applicationcontext-jdbc.xml");
-            this.dispatcherManager = springCtx.getBean("dispatcherManager", DispatcherManager.class);
-        }
+		springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher-applicationcontext.xml", "/perun-dispatcher-applicationcontext-jdbc.xml");
+		this.dispatcherManager = springCtx.getBean("dispatcherManager", DispatcherManager.class);
+	}
 
-        public static void main(String[] args) {
+	public static void main(String[] args) {
 		try {
 
 			DispatcherStarter dispatcherStarter = new DispatcherStarter();

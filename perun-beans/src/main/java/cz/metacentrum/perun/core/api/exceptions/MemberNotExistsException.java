@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeExcepti
  * @author Martin Kuba
  */
 public class MemberNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Member member;
+	private Member member;
 
-    public MemberNotExistsException(MemberNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public MemberNotExistsException(MemberNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public MemberNotExistsException(String message) {
-        super(message);
-    }
+	public MemberNotExistsException(String message) {
+		super(message);
+	}
 
-    public MemberNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MemberNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public MemberNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public MemberNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public MemberNotExistsException(Member member) {
-      super(member.toString());
-      this.member = member;
-    }
+	public MemberNotExistsException(Member member) {
+		super(member.toString());
+		this.member = member;
+	}
 
-    public Member getMember() {
-        return this.member;
-    }
+	public Member getMember() {
+		return this.member;
+	}
 }

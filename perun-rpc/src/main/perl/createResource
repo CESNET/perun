@@ -7,27 +7,27 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates a resource. Resource name and facility id or name are required fields.
---------------------------------------
-Available options:
- --resourceName  | -R resource name
- --resourceDsc   | -d resource description
- --voId          | -v  VO identifier
- --voShortName   | -V  VO short name
- --facilityId    | -f facility id
- --facilityName  | -F facility name
- --facilityType  | -t facility type
- --batch         | -b batch
- --help          | -h prints this help
+	return qq{
+	Creates a resource. Resource name and facility id or name are required fields.
+	--------------------------------------
+	Available options:
+	--resourceName  | -R resource name
+	--resourceDsc   | -d resource description
+	--voId          | -v  VO identifier
+	--voShortName   | -V  VO short name
+	--facilityId    | -f facility id
+	--facilityName  | -F facility name
+	--facilityType  | -t facility type
+	--batch         | -b batch
+	--help          | -h prints this help
 
-};
+	};
 }
 
 our $batch;
 my ($resourceName, $resourceDsc, $facilityId, $facilityName, $facilityType,$voId, $voShortName);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "resourceName|R=s" => \$resourceName,
+"resourceName|R=s" => \$resourceName,
  "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
@@ -39,20 +39,20 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 unless (defined($resourceName)) { die "ERROR: resourceName is required \n";}
 unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
 unless(defined $voId) {
-  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+	unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
 }
 
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 unless(defined $voId) {
-  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-  my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
+	unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+	my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+	$voId = $vo->getId;
 }
 
 my $resourcesAgent = $agent->getResourcesAgent;

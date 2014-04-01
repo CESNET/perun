@@ -7,19 +7,19 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes group member. Member id and group id or group name and Vo id or vo short name are required fields.
-------------------------------------
-Available options:
- --memberId    | -m member id
- --groupId     | -g group id
- --groupName   | -G group name
- --voId        | -v vo id
- --voShortName | -V vo short name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Removes group member. Member id and group id or group name and Vo id or vo short name are required fields.
+	------------------------------------
+	Available options:
+	--memberId    | -m member id
+	--groupId     | -g group id
+	--groupName   | -G group name
+	--voId        | -v vo id
+	--voShortName | -V vo short name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $memberId, $batch);
@@ -37,13 +37,13 @@ my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
 if (!defined($groupId)) {
-  if (!defined($voId)) {
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId = $vo->getId;
-  }
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
 
-  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-  $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
 }
 
 $groupsAgent->removeMember( group => $groupId, member => $memberId);

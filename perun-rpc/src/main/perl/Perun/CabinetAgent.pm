@@ -11,81 +11,81 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
 
-    return $self;
+	return $self;
 }
 
 sub findPublicationsByGUIFilter
 {
-    return Perun::Common::callManagerMethod('findPublicationsByGUIFilter', '[]Publication', @_);
+	return Perun::Common::callManagerMethod('findPublicationsByGUIFilter', '[]Publication', @_);
 }
 
 sub getPublicationById
 {
-    return Perun::Common::callManagerMethod('findPublicationById', 'Publication', @_);
+	return Perun::Common::callManagerMethod('findPublicationById', 'Publication', @_);
 }
 
 sub createPublication
 {
-    return Perun::Common::callManagerMethod('createPublication', 'Publication', @_);
+	return Perun::Common::callManagerMethod('createPublication', 'Publication', @_);
 }
 
 sub deletePublication
 {
-    return Perun::Common::callManagerMethod('deletePublication', 'Id', @_);
+	return Perun::Common::callManagerMethod('deletePublication', 'Id', @_);
 }
 
 sub getPublicationAuthors
 {
-    return Perun::Common::callManagerMethod('findAuthorsByPublicationId', 'Id', @_);
+	return Perun::Common::callManagerMethod('findAuthorsByPublicationId', 'Id', @_);
 }
 
 sub assignAuthorToPublication
 {
-    return Perun::Common::callManagerMethod('createAuthorship', '', @_);
+	return Perun::Common::callManagerMethod('createAuthorship', '', @_);
 }
 
 sub removeAuthorFromPublication
 {
-    return Perun::Common::callManagerMethod('deleteAuthorship', '', @_);
+	return Perun::Common::callManagerMethod('deleteAuthorship', '', @_);
 }
 
 sub getPublicationThanks
 {
-    return Perun::Common::callManagerMethod('findThanksByPublicationId', 'Id', @_);
+	return Perun::Common::callManagerMethod('findThanksByPublicationId', 'Id', @_);
 }
 
 sub assignThankToPublication
 {
-    return Perun::Common::callManagerMethod('createThanks', '', @_);
+	return Perun::Common::callManagerMethod('createThanks', '', @_);
 }
 
 sub removeThankFromPublication
 {
-    return Perun::Common::callManagerMethod('deleteThanks', '', @_);
+	return Perun::Common::callManagerMethod('deleteThanks', '', @_);
 }
 
 sub lockPublication
 {
-    return Perun::Common::callManagerMethod('lockPublication', 'Publication',1, @_);
+	return Perun::Common::callManagerMethod('lockPublication', 'Publication',1, @_);
 }
 
 sub unLockPublication
 {
-    return Perun::Common::callManagerMethod('lockPublication', 'Publication',0,, @_);
+	return Perun::Common::callManagerMethod('lockPublication', 'Publication',0,, @_);
 }
 
 sub findAllAuthors
 {
-    return Perun::Common::callManagerMethod('findAllAuthors', '[]Author', @_);
+	return Perun::Common::callManagerMethod('findAllAuthors', '[]Author', @_);
 }
 
 sub findAllCategories
 {
-    return Perun::Common::callManagerMethod('findAllCategories', '[]Category', @_);
+	return Perun::Common::callManagerMethod('findAllCategories', '[]Category', @_);
 }
 
 1;

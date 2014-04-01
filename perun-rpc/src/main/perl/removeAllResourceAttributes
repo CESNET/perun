@@ -7,20 +7,20 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes all attributes from the resource. Resource id is required.
---------------------------------------
-Available options:
- --resourceId  | -r resource id
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Removes all attributes from the resource. Resource id is required.
+	--------------------------------------
+	Available options:
+	--resourceId  | -r resource id
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($resourceId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "resourceId|r=i" => \$resourceId) || die help();
+"resourceId|r=i" => \$resourceId) || die help();
 
 # Check options
 unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}

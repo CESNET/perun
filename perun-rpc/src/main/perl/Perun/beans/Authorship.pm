@@ -7,131 +7,131 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    my $authorship = Perun::Common::fromHash(@_);
-    $authorship->{_createdDate} /= 1000;
-    return $authorship;
+	my $authorship = Perun::Common::fromHash(@_);
+	$authorship->{_createdDate} /= 1000;
+	return $authorship;
 }
 
 sub TO_JSON
 {
-        my $self = shift;
+	my $self = shift;
 
-        my $id;
-        if (defined($self->{_id})) {
-                $id = $self->{_id}*1;
-        } else {
-                $id = 0;
-        }
+	my $id;
+	if (defined($self->{_id})) {
+		$id = $self->{_id}*1;
+	} else {
+		$id = 0;
+	}
 
-        my $publicationId;
-        if (defined($self->{_publicationId})) {
-                $publicationId = $self->{_publicationId}*1;
-        } else {
-                $publicationId = 0;
-        }
+	my $publicationId;
+	if (defined($self->{_publicationId})) {
+		$publicationId = $self->{_publicationId}*1;
+	} else {
+		$publicationId = 0;
+	}
 
-        my $userId;
-        if (defined($self->{_userId})) {
-                $userId = $self->{_userId}*1;
-        } else {
-                $userId = 0;
-        }
+	my $userId;
+	if (defined($self->{_userId})) {
+		$userId = $self->{_userId}*1;
+	} else {
+		$userId = 0;
+	}
 
-        my $createdBy;
-        if (defined($self->{_createdBy})) {
-                $createdBy = "$self->{_createdBy}";
-        } else {
-                $createdBy = undef;
-        }
+	my $createdBy;
+	if (defined($self->{_createdBy})) {
+		$createdBy = "$self->{_createdBy}";
+	} else {
+		$createdBy = undef;
+	}
 
-        my $createdDate;
-        if (defined($self->{_createdDate})) {
-                $createdDate = "" . $self->{_createdDate} * 1000;
-        } else {
-                $createdDate = undef;
-        }
+	my $createdDate;
+	if (defined($self->{_createdDate})) {
+		$createdDate = "" . $self->{_createdDate} * 1000;
+	} else {
+		$createdDate = undef;
+	}
 
-        return {id => $id, publicationId => $publicationId, userId => $userId, createdBy => $createdBy, createdDate => $createdDate};
+	return {id => $id, publicationId => $publicationId, userId => $userId, createdBy => $createdBy, createdDate => $createdDate};
 }
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getPublicationId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_publicationId};
+	return $self->{_publicationId};
 }
 
 sub setPublicationId
 {
-    my $self = shift;
-    $self->{_publicationId} = shift;
+	my $self = shift;
+	$self->{_publicationId} = shift;
 
-    return;
+	return;
 }
 
 sub getUserId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_userId};
+	return $self->{_userId};
 }
 
 sub setUserId
 {
-    my $self = shift;
-    $self->{_userId} = shift;
+	my $self = shift;
+	$self->{_userId} = shift;
 
-    return;
+	return;
 }
 
 sub getCreatedBy
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_createdBy};
+	return $self->{_createdBy};
 }
 
 sub setCreatedBy
 {
-    my $self = shift;
-    $self->{_createdBy} = shift;
+	my $self = shift;
+	$self->{_createdBy} = shift;
 
-    return;
+	return;
 }
 
 sub getCreatedDate
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_createdDate};
+	return $self->{_createdDate};
 }
 
 sub setCreatedDate
 {
-    my $self = shift;
-    $self->{_createdDate} = shift;
+	my $self = shift;
+	$self->{_createdDate} = shift;
 
-    return;
+	return;
 }
 
 1;

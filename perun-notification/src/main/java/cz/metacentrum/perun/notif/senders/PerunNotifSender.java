@@ -15,17 +15,17 @@ import java.util.Set;
  */
 public interface PerunNotifSender {
 
-    /**
-     * Method returns whether sender can handle given type of receiver
-     * @param typeOfReceiver
-     * @return
-     */
-    public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver);
+	/**
+	 * Method returns whether sender can handle given type of receiver
+	 * @param typeOfReceiver
+	 * @return
+	 */
+	public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver);
 
-    /**
-     *  Method sends dtos which has receiver which sender canHandle
-     * @param dtosToSend
-     * @return
-     */
-    public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend);
+	/**
+	 *  Method sends dtos which has receiver which sender canHandle
+	 * @param dtosToSend
+	 * @return
+	 */
+	public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend);
 }

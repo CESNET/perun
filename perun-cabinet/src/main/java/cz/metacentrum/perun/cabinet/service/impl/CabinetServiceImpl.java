@@ -109,7 +109,7 @@ public class CabinetServiceImpl implements ICabinetService {
 				if (es.getExtSource().getName().equalsIgnoreCase("LDAPMU")) {
 					authorId = es.getLogin(); // get only UCO
 					break;
-				// get login from IDP
+					// get login from IDP
 				} else if (es.getExtSource().getName().equalsIgnoreCase("https://idp2.ics.muni.cz/idp/shibboleth")){
 					authorId = es.getLogin().substring(0, es.getLogin().indexOf("@")); // get only UCO from UCO@mail.muni.cz
 					break;
@@ -123,7 +123,7 @@ public class CabinetServiceImpl implements ICabinetService {
 			result.addAll(findPublicationsInPubSys(authorId, yearSince, yearTill, ps.get(0)));
 			return result;
 
-		// PROCESS ZCU 3.0 PUB SYS
+			// PROCESS ZCU 3.0 PUB SYS
 		} else if (ps.get(0).getLoginNamespace().equalsIgnoreCase("zcu")) {
 
 			// search is based on "lastName,firstName"

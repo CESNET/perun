@@ -8,21 +8,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction printTable);
 
 sub help {
-return qq{
-List all user external sources. User id is required.
--------------------------------------------------
-Available options:
- --userId      | -u user id
- --orderById   | -i order by user external source id
- --batch       | -b batch
- --help        | -h help
+	return qq{
+	List all user external sources. User id is required.
+	-------------------------------------------------
+	Available options:
+	--userId      | -u user id
+	--orderById   | -i order by user external source id
+	--batch       | -b batch
+	--help        | -h help
 
-};
+	};
 }
 
 my ($userId, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-  "userId|u=i" => \$userId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') } ) || die help();
+"userId|u=i" => \$userId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') } ) || die help();
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
 

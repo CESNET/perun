@@ -35,180 +35,180 @@ import java.util.ArrayList;
  */
 public class AssignGroupTabItem implements TabItem {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Loading group");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Loading group");
 
-    /**
-     * Entity ID to set
-     */
-    private Group group;
-    private int groupId;
-    private ArrayList<RichResource> resources;
+	/**
+	 * Entity ID to set
+	 */
+	private Group group;
+	private int groupId;
+	private ArrayList<RichResource> resources;
 
-    /**
-     * Creates a tab instance
-     *
-     * @param group group to add admin into
-     */
-    public AssignGroupTabItem(Group group, ArrayList<RichResource> resources){
-        this.group = group;
-        this.groupId = group.getId();
-        this.resources = resources;
-    }
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param group group to add admin into
+	 */
+	public AssignGroupTabItem(Group group, ArrayList<RichResource> resources){
+		this.group = group;
+		this.groupId = group.getId();
+		this.resources = resources;
+	}
 
-    public boolean isPrepared() {
-        return !(group == null);
-    }
+	public boolean isPrepared() {
+		return !(group == null);
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        // set tab name
-        titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+ ": assign to resource");
+		// set tab name
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+ ": assign to resource");
 
-        // main content
-        VerticalPanel mainTab = new VerticalPanel();
-        mainTab.setSize("100%", "100%");
+		// main content
+		VerticalPanel mainTab = new VerticalPanel();
+		mainTab.setSize("100%", "100%");
 
-        // menu
-        TabMenu menu = new TabMenu();
+		// menu
+		TabMenu menu = new TabMenu();
 
-        // callback
-        final GetRichResources callback = new GetRichResources(group.getVoId());
-        callback.setEvents(new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                for (RichResource rr : resources) {
-                    callback.removeFromTable(rr);
-                }
-            }
-        });
-        CellTable<RichResource> table = callback.getTable();
+		// callback
+		final GetRichResources callback = new GetRichResources(group.getVoId());
+		callback.setEvents(new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				for (RichResource rr : resources) {
+					callback.removeFromTable(rr);
+				}
+			}
+		});
+		CellTable<RichResource> table = callback.getTable();
 
-        // close tab event
-        final TabItem tab = this;
+		// close tab event
+		final TabItem tab = this;
 
-        // buttton
-        final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToSelectedResources());
-        assignButton.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent event) {
-                final ArrayList<RichResource> toAssign = callback.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(toAssign)) {
-                    AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                    request.assignGroupToResources(group, toAssign);
-                }
-            }
-        });
-        menu.addWidget(assignButton);
+		// buttton
+		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToSelectedResources());
+		assignButton.addClickHandler(new ClickHandler(){
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<RichResource> toAssign = callback.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(toAssign)) {
+					AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+					request.assignGroupToResources(group, toAssign);
+				}
+			}
+		});
+		menu.addWidget(assignButton);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        // filter box
-        menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                callback.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterResources());
+		// filter box
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterResources());
 
-        assignButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, assignButton);
+		assignButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, assignButton);
 
-        // add menu and the table to the main panel
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        // do not use resizePerunTable() in overlay mode - calculated width is wrong
-        session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+		// add menu and the table to the main panel
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		// do not use resizePerunTable() in overlay mode - calculated width is wrong
+		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-        mainTab.add(menu);
-        mainTab.setCellHeight(menu, "30px");
-        mainTab.add(sp);
+		mainTab.add(menu);
+		mainTab.setCellHeight(menu, "30px");
+		mainTab.add(sp);
 
-        this.contentWidget.setWidget(mainTab);
+		this.contentWidget.setWidget(mainTab);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.serverGroupIcon();
-    }
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.serverGroupIcon();
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + groupId;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + groupId;
+		return result;
+	}
 
-    /**
-     * @param obj
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+	/**
+	 * @param obj
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 
-        AssignGroupTabItem create = (AssignGroupTabItem) obj;
-        if (groupId != create.groupId){
-            return false;
-        }
+		AssignGroupTabItem create = (AssignGroupTabItem) obj;
+		if (groupId != create.groupId){
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    public void open()
-    {
-        session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-        if(group != null){
-            session.setActiveGroup(group);
-            return;
-        }
-        session.setActiveGroupId(groupId);
+	public void open()
+	{
+		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+		if(group != null){
+			session.setActiveGroup(group);
+			return;
+		}
+		session.setActiveGroupId(groupId);
 
-    }
+	}
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(group.getVoId())) {
-            return true;
-        } else {
-            return false;
-        }
+		if (session.isVoAdmin(group.getVoId())) {
+			return true;
+		} else {
+			return false;
+		}
 
-    }
+	}
 
 }

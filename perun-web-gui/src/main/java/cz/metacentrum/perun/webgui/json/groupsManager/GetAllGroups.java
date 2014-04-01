@@ -59,7 +59,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	private ArrayList<Group> fullBackup = new ArrayList<Group>();
 	// checkable core groups
 	private boolean coreGroupsCheckable = false;
-    private boolean checkable = true;
+	private boolean checkable = true;
 
 	/**
 	 * Creates a new callback
@@ -92,16 +92,16 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		return this.getTable();
 	}
 
-    public CellTable<Group> getEmptyTable(FieldUpdater<Group, String> fu) {
-        this.tableFieldUpdater = fu;
-        return this.getEmptyTable();
-    }
+	public CellTable<Group> getEmptyTable(FieldUpdater<Group, String> fu) {
+		this.tableFieldUpdater = fu;
+		return this.getEmptyTable();
+	}
 
-    public CellTable<Group> getTable() {
-        // retrieve data
-        retrieveData();
-        return getEmptyTable();
-    }
+	public CellTable<Group> getTable() {
+		// retrieve data
+		retrieveData();
+		return getEmptyTable();
+	}
 
 	/**
 	 * Returns table with groups in hierarchical structure and with custom field updater
@@ -130,11 +130,11 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        if (!session.isVoAdmin(voId)) {
-            loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
-        } else {
-            loaderImage.setEmptyResultMessage("VO has no groups.");
-        }
+		if (!session.isVoAdmin(voId)) {
+			loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
+		} else {
+			loaderImage.setEmptyResultMessage("VO has no groups.");
+		}
 
 		Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
 				new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
@@ -170,9 +170,9 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 			}
 		});
 
-        if (checkable) {
-		    table.addColumn(checkBoxColumn,checkBoxHeader);
-        }
+		if (checkable) {
+			table.addColumn(checkBoxColumn,checkBoxHeader);
+		}
 
 		table.addIdColumn("Group ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
@@ -191,131 +191,131 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		return table;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Group>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Group>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Group to be added as new row
-     */
-    public void addToTable(Group object) {
-        list.add(object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Group to be added as new row
+	 */
+	public void addToTable(Group object) {
+		list.add(object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Group to be removed as row
-     */
-    public void removeFromTable(Group object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Group to be removed as row
+	 */
+	public void removeFromTable(Group object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Group> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Group> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading all groups.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading all groups.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading all groups started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading all groups started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        clearTable();
-        for (Group g : JsonUtils.<Group>jsoAsList(jso)) {
-            if (g.isCoreGroup()) {
-                insertToTable(0, g);
-            } else {
-                addToTable(g);
-            }
-        }
-        //sortTable(); groups are sorted from RPC
-        session.getUiElements().setLogText("Groups loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		clearTable();
+		for (Group g : JsonUtils.<Group>jsoAsList(jso)) {
+			if (g.isCoreGroup()) {
+				insertToTable(0, g);
+			} else {
+				addToTable(g);
+			}
+		}
+		//sortTable(); groups are sorted from RPC
+		session.getUiElements().setLogText("Groups loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Group object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Group object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Group> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Group g : list) {
-            oracle.add(g.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Group> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Group g : list) {
+			oracle.add(g.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Group> getList() {
-        return this.list;
-    }
+	public ArrayList<Group> getList() {
+		return this.list;
+	}
 
 	public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
@@ -328,35 +328,35 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
+		if (text.equalsIgnoreCase("")) {
 			list.addAll(fullBackup);
 		} else {
 			for (Group grp : fullBackup){
 				// store facility by filter
-                if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
-                        grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
+				if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
+						grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
 					list.add(grp);
-				}
+						}
 			}
 		}
 
-        if (list.isEmpty() && !text.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
-        } else {
-            if (!session.isVoAdmin(voId)) {
-                loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
-            } else {
-                loaderImage.setEmptyResultMessage("VO has no groups.");
-            }
-        }
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+		} else {
+			if (!session.isVoAdmin(voId)) {
+				loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
+			} else {
+				loaderImage.setEmptyResultMessage("VO has no groups.");
+			}
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 	}
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
@@ -377,12 +377,12 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		this.events = events;
 	}
 
-    public void setVoId(int voId) {
-        this.voId = voId;
-    }
+	public void setVoId(int voId) {
+		this.voId = voId;
+	}
 
-    public MultiSelectionModel<Group> getSelectionModel() {
-        return this.selectionModel;
-    }
+	public MultiSelectionModel<Group> getSelectionModel() {
+		return this.selectionModel;
+	}
 
 }

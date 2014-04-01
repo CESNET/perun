@@ -185,44 +185,44 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 	 * Sorts table by objects Id
 	 */
 	public void sortTable() {
-        list = new TableSorter<UserExtSource>().sortById(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
+		list = new TableSorter<UserExtSource>().sortById(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object UserExtSource to be added as new row
-     */
-    public void addToTable(UserExtSource object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object UserExtSource to be added as new row
+	 */
+	public void addToTable(UserExtSource object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object UserExtSource to be removed as row
-     */
-    public void removeFromTable(UserExtSource object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object UserExtSource to be removed as row
+	 */
+	public void removeFromTable(UserExtSource object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
 	/**
 	 * Called if successfully finished.
@@ -230,11 +230,11 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 	 * @param jso javascript objects (array) returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<UserExtSource>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Loading user ext sources finished: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+		setList(JsonUtils.<UserExtSource>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Loading user ext sources finished: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 	}
 
 	/**
@@ -254,29 +254,29 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		events.onLoadingStart();
 	}
 
-    public void insertToTable(int index, UserExtSource object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, UserExtSource object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<UserExtSource> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<UserExtSource> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<UserExtSource> getList() {
-        return this.list;
-    }
+	public ArrayList<UserExtSource> getList() {
+		return this.list;
+	}
 
 }

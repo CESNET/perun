@@ -7,19 +7,19 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds PERUNADMIN role to the user. User id is required.
-------------------------------------
-Available options:
- --userId         | -u user id
- --batch          | -b batch
- --help           | -h prints this help
-};
+	return qq{
+	Adds PERUNADMIN role to the user. User id is required.
+	------------------------------------
+	Available options:
+	--userId         | -u user id
+	--batch          | -b batch
+	--help           | -h prints this help
+	};
 }
 
 my ($userId,$extSourceId,$extSourceName,$extSourceLogin,$batch);
 GetOptions ("help|h" => sub { print help(); exit 0;},"userId|u=i" => \$userId,
-  "batch|b" => \$batch) || die help();
+"batch|b" => \$batch) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}

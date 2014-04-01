@@ -46,8 +46,8 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	/**
 	 * Creates a new callback
 	 *
-     * @param serviceId ID of service to get required attributes for
-     */
+	 * @param serviceId ID of service to get required attributes for
+	 */
 	public GetServiceRequiredAttributes(int serviceId) {
 		this.serviceId = serviceId;
 	}
@@ -55,9 +55,9 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	/**
 	 * Creates a new callback
 	 *
-     * @param serviceId ID of service to get required attributes for
-     * @param events external events
-     */
+	 * @param serviceId ID of service to get required attributes for
+	 * @param events external events
+	 */
 	public GetServiceRequiredAttributes(int serviceId, JsonCallbackEvents events) {
 		this.events = events;
 		this.serviceId = serviceId;
@@ -91,7 +91,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Service has no required attribute.");
+		loaderImage.setEmptyResultMessage("Service has no required attribute.");
 
 		// checkbox column column
 		table.addCheckBoxColumn();
@@ -109,11 +109,11 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		/*
 		// NAMESPACE COLUMN
 		TextColumn<AttributeDefinition> namespaceColumn = new TextColumn<AttributeDefinition>() {
-			public String getValue(AttributeDefinition attrDef) {
-				return String.valueOf(attrDef.getNamespace());
-			}
+		public String getValue(AttributeDefinition attrDef) {
+		return String.valueOf(attrDef.getNamespace());
+		}
 		};
-		 */
+		*/
 
 		// ENTITY COLUMN
 		TextColumn<AttributeDefinition> entityColumn = new TextColumn<AttributeDefinition>() {
@@ -140,13 +140,13 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		// SORTING
 
 		/*
-		namespaceColumn.setSortable(true);
-		columnSortHandler.setComparator(namespaceColumn, new Comparator<AttributeDefinition>() {
-		    public int compare(AttributeDefinition o1, AttributeDefinition o2) {
-		        return o1.getNamespace().compareToIgnoreCase(o2.getNamespace());
-		    }
-		});
-		 */
+			 namespaceColumn.setSortable(true);
+			 columnSortHandler.setComparator(namespaceColumn, new Comparator<AttributeDefinition>() {
+			 public int compare(AttributeDefinition o1, AttributeDefinition o2) {
+			 return o1.getNamespace().compareToIgnoreCase(o2.getNamespace());
+			 }
+			 });
+			 */
 
 		friendlyNameColumn.setSortable(true);
 		columnSortHandler.setComparator(friendlyNameColumn, new Comparator<AttributeDefinition>() {
@@ -159,19 +159,19 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		entityColumn.setSortable(true);
 		columnSortHandler.setComparator(entityColumn,
 				new Comparator<AttributeDefinition>() {
-			public int compare(AttributeDefinition o1, AttributeDefinition o2) {
-				return o1.getEntity().compareToIgnoreCase(o2.getEntity());
-			}
-		});
+					public int compare(AttributeDefinition o1, AttributeDefinition o2) {
+						return o1.getEntity().compareToIgnoreCase(o2.getEntity());
+					}
+				});
 
 		// Sorting value column
 		definitionColumn.setSortable(true);
 		columnSortHandler.setComparator(definitionColumn,
 				new Comparator<AttributeDefinition>() {
-			public int compare(AttributeDefinition o1, AttributeDefinition o2) {
-				return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
-			}
-		});
+					public int compare(AttributeDefinition o1, AttributeDefinition o2) {
+						return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
+					}
+				});
 
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn, new Comparator<AttributeDefinition>() {
@@ -183,9 +183,9 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		table.setColumnWidth(friendlyNameColumn, 250.0, Unit.PX);
 		table.setColumnWidth(entityColumn, 120.0, Unit.PX);
 		table.setColumnWidth(definitionColumn, 120.0, Unit.PX);
-        table.setColumnWidth(typeColumn, 120.0, Unit.PX);
+		table.setColumnWidth(typeColumn, 120.0, Unit.PX);
 
-        // Add the columns.
+		// Add the columns.
 		table.addColumn(friendlyNameColumn, "Name");
 		//attributesTable.addColumn(namespaceColumn, "Namespace");
 		table.addColumn(entityColumn, "Entity");
@@ -206,117 +206,117 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		js.retrieveData(JSON_URL, "service="+serviceId, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<AttributeDefinition>().sortByFriendlyName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<AttributeDefinition>().sortByFriendlyName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object AttributeDefinition to be added as new row
-     */
-    public void addToTable(AttributeDefinition object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object AttributeDefinition to be added as new row
+	 */
+	public void addToTable(AttributeDefinition object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object AttributeDefinition to be removed as row
-     */
-    public void removeFromTable(AttributeDefinition object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object AttributeDefinition to be removed as row
+	 */
+	public void removeFromTable(AttributeDefinition object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<AttributeDefinition> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<AttributeDefinition> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading required attributes.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading required attributes.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading required attributes started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading required attributes started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<AttributeDefinition>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Required attributes loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<AttributeDefinition>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Required attributes loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, AttributeDefinition object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, AttributeDefinition object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<AttributeDefinition> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<AttributeDefinition> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<AttributeDefinition> getList() {
-        return this.list;
-    }
+	public ArrayList<AttributeDefinition> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Change showed string in table to new one based on it's own rules

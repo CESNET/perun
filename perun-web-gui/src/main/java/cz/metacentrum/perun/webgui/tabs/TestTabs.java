@@ -18,7 +18,7 @@ public class TestTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public TestTabs(){}
 
 	/**
@@ -44,20 +44,20 @@ public class TestTabs {
 			return true;
 		}
 
-        if (tab.equals(TestDataGridTabItem.URL)) {
-            session.getTabManager().addTab(TestDataGridTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(TestDataGridTabItem.URL)) {
+			session.getTabManager().addTab(TestDataGridTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(TestDataGridAttributesTabItem.URL)) {
-            session.getTabManager().addTab(TestDataGridAttributesTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(TestDataGridAttributesTabItem.URL)) {
+			session.getTabManager().addTab(TestDataGridAttributesTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(TestJSONParserTabItem.URL)) {
-            session.getTabManager().addTab(TestJSONParserTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(TestJSONParserTabItem.URL)) {
+			session.getTabManager().addTab(TestJSONParserTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

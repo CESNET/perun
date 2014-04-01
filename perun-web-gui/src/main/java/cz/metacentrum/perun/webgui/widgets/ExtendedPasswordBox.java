@@ -23,177 +23,175 @@ import com.google.gwt.user.client.ui.SimplePanel;
  */
 public class ExtendedPasswordBox extends Composite {
 
-    private Label errorText = new Label();
-    private ExtendedTextBox.TextBoxValidator validator;
-    private SimplePanel sp = new SimplePanel();
-    private PasswordTextBox box = new PasteTextBox();
+	private Label errorText = new Label();
+	private ExtendedTextBox.TextBoxValidator validator;
+	private SimplePanel sp = new SimplePanel();
+	private PasswordTextBox box = new PasteTextBox();
 
 
-    private static int counter = 0;
+	private static int counter = 0;
 
-    /**
-     * Create ExtendedTextBox
-     */
-    public ExtendedPasswordBox() {
-        this.initWidget(sp);
-        buildWidget();
-    }
+	/**
+	 * Create ExtendedTextBox
+	 */
+	public ExtendedPasswordBox() {
+		this.initWidget(sp);
+		buildWidget();
+	}
 
-    /**
-     * Create ExtendedTextBox with validator
-     */
-    public ExtendedPasswordBox(ExtendedTextBox.TextBoxValidator validator) {
-        this();
-        this.validator = validator;
-    }
+	/**
+	 * Create ExtendedTextBox with validator
+	 */
+	public ExtendedPasswordBox(ExtendedTextBox.TextBoxValidator validator) {
+		this();
+		this.validator = validator;
+	}
 
-    /**
-     * Build widget itself
-     */
-    private void buildWidget() {
+	/**
+	 * Build widget itself
+	 */
+	private void buildWidget() {
 
-        box.addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                if (validator != null) {
-                    validator.validateTextBox();
-                }
-            }
-        });
+		box.addKeyUpHandler(new KeyUpHandler() {
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+				if (validator != null) {
+					validator.validateTextBox();
+				}
+			}
+		});
 
-        box.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<String> event) {
-                if (validator != null) {
-                    validator.validateTextBox();
-                }
-            }
-        });
+		box.addValueChangeHandler(new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				if (validator != null) {
+					validator.validateTextBox();
+				}
+			}
+		});
 
-        box.addBlurHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                if (validator != null) {
-                    validator.validateTextBox();
-                }
-            }
-        });
+		box.addBlurHandler(new BlurHandler() {
+			@Override
+			public void onBlur(BlurEvent event) {
+				if (validator != null) {
+					validator.validateTextBox();
+				}
+			}
+		});
 
-        box.getElement().setClassName("passwordbox"+counter++);
-        setCutCopyPasteHandler("passwordbox"+counter);
+		box.getElement().setClassName("passwordbox"+counter++);
+		setCutCopyPasteHandler("passwordbox"+counter);
 
-        errorText.setVisible(false);
-        errorText.setStyleName("inputFormInlineComment");
-        errorText.addStyleName("serverResponseLabelError");
-        errorText.addStyleName("input-status-error-padding");
+		errorText.setVisible(false);
+		errorText.setStyleName("inputFormInlineComment");
+		errorText.addStyleName("serverResponseLabelError");
+		errorText.addStyleName("input-status-error-padding");
 
-        sp.setWidget(box);
-        sp.getElement().appendChild(errorText.getElement());
+		sp.setWidget(box);
+		sp.getElement().appendChild(errorText.getElement());
 
-    }
+	}
 
-    /**
-     * Sets TextBox to OK state (hide any error message)
-     */
-    public void setOk() {
+	/**
+	 * Sets TextBox to OK state (hide any error message)
+	 */
+	public void setOk() {
 
-        errorText.setVisible(false);
+		errorText.setVisible(false);
 
-        box.removeStyleName("input-text-error-border");
+		box.removeStyleName("input-text-error-border");
 
-        sp.setWidget(box);
-        sp.getElement().appendChild(errorText.getElement());
+		sp.setWidget(box);
+		sp.getElement().appendChild(errorText.getElement());
 
-    }
+	}
 
-    /**
-     * Set TextBox to error state and display custom message under TextBox.
-     *
-     * @param message message to display
-     */
-    public void setError(String message) {
+	/**
+	 * Set TextBox to error state and display custom message under TextBox.
+	 *
+	 * @param message message to display
+	 */
+	public void setError(String message) {
 
-        if (message != null && !message.isEmpty()) {
-            errorText.getElement().setInnerHTML(message);
-            errorText.setVisible(true);
-        } else {
-            errorText.getElement().setInnerHTML("");
-            errorText.setVisible(false);
-        }
+		if (message != null && !message.isEmpty()) {
+			errorText.getElement().setInnerHTML(message);
+			errorText.setVisible(true);
+		} else {
+			errorText.getElement().setInnerHTML("");
+			errorText.setVisible(false);
+		}
 
-        // set error message max-width based on size of box
-        int width = box.getOffsetWidth();
-        errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+width+"px;");
+		// set error message max-width based on size of box
+		int width = box.getOffsetWidth();
+		errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+width+"px;");
 
-        box.addStyleName("input-text-error-border");
+		box.addStyleName("input-text-error-border");
 
-        sp.setWidget(box);
-        sp.getElement().appendChild(errorText.getElement());
+		sp.setWidget(box);
+		sp.getElement().appendChild(errorText.getElement());
 
-    }
+	}
 
-    /**
-     * Get TextBox associated with ExtendedTextBoxWidgets
-     *
-     * @return TextBox
-     */
-    public PasswordTextBox getTextBox() {
-        return this.box;
-    }
+	/**
+	 * Get TextBox associated with ExtendedTextBoxWidgets
+	 *
+	 * @return TextBox
+	 */
+	public PasswordTextBox getTextBox() {
+		return this.box;
+	}
 
-    /**
-     * Set custom content validator for ExtendedTextBox
-     *
-     * @param validator validator to set
-     */
-    public void setValidator(ExtendedTextBox.TextBoxValidator validator) {
-        this.validator = validator;
-    }
+	/**
+	 * Set custom content validator for ExtendedTextBox
+	 *
+	 * @param validator validator to set
+	 */
+	public void setValidator(ExtendedTextBox.TextBoxValidator validator) {
+		this.validator = validator;
+	}
 
-    /**
-     * Set copy & cut & paste javascript handlers to textbox by class
-     *
-     * @param id class of textbox to assign handlers to
-     */
-    private final native void setCutCopyPasteHandler(String id) /*-{
+	/**
+	 * Set copy & cut & paste javascript handlers to textbox by class
+	 *
+	 * @param id class of textbox to assign handlers to
+	 */
+	private final native void setCutCopyPasteHandler(String id) /*-{
+				$wnd.jQuery.ready(function() {
+		$wnd.jQuery('#'+id).bind('cut', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		$wnd.jQuery('#'+id).bind('copy', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		$wnd.jQuery('#'+id).bind('paste', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		});
+			}-*/;
 
-        $wnd.jQuery.ready(function() {
-            $wnd.jQuery('#'+id).bind('cut', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-            $wnd.jQuery('#'+id).bind('copy', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-            $wnd.jQuery('#'+id).bind('paste', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-        });
+		private class PasteTextBox extends PasswordTextBox {
 
-    }-*/;
+			public PasteTextBox() {
+				super();
+				sinkEvents(Event.ONPASTE);
+			}
 
-    private class PasteTextBox extends PasswordTextBox {
+			@Override
+			public void onBrowserEvent(Event event) {
+				super.onBrowserEvent(event);
+				switch (DOM.eventGetType(event)) {
+					case Event.ONPASTE:
+						Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+							@Override
+							public void execute() {
+								ValueChangeEvent.fire(PasteTextBox.this, getText());
+							}
+						});
+						break;
+				}
+			}
 
-        public PasteTextBox() {
-            super();
-            sinkEvents(Event.ONPASTE);
-        }
-
-        @Override
-        public void onBrowserEvent(Event event) {
-            super.onBrowserEvent(event);
-            switch (DOM.eventGetType(event)) {
-                case Event.ONPASTE:
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            ValueChangeEvent.fire(PasteTextBox.this, getText());
-                        }
-                    });
-                    break;
-            }
-        }
-
-    }
+		}
 
 
 }

@@ -17,35 +17,35 @@ public class MissingRequiredDataException extends PerunException {
 
 	private static final long serialVersionUID = 1L;
 
-    private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+	private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
 
 	public MissingRequiredDataException(String message) {
-        super(message);
-    }
+		super(message);
+	}
 
-    public MissingRequiredDataException(String message, List<ApplicationFormItemWithPrefilledValue> items) {
-        super(message);
-        this.formItems = items;
-    }
+	public MissingRequiredDataException(String message, List<ApplicationFormItemWithPrefilledValue> items) {
+		super(message);
+		this.formItems = items;
+	}
 
-    public MissingRequiredDataException(String message, Throwable ex) {
-        super(message, ex);
-    }
+	public MissingRequiredDataException(String message, Throwable ex) {
+		super(message, ex);
+	}
 
-    public MissingRequiredDataException(String message, Throwable ex, List<ApplicationFormItemWithPrefilledValue> items) {
-        super(message, ex);
-        this.formItems = items;
-    }
+	public MissingRequiredDataException(String message, Throwable ex, List<ApplicationFormItemWithPrefilledValue> items) {
+		super(message, ex);
+		this.formItems = items;
+	}
 
-    public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
-        return formItems;
-    }
+	public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
+		return formItems;
+	}
 
-    public void addFormItem(ApplicationFormItemWithPrefilledValue item) {
-        if (formItems == null) formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
-        if (item != null) {
-            formItems.add(item);
-        }
-    }
+	public void addFormItem(ApplicationFormItemWithPrefilledValue item) {
+		if (formItems == null) formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+		if (item != null) {
+			formItems.add(item);
+		}
+	}
 
 }

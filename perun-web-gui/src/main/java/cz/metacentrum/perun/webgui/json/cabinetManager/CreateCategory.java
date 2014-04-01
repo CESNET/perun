@@ -30,16 +30,16 @@ public class CreateCategory {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public CreateCategory() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public CreateCategory(JsonCallbackEvents events) {
-        this.events = events;
+		this.events = events;
 	}
 
 	/**

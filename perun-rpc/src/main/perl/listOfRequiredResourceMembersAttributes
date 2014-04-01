@@ -8,25 +8,25 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Lists all required member resource attributes. Resource id and member id are required options.
------------------------------------------------------------------------
-Available options:
- --resourceId   | -r resource id
- --memberId     | -m member id
- --orderById    | -i order by attribute id
- --orderByName  | -n order by attribute friendly name
- --batch        | -b batch
- --help         | -h help
+	return qq{
+	Lists all required member resource attributes. Resource id and member id are required options.
+	-----------------------------------------------------------------------
+	Available options:
+	--resourceId   | -r resource id
+	--memberId     | -m member id
+	--orderById    | -i order by attribute id
+	--orderByName  | -n order by attribute friendly name
+	--batch        | -b batch
+	--help         | -h help
 
-};
+	};
 }
 
 my ($resourceId,$memberId,$sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-  "resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId,
-  "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-  "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+"resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId,
+	"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
@@ -45,6 +45,6 @@ my $table = Text::ASCIITable->new();
 $table->setCols('attribute Id','attribute friendly name','namespace');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-    $table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace );
+	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace );
 }
 print tableToPrint($table, $batch);

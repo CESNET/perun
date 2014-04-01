@@ -22,36 +22,36 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-  public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-    if(attribute == null) return; //null is OK
-    List<String> value = (List<String>) attribute.getValue();
-    for(String login : value) {
-      if(!login.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, "Value is not in correct format. format: login@organization");
-    }
-  }
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		if(attribute == null) return; //null is OK
+		List<String> value = (List<String>) attribute.getValue();
+		for(String login : value) {
+			if(!login.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, "Value is not in correct format. format: login@organization");
+		}
+	}
 
-  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
-    List<String> value = new ArrayList<String>();
-    try {
-      String loginMU = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:mu").getValue();
-      if(loginMU != null) value.add(loginMU + "@eduroam.muni.cz");
-      String loginCesnet = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:cesnet").getValue();
-      if(loginCesnet != null) value.add(loginCesnet + "@cesnet.cz");
-    } catch(AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    }
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<String> value = new ArrayList<String>();
+		try {
+			String loginMU = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:mu").getValue();
+			if(loginMU != null) value.add(loginMU + "@eduroam.muni.cz");
+			String loginCesnet = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:cesnet").getValue();
+			if(loginCesnet != null) value.add(loginCesnet + "@cesnet.cz");
+		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
 
-    Attribute attribute = new Attribute(attributeDefinition);
-    attribute.setValue(value);
-    return attribute;
-  }
+		Attribute attribute = new Attribute(attributeDefinition);
+		attribute.setValue(value);
+		return attribute;
+	}
 
-  public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-      attr.setFriendlyName("eduroamIdentities");
-      attr.setType(ArrayList.class.getName());
-      attr.setDescription("List of eduroam identities.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("eduroamIdentities");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("List of eduroam identities.");
+		return attr;
+	}
 }

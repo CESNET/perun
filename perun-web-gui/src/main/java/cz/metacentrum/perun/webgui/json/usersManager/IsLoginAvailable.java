@@ -48,7 +48,7 @@ public class IsLoginAvailable implements JsonCallback {
 
 
 
-		/**
+	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
 	 * @param login LOGIN
@@ -139,12 +139,12 @@ public class IsLoginAvailable implements JsonCallback {
 	}
 
 	public void onError(PerunError error) {
-        finalEvents.onError(error);
-    }
+		finalEvents.onError(error);
+	}
 
 	public void onLoadingStart() {
-        finalEvents.onLoadingStart();
-    }
+		finalEvents.onLoadingStart();
+	}
 
 	/**
 	 * Calls the request for checking logins

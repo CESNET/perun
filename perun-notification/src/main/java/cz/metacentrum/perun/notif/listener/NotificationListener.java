@@ -39,231 +39,231 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 public class NotificationListener implements DisposableBean {
 
-    private PerunSession session;
+	private PerunSession session;
 
-    @Autowired
-    private PerunNotifAuditMessageManager perunNotifAuditMessagesManager;
+	@Autowired
+	private PerunNotifAuditMessageManager perunNotifAuditMessagesManager;
 
-    @Autowired
-    private PerunNotifRegexManager perunNotifRegexManager;
+	@Autowired
+	private PerunNotifRegexManager perunNotifRegexManager;
 
-    @Autowired
-    private PerunNotifTemplateManager perunNotifTemplateManager;
+	@Autowired
+	private PerunNotifTemplateManager perunNotifTemplateManager;
 
-    @Autowired
-    private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
+	@Autowired
+	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
 
-    @Autowired
-    private Properties propertiesBean;
+	@Autowired
+	private Properties propertiesBean;
 
-    @Autowired
-    private DataSource dataSource;
+	@Autowired
+	private DataSource dataSource;
 
-    //Lock used for reading new messages from auditer
-    private static final ReentrantLock readLock = new ReentrantLock();
-    //Lock used when process of old messages is triggered by time
-    private static final ReentrantLock oldProcessLock = new ReentrantLock();
+	//Lock used for reading new messages from auditer
+	private static final ReentrantLock readLock = new ReentrantLock();
+	//Lock used when process of old messages is triggered by time
+	private static final ReentrantLock oldProcessLock = new ReentrantLock();
 
-    private static final int MAX_PERMITS_PROCESS_SEMAPHORE = 100;
-    //Semaphore is used for process of perun messages, we can stop processing in case of shuting down application
-    private static final Semaphore processSemaphore = new Semaphore(MAX_PERMITS_PROCESS_SEMAPHORE, true);
+	private static final int MAX_PERMITS_PROCESS_SEMAPHORE = 100;
+	//Semaphore is used for process of perun messages, we can stop processing in case of shuting down application
+	private static final Semaphore processSemaphore = new Semaphore(MAX_PERMITS_PROCESS_SEMAPHORE, true);
 
-    private volatile boolean running = true;
+	private volatile boolean running = true;
 
-    private AuditerConsumer auditerConsumer;
+	private AuditerConsumer auditerConsumer;
 
-    private final static Logger logger = LoggerFactory.getLogger(NotificationListener.class);
+	private final static Logger logger = LoggerFactory.getLogger(NotificationListener.class);
 
-    /**
-     * Method starts processing of unresolved auditer messages
-     */
-    @PostConstruct
-    public void init() throws InternalErrorException {
-        String dispatcherName = (String) propertiesBean.get("notif.dispatcherName");
+	/**
+	 * Method starts processing of unresolved auditer messages
+	 */
+	@PostConstruct
+	public void init() throws InternalErrorException {
+		String dispatcherName = (String) propertiesBean.get("notif.dispatcherName");
 
-        this.auditerConsumer = new AuditerConsumer(dispatcherName, dataSource);
+		this.auditerConsumer = new AuditerConsumer(dispatcherName, dataSource);
 
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new ProcessOldPerunNotifAuditMessagesRunnable(), 0, 300, TimeUnit.SECONDS);
-    }
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleAtFixedRate(new ProcessOldPerunNotifAuditMessagesRunnable(), 0, 300, TimeUnit.SECONDS);
+	}
 
-    private class ProcessOldPerunNotifAuditMessagesRunnable implements Runnable {
+	private class ProcessOldPerunNotifAuditMessagesRunnable implements Runnable {
 
-        @Override
-        public void run() {
+		@Override
+		public void run() {
 
-            try {
-                processOldPerunNotifAuditMessages();
-            } catch (Exception ex) {
-                logger.error("Processing of old perunNotifAuditMessages has failed.", ex);
-                return;
-            }
-        }
-    }
+			try {
+				processOldPerunNotifAuditMessages();
+			} catch (Exception ex) {
+				logger.error("Processing of old perunNotifAuditMessages has failed.", ex);
+				return;
+			}
+		}
+	}
 
-    public void start() {
+	public void start() {
 
-        while (running) {
-            oldProcessLock.lock();
-            readLock.lock();
-            List<PerunNotifAuditMessage> perunNotifAuditMessages = new ArrayList<PerunNotifAuditMessage>();
-            try {
-                List<String> messages = this.auditerConsumer.getMessagesForParser();
-                for (String message : messages) {
-                    try {
-                        PerunNotifAuditMessage perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
-                        perunNotifAuditMessages.add(perunNotifAuditMessage);
-                    } catch (InternalErrorException ex) {
-                        logger.error("Error during saving message to db. Message: " + message);
-                    }
-                }
-            } catch (Exception ex) {
-                logger.error("Error during perunNotification process.", ex);
-            }
-            readLock.unlock();
+		while (running) {
+			oldProcessLock.lock();
+			readLock.lock();
+			List<PerunNotifAuditMessage> perunNotifAuditMessages = new ArrayList<PerunNotifAuditMessage>();
+			try {
+				List<String> messages = this.auditerConsumer.getMessagesForParser();
+				for (String message : messages) {
+					try {
+						PerunNotifAuditMessage perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
+						perunNotifAuditMessages.add(perunNotifAuditMessage);
+					} catch (InternalErrorException ex) {
+						logger.error("Error during saving message to db. Message: " + message);
+					}
+				}
+			} catch (Exception ex) {
+				logger.error("Error during perunNotification process.", ex);
+			}
+			readLock.unlock();
 
-            for (PerunNotifAuditMessage perunAuditMessage : perunNotifAuditMessages) {
-                processPerunNotifAuditMessage(perunAuditMessage, session);
-            }
-            oldProcessLock.unlock();
-        }
-    }
+			for (PerunNotifAuditMessage perunAuditMessage : perunNotifAuditMessages) {
+				processPerunNotifAuditMessage(perunAuditMessage, session);
+			}
+			oldProcessLock.unlock();
+		}
+	}
 
-    /**
-     * Handles processing of auditer message and in case of success removes auditer message from db
-     *
-     * @param perunAuditMessage
-     * @param session
-     * @throws InternalErrorException
-     */
-    private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session) {
+	/**
+	 * Handles processing of auditer message and in case of success removes auditer message from db
+	 *
+	 * @param perunAuditMessage
+	 * @param session
+	 * @throws InternalErrorException
+	 */
+	private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session) {
 
-        boolean acguired = false;
-        while (!acguired) {
-            try {
-                processSemaphore.acquire();
-                acguired = true;
-            } catch (InterruptedException ex) {
-                logger.error("Acquire of permit from semaphore for processPerunNotifAuditMessage interrupted.");
-            }
-        }
-        try {
-            logger.debug("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
-            Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
-            logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds + "; now getting templateIds.");
-            if (regexIds == null || regexIds.isEmpty()) {
-                logger.info("Message is not recognized: " + perunAuditMessage.getMessage());
-                return;
-            }
-            List<PerunNotifPoolMessage> perunNotifPoolMessages = null;
-            try {
-                perunNotifPoolMessages = perunNotifTemplateManager.getPerunNotifPoolMessagesForRegexIds(regexIds, perunAuditMessage, session);
-            } catch (InternalErrorException ex) {
-                logger.error("Error during processPerunNotifAuditMessage.", ex);
-                return;
-            }
+		boolean acguired = false;
+		while (!acguired) {
+			try {
+				processSemaphore.acquire();
+				acguired = true;
+			} catch (InterruptedException ex) {
+				logger.error("Acquire of permit from semaphore for processPerunNotifAuditMessage interrupted.");
+			}
+		}
+		try {
+			logger.debug("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
+			Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
+			logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds + "; now getting templateIds.");
+			if (regexIds == null || regexIds.isEmpty()) {
+				logger.info("Message is not recognized: " + perunAuditMessage.getMessage());
+				return;
+			}
+			List<PerunNotifPoolMessage> perunNotifPoolMessages = null;
+			try {
+				perunNotifPoolMessages = perunNotifTemplateManager.getPerunNotifPoolMessagesForRegexIds(regexIds, perunAuditMessage, session);
+			} catch (InternalErrorException ex) {
+				logger.error("Error during processPerunNotifAuditMessage.", ex);
+				return;
+			}
 
-            if (perunNotifPoolMessages != null && !perunNotifPoolMessages.isEmpty()) {
-                try {
-                    perunNotifPoolMessageManager.savePerunNotifPoolMessages(perunNotifPoolMessages);
-                } catch (InternalErrorException ex) {
-                    logger.error("Error during saving pool message.", ex);
-                    return;
-                }
-            } else {
-                logger.warn("No pool messages recognized for message: " + perunAuditMessage.getMessage());
-            }
+			if (perunNotifPoolMessages != null && !perunNotifPoolMessages.isEmpty()) {
+				try {
+					perunNotifPoolMessageManager.savePerunNotifPoolMessages(perunNotifPoolMessages);
+				} catch (InternalErrorException ex) {
+					logger.error("Error during saving pool message.", ex);
+					return;
+				}
+			} else {
+				logger.warn("No pool messages recognized for message: " + perunAuditMessage.getMessage());
+			}
 
-            logger.info("Removing saved perunMessage with id=" + perunAuditMessage.getId());
-            perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
-        } catch (Exception ex) {
-            logger.error("Error during process of perun notif audit message: {}", perunAuditMessage.getId(), ex);
-        } finally {
-            processSemaphore.release();
-        }
-    }
+			logger.info("Removing saved perunMessage with id=" + perunAuditMessage.getId());
+			perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
+		} catch (Exception ex) {
+			logger.error("Error during process of perun notif audit message: {}", perunAuditMessage.getId(), ex);
+		} finally {
+			processSemaphore.release();
+		}
+	}
 
-    /**
-     * Loads old messages from db restart their processing
-     *
-     * @throws InternalErrorException
-     */
-    private void processOldPerunNotifAuditMessages() throws InternalErrorException {
+	/**
+	 * Loads old messages from db restart their processing
+	 *
+	 * @throws InternalErrorException
+	 */
+	private void processOldPerunNotifAuditMessages() throws InternalErrorException {
 
-        oldProcessLock.lock();
-        logger.debug("Processing old perunNotifAuditMessages");
-        List<PerunNotifAuditMessage> oldAuditMessages = null;
-        try {
-            oldAuditMessages = perunNotifAuditMessagesManager.getAll();
-        } catch (Exception ex) {
-            logger.error("Error during getting all old messages.", ex);
-        }
-        if (oldAuditMessages != null && !oldAuditMessages.isEmpty()) {
-            for (PerunNotifAuditMessage perunAuditMessage : oldAuditMessages) {
-                processPerunNotifAuditMessage(perunAuditMessage, session);
-            }
-        }
-        oldProcessLock.unlock();
-    }
+		oldProcessLock.lock();
+		logger.debug("Processing old perunNotifAuditMessages");
+		List<PerunNotifAuditMessage> oldAuditMessages = null;
+		try {
+			oldAuditMessages = perunNotifAuditMessagesManager.getAll();
+		} catch (Exception ex) {
+			logger.error("Error during getting all old messages.", ex);
+		}
+		if (oldAuditMessages != null && !oldAuditMessages.isEmpty()) {
+			for (PerunNotifAuditMessage perunAuditMessage : oldAuditMessages) {
+				processPerunNotifAuditMessage(perunAuditMessage, session);
+			}
+		}
+		oldProcessLock.unlock();
+	}
 
-    public void processOneAuditerMessage(String message) {
+	public void processOneAuditerMessage(String message) {
 
-        PerunNotifAuditMessage perunNotifAuditMessage = null;
-        try {
-            perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
-        } catch (InternalErrorException ex) {
-            logger.error("Error during saving one time auditer message: " + message);
-        }
+		PerunNotifAuditMessage perunNotifAuditMessage = null;
+		try {
+			perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
+		} catch (InternalErrorException ex) {
+			logger.error("Error during saving one time auditer message: " + message);
+		}
 
-        processPerunNotifAuditMessage(perunNotifAuditMessage, session);
-    }
+		processPerunNotifAuditMessage(perunNotifAuditMessage, session);
+	}
 
-    @Override
-    public void destroy() throws Exception {
+	@Override
+	public void destroy() throws Exception {
 
-        //We acquire read lock, then we know that reading is not running
-        readLock.lock();
-        //We acquire all permits from processSemaphore and stops processing of messages
-        processSemaphore.acquireUninterruptibly(MAX_PERMITS_PROCESS_SEMAPHORE);
-    }
+		//We acquire read lock, then we know that reading is not running
+		readLock.lock();
+		//We acquire all permits from processSemaphore and stops processing of messages
+		processSemaphore.acquireUninterruptibly(MAX_PERMITS_PROCESS_SEMAPHORE);
+	}
 
-    public PerunSession getSession() {
-        return session;
-    }
+	public PerunSession getSession() {
+		return session;
+	}
 
-    public void setSession(PerunSession session) {
-        this.session = session;
-    }
+	public void setSession(PerunSession session) {
+		this.session = session;
+	}
 
-    public PerunNotifAuditMessageManager getPerunNotifAuditMessagesManager() {
-        return perunNotifAuditMessagesManager;
-    }
+	public PerunNotifAuditMessageManager getPerunNotifAuditMessagesManager() {
+		return perunNotifAuditMessagesManager;
+	}
 
-    public void setPerunNotifAuditMessagesManager(PerunNotifAuditMessageManager perunNotifAuditMessagesManager) {
-        this.perunNotifAuditMessagesManager = perunNotifAuditMessagesManager;
-    }
+	public void setPerunNotifAuditMessagesManager(PerunNotifAuditMessageManager perunNotifAuditMessagesManager) {
+		this.perunNotifAuditMessagesManager = perunNotifAuditMessagesManager;
+	}
 
-    public PerunNotifRegexManager getPerunNotifRegexManager() {
-        return perunNotifRegexManager;
-    }
+	public PerunNotifRegexManager getPerunNotifRegexManager() {
+		return perunNotifRegexManager;
+	}
 
-    public void setPerunNotifRegexManager(PerunNotifRegexManager perunNotifRegexManager) {
-        this.perunNotifRegexManager = perunNotifRegexManager;
-    }
+	public void setPerunNotifRegexManager(PerunNotifRegexManager perunNotifRegexManager) {
+		this.perunNotifRegexManager = perunNotifRegexManager;
+	}
 
-    public PerunNotifTemplateManager getPerunNotifTemplateManager() {
-        return perunNotifTemplateManager;
-    }
+	public PerunNotifTemplateManager getPerunNotifTemplateManager() {
+		return perunNotifTemplateManager;
+	}
 
-    public void setPerunNotifTemplateManager(PerunNotifTemplateManager perunNotifTemplateManager) {
-        this.perunNotifTemplateManager = perunNotifTemplateManager;
-    }
+	public void setPerunNotifTemplateManager(PerunNotifTemplateManager perunNotifTemplateManager) {
+		this.perunNotifTemplateManager = perunNotifTemplateManager;
+	}
 
-    public PerunNotifPoolMessageManager getPerunNotifPoolMessageManager() {
-        return perunNotifPoolMessageManager;
-    }
+	public PerunNotifPoolMessageManager getPerunNotifPoolMessageManager() {
+		return perunNotifPoolMessageManager;
+	}
 
-    public void setPerunNotifPoolMessageManager(PerunNotifPoolMessageManager perunNotifPoolMessageManager) {
-        this.perunNotifPoolMessageManager = perunNotifPoolMessageManager;
-    }
+	public void setPerunNotifPoolMessageManager(PerunNotifPoolMessageManager perunNotifPoolMessageManager) {
+		this.perunNotifPoolMessageManager = perunNotifPoolMessageManager;
+	}
 }

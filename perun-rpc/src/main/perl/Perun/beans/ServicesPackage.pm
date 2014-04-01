@@ -7,12 +7,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -45,47 +45,47 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
 	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getDescription
 {
 	my $self = shift;
 
-    return $self->{_description};
+	return $self->{_description};
 }
 
 sub setDescription
 {
-    my $self = shift;
-    $self->{_description} = shift;
+	my $self = shift;
+	$self->{_description} = shift;
 
-    return;
+	return;
 }
 
 1;

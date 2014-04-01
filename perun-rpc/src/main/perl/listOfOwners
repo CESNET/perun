@@ -8,22 +8,22 @@ use Perun::Agent;
 use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Owners
----------------------------
-Available options:
- --orderById   | -i  order by numeric ID
- --orderByName | -n  order by name
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Prints list of Owners
+	---------------------------
+	Available options:
+	--orderById   | -i  order by numeric ID
+	--orderByName | -n  order by name
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 my ($facilityId, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-           "batch|b" => \$batch) || die help;
+	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }

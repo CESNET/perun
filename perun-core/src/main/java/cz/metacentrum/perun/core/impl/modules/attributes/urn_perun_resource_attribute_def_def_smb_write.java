@@ -19,30 +19,30 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 public class urn_perun_resource_attribute_def_def_smb_write extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi{
 
 
-    public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        /*Attribute ret = new Attribute(attribute);
-        ret.setValue(0);
-        return ret;*/
-        return new Attribute();
-    }
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		/*Attribute ret = new Attribute(attribute);
+			ret.setValue(0);
+			return ret;*/
+		return new Attribute();
+	}
 
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-        /*Integer value = (Integer) attribute.getValue();
-        if (value == null) {
-            throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
-        }
-        if (!(value == 1 || value == 0)) {
-            throw new WrongAttributeValueException("0 and 1 are only allowed values");
-        }*/
-    }
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		/*Integer value = (Integer) attribute.getValue();
+			if (value == null) {
+			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
+			}
+			if (!(value == 1 || value == 0)) {
+			throw new WrongAttributeValueException("0 and 1 are only allowed values");
+			}*/
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-      attr.setFriendlyName("smb_write");
-      attr.setType(Integer.class.getName());
-      attr.setDescription("Is resource Samba share writeable.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("smb_write");
+		attr.setType(Integer.class.getName());
+		attr.setDescription("Is resource Samba share writeable.");
+		return attr;
+	}
 }

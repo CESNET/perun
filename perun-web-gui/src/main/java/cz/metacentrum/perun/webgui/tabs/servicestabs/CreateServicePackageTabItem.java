@@ -41,7 +41,7 @@ public class CreateServicePackageTabItem implements TabItem {
 
 	/**
 	 * Tab with create service form
-     */
+	 */
 	public CreateServicePackageTabItem(){}
 
 	public boolean isPrepared(){
@@ -50,89 +50,89 @@ public class CreateServicePackageTabItem implements TabItem {
 
 	public Widget draw() {
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        final ExtendedTextBox packageName = new ExtendedTextBox();
-        final ExtendedTextBox packageDescription = new ExtendedTextBox();
+		final ExtendedTextBox packageName = new ExtendedTextBox();
+		final ExtendedTextBox packageDescription = new ExtendedTextBox();
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (packageName.getTextBox().getText().trim().isEmpty()) {
-                    packageName.setError("Name can't be empty");
-                    return false;
-                } else {
-                    packageName.setOk();
-                    return true;
-                }
-            }
-        };
-        packageName.setValidator(validator);
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (packageName.getTextBox().getText().trim().isEmpty()) {
+					packageName.setError("Name can't be empty");
+					return false;
+				} else {
+					packageName.setOk();
+					return true;
+				}
+			}
+		};
+		packageName.setValidator(validator);
 
-        final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (packageDescription.getTextBox().getText().trim().isEmpty()) {
-                    packageDescription.setError("Description can't be empty");
-                    return false;
-                } else {
-                    packageDescription.setOk();
-                    return true;
-                }
-            }
-        };
-        packageDescription.setValidator(validator);
+		final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (packageDescription.getTextBox().getText().trim().isEmpty()) {
+					packageDescription.setError("Description can't be empty");
+					return false;
+				} else {
+					packageDescription.setOk();
+					return true;
+				}
+			}
+		};
+		packageDescription.setValidator(validator);
 
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // close tab events
-        final TabItem tab = this;
+		// close tab events
+		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        // fill form
-        layout.setHTML(0, 0, "Name:");
-        layout.setWidget(0, 1, packageName);
-        layout.setHTML(1, 0, "Description:");
-        layout.setWidget(1, 1, packageDescription);
+		// fill form
+		layout.setHTML(0, 0, "Name:");
+		layout.setWidget(0, 1, packageName);
+		layout.setHTML(1, 0, "Description:");
+		layout.setWidget(1, 1, packageDescription);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        // create button
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createServicePackage());
-        createButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (validator.validateTextBox() && validator2.validateTextBox()) {
-                    CreateServicePackage request = new CreateServicePackage(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                    request.createServicePackage(packageName.getTextBox().getText().trim(), packageDescription.getTextBox().getText().trim());
-                }
-            }
-        });
+		// create button
+		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createServicePackage());
+		createButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (validator.validateTextBox() && validator2.validateTextBox()) {
+					CreateServicePackage request = new CreateServicePackage(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					request.createServicePackage(packageName.getTextBox().getText().trim(), packageDescription.getTextBox().getText().trim());
+				}
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        // add tabs to the main panel
+		// add tabs to the main panel
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();

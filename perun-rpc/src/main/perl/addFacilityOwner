@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds facility owner. Facility and owner are required fields.
---------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --ownerId      | -o owner id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Adds facility owner. Facility and owner are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--ownerId      | -o owner id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $ownerId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId,
+"facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
  "ownerId|o=i" => \$ownerId) || die help();
@@ -36,8 +36,8 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId = $facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId = $facility->getId;
 }
 
 $facilitiesAgent->addOwner(facility => $facilityId, owner => $ownerId);

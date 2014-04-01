@@ -13,81 +13,81 @@ import java.util.Set;
  */
 public class PerunNotifMessageDto {
 
-    /**
-     * Receiver of messageToSend
-     */
-    private PerunNotifReceiver receiver;
+	/**
+	 * Receiver of messageToSend
+	 */
+	private PerunNotifReceiver receiver;
 
-    /**
-     * Complete message send to receiver
-     */
-    private String messageToSend;
+	/**
+	 * Complete message send to receiver
+	 */
+	private String messageToSend;
 
-    /**
-     * Subject to send
-     */
-    private String subject;
+	/**
+	 * Subject to send
+	 */
+	private String subject;
 
-    /**
-     * Ids of poolMessages used to create this message
-     */
-    private Set<Integer> usedPoolIds;
+	/**
+	 * Ids of poolMessages used to create this message
+	 */
+	private Set<Integer> usedPoolIds;
 
-    /**
-     * PoolMessage used to create message
-     */
-    private PoolMessage poolMessage;
+	/**
+	 * PoolMessage used to create message
+	 */
+	private PoolMessage poolMessage;
 
-    /**
-     * Template used for this message
-     */
-    private PerunNotifTemplate template;
+	/**
+	 * Template used for this message
+	 */
+	private PerunNotifTemplate template;
 
-    public PerunNotifReceiver getReceiver() {
-        return receiver;
-    }
+	public PerunNotifReceiver getReceiver() {
+		return receiver;
+	}
 
-    public void setReceiver(PerunNotifReceiver receiver) {
-        this.receiver = receiver;
-    }
+	public void setReceiver(PerunNotifReceiver receiver) {
+		this.receiver = receiver;
+	}
 
-    public String getMessageToSend() {
-        return messageToSend;
-    }
+	public String getMessageToSend() {
+		return messageToSend;
+	}
 
-    public void setMessageToSend(String messageToSend) {
-        this.messageToSend = messageToSend;
-    }
+	public void setMessageToSend(String messageToSend) {
+		this.messageToSend = messageToSend;
+	}
 
-    public Set<Integer> getUsedPoolIds() {
-        return usedPoolIds;
-    }
+	public Set<Integer> getUsedPoolIds() {
+		return usedPoolIds;
+	}
 
-    public void setUsedPoolIds(Set<Integer> usedPoolIds) {
-        this.usedPoolIds = usedPoolIds;
-    }
+	public void setUsedPoolIds(Set<Integer> usedPoolIds) {
+		this.usedPoolIds = usedPoolIds;
+	}
 
-    public PoolMessage getPoolMessage() {
-        return poolMessage;
-    }
+	public PoolMessage getPoolMessage() {
+		return poolMessage;
+	}
 
-    public void setPoolMessage(PoolMessage poolMessage) {
-        this.poolMessage = poolMessage;
-    }
+	public void setPoolMessage(PoolMessage poolMessage) {
+		this.poolMessage = poolMessage;
+	}
 
-    public PerunNotifTemplate getTemplate() {
-        return template;
-    }
+	public PerunNotifTemplate getTemplate() {
+		return template;
+	}
 
-    public void setTemplate(PerunNotifTemplate template) {
-        this.template = template;
-    }
+	public void setTemplate(PerunNotifTemplate template) {
+		this.template = template;
+	}
 
-    public String getSubject() {
-        return subject;
-    }
+	public String getSubject() {
+		return subject;
+	}
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
 }

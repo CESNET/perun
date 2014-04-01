@@ -25,38 +25,38 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    /**
-     * Method for checking path of the file.
-     * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
-     */
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	/**
+	 * Method for checking path of the file.
+	 * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
+	 */
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-        String path = (String) attribute.getValue();
-        if (path == null) {
-            throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
-        }
-        if (!path.matches("^(/[-_a-zA-Z0-9]+)+$")) {
-            throw new WrongAttributeValueException(attribute, "Bad path to destination of file in attribute format " + path);
-        }
-    }
+		String path = (String) attribute.getValue();
+		if (path == null) {
+			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
+		}
+		if (!path.matches("^(/[-_a-zA-Z0-9]+)+$")) {
+			throw new WrongAttributeValueException(attribute, "Bad path to destination of file in attribute format " + path);
+		}
+	}
 
-    /**
-     * Method for filling path of the file.
-     * Return attribute with value equal null.
-     */
-    public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	/**
+	 * Method for filling path of the file.
+	 * Return attribute with value equal null.
+	 */
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 
-        return new Attribute(attribute);
-    }
+		return new Attribute(attribute);
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
+	public AttributeDefinition getAttributeDefinition() {
 
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("passwd_scp_destination_file");
-      attr.setType(String.class.getName());
-      attr.setDescription("Path where passwd file (for passwd_scp service) is stored. (Typicaly: /etc/passwd)");
-      return attr;
-    }
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("passwd_scp_destination_file");
+		attr.setType(String.class.getName());
+		attr.setDescription("Path where passwd file (for passwd_scp service) is stored. (Typicaly: /etc/passwd)");
+		return attr;
+	}
 
 }

@@ -16,34 +16,34 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  */
 public class PerunAppTypeCell extends ClickableTextCell {
 
-    static private final ImageResource INITIAL = SmallIcons.INSTANCE.arrowRightIcon();
-    static private final ImageResource EXTENSION = SmallIcons.INSTANCE.arrowRefreshIcon();
+	static private final ImageResource INITIAL = SmallIcons.INSTANCE.arrowRightIcon();
+	static private final ImageResource EXTENSION = SmallIcons.INSTANCE.arrowRefreshIcon();
 
-    @Override
-    public void render(com.google.gwt.cell.client.Cell.Context context,
-                       String status, SafeHtmlBuilder sb) {
+	@Override
+	public void render(com.google.gwt.cell.client.Cell.Context context,
+			String status, SafeHtmlBuilder sb) {
 
-        // selects the image according to the status
-        ImageResource ir = null;
+		// selects the image according to the status
+		ImageResource ir = null;
 
-        if (status.equalsIgnoreCase("INITIAL")) {
-            ir = INITIAL;
-        } else if (status.equalsIgnoreCase("EXTENSION")) {
-            ir = EXTENSION;
-        }
+		if (status.equalsIgnoreCase("INITIAL")) {
+			ir = INITIAL;
+		} else if (status.equalsIgnoreCase("EXTENSION")) {
+			ir = EXTENSION;
+		}
 
-        // if status not available
-        if(ir == null){
-            return;
-        }
+		// if status not available
+		if(ir == null){
+			return;
+		}
 
-        // append the image
-        Element imageElement = new Image(ir).getElement();
-        imageElement.setTitle(status);
-        SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
-        sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
-        sb.append(image);
-        sb.appendHtmlConstant("</div>");
-    }
+		// append the image
+		Element imageElement = new Image(ir).getElement();
+		imageElement.setTitle(status);
+		SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
+		sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
+		sb.append(image);
+		sb.appendHtmlConstant("</div>");
+	}
 
 }

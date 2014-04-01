@@ -32,8 +32,8 @@ public class CreateThanks {
 	/**
 	 * Creates a new request
 	 *
-     * @param publicationId ID of Publication
-     */
+	 * @param publicationId ID of Publication
+	 */
 	public CreateThanks(int publicationId) {
 		this.publicationId = publicationId;
 	}
@@ -41,9 +41,9 @@ public class CreateThanks {
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param publicationId ID of Publication
+	 * @param publicationId ID of Publication
 	 * @param events external events
-     */
+	 */
 	public CreateThanks(int publicationId, JsonCallbackEvents events) {
 		this.publicationId = publicationId;
 		this.events = events;
@@ -70,7 +70,7 @@ public class CreateThanks {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -132,7 +132,7 @@ public class CreateThanks {
 		thanks.put("ownerId", new JSONNumber(ownerId));
 		thanks.put("publicationId", new JSONNumber(publicationId));
 		thanks.put("createdBy", new JSONString(session.getPerunPrincipal().getActor()));
-        thanks.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
+		thanks.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
 
 		jsonQuery.put("thanks", thanks);
 

@@ -69,8 +69,8 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public VoApplicationFormSettingsTabItem(VirtualOrganization vo){
 		this.vo = vo;
 		this.voId = vo.getId();
@@ -79,16 +79,16 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     */
+	 * @param voId
+	 */
 	public VoApplicationFormSettingsTabItem(int voId){
 		this.voId = voId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -101,32 +101,32 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"application form");
+		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"application form");
 
-        // HORIZONTAL MENU
-        final TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		// HORIZONTAL MENU
+		final TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
-        final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
-        final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
-        final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
+		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
+		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
+		final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
 
-        // request
-        final GetFormItems itemsRequest = new GetFormItems(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), true, null, new JsonCallbackEvents(){
-            @Override
-            public void onError(PerunError error) {
-                // DISABLE BUTTONS
-                save.setEnabled(false);
-                addButton.setEnabled(false);
-                emailButton.setEnabled(false);
-                copyButton.setEnabled(false);
-                previewButton.setEnabled(false);
-            }
+		// request
+		final GetFormItems itemsRequest = new GetFormItems(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), true, null, new JsonCallbackEvents(){
+			@Override
+			public void onError(PerunError error) {
+				// DISABLE BUTTONS
+				save.setEnabled(false);
+				addButton.setEnabled(false);
+				emailButton.setEnabled(false);
+				copyButton.setEnabled(false);
+				previewButton.setEnabled(false);
+			}
 
-        });
+		});
 		sourceList = itemsRequest.getList();
 
 		// refresh table events
@@ -138,8 +138,8 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 
 		// save button
 		menu.addWidget(save);
-        if (!session.isVoAdmin(voId)) save.setEnabled(false);
-        save.addClickHandler(new ClickHandler() {
+		if (!session.isVoAdmin(voId)) save.setEnabled(false);
+		save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				UpdateFormItems request = new UpdateFormItems(PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.disableButtonEvents(save, new JsonCallbackEvents(){
 					@Override
@@ -166,29 +166,29 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
-            }
-        });
-        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
-        menu.addWidget(addButton);
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, refreshEvents));
+			}
+		});
+		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+		menu.addWidget(addButton);
 
 		copyButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CopyFormTabItem(vo.getId(), 0));
 			}
 		});
-        if (!session.isVoAdmin(voId)) copyButton.setEnabled(false);
+		if (!session.isVoAdmin(voId)) copyButton.setEnabled(false);
 		menu.addWidget(copyButton);
 
 		previewButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                GeneralObject go = vo.cast();
-                session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
-            }
-        });
-        if (!session.isVoAdmin(voId)) previewButton.setEnabled(false);
-        menu.addWidget(previewButton);
+			public void onClick(ClickEvent event) {
+				GeneralObject go = vo.cast();
+				session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
+			}
+		});
+		if (!session.isVoAdmin(voId)) previewButton.setEnabled(false);
+		menu.addWidget(previewButton);
 
 		// AUTO APPROVAL + NOTIFICATIONS
 
@@ -203,8 +203,8 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 				session.getTabManager().addTab(new MailsTabItem(voId, 0));
 			}
 		});
-        if (!session.isVoAdmin(voId)) emailButton.setEnabled(false);
-        menu.addWidget(emailButton);
+		if (!session.isVoAdmin(voId)) emailButton.setEnabled(false);
+		menu.addWidget(emailButton);
 
 		// load elements
 		itemsRequest.retrieveData();
@@ -263,7 +263,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Application form", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Application form", getUrlWithParameters());
 		if(vo != null){
 			session.setActiveVo(vo);
 			return;

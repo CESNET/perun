@@ -13,7 +13,7 @@ public class FormNotExistsException extends PerunException {
 	private static final long serialVersionUID = 1L;
 
 	public FormNotExistsException(String message) {
-        super(message);
-    }
+		super(message);
+	}
 
 }

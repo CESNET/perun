@@ -18,7 +18,7 @@ public class GroupsTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public GroupsTabs(){}
 
 	/**

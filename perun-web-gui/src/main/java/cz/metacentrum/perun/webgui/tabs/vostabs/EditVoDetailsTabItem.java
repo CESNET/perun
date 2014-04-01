@@ -26,170 +26,170 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  */
 public class EditVoDetailsTabItem implements TabItem {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Edit: ");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Edit: ");
 
-    /**
-     * Data
-     */
-    private VirtualOrganization vo;
-    private JsonCallbackEvents events;
+	/**
+	 * Data
+	 */
+	private VirtualOrganization vo;
+	private JsonCallbackEvents events;
 
-    /**
-     * Creates a tab instance
-     *
-     * @param vo
-     * @param event
-     */
-    public EditVoDetailsTabItem(VirtualOrganization vo, JsonCallbackEvents event){
-        this.vo = vo;
-        this.events = event;
-    }
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param vo
+	 * @param event
+	 */
+	public EditVoDetailsTabItem(VirtualOrganization vo, JsonCallbackEvents event){
+		this.vo = vo;
+		this.events = event;
+	}
 
-    public boolean isPrepared(){
-        return (vo != null);
-    }
+	public boolean isPrepared(){
+		return (vo != null);
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(vo.getName()));
+		titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(vo.getName()));
 
-        VerticalPanel vp = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 
-        // textboxes which set the class data when updated
-        final ExtendedTextBox nameTextBox = new ExtendedTextBox();
-        nameTextBox.getTextBox().setText(vo.getName());
-        nameTextBox.getTextBox().setMaxLength(128);
+		// textboxes which set the class data when updated
+		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
+		nameTextBox.getTextBox().setText(vo.getName());
+		nameTextBox.getTextBox().setMaxLength(128);
 
-        final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setOk();
-                    return true;
-                } else {
-                    nameTextBox.setError("Name can't be empty.");
-                    return false;
-                }
-            }
-        };
+		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (!nameTextBox.getTextBox().getText().trim().isEmpty()) {
+					nameTextBox.setOk();
+					return true;
+				} else {
+					nameTextBox.setError("Name can't be empty.");
+					return false;
+				}
+			}
+		};
 
-        nameTextBox.setValidator(nameValidator);
+		nameTextBox.setValidator(nameValidator);
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // close tab events
-        final TabItem tab = this;
+		// close tab events
+		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        // send button
-        final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes of VO name");
-        saveButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (!nameValidator.validateTextBox()) return;
-                VirtualOrganization v = JsonUtils.clone(vo).cast();
-                v.setName(nameTextBox.getTextBox().getText().trim());
-                UpdateVo request = new UpdateVo(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-                request.updateVo(v);
-            }
-        });
+		// send button
+		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes of VO name");
+		saveButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (!nameValidator.validateTextBox()) return;
+				VirtualOrganization v = JsonUtils.clone(vo).cast();
+				v.setName(nameTextBox.getTextBox().getText().trim());
+				UpdateVo request = new UpdateVo(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+				request.updateVo(v);
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        // Add some standard form options
-        layout.setHTML(0, 0, "Short name:");
-        layout.setHTML(0, 1, vo.getShortName());
-        layout.setHTML(1, 0, "Name:");
-        layout.setWidget(1, 1, nameTextBox);
+		// Add some standard form options
+		layout.setHTML(0, 0, "Short name:");
+		layout.setHTML(0, 1, vo.getShortName());
+		layout.setHTML(1, 0, "Name:");
+		layout.setWidget(1, 1, nameTextBox);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        menu.addWidget(saveButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(saveButton);
+		menu.addWidget(cancelButton);
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.applicationFormEditIcon();
-    }
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.applicationFormEditIcon();
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 17;
-        int result = 1;
-        result = prime * result + 6786786;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 17;
+		int result = 1;
+		result = prime * result + 6786786;
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        EditVoDetailsTabItem other = (EditVoDetailsTabItem) obj;
-        if (vo != other.vo)
-            return false;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EditVoDetailsTabItem other = (EditVoDetailsTabItem) obj;
+		if (vo != other.vo)
+			return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    public void open() { }
+	public void open() { }
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(vo.getId())) {
-            return true;
-        } else {
-            return false;
-        }
+		if (session.isVoAdmin(vo.getId())) {
+			return true;
+		} else {
+			return false;
+		}
 
-    }
+	}
 
 }

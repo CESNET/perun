@@ -28,7 +28,7 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -42,7 +42,7 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public AllAuthorsTabItem(){
 	}
 
@@ -54,8 +54,8 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		VerticalPanel vp = new VerticalPanel();
-        vp.getElement().setAttribute("style", "padding-top: 5px;");
-        vp.setSize("100%", "100%");
+		vp.getElement().setAttribute("style", "padding-top: 5px;");
+		vp.setSize("100%", "100%");
 
 		FindAllAuthors callback = new FindAllAuthors();
 		CellTable<Author> table = callback.getTable(new FieldUpdater<Author, String>() {

@@ -8,22 +8,22 @@ use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
-return qq{
-Sets the member's status. Member id and status are required.
---------------------------------------
-Available options:
- --memberId        | -m member id
- --status					 | -s VALID/INVALID/SUSPENDED/EXPIRED/DISABLED
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Sets the member's status. Member id and status are required.
+	--------------------------------------
+	Available options:
+	--memberId        | -m member id
+	--status					 | -s VALID/INVALID/SUSPENDED/EXPIRED/DISABLED
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($memberId, $status);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "memberId|m=i" => \$memberId, "status|s=s" => \$status) || die help();
+"memberId|m=i" => \$memberId, "status|s=s" => \$status) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}

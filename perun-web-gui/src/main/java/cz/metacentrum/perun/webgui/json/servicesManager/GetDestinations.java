@@ -159,11 +159,11 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 		// FACILITY COLUMN
 		Column<Destination, String> facilityColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
-					public String getValue(Destination dest) {
-						if (dest.getService() != null ) { return dest.getFacility().getName() + " ("+dest.getFacility().getType()+")"; }
-						else { return ""; }
-					}
-				}, tableFieldUpdater);
+			public String getValue(Destination dest) {
+				if (dest.getService() != null ) { return dest.getFacility().getName() + " ("+dest.getFacility().getType()+")"; }
+				else { return ""; }
+			}
+		}, tableFieldUpdater);
 
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
@@ -215,138 +215,138 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Destination>().sortByService(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Destination>().sortByService(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Destination to be added as new row
-     */
-    public void addToTable(Destination object) {
-        list.add(object);
-        if (object.getService() != null) {
-            oracle.add(object.getService().getName());
-        }
-        oracle.add(object.getDestination());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Destination to be added as new row
+	 */
+	public void addToTable(Destination object) {
+		list.add(object);
+		if (object.getService() != null) {
+			oracle.add(object.getService().getName());
+		}
+		oracle.add(object.getDestination());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Destination to be removed as row
-     */
-    public void removeFromTable(Destination object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Destination to be removed as row
+	 */
+	public void removeFromTable(Destination object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Destination> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Destination> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading destinations");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading destinations");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading destinations started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading destinations started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        ArrayList<Destination> dest = JsonUtils.jsoAsList(jso);
-        for (Destination d : dest) {
-            d.setFacility(facility);
-            d.setService(service);
-            addToTable(d);
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Destinations loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		ArrayList<Destination> dest = JsonUtils.jsoAsList(jso);
+		for (Destination d : dest) {
+			d.setFacility(facility);
+			d.setService(service);
+			addToTable(d);
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Destinations loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Destination object) {
-        list.add(index, object);
-        if (object.getService() != null) {
-            oracle.add(object.getService().getName());
-        }
-        oracle.add(object.getDestination());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Destination object) {
+		list.add(index, object);
+		if (object.getService() != null) {
+			oracle.add(object.getService().getName());
+		}
+		oracle.add(object.getDestination());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Destination> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Destination object : list) {
-            if (object.getService() != null) {
-                oracle.add(object.getService().getName());
-            }
-            oracle.add(object.getDestination());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Destination> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Destination object : list) {
+			if (object.getService() != null) {
+				oracle.add(object.getService().getName());
+			}
+			oracle.add(object.getDestination());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Destination> getList() {
-        return this.list;
-    }
+	public ArrayList<Destination> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Retrieve data from RPC
@@ -398,11 +398,11 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
+		if (text.equalsIgnoreCase("")) {
 			list.addAll(fullBackup);
 		} else {
 			for (Destination dst : fullBackup){
@@ -419,9 +419,9 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 			}
 		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
 	}
 

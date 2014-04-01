@@ -18,34 +18,34 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  */
 public interface ExtSourcesManagerImplApi {
 
-  /**
-   * Initialize manager
-   */
-  void initialize(PerunSession sess);
+	/**
+	 * Initialize manager
+	 */
+	void initialize(PerunSession sess);
 
-  /**
-   * Creates an external source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @return ExtSource object with newly associated ID.
-   *
-   * @throws InternalErrorException
-   * @throws ExtSourceExistsException
-   */
-  ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException;
+	/**
+	 * Creates an external source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @return ExtSource object with newly associated ID.
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceExistsException
+	 */
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException;
 
-  /**
-   * Deletes an external source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
-   * @throws InternalErrorException
-   */
-  void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException;
+	/**
+	 * Deletes an external source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
+	 * @throws InternalErrorException
+	 */
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Searches for the external source with specified id.
@@ -117,49 +117,49 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotAssignedException
-         * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by remove in DB
+	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by remove in DB
 	 */
 	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
-  /**
-   * Get all users' id associate with the provided ExtSource
-   *
-   * @param perunSession
-   * @param source
-   *
-   * @return list of users' id associated with the provided ExtSource
-   *
-   * @throws InternalErrorException
-   */
-  List<Integer> getAssociatedUsersIdsWithExtSource(PerunSession perunSession, ExtSource source) throws InternalErrorException;
+	/**
+	 * Get all users' id associate with the provided ExtSource
+	 *
+	 * @param perunSession
+	 * @param source
+	 *
+	 * @return list of users' id associated with the provided ExtSource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Integer> getAssociatedUsersIdsWithExtSource(PerunSession perunSession, ExtSource source) throws InternalErrorException;
 
-  /**
-   * Check if extSource exists in underlaying data source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @return true if extSource exists in underlaying data source, false otherwise
-   *
-   * @throws InternalErrorException
-   */
-  boolean extSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException;
+	/**
+	 * Check if extSource exists in underlaying data source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @return true if extSource exists in underlaying data source, false otherwise
+	 *
+	 * @throws InternalErrorException
+	 */
+	boolean extSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException;
 
-  /**
-   * Check if extSource exists in underlaying data source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @throws InternalErrorException
-   * @throws ExtSourceNotExistsException
-   */
-  void checkExtSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
+	/**
+	 * Check if extSource exists in underlaying data source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
+	 */
+	void checkExtSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
 
-  /**
-   * Loads ext source definitions from the configuration file and updates entries stored in the DB.
-   *
-   * @param sess
-   */
-  void loadExtSourcesDefinitions(PerunSession sess);
+	/**
+	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.
+	 *
+	 * @param sess
+	 */
+	void loadExtSourcesDefinitions(PerunSession sess);
 }

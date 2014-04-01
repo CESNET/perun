@@ -6,32 +6,32 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $id = $self->{_id};
-    my $destination = $self->{_destination};
-    my $type = $self->{_type};
+	my $id = $self->{_id};
+	my $destination = $self->{_destination};
+	my $type = $self->{_type};
 
-    my $str = 'Destination (';
-    $str .= "id: $id, " if ($id);
-    $str .= "destination: $destination, " if ($destination);
-    $str .= "type: $type" if ($type);
-    $str .= ')';
+	my $str = 'Destination (';
+	$str .= "id: $id, " if ($id);
+	$str .= "destination: $destination, " if ($destination);
+	$str .= "type: $type" if ($type);
+	$str .= ')';
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -64,56 +64,56 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getDestination
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_destination};
+	return $self->{_destination};
 }
 
 sub setDestination
 {
-    my $self = shift;
-    $self->{_destination} = shift;
+	my $self = shift;
+	$self->{_destination} = shift;
 
-    return;
+	return;
 }
 
 sub getType
 {
 	my $self = shift;
 
-    return $self->{_type};
+	return $self->{_type};
 }
 
 sub setType
 {
-    my $self = shift;
-    $self->{_type} = shift;
+	my $self = shift;
+	$self->{_type} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->{_destination}, $self->{_type});
+	my $self = shift;
+	return ($self->{_id}, $self->{_destination}, $self->{_type});
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('ID','Destination','Type');
+	return ('ID','Destination','Type');
 }
 
 1;

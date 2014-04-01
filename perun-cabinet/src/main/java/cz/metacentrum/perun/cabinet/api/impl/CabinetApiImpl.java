@@ -242,7 +242,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public PublicationSystem findPublicationSystemById(
 			Integer publicationSystemId) {
 		return publicationSystemService.findPublicationSystemById(publicationSystemId);
-	}
+			}
 
 	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException {
 		return publicationService.updatePublicationById(sess, publication);

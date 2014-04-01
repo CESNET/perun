@@ -12,98 +12,98 @@ import org.slf4j.LoggerFactory;
  */
 public class TagHolder {
 
-    private int startTagPosition;
+	private int startTagPosition;
 
-    private int endTagPosition;
+	private int endTagPosition;
 
-    private TagType type;
+	private TagType type;
 
-    private String expression;
+	private String expression;
 
-    private boolean startTag;
+	private boolean startTag;
 
-    private static final Logger logger = LoggerFactory.getLogger(TagHolder.class);
+	private static final Logger logger = LoggerFactory.getLogger(TagHolder.class);
 
-    public static TagHolder resolveTagHolder(String tagString, int start, int end) {
+	public static TagHolder resolveTagHolder(String tagString, int start, int end) {
 
-        if (tagString == null || tagString.isEmpty()) {
-            return null;
-        }
+		if (tagString == null || tagString.isEmpty()) {
+			return null;
+		}
 
-        TagHolder result = new TagHolder();
-        String trimmedTag = tagString.substring(1, tagString.length() - 1);
-        //Removed < and >
-        char startChar = trimmedTag.charAt(0);
-        if (startChar == '/') {
-            result.setStartTag(false);
-            trimmedTag = trimmedTag.substring(2);
-        } else {
-            result.setStartTag(true);
-            trimmedTag = trimmedTag.substring(1);
-        }
+		TagHolder result = new TagHolder();
+		String trimmedTag = tagString.substring(1, tagString.length() - 1);
+		//Removed < and >
+		char startChar = trimmedTag.charAt(0);
+		if (startChar == '/') {
+			result.setStartTag(false);
+			trimmedTag = trimmedTag.substring(2);
+		} else {
+			result.setStartTag(true);
+			trimmedTag = trimmedTag.substring(1);
+		}
 
-        int spaceLocation = trimmedTag.indexOf(" ");
-        if (spaceLocation < 0) {
-            spaceLocation = trimmedTag.length();
-        }
-        String name = trimmedTag.substring(0, spaceLocation);
-        TagType newType = TagType.resolve(name);
-        if (newType == null) {
-            logger.warn("Tag type not recognized: " + name);
-            return null;
-        }
+		int spaceLocation = trimmedTag.indexOf(" ");
+		if (spaceLocation < 0) {
+			spaceLocation = trimmedTag.length();
+		}
+		String name = trimmedTag.substring(0, spaceLocation);
+		TagType newType = TagType.resolve(name);
+		if (newType == null) {
+			logger.warn("Tag type not recognized: " + name);
+			return null;
+		}
 
-        result.setType(newType);
+		result.setType(newType);
 
-        result.setStartTagPosition(start);
-        result.setEndTagPosition(end);
+		result.setStartTagPosition(start);
+		result.setEndTagPosition(end);
 
-        if (result.isStartTag()) {
-            int indexOfVar = trimmedTag.indexOf("var=");
-            String newExpression = trimmedTag.substring(indexOfVar + 5);
-            newExpression = newExpression.substring(0, newExpression.lastIndexOf('"'));
-            result.setExpression(newExpression);
-        }
-        return result;
-    }
+		if (result.isStartTag()) {
+			int indexOfVar = trimmedTag.indexOf("var=");
+			String newExpression = trimmedTag.substring(indexOfVar + 5);
+			newExpression = newExpression.substring(0, newExpression.lastIndexOf('"'));
+			result.setExpression(newExpression);
+		}
+		return result;
+	}
 
-    public int getStartTagPosition() {
-        return startTagPosition;
-    }
+	public int getStartTagPosition() {
+		return startTagPosition;
+	}
 
-    public void setStartTagPosition(int startTagPosition) {
-        this.startTagPosition = startTagPosition;
-    }
+	public void setStartTagPosition(int startTagPosition) {
+		this.startTagPosition = startTagPosition;
+	}
 
-    public int getEndTagPosition() {
-        return endTagPosition;
-    }
+	public int getEndTagPosition() {
+		return endTagPosition;
+	}
 
-    public void setEndTagPosition(int endTagPosition) {
-        this.endTagPosition = endTagPosition;
-    }
+	public void setEndTagPosition(int endTagPosition) {
+		this.endTagPosition = endTagPosition;
+	}
 
-    public TagType getType() {
-        return type;
-    }
+	public TagType getType() {
+		return type;
+	}
 
-    public void setType(TagType type) {
-        this.type = type;
-    }
+	public void setType(TagType type) {
+		this.type = type;
+	}
 
-    public String getExpression() {
-        return expression;
-    }
+	public String getExpression() {
+		return expression;
+	}
 
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
+	public void setExpression(String expression) {
+		this.expression = expression;
+	}
 
-    public boolean isStartTag() {
-        return startTag;
-    }
+	public boolean isStartTag() {
+		return startTag;
+	}
 
-    public void setStartTag(boolean startTag) {
-        this.startTag = startTag;
-    }
+	public void setStartTag(boolean startTag) {
+		this.startTag = startTag;
+	}
 }

@@ -61,21 +61,21 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param resourceId ID of resource to get services management for
-     */
+	 * @param resourceId ID of resource to get services management for
+	 */
 	public ResourceAssignedServicesTabItem(int resourceId){
 		this.resourceId = resourceId;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a tab instance
-     * @param resource resource to get services management for
-     */
+	 * @param resource resource to get services management for
+	 */
 	public ResourceAssignedServicesTabItem(Resource resource){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -99,52 +99,52 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(resourceServices);
 
 		CustomButton assignServicesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignServiceToResource(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AssignServiceTabItem(resourceId), true);
-            }
-        });
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new AssignServiceTabItem(resourceId), true);
+			}
+		});
 
 		final CustomButton removeServicesButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeServiceFromResource());
 		removeServicesButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                final ArrayList<Service> servicesForRemoving = resourceServices.getTableSelectedList();
-                String text = "Following services will be removed from resource.";
-                UiElements.showDeleteConfirm(servicesForRemoving, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
-                        for (int i = 0; i < servicesForRemoving.size(); i++) {
-                            if (i == servicesForRemoving.size()-1) {
-                                RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton, localEvents));
-                                request.removeService(servicesForRemoving.get(i).getId(), resourceId);
-                            } else {
-                                RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton));
-                                request.removeService(servicesForRemoving.get(i).getId(), resourceId);
-                            }
-                        }
-                    }
-                });
-            }
-        });
+			public void onClick(ClickEvent event) {
+				final ArrayList<Service> servicesForRemoving = resourceServices.getTableSelectedList();
+				String text = "Following services will be removed from resource.";
+				UiElements.showDeleteConfirm(servicesForRemoving, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < servicesForRemoving.size(); i++) {
+							if (i == servicesForRemoving.size()-1) {
+								RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton, localEvents));
+								request.removeService(servicesForRemoving.get(i).getId(), resourceId);
+							} else {
+								RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton));
+								request.removeService(servicesForRemoving.get(i).getId(), resourceId);
+							}
+						}
+					}
+				});
+			}
+		});
 
 		menu.addWidget(assignServicesButton);
 		menu.addWidget(removeServicesButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(resourceServices.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                resourceServices.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterServices());
+		menu.addFilterWidget(new ExtendedSuggestBox(resourceServices.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				resourceServices.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterServices());
 
-        // display menu only to facility admin
-        if (session.isFacilityAdmin(resource.getFacilityId())) {
-            resourceServices.setCheckable(true);
-            vp.add(menu);
-            vp.setCellHeight(menu,"30px");
-        } else {
-            resourceServices.setCheckable(false);
-        }
+		// display menu only to facility admin
+		if (session.isFacilityAdmin(resource.getFacilityId())) {
+			resourceServices.setCheckable(true);
+			vp.add(menu);
+			vp.setCellHeight(menu,"30px");
+		} else {
+			resourceServices.setCheckable(false);
+		}
 
 		CellTable<Service> table;
 		if (session.isPerunAdmin()) {
@@ -159,11 +159,11 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 			table = resourceServices.getTable();
 		}
 
-        removeServicesButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resourceServices, table, removeServicesButton);
+		removeServicesButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(resourceServices, table, removeServicesButton);
 
 
-        table.addStyleName("perun-table");
+		table.addStyleName("perun-table");
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");

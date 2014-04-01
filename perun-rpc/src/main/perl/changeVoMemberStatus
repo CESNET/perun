@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Change a member's status. Member id is required.
---------------------------------------
-Available options:
- --memberId   | -m member id
- --newStatus  | -s new status
- --batch      | -b batch
- --help       | -h prints this help
+	return qq{
+	Change a member's status. Member id is required.
+	--------------------------------------
+	Available options:
+	--memberId   | -m member id
+	--newStatus  | -s new status
+	--batch      | -b batch
+	--help       | -h prints this help
 
-};
+	};
 }
 
 our $batch;
 my ($memberId,$status);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
- "batch|b" => \$batch,
- "newStatus|s=s" => \$status,
+	"batch|b" => \$batch,
+"newStatus|s=s" => \$status,
  "memberId|m=i" => \$memberId) || die help();
 
 # Check options

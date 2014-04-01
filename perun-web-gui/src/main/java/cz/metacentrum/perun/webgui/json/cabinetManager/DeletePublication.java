@@ -28,14 +28,14 @@ public class DeletePublication {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public DeletePublication() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public DeletePublication(JsonCallbackEvents events) {
 		this.events = events;
 	}

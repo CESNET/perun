@@ -21,45 +21,45 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_homeMountPoints extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    @Override
-    /**
-     * Checks attribute facility_homeMountPoints, this attribute must not be null and must be valid *nix path
-     * @param perunSession current session
-     * @param facility facility to which this attribute belongs
-     * @param attribute checked attribute
-     * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-     */
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	@Override
+	/**
+	 * Checks attribute facility_homeMountPoints, this attribute must not be null and must be valid *nix path
+	 * @param perunSession current session
+	 * @param facility facility to which this attribute belongs
+	 * @param attribute checked attribute
+	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
+	 */
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
-        if(attribute.getValue() == null) {
-            throw new WrongAttributeValueException(attribute);
-        }
-        List<String> homeMountPoints = (List<String>) attribute.getValue();
-        if (!homeMountPoints.isEmpty()) {
-            Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
-            for (String st : homeMountPoints) {
-                Matcher match = pattern.matcher(st);
-                if (!match.matches()) {
-                    throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
-                }
-            }
-        } else {
-            throw new WrongAttributeValueException(attribute,"Attribute can't be empty");
-        }
-    }
+		if(attribute.getValue() == null) {
+			throw new WrongAttributeValueException(attribute);
+		}
+		List<String> homeMountPoints = (List<String>) attribute.getValue();
+		if (!homeMountPoints.isEmpty()) {
+			Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
+			for (String st : homeMountPoints) {
+				Matcher match = pattern.matcher(st);
+				if (!match.matches()) {
+					throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
+				}
+			}
+		} else {
+			throw new WrongAttributeValueException(attribute,"Attribute can't be empty");
+		}
+	}
 
-    @Override
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
-        return new Attribute(attribute);
-    }
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
+		return new Attribute(attribute);
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("homeMountPoints");
-      attr.setType(ArrayList.class.getName());
-      attr.setDescription("All available home mount points.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("homeMountPoints");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("All available home mount points.");
+		return attr;
+	}
 
 }

@@ -1,4 +1,4 @@
-    package cz.metacentrum.perun.core.implApi.modules.attributes;
+package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -22,25 +22,25 @@ import java.util.List;
 public abstract class UserVirtualAttributesModuleAbstract extends UserAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 
-    public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
-        return new Attribute(attribute);
-    }
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
+		return new Attribute(attribute);
+	}
 
-    public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-        return false;
-    }
+	public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		return false;
+	}
 
-    public void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
-    }
+	}
 
-    @Override
-    public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-        return new ArrayList<String>();
-    }
+	@Override
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		return new ArrayList<String>();
+	}
 
-    @Override
-    public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) throws InternalErrorException{
-        return null;
-    }
+	@Override
+	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) throws InternalErrorException{
+		return null;
+	}
 }

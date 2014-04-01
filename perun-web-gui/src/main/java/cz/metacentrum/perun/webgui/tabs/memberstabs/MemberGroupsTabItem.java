@@ -35,22 +35,22 @@ import java.util.ArrayList;
  */
 public class MemberGroupsTabItem implements TabItem {
 
-    private RichMember member;
+	private RichMember member;
 	private int memberId;
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
-    private int groupId = 0;
+	private int groupId = 0;
 
 	/**
 	 * Constructor
 	 *
-     * @param member RichMember object, typically from table
-     */
+	 * @param member RichMember object, typically from table
+	 */
 	public MemberGroupsTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
-        this.groupId = groupId;
+		this.groupId = groupId;
 	}
 
 	public boolean isPrepared(){
@@ -61,78 +61,78 @@ public class MemberGroupsTabItem implements TabItem {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": groups");
 
-        // main widget panel
+		// main widget panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-        TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        final GetMemberGroups groupsCall = new GetMemberGroups(memberId);
+		final GetMemberGroups groupsCall = new GetMemberGroups(memberId);
 
-        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new MemberAddToGroupTabItem(member), true);
-            }
-        });
-        if (session.isVoObserver(member.getVoId()) && !session.isVoAdmin(member.getVoId())) {
-            addButton.setEnabled(false);
-            groupsCall.setCheckable(false);
-        }
-        menu.addWidget(addButton);
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new group", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new MemberAddToGroupTabItem(member), true);
+			}
+		});
+		if (session.isVoObserver(member.getVoId()) && !session.isVoAdmin(member.getVoId())) {
+			addButton.setEnabled(false);
+			groupsCall.setCheckable(false);
+		}
+		menu.addWidget(addButton);
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected group(s)", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ArrayList<Group> list = groupsCall.getTableSelectedList();
-                String confirmText = member.getUser().getFullName()+ " will be removed from following groups.";
-                UiElements.showDeleteConfirm(list, confirmText, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - should have only one callback to core
-                        for (int i=0; i<list.size(); i++) {
-                            if (i == list.size()-1) {
-                                RemoveMember request = new RemoveMember(JsonCallbackEvents.refreshTableEvents(groupsCall));
-                                request.removeMemberFromGroup(list.get(i), member);
-                            } else {
-                                RemoveMember request = new RemoveMember();
-                                request.removeMemberFromGroup(list.get(i), member);
-                            }
-                        }
-                    }
-                });
-            }
-        });
-        removeButton.setEnabled(false);
-        menu.addWidget(removeButton);
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected group(s)", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				final ArrayList<Group> list = groupsCall.getTableSelectedList();
+				String confirmText = member.getUser().getFullName()+ " will be removed from following groups.";
+				UiElements.showDeleteConfirm(list, confirmText, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - should have only one callback to core
+						for (int i=0; i<list.size(); i++) {
+							if (i == list.size()-1) {
+								RemoveMember request = new RemoveMember(JsonCallbackEvents.refreshTableEvents(groupsCall));
+								request.removeMemberFromGroup(list.get(i), member);
+							} else {
+								RemoveMember request = new RemoveMember();
+								request.removeMemberFromGroup(list.get(i), member);
+							}
+						}
+					}
+				});
+			}
+		});
+		removeButton.setEnabled(false);
+		menu.addWidget(removeButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(groupsCall.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                groupsCall.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+		menu.addFilterWidget(new ExtendedSuggestBox(groupsCall.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				groupsCall.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
-        CellTable<Group> table = groupsCall.getTable(new FieldUpdater<Group, String>() {
-            @Override
-            public void update(int i, Group group, String s) {
-                if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
-                    session.getTabManager().addTab(new GroupDetailTabItem(group));
-                } else {
-                    UiElements.generateInfo("Not privileged", "You are not manager of selected group or it's VO.");
-                }
-            }
-        });
+		CellTable<Group> table = groupsCall.getTable(new FieldUpdater<Group, String>() {
+			@Override
+			public void update(int i, Group group, String s) {
+				if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+					session.getTabManager().addTab(new GroupDetailTabItem(group));
+				} else {
+					UiElements.generateInfo("Not privileged", "You are not manager of selected group or it's VO.");
+				}
+			}
+		});
 
-        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(groupsCall, table, removeButton);
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        vp.add(sp);
+		vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
 

@@ -11,12 +11,12 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 @SuppressWarnings("serial")
 public class ClusterNotExistsRuntimeException extends EntityNotExistsRuntimeException {
 
-    public ClusterNotExistsRuntimeException() {
-        super();
-    }
+	public ClusterNotExistsRuntimeException() {
+		super();
+	}
 
-    public ClusterNotExistsRuntimeException(Throwable cause) {
-        super(cause);
-    }
+	public ClusterNotExistsRuntimeException(Throwable cause) {
+		super(cause);
+	}
 
 }

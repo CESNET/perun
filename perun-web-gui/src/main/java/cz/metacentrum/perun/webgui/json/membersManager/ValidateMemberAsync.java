@@ -34,7 +34,7 @@ public class ValidateMemberAsync {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     *
+	 *
 	 * @param events external events
 	 */
 	public ValidateMemberAsync(final JsonCallbackEvents events) {

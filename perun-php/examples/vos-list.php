@@ -9,8 +9,8 @@ $vos = $client->retrieveData("vosManager/getVos");
 
 // ERROR WHILE DECODING RESPONSE
 if($vos === null){
-    print "Error while getting the VOs.";
-    exit;
+	print "Error while getting the VOs.";
+	exit;
 }
 
 // PRINTING DATA
@@ -24,11 +24,11 @@ print "    <th>Name</th>\n";
 print "  </tr>\n";
 
 foreach($vos as $vo){
-    print "  <tr>\n";
-    print "    <td>{$vo -> id}</td>\n";
-    print "    <td>{$vo -> shortName}</td>\n";
-    print "    <td>{$vo -> name}</td>\n";
-    print "  </tr>\n";
+	print "  <tr>\n";
+	print "    <td>{$vo -> id}</td>\n";
+	print "    <td>{$vo -> shortName}</td>\n";
+	print "    <td>{$vo -> name}</td>\n";
+	print "  </tr>\n";
 }
 
 print "</table>\n";

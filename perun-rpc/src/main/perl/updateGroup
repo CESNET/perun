@@ -7,22 +7,22 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Updates group. Group id is required.
---------------------------------------
-Available options:
- --groupId     | -g group id
- --name        | -n new name for the group
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Updates group. Group id is required.
+	--------------------------------------
+	Available options:
+	--groupId     | -g group id
+	--name        | -n new name for the group
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 our $batch;
 my ($groupId, $name);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "groupId|g=i" => \$groupId,
+"groupId|g=i" => \$groupId,
  "name|n=s" => \$name ) || die help();
 
 # Check options
@@ -34,8 +34,8 @@ my $groupsAgent = $agent->getGroupsAgent;
 my $group = $groupsAgent->getGroupById(id => $groupId);
 
 if (defined($name)) {
-  unless ($name !~ /^\s*$/) { die "ERROR: name cannot be empty string\n";}
-  $group->setName($name);
+	unless ($name !~ /^\s*$/) { die "ERROR: name cannot be empty string\n";}
+	$group->setName($name);
 }
 
 

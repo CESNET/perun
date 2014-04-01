@@ -15,39 +15,39 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
-    /**
-     * This method will return computed value.
-     *
-     * @param perunSession perun session
-     * @param member member which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return true if attribute was really changed
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	/**
+	 * This method will return computed value.
+	 *
+	 * @param perunSession perun session
+	 * @param member member which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
 
-    /**
-     * Method sets attributes' values which are dependent on this virtual attribute.
-     *
-     * @param perunSession
-     * @param member member which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	/**
+	 * Method sets attributes' values which are dependent on this virtual attribute.
+	 *
+	 * @param perunSession
+	 * @param member member which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
-    /**
-     * Currently do nothing.
-     *
-     * @param perunSession
-     * @param member member which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	/**
+	 * Currently do nothing.
+	 *
+	 * @param perunSession
+	 * @param member member which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
 }

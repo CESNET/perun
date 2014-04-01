@@ -27,131 +27,131 @@ import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
  */
 public class OwnersManagerEntry implements OwnersManager {
 
-  final static Logger log = LoggerFactory.getLogger(OwnersManagerEntry.class);
+	final static Logger log = LoggerFactory.getLogger(OwnersManagerEntry.class);
 
-  private OwnersManagerBl ownersManagerBl;
-  private PerunBl perunBl;
+	private OwnersManagerBl ownersManagerBl;
+	private PerunBl perunBl;
 
-  /**
-   * Constructor.
-   *
-   */
-  public OwnersManagerEntry(PerunBl perunBl) {
-    this.perunBl = perunBl;
-    this.ownersManagerBl = perunBl.getOwnersManagerBl();
-  }
+	/**
+	 * Constructor.
+	 *
+	 */
+	public OwnersManagerEntry(PerunBl perunBl) {
+		this.perunBl = perunBl;
+		this.ownersManagerBl = perunBl.getOwnersManagerBl();
+	}
 
-  public OwnersManagerEntry() {
-  }
+	public OwnersManagerEntry() {
+	}
 
-  /*FIXME delete this method */
-  public OwnersManagerImplApi getOwnersManagerImpl() {
-    throw new InternalErrorRuntimeException("Unsupported method!");
-  }
+	/*FIXME delete this method */
+	public OwnersManagerImplApi getOwnersManagerImpl() {
+		throw new InternalErrorRuntimeException("Unsupported method!");
+	}
 
-  public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "createOwner");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "createOwner");
+		}
 
-    Utils.notNull(owner, "owner");
+		Utils.notNull(owner, "owner");
 
-    return getOwnersManagerBl().createOwner(sess, owner);
-  }
+		return getOwnersManagerBl().createOwner(sess, owner);
+	}
 
-  public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
+	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "deleteOwner");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteOwner");
+		}
 
-    getOwnersManagerBl().checkOwnerExists(sess, owner);
+		getOwnersManagerBl().checkOwnerExists(sess, owner);
 
-    getOwnersManagerBl().deleteOwner(sess, owner);
-  }
+		getOwnersManagerBl().deleteOwner(sess, owner);
+	}
 
-  public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
+	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "deleteOwner");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteOwner");
+		}
 
-    getOwnersManagerBl().checkOwnerExists(sess, owner);
+		getOwnersManagerBl().checkOwnerExists(sess, owner);
 
-    getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
-  }
+		getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
+	}
 
-  public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.RPC)) {
-      throw new PrivilegeException(sess, "getOwnerById");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+			throw new PrivilegeException(sess, "getOwnerById");
+				}
 
-    return getOwnersManagerBl().getOwnerById(sess, id);
-  }
+		return getOwnersManagerBl().getOwnerById(sess, id);
+	}
 
-  public List<Owner> getOwners(PerunSession sess) throws InternalErrorException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-      throw new PrivilegeException(sess, "getOwners");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "getOwners");
+				}
 
-    return getOwnersManagerBl().getOwners(sess);
-  }
+		return getOwnersManagerBl().getOwners(sess);
+	}
 
-  /**
-   * Sets the ownersManagerBl for this instance.
-   *
-   * @param ownersManagerBl The ownersManagerBl.
-   */
-  public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl)
-  {
-        this.ownersManagerBl = ownersManagerBl;
-  }
+	/**
+	 * Sets the ownersManagerBl for this instance.
+	 *
+	 * @param ownersManagerBl The ownersManagerBl.
+	 */
+	public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl)
+	{
+		this.ownersManagerBl = ownersManagerBl;
+	}
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
+	public PerunBl getPerunBl() {
+		return this.perunBl;
+	}
 
-  /**
-   * Gets the owners manager
-   *
-   * @return The ownersManagerBl.
-   */
-  public OwnersManagerBl getOwnersManagerBl() {
-    return this.ownersManagerBl;
-  }
+	/**
+	 * Gets the owners manager
+	 *
+	 * @return The ownersManagerBl.
+	 */
+	public OwnersManagerBl getOwnersManagerBl() {
+		return this.ownersManagerBl;
+	}
 
-  /**
-   * Sets the perunBl for this instance.
-   *
-   * @param perunBl The perunBl.
-   */
-  public void setPerunBl(PerunBl perunBl)
-  {
-        this.perunBl = perunBl;
-  }
+	/**
+	 * Sets the perunBl for this instance.
+	 *
+	 * @param perunBl The perunBl.
+	 */
+	public void setPerunBl(PerunBl perunBl)
+	{
+		this.perunBl = perunBl;
+	}
 
 
 }

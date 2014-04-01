@@ -38,7 +38,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -52,7 +52,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public AllCategoriesTabItem(){}
 
 	public boolean isPrepared(){
@@ -76,60 +76,60 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 			}
 		}));
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, "Delete selected categories");
-        removeButton.addClickHandler(new ClickHandler(){
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, "Delete selected categories");
+		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<Category> delete = callback.getTableSelectedList();
-                String text = "Following categories will be deleted";
-                UiElements.showDeleteConfirm(delete, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<delete.size(); i++ ) {
-                            if (i == delete.size()-1) {
-                                DeleteCategory request = new DeleteCategory(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                request.deleteCategory(delete.get(i).getId());
-                            } else {
-                                DeleteCategory request = new DeleteCategory(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.deleteCategory(delete.get(i).getId());
-                            }
-                        }
-                    }
-                });
+				String text = "Following categories will be deleted";
+				UiElements.showDeleteConfirm(delete, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<delete.size(); i++ ) {
+							if (i == delete.size()-1) {
+								DeleteCategory request = new DeleteCategory(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.deleteCategory(delete.get(i).getId());
+							} else {
+								DeleteCategory request = new DeleteCategory(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.deleteCategory(delete.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
-        menu.addWidget(removeButton);
+		menu.addWidget(removeButton);
 
 		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in category ranks");
 		saveButton.addClickHandler(new ClickHandler(){
-            @Override
+			@Override
 			public void onClick(ClickEvent event) {
-                final ArrayList<Category> list = callback.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    for (int i=0; i<list.size(); i++ ) {
-                        if (i == list.size()-1) {
-                            UpdateCategory request = new UpdateCategory(JsonCallbackEvents.disableButtonEvents(saveButton, events));
-                            request.updateCategory(list.get(i));
-                        } else {
-                            UpdateCategory request = new UpdateCategory(JsonCallbackEvents.disableButtonEvents(saveButton));
-                            request.updateCategory(list.get(i));
-                        }
-                    }
-                }
+				final ArrayList<Category> list = callback.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+					for (int i=0; i<list.size(); i++ ) {
+						if (i == list.size()-1) {
+							UpdateCategory request = new UpdateCategory(JsonCallbackEvents.disableButtonEvents(saveButton, events));
+							request.updateCategory(list.get(i));
+						} else {
+							UpdateCategory request = new UpdateCategory(JsonCallbackEvents.disableButtonEvents(saveButton));
+							request.updateCategory(list.get(i));
+						}
+					}
+				}
 			}
 		});
-        menu.addWidget(saveButton);
+		menu.addWidget(saveButton);
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
 		CellTable<Category> table = callback.getTable();
 
-        removeButton.setEnabled(false);
-        saveButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, removeButton);
-        JsonUtils.addTableManagedButton(callback, table, saveButton);
+		removeButton.setEnabled(false);
+		saveButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeButton);
+		JsonUtils.addTableManagedButton(callback, table, saveButton);
 
 		table.addStyleName("perun-table");
 

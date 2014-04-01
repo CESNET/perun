@@ -54,7 +54,7 @@ public class GetApplicationDataById implements JsonCallback{
 
 	/**
 	 * Creates a new method instance
-     *
+	 *
 	 * @param id APPLICATION ID
 	 */
 	public GetApplicationDataById(int id) {
@@ -64,7 +64,7 @@ public class GetApplicationDataById implements JsonCallback{
 
 	/**
 	 * Creates a new method instance
-     *
+	 *
 	 * @param id APPLICATION ID
 	 * @param events Custom events
 	 */
@@ -133,7 +133,7 @@ public class GetApplicationDataById implements JsonCallback{
 
 		session.getUiElements().setLogText("Loading application form items in selected VO finished:" + applFormItems.size());
 		events.onFinished(jso);
-        loaderImage.setEmptyResultMessage("Application doesn't contain any data.");
+		loaderImage.setEmptyResultMessage("Application doesn't contain any data.");
 		loaderImage.loadingFinished();
 
 	}
@@ -145,7 +145,7 @@ public class GetApplicationDataById implements JsonCallback{
 	public void prepareApplicationForm(){
 
 		FlexTable ft = new FlexTable();
-        ft.setWidth("100%");
+		ft.setWidth("100%");
 		ft.setCellPadding(10);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 		String locale = "en";
@@ -198,10 +198,10 @@ public class GetApplicationDataById implements JsonCallback{
 					// format
 					fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);
 					fcf.setVerticalAlignment(i, 1, HasVerticalAlignment.ALIGN_TOP);
-                    fcf.setHorizontalAlignment(i, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-                    fcf.setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_LEFT);
-                    fcf.setWidth(i, 0, "25%");
-                    fcf.setWidth(i, 1, "75%");
+					fcf.setHorizontalAlignment(i, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+					fcf.setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_LEFT);
+					fcf.setWidth(i, 0, "25%");
+					fcf.setWidth(i, 1, "75%");
 
 				}
 
@@ -211,10 +211,10 @@ public class GetApplicationDataById implements JsonCallback{
 
 		}
 
-        // set empty text
-        if (!applFormItems.isEmpty()) {
-            contents.setWidget(ft);
-        }
+		// set empty text
+		if (!applFormItems.isEmpty()) {
+			contents.setWidget(ft);
+		}
 
 	}
 

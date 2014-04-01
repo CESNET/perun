@@ -46,7 +46,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private int facilityId = 0;
-    private int voId = 0;
+	private int voId = 0;
 	// oracle support
 	private ArrayList<FacilityState> fullBackup = new ArrayList<FacilityState>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
@@ -55,23 +55,23 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	 * New instance of get facility state
 	 *
 	 * @param facilityId - can be 0 if we want all facilities
-     * @param voId - if NOT ZERO, get all facilities related to this VO
+	 * @param voId - if NOT ZERO, get all facilities related to this VO
 	 */
 	public GetFacilityState(int facilityId, int voId) {
 		this.facilityId = facilityId;
-        this.voId = voId;
+		this.voId = voId;
 	}
 
 	/**
 	 * New instance of get facility state with external events
 	 *
 	 * @param facilityId - can be 0 if we want all facilities
-     * @param voId - if NOT ZERO, get all facilities related to this VO
+	 * @param voId - if NOT ZERO, get all facilities related to this VO
 	 * @param events external events
 	 */
 	public GetFacilityState(int facilityId, int voId, JsonCallbackEvents events) {
 		this.facilityId = facilityId;
-        this.voId = voId;
+		this.voId = voId;
 		this.events = events;
 	}
 
@@ -111,9 +111,9 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 					}
 				}, new FieldUpdater<FacilityState, String>(){
 					public void update(int index, FacilityState object, String value) {
-                        if (session.isPerunAdmin() || session.isFacilityAdmin(object.getFacility().getId())) {
-						    session.getTabManager().addTab(new FacilityDetailTabItem(object.getFacility(), 2));
-                        }
+						if (session.isPerunAdmin() || session.isFacilityAdmin(object.getFacility().getId())) {
+							session.getTabManager().addTab(new FacilityDetailTabItem(object.getFacility(), 2));
+						}
 					}
 				});
 
@@ -147,35 +147,35 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 			}
 		});
 
-        /*
-        // error column
-        Column<FacilityState, String> errorColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<FacilityState, String>() {
-                    public String getValue(FacilityState object) {
-                        Set<String> set = new HashSet<String>();
-                        for (int i=0; i<object.getTasksResults().length(); i++) {
-                            if (!set.contains(object.getTasksResults().get(i).getDestination().getDestination())) {
-                                set.add(object.getTasksResults().get(i).getDestination().getDestination());
-                            }
-                        }
-                        String result = "";
-                        ArrayList<String> list = new ArrayList<String>();
-                        for (String dest : set) {
-                            list.add(dest);
-                        }
-                        Collections.sort(list);
-                        for (String s : list) {
-                            result = result + s + ", ";
-                        }
-                        return result;
-                    }
-                }, null);
-        */
+		/*
+		// error column
+		Column<FacilityState, String> errorColumn = JsonUtils.addColumn(
+		new JsonUtils.GetValue<FacilityState, String>() {
+		public String getValue(FacilityState object) {
+		Set<String> set = new HashSet<String>();
+		for (int i=0; i<object.getTasksResults().length(); i++) {
+		if (!set.contains(object.getTasksResults().get(i).getDestination().getDestination())) {
+		set.add(object.getTasksResults().get(i).getDestination().getDestination());
+		}
+		}
+		String result = "";
+		ArrayList<String> list = new ArrayList<String>();
+		for (String dest : set) {
+		list.add(dest);
+		}
+		Collections.sort(list);
+		for (String s : list) {
+		result = result + s + ", ";
+		}
+		return result;
+		}
+		}, null);
+		*/
 
-        table.addColumn(facilityColumn, "Facility");
+		table.addColumn(facilityColumn, "Facility");
 		table.addColumn(typeColumn, "Type");
 		table.addColumn(statusColumn, "Propagation state");
-        //table.addColumn(errorColumn, "Nodes in error");
+		//table.addColumn(errorColumn, "Nodes in error");
 
 		// set row styles based on task state
 		table.setRowStyles(new RowStyles<FacilityState>(){
@@ -196,7 +196,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 				else if (row.getState().equalsIgnoreCase("ERROR")){
 					return "rowred";
 				}
-				return "";
+		return "";
 
 			}
 		});
@@ -205,120 +205,120 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<FacilityState>().sortByFacilityName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<FacilityState>().sortByFacilityName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object FacilityState to be added as new row
-     */
-    public void addToTable(FacilityState object) {
-        list.add(object);
-        oracle.add(object.getFacility().getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object FacilityState to be added as new row
+	 */
+	public void addToTable(FacilityState object) {
+		list.add(object);
+		oracle.add(object.getFacility().getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object FacilityState to be removed as row
-     */
-    public void removeFromTable(FacilityState object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object FacilityState to be removed as row
+	 */
+	public void removeFromTable(FacilityState object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<FacilityState> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<FacilityState> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading FacilityState");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading FacilityState");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading FacilityState started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading FacilityState started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<FacilityState>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("FacilityState loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<FacilityState>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("FacilityState loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, FacilityState object) {
-        list.add(index, object);
-        oracle.add(object.getFacility().getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, FacilityState object) {
+		list.add(index, object);
+		oracle.add(object.getFacility().getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<FacilityState> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<FacilityState> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<FacilityState> getList() {
-        return this.list;
-    }
+	public ArrayList<FacilityState> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Retrieve data from RPC
@@ -326,15 +326,15 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
 		if (facilityId != 0 ){
-            // get specific facility
+			// get specific facility
 			js.retrieveData(JSON_URL, "facility="+facilityId, this);
 		} else if (voId == 0) {
-            // get all facilities where user is admin
+			// get all facilities where user is admin
 			js.retrieveData("propagationStatsReader/getAllFacilitiesStates", this);
 		} else {
-            // get facilities related to VO
-            js.retrieveData("propagationStatsReader/getAllFacilitiesStates", "vo="+voId, this);
-        }
+			// get facilities related to VO
+			js.retrieveData("propagationStatsReader/getAllFacilitiesStates", "vo="+voId, this);
+		}
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle(){
@@ -348,11 +348,11 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
+		if (text.equalsIgnoreCase("")) {
 			list.addAll(fullBackup);
 		} else {
 			for (FacilityState fac : fullBackup){
@@ -362,10 +362,10 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 				}
 			}
 		}
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
-    }
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+	}
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;

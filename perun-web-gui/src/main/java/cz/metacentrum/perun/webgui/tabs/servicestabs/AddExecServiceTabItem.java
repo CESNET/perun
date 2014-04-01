@@ -53,7 +53,7 @@ public class AddExecServiceTabItem implements TabItem {
 	 */
 	private Label titleWidget = new Label("Loading service");
 
-    private static final String DEFAULT_DELAY = "60";
+	private static final String DEFAULT_DELAY = "60";
 
 	// data
 	private Service service;
@@ -61,8 +61,8 @@ public class AddExecServiceTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     * @param service
-     */
+	 * @param service
+	 */
 	public AddExecServiceTabItem(Service service){
 		this.service = service;
 		this.serviceId = service.getId();
@@ -79,49 +79,49 @@ public class AddExecServiceTabItem implements TabItem {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        layout.setWidth("350px");
-        FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		layout.setWidth("350px");
+		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // close tab events
-        final TabItem tab = this;
+		// close tab events
+		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
 		// define objects
 
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService());
+		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService());
 
-        final ListBoxWithObjects<Owner> owner = new ListBoxWithObjects<Owner>();
+		final ListBoxWithObjects<Owner> owner = new ListBoxWithObjects<Owner>();
 		final GetOwners owners = new GetOwners(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
-                if (own != null && !own.isEmpty()) {
-                    own = new TableSorter<Owner>().sortByName(own);
-                    owner.clear();
-                    for (int i=0; i<own.size(); i++){
-                        owner.addItem(own.get(i));
-                    }
-                    createButton.setEnabled(true);
-                } else {
-                    owner.clear();
-                    owner.addItem("No owners available");
-                }
+				if (own != null && !own.isEmpty()) {
+					own = new TableSorter<Owner>().sortByName(own);
+					owner.clear();
+					for (int i=0; i<own.size(); i++){
+						owner.addItem(own.get(i));
+					}
+					createButton.setEnabled(true);
+				} else {
+					owner.clear();
+					owner.addItem("No owners available");
+				}
 			}
-            @Override
-            public void onLoadingStart(){
-                owner.addItem("Loading...");
-                createButton.setEnabled(false);
-            }
-            @Override
-            public void onError(PerunError error){
-                owner.clear();
-                owner.addItem("Error while loading");
-                createButton.setEnabled(false);
-            }
+		@Override
+		public void onLoadingStart(){
+			owner.addItem("Loading...");
+			createButton.setEnabled(false);
+		}
+		@Override
+		public void onError(PerunError error){
+			owner.clear();
+			owner.addItem("Error while loading");
+			createButton.setEnabled(false);
+		}
 		});
 		owners.retrieveData();
 
@@ -137,37 +137,37 @@ public class AddExecServiceTabItem implements TabItem {
 		enabled.setValue(true);
 
 		final ExtendedTextBox delay = new ExtendedTextBox();
-        delay.getTextBox().setText(DEFAULT_DELAY);
+		delay.getTextBox().setText(DEFAULT_DELAY);
 
-        final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
-                    delay.setError("Delay must be a number (time in minutes) !");
-                    return false;
-                } else {
-                    delay.setOk();
-                    return true;
-                }
-            }
-        };
-        delay.setValidator(delayValidator);
+		final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
+					delay.setError("Delay must be a number (time in minutes) !");
+					return false;
+				} else {
+					delay.setOk();
+					return true;
+				}
+			}
+		};
+		delay.setValidator(delayValidator);
 
 		final ExtendedTextBox scriptPath = new ExtendedTextBox();
 
-        final ExtendedTextBox.TextBoxValidator scriptValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (scriptPath.getTextBox().getText().trim().isEmpty()) {
-                    scriptPath.setError("Script path can't be empty !");
-                    return false;
-                } else {
-                    scriptPath.setOk();
-                    return true;
-                }
-            }
-        };
-        scriptPath.setValidator(scriptValidator);
+		final ExtendedTextBox.TextBoxValidator scriptValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (scriptPath.getTextBox().getText().trim().isEmpty()) {
+					scriptPath.setError("Script path can't be empty !");
+					return false;
+				} else {
+					scriptPath.setOk();
+					return true;
+				}
+			}
+		};
+		scriptPath.setValidator(scriptValidator);
 
 		// layout
 		layout.setHTML(0, 0, "Service:");
@@ -184,39 +184,39 @@ public class AddExecServiceTabItem implements TabItem {
 		layout.setWidget(4, 1, scriptPath);
 		layout.setWidget(5, 1, owner);
 
-        // send button
-        createButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
+		// send button
+		createButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
 
-                if (delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
-                    int delayNum = Integer.parseInt(delay.getTextBox().getText().trim());
-                    InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                    request.addExecService(service, owner.getSelectedObject(), type.getValue(type.getSelectedIndex()), enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
-                }
-            }
-        });
+				if (delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
+					int delayNum = Integer.parseInt(delay.getTextBox().getText().trim());
+					InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					request.addExecService(service, owner.getSelectedObject(), type.getValue(type.getSelectedIndex()), enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+				}
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        createButton.setEnabled(false);
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		createButton.setEnabled(false);
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();

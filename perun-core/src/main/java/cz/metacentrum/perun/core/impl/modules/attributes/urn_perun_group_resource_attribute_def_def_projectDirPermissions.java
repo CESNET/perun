@@ -24,28 +24,28 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_group_resource_attribute_def_def_projectDirPermissions extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-      Integer permissions = (Integer) attribute.getValue();
-      //Permissions can be null (if null, it means DEFAULT 750)
-      if (permissions == null) return;
+	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Integer permissions = (Integer) attribute.getValue();
+		//Permissions can be null (if null, it means DEFAULT 750)
+		if (permissions == null) return;
 
-      String perm = permissions.toString();
+		String perm = permissions.toString();
 
-      //Only 3 consecutive numbers with value >=0 and <=7 are allowed
-      Pattern pattern = Pattern.compile("^[01234567]{3}$");
-      Matcher match = pattern.matcher(perm);
+		//Only 3 consecutive numbers with value >=0 and <=7 are allowed
+		Pattern pattern = Pattern.compile("^[01234567]{3}$");
+		Matcher match = pattern.matcher(perm);
 
-      if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectDirPermissions (expected something like '750').");
-      }
-    }
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectDirPermissions (expected something like '750').");
+		}
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-      attr.setFriendlyName("projectDirPermissions");
-      attr.setType(Integer.class.getName());
-      attr.setDescription("Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric format.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("projectDirPermissions");
+		attr.setType(Integer.class.getName());
+		attr.setDescription("Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric format.");
+		return attr;
+	}
 }

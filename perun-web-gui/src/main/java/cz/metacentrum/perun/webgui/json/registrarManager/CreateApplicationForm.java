@@ -31,7 +31,7 @@ public class CreateApplicationForm {
 	/**
 	 * Creates a new request
 	 *
-     * @param entity VO or GROUP
+	 * @param entity VO or GROUP
 	 * @param id ID of entity
 	 */
 	public CreateApplicationForm(PerunEntity entity, int id) {
@@ -42,7 +42,7 @@ public class CreateApplicationForm {
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param entity VO or GROUP
+	 * @param entity VO or GROUP
 	 * @param id ID of entity
 	 * @param events Custom events
 	 */

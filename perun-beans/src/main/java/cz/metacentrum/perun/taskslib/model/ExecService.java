@@ -63,9 +63,9 @@ public class ExecService extends PerunBean implements Serializable {
 		this.execServiceType = execServiceType;
 	}
 
-        public String getBeanName(){
-                return this.getClass().getSimpleName();
-        }
+	public String getBeanName(){
+		return this.getClass().getSimpleName();
+	}
 
 	@Override
 	public int hashCode() {
@@ -96,39 +96,39 @@ public class ExecService extends PerunBean implements Serializable {
 	public Service getService() {
 		return service;
 	}
-/*
+	/*
+		 @Override
+		 public String toString() {
+		 String toBeReturned = null;
+		 if(service != null && execServiceType != null) {
+		 toBeReturned = "ExecService:[id:"+getId()+", name:"+service.getName()+", type:"+execServiceType.toString()+"]";
+		 } else {
+		 toBeReturned = "ExecService:[id:"+getId()+", name:null, type:null]";
+		 }
+		 return toBeReturned;
+		 }
+		 */
+	@Override
+	public String serializeToString() {
+		return this.getClass().getSimpleName() +":[" +
+			"id=<" + getId() + ">" +
+			", name=<" + (service == null ? "\\0" : BeansUtils.createEscaping(service.getName())) + ">" +
+			", type=<" + (execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString()))+ ">" +
+			", service=<" + (getService()== null ? "\\0" : getService().serializeToString()) + ">" +
+			']';
+	}
+
 	@Override
 	public String toString() {
-		String toBeReturned = null;
-		if(service != null && execServiceType != null) {
-			toBeReturned = "ExecService:[id:"+getId()+", name:"+service.getName()+", type:"+execServiceType.toString()+"]";
-		} else {
-			toBeReturned = "ExecService:[id:"+getId()+", name:null, type:null]";
-		}
-		return toBeReturned;
+		String serviceName = null;
+		if(service != null && service.getName() != null) serviceName = service.getName();
+		String exSrvType = null;
+		if(execServiceType != null) exSrvType = execServiceType.toString();
+		return getClass().getSimpleName() + ":["
+			+ "id='" + getId()
+			+ "', name='" + serviceName
+			+ "', type='" + exSrvType
+			+ "', service='" + getService()
+			+ "']";
 	}
-*/
-        @Override
-        public String serializeToString() {
-            return this.getClass().getSimpleName() +":[" +
-                    "id=<" + getId() + ">" +
-                    ", name=<" + (service == null ? "\\0" : BeansUtils.createEscaping(service.getName())) + ">" +
-                    ", type=<" + (execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString()))+ ">" +
-                    ", service=<" + (getService()== null ? "\\0" : getService().serializeToString()) + ">" +
-                    ']';
-        }
-
-        @Override
-        public String toString() {
-            String serviceName = null;
-            if(service != null && service.getName() != null) serviceName = service.getName();
-            String exSrvType = null;
-            if(execServiceType != null) exSrvType = execServiceType.toString();
-            return getClass().getSimpleName() + ":["
-                    + "id='" + getId()
-                    + "', name='" + serviceName
-                    + "', type='" + exSrvType
-                    + "', service='" + getService()
-                    + "']";
-        }
 }

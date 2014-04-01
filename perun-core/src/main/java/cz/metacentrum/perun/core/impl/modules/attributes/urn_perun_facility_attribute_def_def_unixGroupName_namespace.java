@@ -25,25 +25,25 @@ import java.util.Iterator;
  */
 public class urn_perun_facility_attribute_def_def_unixGroupName_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    private final static Logger log = LoggerFactory.getLogger(urn_perun_facility_attribute_def_def_unixGID_namespace.class);
+	private final static Logger log = LoggerFactory.getLogger(urn_perun_facility_attribute_def_def_unixGID_namespace.class);
 
-  public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
-      if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
+	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
-      try {
-	  sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
-	  sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
-      } catch (AttributeNotExistsException e) {
-	  throw new WrongAttributeValueException(attribute, e);
-      }
-  }
+		try {
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
+		} catch (AttributeNotExistsException e) {
+			throw new WrongAttributeValueException(attribute, e);
+		}
+	}
 
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-    attr.setFriendlyName("unixGroupName-namespace");
-    attr.setType(String.class.getName());
-    attr.setDescription("Namespace of UnixGroupName.");
-    return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("unixGroupName-namespace");
+		attr.setType(String.class.getName());
+		attr.setDescription("Namespace of UnixGroupName.");
+		return attr;
+	}
 }

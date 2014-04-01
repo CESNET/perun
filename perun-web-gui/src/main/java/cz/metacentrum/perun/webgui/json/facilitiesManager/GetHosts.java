@@ -46,10 +46,10 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private int facilityId = 0;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    // oracle
-    private ArrayList<Host> backupList = new ArrayList<Host>();
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private boolean checkable = true; // default is checkable
+	// oracle
+	private ArrayList<Host> backupList = new ArrayList<Host>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private boolean checkable = true; // default is checkable
 
 	/**
 	 * Creates a new instance of the request
@@ -101,7 +101,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
-        loaderImage.setEmptyResultMessage("Facility has no hosts.");
+		loaderImage.setEmptyResultMessage("Facility has no hosts.");
 
 		// Sorting
 		ListHandler<Host> columnSortHandler = new ListHandler<Host>(dataProvider.getList());
@@ -114,26 +114,26 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		table.setEmptyTableWidget(loaderImage);
 
 		// columns
-        if (checkable) {
-            table.addCheckBoxColumn();
-        }
+		if (checkable) {
+			table.addCheckBoxColumn();
+		}
 		table.addIdColumn("Host ID", tableFieldUpdater);
 
-        // NAME COLUMN
-        Column<Host, String> nameColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Host, String>() {
-            public String getValue(Host host) {
-                return host.getName();
-            }
-        },tableFieldUpdater);
+		// NAME COLUMN
+		Column<Host, String> nameColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Host, String>() {
+			public String getValue(Host host) {
+				return host.getName();
+			}
+		},tableFieldUpdater);
 
-        nameColumn.setSortable(true);
-        columnSortHandler.setComparator(nameColumn, new Comparator<Host>() {
-            public int compare(Host o1, Host o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+		nameColumn.setSortable(true);
+		columnSortHandler.setComparator(nameColumn, new Comparator<Host>() {
+			public int compare(Host o1, Host o2) {
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
 
-        table.addColumn(nameColumn, "Hostname");
+		table.addColumn(nameColumn, "Hostname");
 
 		return table;
 
@@ -147,169 +147,169 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		js.retrieveData(JSON_URL, "facility="+facilityId, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<Host>().sortByHostname(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<Host>().sortByHostname(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(Host object) {
-        list.add(object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(Host object) {
+		list.add(object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(Host object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(Host object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        backupList.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		backupList.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Host> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Host> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Hosts.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Hosts.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Hosts started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Hosts started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Host>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Hosts loaded: " + list.size());
-        events.onFinished(jso);
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Host>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Hosts loaded: " + list.size());
+		events.onFinished(jso);
 
-    }
+	}
 
-    public void insertToTable(int index, Host object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Host object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Host> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Host object : list) {
-            oracle.add(object.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Host> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Host object : list) {
+			oracle.add(object.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Host> getList() {
-        return this.list;
-    }
+	public ArrayList<Host> getList() {
+		return this.list;
+	}
 
-    @Override
-    public void filterTable(String filter) {
+	@Override
+	public void filterTable(String filter) {
 
-        // store list only for first time
-        if (backupList.isEmpty() || backupList == null) {
-            backupList.addAll(list);
-        }
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(backupList);
-        } else {
-            for (Host o: backupList){
-                // store owner by filter
-                if (o.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(o);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (Host o: backupList){
+				// store owner by filter
+				if (o.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(o);
+				}
+			}
+		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No host matching '"+filter+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("Facility has no hosts.");
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No host matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("Facility has no hosts.");
+		}
 
-        loaderImage.loadingFinished();
-        dataProvider.flush();
-        dataProvider.refresh();
+		loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
 
-    }
+	}
 
-    @Override
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    @Override
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 }

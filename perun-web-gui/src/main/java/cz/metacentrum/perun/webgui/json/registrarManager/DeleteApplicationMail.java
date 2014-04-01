@@ -32,7 +32,7 @@ public class DeleteApplicationMail {
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param entity VO or GROUP
 	 */
 	public DeleteApplicationMail(PerunEntity entity) {
@@ -42,7 +42,7 @@ public class DeleteApplicationMail {
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param entity VO or GROUP
+	 * @param entity VO or GROUP
 	 * @param events Custom events
 	 */
 	public DeleteApplicationMail(PerunEntity entity, JsonCallbackEvents events) {

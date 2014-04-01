@@ -44,7 +44,7 @@ public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 	}
 
 	public Set<String> getConsumedEvents() {
-	    return consumedEvents;
+		return consumedEvents;
 	}
 
 	@Override

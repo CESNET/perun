@@ -30,11 +30,11 @@ public class GetGroupsCount implements JsonCallback {
 
 	// Label with number
 	private Label groupsCountLabel = new Label();
-    private Hyperlink hyp = new Hyperlink();
+	private Hyperlink hyp = new Hyperlink();
 
 	/**
 	 * Creates a new instance of the method
-     *
+	 *
 	 * @param id VO id.
 	 */
 	public GetGroupsCount(int id) {
@@ -43,7 +43,7 @@ public class GetGroupsCount implements JsonCallback {
 
 	/**
 	 * Creates a new instance of the method
-     *
+	 *
 	 * @param id VO id.
 	 */
 	public GetGroupsCount(int id, JsonCallbackEvents events) {
@@ -85,7 +85,7 @@ public class GetGroupsCount implements JsonCallback {
 		BasicOverlayType count = (BasicOverlayType) jso;
 		session.getUiElements().setLogText("Loading groups count finished: " + count.getInt());
 		this.groupsCountLabel.setText(String.valueOf(count.getInt()));
-        this.hyp.setText(String.valueOf(count.getInt()));
+		this.hyp.setText(String.valueOf(count.getInt()));
 		this.events.onFinished(jso);
 	}
 
@@ -98,16 +98,16 @@ public class GetGroupsCount implements JsonCallback {
 		return this.groupsCountLabel;
 	}
 
-    /**
-     * Returns the groups count as hyperlink
-     * to VO-Groups
-     *
-     * @return hyperlink
-     */
-    public Hyperlink getGroupsCountHyperlink()
-    {
-        hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoGroupsTabItem(voId)));
-        return this.hyp;
-    }
+	/**
+	 * Returns the groups count as hyperlink
+	 * to VO-Groups
+	 *
+	 * @return hyperlink
+	 */
+	public Hyperlink getGroupsCountHyperlink()
+	{
+		hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoGroupsTabItem(voId)));
+		return this.hyp;
+	}
 
 }

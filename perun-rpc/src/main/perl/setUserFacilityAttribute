@@ -8,27 +8,27 @@ use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
-return qq{
-Sets the user facility attribute. Facility id or name, user id and attribute value and attribute id or name are required.
----------------------------------------------------------------
-Available options:
- --facilityId      | -f facility id
- --facilityName    | -F facility name
- --facilityType    | -t facility type
- --userId          | -u user id
- --attributeId     | -a attribute id
- --attributeName   | -A attribute name including namespace
- --attributeValue  | -w attribute value
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Sets the user facility attribute. Facility id or name, user id and attribute value and attribute id or name are required.
+	---------------------------------------------------------------
+	Available options:
+	--facilityId      | -f facility id
+	--facilityName    | -F facility name
+	--facilityType    | -t facility type
+	--userId          | -u user id
+	--attributeId     | -a attribute id
+	--attributeName   | -A attribute name including namespace
+	--attributeValue  | -w attribute value
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $attributeId, $attributeName, @attributeValue, $userId);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId,
+"facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
  "userId|u=i" => \$userId,
@@ -43,18 +43,18 @@ unless (defined($userId)) {die "ERROR: userId is required \n";}
 
 my $agent = Perun::Agent->new();
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
 } else {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
 }
 
 # Get the attribute definition and create the attribute

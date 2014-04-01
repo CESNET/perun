@@ -79,13 +79,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 	private int userId;
 
-    private ArrayList<Attribute> userLoginAttrs = new ArrayList<Attribute>();
+	private ArrayList<Attribute> userLoginAttrs = new ArrayList<Attribute>();
 
 	/**
 	 * Creates a new view user class
 	 *
-     * @param user
-     */
+	 * @param user
+	 */
 	public UserDetailTabItem(User user){
 		this.user = user;
 		this.userId = user.getId();
@@ -94,15 +94,15 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a new view user class
 	 *
-     * @param userId
-     */
+	 * @param userId
+	 */
 	public UserDetailTabItem(int userId){
 		this.userId = userId;
 		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-			{
-				user = jso.cast();
-			}
+		{
+			user = jso.cast();
+		}
 		}).retrieveData();
 	}
 
@@ -136,9 +136,9 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		final SimplePanel sp4 = new SimplePanel(); // Ext identities
 		final SimplePanel sp5 = new SimplePanel(); // Publications
 		final SimplePanel sp6 = new SimplePanel(); // Certificates, logins, passwords
-        final SimplePanel sp7 = new SimplePanel(); // Service identities
+		final SimplePanel sp7 = new SimplePanel(); // Service identities
 
-        session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
+		session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
 
 		tabPanel.add(sp0, "Information overview");
 		tabPanel.add(sp1, "Vos, Groups, Accounts");
@@ -148,19 +148,19 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		tabPanel.add(sp5, "Publications");
 		tabPanel.add(sp6, "Certificates, Logins, Passwords");
 
-        if (user.isServiceUser()) {
-            tabPanel.add(sp7, "Associated users");
-        } else {
-            tabPanel.add(sp7, "Service identities");
-        }
+		if (user.isServiceUser()) {
+			tabPanel.add(sp7, "Associated users");
+		} else {
+			tabPanel.add(sp7, "Service identities");
+		}
 
-        sp0.setWidget(loadInformationOverview());
+		sp0.setWidget(loadInformationOverview());
 
 		final TabItem publications = new UsersPublicationsTabItem(user);
 
 		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 
-		public void onSelection(SelectionEvent<Integer> event) {
+			public void onSelection(SelectionEvent<Integer> event) {
 				UiElements.runResizeCommands(tab);
 				setLastTabId(event.getSelectedItem());
 				if (0 == event.getSelectedItem()) {
@@ -188,14 +188,14 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 						sp5.setWidget(publications.draw());
 					}
 				} else if (6 == event.getSelectedItem()) {
-                    if (sp6.getWidget() == null) {
-                        sp6.setWidget(loadCertificatesLoginsPasswords());
-                    }
-                } else if (7 == event.getSelectedItem()) {
-                    if (sp7.getWidget() == null) {
-                        sp7.setWidget(loadServiceIdentities());
-                    }
-                };
+					if (sp6.getWidget() == null) {
+						sp6.setWidget(loadCertificatesLoginsPasswords());
+					}
+				} else if (7 == event.getSelectedItem()) {
+					if (sp7.getWidget() == null) {
+						sp7.setWidget(loadServiceIdentities());
+					}
+				};
 			}
 		});
 
@@ -239,42 +239,42 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		extendedInfoVp.add(userHeader);
 		extendedInfoVp.setCellHeight(userHeader, "30px");
 
-        final TabItem tab = this;
-        final JsonCallbackEvents events = new JsonCallbackEvents() {
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                tab.draw();
-            }
-        };
-        CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
-        change.addClickHandler(new ClickHandler(){
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
-            }
-        });
+		final TabItem tab = this;
+		final JsonCallbackEvents events = new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				tab.draw();
+			}
+		};
+		CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
+			}
+		});
 
 		// detail content
-	    FlexTable layout = new FlexTable();
-	    layout.setCellSpacing(6);
-	    // Add some standard form options
-	    layout.setHTML(0, 0, "<strong>Full&nbsp;name:</strong>");
-	    layout.setHTML(0, 1, user.getFullNameWithTitles());
-        layout.setWidget(0, 2, change);
-	    layout.setHTML(0, 3, "<strong>User&nbsp;ID:</strong>");
-	    layout.setHTML(0, 4, String.valueOf(user.getId()));
-	    layout.setHTML(0, 5, "<strong>User&nbsp;type:</strong>");
-	    if (user.isServiceUser()) {
-	    	layout.setHTML(0, 6, "Service");
-	    } else {
-	    	layout.setHTML(0, 6, "Person");
-	    }
+		FlexTable layout = new FlexTable();
+		layout.setCellSpacing(6);
+		// Add some standard form options
+		layout.setHTML(0, 0, "<strong>Full&nbsp;name:</strong>");
+		layout.setHTML(0, 1, user.getFullNameWithTitles());
+		layout.setWidget(0, 2, change);
+		layout.setHTML(0, 3, "<strong>User&nbsp;ID:</strong>");
+		layout.setHTML(0, 4, String.valueOf(user.getId()));
+		layout.setHTML(0, 5, "<strong>User&nbsp;type:</strong>");
+		if (user.isServiceUser()) {
+			layout.setHTML(0, 6, "Service");
+		} else {
+			layout.setHTML(0, 6, "Person");
+		}
 
-	    // wrap the content in a DecoratorPanel
-	    DecoratorPanel decPanel = new DecoratorPanel();
-	    decPanel.setWidget(layout);
-	    extendedInfoVp.add(decPanel);
+		// wrap the content in a DecoratorPanel
+		DecoratorPanel decPanel = new DecoratorPanel();
+		decPanel.setWidget(layout);
+		extendedInfoVp.add(decPanel);
 
-	    // user attributes
+		// user attributes
 
 		final GetAttributesV2 attributes = new GetAttributesV2();
 		attributes.getUserAttributes(user.getId());
@@ -290,56 +290,56 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 
 		final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for user");
-        saveAttrButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		saveAttrButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                ArrayList<Attribute> list = attributes.getTableSelectedList();
-                if (list == null || list.isEmpty()) {
-                    Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-                    c.show();
-                    return;
-                }
+				ArrayList<Attribute> list = attributes.getTableSelectedList();
+				if (list == null || list.isEmpty()) {
+					Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
+					c.show();
+					return;
+				}
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
 
-                SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                request.setAttributes(ids, list);
+				SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+				request.setAttributes(ids, list);
 
-            }
-        });
-        menu.addWidget(saveAttrButton);
+			}
+		});
+		menu.addWidget(saveAttrButton);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for user", new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for user", new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
-                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
 
-            }
-        }));
+			}
+		}));
 
-        final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes from user");
-        removeAttrButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes from user");
+		removeAttrButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                ArrayList<Attribute> list = attributes.getTableSelectedList();
-                if (list == null || list.isEmpty()) {
-                    Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-                    c.show();
-                    return;
-                }
+				ArrayList<Attribute> list = attributes.getTableSelectedList();
+				if (list == null || list.isEmpty()) {
+					Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
+					c.show();
+					return;
+				}
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
 
-                RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                request.removeAttributes(ids, list);
+				RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+				request.removeAttributes(ids, list);
 
-            }
-        });
-        menu.addWidget(removeAttrButton);
+			}
+		});
+		menu.addWidget(removeAttrButton);
 
 		extendedInfoVp.add(menu);
 		extendedInfoVp.add(tableAttributes);
@@ -395,24 +395,24 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		final CustomButton removeUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Removes selected external identities from this user");
-        removeUserExtSourceButton.addClickHandler(new ClickHandler() {
+		removeUserExtSourceButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                final ArrayList<UserExtSource> list = extSources.getTableSelectedList();
-                UiElements.showDeleteConfirm(list, "Following external identities will be removed from user.", new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        for (int i=0; i<list.size(); i++ ) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                            if (i == list.size()-1) {
-                                    RemoveUserExtSource request = new RemoveUserExtSource(JsonCallbackEvents.disableButtonEvents(removeUserExtSourceButton, reloadTabEvents));
-                                    request.removeUserExtSource(user.getId(), list.get(i).getId());
-                                } else {
-                                    RemoveUserExtSource request = new RemoveUserExtSource(JsonCallbackEvents.disableButtonEvents(removeUserExtSourceButton));
-                                    request.removeUserExtSource(user.getId(), list.get(i).getId());
-                                }
-                        }
-                    }
-                });
+				final ArrayList<UserExtSource> list = extSources.getTableSelectedList();
+				UiElements.showDeleteConfirm(list, "Following external identities will be removed from user.", new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						for (int i=0; i<list.size(); i++ ) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+							if (i == list.size()-1) {
+								RemoveUserExtSource request = new RemoveUserExtSource(JsonCallbackEvents.disableButtonEvents(removeUserExtSourceButton, reloadTabEvents));
+								request.removeUserExtSource(user.getId(), list.get(i).getId());
+							} else {
+								RemoveUserExtSource request = new RemoveUserExtSource(JsonCallbackEvents.disableButtonEvents(removeUserExtSourceButton));
+								request.removeUserExtSource(user.getId(), list.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
@@ -428,12 +428,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
-        vp.setCellHeight(sp, "100%");
+		vp.setCellHeight(sp, "100%");
 
-        session.getUiElements().resizeSmallTabPanel(sp, 320, this);
+		session.getUiElements().resizeSmallTabPanel(sp, 320, this);
 
-        removeUserExtSourceButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(extSources, table, removeUserExtSourceButton);
+		removeUserExtSourceButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(extSources, table, removeUserExtSourceButton);
 
 		return vp;
 
@@ -441,15 +441,15 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 	private Widget loadResources(){
 
-        cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources resources = new cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources(user.getId(), PerunEntity.USER);
+		cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources resources = new cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources(user.getId(), PerunEntity.USER);
 		resources.setCheckable(false);
-        CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
-            @Override
-            public void update(int index, RichResource object, String value) {
-                // show as vo admin
-                session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
-            }
-        });
+		CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
+			@Override
+			public void update(int index, RichResource object, String value) {
+				// show as vo admin
+				session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
+			}
+		});
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
@@ -495,8 +495,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 		JsonCallbackEvents events = new JsonCallbackEvents(){
 			@Override
-            public void onFinished(JavaScriptObject jso) {
-                listbox.clear();
+			public void onFinished(JavaScriptObject jso) {
+				listbox.clear();
 				ArrayList<VirtualOrganization> list = JsonUtils.jsoAsList(jso);
 				list = new TableSorter<VirtualOrganization>().sortByShortName(list);
 				for (int i=0; i<list.size(); i++){
@@ -506,18 +506,18 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					loadMemberSubContent(subContent, voLabel, listbox);
 				};
 			}
-            @Override
-            public void onLoadingStart() {
-                listbox.clear();
-                listbox.addItem("Loading...");
-            }
-            @Override
-            public void onError(PerunError error) {
-                listbox.clear();
-                listbox.addItem("Error while loading");
-            }
+			@Override
+			public void onLoadingStart() {
+				listbox.clear();
+				listbox.addItem("Loading...");
+			}
+			@Override
+			public void onError(PerunError error) {
+				listbox.clear();
+				listbox.addItem("Error while loading");
+			}
 
-        };
+		};
 
 		GetVosWhereUserIsMember vosCall = new GetVosWhereUserIsMember(user.getId(), events);
 		vosCall.retrieveData();
@@ -559,11 +559,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				entryPanel.setCellHeight(memberHeader, "30px");
 
 				// detail content
-			    FlexTable layout = new FlexTable();
-			    layout.setCellSpacing(6);
-			    // Add some standard form options
-			    layout.setHTML(0, 0, "<strong>Member&nbsp;ID:</strong>");
-			    layout.setHTML(0, 1, String.valueOf(member.getId()));
+				FlexTable layout = new FlexTable();
+				layout.setCellSpacing(6);
+				// Add some standard form options
+				layout.setHTML(0, 0, "<strong>Member&nbsp;ID:</strong>");
+				layout.setHTML(0, 1, String.valueOf(member.getId()));
 
 				ImageResource ir = null;
 
@@ -614,14 +614,14 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 									public void onLoadingStart() {
 										subContent.setWidget(new AjaxLoaderImage());
 									}
-									public void onFinished(JavaScriptObject jso) {
-										subContent.setWidget(entryPanel);
-										gmbu.retrieveData();
-									}
-									public void onError(PerunError error) {
-										subContent.setWidget(entryPanel);
-										gmbu.retrieveData();
-									}
+								public void onFinished(JavaScriptObject jso) {
+									subContent.setWidget(entryPanel);
+									gmbu.retrieveData();
+								}
+								public void onError(PerunError error) {
+									subContent.setWidget(entryPanel);
+									gmbu.retrieveData();
+								}
 								});
 								call.setStatus(lb.getValue(lb.getSelectedIndex()));
 							}
@@ -630,48 +630,48 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					}
 				});
 
-                final ListBoxWithObjects<Resource> resList = new ListBoxWithObjects<Resource>();
+				final ListBoxWithObjects<Resource> resList = new ListBoxWithObjects<Resource>();
 
-                GetAssignedResources res = new GetAssignedResources(member.getId(), PerunEntity.MEMBER, new JsonCallbackEvents(){
-                    @Override
-                    public void onFinished(JavaScriptObject jso) {
-                        resList.clear();
-                        ArrayList<Resource> list = JsonUtils.jsoAsList(jso);
-                        if (list == null || list.isEmpty()){
-                            resList.addItem("No resources found");
-                        } else {
-                            list = new TableSorter<Resource>().sortByName(list);
-                            resList.addNotSelectedOption();
-                            resList.addAllItems(list);
-                        }
-                    }
-                    @Override
-                    public void onError(PerunError error) {
-                        resList.clear();
-                        resList.addItem("Error while loading");
-                    }
-                    @Override
-                    public void onLoadingStart() {
-                        resList.clear();
-                        resList.addItem("Loading...");
-                    }
-                });
-                res.retrieveData();
+				GetAssignedResources res = new GetAssignedResources(member.getId(), PerunEntity.MEMBER, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						resList.clear();
+						ArrayList<Resource> list = JsonUtils.jsoAsList(jso);
+						if (list == null || list.isEmpty()){
+							resList.addItem("No resources found");
+						} else {
+							list = new TableSorter<Resource>().sortByName(list);
+							resList.addNotSelectedOption();
+							resList.addAllItems(list);
+						}
+					}
+				@Override
+				public void onError(PerunError error) {
+					resList.clear();
+					resList.addItem("Error while loading");
+				}
+				@Override
+				public void onLoadingStart() {
+					resList.clear();
+					resList.addItem("Loading...");
+				}
+				});
+				res.retrieveData();
 
-                // link to member's detail
-                Hyperlink link = new Hyperlink();
-                link.setText("View detail");
-                layout.setHTML(2, 0, "<strong>Member's detail page:</strong>");
-                layout.setWidget(2, 1, link);
-                link.setTargetHistoryToken(session.getTabManager().getLinkForTab(new MemberDetailTabItem(member.getId(), 0)));
+				// link to member's detail
+				Hyperlink link = new Hyperlink();
+				link.setText("View detail");
+				layout.setHTML(2, 0, "<strong>Member's detail page:</strong>");
+				layout.setWidget(2, 1, link);
+				link.setTargetHistoryToken(session.getTabManager().getLinkForTab(new MemberDetailTabItem(member.getId(), 0)));
 
-			    // wrap the content in a DecoratorPanel
-			    DecoratorPanel decPanel = new DecoratorPanel();
-			    decPanel.setWidget(layout);
-			    entryPanel.add(decPanel);
+				// wrap the content in a DecoratorPanel
+				DecoratorPanel decPanel = new DecoratorPanel();
+				decPanel.setWidget(layout);
+				entryPanel.add(decPanel);
 				entryPanel.setCellHeight(decPanel, "50px");
 
-			    // tables
+				// tables
 
 				// detail header
 				Widget groupHeader = new HTML("<h2>" + "Member groups" + "</h2>");
@@ -695,77 +695,77 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				final GetAttributesV2 attributes = new GetAttributesV2();
 				attributes.getMemberAttributes(member.getId());
 
-                resList.addChangeHandler(new ChangeHandler() {
-                    @Override
-                    public void onChange(ChangeEvent event) {
-                        if (resList.getSelectedIndex() == 0) {
-                            attributes.getMemberAttributes(member.getId());
-                            attributes.retrieveData();
-                        } else {
-                            attributes.getMemberResourceAttributes(member.getId(), resList.getSelectedObject().getId());
-                            attributes.retrieveData();
-                        }
-                    }
-                });
+				resList.addChangeHandler(new ChangeHandler() {
+					@Override
+					public void onChange(ChangeEvent event) {
+						if (resList.getSelectedIndex() == 0) {
+							attributes.getMemberAttributes(member.getId());
+							attributes.retrieveData();
+						} else {
+							attributes.getMemberResourceAttributes(member.getId(), resList.getSelectedObject().getId());
+							attributes.retrieveData();
+						}
+					}
+				});
 
 				TabMenu menu = new TabMenu();
 
-                final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for member");
-                saveAttrButton.addClickHandler(new ClickHandler(){
+				final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for member");
+				saveAttrButton.addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event) {
 
-                        ArrayList<Attribute> list = attributes.getTableSelectedList();
+						ArrayList<Attribute> list = attributes.getTableSelectedList();
 						if (UiElements.cantSaveEmptyListDialogBox(list)) {
 
-                            Map<String, Integer> ids = new HashMap<String,Integer>();
-                            ids.put("member", member.getId());
-                            if (resList.getSelectedIndex() > 0) {
-                                ids.put("resource", resList.getSelectedObject().getId());
-                            }
+							Map<String, Integer> ids = new HashMap<String,Integer>();
+							ids.put("member", member.getId());
+							if (resList.getSelectedIndex() > 0) {
+								ids.put("resource", resList.getSelectedObject().getId());
+							}
 
-                            SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                            request.setAttributes(ids, list);
+							SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+							request.setAttributes(ids, list);
 
 
-                        }
+						}
 
 					}
 				});
-                menu.addWidget(saveAttrButton);
+				menu.addWidget(saveAttrButton);
 
 				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for member", new ClickHandler() {
-                    public void onClick(ClickEvent event) {
+					public void onClick(ClickEvent event) {
 
-                        Map<String, Integer> ids = new HashMap<String,Integer>();
-                        ids.put("member", member.getId());
-                        if (resList.getSelectedIndex() > 0) {
-                            ids.put("resource", resList.getSelectedObject().getId());
-                        }
-                        session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
+						Map<String, Integer> ids = new HashMap<String,Integer>();
+						ids.put("member", member.getId());
+						if (resList.getSelectedIndex() > 0) {
+							ids.put("resource", resList.getSelectedObject().getId());
+						}
+						session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
 
-                    }
-                }));
+					}
+				}));
 
-                final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes from member");
-                removeAttrButton.addClickHandler(new ClickHandler() {
-                    public void onClick(ClickEvent event) {
-                        ArrayList<Attribute> list = attributes.getTableSelectedList();
-                        if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                            Map<String, Integer> ids = new HashMap<String, Integer>();
-                            ids.put("member", member.getId());
-                            if (resList.getSelectedIndex() > 0) {
-                                ids.put("resource", resList.getSelectedObject().getId());
-                            }
-                            RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                            request.removeAttributes(ids, list);
+				final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes from member");
+				removeAttrButton.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						ArrayList<Attribute> list = attributes.getTableSelectedList();
+						if (UiElements.cantSaveEmptyListDialogBox(list)) {
+							Map<String, Integer> ids = new HashMap<String, Integer>();
+							ids.put("member", member.getId());
+							if (resList.getSelectedIndex() > 0) {
+								ids.put("resource", resList.getSelectedObject().getId());
+							}
+							RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+							request.removeAttributes(ids, list);
 
-                        }
-                    }
-                });
+						}
+					}
+				});
 				menu.addWidget(removeAttrButton);
 
-                menu.addWidget(new HTML("<strong>Resource:</strong>"));
-                menu.addWidget(resList);
+				menu.addWidget(new HTML("<strong>Resource:</strong>"));
+				menu.addWidget(resList);
 
 				entryPanel.add(menu);
 
@@ -794,89 +794,89 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		final VerticalPanel attributesTable = new VerticalPanel();
 		//attributesTable.setStyleName("userDetailTable");
 
-        // clear logins when page refreshed
-        userLoginAttrs.clear();
+		// clear logins when page refreshed
+		userLoginAttrs.clear();
 
-        // ids used for attribute handling
-        Map<String, Integer> ids = new HashMap<String, Integer>();
-        ids.put("user", userId);
+		// ids used for attribute handling
+		Map<String, Integer> ids = new HashMap<String, Integer>();
+		ids.put("user", userId);
 
-        // attribute table
-        final PerunAttributeTableWidget table = new PerunAttributeTableWidget(ids);
-        table.setDescriptionShown(true);
+		// attribute table
+		final PerunAttributeTableWidget table = new PerunAttributeTableWidget(ids);
+		table.setDescriptionShown(true);
 
-        // load data
-        GetListOfAttributes attributes = new GetListOfAttributes(new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
+		// load data
+		GetListOfAttributes attributes = new GetListOfAttributes(new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
 
-                userLoginAttrs.addAll(JsonUtils.<Attribute>jsoAsList(jso));
+				userLoginAttrs.addAll(JsonUtils.<Attribute>jsoAsList(jso));
 
-                userLoginAttrs = new TableSorter<Attribute>().sortByAttrNameTranslation(userLoginAttrs);
-                for (Attribute a : userLoginAttrs) {
+				userLoginAttrs = new TableSorter<Attribute>().sortByAttrNameTranslation(userLoginAttrs);
+				for (Attribute a : userLoginAttrs) {
 					if (a.getFriendlyName().equalsIgnoreCase("userCertificates")) {
-                        table.add(a);
-                    } else if (a.getFriendlyName().equalsIgnoreCase("sshPublicKey")) {
-                        table.add(a);
-                    } else if (a.getFriendlyName().equalsIgnoreCase("kerberosAdminPrincipal")) {
-                        table.add(a);
-                    }  else if (a.getFriendlyName().equalsIgnoreCase("sshPublicAdminKey")) {
-                        table.add(a);
-                    }
-                }
-                // build attr table
-                table.build();
+						table.add(a);
+					} else if (a.getFriendlyName().equalsIgnoreCase("sshPublicKey")) {
+						table.add(a);
+					} else if (a.getFriendlyName().equalsIgnoreCase("kerberosAdminPrincipal")) {
+						table.add(a);
+					}  else if (a.getFriendlyName().equalsIgnoreCase("sshPublicAdminKey")) {
+						table.add(a);
+					}
+				}
+				// build attr table
+				table.build();
 
-                // content
-                VerticalPanel vpContent = new VerticalPanel();
-                vpContent.add(table.asWidget());
+				// content
+				VerticalPanel vpContent = new VerticalPanel();
+				vpContent.add(table.asWidget());
 
-                FlexTable innerTable = new FlexTable();
-                innerTable.setCellPadding(10);
-                vpContent.add(innerTable);
+				FlexTable innerTable = new FlexTable();
+				innerTable.setCellPadding(10);
+				vpContent.add(innerTable);
 
-                // set content to page
-                attributesTable.add(vpContent);
+				// set content to page
+				attributesTable.add(vpContent);
 
-                int rowCount = 0;
+				int rowCount = 0;
 
-                for (final Attribute a : userLoginAttrs) {
-                    if (a.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
-                        if (a.getValueAsObject() != null) {
-                            // name
-                            innerTable.setHTML(rowCount, 0, "<strong>"+a.getDisplayName()+"</strong>");
-                            // value
-                            innerTable.setHTML(rowCount, 1, a.getValue());
-                            // change password
-                            if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
-                                CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
-                                    public void onClick(ClickEvent event) {
-                                        session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
-                                    }
-                                });
-                                innerTable.setWidget(rowCount, 2, cb);
-                            }
-                            rowCount++;
-                        }
-                    }
-                }
-            }
-        });
+				for (final Attribute a : userLoginAttrs) {
+					if (a.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
+						if (a.getValueAsObject() != null) {
+							// name
+							innerTable.setHTML(rowCount, 0, "<strong>"+a.getDisplayName()+"</strong>");
+							// value
+							innerTable.setHTML(rowCount, 1, a.getValue());
+							// change password
+							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
+								CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+									public void onClick(ClickEvent event) {
+										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
+									}
+								});
+								innerTable.setWidget(rowCount, 2, cb);
+							}
+							rowCount++;
+						}
+					}
+				}
+			}
+		});
 
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("urn:perun:user:attribute-def:def:userCertificates");
-        list.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
-        list.add("urn:perun:user:attribute-def:def:sshPublicKey");
-        list.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:mu");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:einfra");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:sitola");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:egi-ui");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:cesnet");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:meta");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:einfra-services");
-        list.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
-        // TODO - remove SHONGO
-        attributes.getListOfAttributes(ids, list);
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("urn:perun:user:attribute-def:def:userCertificates");
+		list.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
+		list.add("urn:perun:user:attribute-def:def:sshPublicKey");
+		list.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:mu");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:einfra");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:sitola");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:egi-ui");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:cesnet");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:meta");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:einfra-services");
+		list.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
+		// TODO - remove SHONGO
+		attributes.getListOfAttributes(ids, list);
 
 		return attributesTable;
 	}
@@ -907,9 +907,9 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 		JsonCallbackEvents events = new JsonCallbackEvents(){
 			@Override
-            public void onFinished(JavaScriptObject jso) {
+			public void onFinished(JavaScriptObject jso) {
 				listbox.clear();
-                ArrayList<Facility> list = JsonUtils.jsoAsList(jso);
+				ArrayList<Facility> list = JsonUtils.jsoAsList(jso);
 				list = new TableSorter<Facility>().sortByName(list);
 				for (int i=0; i<list.size(); i++){
 					listbox.addItem(list.get(i));
@@ -918,17 +918,17 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					loadFacilitySubContent(subContent, facilityLabel, listbox);
 				}
 			}
-            @Override
-            public void onLoadingStart() {
-                listbox.clear();
-                listbox.addItem("Loading...");
-            }
-            @Override
-            public void onError(PerunError error) {
-                listbox.clear();
-                listbox.addItem("Error while loading");
-            }
-        };
+			@Override
+			public void onLoadingStart() {
+				listbox.clear();
+				listbox.addItem("Loading...");
+			}
+			@Override
+			public void onError(PerunError error) {
+				listbox.clear();
+				listbox.addItem("Error while loading");
+			}
+		};
 
 		GetAssignedFacilities facCall = new GetAssignedFacilities(PerunEntity.USER, user.getId(), events);
 		facCall.retrieveData();
@@ -958,59 +958,59 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 		TabMenu menu = new TabMenu();
 
-        final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes");
-        saveAttrButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes");
+		saveAttrButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                ArrayList<Attribute> list = attributes.getTableSelectedList();
-                if (list == null || list.isEmpty()) {
-                    Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-                    c.show();
-                    return;
-                }
+				ArrayList<Attribute> list = attributes.getTableSelectedList();
+				if (list == null || list.isEmpty()) {
+					Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
+					c.show();
+					return;
+				}
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
-                ids.put("facility", listbox.getSelectedObject().getId());
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
+				ids.put("facility", listbox.getSelectedObject().getId());
 
-                SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                request.setAttributes(ids, list);
+				SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+				request.setAttributes(ids, list);
 
-            }
-        });
-        menu.addWidget(saveAttrButton);
+			}
+		});
+		menu.addWidget(saveAttrButton);
 
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes", new ClickHandler() {
-            public void onClick(ClickEvent event) {
+			public void onClick(ClickEvent event) {
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
-                ids.put("facility", listbox.getSelectedObject().getId());
-                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
+				ids.put("facility", listbox.getSelectedObject().getId());
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attributes.getList()), true);
 
-            }
-        }));
+			}
+		}));
 
-        final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes");
-        removeAttrButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		final CustomButton removeAttrButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove attributes");
+		removeAttrButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                ArrayList<Attribute> list = attributes.getTableSelectedList();
-                if (list == null || list.isEmpty()) {
-                    Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
-                    c.show();
-                    return;
-                }
+				ArrayList<Attribute> list = attributes.getTableSelectedList();
+				if (list == null || list.isEmpty()) {
+					Confirm c = new Confirm("No changes to save", new Label("You must select some attributes to save."), true);
+					c.show();
+					return;
+				}
 
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("user", userId);
-                ids.put("facility", listbox.getSelectedObject().getId());
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("user", userId);
+				ids.put("facility", listbox.getSelectedObject().getId());
 
-                RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
-                request.removeAttributes(ids, list);
+				RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeAttrButton, JsonCallbackEvents.refreshTableEvents(attributes)));
+				request.removeAttributes(ids, list);
 
-            }
-        });
+			}
+		});
 		menu.addWidget(removeAttrButton);
 
 		entryPanel.add(menu);
@@ -1030,177 +1030,177 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 	}
 
-    public VerticalPanel loadServiceIdentities(){
+	public VerticalPanel loadServiceIdentities(){
 
-        // Content
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		// Content
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        if (user.isServiceUser()) {
+		if (user.isServiceUser()) {
 
-            // SERVICE TYPE user
+			// SERVICE TYPE user
 
-            // request
-            final GetUsersByServiceUser request = new GetUsersByServiceUser(userId);
+			// request
+			final GetUsersByServiceUser request = new GetUsersByServiceUser(userId);
 
-            // menu
-            TabMenu menu = new TabMenu();
-            vp.add(menu);
-            vp.setCellHeight(menu, "30px");
+			// menu
+			TabMenu menu = new TabMenu();
+			vp.add(menu);
+			vp.setCellHeight(menu, "30px");
 
-            // buttons
-            menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
-                public void onClick(ClickEvent clickEvent) {
-                    session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
-                }
-            }));
+			// buttons
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
+				}
+			}));
 
-            final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove user from service identity "+user.getLastName());
-            menu.addWidget(removeUserButton);
-            removeUserButton.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent clickEvent) {
+			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove user from service identity "+user.getLastName());
+			menu.addWidget(removeUserButton);
+			removeUserButton.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
 
-                    final ArrayList<User> list = request.getTableSelectedList();
-                    final ArrayList<User> fullList = request.getList();
+					final ArrayList<User> list = request.getTableSelectedList();
+					final ArrayList<User> fullList = request.getList();
 
-                    if (fullList.size() == list.size()) {
+					if (fullList.size() == list.size()) {
 
-                        UiElements.generateAlert("Remove warning", "<strong><span class=\"serverResponseLabelError\">If you remove all users from service identity you won't be able to use it in the future.</br></br>Please consider keeping at least one user, e.g. add someone else before you remove yourself.</span></strong><p><strong>Do you wish to continue anyway ?</strong>", new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent event) {
+						UiElements.generateAlert("Remove warning", "<strong><span class=\"serverResponseLabelError\">If you remove all users from service identity you won't be able to use it in the future.</br></br>Please consider keeping at least one user, e.g. add someone else before you remove yourself.</span></strong><p><strong>Do you wish to continue anyway ?</strong>", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
 
-                                UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose all access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, you won't be able to use it in future!", new ClickHandler() {
-                                    @Override
-                                    public void onClick(ClickEvent event) {
-                                        for (int i = 0; i < list.size(); i++) {
-                                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                                            RemoveServiceUserOwner req;
-                                            if (i == list.size() - 1) {
-                                                req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
-                                            } else {
-                                                req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
-                                            }
-                                            req.removeServiceUser(list.get(i), user);
+								UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose all access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, you won't be able to use it in future!", new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent event) {
+										for (int i = 0; i < list.size(); i++) {
+											// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+											RemoveServiceUserOwner req;
+											if (i == list.size() - 1) {
+												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+											} else {
+												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+											}
+											req.removeServiceUser(list.get(i), user);
 
-                                            // TODO - consider fixing authz in session ?
+											// TODO - consider fixing authz in session ?
 
-                                        }
-                                    }
-                                });
+										}
+									}
+								});
 
-                            }
-                        });
+							}
+						});
 
-                    } else {
+					} else {
 
-                        // if not selected myself, continue same way
-                        UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, it will be deleted too!", new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent event) {
-                                for (int i = 0; i < list.size(); i++) {
-                                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                                    RemoveServiceUserOwner req;
-                                    if (i == list.size() - 1) {
-                                        req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
-                                    } else {
-                                        req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
-                                    }
-                                    req.removeServiceUser(list.get(i), user);
+						// if not selected myself, continue same way
+						UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, it will be deleted too!", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								for (int i = 0; i < list.size(); i++) {
+									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+									RemoveServiceUserOwner req;
+									if (i == list.size() - 1) {
+										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+									} else {
+										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+									}
+									req.removeServiceUser(list.get(i), user);
 
-                                    // TODO - consider fixing authz in session ?
+									// TODO - consider fixing authz in session ?
 
-                                }
-                            }
-                        });
+								}
+							}
+						});
 
-                    }
+					}
 
-                }
-            });
+				}
+			});
 
-            // table
-            CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
-                public void update(int i, User user, String s) {
-                    session.getTabManager().addTab(new UserDetailTabItem(user));
-                }
-            });
+			// table
+			CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
+				public void update(int i, User user, String s) {
+					session.getTabManager().addTab(new UserDetailTabItem(user));
+				}
+			});
 
-            removeUserButton.setEnabled(false);
-            JsonUtils.addTableManagedButton(request, table, removeUserButton);
+			removeUserButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(request, table, removeUserButton);
 
-            table.addStyleName("perun-table");
-            table.setWidth("100%");
-            ScrollPanel sp = new ScrollPanel(table);
-            sp.addStyleName("perun-tableScrollPanel");
+			table.addStyleName("perun-table");
+			table.setWidth("100%");
+			ScrollPanel sp = new ScrollPanel(table);
+			sp.addStyleName("perun-tableScrollPanel");
 
-            vp.add(sp);
+			vp.add(sp);
 
-        } else {
+		} else {
 
-            // PERSON TYPE user
+			// PERSON TYPE user
 
-            // request
-            final GetServiceUsersByUser request = new GetServiceUsersByUser(userId);
+			// request
+			final GetServiceUsersByUser request = new GetServiceUsersByUser(userId);
 
-            // menu
-            TabMenu menu = new TabMenu();
-            vp.add(menu);
-            vp.setCellHeight(menu, "30px");
+			// menu
+			TabMenu menu = new TabMenu();
+			vp.add(menu);
+			vp.setCellHeight(menu, "30px");
 
-            // buttons
-            menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new service identity to "+user.getFullName(), new ClickHandler() {
-                public void onClick(ClickEvent clickEvent) {
-                    session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
-                }
-            }));
+			// buttons
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new service identity to "+user.getFullName(), new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
+				}
+			}));
 
-            final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove service identity from "+user.getFullName());
-            menu.addWidget(removeUserButton);
-            removeUserButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    final ArrayList<User> list = request.getTableSelectedList();
-                    UiElements.showDeleteConfirm(list, "Following service identities will be removed from user.", new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                            for (int i=0; i<list.size(); i++ ) {
-                                RemoveServiceUserOwner req;
-                                // if last, refresh
-                                if(i == list.size() - 1) {
-                                    req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
-                                } else {
-                                    req = new RemoveServiceUserOwner();
-                                }
-                                req.removeServiceUser(user, list.get(i));
-                            }
-                        }
-                    });
-                }
-            });
+			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove service identity from "+user.getFullName());
+			menu.addWidget(removeUserButton);
+			removeUserButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					final ArrayList<User> list = request.getTableSelectedList();
+					UiElements.showDeleteConfirm(list, "Following service identities will be removed from user.", new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+							for (int i=0; i<list.size(); i++ ) {
+								RemoveServiceUserOwner req;
+								// if last, refresh
+								if(i == list.size() - 1) {
+									req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
+								} else {
+									req = new RemoveServiceUserOwner();
+								}
+								req.removeServiceUser(user, list.get(i));
+							}
+						}
+					});
+				}
+			});
 
-            // table
-            CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
-                public void update(int i, User user, String s) {
-                    session.getTabManager().addTab(new UserDetailTabItem(user));
-                }
-            });
+			// table
+			CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
+				public void update(int i, User user, String s) {
+					session.getTabManager().addTab(new UserDetailTabItem(user));
+				}
+			});
 
-            removeUserButton.setEnabled(false);
-            JsonUtils.addTableManagedButton(request, table, removeUserButton);
+			removeUserButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(request, table, removeUserButton);
 
-            table.addStyleName("perun-table");
-            table.setWidth("100%");
-            ScrollPanel sp = new ScrollPanel(table);
-            sp.addStyleName("perun-tableScrollPanel");
+			table.addStyleName("perun-table");
+			table.setWidth("100%");
+			ScrollPanel sp = new ScrollPanel(table);
+			sp.addStyleName("perun-tableScrollPanel");
 
-            vp.add(sp);
+			vp.add(sp);
 
-        }
+		}
 
-        return vp;
+		return vp;
 
-    }
+	}
 
 	public Widget getWidget() {
 		return this.contentWidget;
@@ -1259,8 +1259,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open() {
-        session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", PerunAdminTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"users", user.getFullNameWithTitles(), getUrlWithParameters());
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", PerunAdminTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"users", user.getFullNameWithTitles(), getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

@@ -239,101 +239,101 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=ExtSourceNotExistsException.class)
-	public void getExtSourceByNameWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceByNameWhenExtSourceNotExists()");
+		public void getExtSourceByNameWhenExtSourceNotExist() throws Exception {
+			System.out.println(CLASS_NAME + "getExtSourceByNameWhenExtSourceNotExists()");
 
-		extSourcesManagerEntry.getExtSourceByName(sess, "nonsense");
-		// shouldn't find ext source
+			extSourcesManagerEntry.getExtSourceByName(sess, "nonsense");
+			// shouldn't find ext source
 
-	}
+		}
 
 	@Test (expected=ExtSourceNotExistsException.class)
-	public void getExtSourceByIdWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceByIdWhenExtSourceNotExists()");
+		public void getExtSourceByIdWhenExtSourceNotExist() throws Exception {
+			System.out.println(CLASS_NAME + "getExtSourceByIdWhenExtSourceNotExists()");
 
-		extSourcesManagerEntry.getExtSourceById(sess, 0);
-		// shouldn't find ext source
+			extSourcesManagerEntry.getExtSourceById(sess, 0);
+			// shouldn't find ext source
 
-	}
+		}
 
 	@Test (expected=VoNotExistsException.class)
-	public void addExtSourceWhenVoNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenVoNotExists()");
+		public void addExtSourceWhenVoNotExists() throws Exception {
+			System.out.println(CLASS_NAME + "addExtSourceWhenVoNotExists()");
 
-		ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
+			ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
 
-		extSourcesManagerEntry.addExtSource(sess, new Vo(), source);
-		// shouldn't find VO
+			extSourcesManagerEntry.addExtSource(sess, new Vo(), source);
+			// shouldn't find VO
 
-	}
+		}
 
 	@Test (expected=ExtSourceNotExistsException.class)
-	public void addExtSourceWhenExtSourceNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceNotExists()");
+		public void addExtSourceWhenExtSourceNotExists() throws Exception {
+			System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceNotExists()");
 
-		ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
-		source.setId(0);
+			ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
+			source.setId(0);
 
-		VosManager vosManager = perun.getVosManager();
-		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
+			VosManager vosManager = perun.getVosManager();
+			Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
 
-		extSourcesManagerEntry.addExtSource(sess, createdVo, source);
-		// shouldn't find Ext Source
+			extSourcesManagerEntry.addExtSource(sess, createdVo, source);
+			// shouldn't find Ext Source
 
-	}
+		}
 
 	@Test (expected=ExtSourceAlreadyAssignedException.class)
-	public void addExtSourceWhenExtSourceAlreadyAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceAlreadyAssigned()");
+		public void addExtSourceWhenExtSourceAlreadyAssigned() throws Exception {
+			System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceAlreadyAssigned()");
 
-		ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
+			ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
 
-		VosManager vosManager = perun.getVosManager();
-		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
+			VosManager vosManager = perun.getVosManager();
+			Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
 
-		extSourcesManagerEntry.addExtSource(sess, createdVo, source);
-		extSourcesManagerEntry.addExtSource(sess, createdVo, source);
-		// shouldn't add same ext source twice
+			extSourcesManagerEntry.addExtSource(sess, createdVo, source);
+			extSourcesManagerEntry.addExtSource(sess, createdVo, source);
+			// shouldn't add same ext source twice
 
-	}
+		}
 
 	@Test (expected=ExtSourceNotAssignedException.class)
-	public void removeExtSourceWhenExtSourceNotAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotAssigned()");
+		public void removeExtSourceWhenExtSourceNotAssigned() throws Exception {
+			System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotAssigned()");
 
-		ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
+			ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
 
-		VosManager vosManager = perun.getVosManager();
-		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
+			VosManager vosManager = perun.getVosManager();
+			Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
 
-		extSourcesManagerEntry.removeExtSource(sess, createdVo, source);
-		// shouldn't find not assigned ext source
+			extSourcesManagerEntry.removeExtSource(sess, createdVo, source);
+			// shouldn't find not assigned ext source
 
-	}
+		}
 
 	@Test (expected=ExtSourceNotExistsException.class)
-	public void removeExtSourceWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotExist()");
+		public void removeExtSourceWhenExtSourceNotExist() throws Exception {
+			System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotExist()");
 
-		ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
+			ExtSource source = extSourcesManagerEntry.getExtSourceByName(sess, "LDAPMU");
 
-		VosManager vosManager = perun.getVosManager();
-		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
+			VosManager vosManager = perun.getVosManager();
+			Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
 
-		source.setId(0);
+			source.setId(0);
 
-		extSourcesManagerEntry.removeExtSource(sess, createdVo, source);
-		// shouldn't find invalid ext source
+			extSourcesManagerEntry.removeExtSource(sess, createdVo, source);
+			// shouldn't find invalid ext source
 
-	}
+		}
 
 	@Test (expected=VoNotExistsException.class)
-	public void getVoExtSourcesWhenVoNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "getVoExtSourcesWhenVoNotExists()");
+		public void getVoExtSourcesWhenVoNotExists() throws Exception {
+			System.out.println(CLASS_NAME + "getVoExtSourcesWhenVoNotExists()");
 
-		extSourcesManagerEntry.getVoExtSources(sess, new Vo());
+			extSourcesManagerEntry.getVoExtSources(sess, new Vo());
 
-	}
+		}
 
 
 	// private methods --------------------------------------------------------

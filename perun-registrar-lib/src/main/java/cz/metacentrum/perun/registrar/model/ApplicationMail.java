@@ -15,76 +15,76 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
 public class ApplicationMail {
 
 	// locale const
-    public static final Locale EN = new Locale("en");
-    public static final Locale CS = new Locale("cs");
+	public static final Locale EN = new Locale("en");
+	public static final Locale CS = new Locale("cs");
 
-    /**
-     * Available mail types
-     */
-    public enum MailType {
+	/**
+	 * Available mail types
+	 */
+	public enum MailType {
 
-    	/**
-    	 * Notification for user when application is created
-    	 */
-    	APP_CREATED_USER,
+		/**
+		 * Notification for user when application is created
+		 */
+		APP_CREATED_USER,
 
-    	/**
-    	 * Notification to VO administrator when application is created
-    	 */
-    	APP_CREATED_VO_ADMIN,
+			/**
+			 * Notification to VO administrator when application is created
+			 */
+			APP_CREATED_VO_ADMIN,
 
-    	/**
-    	 * Notification to user for email address validation
-    	 */
-    	MAIL_VALIDATION,
+			/**
+			 * Notification to user for email address validation
+			 */
+			MAIL_VALIDATION,
 
-    	/**
-    	 * Notification to user when application is approved
-    	 */
-    	APP_APPROVED_USER,
+			/**
+			 * Notification to user when application is approved
+			 */
+			APP_APPROVED_USER,
 
-    	/**
-    	 * Notification to user when application is rejected
-    	 */
-    	APP_REJECTED_USER,
+			/**
+			 * Notification to user when application is rejected
+			 */
+			APP_REJECTED_USER,
 
-        /**
-         * Notification to VO administrator if auto approved application ends with error and is not approved.
-         */
-        APP_ERROR_VO_ADMIN;
+			/**
+			 * Notification to VO administrator if auto approved application ends with error and is not approved.
+			 */
+			APP_ERROR_VO_ADMIN;
 
-    }
+	}
 
-    /**
-     * Object params
-     */
-    private int id;
-    private AppType appType;       // if mail is related to initial or extension application
-    private int formId;            // connection to correct application form (VO)
-    private MailType mailType;     // to what "action" is notification related
-    private boolean send = true; // if sending email is enabled or disabled (enabled by default)
-    // localized mail text (EN and CS by default)
-    private Map<Locale, MailText> message = new HashMap<Locale, MailText>(3); {
-    	message.put(CS,new MailText(CS));
-    	message.put(EN,new MailText(EN));
-    }
+	/**
+	 * Object params
+	 */
+	private int id;
+	private AppType appType;       // if mail is related to initial or extension application
+	private int formId;            // connection to correct application form (VO)
+	private MailType mailType;     // to what "action" is notification related
+	private boolean send = true; // if sending email is enabled or disabled (enabled by default)
+	// localized mail text (EN and CS by default)
+	private Map<Locale, MailText> message = new HashMap<Locale, MailText>(3); {
+		message.put(CS,new MailText(CS));
+		message.put(EN,new MailText(EN));
+	}
 
-    public ApplicationMail(){};
+	public ApplicationMail(){};
 
-    public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send) {
-    	this.id = id;
-    	this.appType = appType;
-    	this.formId = formId;
-    	this.mailType = mailType;
-    	this.send = send;
-    }
+	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send) {
+		this.id = id;
+		this.appType = appType;
+		this.formId = formId;
+		this.mailType = mailType;
+		this.send = send;
+	}
 
-    public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message) {
-    	this(id, appType, formId, mailType, send);
-    	this.message = message;
-    }
+	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message) {
+		this(id, appType, formId, mailType, send);
+		this.message = message;
+	}
 
-    /**
+	/**
 	 * @return the id
 	 */
 	public int getId() {
@@ -169,13 +169,13 @@ public class ApplicationMail {
 	 * @return the message
 	 */
 	public MailText getMessage(Locale locale) {
-        MailText texts = message.get(locale);
-        if(texts==null) {
-            texts = new MailText();
-            message.put(locale,texts);
-        }
-        return texts;
-    }
+		MailText texts = message.get(locale);
+		if(texts==null) {
+			texts = new MailText();
+			message.put(locale,texts);
+		}
+		return texts;
+	}
 
 	/**
 	 * @param message the message to set
@@ -184,14 +184,14 @@ public class ApplicationMail {
 		this.message = message;
 	}
 
-    /**
-     * Return bean name as PerunBean does.
-     *
-     * @return Class simple name (beanName)
-     */
-    public String getBeanName() {
-        return this.getClass().getSimpleName();
-    }
+	/**
+	 * Return bean name as PerunBean does.
+	 *
+	 * @return Class simple name (beanName)
+	 */
+	public String getBeanName() {
+		return this.getClass().getSimpleName();
+	}
 
 	@Override
 	public int hashCode() {
@@ -216,53 +216,53 @@ public class ApplicationMail {
 	}
 
 	@Override
-    public String toString() {
-    	return this.getClass().getSimpleName()+":[" +
-    			"id='" + getId() + '\'' +
-    			", appType='" + getAppType().toString() + '\'' +
-    			", formId='" + getFormId() + '\'' +
-    			", mailType='" + getMailType().toString() + '\'' +
-    			", send='" + getSend() + '\'' +
-    			", message='" + getMessage().toString() + '\'' +
-    			']';
-    }
+	public String toString() {
+		return this.getClass().getSimpleName()+":[" +
+			"id='" + getId() + '\'' +
+			", appType='" + getAppType().toString() + '\'' +
+			", formId='" + getFormId() + '\'' +
+			", mailType='" + getMailType().toString() + '\'' +
+			", send='" + getSend() + '\'' +
+			", message='" + getMessage().toString() + '\'' +
+			']';
+	}
 
 	/**
-     * Inner class used for localized texts in mail message
-     */
-    public static class MailText {
-        private Locale locale;
-        private String subject;
-        private String text;
+	 * Inner class used for localized texts in mail message
+	 */
+	public static class MailText {
+		private Locale locale;
+		private String subject;
+		private String text;
 
-        public MailText() {
-        }
+		public MailText() {
+		}
 
-        public MailText(Locale locale) {
-        	this.locale = locale;
-        }
+		public MailText(Locale locale) {
+			this.locale = locale;
+		}
 
-        public MailText(Locale locale, String subject, String text) {
-            this.locale = locale;
-            this.subject = subject;
-            this.text = text;
-        }
+		public MailText(Locale locale, String subject, String text) {
+			this.locale = locale;
+			this.subject = subject;
+			this.text = text;
+		}
 
-        public Locale getLocale() {
-            return locale;
-        }
+		public Locale getLocale() {
+			return locale;
+		}
 
-        public void setLocale(Locale locale) {
-            this.locale= locale ;
-        }
+		public void setLocale(Locale locale) {
+			this.locale= locale ;
+		}
 
-        public String getText() {
-            return text;
-        }
+		public String getText() {
+			return text;
+		}
 
-        public void setText(String text) {
-            this.text = text;
-        }
+		public void setText(String text) {
+			this.text = text;
+		}
 
 		public String getSubject() {
 			return subject;
@@ -273,14 +273,14 @@ public class ApplicationMail {
 		}
 
 		@Override
-        public String toString() {
-        	return this.getClass().getSimpleName()+":[" +
-        			"locale='" + getLocale() + '\'' +
-        			"subject='" + getSubject() + '\'' +
-        			", text='" + getText() + '\'' +
-        			']';
-        }
+		public String toString() {
+			return this.getClass().getSimpleName()+":[" +
+				"locale='" + getLocale() + '\'' +
+				"subject='" + getSubject() + '\'' +
+				", text='" + getText() + '\'' +
+				']';
+		}
 
-    }
+	}
 
 }

@@ -86,8 +86,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
 
 		try {
-		defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
-		fail();
+			defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
+			fail();
 		} catch (InternalErrorException ex) {
 			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
 		}
@@ -134,8 +134,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		attribute.setValue("mujShell");
 
 		try {
-		defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
-		fail();
+			defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
+			fail();
 		} catch (InternalErrorException ex) {
 			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
 		}

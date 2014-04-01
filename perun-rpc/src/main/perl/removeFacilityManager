@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes a Facility manager. User id and Facility are required fields.
-------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --userId       | -u user id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes a Facility manager. User id and Facility are required fields.
+	------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--userId       | -u user id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $userId, $facilityName, $facilityType, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId,
+"facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
  "userId|u=i" => \$userId) || die help();
@@ -36,8 +36,8 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId = $facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId = $facility->getId;
 }
 
 $facilitiesAgent->removeAdmin(facility => $facilityId, user => $userId);

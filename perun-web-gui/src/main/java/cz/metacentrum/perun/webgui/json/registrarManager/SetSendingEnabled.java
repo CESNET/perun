@@ -38,7 +38,7 @@ public class SetSendingEnabled {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param events Custom events
 	 */
 	public SetSendingEnabled(JsonCallbackEvents events) {
@@ -49,7 +49,7 @@ public class SetSendingEnabled {
 	 * Updates ApplicationMail
 	 *
 	 * @param appMails
-     * @param enabled
+	 * @param enabled
 	 */
 	public void setEnabled(ArrayList<ApplicationMail> appMails, boolean enabled) {
 

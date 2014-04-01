@@ -8,32 +8,32 @@ use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
-return qq{
-Sets the group attribute. Group id or group name and VO  and attribute id or name and attribute value are required fields.
----------------------------------------------------------------
-Available options:
- --groupId        | -g group id
- --groupName      | -G group name
- --voId           | -v vo id
- --voShortName    | -V vo short name
- --attributeId    | -a attribute id
- --attributeName  | -A attribute name including namespace
- --attributeValue | -w attribute value
- --batch          | -b batch
- --help           | -h prints this help
+	return qq{
+	Sets the group attribute. Group id or group name and VO  and attribute id or name and attribute value are required fields.
+	---------------------------------------------------------------
+	Available options:
+	--groupId        | -g group id
+	--groupName      | -G group name
+	--voId           | -v vo id
+	--voShortName    | -V vo short name
+	--attributeId    | -a attribute id
+	--attributeName  | -A attribute name including namespace
+	--attributeValue | -w attribute value
+	--batch          | -b batch
+	--help           | -h prints this help
 
-};
+	};
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $attributeId, $attributeName, @attributeValue);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-   "groupId|g=i" => \$groupId,
-   "groupName|G=s" => \$groupName,
-   "voId|v=i" => \$voId,
-   "voShortName|V=s" => \$voShortName,
-   "attributeId|a=i" => \$attributeId,
-   "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
+"groupId|g=i" => \$groupId,
+	 "groupName|G=s" => \$groupName,
+ "voId|v=i" => \$voId,
+	 "voShortName|V=s" => \$voShortName,
+ "attributeId|a=i" => \$attributeId,
+	 "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 
 
@@ -47,22 +47,22 @@ my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
 unless(defined($groupId)) {
-    unless (defined($voId)) {
-        my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-        $voId = $vo->getId;
-  }
+	unless (defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
 
-  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-  $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
 } else {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
 }
 
 # Get the attribute definition and create the attribute

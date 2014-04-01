@@ -70,8 +70,8 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param userId User ID
-     */
+	 * @param userId User ID
+	 */
 	public FindExternalPublications(int userId) {
 		this.userId = userId;
 	}
@@ -79,11 +79,11 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param userId User ID
-     * @param yearSince Year since
-     * @param yearTill Year till
-     * @param namespace namespace (MU, ZCU)
-     */
+	 * @param userId User ID
+	 * @param yearSince Year since
+	 * @param yearTill Year till
+	 * @param namespace namespace (MU, ZCU)
+	 */
 	public FindExternalPublications(int userId, int yearSince, int yearTill, String namespace) {
 		this(userId);
 		this.yearSince = yearSince;
@@ -94,9 +94,9 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param userId User ID
-     * @param events events
-     */
+	 * @param userId User ID
+	 * @param events events
+	 */
 	public FindExternalPublications(int userId, JsonCallbackEvents events) {
 		this(userId);
 		this.events = events;
@@ -105,12 +105,12 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	/**
 	 * Creates a new request
 	 *
-     * @param userId User ID
-     * @param yearSince Year since
-     * @param yearTill Year till
-     * @param namespace namespace (MU, ZCU)
-     * @param events events
-     */
+	 * @param userId User ID
+	 * @param yearSince Year since
+	 * @param yearTill Year till
+	 * @param namespace namespace (MU, ZCU)
+	 * @param events events
+	 */
 	public FindExternalPublications(int userId, int yearSince, int yearTill, String namespace, JsonCallbackEvents events) {
 		this(userId, yearSince, yearTill, namespace);
 		this.events = events;
@@ -118,7 +118,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 
 	/**
 	 * Returns table with publications
-     * @return table
+	 * @return table
 	 */
 	public CellTable<Publication> getTable(){
 		retrieveData();
@@ -151,7 +151,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage.prepareToSearch("Please select external pub. system and year range to search for publications for import."));
-        loaderImage.setEmptyResultMessage("No publications found in external system.");
+		loaderImage.setEmptyResultMessage("No publications found in external system.");
 
 		// show checkbox column
 		if(this.checkable) {
@@ -168,67 +168,67 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		categories.add("Jiné");
 
 		Column<Publication, String> categoryColumn = new Column<Publication, String>(new SelectionCell(categories)){
-			@Override
-			public String getValue(Publication object) {
-				// category ID as string, 0 if not set
-				int id = object.getCategoryId();
-				if (id == 0) {
-					// set default == 21/Bodované v RIVu to object
-					object.setCategoryId(21);
-				}
-				if (id == 21) {
-					return "Bodované v RIVu";
-				} else if (id == 22) {
-					return "Nebodované v RIVu";
-				} else if (id == 23) {
-					return "Výjimečné výsledky";
-				} else if (id == 24) {
-					return "Příspěvek do ročenky";
-				} else if (id == 25) {
-					return "Jiné";
-				} else {
-					return String.valueOf(id); // return ID if no match
-				}
-			}
+		@Override
+		public String getValue(Publication object) {
+		// category ID as string, 0 if not set
+		int id = object.getCategoryId();
+		if (id == 0) {
+		// set default == 21/Bodované v RIVu to object
+		object.setCategoryId(21);
+		}
+		if (id == 21) {
+		return "Bodované v RIVu";
+		} else if (id == 22) {
+		return "Nebodované v RIVu";
+		} else if (id == 23) {
+		return "Výjimečné výsledky";
+		} else if (id == 24) {
+		return "Příspěvek do ročenky";
+		} else if (id == 25) {
+		return "Jiné";
+		} else {
+		return String.valueOf(id); // return ID if no match
+		}
+		}
 		};
 		categoryColumn.setFieldUpdater(new FieldUpdater<Publication, String>() {
-			public void update(int index, Publication object, String value) {
+		public void update(int index, Publication object, String value) {
 
-				int id = 0;
-				if (value.equalsIgnoreCase("Bodované v RIVu")) {
-					id = 21;
-				} else if (value.equalsIgnoreCase("Nebodované v RIVu")) {
-					id = 22;
-				} else if (value.equalsIgnoreCase("Příspěvek do ročenky")) {
-					id = 24;
-				} else if (value.equalsIgnoreCase("Výjimečné výsledky")) {
-					id = 23;
-				} else if (value.equalsIgnoreCase("Jiné")) {
-					id = 25;
-				}
-				object.setCategoryId(id);
-				selectionModel.setSelected(object, true);
+		int id = 0;
+		if (value.equalsIgnoreCase("Bodované v RIVu")) {
+		id = 21;
+		} else if (value.equalsIgnoreCase("Nebodované v RIVu")) {
+		id = 22;
+		} else if (value.equalsIgnoreCase("Příspěvek do ročenky")) {
+		id = 24;
+		} else if (value.equalsIgnoreCase("Výjimečné výsledky")) {
+		id = 23;
+		} else if (value.equalsIgnoreCase("Jiné")) {
+		id = 25;
+		}
+		object.setCategoryId(id);
+		selectionModel.setSelected(object, true);
 
-			}
+		}
 		});
 		table.addColumn(categoryColumn, "Category");
 
 		// NOT USEFULL => DISABLED
 		// EXTERNAL ID
 		TextColumn<Publication> externalIdColumn = new TextColumn<Publication>() {
-			public String getValue(Publication object) {
-				return String.valueOf(object.getExternalId());
-			};
+		public String getValue(Publication object) {
+		return String.valueOf(object.getExternalId());
+		};
 		};
 		externalIdColumn.setSortable(true);
 		columnSortHandler.setComparator(externalIdColumn, new PublicationComparator(PublicationComparator.Column.EXTERNAL_ID));
 		table.addColumn(externalIdColumn, "External Id");
-		 */
+		*/
 
 		// TITLE COLUMN
 		TextColumn<Publication> titleColumn = new TextColumn<Publication>() {
 			public String getValue(Publication object) {
-                return object.getTitle();
+				return object.getTitle();
 			};
 		};
 		titleColumn.setSortable(true);
@@ -297,117 +297,117 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		return;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Publication>().sortByPublicationTitle(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Publication>().sortByPublicationTitle(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Publication to be added as new row
-     */
-    public void addToTable(Publication object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Publication to be added as new row
+	 */
+	public void addToTable(Publication object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Publication to be removed as row
-     */
-    public void removeFromTable(Publication object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Publication to be removed as row
+	 */
+	public void removeFromTable(Publication object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Publication> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Publication> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading publications.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading publications.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading publications started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading publications started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Publication>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Publications loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Publication>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Publications loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Publication object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Publication object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Publication> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Publication> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Publication> getList() {
-        return this.list;
-    }
+	public ArrayList<Publication> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Set user Id

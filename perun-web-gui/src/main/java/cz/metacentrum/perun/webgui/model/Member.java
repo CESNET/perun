@@ -18,66 +18,66 @@ public class Member extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-	public final native int getVoId() /*-{
-		return this.voId;
-	}-*/;
+		public final native int getVoId() /*-{
+			return this.voId;
+		}-*/;
 
-	public final native int getUserId() /*-{
-		return this.userId;
-	}-*/;
+		public final native int getUserId() /*-{
+			return this.userId;
+		}-*/;
 
-    /**
-     * Get membership type (context associated on member's retrieval)
-     *
-     * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
-     */
-    public final native String getMembershipType() /*-{
-        if (!this.membershipType) {
-            return "NOT_DETERMINED";
-        } else {
-            return this.membershipType;
-        }
-    }-*/;
+		/**
+		 * Get membership type (context associated on member's retrieval)
+		 *
+		 * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
+		 */
+		public final native String getMembershipType() /*-{
+			if (!this.membershipType) {
+			return "NOT_DETERMINED";
+			} else {
+			return this.membershipType;
+			}
+		}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.beanName) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.beanName) {
 			return "JavaScriptObject"
+			}
+			return this.beanName;
+		}-*/;
+
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.beanName = type;
+		}-*/;
+
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
+
+		/**
+		 * Compares to another object
+		 * @param o Object to compare
+		 * @return true, if they are the same
+		 */
+		public final boolean equals(Member o)
+		{
+			return o.getId() == this.getId();
 		}
-		return this.beanName;
-	}-*/;
-
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
-		this.beanName = type;
-	}-*/;
-
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
-
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Member o)
-	{
-		return o.getId() == this.getId();
-	}
 
 }

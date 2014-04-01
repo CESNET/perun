@@ -61,21 +61,21 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param resourceId ID of resource to get groups management for
-     */
+	 * @param resourceId ID of resource to get groups management for
+	 */
 	public ResourceAssignedGroupsTabItem(int resourceId){
 		this.resourceId = resourceId;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a tab instance
-     * @param resource resource to get groups management for
-     */
+	 * @param resource resource to get groups management for
+	 */
 	public ResourceAssignedGroupsTabItem(Resource resource){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -100,50 +100,50 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(resourceGroups);
 
 		CustomButton assignGroupButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToResource(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(resource), true);
-            }
-        });
-
-		final CustomButton removeGroupButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromResource());
-		removeGroupButton.addClickHandler(new ClickHandler() {
-            @Override
 			public void onClick(ClickEvent event) {
-                final ArrayList<Group> groupsForRemoving = resourceGroups.getTableSelectedList();
-                String text = "Following groups will be removed from resource.";
-                UiElements.showDeleteConfirm(groupsForRemoving, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        RemoveGroupsFromResource request = new RemoveGroupsFromResource(JsonCallbackEvents.disableButtonEvents(removeGroupButton, localEvents));
-                        request.removeGroupsFromResource(groupsForRemoving, resource);
-                    }
-                });
+				session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(resource), true);
 			}
 		});
 
-        if (!session.isVoAdmin(resource.getVoId())) {
-            resourceGroups.setCheckable(false);
-            assignGroupButton.setEnabled(false);
-        }
+		final CustomButton removeGroupButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromResource());
+		removeGroupButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<Group> groupsForRemoving = resourceGroups.getTableSelectedList();
+				String text = "Following groups will be removed from resource.";
+				UiElements.showDeleteConfirm(groupsForRemoving, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						RemoveGroupsFromResource request = new RemoveGroupsFromResource(JsonCallbackEvents.disableButtonEvents(removeGroupButton, localEvents));
+						request.removeGroupsFromResource(groupsForRemoving, resource);
+					}
+				});
+			}
+		});
+
+		if (!session.isVoAdmin(resource.getVoId())) {
+			resourceGroups.setCheckable(false);
+			assignGroupButton.setEnabled(false);
+		}
 
 		menu.addWidget(assignGroupButton);
 		menu.addWidget(removeGroupButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(resourceGroups.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                resourceGroups.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+		menu.addFilterWidget(new ExtendedSuggestBox(resourceGroups.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				resourceGroups.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
-        // display menu to vo admin only
-        if (session.isVoAdmin(resource.getVoId())) {
-            resourceGroups.setCheckable(true);
-            vp.add(menu);
-            vp.setCellHeight(menu,"30px");
-        } else {
-            resourceGroups.setCheckable(false);
-        }
+		// display menu to vo admin only
+		if (session.isVoAdmin(resource.getVoId())) {
+			resourceGroups.setCheckable(true);
+			vp.add(menu);
+			vp.setCellHeight(menu,"30px");
+		} else {
+			resourceGroups.setCheckable(false);
+		}
 
 		// table with field updater which leads to group detail
 		CellTable<Group> table = resourceGroups.getTable(new FieldUpdater<Group, String>(){
@@ -152,8 +152,8 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        removeGroupButton.setEnabled(false);
-        if (session.isVoAdmin(resource.getVoId())) JsonUtils.addTableManagedButton(resourceGroups, table, removeGroupButton);
+		removeGroupButton.setEnabled(false);
+		if (session.isVoAdmin(resource.getVoId())) JsonUtils.addTableManagedButton(resourceGroups, table, removeGroupButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");

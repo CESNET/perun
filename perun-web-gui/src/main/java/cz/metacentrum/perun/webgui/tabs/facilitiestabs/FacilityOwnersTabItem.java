@@ -57,8 +57,8 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param facility facility to get allowed Vos from
-     */
+	 * @param facility facility to get allowed Vos from
+	 */
 	public FacilityOwnersTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -67,15 +67,15 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facilityId facility ID to get allowed Vos from
-     */
+	 * @param facilityId facility ID to get allowed Vos from
+	 */
 	public FacilityOwnersTabItem(int facilityId){
 		this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -99,7 +99,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 		// AUTHZ
 		vp.add(menu);
-	    vp.setCellHeight(menu, "30px");
+		vp.setCellHeight(menu, "30px");
 
 		// add button
 		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewOwners());
@@ -114,33 +114,33 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<Owner> list = jsonCallback.getTableSelectedList();
-                UiElements.showDeleteConfirm(list, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<list.size(); i++) {
-                            if (i == list.size()-1) {
-                                RemoveOwner request = new RemoveOwner(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(jsonCallback)));
-                                request.removeFacilityOwner(facilityId, list.get(i).getId());
-                            } else {
-                                RemoveOwner request = new RemoveOwner(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeFacilityOwner(facilityId, list.get(i).getId());
-                            }
-                        }
-                    }
-                });
+				UiElements.showDeleteConfirm(list, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<list.size(); i++) {
+							if (i == list.size()-1) {
+								RemoveOwner request = new RemoveOwner(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(jsonCallback)));
+								request.removeFacilityOwner(facilityId, list.get(i).getId());
+							} else {
+								RemoveOwner request = new RemoveOwner(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.removeFacilityOwner(facilityId, list.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
-        menu.addWidget(addButton);
-        menu.addWidget(removeButton);
+		menu.addWidget(addButton);
+		menu.addWidget(removeButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(jsonCallback.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                jsonCallback.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterOwners());
+		menu.addFilterWidget(new ExtendedSuggestBox(jsonCallback.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				jsonCallback.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterOwners());
 
 		// TABLE
 		CellTable<Owner> table = jsonCallback.getTable();
@@ -150,8 +150,8 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 		vp.add(sp);
 
-        removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -200,7 +200,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Owners", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Owners", getUrlWithParameters());
 		if (facility != null){
 			session.setActiveFacility(facility);
 		} else {

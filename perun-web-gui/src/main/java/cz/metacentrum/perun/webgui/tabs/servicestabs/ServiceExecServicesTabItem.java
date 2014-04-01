@@ -63,8 +63,8 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Tab with ExecServices management for selected service
 	 *
-     * @param service service to get ExecServices for
-     */
+	 * @param service service to get ExecServices for
+	 */
 	public ServiceExecServicesTabItem(Service service){
 		this.service = service;
 		this.serviceId = service.getId();
@@ -73,15 +73,15 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Tab with ExecServices management for selected service
 	 *
-     * @param serviceId service to get ExecServices for
-     */
+	 * @param serviceId service to get ExecServices for
+	 */
 	public ServiceExecServicesTabItem(int serviceId){
 		this.serviceId = serviceId;
-        new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                service = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				service = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -110,33 +110,33 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 		// refresh event after deletion
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new AddExecServiceTabItem(service));
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new AddExecServiceTabItem(service));
+			}
+		}));
 
-        final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.deleteSelectedExecServices());
-        menu.addWidget(deleteButton);
-        deleteButton.addClickHandler(new ClickHandler() {
+		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.deleteSelectedExecServices());
+		menu.addWidget(deleteButton);
+		deleteButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                final ArrayList<ExecService> execToRemove = callback.getTableSelectedList();
-                UiElements.showDeleteConfirm(execToRemove, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<execToRemove.size(); i++ ) {
-                            if (i == execToRemove.size()-1) {
-                                DeleteExecService request = new DeleteExecService(JsonCallbackEvents.disableButtonEvents(deleteButton,events));
-                                request.deleteExecService(execToRemove.get(i).getId());
-                            } else {
-                                DeleteExecService request = new DeleteExecService(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                                request.deleteExecService(execToRemove.get(i).getId());
-                            }
-                        }
-                    }
-                });
+				final ArrayList<ExecService> execToRemove = callback.getTableSelectedList();
+				UiElements.showDeleteConfirm(execToRemove, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<execToRemove.size(); i++ ) {
+							if (i == execToRemove.size()-1) {
+								DeleteExecService request = new DeleteExecService(JsonCallbackEvents.disableButtonEvents(deleteButton,events));
+								request.deleteExecService(execToRemove.get(i).getId());
+							} else {
+								DeleteExecService request = new DeleteExecService(JsonCallbackEvents.disableButtonEvents(deleteButton));
+								request.deleteExecService(execToRemove.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
@@ -146,8 +146,8 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        deleteButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, deleteButton);
+		deleteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, deleteButton);
 
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");

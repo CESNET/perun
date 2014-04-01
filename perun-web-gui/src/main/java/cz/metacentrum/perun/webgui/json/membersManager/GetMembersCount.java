@@ -31,13 +31,13 @@ public class GetMembersCount implements JsonCallback {
 
 	// Label with number
 	private Label membersCountLabel = new Label();
-    private Hyperlink hyp = new Hyperlink();
+	private Hyperlink hyp = new Hyperlink();
 
 	private PerunStatus status;
 
 	/**
 	 * Creates a new instance of the method
-     *
+	 *
 	 * @param id VO id.
 	 * @param status PerunStatus
 	 */
@@ -48,7 +48,7 @@ public class GetMembersCount implements JsonCallback {
 
 	/**
 	 * Creates a new instance of the method
-     *
+	 *
 	 * @param id VO id.
 	 * @param status PerunStatus
 	 * @param events externalEvents
@@ -97,7 +97,7 @@ public class GetMembersCount implements JsonCallback {
 		BasicOverlayType count = (BasicOverlayType) jso;
 		session.getUiElements().setLogText("Loading members count finished: " + count.getInt());
 		this.membersCountLabel.setText(String.valueOf(count.getInt()));
-        this.hyp.setText(String.valueOf(count.getInt()));
+		this.hyp.setText(String.valueOf(count.getInt()));
 		this.events.onFinished(jso);
 	}
 
@@ -110,16 +110,16 @@ public class GetMembersCount implements JsonCallback {
 		return this.membersCountLabel;
 	}
 
-    /**
-     * Returns the Members count as hyperlink
-     * to VO-Members
-     *
-     * @return hyperlink
-     */
-    public Hyperlink getMembersCountHyperlink()
-    {
-        hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoMembersTabItem(voId)));
-        return this.hyp;
-    }
+	/**
+	 * Returns the Members count as hyperlink
+	 * to VO-Members
+	 *
+	 * @return hyperlink
+	 */
+	public Hyperlink getMembersCountHyperlink()
+	{
+		hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoMembersTabItem(voId)));
+		return this.hyp;
+	}
 
 }

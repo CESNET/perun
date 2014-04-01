@@ -8,55 +8,55 @@ use Perun::Agent;
 use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Resources assigned to User. Can be limited
-to resources from specified facility. User is required field.
----------------------------------------------------------
-Available options:
- --userId       | -u  user identifier
- --facilityId   | -f  facility identifier
- --facilityName | -F  facility name
- --facilityType | -t  facility type
- --orderById    | -i  order by numeric id
- --orderByName  | -n  order by short name (default)
- --batch        | -b  batch
- --help         | -h  prints this help
-};
+	return qq{
+	Prints list of Resources assigned to User. Can be limited
+	to resources from specified facility. User is required field.
+	---------------------------------------------------------
+	Available options:
+	--userId       | -u  user identifier
+	--facilityId   | -f  facility identifier
+	--facilityName | -F  facility name
+	--facilityType | -t  facility type
+	--orderById    | -i  order by numeric id
+	--orderByName  | -n  order by short name (default)
+	--batch        | -b  batch
+	--help         | -h  prints this help
+	};
 }
 
 our $batch;
 my ($userId, $facilityId, $facilityName, $facilityType, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "userId|u=i" => \$userId,
-           "facilityId|f=i" => \$facilityId,
-           "facilityName|F=s" => \$facilityName,
-           "facilityType|t=s" => \$facilityType,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) },
-           "batch|b" => \$batch) || die help;
+	"userId|u=i" => \$userId,
+"facilityId|f=i" => \$facilityId,
+					 "facilityName|F=s" => \$facilityName,
+				 "facilityType|t=s" => \$facilityType,
+			 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+			 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) },
+			 "batch|b" => \$batch) || die help;
 
 #options check
-unless(defined($userId)) { die "ERROR: userId is required\n";}
-if(defined($facilityName) xor defined($facilityType)) { die "ERROR: both or neither facilityName and facilityType is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+	 unless(defined($userId)) { die "ERROR: userId is required\n";}
+	 if(defined($facilityName) xor defined($facilityType)) { die "ERROR: both or neither facilityName and facilityType is required\n";}
+	 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
-my $agent = Perun::Agent->new();
-my $facAgent = $agent->getFacilitiesAgent;
-my $usrAgent = $agent->getUsersAgent;
+	 my $agent = Perun::Agent->new();
+	 my $facAgent = $agent->getFacilitiesAgent;
+	 my $usrAgent = $agent->getUsersAgent;
 
-if($facilityName) {
-    my $facility = $facAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId = $facility->getId;
-}
+	 if($facilityName) {
+		 my $facility = $facAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+		 $facilityId = $facility->getId;
+	 }
 
-my @resources;
-if($facilityId) {
-  @resources = $usrAgent->getAllowedResources(user => $userId, facility=>$facilityId);
-} else {
-  @resources = $usrAgent->getAllowedResources(user => $userId);
-}
+	 my @resources;
+	 if($facilityId) {
+		 @resources = $usrAgent->getAllowedResources(user => $userId, facility=>$facilityId);
+	 } else {
+		 @resources = $usrAgent->getAllowedResources(user => $userId);
+	 }
 
 
 #output
-unless(@resources) { printMessage "No resource allowed.", $batch; exit 0; }
-printTable($sortingFunction, @resources);
+	 unless(@resources) { printMessage "No resource allowed.", $batch; exit 0; }
+	 printTable($sortingFunction, @resources);

@@ -31,14 +31,14 @@ public class SetAttributeRights {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public SetAttributeRights() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events externalEvents
-     */
+	 * @param events externalEvents
+	 */
 	public SetAttributeRights(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -88,11 +88,11 @@ public class SetAttributeRights {
 	 */
 	private boolean testSetting() {
 
-        if (rights == null || rights.isEmpty()) {
-            // TODO
-            return false;
-        }
-        return true;
+		if (rights == null || rights.isEmpty()) {
+			// TODO
+			return false;
+		}
+		return true;
 
 	}
 
@@ -102,17 +102,17 @@ public class SetAttributeRights {
 	 */
 	private JSONObject prepareJSONObject(){
 
-        JSONObject query = new JSONObject();
-        JSONArray array = new JSONArray();
+		JSONObject query = new JSONObject();
+		JSONArray array = new JSONArray();
 
-        for (int i=0; i<rights.size(); i++) {
-            JSONObject obj = new JSONObject(rights.get(i));
-            array.set(i, obj);
-        }
+		for (int i=0; i<rights.size(); i++) {
+			JSONObject obj = new JSONObject(rights.get(i));
+			array.set(i, obj);
+		}
 
-        query.put("rights", array);
+		query.put("rights", array);
 
-        return query;
+		return query;
 
 	}
 

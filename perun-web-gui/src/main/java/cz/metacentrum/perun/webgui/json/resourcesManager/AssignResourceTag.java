@@ -24,25 +24,25 @@ public class AssignResourceTag {
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private ResourceTag resourceTag = null;
-    private int resourceId = 0;
+	private int resourceId = 0;
 
 	/**
 	 * Creates a new request
-     *
-     * @param resourceId ID of resource to assing tag for
+	 *
+	 * @param resourceId ID of resource to assing tag for
 	 */
 	public AssignResourceTag(int resourceId) {
-        this.resourceId = resourceId;
+		this.resourceId = resourceId;
 	}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param resourceId ID of resource to assign tag for
-     * @param events Custom events
+	 * @param resourceId ID of resource to assign tag for
+	 * @param events Custom events
 	 */
 	public AssignResourceTag(int resourceId, JsonCallbackEvents events) {
-        this.resourceId = resourceId;
+		this.resourceId = resourceId;
 		this.events = events;
 	}
 
@@ -61,13 +61,13 @@ public class AssignResourceTag {
 			result = false;
 		}
 
-        if(resourceId == 0){
-            errorMsg += "Wrong parameter 'Resource ID'.";
-            result = false;
-        }
+		if(resourceId == 0){
+			errorMsg += "Wrong parameter 'Resource ID'.";
+			result = false;
+		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -118,17 +118,17 @@ public class AssignResourceTag {
 
 		JSONObject jsonQuery = new JSONObject();
 
-        JSONObject oldTag = new JSONObject(resourceTag);
+		JSONObject oldTag = new JSONObject(resourceTag);
 
-        JSONObject jsonTag = new JSONObject();
-        jsonTag.put("id", oldTag.get("id"));
-        jsonTag.put("tagName", oldTag.get("tagName"));
-        jsonTag.put("voId", oldTag.get("voId"));
+		JSONObject jsonTag = new JSONObject();
+		jsonTag.put("id", oldTag.get("id"));
+		jsonTag.put("tagName", oldTag.get("tagName"));
+		jsonTag.put("voId", oldTag.get("voId"));
 
 		jsonQuery.put("resourceTag", jsonTag);
-        jsonQuery.put("resource", new JSONNumber(resourceId));
+		jsonQuery.put("resource", new JSONNumber(resourceId));
 
-        return jsonQuery;
+		return jsonQuery;
 	}
 
 }

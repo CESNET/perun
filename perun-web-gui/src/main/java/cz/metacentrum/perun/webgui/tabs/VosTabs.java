@@ -21,7 +21,7 @@ public class VosTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public VosTabs(){}
 
 	/**
@@ -39,12 +39,12 @@ public class VosTabs {
 
 
 		// for vos list do not bother getting object
-        if (tab.equals(VosSelectTabItem.URL)) {
-            session.getTabManager().addTab(new VosSelectTabItem(), open);
-            return true;
-        }
+		if (tab.equals(VosSelectTabItem.URL)) {
+			session.getTabManager().addTab(new VosSelectTabItem(), open);
+			return true;
+		}
 
-        // which page?
+		// which page?
 		if (tab.equals(VoDetailTabItem.URL))
 		{
 			session.getTabManager().addTab(VoDetailTabItem.load(parameters), open);
@@ -105,17 +105,17 @@ public class VosTabs {
 			return true;
 		}
 
-        if (tab.equals(VoFacilitiesPropagationsTabItem.URL))
-        {
-            session.getTabManager().addTab(VoFacilitiesPropagationsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(VoFacilitiesPropagationsTabItem.URL))
+		{
+			session.getTabManager().addTab(VoFacilitiesPropagationsTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(VoResourcesTagsTabItem.URL))
-        {
-            session.getTabManager().addTab(VoResourcesTagsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(VoResourcesTagsTabItem.URL))
+		{
+			session.getTabManager().addTab(VoResourcesTagsTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

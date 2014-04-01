@@ -17,28 +17,28 @@ import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 @org.springframework.stereotype.Service(value = "processPoolJob")
 public class ProcessPoolJob implements PerunEngineJob {
 
-    private final static Logger log = LoggerFactory.getLogger(ProcessPoolJob.class);
+	private final static Logger log = LoggerFactory.getLogger(ProcessPoolJob.class);
 
-    @Autowired
-    private TaskScheduler taskScheduler;
+	@Autowired
+	private TaskScheduler taskScheduler;
 
-    @Override
-    public void doTheJob() {
-        log.info("Entering ProcessPoolJob: taskScheduler.processPool().");
-        try {
-            taskScheduler.processPool();
-        } catch (InternalErrorException e) {
-            log.error(e.toString(), e);
-        }
-        log.info("ProcessPoolJob: taskScheduler.processPool() has completed.");
-    }
+	@Override
+	public void doTheJob() {
+		log.info("Entering ProcessPoolJob: taskScheduler.processPool().");
+		try {
+			taskScheduler.processPool();
+		} catch (InternalErrorException e) {
+			log.error(e.toString(), e);
+		}
+		log.info("ProcessPoolJob: taskScheduler.processPool() has completed.");
+	}
 
-    public TaskScheduler getTaskScheduler() {
-        return taskScheduler;
-    }
+	public TaskScheduler getTaskScheduler() {
+		return taskScheduler;
+	}
 
-    public void setTaskScheduler(TaskScheduler taskScheduler) {
-        this.taskScheduler = taskScheduler;
-    }
+	public void setTaskScheduler(TaskScheduler taskScheduler) {
+		this.taskScheduler = taskScheduler;
+	}
 
 }

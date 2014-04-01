@@ -26,22 +26,22 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
  */
 public class MemberResourcesTabItem implements TabItem {
 
-    private RichMember member;
+	private RichMember member;
 	private int memberId;
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
-    private int groupId = 0;
+	private int groupId = 0;
 
 	/**
 	 * Constructor
 	 *
-     * @param member RichMember object, typically from table
-     */
+	 * @param member RichMember object, typically from table
+	 */
 	public MemberResourcesTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
-        this.groupId = groupId;
+		this.groupId = groupId;
 	}
 
 	public boolean isPrepared(){
@@ -52,51 +52,51 @@ public class MemberResourcesTabItem implements TabItem {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": resources");
 
-        // main widget panel
+		// main widget panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-        TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new resource", new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    AddMemberToResourceTabItem tab = new AddMemberToResourceTabItem(member.getVoId());
-                    tab.startAtStageTwo(member);
-                    session.getTabManager().addTabToCurrentTab(tab);
-                }
-            });
-        if (!session.isVoAdmin(member.getVoId())) addButton.setEnabled(false);
-        menu.addWidget(addButton);
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new resource", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				AddMemberToResourceTabItem tab = new AddMemberToResourceTabItem(member.getVoId());
+				tab.startAtStageTwo(member);
+				session.getTabManager().addTabToCurrentTab(tab);
+			}
+		});
+		if (!session.isVoAdmin(member.getVoId())) addButton.setEnabled(false);
+		menu.addWidget(addButton);
 
-        final GetAssignedRichResources resourcesCall = new GetAssignedRichResources(memberId, PerunEntity.MEMBER);
-        resourcesCall.setCheckable(false);
-        CellTable<RichResource> table = resourcesCall.getTable(new FieldUpdater<RichResource, String>() {
-            @Override
-            public void update(int i, RichResource resource, String s) {
-                if (session.isVoAdmin(resource.getVoId()) || session.isFacilityAdmin(resource.getFacilityId())) {
-                    session.getTabManager().addTab(new ResourceDetailTabItem(resource, 0));
-                } else {
-                    UiElements.generateInfo("Not privileged", "You are not allowed to manage this resource. You must be VO manager or Facility manager.");
-                }
-            }
-        });
+		final GetAssignedRichResources resourcesCall = new GetAssignedRichResources(memberId, PerunEntity.MEMBER);
+		resourcesCall.setCheckable(false);
+		CellTable<RichResource> table = resourcesCall.getTable(new FieldUpdater<RichResource, String>() {
+			@Override
+			public void update(int i, RichResource resource, String s) {
+				if (session.isVoAdmin(resource.getVoId()) || session.isFacilityAdmin(resource.getFacilityId())) {
+					session.getTabManager().addTab(new ResourceDetailTabItem(resource, 0));
+				} else {
+					UiElements.generateInfo("Not privileged", "You are not allowed to manage this resource. You must be VO manager or Facility manager.");
+				}
+			}
+		});
 
-        menu.addFilterWidget(new ExtendedSuggestBox(resourcesCall.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                resourcesCall.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterResources());
+		menu.addFilterWidget(new ExtendedSuggestBox(resourcesCall.getOracle()), new PerunSearchEvent() {
+			public void searchFor(String text) {
+				resourcesCall.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterResources());
 
-        // JsonUtils.addTableManagedButton(resourcesCall, table, removeButton);
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		// JsonUtils.addTableManagedButton(resourcesCall, table, removeButton);
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        vp.add(sp);
+		vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
 

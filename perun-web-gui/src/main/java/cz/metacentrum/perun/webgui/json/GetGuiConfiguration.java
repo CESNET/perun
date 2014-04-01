@@ -11,50 +11,50 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class GetGuiConfiguration implements JsonCallback {
 
-    // SESSION
-    private PerunWebSession session = PerunWebSession.getInstance();
+	// SESSION
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    // PARAMS
-    private JsonCallbackEvents events = new JsonCallbackEvents();
+	// PARAMS
+	private JsonCallbackEvents events = new JsonCallbackEvents();
 
-    // URLs
-    static private final String URL = "utils/getGuiConfiguration";
+	// URLs
+	static private final String URL = "utils/getGuiConfiguration";
 
-    /**
-     * New callback instance
-     */
-    public GetGuiConfiguration() {}
+	/**
+	 * New callback instance
+	 */
+	public GetGuiConfiguration() {}
 
-    /**
-     * New callback instance
-     */
-    public GetGuiConfiguration(JsonCallbackEvents events) {
-        this.events = events;
-    }
+	/**
+	 * New callback instance
+	 */
+	public GetGuiConfiguration(JsonCallbackEvents events) {
+		this.events = events;
+	}
 
-    @Override
-    public void retrieveData() {
+	@Override
+	public void retrieveData() {
 
-        JsonClient js = new JsonClient();
-        js.retrieveData(URL, this);
+		JsonClient js = new JsonClient();
+		js.retrieveData(URL, this);
 
-    }
+	}
 
-    @Override
-    public void onFinished(JavaScriptObject jso) {
-        session.getUiElements().setLogText("Loading configuration finished.");
-        events.onFinished(jso);
-    }
+	@Override
+	public void onFinished(JavaScriptObject jso) {
+		session.getUiElements().setLogText("Loading configuration finished.");
+		events.onFinished(jso);
+	}
 
-    @Override
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading configuration.");
-        events.onError(error);
-    }
+	@Override
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading configuration.");
+		events.onError(error);
+	}
 
-    @Override
-    public void onLoadingStart() {
-        events.onLoadingStart();
-    }
+	@Override
+	public void onLoadingStart() {
+		events.onLoadingStart();
+	}
 
 }

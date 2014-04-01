@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ServicesPackageNotExistsRunti
  * @author Martin Kuba
  */
 public class ServicesPackageNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private ServicesPackage servicesPackage;
+	private ServicesPackage servicesPackage;
 
-    public ServicesPackageNotExistsException(ServicesPackageNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public ServicesPackageNotExistsException(ServicesPackageNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public ServicesPackageNotExistsException(String message) {
-        super(message);
-    }
+	public ServicesPackageNotExistsException(String message) {
+		super(message);
+	}
 
-    public ServicesPackageNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ServicesPackageNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ServicesPackageNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public ServicesPackageNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public ServicesPackageNotExistsException(ServicesPackage servicesPackage) {
-      super(servicesPackage.toString());
-      this.servicesPackage = servicesPackage;
-    }
+	public ServicesPackageNotExistsException(ServicesPackage servicesPackage) {
+		super(servicesPackage.toString());
+		this.servicesPackage = servicesPackage;
+	}
 
-    public ServicesPackage getServicesPackage() {
-        return this.servicesPackage;
-    }
+	public ServicesPackage getServicesPackage() {
+		return this.servicesPackage;
+	}
 }

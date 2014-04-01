@@ -10,33 +10,33 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LdapProperties {
 
-    private Properties ldapcProperties;
-    private String ldapConsumerName;
-    private String ldapBase;
-    private String ldapLoginNamespace;
+	private Properties ldapcProperties;
+	private String ldapConsumerName;
+	private String ldapBase;
+	private String ldapLoginNamespace;
 
-    @Autowired
-    public LdapProperties(Properties ldapcProperties) {
-        this.ldapcProperties=ldapcProperties;
-    }
+	@Autowired
+	public LdapProperties(Properties ldapcProperties) {
+		this.ldapcProperties=ldapcProperties;
+	}
 
-    public Properties getLdapcProperties() {
-        return ldapcProperties;
-    }
+	public Properties getLdapcProperties() {
+		return ldapcProperties;
+	}
 
-    public String getLdapConsumerName() {
-        return this.getLdapcProperties().getProperty("ldap.consumerName");
-    }
+	public String getLdapConsumerName() {
+		return this.getLdapcProperties().getProperty("ldap.consumerName");
+	}
 
-    public String getLdapBase() {
-        return this.getLdapcProperties().getProperty("ldap.base");
-    }
+	public String getLdapBase() {
+		return this.getLdapcProperties().getProperty("ldap.base");
+	}
 
-    public String getLdapLoginNamespace() {
-        return this.getLdapcProperties().getProperty("ldap.loginNamespace");
-    }
+	public String getLdapLoginNamespace() {
+		return this.getLdapcProperties().getProperty("ldap.loginNamespace");
+	}
 
-    public void setLdapcProperties(Properties ldapcProperties) {
-        this.ldapcProperties = ldapcProperties;
-    }
+	public void setLdapcProperties(Properties ldapcProperties) {
+		this.ldapcProperties = ldapcProperties;
+	}
 }

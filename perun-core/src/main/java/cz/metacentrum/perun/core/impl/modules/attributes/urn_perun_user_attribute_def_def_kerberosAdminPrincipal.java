@@ -21,25 +21,25 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-    @Override
-    public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-        if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
-        String value = (String) attribute.getValue();
-        if(!value.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
-    }
+	@Override
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
+		String value = (String) attribute.getValue();
+		if(!value.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
+	}
 
-    @Override
-    public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        return new Attribute(attribute);
-    }
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-      attr.setFriendlyName("kerberosAdminPrincipal");
-      attr.setType(String.class.getName());
-      attr.setDescription("Kerberos pricipal used for root access.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("kerberosAdminPrincipal");
+		attr.setType(String.class.getName());
+		attr.setDescription("Kerberos pricipal used for root access.");
+		return attr;
+	}
 
 }

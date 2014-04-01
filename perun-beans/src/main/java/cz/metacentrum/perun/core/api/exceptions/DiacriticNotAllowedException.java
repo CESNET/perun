@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Michal Šťava
  */
 public class DiacriticNotAllowedException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public DiacriticNotAllowedException(String message) {
-        super(message);
-    }
+	public DiacriticNotAllowedException(String message) {
+		super(message);
+	}
 
-    public DiacriticNotAllowedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public DiacriticNotAllowedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public DiacriticNotAllowedException(Throwable cause) {
-        super(cause);
-    }
+	public DiacriticNotAllowedException(Throwable cause) {
+		super(cause);
+	}
 }

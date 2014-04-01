@@ -8,17 +8,17 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * @author Michal Stava
  */
 public class RelationNotExistsException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public RelationNotExistsException(String message) {
-        super(message);
-    }
+	public RelationNotExistsException(String message) {
+		super(message);
+	}
 
-    public RelationNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public RelationNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public RelationNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public RelationNotExistsException(Throwable cause) {
+		super(cause);
+	}
 }

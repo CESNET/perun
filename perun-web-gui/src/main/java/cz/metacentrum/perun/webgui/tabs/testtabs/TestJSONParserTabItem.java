@@ -65,47 +65,47 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 		ft.setWidget(row, 1, returnedValue);
 		row++;
 
-        ft.setText(row, 0, "Callback name:");
-        ft.setHTML(row, 1, "callbackPost");
-        row++;
+		ft.setText(row, 0, "Callback name:");
+		ft.setHTML(row, 1, "callbackPost");
+		row++;
 
 		ft.setWidget(row, 0, sendMessageButton);
 
-        row++;
+		row++;
 
 
 		sendMessageButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 
-                String resp = returnedValue.getText();
+				String resp = returnedValue.getText();
 
-                // trims the whitespace
-                resp = resp.trim();
+				// trims the whitespace
+				resp = resp.trim();
 
-                // short comparing
-                if(("callbackPost(null);").equalsIgnoreCase(resp)){
-                    UiElements.generateInfo("Parser result", "Parsed value is: NULL");
-                }
+				// short comparing
+				if(("callbackPost(null);").equalsIgnoreCase(resp)){
+					UiElements.generateInfo("Parser result", "Parsed value is: NULL");
+				}
 
-                // if starts with callbackName( and ends with ) or ); - wrapped, must be unwrapped
-                RegExp re = RegExp.compile("^" + "callbackPost" + "\\((.*)\\)|\\);$");
-                MatchResult result = re.exec(resp);
-                if(result != null){
-                    resp = result.getGroup(1);
-                }
+				// if starts with callbackName( and ends with ) or ); - wrapped, must be unwrapped
+				RegExp re = RegExp.compile("^" + "callbackPost" + "\\((.*)\\)|\\);$");
+				MatchResult result = re.exec(resp);
+				if(result != null){
+					resp = result.getGroup(1);
+				}
 
-                UiElements.generateInfo("Unwrapped value", "Non-null unwrapped value is: "+resp);
+				UiElements.generateInfo("Unwrapped value", "Non-null unwrapped value is: "+resp);
 
-                // if response = null - return null
-                if(resp.equals("null")){
-                    UiElements.generateInfo("Parser result", "Parsed value is: NULL");
-                }
+				// if response = null - return null
+				if(resp.equals("null")){
+					UiElements.generateInfo("Parser result", "Parsed value is: NULL");
+				}
 
-                // normal object
-                JavaScriptObject jso = JsonUtils.parseJson(resp);
-                BasicOverlayType basic = jso.cast();
-                UiElements.generateInfo("Parser result", "Parsed result is: "+basic.getString());
+				// normal object
+				JavaScriptObject jso = JsonUtils.parseJson(resp);
+				BasicOverlayType basic = jso.cast();
+				UiElements.generateInfo("Parser result", "Parsed result is: "+basic.getString());
 
 			}
 		});

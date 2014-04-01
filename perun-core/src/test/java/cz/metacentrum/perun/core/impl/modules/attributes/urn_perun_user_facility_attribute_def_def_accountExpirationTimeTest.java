@@ -30,67 +30,67 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest {
 
-    private static urn_perun_user_facility_attribute_def_def_accountExpirationTime classInstance;
-    private static PerunSessionImpl session;
-    private static Attribute attributeToCheck;
+	private static urn_perun_user_facility_attribute_def_def_accountExpirationTime classInstance;
+	private static PerunSessionImpl session;
+	private static Attribute attributeToCheck;
 
-    @Before
-    public void SetUp() {
-        classInstance = new urn_perun_user_facility_attribute_def_def_accountExpirationTime();
-        session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-        attributeToCheck = new Attribute();
-    }
+	@Before
+	public void SetUp() {
+		classInstance = new urn_perun_user_facility_attribute_def_def_accountExpirationTime();
+		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+		attributeToCheck = new Attribute();
+	}
 
-    @Test
-    public void testCheckAttributeValue() throws Exception {
-        System.out.println("testCheckAttributeValue()");
-        attributeToCheck.setValue(1000);
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
+	@Test
+	public void testCheckAttributeValue() throws Exception {
+		System.out.println("testCheckAttributeValue()");
+		attributeToCheck.setValue(1000);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
 
-            {
-                setValue(1500);
-            }
-        });
-        classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
-    }
+			{
+				setValue(1500);
+			}
+		});
+		classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
+	}
 
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueHigherValueThanFacilityTime() throws Exception {
-        System.out.println("testCheckAttributeValueHigherValueThanFacilityTime()");
-        attributeToCheck.setValue(1000);
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
+	@Test(expected = WrongAttributeValueException.class)
+		public void testCheckAttributeValueHigherValueThanFacilityTime() throws Exception {
+			System.out.println("testCheckAttributeValueHigherValueThanFacilityTime()");
+			attributeToCheck.setValue(1000);
+			when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
 
-            {
-                setValue(999);
-            }
-        });
-        classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
-        fail("Assigning lower accountExpirationTime than the time set at facility should throw exception.");
+				{
+					setValue(999);
+				}
+			});
+			classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
+			fail("Assigning lower accountExpirationTime than the time set at facility should throw exception.");
 
-    }
-    @Test
-    public void testFillAttributeValue() throws Exception {
-        System.out.println("testFillAttributeValue()");
+		}
+	@Test
+	public void testFillAttributeValue() throws Exception {
+		System.out.println("testFillAttributeValue()");
 
-         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
 
-            {
-                setValue(999);
-            }
-        });
-         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(new Attribute() {
+			{
+				setValue(999);
+			}
+		});
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(new Attribute() {
 
-            {
-                setValue(1000);
-            }
-        },new Attribute() {
-             {
-                 setValue(1001);
-             }
-        });
-        attributeToCheck = classInstance.fillAttribute(session, new Facility(), new User(), attributeToCheck);
-        assertEquals("Filled attribute should be the lowest from all resource and facility values", 999,attributeToCheck.getValue());
-    }
+			{
+				setValue(1000);
+			}
+		},new Attribute() {
+			{
+				setValue(1001);
+			}
+		});
+		attributeToCheck = classInstance.fillAttribute(session, new Facility(), new User(), attributeToCheck);
+		assertEquals("Filled attribute should be the lowest from all resource and facility values", 999,attributeToCheck.getValue());
+	}
 
 }
 

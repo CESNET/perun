@@ -33,7 +33,7 @@ public class PerunAttributeTableWidget extends Composite {
 	 * @author Vaclav Mach <374430@mail.muni.cz>
 	 */
 	public interface SaveEvent {
-	   void save(ArrayList<Attribute> attrs);
+		void save(ArrayList<Attribute> attrs);
 	}
 
 	/**
@@ -62,18 +62,18 @@ public class PerunAttributeTableWidget extends Composite {
 	 */
 	private Map<String, Integer> ids;
 
-    private boolean dark = false;
-    private CustomButton saveButton;
-    private boolean displaySaveButton = true;
+	private boolean dark = false;
+	private CustomButton saveButton;
+	private boolean displaySaveButton = true;
 
-    /**
-     * Creates a new table
-     */
-    public PerunAttributeTableWidget(){
-        this.initWidget(ft);
-    }
+	/**
+	 * Creates a new table
+	 */
+	public PerunAttributeTableWidget(){
+		this.initWidget(ft);
+	}
 
-    /**
+	/**
 	 * Creates a new table
 	 */
 	public PerunAttributeTableWidget(Map<String, Integer> ids){
@@ -152,45 +152,45 @@ public class PerunAttributeTableWidget extends Composite {
 		return this.ft;
 	}
 
-    public boolean isDark() {
-        return this.dark;
-    }
+	public boolean isDark() {
+		return this.dark;
+	}
 
-    public void setDark(boolean dark) {
-        this.dark = dark;
-    }
+	public void setDark(boolean dark) {
+		this.dark = dark;
+	}
 
-    public boolean isDisplaySaveButton() {
-        return displaySaveButton;
-    }
+	public boolean isDisplaySaveButton() {
+		return displaySaveButton;
+	}
 
-    public void setDisplaySaveButton(boolean displaySaveButton) {
-        this.displaySaveButton = displaySaveButton;
-    }
+	public void setDisplaySaveButton(boolean displaySaveButton) {
+		this.displaySaveButton = displaySaveButton;
+	}
 
-    public CustomButton getSaveButton() {
-        return this.saveButton;
-    }
+	public CustomButton getSaveButton() {
+		return this.saveButton;
+	}
 
-    public void setIds(Map<String, Integer> ids) {
-        this.ids = ids;
-    }
+	public void setIds(Map<String, Integer> ids) {
+		this.ids = ids;
+	}
 
-    public void setEvents(SaveEvent saveEvent) {
-        this.saveEvent = saveEvent;
-    }
+	public void setEvents(SaveEvent saveEvent) {
+		this.saveEvent = saveEvent;
+	}
 
-    /**
+	/**
 	 * Builds the table
 	 */
 	public void build() {
 
 		ft.clear(true);
 		if (!dark) {
-            ft.setStyleName("inputFormFlexTable");
-        } else {
-            ft.setStyleName("inputFormFlexTableDark");
-        }
+			ft.setStyleName("inputFormFlexTable");
+		} else {
+			ft.setStyleName("inputFormFlexTableDark");
+		}
 
 		int nameCol = 0;
 		int valCol = 1;
@@ -231,10 +231,10 @@ public class PerunAttributeTableWidget extends Composite {
 			}
 		});
 
-        if (displaySaveButton) {
-            ft.setWidget(row, 0, saveButton);
-            row++;
-        }
+		if (displaySaveButton) {
+			ft.setWidget(row, 0, saveButton);
+			row++;
+		}
 
 		for (Attribute attr : attributes) {
 
@@ -316,9 +316,9 @@ public class PerunAttributeTableWidget extends Composite {
 				request2.removeAttributes(ids, toRemove);
 			}
 
-            if (toSet.isEmpty() && toRemove.isEmpty()) {
-                UiElements.generateAlert("No changes", "No changes to save.");
-            }
+			if (toSet.isEmpty() && toRemove.isEmpty()) {
+				UiElements.generateAlert("No changes", "No changes to save.");
+			}
 
 			return;
 

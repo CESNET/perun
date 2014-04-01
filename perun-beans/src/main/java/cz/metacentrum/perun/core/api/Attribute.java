@@ -17,83 +17,83 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  */
 public class Attribute extends AttributeDefinition {
 
-        private final static Logger log = LoggerFactory.getLogger(Attribute.class);
+	private final static Logger log = LoggerFactory.getLogger(Attribute.class);
 	/**
 	 * Value of the attribute, can be Map, List, String, Integer, ...
 	 */
 	private Object value;
 
-        /**
-         * Attribute with information about time when the value was created.
-         */
-        private String valueCreatedAt;
+	/**
+	 * Attribute with information about time when the value was created.
+	 */
+	private String valueCreatedAt;
 
-        /**
-         * Attribute with information who created the value.
-         */
-        private String valueCreatedBy;
+	/**
+	 * Attribute with information who created the value.
+	 */
+	private String valueCreatedBy;
 
-        /**
-         * Attribute with information when the value was modified.
-         */
-        private String valueModifiedAt;
+	/**
+	 * Attribute with information when the value was modified.
+	 */
+	private String valueModifiedAt;
 
-        /**
-         * Attribute with information who modified the value.
-         */
-        private String valueModifiedBy;
+	/**
+	 * Attribute with information who modified the value.
+	 */
+	private String valueModifiedBy;
 
 	public Attribute() {
 	}
 
-        public Attribute(AttributeDefinition attributeDefinition) {
-                super(attributeDefinition);
-                this.value = null;
-                this.valueCreatedAt = null;
-                this.valueCreatedBy = null;
-                this.valueModifiedAt = null;
-                this.valueModifiedBy = null;
-        }
+	public Attribute(AttributeDefinition attributeDefinition) {
+		super(attributeDefinition);
+		this.value = null;
+		this.valueCreatedAt = null;
+		this.valueCreatedBy = null;
+		this.valueModifiedAt = null;
+		this.valueModifiedBy = null;
+	}
 
 	public Object getValue() {
 		return value;
 	}
 
-        public String getValueCreatedAt() {
-                return valueCreatedAt;
-        }
+	public String getValueCreatedAt() {
+		return valueCreatedAt;
+	}
 
-        public String getValueCreatedBy() {
-                return valueCreatedBy;
-        }
+	public String getValueCreatedBy() {
+		return valueCreatedBy;
+	}
 
-        public String getValueModifiedAt() {
-                return valueModifiedAt;
-        }
+	public String getValueModifiedAt() {
+		return valueModifiedAt;
+	}
 
-        public String getValueModifiedBy() {
-                return valueModifiedBy;
-        }
+	public String getValueModifiedBy() {
+		return valueModifiedBy;
+	}
 
 	public void setValue(Object value) {
 		this.value = value;
-        }
+	}
 
-        public void setValueCreatedAt(String valueCreatedAt) {
-                this.valueCreatedAt = valueCreatedAt;
-        }
+	public void setValueCreatedAt(String valueCreatedAt) {
+		this.valueCreatedAt = valueCreatedAt;
+	}
 
-        public void setValueCreatedBy(String valueCreatedBy) {
-                this.valueCreatedBy = valueCreatedBy;
-        }
+	public void setValueCreatedBy(String valueCreatedBy) {
+		this.valueCreatedBy = valueCreatedBy;
+	}
 
-        public void setValueModifiedAt(String valueModifiedAt) {
-                this.valueModifiedAt = valueModifiedAt;
-        }
+	public void setValueModifiedAt(String valueModifiedAt) {
+		this.valueModifiedAt = valueModifiedAt;
+	}
 
-        public void setValueModifiedBy(String valueModifiedBy) {
-                this.valueModifiedBy = valueModifiedBy;
-        }
+	public void setValueModifiedBy(String valueModifiedBy) {
+		this.valueModifiedBy = valueModifiedBy;
+	}
 
 	@Override
 	public int hashCode() {
@@ -128,12 +128,12 @@ public class Attribute extends AttributeDefinition {
 
 		if (!(obj instanceof AttributeDefinition)) return false;
 
-                if(!super.equals(obj)) return false;
+		if(!super.equals(obj)) return false;
 
-                if(!(obj instanceof Attribute)) {
-                  //Compare only as AttributeDefinition, which was done above
-                  return true;
-                }
+		if(!(obj instanceof Attribute)) {
+			//Compare only as AttributeDefinition, which was done above
+			return true;
+		}
 
 		final Attribute other = (Attribute) obj;
 
@@ -141,37 +141,37 @@ public class Attribute extends AttributeDefinition {
 		return true;
 	}
 
-        @Override
-        public String serializeToString() {
-                String stringValue;
-                if(getValue() == null) stringValue = null;
-                else
-                    try {
-                        stringValue = BeansUtils.attributeValueToString(this);
+	@Override
+	public String serializeToString() {
+		String stringValue;
+		if(getValue() == null) stringValue = null;
+		else
+			try {
+				stringValue = BeansUtils.attributeValueToString(this);
 
-                    } catch (InternalErrorException ex) {
-                        //WARNING: This error is not catched. There is very low chance to occur.
-                        //When this happens, error is logged and there is need to look on attributeValueToString script above.
-                        log.error("Attribute value can't be serialize! {}",ex);
-                        stringValue = null;
-                    }
+			} catch (InternalErrorException ex) {
+				//WARNING: This error is not catched. There is very low chance to occur.
+				//When this happens, error is logged and there is need to look on attributeValueToString script above.
+				log.error("Attribute value can't be serialize! {}",ex);
+				stringValue = null;
+			}
 		return this.getClass().getSimpleName() +":[" +
-		"id=<" + getId() + ">" +
-		", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
-		", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
-		", type=<" + (getType() == null ? "\\0" :BeansUtils.createEscaping(getType())) + ">" +
-		", value=<" + BeansUtils.createEscaping(stringValue) + ">" +
-		']';
-        }
+			"id=<" + getId() + ">" +
+			", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
+			", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
+			", type=<" + (getType() == null ? "\\0" :BeansUtils.createEscaping(getType())) + ">" +
+			", value=<" + BeansUtils.createEscaping(stringValue) + ">" +
+			']';
+	}
 
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+":[" +
-		"id='" + getId() + '\'' +
-		", friendlyName='" + getFriendlyName() + '\'' +
-		", namespace='" + getNamespace() + '\'' +
-		", type='" + getType() + '\'' +
-		", value='" + getValue() + '\'' +
-		']';
+			"id='" + getId() + '\'' +
+			", friendlyName='" + getFriendlyName() + '\'' +
+			", namespace='" + getNamespace() + '\'' +
+			", type='" + getType() + '\'' +
+			", value='" + getValue() + '\'' +
+			']';
 	}
 }

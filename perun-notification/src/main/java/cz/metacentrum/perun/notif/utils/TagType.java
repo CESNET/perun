@@ -12,40 +12,40 @@ import java.util.List;
  */
 public enum TagType {
 
-    FOR("for"),
-    IF("if");
+	FOR("for"),
+		IF("if");
 
-    private TagType(String value) {
-        this.value = value;
-    }
+	private TagType(String value) {
+		this.value = value;
+	}
 
-    private String value;
+	private String value;
 
-    public String getValue() {
-        return value;
-    }
+	public String getValue() {
+		return value;
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    public static List<TagType> getAll() {
-        return Arrays.asList(values());
-    }
+	public static List<TagType> getAll() {
+		return Arrays.asList(values());
+	}
 
-    public static TagType resolve(String value) {
+	public static TagType resolve(String value) {
 
-        if (value == null || value.isEmpty()) {
-            return null;
-        }
+		if (value == null || value.isEmpty()) {
+			return null;
+		}
 
-        value = value.trim();
-        for (TagType type : getAll()) {
-            if (type.getValue().equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
+		value = value.trim();
+		for (TagType type : getAll()) {
+			if (type.getValue().equalsIgnoreCase(value)) {
+				return type;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

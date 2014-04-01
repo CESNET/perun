@@ -23,20 +23,20 @@ import java.util.List;
 public abstract class ResourceVirtualAttributesModuleAbstract extends ResourceAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
 
-    public Attribute getAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
-        return new Attribute(attribute);
-    }
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+		return new Attribute(attribute);
+	}
 
-    public boolean setAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-        return false;
-    }
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		return false;
+	}
 
-    public void removeAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
-    }
+	}
 
-    @Override
-    public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-        return new ArrayList<String>();
-    }
+	@Override
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		return new ArrayList<String>();
+	}
 }

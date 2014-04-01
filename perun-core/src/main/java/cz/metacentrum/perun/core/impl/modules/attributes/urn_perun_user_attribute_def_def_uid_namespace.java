@@ -29,136 +29,136 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-    private static final String A_E_namespace_minUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
-    private static final String A_E_namespace_maxUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID";
-    private static final String A_E_namespace_namespace_uid_policy = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-uid-policy";
-    private static final String UID_POLICY_INCREMENT = "increment";
+	private static final String A_E_namespace_minUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
+	private static final String A_E_namespace_maxUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID";
+	private static final String A_E_namespace_namespace_uid_policy = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-uid-policy";
+	private static final String UID_POLICY_INCREMENT = "increment";
 
-    @Override
-    /**
-     * Checks the new UID of the user. The new UID must
-     * not be lower than the min UID or greater than the max UID. Also no collision between
-     * existing user and the new user is allowed.
-     */
-    public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-        Integer uid = (Integer) attribute.getValue();
-        String uidNamespace = attribute.getFriendlyNameParameter();
+	@Override
+	/**
+	 * Checks the new UID of the user. The new UID must
+	 * not be lower than the min UID or greater than the max UID. Also no collision between
+	 * existing user and the new user is allowed.
+	 */
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		Integer uid = (Integer) attribute.getValue();
+		String uidNamespace = attribute.getFriendlyNameParameter();
 
-        if (uid == null) {
-            throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
-        }
+		if (uid == null) {
+			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
+		}
 
-        Attribute minUidAttribute = null;
-        Attribute maxUidAttribute = null;
-        try {
-          minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
-          maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
-        } catch (AttributeNotExistsException e) {
-          throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
-        }
+		Attribute minUidAttribute = null;
+		Attribute maxUidAttribute = null;
+		try {
+			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
+			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
+		}
 
-        Integer min = (Integer) minUidAttribute.getValue();
-        Integer max = (Integer) maxUidAttribute.getValue();
-        if(min == null) {
-          throw new WrongReferenceAttributeValueException(attribute, minUidAttribute);
-        }
-        if (max == null) {
-          throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute);
-        }
-        //uid is in proper range
-        if (uid < min || uid > max) {
-            throw new WrongAttributeValueException(attribute, "UID " + uid + " is not proper range (" + min + "," + max +")");
-        }
+		Integer min = (Integer) minUidAttribute.getValue();
+		Integer max = (Integer) maxUidAttribute.getValue();
+		if(min == null) {
+			throw new WrongReferenceAttributeValueException(attribute, minUidAttribute);
+		}
+		if (max == null) {
+			throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute);
+		}
+		//uid is in proper range
+		if (uid < min || uid > max) {
+			throw new WrongAttributeValueException(attribute, "UID " + uid + " is not proper range (" + min + "," + max +")");
+		}
 
-        // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with the value.
-        List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
-        usersWithUid.remove(user); //remove self
-        if (!usersWithUid.isEmpty()) {
-          if(usersWithUid.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." +  attribute + " " + usersWithUid);
-          throw new WrongAttributeValueException(attribute, "This UID " + attribute.getValue() + " is already occupied by" + usersWithUid.get(0)  + ".");
-        }
-    }
+		// Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with the value.
+		List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
+		usersWithUid.remove(user); //remove self
+		if (!usersWithUid.isEmpty()) {
+			if(usersWithUid.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." +  attribute + " " + usersWithUid);
+			throw new WrongAttributeValueException(attribute, "This UID " + attribute.getValue() + " is already occupied by" + usersWithUid.get(0)  + ".");
+		}
+	}
 
-    @Override
-    /**
-     * Fills the new UID for the user at the specified facility. First empty slot
-     * in range (minUID, maxUID) is returned.
-     */
-    public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-      String uidNamespace = attribute.getFriendlyNameParameter();
-      Attribute atr = new Attribute(attribute);
+	@Override
+	/**
+	 * Fills the new UID for the user at the specified facility. First empty slot
+	 * in range (minUID, maxUID) is returned.
+	 */
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		String uidNamespace = attribute.getFriendlyNameParameter();
+		Attribute atr = new Attribute(attribute);
 
-        Attribute minUidAttribute = null;
-        Attribute maxUidAttribute = null;
-        try {
-          minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
-          maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
-        } catch (AttributeNotExistsException e) {
-          throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
-        }
+		Attribute minUidAttribute = null;
+		Attribute maxUidAttribute = null;
+		try {
+			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
+			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
+		}
 
-        Integer min = (Integer) minUidAttribute.getValue();
-        Integer max = (Integer) maxUidAttribute.getValue();
-        if(min == null || max == null){
-            return atr; //we couldnt determine necessary attributes for getting new uID
-        }
+		Integer min = (Integer) minUidAttribute.getValue();
+		Integer max = (Integer) maxUidAttribute.getValue();
+		if(min == null || max == null){
+			return atr; //we couldnt determine necessary attributes for getting new uID
+		}
 
-        SortedSet<Integer> values = new TreeSet<Integer>();
+		SortedSet<Integer> values = new TreeSet<Integer>();
 
-        // Get all attributes urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
-        List<Attribute> uidAttributes = sess.getPerunBl().getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attribute);
-        for (Attribute uidAttribute: uidAttributes) {
-          if(uidAttribute.getValue() != null) values.add((Integer) uidAttribute.getValue());
-        }
+		// Get all attributes urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
+		List<Attribute> uidAttributes = sess.getPerunBl().getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attribute);
+		for (Attribute uidAttribute: uidAttributes) {
+			if(uidAttribute.getValue() != null) values.add((Integer) uidAttribute.getValue());
+		}
 
 
-        String uidPolicy;
-        try {
-          uidPolicy = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_namespace_uid_policy).getValue();
-        } catch (AttributeNotExistsException e) {
-          throw new InternalErrorException(e);
-        }
+		String uidPolicy;
+		try {
+			uidPolicy = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_namespace_uid_policy).getValue();
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
 
-        if (UID_POLICY_INCREMENT.equals(uidPolicy)) {
-          // Only use +1 for max UID
-          if(values.isEmpty()) {
-            atr.setValue(min);
-          } else {
-            atr.setValue(Collections.max(values)+1);
-          }
-          return atr;
-        } else {
-          // Recycle UIDs
+		if (UID_POLICY_INCREMENT.equals(uidPolicy)) {
+			// Only use +1 for max UID
+			if(values.isEmpty()) {
+				atr.setValue(min);
+			} else {
+				atr.setValue(Collections.max(values)+1);
+			}
+			return atr;
+		} else {
+			// Recycle UIDs
 
-        if (values.size() == 0) {
-            atr.setValue(min);
-            return atr;
-        } else {
-            for (int i = min; i < max; i++) {
-                if (!values.contains(i)) {
-                    atr.setValue(i);
-                    return atr;
-                }
-            }
-            return atr;
-        }
-    }
-    }
+			if (values.size() == 0) {
+				atr.setValue(min);
+				return atr;
+			} else {
+				for (int i = min; i < max; i++) {
+					if (!values.contains(i)) {
+						atr.setValue(i);
+						return atr;
+					}
+				}
+				return atr;
+			}
+		}
+	}
 
-    @Override
-    public List<String> getDependencies() {
-      List<String> dependencies = new ArrayList<String>();
-      dependencies.add(A_E_namespace_maxUID);
-      dependencies.add(A_E_namespace_minUID);
-      return dependencies;
-    }
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(A_E_namespace_maxUID);
+		dependencies.add(A_E_namespace_minUID);
+		return dependencies;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-      attr.setFriendlyName("uid-namespace");
-      attr.setType(Integer.class.getName());
-      attr.setDescription("Uid namespace.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("uid-namespace");
+		attr.setType(Integer.class.getName());
+		attr.setDescription("Uid namespace.");
+		return attr;
+	}
 }

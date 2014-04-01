@@ -68,8 +68,8 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public VoApplicationsTabItem(VirtualOrganization vo){
 		this.vo = vo;
 		this.voId = vo.getId();
@@ -78,16 +78,16 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     */
+	 * @param voId
+	 */
 	public VoApplicationsTabItem(int voId){
 		this.voId = voId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -98,8 +98,8 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// request
 		final GetApplicationsForVo applicationsRequest = new GetApplicationsForVo(vo.getId());
-        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
-        if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
+		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
+		if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"applications");
 
@@ -114,21 +114,21 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// verify button
 		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
-        verify.addClickHandler(new ClickHandler() {
+		verify.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                ArrayList<Application> list = applicationsRequest.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify));
-                            request.verifyApplication(list.get(i).getId());
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, events));
-                            request.verifyApplication(list.get(i).getId());
-                        }
-                    }
-                }
+				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify));
+							request.verifyApplication(list.get(i).getId());
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, events));
+							request.verifyApplication(list.get(i).getId());
+						}
+					}
+				}
 			}
 		});
 
@@ -138,16 +138,16 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve));
-                            request.approveApplication(list.get(i));
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, events));
-                            request.approveApplication(list.get(i));
-                        }
-                    }
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve));
+							request.approveApplication(list.get(i));
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, events));
+							request.approveApplication(list.get(i));
+						}
+					}
 				}
 			}
 		});
@@ -158,61 +158,61 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				final ArrayList<Application> list = applicationsRequest.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // confirm content
-                    FlexTable content = new FlexTable();
-                    content.setCellSpacing(10);
-                    content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
-                    content.getFlexCellFormatter().setColSpan(0, 0, 2);
-                    final TextArea reason = new TextArea();
-                    reason.setSize("300px", "150px");
-                    content.setHTML(1, 0, "<strong>Reason: </strong>");
-                    content.setWidget(1, 1, reason);
+					// confirm content
+					FlexTable content = new FlexTable();
+					content.setCellSpacing(10);
+					content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
+					content.getFlexCellFormatter().setColSpan(0, 0, 2);
+					final TextArea reason = new TextArea();
+					reason.setSize("300px", "150px");
+					content.setHTML(1, 0, "<strong>Reason: </strong>");
+					content.setWidget(1, 1, reason);
 
-                    Confirm c = new Confirm("Specify reason", content, new ClickHandler(){
-                        public void onClick(ClickEvent event) {
+					Confirm c = new Confirm("Specify reason", content, new ClickHandler(){
+						public void onClick(ClickEvent event) {
 
-                            for (int i=0; i<list.size(); i++) {
-                                if (i != list.size()-1) {
-                                    HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject));
-                                    request.rejectApplication(list.get(i).getId(), reason.getText());
-                                } else {
-                                    // refresh table on last call
-                                    HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, events));
-                                    request.rejectApplication(list.get(i).getId(), reason.getText());
-                                }
-                            }
+							for (int i=0; i<list.size(); i++) {
+								if (i != list.size()-1) {
+									HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject));
+									request.rejectApplication(list.get(i).getId(), reason.getText());
+								} else {
+									// refresh table on last call
+									HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, events));
+									request.rejectApplication(list.get(i).getId(), reason.getText());
+								}
+							}
 
-                        }
-                    }, true);
-                    c.show();
-                }
+						}
+					}, true);
+					c.show();
+				}
 			}
 		});
 
-        // delete button
-        final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
-        delete.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                ArrayList<Application> list = applicationsRequest.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete));
-                            request.deleteApplication(list.get(i).getId());
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, events));
-                            request.deleteApplication(list.get(i).getId());
-                        }
-                    }
-                }
-            }
-        });
+		// delete button
+		final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
+		delete.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete));
+							request.deleteApplication(list.get(i).getId());
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, events));
+							request.deleteApplication(list.get(i).getId());
+						}
+					}
+				}
+			}
+		});
 
-        menu.addWidget(verify);
-        menu.addWidget(approve);
-        menu.addWidget(reject);
-        menu.addWidget(delete);
+		menu.addWidget(verify);
+		menu.addWidget(approve);
+		menu.addWidget(reject);
+		menu.addWidget(delete);
 
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
@@ -223,32 +223,32 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
 		stateListBox.setSelectedIndex(3);
-        menu.addWidget(stateListBox);
+		menu.addWidget(stateListBox);
 
-        stateListBox.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent changeEvent) {
-                applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
-                applicationsRequest.clearTable();
-                applicationsRequest.retrieveData();
-            }
-        });
+		stateListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+				applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
+				applicationsRequest.clearTable();
+				applicationsRequest.retrieveData();
+			}
+		});
 
 		// FILTER 2
 		menu.addWidget(new HTML("<strong>Submitted&nbsp;by: </strong>"));
 		menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                applicationsRequest.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterApplications());
+			@Override
+			public void searchFor(String text) {
+				applicationsRequest.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterApplications());
 
 		// TABLE
-        applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
+		applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 		CellTable<Application> table = applicationsRequest.getTable(new FieldUpdater<Application, String>() {
 			public void update(int index, Application object, String value) {
 				session.getTabManager().addTabToCurrentTab(new ApplicationDetailTabItem(object), true);
@@ -259,18 +259,18 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		sp.addStyleName("perun-tableScrollPanel");
 
 		verify.setEnabled(false);
-        approve.setEnabled(false);
-        reject.setEnabled(false);
-        delete.setEnabled(false);
+		approve.setEnabled(false);
+		reject.setEnabled(false);
+		delete.setEnabled(false);
 
-        if (session.isVoAdmin(voId)) {
-            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
-        }
+		if (session.isVoAdmin(voId)) {
+			JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+		}
 
-        session.getUiElements().resizePerunTable(sp, 100);
+		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
 
@@ -318,7 +318,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Applications", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Applications", getUrlWithParameters());
 		if(vo != null){
 			session.setActiveVo(vo);
 			return;

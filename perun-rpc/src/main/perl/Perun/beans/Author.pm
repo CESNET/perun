@@ -7,185 +7,185 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    my $author = Perun::Common::fromHash(@_);
+	my $author = Perun::Common::fromHash(@_);
 
-    for my $authorship (@{$author->{_authorships}}) {
-      $authorship = Perun::beans::Authorship::fromHash("Perun::beans::Authorship", $authorship);
-    }
-    return $author;
+	for my $authorship (@{$author->{_authorships}}) {
+		$authorship = Perun::beans::Authorship::fromHash("Perun::beans::Authorship", $authorship);
+	}
+	return $author;
 
 }
 
 sub TO_JSON
 {
-        my $self = shift;
+	my $self = shift;
 
-        my $id;
-        if (defined($self->{_id})) {
-                $id = $self->{_id}*1;
-        } else {
-                $id = 0;
-        }
+	my $id;
+	if (defined($self->{_id})) {
+		$id = $self->{_id}*1;
+	} else {
+		$id = 0;
+	}
 
-        my $firstName;
-        if (defined($self->{_firstName})) {
-                $firstName = "$self->{_firstName}";
-        } else {
-                $firstName = undef;
-        }
+	my $firstName;
+	if (defined($self->{_firstName})) {
+		$firstName = "$self->{_firstName}";
+	} else {
+		$firstName = undef;
+	}
 
-        my $lastName;
-        if (defined($self->{_lastName})) {
-                $lastName = "$self->{_lastName}";
-        } else {
-                $lastName = undef;
-        }
+	my $lastName;
+	if (defined($self->{_lastName})) {
+		$lastName = "$self->{_lastName}";
+	} else {
+		$lastName = undef;
+	}
 
-        my $middleName;
-        if (defined($self->{_middleName})) {
-                $middleName = "$self->{_middleName}";
-        } else {
-                $middleName = undef;
-        }
+	my $middleName;
+	if (defined($self->{_middleName})) {
+		$middleName = "$self->{_middleName}";
+	} else {
+		$middleName = undef;
+	}
 
-        my $titleBefore;
-        if (defined($self->{_titleBefore})) {
-                $titleBefore = "$self->{_titleBefore}";
-        } else {
-                $titleBefore = undef;
-        }
+	my $titleBefore;
+	if (defined($self->{_titleBefore})) {
+		$titleBefore = "$self->{_titleBefore}";
+	} else {
+		$titleBefore = undef;
+	}
 
-        my $titleAfter;
-        if (defined($self->{_titleAfter})) {
-                $titleAfter = "$self->{_titleAfter}";
-        } else {
-                $titleAfter = undef;
-        }
+	my $titleAfter;
+	if (defined($self->{_titleAfter})) {
+		$titleAfter = "$self->{_titleAfter}";
+	} else {
+		$titleAfter = undef;
+	}
 
-        my @userExtSources;
-        if (defined($self->{_logins})) {
-                @userExtSources = "$self->{_logins}";
-        } else {
-                @userExtSources = undef;
-        }
+	my @userExtSources;
+	if (defined($self->{_logins})) {
+		@userExtSources = "$self->{_logins}";
+	} else {
+		@userExtSources = undef;
+	}
 
-        my @authorships;
-        if (defined($self->{_authorships})) {
-                @authorships = "$self->{_authorships}";
-        } else {
-                @authorships = undef;
-        }
+	my @authorships;
+	if (defined($self->{_authorships})) {
+		@authorships = "$self->{_authorships}";
+	} else {
+		@authorships = undef;
+	}
 
-        return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources, authorships => \@authorships};
+	return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources, authorships => \@authorships};
 }
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getFirstName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_firstName};
+	return $self->{_firstName};
 }
 
 sub setFirstName
 {
-    my $self = shift;
-    $self->{_firstName} = shift;
+	my $self = shift;
+	$self->{_firstName} = shift;
 
-    return;
+	return;
 }
 
 sub getMiddleName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_middleName};
+	return $self->{_middleName};
 }
 
 sub setMiddleName
 {
-    my $self = shift;
-    $self->{_middleName} = shift;
+	my $self = shift;
+	$self->{_middleName} = shift;
 
-    return;
+	return;
 }
 
 sub getLastName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_lastName};
+	return $self->{_lastName};
 }
 
 sub setLastName
 {
-    my $self = shift;
-    $self->{_lastName} = shift;
+	my $self = shift;
+	$self->{_lastName} = shift;
 
-    return;
+	return;
 }
 
 sub getTitleBefore
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_titleBefore};
+	return $self->{_titleBefore};
 }
 
 sub setTitleBefore
 {
-    my $self = shift;
-    $self->{_titleBefore} = shift;
+	my $self = shift;
+	$self->{_titleBefore} = shift;
 
-    return;
+	return;
 }
 
 sub getTitleAfter
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_titleAfter};
+	return $self->{_titleAfter};
 }
 
 sub setTitleAfter
 {
-    my $self = shift;
-    $self->{_titleAfter} = shift;
+	my $self = shift;
+	$self->{_titleAfter} = shift;
 
-    return;
+	return;
 }
 
 sub getUsersExtSources
 {
-    my $self = shift;
+	my $self = shift;
 
-    return @{$self->{_logins}};
+	return @{$self->{_logins}};
 }
 
 sub getAuthorships
 {
-    my $self = shift;
+	my $self = shift;
 
-    return @{$self->{_authorships}};
+	return @{$self->{_authorships}};
 }
 
 1;

@@ -25,15 +25,15 @@ public class CustomButton extends Button {
 	 */
 	private Image image;
 
-    /* If button is processing it's action */
-    private boolean processing = false;
-    /* action buttons do not have ellipsis (default) */
-    private boolean isActionButton = true;
+	/* If button is processing it's action */
+	private boolean processing = false;
+	/* action buttons do not have ellipsis (default) */
+	private boolean isActionButton = true;
 
-    private Image processingImage = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
-    private Image backupImage;
-    private String backupText;
-    private boolean imageRight = false;
+	private Image processingImage = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
+	private Image backupImage;
+	private String backupText;
+	private boolean imageRight = false;
 
 
 	/**
@@ -69,8 +69,8 @@ public class CustomButton extends Button {
 	 * Creates a new button
 	 * @param text
 	 * @param title
-     * @param imgres
-     */
+	 * @param imgres
+	 */
 	public CustomButton(String text, String title, ImageResource imgres){
 		this(text, new Image(imgres));
 		this.setTitle(title);
@@ -80,7 +80,7 @@ public class CustomButton extends Button {
 	 * Creates a new button
 	 * @param text
 	 * @param image
-     * @param clickHandler
+	 * @param clickHandler
 	 */
 	public CustomButton(String text, Image image, ClickHandler clickHandler){
 		this(text, image);
@@ -97,48 +97,48 @@ public class CustomButton extends Button {
 		this(text, new Image(imgres), clickHandler);
 	}
 
-    /**
-     * Creates a new button
-     * @param text
-     * @param title
-     * @param imgres
-     * @param clickHandler
-     */
-    public CustomButton(String text, String title, ImageResource imgres, ClickHandler clickHandler){
-        this(text, new Image(imgres), clickHandler);
-        this.setTitle(title);
-    }
+	/**
+	 * Creates a new button
+	 * @param text
+	 * @param title
+	 * @param imgres
+	 * @param clickHandler
+	 */
+	public CustomButton(String text, String title, ImageResource imgres, ClickHandler clickHandler){
+		this(text, new Image(imgres), clickHandler);
+		this.setTitle(title);
+	}
 
 	/**
 	 * Adds the image to the button
 	 */
 	private void updateImage() {
 
-        if (this.isEnabled()) {
-            image.getElement().removeClassName("customButtonImageDisabled");
-            image.getElement().addClassName("customButtonImage");
-        } else {
-            image.getElement().removeClassName("customButtonImage");
-            image.getElement().addClassName("customButtonImageDisabled");
-        }
+		if (this.isEnabled()) {
+			image.getElement().removeClassName("customButtonImageDisabled");
+			image.getElement().addClassName("customButtonImage");
+		} else {
+			image.getElement().removeClassName("customButtonImage");
+			image.getElement().addClassName("customButtonImageDisabled");
+		}
 
-        if (imageRight) {
-            DOM.appendChild(getElement(), image.getElement());
-        } else {
-            DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
-        }
+		if (imageRight) {
+			DOM.appendChild(getElement(), image.getElement());
+		} else {
+			DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
+		}
 
 	}
 
-    /**
-     * Set new icon to the button
-     */
-    public void setIcon(ImageResource resource) {
+	/**
+	 * Set new icon to the button
+	 */
+	public void setIcon(ImageResource resource) {
 
-        image = new Image(resource);
-        updateImage();
+		image = new Image(resource);
+		updateImage();
 
-    }
+	}
 
 	/**
 	 * Sets the text, if empty, look like "only image" icon
@@ -149,22 +149,22 @@ public class CustomButton extends Button {
 
 		DOM.setInnerHTML(getElement(), ""); // cleans the HTML
 
-        if (!text.equals("")) {
+		if (!text.equals("")) {
 
-            // set new text if present
-            this.text = text;
-            Element span = DOM.createElement("span");
-            span.setInnerText(text);
+			// set new text if present
+			this.text = text;
+			Element span = DOM.createElement("span");
+			span.setInnerText(text);
 
-            if (imageRight) {
-                span.addClassName("customButtonTextLeft");
-            } else {
-                span.addClassName("customButtonText");
-            }
-            DOM.insertChild(getElement(), span, 0);
+			if (imageRight) {
+				span.addClassName("customButtonTextLeft");
+			} else {
+				span.addClassName("customButtonText");
+			}
+			DOM.insertChild(getElement(), span, 0);
 
-        }
-        // refresh image HTML
+		}
+		// refresh image HTML
 		updateImage();
 	}
 
@@ -177,63 +177,63 @@ public class CustomButton extends Button {
 		return this.text;
 	}
 
-    /**
-     * Make also button image look like disabled
-     * @param enabled
-     */
-    @Override
-    public void setEnabled(boolean enabled) {
+	/**
+	 * Make also button image look like disabled
+	 * @param enabled
+	 */
+	@Override
+	public void setEnabled(boolean enabled) {
 
-        // call super implementation
-        super.setEnabled(enabled);
-        // update image style along with text
-        updateImage();
+		// call super implementation
+		super.setEnabled(enabled);
+		// update image style along with text
+		updateImage();
 
-    }
+	}
 
-    /**
-     * Switch button to processing mode (with different text and image)
-     * and back to normal
-     *
-     * @param processing TRUE = processing / FALSE = normal
-     */
-    public void setProcessing(boolean processing) {
+	/**
+	 * Switch button to processing mode (with different text and image)
+	 * and back to normal
+	 *
+	 * @param processing TRUE = processing / FALSE = normal
+	 */
+	public void setProcessing(boolean processing) {
 
-        if (this.processing != processing) {
+		if (this.processing != processing) {
 
-            this.processing = processing;
+			this.processing = processing;
 
-            if (processing) {
+			if (processing) {
 
-                backupText = this.getText();
-                backupImage = this.image;
+				backupText = this.getText();
+				backupImage = this.image;
 
-                image = processingImage;
-                setText(backupText);
+				image = processingImage;
+				setText(backupText);
 
-                setEnabled(false);
+				setEnabled(false);
 
-            } else {
+			} else {
 
-                this.image = backupImage;
-                setText(backupText);
+				this.image = backupImage;
+				setText(backupText);
 
-                setEnabled(true);
+				setEnabled(true);
 
-            }
+			}
 
-        }
+		}
 
-    }
+	}
 
-    /**
-     * Set TRUE if image should be right of button text
-     *
-     * @param right TRUE = image on right / FALSE = image on left (default)
-     */
-    public void setImageAlign(boolean right) {
-        imageRight = right;
-        this.setText(this.getText());
-    }
+	/**
+	 * Set TRUE if image should be right of button text
+	 *
+	 * @param right TRUE = image on right / FALSE = image on left (default)
+	 */
+	public void setImageAlign(boolean right) {
+		imageRight = right;
+		this.setText(this.getText());
+	}
 
 }

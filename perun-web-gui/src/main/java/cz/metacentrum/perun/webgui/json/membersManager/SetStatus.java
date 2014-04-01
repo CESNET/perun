@@ -27,7 +27,7 @@ public class SetStatus implements JsonStatusSetCallback {
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param memberId ID of member to set new status
 	 */
 	public SetStatus(int memberId) {
@@ -36,7 +36,7 @@ public class SetStatus implements JsonStatusSetCallback {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param memberId ID of member to set new status
 	 * @param events Custom events
 	 */
@@ -48,7 +48,7 @@ public class SetStatus implements JsonStatusSetCallback {
 	/**
 	 * Tests the values, if the process can continue
 	 *
-     * @return true/false
+	 * @return true/false
 	 */
 	private boolean testSetting()
 	{

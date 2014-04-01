@@ -51,9 +51,9 @@ public class MainMenuItem {
 	/**
 	 * Creates new menu item
 	 *
-     * @param title Text shown
-     * @param tabItem
-     */
+	 * @param title Text shown
+	 * @param tabItem
+	 */
 	public MainMenuItem(String title, TabItemWithUrl tabItem){
 		this.title = title;
 		this.tabItem = tabItem;
@@ -62,10 +62,10 @@ public class MainMenuItem {
 	/**
 	 * Creates new menu item with custom image
 	 *
-     * @param title
-     * @param tabItem
-     * @param image
-     */
+	 * @param title
+	 * @param tabItem
+	 * @param image
+	 */
 	public MainMenuItem(String title, TabItemWithUrl tabItem, Image image){
 		this(title, tabItem);
 		this.image = image;
@@ -75,10 +75,10 @@ public class MainMenuItem {
 	/**
 	 * Creates new menu item with custom image
 	 *
-     * @param title
-     * @param tabItem
-     * @param imageResource
-     */
+	 * @param title
+	 * @param tabItem
+	 * @param imageResource
+	 */
 	public MainMenuItem(String title, TabItemWithUrl tabItem, ImageResource imageResource){
 		this(title, tabItem, new Image(imageResource));
 	}
@@ -92,55 +92,55 @@ public class MainMenuItem {
 		return this.widget;
 	}
 
-    /**
-     * Returns the image of link widget
-     *
-     * @return
-     */
-    public Widget getIcon(){
-        return this.image;
-    }
+	/**
+	 * Returns the image of link widget
+	 *
+	 * @return
+	 */
+	public Widget getIcon(){
+		return this.image;
+	}
 
 	/**
 	 * Re-build main menu item
-     * (check if item is selected)
+	 * (check if item is selected)
 	 */
 	public void build() {
 
-        Widget widget = new Widget();
+		Widget widget = new Widget();
 
-        boolean enabled = (tabItem != null);
+		boolean enabled = (tabItem != null);
 
 		// if menu item enabled - show hyperlink
 		if(enabled){
-            widget = new Hyperlink(title, session.getTabManager().getLinkForTab(tabItem));
-            widget.removeStyleName("mainMenuNotActive");
-		// else show plain text
+			widget = new Hyperlink(title, session.getTabManager().getLinkForTab(tabItem));
+			widget.removeStyleName("mainMenuNotActive");
+			// else show plain text
 		}else {
-            widget  = new HTML(title);
-            widget.addStyleName("mainMenuNotActive");
+			widget  = new HTML(title);
+			widget.addStyleName("mainMenuNotActive");
 		}
 
-        if (tabItem != null && session.getTabManager().getActiveTab() != null) {
-           this.active = (tabItem.getUrlWithParameters().equals(((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters()));
-            // FIXME - hack for group admin - groups when changing active VO
-            // IF ACTIVE TAB IS GROUP ADMIN - GROUPS
-            if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=")) {
-                this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=");
-            }
-        } else {
-            this.active = false;
-        }
+		if (tabItem != null && session.getTabManager().getActiveTab() != null) {
+			this.active = (tabItem.getUrlWithParameters().equals(((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters()));
+			// FIXME - hack for group admin - groups when changing active VO
+			// IF ACTIVE TAB IS GROUP ADMIN - GROUPS
+			if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=")) {
+				this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=");
+			}
+		} else {
+			this.active = false;
+		}
 
 		if(active){
-            widget.addStyleName("mainMenuActive");
+			widget.addStyleName("mainMenuActive");
 		} else {
-            widget.removeStyleName("mainMenuActive");
-        }
+			widget.removeStyleName("mainMenuActive");
+		}
 
-        this.widget = widget;
+		this.widget = widget;
 
-    }
+	}
 
 	public TabItemWithUrl getTabItem() {
 		return tabItem;

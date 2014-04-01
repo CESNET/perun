@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.UserExtSourceExistsRuntimeExc
  * @author Slavek Licehammer
  */
 public class UserExtSourceExistsException extends EntityExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private UserExtSource userExtSource;
+	private UserExtSource userExtSource;
 
-    public UserExtSourceExistsException(UserExtSourceExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public UserExtSourceExistsException(UserExtSourceExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public UserExtSourceExistsException(String message) {
-        super(message);
-    }
+	public UserExtSourceExistsException(String message) {
+		super(message);
+	}
 
-    public UserExtSourceExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public UserExtSourceExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public UserExtSourceExistsException(Throwable cause) {
-        super(cause);
-    }
+	public UserExtSourceExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public UserExtSourceExistsException(UserExtSource userExtSource) {
-      super(userExtSource.toString());
-      this.userExtSource = userExtSource;
-    }
+	public UserExtSourceExistsException(UserExtSource userExtSource) {
+		super(userExtSource.toString());
+		this.userExtSource = userExtSource;
+	}
 
-    public UserExtSource getExtSource() {
-        return this.userExtSource;
-    }
+	public UserExtSource getExtSource() {
+		return this.userExtSource;
+	}
 }

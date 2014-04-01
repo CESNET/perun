@@ -43,7 +43,7 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 	final MultiSelectionModel<TaskResult> selectionModel = new MultiSelectionModel<TaskResult>(new GeneralKeyProvider<TaskResult>());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private ArrayList<String> destinations;
+	private ArrayList<String> destinations;
 
 
 	/**
@@ -52,35 +52,35 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 	 * @param destinations
 	 */
 	public GetTaskResultsByDestinations(ArrayList<String> destinations) {
-        this.destinations = destinations;
+		this.destinations = destinations;
 	}
 
 	/**
 	 * New instance of get tasks results with external events
 	 *
-     * @param destinations
+	 * @param destinations
 	 * @param events external events
 	 */
 	public GetTaskResultsByDestinations(ArrayList<String> destinations, JsonCallbackEvents events) {
-        this.destinations = destinations;
+		this.destinations = destinations;
 		this.events = events;
 	}
 
-    /**
-     * Return table with task results and start callback
-     *
-     * @return table
-     */
-    public CellTable<TaskResult> getTable() {
+	/**
+	 * Return table with task results and start callback
+	 *
+	 * @return table
+	 */
+	public CellTable<TaskResult> getTable() {
 
-        retrieveData();
-        return getTableDefinition();
+		retrieveData();
+		return getTableDefinition();
 
-    }
+	}
 
 	/**
 	 * Return table definition
-     *
+	 *
 	 * @return table widget
 	 */
 	public CellTable<TaskResult> getTableDefinition() {
@@ -90,7 +90,7 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 
 		// Cell table
 		table = new PerunTable<TaskResult>(list);
-        table.removeRowCountChangeHandler();
+		table.removeRowCountChangeHandler();
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
@@ -104,7 +104,7 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No propagation results found for this destination.");
+		loaderImage.setEmptyResultMessage("No propagation results found for this destination.");
 
 		table.addIdColumn("Result Id", null, 85);
 
@@ -138,18 +138,18 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 			}
 		});
 
-        TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
-            @Override
-            public String getValue(TaskResult taskResult) {
-                return taskResult.getService().getName();
-            }
-        };
-        servColumn.setSortable(true);
-        columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
-            public int compare(TaskResult o1, TaskResult o2) {
-                return o1.getService().getName().compareToIgnoreCase(o2.getService().getName());
-            }
-        });
+		TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult taskResult) {
+				return taskResult.getService().getName();
+			}
+		};
+		servColumn.setSortable(true);
+		columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
+			public int compare(TaskResult o1, TaskResult o2) {
+				return o1.getService().getName().compareToIgnoreCase(o2.getService().getName());
+			}
+		});
 
 		// status column
 		TextColumn<TaskResult> statusColumn = new TextColumn<TaskResult>() {
@@ -166,11 +166,11 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 			}
 		});
 
-        // time column
+		// time column
 		TextColumn<TaskResult> timeColumn = new TextColumn<TaskResult>() {
 			@Override
 			public String getValue(TaskResult object) {
-                return object.getTimestamp();
+				return object.getTimestamp();
 			}
 		};
 
@@ -220,8 +220,8 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 		// Add the other columns.
 		//table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
-        table.addColumn(servColumn, "Service");
-        table.addColumn(statusColumn, "Status");
+		table.addColumn(servColumn, "Service");
+		table.addColumn(statusColumn, "Status");
 		table.addColumn(timeColumn, "Time");
 		table.addColumn(returnCodeColumn, "Return code");
 		//table.addColumn(standardMessageColumn, "Standard Message");
@@ -243,7 +243,7 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
-				return "";
+		return "";
 
 			}
 		});
@@ -258,133 +258,133 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
 
-        String params = "";
-        // serialize parameters
-        if (destinations != null && !destinations.isEmpty()) {
-            // parse lists
-            for (int i=0; i<destinations.size(); i++) {
-                if (i != destinations.size()-1) {
-                    params += "destinations[]=" + destinations.get(i) + "&";
-                } else {
-                    params += "destinations[]=" + destinations.get(i);
-                }
-            }
-        }
+		String params = "";
+		// serialize parameters
+		if (destinations != null && !destinations.isEmpty()) {
+			// parse lists
+			for (int i=0; i<destinations.size(); i++) {
+				if (i != destinations.size()-1) {
+					params += "destinations[]=" + destinations.get(i) + "&";
+				} else {
+					params += "destinations[]=" + destinations.get(i);
+				}
+			}
+		}
 
 		js.retrieveData(JSON_URL, params, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<TaskResult>().sortByRichTaskResultService(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<TaskResult>().sortByRichTaskResultService(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(TaskResult object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(TaskResult object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(TaskResult object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(TaskResult object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<TaskResult> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<TaskResult> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Task results.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Task results.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Task results started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Task results started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<TaskResult>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Task results loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<TaskResult>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Task results loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void insertToTable(int index, TaskResult object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, TaskResult object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<TaskResult> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<TaskResult> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<TaskResult> getList() {
-        return this.list;
-    }
+	public ArrayList<TaskResult> getList() {
+		return this.list;
+	}
 
 }

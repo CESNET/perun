@@ -7,15 +7,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class NotMemberOfParentGroupException extends RelationExistsException {
 
-    public NotMemberOfParentGroupException(String message) {
-        super(message);
-    }
+	public NotMemberOfParentGroupException(String message) {
+		super(message);
+	}
 
-    public NotMemberOfParentGroupException(Throwable cause) {
-        super(cause);
-    }
+	public NotMemberOfParentGroupException(Throwable cause) {
+		super(cause);
+	}
 
-    public NotMemberOfParentGroupException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public NotMemberOfParentGroupException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

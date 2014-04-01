@@ -33,204 +33,204 @@ import static org.junit.Assert.*;
  */
 public class AppTest extends AbstractTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(AppTest.class);
 
-    @Test
+	@Test
 	public void testNotificationListener() throws Exception {
 
-        InputStream inputStream = AbstractTest.class.getClassLoader().getResourceAsStream("test_notification_listener.sql");
+		InputStream inputStream = AbstractTest.class.getClassLoader().getResourceAsStream("test_notification_listener.sql");
 
-        try {
-            Connection conn = dataSource2.getConnection();
-            Statement st = conn.createStatement();
+		try {
+			Connection conn = dataSource2.getConnection();
+			Statement st = conn.createStatement();
 
-            String theString = convertStreamToString(inputStream);
-            st.execute(theString);
+			String theString = convertStreamToString(inputStream);
+			st.execute(theString);
 
-            conn.commit();
-            conn.close();
-        } catch (SQLException ex) {
-            System.err.println("Error during db setting: " + ex.getMessage());
-            ex.printStackTrace();
+			conn.commit();
+			conn.close();
+		} catch (SQLException ex) {
+			System.err.println("Error during db setting: " + ex.getMessage());
+			ex.printStackTrace();
 
-            throw new RuntimeException("Error during initialization of db.");
-        }
+			throw new RuntimeException("Error during initialization of db.");
+		}
 
-        springCtx = new ClassPathXmlApplicationContext(
-                "perun-beans.xml",
-                "perun-datasources.xml",
-                "perun-notification-applicationcontext-jdbc-test.xml",
-                "perun-notification-applicationcontext-test.xml",
-                "perun-notification-applicationcontext-scheduling-test.xml"
-        );
+		springCtx = new ClassPathXmlApplicationContext(
+				"perun-beans.xml",
+				"perun-datasources.xml",
+				"perun-notification-applicationcontext-jdbc-test.xml",
+				"perun-notification-applicationcontext-test.xml",
+				"perun-notification-applicationcontext-scheduling-test.xml"
+				);
 
-        NotificationListener notificationListener = springCtx.getBean("notificationListener", NotificationListener.class);
+		NotificationListener notificationListener = springCtx.getBean("notificationListener", NotificationListener.class);
 
-        notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] created.");
-        notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] validated.");
+		notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] created.");
+		notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] validated.");
 
-        SchedulingManagerImpl schedulingManager = springCtx.getBean("schedulingManager", SchedulingManagerImpl.class);
+		SchedulingManagerImpl schedulingManager = springCtx.getBean("schedulingManager", SchedulingManagerImpl.class);
 
-        schedulingManager.doNotification();
+		schedulingManager.doNotification();
 
-        int i = 0;
-        boolean doWait = true;
-        while (doWait) {
-            if (smtpServer.getReceivedEmailSize() < 0) {
-                if (i < 15) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception ex) {
-                        logger.error("Error during sleep.", ex);
-                    }
-                } else {
-                    doWait = false;
-                }
-            } else {
-                doWait = false;
-            }
-            i++;
-        }
+		int i = 0;
+		boolean doWait = true;
+		while (doWait) {
+			if (smtpServer.getReceivedEmailSize() < 0) {
+				if (i < 15) {
+					try {
+						Thread.sleep(1000);
+					} catch (Exception ex) {
+						logger.error("Error during sleep.", ex);
+					}
+				} else {
+					doWait = false;
+				}
+			} else {
+				doWait = false;
+			}
+			i++;
+		}
 
-        if (smtpServer.getReceivedEmailSize() > 0) {
+		if (smtpServer.getReceivedEmailSize() > 0) {
 
-        } else {
-            fail("Email not received.");
-        }
+		} else {
+			fail("Email not received.");
+		}
 	}
 
-    @Test
-    public void testPerunNotifNotificationManager() throws InternalErrorException, PerunNotifRegexUsedException {
+	@Test
+	public void testPerunNotifNotificationManager() throws InternalErrorException, PerunNotifRegexUsedException {
 
-        ApplicationContext springCtx = new ClassPathXmlApplicationContext("perun-beans.xml",
-                "perun-datasources.xml",
-                "perun-notification-applicationcontext-jdbc-test.xml",
-                "perun-notification-applicationcontext-test.xml");
+		ApplicationContext springCtx = new ClassPathXmlApplicationContext("perun-beans.xml",
+				"perun-datasources.xml",
+				"perun-notification-applicationcontext-jdbc-test.xml",
+				"perun-notification-applicationcontext-test.xml");
 
-        PerunNotifNotificationManager manager = springCtx.getBean("perunNotifNotificationManager", PerunNotifNotificationManagerImpl.class);
+		PerunNotifNotificationManager manager = springCtx.getBean("perunNotifNotificationManager", PerunNotifNotificationManagerImpl.class);
 
-        PerunNotifTemplate template = new PerunNotifTemplate();
-        template.setLocale("cs");
-        template.setNotifyTrigger(PerunNotifNotifyTrigger.STREAM);
-        template.setOldestMessageTime(1L);
-        Map<String, List<String>> primaryProperties = new HashMap<String, List<String>>();
-        List<String> testProperty = new ArrayList<String>();
-        testProperty.add("property1");
-        primaryProperties.put("prop1", testProperty);
-        template.setPrimaryProperties(primaryProperties);
-        template.setYoungestMessageTime(0L);
-        template.setSender("sender");
+		PerunNotifTemplate template = new PerunNotifTemplate();
+		template.setLocale("cs");
+		template.setNotifyTrigger(PerunNotifNotifyTrigger.STREAM);
+		template.setOldestMessageTime(1L);
+		Map<String, List<String>> primaryProperties = new HashMap<String, List<String>>();
+		List<String> testProperty = new ArrayList<String>();
+		testProperty.add("property1");
+		primaryProperties.put("prop1", testProperty);
+		template.setPrimaryProperties(primaryProperties);
+		template.setYoungestMessageTime(0L);
+		template.setSender("sender");
 
-        manager.savePerunNotifTemplate(template);
+		manager.savePerunNotifTemplate(template);
 
-        PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(template.getId());
-        assertNotNull(templateFromDb);
-        assertEquals(template, templateFromDb);
-        assertEquals(template.getLocale(), templateFromDb.getLocale());
-        assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
-        assertEquals(template.getOldestMessageTime(), templateFromDb.getOldestMessageTime());
-        assertEquals(template.getPrimaryProperties(), templateFromDb.getPrimaryProperties());
-        assertEquals(template.getYoungestMessageTime(), templateFromDb.getYoungestMessageTime());
-        assertEquals(template.getSender(), templateFromDb.getSender());
+		PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(template.getId());
+		assertNotNull(templateFromDb);
+		assertEquals(template, templateFromDb);
+		assertEquals(template.getLocale(), templateFromDb.getLocale());
+		assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
+		assertEquals(template.getOldestMessageTime(), templateFromDb.getOldestMessageTime());
+		assertEquals(template.getPrimaryProperties(), templateFromDb.getPrimaryProperties());
+		assertEquals(template.getYoungestMessageTime(), templateFromDb.getYoungestMessageTime());
+		assertEquals(template.getSender(), templateFromDb.getSender());
 
-        PerunNotifObject object = new PerunNotifObject();
-        object.setName("testName");
-        Set<String> properties = new HashSet<String>();
-        properties.add("testProperty");
-        object.setProperties(properties);
-        object.setObjectClass(Member.class);
-        manager.savePerunNotifObject(object);
+		PerunNotifObject object = new PerunNotifObject();
+		object.setName("testName");
+		Set<String> properties = new HashSet<String>();
+		properties.add("testProperty");
+		object.setProperties(properties);
+		object.setObjectClass(Member.class);
+		manager.savePerunNotifObject(object);
 
-        PerunNotifObject objectFromDb = manager.getPerunNotifObjectById(object.getId());
-        assertNotNull(objectFromDb);
-        assertEquals(object, objectFromDb);
-        assertEquals(object.getObjectClass(), objectFromDb.getObjectClass());
-        assertEquals(object.getName(), objectFromDb.getName());
-        assertEquals(object.getProperties(), objectFromDb.getProperties());
+		PerunNotifObject objectFromDb = manager.getPerunNotifObjectById(object.getId());
+		assertNotNull(objectFromDb);
+		assertEquals(object, objectFromDb);
+		assertEquals(object.getObjectClass(), objectFromDb.getObjectClass());
+		assertEquals(object.getName(), objectFromDb.getName());
+		assertEquals(object.getProperties(), objectFromDb.getProperties());
 
-        PerunNotifRegex regex = new PerunNotifRegex();
-        regex.setNote("note");
-        regex.setRegex("regex");
-        Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
-        regexObjects.add(objectFromDb);
-        regex.setObjects(regexObjects);
-        manager.savePerunNotifRegex(regex);
+		PerunNotifRegex regex = new PerunNotifRegex();
+		regex.setNote("note");
+		regex.setRegex("regex");
+		Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
+		regexObjects.add(objectFromDb);
+		regex.setObjects(regexObjects);
+		manager.savePerunNotifRegex(regex);
 
-        PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(regex.getId());
-        assertNotNull(regexFromDb);
-        assertEquals(regex, regexFromDb);
-        assertEquals(regex.getNote(), regexFromDb.getNote());
-        assertEquals(regex.getRegex(), regexFromDb.getRegex());
-        assertEquals(regex.getObjects(), regexFromDb.getObjects());
+		PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(regex.getId());
+		assertNotNull(regexFromDb);
+		assertEquals(regex, regexFromDb);
+		assertEquals(regex.getNote(), regexFromDb.getNote());
+		assertEquals(regex.getRegex(), regexFromDb.getRegex());
+		assertEquals(regex.getObjects(), regexFromDb.getObjects());
 
-        PerunNotifReceiver receiver = new PerunNotifReceiver();
-        receiver.setTarget("target");
-        receiver.setTemplateId(template.getId());
-        receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
+		PerunNotifReceiver receiver = new PerunNotifReceiver();
+		receiver.setTarget("target");
+		receiver.setTemplateId(template.getId());
+		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
 
-        manager.savePerunNotifReceiver(receiver);
-        PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(receiver.getId());
-        assertNotNull(receiverFromDb);
-        assertEquals(receiver, receiverFromDb);
-        assertEquals(receiver.getTemplateId(), receiverFromDb.getTemplateId());
-        assertEquals(receiver.getTarget(), receiverFromDb.getTarget());
-        assertEquals(receiver.getTypeOfReceiver(), receiverFromDb.getTypeOfReceiver());
+		manager.savePerunNotifReceiver(receiver);
+		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(receiver.getId());
+		assertNotNull(receiverFromDb);
+		assertEquals(receiver, receiverFromDb);
+		assertEquals(receiver.getTemplateId(), receiverFromDb.getTemplateId());
+		assertEquals(receiver.getTarget(), receiverFromDb.getTarget());
+		assertEquals(receiver.getTypeOfReceiver(), receiverFromDb.getTypeOfReceiver());
 
-        PerunNotifTemplateMessage templateMessage = new PerunNotifTemplateMessage();
-        templateMessage.setLocale(PerunNotifLocale.cs);
-        templateMessage.setMessage("message");
-        templateMessage.setTemplateId(template.getId());
-        templateMessage.setSubject("cesky subject");
+		PerunNotifTemplateMessage templateMessage = new PerunNotifTemplateMessage();
+		templateMessage.setLocale(PerunNotifLocale.cs);
+		templateMessage.setMessage("message");
+		templateMessage.setTemplateId(template.getId());
+		templateMessage.setSubject("cesky subject");
 
-        manager.savePerunNotifTemplateMessage(templateMessage);
-        PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(templateMessage.getId());
-        assertNotNull(templateMessageFromDb);
-        assertEquals(templateMessage, templateMessageFromDb);
-        assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
-        assertEquals(templateMessage.getTemplateId(), templateMessageFromDb.getTemplateId());
-        assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
-        Assert.assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
+		manager.savePerunNotifTemplateMessage(templateMessage);
+		PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(templateMessage.getId());
+		assertNotNull(templateMessageFromDb);
+		assertEquals(templateMessage, templateMessageFromDb);
+		assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
+		assertEquals(templateMessage.getTemplateId(), templateMessageFromDb.getTemplateId());
+		assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
+		Assert.assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
 
-        templateFromDb = manager.getPerunNotifTemplateById(templateFromDb.getId());
-        templateFromDb.addPerunNotifRegex(regex);
-        templateFromDb = manager.updatePerunNotifTemplate(templateFromDb);
+		templateFromDb = manager.getPerunNotifTemplateById(templateFromDb.getId());
+		templateFromDb.addPerunNotifRegex(regex);
+		templateFromDb = manager.updatePerunNotifTemplate(templateFromDb);
 
-        //Test for complete load of template
-        PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(template.getId());
+		//Test for complete load of template
+		PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(template.getId());
 
-        assertNotNull(templateFromDbForTest.getPerunNotifTemplateMessages());
-        assertNotNull(templateFromDbForTest.getMatchingRegexs());
-        assertNotNull(templateFromDbForTest.getOldestMessageTime());
-        assertNotNull(templateFromDbForTest.getYoungestMessageTime());
-        assertNotNull(templateFromDbForTest.getLocale());
-        assertNotNull(templateFromDbForTest.getNotifyTrigger());
-        assertNotNull(templateFromDbForTest.getPrimaryProperties());
-        assertNotNull(templateFromDbForTest.getReceivers());
-        assertNotNull(templateFromDbForTest.getSerializedPrimaryProperties());
+		assertNotNull(templateFromDbForTest.getPerunNotifTemplateMessages());
+		assertNotNull(templateFromDbForTest.getMatchingRegexs());
+		assertNotNull(templateFromDbForTest.getOldestMessageTime());
+		assertNotNull(templateFromDbForTest.getYoungestMessageTime());
+		assertNotNull(templateFromDbForTest.getLocale());
+		assertNotNull(templateFromDbForTest.getNotifyTrigger());
+		assertNotNull(templateFromDbForTest.getPrimaryProperties());
+		assertNotNull(templateFromDbForTest.getReceivers());
+		assertNotNull(templateFromDbForTest.getSerializedPrimaryProperties());
 
-        assertTrue(templateFromDbForTest.getReceivers().contains(receiver));
-        assertTrue(templateFromDbForTest.getMatchingRegexs().contains(regex));
-        assertTrue(templateFromDbForTest.getPerunNotifTemplateMessages().contains(templateMessage));
+		assertTrue(templateFromDbForTest.getReceivers().contains(receiver));
+		assertTrue(templateFromDbForTest.getMatchingRegexs().contains(regex));
+		assertTrue(templateFromDbForTest.getPerunNotifTemplateMessages().contains(templateMessage));
 
-        manager.removePerunNotifTemplateMessage(templateMessage.getId());
-        assertNull(manager.getPerunNotifTemplateMessageById(templateMessage.getId()));
+		manager.removePerunNotifTemplateMessage(templateMessage.getId());
+		assertNull(manager.getPerunNotifTemplateMessageById(templateMessage.getId()));
 
-        manager.removePerunNotifReceiverById(receiver.getId());
-        assertNull(manager.getPerunNotifReceiverById(receiver.getId()));
+		manager.removePerunNotifReceiverById(receiver.getId());
+		assertNull(manager.getPerunNotifReceiverById(receiver.getId()));
 
-        manager.removePerunNotifTemplateRegexRelation(template.getId(), regex.getId());
-        manager.removePerunNotifRegexById(regex.getId());
-        assertNull(manager.getPerunNotifRegexById(regex.getId()));
+		manager.removePerunNotifTemplateRegexRelation(template.getId(), regex.getId());
+		manager.removePerunNotifRegexById(regex.getId());
+		assertNull(manager.getPerunNotifRegexById(regex.getId()));
 
-        manager.removePerunNotifObjectById(object.getId());
-        assertNull(manager.getPerunNotifObjectById(object.getId()));
+		manager.removePerunNotifObjectById(object.getId());
+		assertNull(manager.getPerunNotifObjectById(object.getId()));
 
-        templateFromDb = manager.getPerunNotifTemplateById(template.getId());
-        assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
-        assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null || templateFromDb.getPerunNotifTemplateMessages().isEmpty());
-        assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
+		templateFromDb = manager.getPerunNotifTemplateById(template.getId());
+		assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
+		assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null || templateFromDb.getPerunNotifTemplateMessages().isEmpty());
+		assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
 
-        manager.removePerunNotifTemplateById(template.getId());
-        assertNull(manager.getPerunNotifTemplateById(template.getId()));
-    }
+		manager.removePerunNotifTemplateById(template.getId());
+		assertNull(manager.getPerunNotifTemplateById(template.getId()));
+	}
 }

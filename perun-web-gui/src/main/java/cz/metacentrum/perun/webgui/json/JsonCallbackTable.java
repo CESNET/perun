@@ -16,8 +16,8 @@ public interface JsonCallbackTable <T extends JavaScriptObject> extends JsonCall
 
 	/**
 	 * Clears all table content
-     * Reset all selections
-     *
+	 * Reset all selections
+	 *
 	 */
 	void clearTable();
 

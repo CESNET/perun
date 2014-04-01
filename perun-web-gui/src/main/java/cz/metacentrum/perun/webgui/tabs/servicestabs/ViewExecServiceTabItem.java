@@ -61,8 +61,8 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param service
-     */
+	 * @param service
+	 */
 	public ViewExecServiceTabItem(ExecService service){
 		this.execService = service;
 		this.execServiceId = service.getId();
@@ -71,15 +71,15 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param serviceId
-     */
+	 * @param serviceId
+	 */
 	public ViewExecServiceTabItem(int serviceId){
 		this.execServiceId = serviceId;
-        new GetEntityById(PerunEntity.EXEC_SERVICE, execServiceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                execService = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.EXEC_SERVICE, execServiceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				execService = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -110,12 +110,12 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		ft.setHTML(0, 2, "Script path:");
 		ft.setHTML(1, 2, "Default delay:");
 
-        ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-        ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-        ft.getFlexCellFormatter().setStyleName(2, 0, "itemName");
-        ft.getFlexCellFormatter().setStyleName(3, 0, "itemName");
-        ft.getFlexCellFormatter().setStyleName(0, 2, "itemName");
-        ft.getFlexCellFormatter().setStyleName(1, 2, "itemName");
+		ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+		ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+		ft.getFlexCellFormatter().setStyleName(2, 0, "itemName");
+		ft.getFlexCellFormatter().setStyleName(3, 0, "itemName");
+		ft.getFlexCellFormatter().setStyleName(0, 2, "itemName");
+		ft.getFlexCellFormatter().setStyleName(1, 2, "itemName");
 
 		ft.setHTML(0, 1, String.valueOf(execServiceId));
 		ft.setHTML(1, 1, execService.getService().getName());
@@ -128,60 +128,60 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		vp.add(dp);
 
 		// callback
-	    final ListExecServicesThisExecServiceDependsOn callback = new ListExecServicesThisExecServiceDependsOn(execServiceId);
+		final ListExecServicesThisExecServiceDependsOn callback = new ListExecServicesThisExecServiceDependsOn(execServiceId);
 
 		// refresh event
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-        // add button
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new AddDependencyTabItem(execService));
-            }
-        }));
-
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDependantExecServices());
-        menu.addWidget(removeButton);
-        removeButton.addClickHandler(new ClickHandler() {
+		// add button
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService(), new ClickHandler() {
 			@Override
-            public void onClick(ClickEvent event) {
-                final ArrayList<ExecService> dependencyForDeletion = callback.getTableSelectedList();
-                UiElements.showDeleteConfirm(dependencyForDeletion, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<dependencyForDeletion.size(); i++ ) {
-                            if (i == dependencyForDeletion.size()-1) {
-                                RemoveDependency request = new RemoveDependency(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                request.removeDependency(execServiceId, dependencyForDeletion.get(i).getId());
-                            } else {
-                                RemoveDependency request = new RemoveDependency(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeDependency(execServiceId, dependencyForDeletion.get(i).getId());
-                            }
-                        }
-                    }
-                });
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new AddDependencyTabItem(execService));
+			}
+		}));
+
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDependantExecServices());
+		menu.addWidget(removeButton);
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<ExecService> dependencyForDeletion = callback.getTableSelectedList();
+				UiElements.showDeleteConfirm(dependencyForDeletion, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<dependencyForDeletion.size(); i++ ) {
+							if (i == dependencyForDeletion.size()-1) {
+								RemoveDependency request = new RemoveDependency(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.removeDependency(execServiceId, dependencyForDeletion.get(i).getId());
+							} else {
+								RemoveDependency request = new RemoveDependency(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.removeDependency(execServiceId, dependencyForDeletion.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
-	    HTML title = new HTML("<h3>Depends on: </h3>");
-	    vp.add(title);
-	    vp.add(menu);
+		HTML title = new HTML("<h3>Depends on: </h3>");
+		vp.add(title);
+		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-	    vp.setCellHeight(title, "20px");
+		vp.setCellHeight(title, "20px");
 
-	    // get table
-	    CellTable<ExecService> table = callback.getTable();
+		// get table
+		CellTable<ExecService> table = callback.getTable();
 
 		// create scroll panel for table
-	    table.addStyleName("perun-table");
+		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 		sp.setWidth("100%");
 
-        removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, removeButton);
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeButton);
 
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
@@ -235,7 +235,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL, execService.getService().getName(), ServicesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ServiceDetailTabItem.URL+"?id="+ execService.getService().getId());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL, execService.getService().getName(), ServicesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ServiceDetailTabItem.URL+"?id="+ execService.getService().getId());
 	}
 
 	public boolean isAuthorized() {

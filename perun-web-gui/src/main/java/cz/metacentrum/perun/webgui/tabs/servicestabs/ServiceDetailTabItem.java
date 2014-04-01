@@ -63,8 +63,8 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Tab with service details and complete management
 	 *
-     * @param service service to get details for
-     */
+	 * @param service service to get details for
+	 */
 	public ServiceDetailTabItem(Service service){
 		this.service = service;
 		this.serviceId = service.getId();
@@ -74,15 +74,15 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Tab with service details and complete management
 	 *
-     * @param serviceId service to get details for
-     */
+	 * @param serviceId service to get details for
+	 */
 	public ServiceDetailTabItem(int serviceId){
 		this.serviceId = serviceId;
-        new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                service = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				service = jso.cast();
+			}
+		}).retrieveData();
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
 
@@ -94,49 +94,49 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()));
 
-        // main widget panel
-        final VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		// main widget panel
+		final VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        AbsolutePanel dp = new AbsolutePanel();
-        final FlexTable menu = new FlexTable();
-        menu.setCellSpacing(5);
+		AbsolutePanel dp = new AbsolutePanel();
+		final FlexTable menu = new FlexTable();
+		menu.setCellSpacing(5);
 
-        // Add service information
-        menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.trafficLightsIcon()));
-        Label serviceName = new Label();
-        serviceName.setText(Utils.getStrippedStringWithEllipsis(service.getName(), 40));
-        serviceName.setStyleName("now-managing");
-        serviceName.setTitle(service.getName());
-        menu.setWidget(0, 1, serviceName);
+		// Add service information
+		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.trafficLightsIcon()));
+		Label serviceName = new Label();
+		serviceName.setText(Utils.getStrippedStringWithEllipsis(service.getName(), 40));
+		serviceName.setStyleName("now-managing");
+		serviceName.setTitle(service.getName());
+		menu.setWidget(0, 1, serviceName);
 
-        menu.setHTML(0, 2, "&nbsp;");
-        menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+		menu.setHTML(0, 2, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-        int column = 3;
-        if (JsonUtils.isExtendedInfoVisible()) {
-            menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+service.getId()+"</span>");
-            column++;
-            menu.setHTML(0, column, "&nbsp;");
-            menu.getFlexCellFormatter().setWidth(0, column, "25px");
-            column++;
-        }
+		int column = 3;
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+service.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
 
-        // TODO - waiting for time, when service will have description param
-        //menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
+		// TODO - waiting for time, when service will have description param
+		//menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
 
-        CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                tabPanel.getSelectedTabItem().draw();
-            }
-        });
-        dp.add(cb);
-        cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabPanel.getSelectedTabItem().draw();
+			}
+		});
+		dp.add(cb);
+		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
-        dp.add(menu);
-        vp.add(dp);
-        vp.setCellHeight(dp, "30px");
+		dp.add(menu);
+		vp.add(dp);
+		vp.setCellHeight(dp, "30px");
 
 		// TAB PANEL
 
@@ -146,16 +146,16 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.add(new ServiceExecServicesTabItem(service), "Exec services");
 		tabPanel.add(new ServiceDestinationsTabItem(service), "Destinations");
 
-        // Resize must be called after page fully displays
-        Scheduler.get().scheduleDeferred(new Command() {
-            @Override
-            public void execute() {
-                tabPanel.finishAdding();
-            }
-        });
+		// Resize must be called after page fully displays
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				tabPanel.finishAdding();
+			}
+		});
 
 		vp.add(tabPanel);
-        vp.setCellHeight(tabPanel, "100%");
+		vp.setCellHeight(tabPanel, "100%");
 
 		// add tabs to the main panel
 		this.contentWidget.setWidget(vp);
@@ -205,7 +205,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL);
 	}
 
 	public boolean isAuthorized() {

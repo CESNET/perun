@@ -6,18 +6,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Michal Stava
  */
 public class HostAlreadyRemovedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public HostAlreadyRemovedException(String message) {
-        super(message);
-    }
+	public HostAlreadyRemovedException(String message) {
+		super(message);
+	}
 
-    public HostAlreadyRemovedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public HostAlreadyRemovedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public HostAlreadyRemovedException(Throwable cause) {
-        super(cause);
-    }
+	public HostAlreadyRemovedException(Throwable cause) {
+		super(cause);
+	}
 
 }

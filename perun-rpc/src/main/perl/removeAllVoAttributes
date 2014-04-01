@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes all attributes from the VO. VO id or short name is required.
------------------------------------
-Available options:
- --voId         | -v vo id
- --voShortName  | -V vo name
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes all attributes from the VO. VO id or short name is required.
+	-----------------------------------
+	Available options:
+	--voId         | -v vo id
+	--voShortName  | -V vo name
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($voId, $voShortName, $userId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "voId|v=i" => \$voId,
+"voId|v=i" => \$voId,
  "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
@@ -30,9 +30,9 @@ unless (defined($voId) or defined($voShortName)) { die "ERROR: voId or voShortNa
 my $agent = Perun::Agent->new();
 
 unless($voId) {
-    my $vosAgent = $agent->getVosAgent;
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId=$vo->getId;
+	my $vosAgent = $agent->getVosAgent;
+	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	$voId=$vo->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;

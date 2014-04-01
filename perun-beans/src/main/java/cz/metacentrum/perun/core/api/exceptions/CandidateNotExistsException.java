@@ -9,28 +9,28 @@ import cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeExcepti
  * @author Martin Kuba
  */
 public class CandidateNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private String candidate;
+	private String candidate;
 
-    public CandidateNotExistsException(MemberNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public CandidateNotExistsException(MemberNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public CandidateNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public CandidateNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public CandidateNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public CandidateNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public CandidateNotExistsException(String candidate) {
-      super(candidate.toString());
-      this.candidate = candidate;
-    }
+	public CandidateNotExistsException(String candidate) {
+		super(candidate.toString());
+		this.candidate = candidate;
+	}
 
-    public String getCandidate() {
-        return this.candidate;
-    }
+	public String getCandidate() {
+		return this.candidate;
+	}
 }

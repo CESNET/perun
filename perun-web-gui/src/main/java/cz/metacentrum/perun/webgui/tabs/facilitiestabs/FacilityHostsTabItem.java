@@ -61,16 +61,16 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param facilityId
-     */
+	 * @param facilityId
+	 */
 	public FacilityHostsTabItem(int facilityId){
 		this.facilityId = facilityId;
 		this.titleWidget.setText("Hosts: "+facilityId);
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 
@@ -80,16 +80,16 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param facility
-     */
+	 * @param facility
+	 */
 	public FacilityHostsTabItem(Facility facility){
 		this.facilityId = facility.getId();
-        this.facility = facility;
+		this.facility = facility;
 	}
 
 	public Widget draw() {
 
-        titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Hosts");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Hosts");
 
 		// main panel
 		VerticalPanel firstTabPanel = new VerticalPanel();
@@ -101,54 +101,54 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 		// menu
 		TabMenu menu = new TabMenu();
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new AddHostsTabItem(facility));
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new AddHostsTabItem(facility));
+			}
+		}));
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeHosts());
-        removeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                final ArrayList<Host> hostsForRemoving = hosts.getTableSelectedList();
-                String text = "Following hosts will be removed from facility.";
-                UiElements.showDeleteConfirm(hostsForRemoving, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i = 0; i < hostsForRemoving.size(); i++) {
-                            if (i == hostsForRemoving.size()-1) {
-                                RemoveHosts request = new RemoveHosts(facilityId, JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                request.removeHost(hostsForRemoving.get(i).getId());
-                            } else {
-                                RemoveHosts request = new RemoveHosts(facilityId, JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeHost(hostsForRemoving.get(i).getId());
-                            }
-                        }
-                }});
-            }
-        });
-        menu.addWidget(removeButton);
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeHosts());
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<Host> hostsForRemoving = hosts.getTableSelectedList();
+				String text = "Following hosts will be removed from facility.";
+				UiElements.showDeleteConfirm(hostsForRemoving, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < hostsForRemoving.size(); i++) {
+							if (i == hostsForRemoving.size()-1) {
+								RemoveHosts request = new RemoveHosts(facilityId, JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.removeHost(hostsForRemoving.get(i).getId());
+							} else {
+								RemoveHosts request = new RemoveHosts(facilityId, JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.removeHost(hostsForRemoving.get(i).getId());
+							}
+						}
+					}});
+			}
+		});
+		menu.addWidget(removeButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(hosts.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                hosts.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterHosts());
+		menu.addFilterWidget(new ExtendedSuggestBox(hosts.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				hosts.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterHosts());
 
 		// Hosts table
 		CellTable<Host> table = hosts.getTable(new FieldUpdater<Host, String>() {
-            @Override
-            public void update(int index, Host object, String value) {
-                session.getTabManager().addTab(new FacilityHostsSettingsTabItem(facility, object));
-            }
-        });
+			@Override
+			public void update(int index, Host object, String value) {
+				session.getTabManager().addTab(new FacilityHostsSettingsTabItem(facility, object));
+			}
+		});
 
-        removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(hosts, table, removeButton);
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(hosts, table, removeButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -212,7 +212,7 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Hosts", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Hosts", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {

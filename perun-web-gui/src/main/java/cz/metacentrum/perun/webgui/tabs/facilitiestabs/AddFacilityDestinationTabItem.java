@@ -43,7 +43,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -61,8 +61,8 @@ public class AddFacilityDestinationTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     * @param facility facility to get services from / destination to add
-     */
+	 * @param facility facility to get services from / destination to add
+	 */
 	public AddFacilityDestinationTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -79,25 +79,25 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
-        layout.setWidth("300px");
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		layout.setWidth("300px");
 
 		final TextBox destination = new TextBox();
 		final ListBox type = new ListBox();
 		type.addItem("HOST","host");
-        type.addItem("USER@HOST", "user@host");
-        type.addItem("USER@HOST:PORT", "user@host:port");
-        type.addItem("URL","url");
+		type.addItem("USER@HOST", "user@host");
+		type.addItem("USER@HOST:PORT", "user@host:port");
+		type.addItem("URL","url");
 		type.addItem("MAIL","email");
-        type.addItem("SIGNED MAIL","semail");
+		type.addItem("SIGNED MAIL","semail");
 
-        TabMenu menu = new TabMenu();
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
+		TabMenu menu = new TabMenu();
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
 
-        final ListBoxWithObjects<Service> services = new ListBoxWithObjects<Service>();
+		final ListBoxWithObjects<Service> services = new ListBoxWithObjects<Service>();
 		final CheckBox useHosts = new CheckBox(WidgetTranslation.INSTANCE.useFacilityHostnames(), false);
 		useHosts.setTitle(WidgetTranslation.INSTANCE.useFacilityHostnamesTitle());
 
@@ -127,12 +127,12 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		// fills services listbox with assigned services
 		final JsonCallbackEvents fillAssignedServices = new JsonCallbackEvents(){
 			public void onLoadingStart() {
-                services.removeAllOption();
-                services.clear();
-                services.addItem("Loading...");
-                addButton.setEnabled(false);
-            }
-            public void onFinished(JavaScriptObject jso) {
+				services.removeAllOption();
+				services.clear();
+				services.addItem("Loading...");
+				addButton.setEnabled(false);
+			}
+			public void onFinished(JavaScriptObject jso) {
 				services.removeAllOption();
 				services.clear();
 				ArrayList<Service> serv = JsonUtils.jsoAsList(jso);
@@ -145,14 +145,14 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					}
 					services.addAllOption();
 				}
-                addButton.setEnabled(true);
+				addButton.setEnabled(true);
 			}
-            public void onError(PerunError error) {
-                services.removeAllOption();
-                services.clear();
-                services.addItem("Error while loading");
-                addButton.setEnabled(false);
-            }
+			public void onError(PerunError error) {
+				services.removeAllOption();
+				services.clear();
+				services.addItem("Error while loading");
+				addButton.setEnabled(false);
+			}
 		};
 		final GetFacilityAssignedServices callback = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
 		callback.retrieveData();
@@ -199,11 +199,11 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		layout.setWidget(row, 1, type);
 		row++;
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        // close tab, disable button
+		// close tab, disable button
 		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, this);
 
 		addButton.addClickHandler(new ClickHandler(){
@@ -226,8 +226,8 @@ public class AddFacilityDestinationTabItem implements TabItem {
 						request.addDestinationByHosts(services.getAllObjects());
 					} else {
 						// default
-                        AddDestination request = new AddDestination(facility, closeTabEvents);
-                        request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
+						AddDestination request = new AddDestination(facility, closeTabEvents);
+						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
 					}
 				} else {
 					// selected one
@@ -243,21 +243,21 @@ public class AddFacilityDestinationTabItem implements TabItem {
 				}
 			}
 		});
-        menu.addWidget(addButton);
+		menu.addWidget(addButton);
 
-        final TabItem tab = this;
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		final TabItem tab = this;
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
 		vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}

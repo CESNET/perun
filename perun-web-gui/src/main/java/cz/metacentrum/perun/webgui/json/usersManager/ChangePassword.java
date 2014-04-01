@@ -41,7 +41,7 @@ public class ChangePassword {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     *
+	 *
 	 * @param events custom events
 	 */
 	public ChangePassword(final JsonCallbackEvents events) {
@@ -50,7 +50,7 @@ public class ChangePassword {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     *
+	 *
 	 * @param events custom events
 	 * @param checkOldPassword whether to check old password
 	 */

@@ -30,14 +30,14 @@ public class CreateAuthorship {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public CreateAuthorship() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public CreateAuthorship(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -125,7 +125,7 @@ public class CreateAuthorship {
 		authorship.put("userId", new JSONNumber(userId));
 		authorship.put("createdBy", new JSONString(session.getPerunPrincipal().getActor()));
 		authorship.put("createdDate", null);
-        authorship.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
+		authorship.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();

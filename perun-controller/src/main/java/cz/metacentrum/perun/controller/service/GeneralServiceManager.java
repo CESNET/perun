@@ -25,18 +25,18 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
  */
 public interface GeneralServiceManager {
 
-    /**
-     * Delete the service.
-     *
-     * Deletes the service as well as all the
-     * ExecServices bounded to it.
-     *
-     * @param perunSession
-     * @param service
-     */
-    void deleteService(PerunSession perunSession, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
+	/**
+	 * Delete the service.
+	 *
+	 * Deletes the service as well as all the
+	 * ExecServices bounded to it.
+	 *
+	 * @param perunSession
+	 * @param service
+	 */
+	void deleteService(PerunSession perunSession, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
 
-    /**
+	/**
 	 * List Services
 	 *
 	 * @param perunSession
@@ -316,7 +316,7 @@ public interface GeneralServiceManager {
 	 * @param perunSession
 	 * @param service
 	 * @param facility
-         * @return true if it is possible, return false if not
+	 * @return true if it is possible, return false if not
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
@@ -329,7 +329,7 @@ public interface GeneralServiceManager {
 	 *
 	 * @param perunSession
 	 * @param service
-         * @return true if it is possible, return false if not
+	 * @return true if it is possible, return false if not
 	 * @throws ServiceNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException

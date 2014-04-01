@@ -31,10 +31,10 @@ mkdir $TMP_DIR/$PACKAGE
 # Generating interfaces
 for f in $PERUN_RPC_SOURCE_DIR/*
 do
-    echo "Found file $f"
-    basef=$(basename $f)
-    basef=`echo $basef | sed -r 's/([a-zA-Z]+)\Method.java/\1/g'`.java
-    php RpcMethodsParser.php -s $f -d $TMP_DIR/$PACKAGE/$basef -r $RPC_URL
+	echo "Found file $f"
+	basef=$(basename $f)
+	basef=`echo $basef | sed -r 's/([a-zA-Z]+)\Method.java/\1/g'`.java
+	php RpcMethodsParser.php -s $f -d $TMP_DIR/$PACKAGE/$basef -r $RPC_URL
 done
 
 # Generating JavaDoc

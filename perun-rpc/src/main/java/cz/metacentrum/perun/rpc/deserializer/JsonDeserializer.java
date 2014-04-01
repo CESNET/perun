@@ -45,225 +45,225 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class JsonDeserializer extends Deserializer {
 
-    @JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-    private interface AttributeMixIn {}
+	@JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
+		private interface AttributeMixIn {}
 
-    @JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-    private interface AttributeDefinitionMixIn {}
+	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
+		private interface AttributeDefinitionMixIn {}
 
-    @JsonIgnoreProperties({"commonName", "displayName", "beanName"})
-    private interface UserMixIn {}
+	@JsonIgnoreProperties({"commonName", "displayName", "beanName"})
+		private interface UserMixIn {}
 
-    @JsonIgnoreProperties({"fullMessage"})
-    private interface AuditMessageMixIn {}
+	@JsonIgnoreProperties({"fullMessage"})
+	private interface AuditMessageMixIn {}
 
-    @JsonIgnoreProperties({"beanName"})
-    private interface PerunBeanMixIn {}
+	@JsonIgnoreProperties({"beanName"})
+	private interface PerunBeanMixIn {}
 
-    @JsonIgnoreProperties({"userExtSources"})
-    private interface CandidateMixIn {}
+	@JsonIgnoreProperties({"userExtSources"})
+	private interface CandidateMixIn {}
 
-    @JsonIgnoreProperties({"name"})
-    private interface PerunExceptionMixIn {}
+	@JsonIgnoreProperties({"name"})
+	private interface PerunExceptionMixIn {}
 
-    @JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
-    private interface DestinationMixIn {}
+	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
+		private interface DestinationMixIn {}
 
-    @JsonIgnoreProperties({"shortName", "beanName"})
-    private interface GroupMixIn {}
+	@JsonIgnoreProperties({"shortName", "beanName"})
+		private interface GroupMixIn {}
 
 
-    private interface MemberMixIn {
-        @JsonIgnore
-        void setStatus(String status);
+	private interface MemberMixIn {
+		@JsonIgnore
+		void setStatus(String status);
 
-        @JsonDeserialize
-        void setStatus(Status status);
-    }
+		@JsonDeserialize
+		void setStatus(Status status);
+	}
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-    static {
-        mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Member.class, MemberMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
+	private static final ObjectMapper mapper = new ObjectMapper();
+	static {
+		mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Member.class, MemberMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
 
-        mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItem.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(ApplicationMail.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItem.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationMail.class, PerunBeanMixIn.class);
 
-        mapper.getDeserializationConfig().addMixInAnnotations(Author.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Category.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Publication.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(PublicationForGUI.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(PublicationSystem.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(Thanks.class, PerunBeanMixIn.class);
-        mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Author.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Category.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Publication.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PublicationForGUI.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PublicationSystem.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Thanks.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, PerunBeanMixIn.class);
 
-    }
+	}
 
-    private JsonNode root;
-    private HttpServletRequest req;
+	private JsonNode root;
+	private HttpServletRequest req;
 
-    /**
-     * Create deserializer for JSON/JSONP data format.
-     *
-     * @param request HttpServletRequest this deserializer is about to process
-     *
-     * @throws IOException if an IO error occurs
-     * @throws RpcException if content of {@code in} is wrongly formatted
-     */
-    public JsonDeserializer(HttpServletRequest request) throws IOException, RpcException {
+	/**
+	 * Create deserializer for JSON/JSONP data format.
+	 *
+	 * @param request HttpServletRequest this deserializer is about to process
+	 *
+	 * @throws IOException if an IO error occurs
+	 * @throws RpcException if content of {@code in} is wrongly formatted
+	 */
+	public JsonDeserializer(HttpServletRequest request) throws IOException, RpcException {
 
-        this.req = request;
+		this.req = request;
 
-        try {
-            root = mapper.readTree(req.getInputStream());
-        } catch (JsonProcessingException ex) {
-            throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
-        }
+		try {
+			root = mapper.readTree(req.getInputStream());
+		} catch (JsonProcessingException ex) {
+			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
+		}
 
-        if (!root.isObject()) {
-            throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not a JSON Object");
-        }
-    }
+		if (!root.isObject()) {
+			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not a JSON Object");
+		}
+	}
 
-    @Override
-    public boolean contains(String name) {
-        if (root.get(name) != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean contains(String name) {
+		if (root.get(name) != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    @Override
-    public String readString(String name) throws RpcException {
-        JsonNode node = root.get(name);
+	@Override
+	public String readString(String name) throws RpcException {
+		JsonNode node = root.get(name);
 
-        if (node == null) {
-            throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-        }
-        if (node.isNull()) {
-            return null;
-        }
-        if (!node.isValueNode()) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
-        }
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isValueNode()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
+		}
 
-        return node.getValueAsText();
-    }
+		return node.getValueAsText();
+	}
 
-    @Override
-    public int readInt(String name) throws RpcException {
-        JsonNode node = root.get(name);
+	@Override
+	public int readInt(String name) throws RpcException {
+		JsonNode node = root.get(name);
 
-        if (node == null) {
-            throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-        }
-        if (!node.isInt()) {
-            if (!node.isTextual()) {
-                throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
-            } else {
-                try {
-                    return Integer.parseInt(node.getTextValue());
-                } catch (NumberFormatException ex) {
-                    throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int", ex);
-                }
-            }
-        }
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (!node.isInt()) {
+			if (!node.isTextual()) {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+			} else {
+				try {
+					return Integer.parseInt(node.getTextValue());
+				} catch (NumberFormatException ex) {
+					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int", ex);
+				}
+			}
+		}
 
-        return node.getIntValue();
-    }
+		return node.getIntValue();
+	}
 
-    @Override
-    public int[] readArrayOfInts(String name) throws RpcException {
-        JsonNode node = root.get(name);
+	@Override
+	public int[] readArrayOfInts(String name) throws RpcException {
+		JsonNode node = root.get(name);
 
-        if (node == null) {
-            throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-        }
-        if (node.isNull()) {
-            return null;
-        }
-        if (!node.isArray()) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int[] - not an array");
-        }
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isArray()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int[] - not an array");
+		}
 
-        int[] array = new int[node.size()];
+		int[] array = new int[node.size()];
 
-        for (int i = 0; i < node.size(); ++i) {
-            JsonNode value = node.get(i);
-            if (!value.isInt()) {
-                throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
-            }
-            array[i] = node.get(i).getIntValue();
-        }
-        return array;
-    }
+		for (int i = 0; i < node.size(); ++i) {
+			JsonNode value = node.get(i);
+			if (!value.isInt()) {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+			}
+			array[i] = node.get(i).getIntValue();
+		}
+		return array;
+	}
 
-    @Override
-    public <T> T read(String name, Class<T> valueType) throws RpcException {
-        JsonNode node = root.get(name);
+	@Override
+	public <T> T read(String name, Class<T> valueType) throws RpcException {
+		JsonNode node = root.get(name);
 
-        if (node == null) {
-            throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-        }
-        if (node.isNull()) {
-            return null;
-        }
-        if (!node.isObject()) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName());
-        }
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isObject()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName());
+		}
 
-        try {
-            T obj = mapper.readValue(node, valueType);
-            return obj;
-        } catch (IOException ex) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
-        }
-    }
+		try {
+			T obj = mapper.readValue(node, valueType);
+			return obj;
+		} catch (IOException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
+		}
+	}
 
-    @Override
-    public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
-        JsonNode node = root.get(name);
+	@Override
+	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+		JsonNode node = root.get(name);
 
-        if (node == null) {
-            throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-        }
-        if (node.isNull()) {
-            return null;
-        }
-        if (!node.isArray()) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + "> - not an array");
-        }
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isArray()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + "> - not an array");
+		}
 
-        try {
-            List<T> list = new ArrayList<T>(node.size());
-            for (JsonNode e : node) {
-                list.add(mapper.readValue(e, valueType));
-            }
-            return list;
-        } catch (IOException ex) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
-        }
-    }
+		try {
+			List<T> list = new ArrayList<T>(node.size());
+			for (JsonNode e : node) {
+				list.add(mapper.readValue(e, valueType));
+			}
+			return list;
+		} catch (IOException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
+		}
+	}
 
-    public String readAll() throws RpcException {
-        return root.toString();
-    }
+	public String readAll() throws RpcException {
+		return root.toString();
+	}
 
-    @Override
-    public HttpServletRequest getServletRequest() {
-        return this.req;
-    }
+	@Override
+	public HttpServletRequest getServletRequest() {
+		return this.req;
+	}
 
 }

@@ -8,24 +8,24 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Attributes defined on Host. Host is required field.
----------------------------------------------------
-Available options:
- --hostId      | -H  host idetifier
- --orderById   | -i  order by numeric Id
- --orderByName | -n  order by Name
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Prints list of Attributes defined on Host. Host is required field.
+	---------------------------------------------------
+	Available options:
+	--hostId      | -H  host idetifier
+	--orderById   | -i  order by numeric Id
+	--orderByName | -n  order by Name
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 my ($hostId, $hostName, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "hostId|H=i" => \$hostId,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-           "batch|b" => \$batch) || die help;
+	"hostId|H=i" => \$hostId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+"batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $hostId) { die "ERROR: hostId is required\n";}
@@ -44,7 +44,7 @@ my $table = Text::ASCIITable->new();
 $table->setCols('ID','Name', 'Type', 'Value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-  $table->addRow($attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar);
+	$table->addRow($attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar);
 }
 
 print tableToPrint($table, $batch);

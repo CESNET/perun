@@ -7,24 +7,24 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Assigns a group to a resource. Resource id and group id or group name together with vo id or vo short name are required fields.
-------------------------------------
-Available options:
- --groupId     | -g group id
- --groupName   | -G group name
- --voId        | -v vo id
- --voShortName | -V vo short name
- --resource    | -r resource id
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Assigns a group to a resource. Resource id and group id or group name together with vo id or vo short name are required fields.
+	------------------------------------
+	Available options:
+	--groupId     | -g group id
+	--groupName   | -G group name
+	--voId        | -v vo id
+	--voShortName | -V vo short name
+	--resource    | -r resource id
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $resourceId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
+"groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
  "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
  "resourceId|r=i" => \$resourceId) || die help();
 
@@ -38,13 +38,13 @@ my $groupsAgent = $agent->getGroupsAgent;
 my $resourcesAgent = $agent->getResourcesAgent;
 
 if (!defined($groupId)) {
-  if (!defined($voId)) {
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId = $vo->getId;
-  }
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
 
-  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-  $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
 }
 
 $resourcesAgent->assignGroupToResource(group => $groupId, resource => $resourceId);

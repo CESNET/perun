@@ -48,7 +48,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -60,19 +60,19 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Label titleWidget = new Label("All publications");
 
-    private String lastTitle = "";
-    private boolean lastIsbnOrDoi = true; // DEFAULT TRUE = ISBN / FALSE = DOI
-    private String lastIsbnOrDoiValue = "";
-    private String lastYear = "";
-    private String lastYearSince = String.valueOf(JsonUtils.getCurrentYear());
-    private String lastYearTill= "";
-    private int lastCategoryId = 0; // 0 = default "not selected"
-    private int lastUserId = 0;     // 0 = default "not selected"
-    private Map<String, Object> lastIds = new HashMap<String, Object>();
+	private String lastTitle = "";
+	private boolean lastIsbnOrDoi = true; // DEFAULT TRUE = ISBN / FALSE = DOI
+	private String lastIsbnOrDoiValue = "";
+	private String lastYear = "";
+	private String lastYearSince = String.valueOf(JsonUtils.getCurrentYear());
+	private String lastYearTill= "";
+	private int lastCategoryId = 0; // 0 = default "not selected"
+	private int lastUserId = 0;     // 0 = default "not selected"
+	private Map<String, Object> lastIds = new HashMap<String, Object>();
 
-    /**
+	/**
 	 * Creates a tab instance
-     */
+	 */
 	public AllPublicationsTabItem(){}
 
 	public boolean isPrepared(){
@@ -100,104 +100,104 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		final TabMenu filterMenu = new TabMenu();
 		filterMenu.setVisible(false);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Create new publication", new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new AddPublicationsTabItem(session.getUser()));
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Create new publication", new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTab(new AddPublicationsTabItem(session.getUser()));
+			}
+		}));
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove selected publication(s)");
-        removeButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                final ArrayList<Publication> list = callback.getTableSelectedList();
-                String text = "Following publications will be removed.";
-                UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        // TODO - should have only one callback to core
-                        for (int i=0; i<list.size(); i++) {
-                            if (i == list.size()-1) {
-                                DeletePublication request = new DeletePublication(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(callback)));
-                                request.deletePublication(list.get(i).getId());
-                            } else {
-                                DeletePublication request = new DeletePublication(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.deletePublication(list.get(i).getId());
-                            }
-                        }
-                    }
-                });
-            }
-        });
-        menu.addWidget(removeButton);
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove selected publication(s)");
+		removeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final ArrayList<Publication> list = callback.getTableSelectedList();
+				String text = "Following publications will be removed.";
+				UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						// TODO - should have only one callback to core
+						for (int i=0; i<list.size(); i++) {
+							if (i == list.size()-1) {
+								DeletePublication request = new DeletePublication(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(callback)));
+								request.deletePublication(list.get(i).getId());
+							} else {
+								DeletePublication request = new DeletePublication(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.deletePublication(list.get(i).getId());
+							}
+						}
+					}
+				});
+			}
+		});
+		menu.addWidget(removeButton);
 
 		// fill users listbox
 		final GetUsers userCall = new GetUsers(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
-                users.removeNotSelectedOption();
-                users.clear();
-                users.addNotSelectedOption();
-                ArrayList<User> list = JsonUtils.jsoAsList(jso.cast());
+				users.removeNotSelectedOption();
+				users.clear();
+				users.addNotSelectedOption();
+				ArrayList<User> list = JsonUtils.jsoAsList(jso.cast());
 				list = new TableSorter<User>().sortByName(list);
-                for (int i=0; i<list.size(); i++){
+				for (int i=0; i<list.size(); i++){
 					users.addItem(list.get(i));
-                    if (lastUserId != 0) {
-                        if (lastUserId == list.get(i).getId()) {
-                            users.setSelected(list.get(i), true);
-                        }
-                    }
+					if (lastUserId != 0) {
+						if (lastUserId == list.get(i).getId()) {
+							users.setSelected(list.get(i), true);
+						}
+					}
 				}
 				if (lastUserId ==0) {
-                    users.setSelectedIndex(0);
-                }
+					users.setSelectedIndex(0);
+				}
 			}
 			public void onError(PerunError error) {
 				users.clear();
-                users.removeNotSelectedOption();
-                users.addItem("Error while loading");
+				users.removeNotSelectedOption();
+				users.addItem("Error while loading");
 			}
-            public void onLoadingStart() {
-                users.clear();
-                users.removeNotSelectedOption();
-                users.addItem("Loading...");
-            }
+			public void onLoadingStart() {
+				users.clear();
+				users.removeNotSelectedOption();
+				users.addItem("Loading...");
+			}
 		});
 
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
 		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
-                filterCategory.removeNotSelectedOption();
-                filterCategory.clear();
-                filterCategory.addNotSelectedOption();
-                ArrayList<Category> list = JsonUtils.jsoAsList(jso.cast());
+				filterCategory.removeNotSelectedOption();
+				filterCategory.clear();
+				filterCategory.addNotSelectedOption();
+				ArrayList<Category> list = JsonUtils.jsoAsList(jso.cast());
 				list = new TableSorter<Category>().sortByName(list);
 				for (int i=0; i<list.size(); i++){
 					filterCategory.addItem(list.get(i));
-                    // set last selected
-                    if (lastCategoryId != 0) {
-                        if (list.get(i).getId() == lastCategoryId) {
-                            filterCategory.setSelected(list.get(i), true);
-                        }
-                    }
+					// set last selected
+					if (lastCategoryId != 0) {
+						if (list.get(i).getId() == lastCategoryId) {
+							filterCategory.setSelected(list.get(i), true);
+						}
+					}
 				}
 				if (lastCategoryId == 0) {
-                    filterCategory.setSelectedIndex(0);
-                }
+					filterCategory.setSelectedIndex(0);
+				}
 			}
 			public void onError(PerunError error) {
-                filterCategory.clear();
-                filterCategory.removeNotSelectedOption();
-                filterCategory.addItem("Error while loading");
+				filterCategory.clear();
+				filterCategory.removeNotSelectedOption();
+				filterCategory.addItem("Error while loading");
 			}
-            public void onLoadingStart() {
-                filterCategory.clear();
-                filterCategory.removeNotSelectedOption();
-                filterCategory.addItem("Loading...");
-            }
+			public void onLoadingStart() {
+				filterCategory.clear();
+				filterCategory.removeNotSelectedOption();
+				filterCategory.addItem("Loading...");
+			}
 		});
 
 		// switch lock state button
-        final CustomButton lock = new CustomButton("Lock", "Lock selected publications", SmallIcons.INSTANCE.lockIcon());
+		final CustomButton lock = new CustomButton("Lock", "Lock selected publications", SmallIcons.INSTANCE.lockIcon());
 		lock.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				ArrayList<Publication> list = callback.getTableSelectedList();
@@ -220,8 +220,8 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-        menu.addWidget(lock);
-        menu.addWidget(unlock);
+		menu.addWidget(lock);
+		menu.addWidget(unlock);
 
 		CustomButton filter = new CustomButton("Show / Hide filter", SmallIcons.INSTANCE.filterIcon(), new ClickHandler(){
 			public void onClick(ClickEvent event) {
@@ -242,34 +242,34 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				}
 			}
 		});
-        menu.addWidget(filter);
+		menu.addWidget(filter);
 
 		// filter objects
 		final TextBox filterTitle = new TextBox();
 		filterTitle.setWidth("80px");
-        filterTitle.setText(lastTitle);
+		filterTitle.setText(lastTitle);
 		final TextBox filterYear = new TextBox();
 		filterYear.setMaxLength(4);
 		filterYear.setWidth("30px");
-        filterYear.setText(lastYear);
+		filterYear.setText(lastYear);
 		final TextBox filterIsbn = new TextBox();
 		filterIsbn.setWidth("60px");
-        filterIsbn.setText(lastIsbnOrDoiValue);
+		filterIsbn.setText(lastIsbnOrDoiValue);
 		final TextBox filterSince = new TextBox();
 		filterSince.setMaxLength(4);
 		filterSince.setWidth("30px");
-        filterSince.setText(lastYearSince);
+		filterSince.setText(lastYearSince);
 		final TextBox filterTill = new TextBox();
 		filterTill.setMaxLength(4);
 		filterTill.setWidth("30px");
-        filterTill.setText(lastYearTill);
+		filterTill.setText(lastYearTill);
 
 		final ListBox codeBox = new ListBox();
 		codeBox.addItem("ISBN/ISSN:");
 		codeBox.addItem("DOI:");
-        if (!lastIsbnOrDoi) {
-            codeBox.setSelectedIndex(1);
-        }
+		if (!lastIsbnOrDoi) {
+			codeBox.setSelectedIndex(1);
+		}
 
 		// add users filter in upper menu
 		menu.addWidget(userHtml);
@@ -282,17 +282,17 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		clearFilter.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// clear last values
-                lastCategoryId = 0;
-                lastIsbnOrDoi = true;
-                lastIsbnOrDoiValue = "";
-                lastTitle = "";
-                lastUserId = 0;
-                lastYear = "";
-                lastYearTill = "";
-                lastYearSince = "";
+				lastCategoryId = 0;
+				lastIsbnOrDoi = true;
+				lastIsbnOrDoiValue = "";
+				lastTitle = "";
+				lastUserId = 0;
+				lastYear = "";
+				lastYearTill = "";
+				lastYearSince = "";
 
-                // clear form
-                filterTitle.setText("");
+				// clear form
+				filterTitle.setText("");
 				filterYear.setText("");
 				filterIsbn.setText("");
 				filterSince.setText("");
@@ -301,7 +301,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				users.setSelectedIndex(0);
 				ids.clear();
 				ids.put("authors", 1);
-                lastIds = ids;
+				lastIds = ids;
 				callback.setIds(ids);
 				callback.clearTable();
 				callback.retrieveData();
@@ -315,70 +315,70 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				ids.clear();
 				if (users.getSelectedIndex() > 0) {
 					ids.put("userId", users.getSelectedObject().getId());
-                    lastUserId = users.getSelectedObject().getId();
+					lastUserId = users.getSelectedObject().getId();
 				} else {
 					ids.put("userId", 0);
-                    lastUserId = 0;
+					lastUserId = 0;
 				}
 				ids.put("authors", 1);
 
 				// checks input
 				if (!filterTitle.getText().isEmpty()) {
 					ids.put("title", filterTitle.getText());
-                    lastTitle = filterTitle.getText();
+					lastTitle = filterTitle.getText();
 				} else {
-                    lastTitle = "";
-                }
+					lastTitle = "";
+				}
 				if (!filterYear.getText().isEmpty()) {
 					if (!JsonUtils.checkParseInt(filterYear.getText())) {
 						JsonUtils.cantParseIntConfirm("YEAR", filterYear.getText());
-                        lastYear = "";
+						lastYear = "";
 						return;
 					} else {
 						ids.put("year", filterYear.getText());
-                        lastYear = filterYear.getText();
+						lastYear = filterYear.getText();
 					}
 				}
 				if (!filterIsbn.getText().isEmpty()) {
 					if (codeBox.getSelectedIndex() == 0) {
 						// ISBN/ISSN selected
-                        lastIsbnOrDoi = true;
+						lastIsbnOrDoi = true;
 						ids.put("isbn", filterIsbn.getText());
 					} else {
 						// DOI selected
-                        lastIsbnOrDoi = false;
+						lastIsbnOrDoi = false;
 						ids.put("doi", filterIsbn.getText());
 					}
-                    lastIsbnOrDoiValue = filterIsbn.getText();
+					lastIsbnOrDoiValue = filterIsbn.getText();
 				}
 				if (!filterSince.getText().isEmpty()) {
 					if (!JsonUtils.checkParseInt(filterSince.getText())) {
 						JsonUtils.cantParseIntConfirm("YEAR SINCE", filterSince.getText());
-                        lastYearSince = "";
+						lastYearSince = "";
 						return;
 					} else {
 						ids.put("yearSince", filterSince.getText());
-                        lastYearSince = filterSince.getText();
+						lastYearSince = filterSince.getText();
 					}
 				}
 				if (!filterTill.getText().isEmpty()) {
 					if (!JsonUtils.checkParseInt(filterTill.getText())) {
 						JsonUtils.cantParseIntConfirm("YEAR TILL", filterTill.getText());
-                        lastYearTill = "";
+						lastYearTill = "";
 						return;
 					} else {
 						ids.put("yearTill", filterTill.getText());
-                        lastYearTill = filterTill.getText();
+						lastYearTill = filterTill.getText();
 					}
 				}
 				if (filterCategory.getSelectedIndex() > 0) {
 					ids.put("category", filterCategory.getSelectedObject().getId());
-                    lastCategoryId = filterCategory.getSelectedObject().getId();
+					lastCategoryId = filterCategory.getSelectedObject().getId();
 				} else {
-                    lastCategoryId = 0;
-                }
+					lastCategoryId = 0;
+				}
 
-                lastIds = ids;
+				lastIds = ids;
 				callback.setIds(ids);
 				callback.clearTable();
 				callback.retrieveData();
@@ -407,23 +407,23 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		vp.setCellHeight(menu, "50px");
 		vp.add(filterMenu);
 
-        if (!lastIds.isEmpty()) {
-            callback.setIds(lastIds);
-        }
-        CellTable<Publication> table = callback.getTable(new FieldUpdater<Publication, String>() {
+		if (!lastIds.isEmpty()) {
+			callback.setIds(lastIds);
+		}
+		CellTable<Publication> table = callback.getTable(new FieldUpdater<Publication, String>() {
 			public void update(int index, Publication object, String value) {
 				session.getTabManager().addTab(new PublicationDetailTabItem(object));
 			}
 		});
 
-        removeButton.setEnabled(false);
-        lock.setEnabled(false);
-        unlock.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, removeButton);
-        JsonUtils.addTableManagedButton(callback, table, lock);
-        JsonUtils.addTableManagedButton(callback, table, unlock);
+		removeButton.setEnabled(false);
+		lock.setEnabled(false);
+		unlock.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeButton);
+		JsonUtils.addTableManagedButton(callback, table, lock);
+		JsonUtils.addTableManagedButton(callback, table, unlock);
 
-        table.addStyleName("perun-table");
+		table.addStyleName("perun-table");
 
 		ScrollPanel sp = new ScrollPanel();
 		sp.add(table);

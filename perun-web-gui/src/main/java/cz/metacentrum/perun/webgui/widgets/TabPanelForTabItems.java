@@ -44,7 +44,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 * Whether adding finished
 	 */
 	private boolean addingFinished = false;
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 
 	/**
@@ -52,8 +52,8 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 * Automatically handles drawing and resizing
 	 * Default size
 	 *
-     * @param parentTab Parent tab, necessary for resizing
-     */
+	 * @param parentTab Parent tab, necessary for resizing
+	 */
 	public TabPanelForTabItems(final TabItem parentTab)
 	{
 		this(parentTab, DEFAULT_SIZE_PX, Unit.PX);
@@ -63,19 +63,19 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 * Creates a new "smallTabPanel" for including TabItems.
 	 * Automatically handles drawing and resizing
 	 *
-     * @param parentTab Parent tab, necessary for resizing
-     * @param barHeight Bar height
-     * @param barUnit Bar width
-     */
+	 * @param parentTab Parent tab, necessary for resizing
+	 * @param barHeight Bar height
+	 * @param barUnit Bar width
+	 */
 	public TabPanelForTabItems(final TabItem parentTab, double barHeight, Unit barUnit)
 	{
 		super(barHeight, barUnit);
 
-        this.setSize("100%", "100%");
+		this.setSize("100%", "100%");
 
 		// styles, resizing
 		this.addStyleName("smallTabPanel");
-        session.getUiElements().resizeSmallTabPanel(this, 100, parentTab);
+		session.getUiElements().resizeSmallTabPanel(this, 100, parentTab);
 
 		// selection handler draws the tab
 		this.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -83,12 +83,12 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 
 				// adding finished?
 				if(!addingFinished)
-				{
-					return;
-				}
+		{
+			return;
+		}
 
-				int i = event.getSelectedItem();
-				runOnSelectEvent(i);
+		int i = event.getSelectedItem();
+		runOnSelectEvent(i);
 			}
 		});
 
@@ -99,27 +99,27 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 
 				// adding finished?
 				if(!addingFinished)
-				{
-					return;
-				}
+		{
+			return;
+		}
 
-				int i = getLastTabId();
+		int i = getLastTabId();
 
-				// check size
-				if(innerTabs.size() < (i + 1))
-				{
-					return;
-				}
+		// check size
+		if(innerTabs.size() < (i + 1))
+		{
+			return;
+		}
 
-				// retrieves the tab item
-				TabItem tab = innerTabs.get(i);
+		// retrieves the tab item
+		TabItem tab = innerTabs.get(i);
 
-				// check null
-				if(tab == null){
-					return;
-				}
+		// check null
+		if(tab == null){
+			return;
+		}
 
-				UiElements.runResizeCommands(tab);
+		UiElements.runResizeCommands(tab);
 			}
 		}, parentTab);
 
@@ -139,7 +139,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 		innerTabsSimplePanels.add(sp);
 		innerTabs.add(tabItem);
 		super.add(sp, caption);
-        sp.addStyleName("smallTabPanel");
+		sp.addStyleName("smallTabPanel");
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	{
 
 		// run resize commands for parent tab
-        UiElements.runResizeCommands();
+		UiElements.runResizeCommands();
 
 		// selected tab
 		setLastTabId(i, false);
@@ -236,20 +236,20 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 			sp.setWidget(tab.draw());
 		}
 
-        UiElements.runResizeCommands(tab);
+		UiElements.runResizeCommands(tab);
 
-    }
+	}
 
-    public TabItem getSelectedTabItem() {
+	public TabItem getSelectedTabItem() {
 
-        return innerTabs.get(getSelectedIndex());
+		return innerTabs.get(getSelectedIndex());
 
-    }
+	}
 
-    public TabItem getTabItem(int index) {
+	public TabItem getTabItem(int index) {
 
-        return innerTabs.get(index);
+		return innerTabs.get(index);
 
-    }
+	}
 
 }

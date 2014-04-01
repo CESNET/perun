@@ -23,42 +23,42 @@ import org.slf4j.LoggerFactory;
  */
 public class SearcherEntry implements Searcher {
 
-  final static Logger log = LoggerFactory.getLogger(ResourcesManagerEntry.class);
+	final static Logger log = LoggerFactory.getLogger(ResourcesManagerEntry.class);
 
-  private SearcherBl searcherBl;
-  private PerunBl perunBl;
+	private SearcherBl searcherBl;
+	private PerunBl perunBl;
 
-  public SearcherEntry(PerunBl perunBl) {
-    this.perunBl = perunBl;
-    this.searcherBl = perunBl.getSearcherBl();
-  }
+	public SearcherEntry(PerunBl perunBl) {
+		this.perunBl = perunBl;
+		this.searcherBl = perunBl.getSearcherBl();
+	}
 
-  public SearcherEntry() {
-  }
+	public SearcherEntry() {
+	}
 
-  public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
-    return searcherBl.getUsers(sess, attributesWithSearchingValues);
-  }
+	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
+		return searcherBl.getUsers(sess, attributesWithSearchingValues);
+	}
 
-  public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
-    return searcherBl.getUsersForCoreAttributes(sess, coreAttributesWithSearchingValues);
-  }
+	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
+		return searcherBl.getUsersForCoreAttributes(sess, coreAttributesWithSearchingValues);
+	}
 
-  public SearcherBl getSearcherBl() {
-    return this.searcherBl;
-  }
+	public SearcherBl getSearcherBl() {
+		return this.searcherBl;
+	}
 
-  public void setPerunBl(PerunBl perunBl) {
-    this.perunBl = perunBl;
-  }
+	public void setPerunBl(PerunBl perunBl) {
+		this.perunBl = perunBl;
+	}
 
-  public void setSearcherBl(SearcherBl searcherBl) {
-    this.searcherBl = searcherBl;
-  }
+	public void setSearcherBl(SearcherBl searcherBl) {
+		this.searcherBl = searcherBl;
+	}
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
+	public PerunBl getPerunBl() {
+		return this.perunBl;
+	}
 
 
 }

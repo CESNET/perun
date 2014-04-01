@@ -54,7 +54,7 @@ public class FormInputStatusWidget extends Composite{
 
 		Label label = new Label(message);
 		label.addStyleName(classname);
-        label.getElement().setId(classname);
+		label.getElement().setId(classname);
 
 		ft.setWidget(0, 0, img);
 		ft.setWidget(0, 1, label);

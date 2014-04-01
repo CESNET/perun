@@ -12,7 +12,7 @@ sub new
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -45,56 +45,56 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getShortName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_shortName};
+	return $self->{_shortName};
 }
 
 sub setShortName
 {
-    my $self = shift;
-    $self->{_shortName} = shift;
+	my $self = shift;
+	$self->{_shortName} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->{_shortName}, $self->{_name});
+	my $self = shift;
+	return ($self->{_id}, $self->{_shortName}, $self->{_name});
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('VO id','VO short name','VO name');
+	return ('VO id','VO short name','VO name');
 }
 
 

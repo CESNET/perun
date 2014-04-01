@@ -8,28 +8,28 @@ import cz.metacentrum.perun.core.api.Member;
  * @author Michal Stava
  */
 public class MembershipMismatchException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Member member;
+	private Member member;
 
-    public MembershipMismatchException(String message) {
-        super(message);
-    }
+	public MembershipMismatchException(String message) {
+		super(message);
+	}
 
-    public MembershipMismatchException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MembershipMismatchException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public MembershipMismatchException(Throwable cause) {
-        super(cause);
-    }
+	public MembershipMismatchException(Throwable cause) {
+		super(cause);
+	}
 
-    public MembershipMismatchException(Member member) {
-      super(member.toString());
-      this.member = member;
-    }
+	public MembershipMismatchException(Member member) {
+		super(member.toString());
+		this.member = member;
+	}
 
-    public Member getMember() {
-        return this.member;
-    }
+	public Member getMember() {
+		return this.member;
+	}
 }

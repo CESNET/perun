@@ -33,11 +33,11 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 	@Override
 	public List<ExecService> listDenialsForFacility(int facilityId) {
 		List<ExecService> deniedExecServices = getJdbcTemplate()
-		.query("" +
-				"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
-				" from exec_services left join service_denials on service_denials.exec_service_id = exec_services.id left join services on " +
-				" services.id=exec_services.service_id where service_denials.facility_id = ?",
-				new Integer[] { facilityId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
+			.query("" +
+					"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
+					" from exec_services left join service_denials on service_denials.exec_service_id = exec_services.id left join services on " +
+					" services.id=exec_services.service_id where service_denials.facility_id = ?",
+					new Integer[] { facilityId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
 		if (deniedExecServices != null) {
 			return deniedExecServices;
 		} else {
@@ -48,11 +48,11 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 	@Override
 	public List<ExecService> listDenialsForDestination(int destinationId) {
 		List<ExecService> deniedExecServices = getJdbcTemplate()
-		.query("" +
-				"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
-				" from exec_services left join service_denials on service_denials.exec_service_id = exec_services.id left join services on " +
-				" services.id=exec_services.service_id where service_denials.destination_id = ?",
-				new Integer[] { destinationId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
+			.query("" +
+					"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
+					" from exec_services left join service_denials on service_denials.exec_service_id = exec_services.id left join services on " +
+					" services.id=exec_services.service_id where service_denials.destination_id = ?",
+					new Integer[] { destinationId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
 		if (deniedExecServices != null) {
 			return deniedExecServices;
 		} else {
@@ -64,7 +64,7 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 	public boolean isExecServiceDeniedOnFacility(int execServiceId, int facilityId) {
 		int denials = 0;
 		denials = this.getJdbcTemplate().queryForInt("select count(*) from service_denials where exec_service_id = ? and facility_id = ?",
-		    new Object[] { execServiceId, facilityId });
+				new Object[] { execServiceId, facilityId });
 		if (denials > 0) {
 			return true;
 		}
@@ -75,7 +75,7 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 	public boolean isExecServiceDeniedOnDestination(int execServiceId, int destinationId) {
 		int denials = 0;
 		denials = this.getJdbcTemplate().queryForInt("select count(*) from service_denials where exec_service_id = ? and destination_id = ?",
-		    new Object[] { execServiceId, destinationId });
+				new Object[] { execServiceId, destinationId });
 		if (denials > 0) {
 			return true;
 		}

@@ -36,13 +36,13 @@ public class CreateVo {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public CreateVo() {}
 
 	/**
 	 * Creates a new request with custom events
-     * @param events Custom events
-     */
+	 * @param events Custom events
+	 */
 	public CreateVo(JsonCallbackEvents events) {
 		this.events = events;
 	}

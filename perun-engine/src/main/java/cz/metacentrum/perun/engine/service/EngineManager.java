@@ -12,15 +12,15 @@ import cz.metacentrum.perun.rpclib.api.RpcCaller;
  */
 public interface EngineManager {
 
-    void registerEngine() throws EngineNotConfiguredException, DispatcherNotConfiguredException;
+	void registerEngine() throws EngineNotConfiguredException, DispatcherNotConfiguredException;
 
-    void checkIn();
+	void checkIn();
 
-    void startMessaging();
+	void startMessaging();
 
-    RpcCaller getRpcCaller();
+	RpcCaller getRpcCaller();
 
-    void loadSchedulingPool();
+	void loadSchedulingPool();
 
-    void switchUnfinishedTasksToERROR();
+	void switchUnfinishedTasksToERROR();
 }

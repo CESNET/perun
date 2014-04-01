@@ -25,14 +25,14 @@ public class GetPerunPrincipal implements JsonCallback {
 
 	/**
 	 * Creates a new callback
-     */
+	 */
 	public GetPerunPrincipal() {}
 
 	/**
 	 * Creates a new callback
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public GetPerunPrincipal(JsonCallbackEvents events) {
 		this.events = events;
 	}

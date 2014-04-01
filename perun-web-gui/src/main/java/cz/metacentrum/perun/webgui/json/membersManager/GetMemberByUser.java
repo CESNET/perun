@@ -30,7 +30,7 @@ public class GetMemberByUser implements JsonCallback {
 
 	/**
 	 * New instance of member info
-     *
+	 *
 	 * @param voId
 	 * @param userId
 	 */
@@ -41,7 +41,7 @@ public class GetMemberByUser implements JsonCallback {
 
 	/**
 	 * New instance of member info.
-     *
+	 *
 	 * @param voId
 	 * @param userId
 	 * @param events

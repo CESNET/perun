@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Deletes an attribute. Attribute id is required.
---------------------------------------
-Available options:
- --attributeId  | -a attribute id
- --force        | -f delete also all dependent data
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Deletes an attribute. Attribute id is required.
+	--------------------------------------
+	Available options:
+	--attributeId  | -a attribute id
+	--force        | -f delete also all dependent data
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($attributeId, $batch,$force);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "attributeId|a=i" => \$attributeId,
+"attributeId|a=i" => \$attributeId,
  "force|f" => \$force) || die help();
 
 # Check options
@@ -31,9 +31,9 @@ my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
 if(defined($force)) {
-    $attributesAgent->deleteAttribute(attribute => $attributeId,force => 1);
+	$attributesAgent->deleteAttribute(attribute => $attributeId,force => 1);
 } else {
-    $attributesAgent->deleteAttribute(attribute => $attributeId)
+	$attributesAgent->deleteAttribute(attribute => $attributeId)
 }
 
 printMessage("Attribute Id:$attributeId successfully deleted", $batch);

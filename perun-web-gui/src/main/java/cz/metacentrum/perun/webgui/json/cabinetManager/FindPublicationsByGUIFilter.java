@@ -65,8 +65,8 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 	/**
 	 * Creates a new request
 	 *
-     * @param ids filtering params
-     */
+	 * @param ids filtering params
+	 */
 	public FindPublicationsByGUIFilter(Map<String, Object> ids) {
 		this.ids = ids;
 	}
@@ -74,9 +74,9 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 	/**
 	 * Creates a new request
 	 *
-     * @param ids filtering params
-     * @param events external events
-     */
+	 * @param ids filtering params
+	 * @param events external events
+	 */
 	public FindPublicationsByGUIFilter(Map<String, Object> ids, JsonCallbackEvents events) {
 		this(ids);
 		this.events = events;
@@ -137,7 +137,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No publications found. Try to change filtering options.");
+		loaderImage.setEmptyResultMessage("No publications found. Try to change filtering options.");
 
 		// show checkbox column
 		if(this.checkable) {
@@ -171,22 +171,22 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 						public void onLoadingStart() {
 							getCell().setValue(context, elem, SmallIcons.INSTANCE.updateIcon());
 						}
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							// change picture (object already changed)
-							getCell().setValue(context, elem, value);
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// change picture (object already changed)
+						getCell().setValue(context, elem, value);
+					}
+					@Override
+					public void onError(PerunError error) {
+						// on error switch object back
+						if (object.getLocked() == true) {
+							object.setLocked(false);
+							getCell().setValue(context, elem, SmallIcons.INSTANCE.lockOpenIcon());
+						} else {
+							object.setLocked(true);
+							getCell().setValue(context, elem, SmallIcons.INSTANCE.lockIcon());
 						}
-						@Override
-						public void onError(PerunError error) {
-							// on error switch object back
-							if (object.getLocked() == true) {
-								object.setLocked(false);
-								getCell().setValue(context, elem, SmallIcons.INSTANCE.lockOpenIcon());
-							} else {
-								object.setLocked(true);
-								getCell().setValue(context, elem, SmallIcons.INSTANCE.lockIcon());
-							}
-						}
+					}
 					});
 					// send request
 					ArrayList<Publication> list = new ArrayList<Publication>();
@@ -275,17 +275,17 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		 * HIDE ISBN COLUMN FOR NOW
 		// ISBN COLUMN
 		Column<Publication, String> isbnColumn = JsonUtils.addColumn(
-				new CustomClickableTextCell(), "",
-				new JsonUtils.GetValue<Publication, String>() {
-					public String getValue(Publication object) {
-						return object.getIsbn();
-					}
-				}, this.tableFieldUpdater);
+		new CustomClickableTextCell(), "",
+		new JsonUtils.GetValue<Publication, String>() {
+		public String getValue(Publication object) {
+		return object.getIsbn();
+		}
+		}, this.tableFieldUpdater);
 
 		isbnColumn.setSortable(true);
 		columnSortHandler.setComparator(isbnColumn, new PublicationComparator(PublicationComparator.Column.ISBN));
 		table.addColumn(isbnColumn, "ISBN");
-		 */
+		*/
 
 		// CITE COLUMN
 		Column<Publication, String> citaceColumn = JsonUtils.addColumn(
@@ -320,117 +320,117 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		js.retrieveData(JSON_URL, params, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Publication>().sortByPublicationTitle(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Publication>().sortByPublicationTitle(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Publication to be added as new row
-     */
-    public void addToTable(Publication object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Publication to be added as new row
+	 */
+	public void addToTable(Publication object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Publication to be removed as row
-     */
-    public void removeFromTable(Publication object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Publication to be removed as row
+	 */
+	public void removeFromTable(Publication object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Publication> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Publication> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading publications.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading publications.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading publications started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading publications started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Publication>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Publications loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Publication>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Publications loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Publication object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Publication object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Publication> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Publication> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Publication> getList() {
-        return this.list;
-    }
+	public ArrayList<Publication> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Sets params map

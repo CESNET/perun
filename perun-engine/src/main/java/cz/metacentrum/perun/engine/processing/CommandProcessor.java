@@ -10,6 +10,6 @@ import cz.metacentrum.perun.engine.exceptions.UnknownCommandException;
  */
 public interface CommandProcessor {
 
-    public void receiveCommand(String command) throws UnknownCommandException;
+	public void receiveCommand(String command) throws UnknownCommandException;
 
 }

@@ -28,7 +28,7 @@ public class CheckPublicationExists implements JsonCallback {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public CheckPublicationExists(int pubSysId, int externalId, String isbn) {
 		this.pubSysId = pubSysId;
 		this.externalId = externalId;
@@ -38,8 +38,8 @@ public class CheckPublicationExists implements JsonCallback {
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public CheckPublicationExists(int pubSysId, int externalId, String isbn, JsonCallbackEvents events) {
 		this.events = events;
 		this.pubSysId = pubSysId;

@@ -36,13 +36,13 @@ public class CreateApplication {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public CreateApplication() {}
 
 	/**
 	 * Creates a new request with custom events
-     * @param events Custom events
-     */
+	 * @param events Custom events
+	 */
 	public CreateApplication(JsonCallbackEvents events) {
 		this.events = events;
 	}

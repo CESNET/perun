@@ -35,7 +35,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	// group id
 	private int id = 0;
 	// JSON URL
-    static private final String JSON_URL = "usersManager/getAssignedRichResources";
+	static private final String JSON_URL = "usersManager/getAssignedRichResources";
 	// Selection model
 	final MultiSelectionModel<RichResource> selectionModel = new MultiSelectionModel<RichResource>(new GeneralKeyProvider<RichResource>());
 	// External events
@@ -125,39 +125,39 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		table.addIdColumn("Resource ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
 
-        // VO COLUMN
-        Column<RichResource, String> voColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<RichResource, String>() {
-                    public String getValue(RichResource object) {
-                        return object.getVo().getName();
-                    }
-                }, tableFieldUpdater);
+		// VO COLUMN
+		Column<RichResource, String> voColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<RichResource, String>() {
+					public String getValue(RichResource object) {
+						return object.getVo().getName();
+					}
+				}, tableFieldUpdater);
 
-        voColumn.setSortable(true);
-        columnSortHandler.setComparator(voColumn, new Comparator<RichResource>(){
-            public int compare(RichResource arg0, RichResource arg1) {
-                return arg0.getVo().getName().compareToIgnoreCase(arg1.getVo().getName());
-            }
-        });
-        table.addColumn(voColumn, "Virtual organization");
+		voColumn.setSortable(true);
+		columnSortHandler.setComparator(voColumn, new Comparator<RichResource>(){
+			public int compare(RichResource arg0, RichResource arg1) {
+				return arg0.getVo().getName().compareToIgnoreCase(arg1.getVo().getName());
+			}
+		});
+		table.addColumn(voColumn, "Virtual organization");
 
-        // FACILITY COLUMN
-        Column<RichResource, String> facilityColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<RichResource, String>() {
-                    public String getValue(RichResource object) {
-                        return object.getFacility().getName() + " - " + object.getFacility().getType();
-                    }
-                }, tableFieldUpdater);
+		// FACILITY COLUMN
+		Column<RichResource, String> facilityColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<RichResource, String>() {
+					public String getValue(RichResource object) {
+						return object.getFacility().getName() + " - " + object.getFacility().getType();
+					}
+				}, tableFieldUpdater);
 
-        facilityColumn.setSortable(true);
-        columnSortHandler.setComparator(facilityColumn, new Comparator<RichResource>(){
-            public int compare(RichResource arg0, RichResource arg1) {
-                return (arg0.getFacility().getName() + " - " + arg0.getFacility().getType()).compareToIgnoreCase(arg1.getFacility().getName() + " - " + arg1.getFacility().getType());
-            }
-        });
-        table.addColumn(facilityColumn, "Facility - Type");
+		facilityColumn.setSortable(true);
+		columnSortHandler.setComparator(facilityColumn, new Comparator<RichResource>(){
+			public int compare(RichResource arg0, RichResource arg1) {
+				return (arg0.getFacility().getName() + " - " + arg0.getFacility().getType()).compareToIgnoreCase(arg1.getFacility().getName() + " - " + arg1.getFacility().getType());
+			}
+		});
+		table.addColumn(facilityColumn, "Facility - Type");
 
-        table.addDescriptionColumn(tableFieldUpdater);
+		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
 
@@ -168,138 +168,138 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	 */
 	public void retrieveData() {
 
-        JsonClient js = new JsonClient();
-        js.retrieveData(JSON_URL, "user="+this.id, this);
+		JsonClient js = new JsonClient();
+		js.retrieveData(JSON_URL, "user="+this.id, this);
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<RichResource>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<RichResource>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(RichResource object) {
-        list.add(object);
-        oracle.add(object.getName());
-        for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add(rt.getName()+" (tag)");
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(RichResource object) {
+		list.add(object);
+		oracle.add(object.getName());
+		for (ResourceTag rt : object.getResourceTags()) {
+			oracle.add(rt.getName()+" (tag)");
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(RichResource object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(RichResource object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<RichResource> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<RichResource> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading assigned resources.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading assigned resources.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading assigned resources started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading assigned resources started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<RichResource>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Resources loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<RichResource>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Resources loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, RichResource object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        for (ResourceTag rt : object.getResourceTags()) {
-            oracle.add(rt.getName()+" (tag)");
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, RichResource object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		for (ResourceTag rt : object.getResourceTags()) {
+			oracle.add(rt.getName()+" (tag)");
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<RichResource> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (RichResource r : list) {
-            oracle.add(r.getName());
-            for (ResourceTag rt : r.getResourceTags()) {
-                oracle.add(rt.getName()+" (tag)");
-            }
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<RichResource> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (RichResource r : list) {
+			oracle.add(r.getName());
+			for (ResourceTag rt : r.getResourceTags()) {
+				oracle.add(rt.getName()+" (tag)");
+			}
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<RichResource> getList() {
-        return this.list;
-    }
+	public ArrayList<RichResource> getList() {
+		return this.list;
+	}
 
 	public void filterTable(String filter) {
 
@@ -308,30 +308,30 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
 		} else {
 			for (RichResource res : fullBackup){
 				// store resource by filter
 				if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
 					list.add(res);
 				}
-                for (ResourceTag r : res.getResourceTags()) {
-                    // remove " (tag)" after tag name
-                    if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
-                        list.add(res);
-                        break;
-                    }
-                }
+				for (ResourceTag r : res.getResourceTags()) {
+					// remove " (tag)" after tag name
+					if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
+						list.add(res);
+						break;
+					}
+				}
 			}
 		}
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

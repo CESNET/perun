@@ -11,12 +11,12 @@ import cz.metacentrum.perun.taskslib.model.Task;
  *
  */
 public interface ExecutorEngineWorker extends Runnable {
-    void setTask(Task task);
+	void setTask(Task task);
 
-    void setDestination(Destination destination);
+	void setDestination(Destination destination);
 
-    void setExecService(ExecService execService);
+	void setExecService(ExecService execService);
 
-    void setFacility(Facility facility);
+	void setFacility(Facility facility);
 
 }

@@ -92,14 +92,14 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
 	}
 
-    /**
-     * Returns empty table definition
-     * @return
-     */
-    public CellTable<User> getEmptyTable(FieldUpdater<User, String> fu){
-        this.tableFieldUpdater = fu;
-        return this.getEmptyTable();
-    };
+	/**
+	 * Returns empty table definition
+	 * @return
+	 */
+	public CellTable<User> getEmptyTable(FieldUpdater<User, String> fu){
+		this.tableFieldUpdater = fu;
+		return this.getEmptyTable();
+	};
 
 	/**
 	 * Returns empty table definition
@@ -176,7 +176,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 	 */
 	public void search(){
 
-        loaderImage.setEmptyResultMessage("No users found.");
+		loaderImage.setEmptyResultMessage("No users found.");
 
 		clearTable();
 		retrieveData();
@@ -217,141 +217,141 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
 		// send request
 		JsonPostClient js = new JsonPostClient(new JsonCallbackEvents(){
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Error while loading users.");
-                loaderImage.loadingError(error);
-                events.onError(error);
-            }
-            public void onLoadingStart() {
-                loaderImage.loadingStart();
-                session.getUiElements().setLogText("Loading users started.");
-                events.onLoadingStart();
-            }
-            public void onFinished(JavaScriptObject jso) {
-                loaderImage.loadingFinished();
-                setList(JsonUtils.<User>jsoAsList(jso));
-                sortTable();
-                session.getUiElements().setLogText("Users loaded: " + list.size());
-                events.onFinished(jso);
-            }
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Error while loading users.");
+				loaderImage.loadingError(error);
+				events.onError(error);
+			}
+			public void onLoadingStart() {
+				loaderImage.loadingStart();
+				session.getUiElements().setLogText("Loading users started.");
+				events.onLoadingStart();
+			}
+			public void onFinished(JavaScriptObject jso) {
+				loaderImage.loadingFinished();
+				setList(JsonUtils.<User>jsoAsList(jso));
+				sortTable();
+				session.getUiElements().setLogText("Users loaded: " + list.size());
+				events.onFinished(jso);
+			}
 
 
-        });
+		});
 		js.sendData(JSON_URL, req);
 
 		return;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<User>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<User>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object User to be added as new row
-     */
-    public void addToTable(User object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object User to be added as new row
+	 */
+	public void addToTable(User object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object User to be removed as row
-     */
-    public void removeFromTable(User object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object User to be removed as row
+	 */
+	public void removeFromTable(User object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<User> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<User> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading users.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading users.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading users started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading users started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        loaderImage.loadingFinished();
-        setList(JsonUtils.<User>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Users loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		loaderImage.loadingFinished();
+		setList(JsonUtils.<User>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Users loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, User object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, User object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<User> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<User> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<User> getList() {
-        return this.list;
-    }
+	public ArrayList<User> getList() {
+		return this.list;
+	}
 
 
 	public void setSelected(User user) {

@@ -29,10 +29,10 @@ public class CreateServiceMember {
 	// params
 	private String name = "";
 	private int voId = 0;
-    private ArrayList<User> users;
-    private String login = "";
-    private String namespace = "";
-    private String email = "";
+	private ArrayList<User> users;
+	private String login = "";
+	private String namespace = "";
+	private String email = "";
 
 	/**
 	 * Creates a new request
@@ -53,18 +53,18 @@ public class CreateServiceMember {
 	 *
 	 * @param voId vo where member should be created
 	 * @param name name of service member
-     * @param users list of real users
-     * @param login users login in einfra
+	 * @param users list of real users
+	 * @param login users login in einfra
 	 */
 	public void createMember(final int voId, final String name, final String email, ArrayList<User> users, String namespace, String login)
 	{
 
 		this.voId = voId;
 		this.name = name;
-        this.email = email;
-        this.users = users;
-        this.login = login;
-        this.namespace = namespace;
+		this.email = email;
+		this.users = users;
+		this.login = login;
+		this.namespace = namespace;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -114,10 +114,10 @@ public class CreateServiceMember {
 			errorMsg += "Wrong 'Vo' parameter.\n";
 			result = false;
 		}
-        if(namespace.isEmpty()){
-            errorMsg += "Wrong 'Namespace' parameter.\n";
-            result = false;
-        }
+		if(namespace.isEmpty()){
+			errorMsg += "Wrong 'Namespace' parameter.\n";
+			result = false;
+		}
 
 		if(errorMsg.length()>0){
 			Window.alert(errorMsg);
@@ -135,10 +135,10 @@ public class CreateServiceMember {
 
 		JSONNumber selectedVoId = new JSONNumber(voId);
 
-        // attributes object !! login !!
-        JSONObject attrs = new JSONObject();
-        attrs.put("urn:perun:user:attribute-def:def:login-namespace:"+namespace, new JSONString(login));
-        attrs.put("urn:perun:member:attribute-def:def:mail", new JSONString(email));
+		// attributes object !! login !!
+		JSONObject attrs = new JSONObject();
+		attrs.put("urn:perun:user:attribute-def:def:login-namespace:"+namespace, new JSONString(login));
+		attrs.put("urn:perun:member:attribute-def:def:mail", new JSONString(email));
 
 		// create new form of candidate
 		JSONObject newCandidate = new JSONObject();
@@ -152,38 +152,38 @@ public class CreateServiceMember {
 		newCandidate.put("titleAfter", null);
 		newCandidate.put("titleBefore", null);
 
-        JSONArray array = new JSONArray();
+		JSONArray array = new JSONArray();
 
-        for (int i=0; i<users.size(); i++) {
+		for (int i=0; i<users.size(); i++) {
 
-            JSONObject user = new JSONObject(users.get(i));
+			JSONObject user = new JSONObject(users.get(i));
 
-            JSONValue id = user.get("id");
-            JSONValue firstName = user.get("firstName");
-            JSONValue lastName = user.get("lastName");
-            JSONValue middleName = user.get("middleName");
-            JSONValue titleAfter = user.get("titleAfter");
-            JSONValue titleBefore = user.get("titleBefore");
-            JSONValue service = user.get("serviceUser");
+			JSONValue id = user.get("id");
+			JSONValue firstName = user.get("firstName");
+			JSONValue lastName = user.get("lastName");
+			JSONValue middleName = user.get("middleName");
+			JSONValue titleAfter = user.get("titleAfter");
+			JSONValue titleBefore = user.get("titleBefore");
+			JSONValue service = user.get("serviceUser");
 
-            JSONObject newUser = new JSONObject();
-            newUser.put("id", id);
-            newUser.put("firstName", firstName);
-            newUser.put("lastName", lastName);
-            newUser.put("middleName", middleName);
-            newUser.put("titleAfter", titleAfter);
-            newUser.put("titleBefore", titleBefore);
-            newUser.put("serviceUser", service);
+			JSONObject newUser = new JSONObject();
+			newUser.put("id", id);
+			newUser.put("firstName", firstName);
+			newUser.put("lastName", lastName);
+			newUser.put("middleName", middleName);
+			newUser.put("titleAfter", titleAfter);
+			newUser.put("titleBefore", titleBefore);
+			newUser.put("serviceUser", service);
 
-            array.set(i, newUser);
+			array.set(i, newUser);
 
-        }
+		}
 
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("vo", selectedVoId);
 		jsonQuery.put("candidate", newCandidate);
-        jsonQuery.put("serviceUserOwners", array);
+		jsonQuery.put("serviceUserOwners", array);
 
 		return jsonQuery;
 

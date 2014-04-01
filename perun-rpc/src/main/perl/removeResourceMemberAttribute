@@ -7,22 +7,22 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected resource-member attribute. Resource id, member id and attribute id are required.
---------------------------------------
-Available options:
- --resourceId   | -r resource id
- --memberId     | -m member id
- --attributeId  | -a attribute id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected resource-member attribute. Resource id, member id and attribute id are required.
+	--------------------------------------
+	Available options:
+	--resourceId   | -r resource id
+	--memberId     | -m member id
+	--attributeId  | -a attribute id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($resourceId, $attributeId, $memberId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
+"resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}

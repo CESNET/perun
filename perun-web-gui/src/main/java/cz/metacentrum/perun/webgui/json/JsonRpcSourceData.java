@@ -70,7 +70,7 @@ public class JsonRpcSourceData implements HasRows {
 	public HandlerRegistration addRangeChangeHandler(
 			RangeChangeEvent.Handler handler) {
 		return handlerManager.addHandler(RangeChangeEvent.getType(), handler);
-	}
+			}
 
 	/**
 	 * Registers a handler, which is fired when row count changed
@@ -78,7 +78,7 @@ public class JsonRpcSourceData implements HasRows {
 	public HandlerRegistration addRowCountChangeHandler(
 			RowCountChangeEvent.Handler handler) {
 		return handlerManager.addHandler(RowCountChangeEvent.getType(), handler);
-	}
+			}
 
 	/**
 	 * Returns a row count

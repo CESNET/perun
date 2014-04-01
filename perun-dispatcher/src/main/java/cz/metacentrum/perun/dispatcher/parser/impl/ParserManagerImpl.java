@@ -46,9 +46,9 @@ public class ParserManagerImpl implements ParserManager {
 		//taskExecutor.execute(parserGrouper);
 		//parsers.add(parserGrouper);
 		String name = propertiesBean.getProperty("dispatcher.ip.address")+":"+propertiesBean.getProperty("dispatcher.port");
-	    auditerListener.setDispatcherName(name);
-	    auditerListener.setEventQueue(eventQueue);
-	    taskExecutor.execute(new Runnable() {
+		auditerListener.setDispatcherName(name);
+		auditerListener.setEventQueue(eventQueue);
+		taskExecutor.execute(new Runnable() {
 
 			@Override
 			public void run() {
@@ -109,24 +109,24 @@ public class ParserManagerImpl implements ParserManager {
 	}
 
 	public TaskExecutor getTaskExecutor() {
-		return taskExecutor;
+	return taskExecutor;
 	}
 
 	public Parser getParserPerunDB() {
-		return parserPerunDB;
+	return parserPerunDB;
 	}
 
 	public void setParserPerunDB(Parser parserPerunDB) {
-		this.parserPerunDB = parserPerunDB;
+	this.parserPerunDB = parserPerunDB;
 	}
 
 	public Parser getParserGrouper() {
-		return parserGrouper;
+	return parserGrouper;
 	}
 
 	public void setParserGrouper(Parser parserGrouper) {
-		this.parserGrouper = parserGrouper;
+	this.parserGrouper = parserGrouper;
 	}
-*/
+	*/
 
 }

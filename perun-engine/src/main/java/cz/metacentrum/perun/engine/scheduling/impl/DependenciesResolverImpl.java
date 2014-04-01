@@ -22,38 +22,38 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 @org.springframework.stereotype.Service(value = "dependenciesResolver")
 public class DependenciesResolverImpl implements DependenciesResolver {
 
-    private final static Logger log = LoggerFactory.getLogger(DependenciesResolverImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(DependenciesResolverImpl.class);
 
-    @Autowired
-    private EngineManager engineManager;
+	@Autowired
+	private EngineManager engineManager;
 
-    @Override
-    public List<ExecService> listDependencies(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-        List<ExecService> dependencies = Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
-        log.debug("listDependencies #DependenciesResolver:" + dependencies);
-        return dependencies;
-    }
+	@Override
+	public List<ExecService> listDependencies(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		List<ExecService> dependencies = Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
+		log.debug("listDependencies #DependenciesResolver:" + dependencies);
+		return dependencies;
+	}
 
-    @Override
-    public List<ExecService> listDependencies(int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-        //TODO: Remove this nasty hack! RPC to be updated...
-        ExecService execService = new ExecService();
-        execService.setId(execServiceId);
-        List<ExecService> dependencies = Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
-        log.debug("listDependencies #DependenciesResolver:" + dependencies);
-        return dependencies;
-    }
+	@Override
+	public List<ExecService> listDependencies(int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		//TODO: Remove this nasty hack! RPC to be updated...
+		ExecService execService = new ExecService();
+		execService.setId(execServiceId);
+		List<ExecService> dependencies = Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
+		log.debug("listDependencies #DependenciesResolver:" + dependencies);
+		return dependencies;
+	}
 
-    @Override
-    public List<ExecService> listDependantServices(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-        return Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
-    }
+	@Override
+	public List<ExecService> listDependantServices(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		return Rpc.GeneralServiceManager.listExecServicesThisExecServiceDependsOn(engineManager.getRpcCaller(), execService);
+	}
 
-    public EngineManager getEngineManager() {
-        return engineManager;
-    }
+	public EngineManager getEngineManager() {
+		return engineManager;
+	}
 
-    public void setEngineManager(EngineManager engineManager) {
-        this.engineManager = engineManager;
-    }
+	public void setEngineManager(EngineManager engineManager) {
+		this.engineManager = engineManager;
+	}
 }

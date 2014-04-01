@@ -7,12 +7,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -52,71 +52,71 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getMsg
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_msg};
+	return $self->{_msg};
 }
 
 sub setMsg
 {
-    my $self = shift;
-    $self->{_msg} = shift;
+	my $self = shift;
+	$self->{_msg} = shift;
 
-    return;
+	return;
 }
 
 sub getActor
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_actor};
+	return $self->{_actor};
 }
 
 sub setActor
 {
-    my $self = shift;
-    $self->{_actor} = shift;
+	my $self = shift;
+	$self->{_actor} = shift;
 
-    return;
+	return;
 }
 
 sub getCreatedAt
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_createdAt};
+	return $self->{_createdAt};
 }
 
 sub setCreatedAt
 {
-    my $self = shift;
-    $self->{_createdAt} = shift;
+	my $self = shift;
+	$self->{_createdAt} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->getId, $self->getActor, $self->getMsg, $self->getCreatedAt);
+	my $self = shift;
+	return ($self->getId, $self->getActor, $self->getMsg, $self->getCreatedAt);
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('ID', 'Actor', 'Msg', 'CreatedAt');
+	return ('ID', 'Actor', 'Msg', 'CreatedAt');
 }
 
 1;

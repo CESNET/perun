@@ -52,7 +52,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 	/**
 	 * Creates a new instance of GroupsManager/getSubGroups method
-     *
+	 *
 	 * @param id Parent group id
 	 */
 	public GetSubGroups(int id) {
@@ -101,7 +101,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// Cell table
 		table = new PerunTable<Group>(list);
-        table.setHyperlinksAllowed(false);
+		table.setHyperlinksAllowed(false);
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
@@ -115,7 +115,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Group has no sub-groups.");
+		loaderImage.setEmptyResultMessage("Group has no sub-groups.");
 
 		// checkbox column column
 		table.addCheckBoxColumn();
@@ -127,163 +127,163 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Group>().sortByService(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Group>().sortByService(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Group to be added as new row
-     */
-    public void addToTable(Group object) {
-        list.add(object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Group to be added as new row
+	 */
+	public void addToTable(Group object) {
+		list.add(object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Group to be removed as row
-     */
-    public void removeFromTable(Group object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Group to be removed as row
+	 */
+	public void removeFromTable(Group object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Group> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Group> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Sub-Groups");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Sub-Groups");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Sub-Groups started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Sub-Groups started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Group>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Sub-Groups loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Group>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Sub-Groups loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Group object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Group object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<Group> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Group g : list) {
-            oracle.add(g.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Group> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Group g : list) {
+			oracle.add(g.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Group> getList() {
-        return this.list;
-    }
+	public ArrayList<Group> getList() {
+		return this.list;
+	}
 
 
-    public UnaccentMultiWordSuggestOracle getOracle(){
+	public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
 	}
 
-    public void filterTable(String text){
+	public void filterTable(String text){
 
-        // store list only for first time
-        if (fullBackup.isEmpty() || fullBackup == null) {
-            fullBackup.addAll(list);
-        }
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
-        } else {
-            for (Group grp : fullBackup){
-                // store facility by filter
-                if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
-                        grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
-                    list.add(grp);
-                }
-            }
-        }
+		if (text.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (Group grp : fullBackup){
+				// store facility by filter
+				if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
+						grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
+					list.add(grp);
+						}
+			}
+		}
 
-        if (list.isEmpty() && !text.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No sub-group matching '"+text+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("Group has no sub-groups.");
-        }
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No sub-group matching '"+text+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("Group has no sub-groups.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
-    }
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+	}
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;

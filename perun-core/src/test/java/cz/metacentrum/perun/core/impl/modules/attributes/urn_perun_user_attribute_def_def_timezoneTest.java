@@ -16,40 +16,40 @@ import static org.mockito.Mockito.mock;
  */
 public class urn_perun_user_attribute_def_def_timezoneTest {
 
-    private static PerunSessionImpl session;
-    private static urn_perun_user_attribute_def_def_timezone classInstance;
-    private static User user;
+	private static PerunSessionImpl session;
+	private static urn_perun_user_attribute_def_def_timezone classInstance;
+	private static User user;
 
-    @Before
-    public void setUp() {
-        classInstance = new urn_perun_user_attribute_def_def_timezone();
-        user = new User();
-        session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-    }
+	@Before
+	public void setUp() {
+		classInstance = new urn_perun_user_attribute_def_def_timezone();
+		user = new User();
+		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+	}
 
-    @Test
-    public void testCheckAttributeValue() throws Exception {
-        System.out.println("testCheckAttributeValue()");
+	@Test
+	public void testCheckAttributeValue() throws Exception {
+		System.out.println("testCheckAttributeValue()");
 
-        Attribute attributeToCheck = new Attribute();
+		Attribute attributeToCheck = new Attribute();
 
-        attributeToCheck.setValue("Europe/Prague");
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
+		attributeToCheck.setValue("Europe/Prague");
+		classInstance.checkAttributeValue(session, user, attributeToCheck);
 
-        attributeToCheck.setValue("Africa/Johannesburg");
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
+		attributeToCheck.setValue("Africa/Johannesburg");
+		classInstance.checkAttributeValue(session, user, attributeToCheck);
 
-        attributeToCheck.setValue("Jamaica");
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
-    }
+		attributeToCheck.setValue("Jamaica");
+		classInstance.checkAttributeValue(session, user, attributeToCheck);
+	}
 
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueWithWrongValue() throws Exception {
-        System.out.println("testCheckAttributeValueWithWrongValue()");
+	@Test(expected = WrongAttributeValueException.class)
+		public void testCheckAttributeValueWithWrongValue() throws Exception {
+			System.out.println("testCheckAttributeValueWithWrongValue()");
 
-        Attribute attributeToCheck = new Attribute();
-        attributeToCheck.setValue("123");
+			Attribute attributeToCheck = new Attribute();
+			attributeToCheck.setValue("123");
 
-        classInstance.checkAttributeValue(session, user, attributeToCheck);
-    }
+			classInstance.checkAttributeValue(session, user, attributeToCheck);
+		}
 }

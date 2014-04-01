@@ -18,7 +18,7 @@ public class UsersTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public UsersTabs(){}
 
 	/**
@@ -80,20 +80,20 @@ public class UsersTabs {
 			return true;
 		}
 
-        if (tab.equals(SelfServiceUsersTabItem.URL)) {
-            session.getTabManager().addTab(SelfServiceUsersTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(SelfServiceUsersTabItem.URL)) {
+			session.getTabManager().addTab(SelfServiceUsersTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(SelfAuthenticationsTabItem.URL)) {
-            session.getTabManager().addTab(SelfAuthenticationsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(SelfAuthenticationsTabItem.URL)) {
+			session.getTabManager().addTab(SelfAuthenticationsTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(SelfVosTabItem.URL)) {
-            session.getTabManager().addTab(SelfVosTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(SelfVosTabItem.URL)) {
+			session.getTabManager().addTab(SelfVosTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

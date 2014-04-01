@@ -8,40 +8,40 @@ use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction printTable);
 
 sub help {
-return qq{
-Prints list of VO Members. Vo is required field.
-------------------------------
-Available options:
- --voId        | -v  VO idetifier
- --voShortName | -V  VO short name
- --orderById   | -i  order by Member's identifier
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Prints list of VO Members. Vo is required field.
+	------------------------------
+	Available options:
+	--voId        | -v  VO idetifier
+	--voShortName | -V  VO short name
+	--orderById   | -i  order by Member's identifier
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 my ($voId, $voShortName, $sortingFunction);
 our $batch;
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "voId|v=i" => \$voId,
-           "voShortName|V=s" => \$voShortName,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getMemberId") } ,
-           "batch|b" => \$batch) || die help;
+	"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+					 "orderById|i" => sub { $sortingFunction = getSortingFunction("getMemberId") } ,
+					 "batch|b" => \$batch) || die help;
 
-my $agent = Perun::Agent->new();
-my $vosAgent = $agent->getVosAgent;
+			 my $agent = Perun::Agent->new();
+			 my $vosAgent = $agent->getVosAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
-unless(defined $voId) {
-  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
-}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
+			 unless(defined $voId) {
+				 unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+				 my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+				 $voId = $vo->getId;
+			 }
 
-my $membersAgent = $agent->getMembersAgent;
-my @richMembers = $membersAgent->getRichMembers(vo => $voId, pageSize => 0, pageNum => 0);
-unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
+			 my $membersAgent = $agent->getMembersAgent;
+			 my @richMembers = $membersAgent->getRichMembers(vo => $voId, pageSize => 0, pageNum => 0);
+			 unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
 
 #output
-printTable($sortingFunction, @richMembers);
+			 printTable($sortingFunction, @richMembers);

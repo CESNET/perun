@@ -37,7 +37,7 @@ public class DeleteFacility {
 	/**
 	 * Creates a new request with custom events passed from tab or page
 
-     * @param events JsonCallbackaEvents
+	 * @param events JsonCallbackaEvents
 	 */
 	public DeleteFacility(final JsonCallbackEvents events) {
 		this.events = events;

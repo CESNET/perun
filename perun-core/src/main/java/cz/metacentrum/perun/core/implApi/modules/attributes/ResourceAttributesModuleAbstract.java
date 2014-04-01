@@ -23,15 +23,15 @@ import java.util.List;
  */
 public abstract class ResourceAttributesModuleAbstract extends AttributesModuleAbstract implements ResourceAttributesModuleImplApi{
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-    }
+	}
 
-    public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        return new Attribute(attribute);
-    }
+	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
-    }
+	}
 }

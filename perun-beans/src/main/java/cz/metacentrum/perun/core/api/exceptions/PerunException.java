@@ -9,68 +9,68 @@ import org.slf4j.LoggerFactory;
  * @author Martin Kuba
  */
 public abstract class PerunException extends Exception {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private final static Logger log = LoggerFactory.getLogger(PerunException.class);
-    private String errorId = Long.toHexString(System.currentTimeMillis());
+	private final static Logger log = LoggerFactory.getLogger(PerunException.class);
+	private String errorId = Long.toHexString(System.currentTimeMillis());
 
-    public PerunException() {
-        super();
+	public PerunException() {
+		super();
 
-        if (!(this instanceof InternalErrorException)) {
-          log.warn("Exception {}: {}.", errorId, this);
-          if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this);
-          }
-        }
-    }
+		if (!(this instanceof InternalErrorException)) {
+			log.warn("Exception {}: {}.", errorId, this);
+			if (log.isDebugEnabled()) {
+				log.debug("Exception detail:", this);
+			}
+		}
+	}
 
-    public PerunException(String message) {
-        super(message);
+	public PerunException(String message) {
+		super(message);
 
-        if (!(this instanceof InternalErrorException)) {
-          log.warn("Exception {}: {}.", errorId, this);
-          if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this);
-          }
-        }
-    }
+		if (!(this instanceof InternalErrorException)) {
+			log.warn("Exception {}: {}.", errorId, this);
+			if (log.isDebugEnabled()) {
+				log.debug("Exception detail:", this);
+			}
+		}
+	}
 
-    public PerunException(String message, Throwable cause) {
-        super(message, cause);
+	public PerunException(String message, Throwable cause) {
+		super(message, cause);
 
-        if (!(this instanceof InternalErrorException)) {
-          log.warn("Exception {}: {}.", errorId, this);
-          if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this);
-          }
-        }
-    }
+		if (!(this instanceof InternalErrorException)) {
+			log.warn("Exception {}: {}.", errorId, this);
+			if (log.isDebugEnabled()) {
+				log.debug("Exception detail:", this);
+			}
+		}
+	}
 
-    public PerunException(Throwable cause) {
-        super(cause!=null?cause.getMessage():null,cause);
-        if (!(this instanceof InternalErrorException)) {
-          log.warn("Exception {}: {}.", errorId, this);
-          if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this);
-          }
-        }
-    }
+	public PerunException(Throwable cause) {
+		super(cause!=null?cause.getMessage():null,cause);
+		if (!(this instanceof InternalErrorException)) {
+			log.warn("Exception {}: {}.", errorId, this);
+			if (log.isDebugEnabled()) {
+				log.debug("Exception detail:", this);
+			}
+		}
+	}
 
-    @Override
-    public String getMessage() {
-        return "Error "+errorId+": "+super.getMessage();
-    }
+	@Override
+	public String getMessage() {
+		return "Error "+errorId+": "+super.getMessage();
+	}
 
-    public String getErrorId() {
-        return errorId;
-    }
+	public String getErrorId() {
+		return errorId;
+	}
 
-    public void setErrorId(String errorId) {
-      this.errorId = errorId;
-    }
+	public void setErrorId(String errorId) {
+		this.errorId = errorId;
+	}
 
-    public String getName() {
-      return this.getClass().getSimpleName();
-    }
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
 }

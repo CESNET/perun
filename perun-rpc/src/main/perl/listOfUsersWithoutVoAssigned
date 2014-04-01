@@ -8,23 +8,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
-return qq{
-Prints list of users.
-------------------------------
-Available options:
- --orderById    | -i  order by user's identifier
- --orderByName  | -n  order by user's name
- --batch        | -b  batch
- --help         | -h  prints this help
-};
+	return qq{
+	Prints list of users.
+	------------------------------
+	Available options:
+	--orderById    | -i  order by user's identifier
+	--orderByName  | -n  order by user's name
+	--batch        | -b  batch
+	--help         | -h  prints this help
+	};
 }
 
 my $sortingFunction;
 our $batch;
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
-           "batch|b" => \$batch) || die help;
+	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
+	"batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;

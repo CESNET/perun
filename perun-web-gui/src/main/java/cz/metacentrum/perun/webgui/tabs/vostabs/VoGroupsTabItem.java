@@ -62,8 +62,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public VoGroupsTabItem(VirtualOrganization vo){
 		this.vo = vo;
 		this.voId = vo.getId();
@@ -72,16 +72,16 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     */
+	 * @param voId
+	 */
 	public VoGroupsTabItem(int voId){
 		this.voId = voId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -101,49 +101,49 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 
 		// VO Groups request
 		final GetAllGroups groups = new GetAllGroups(voId);
-        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
-        if (!session.isVoAdmin(voId)) groups.setCheckable(false);
+		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
+		if (!session.isVoAdmin(voId)) groups.setCheckable(false);
 
 		// add new group button
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
-            }
-        });
-        if (!session.isVoAdmin(voId)) createButton.setEnabled(false);
-        menu.addWidget(createButton);
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
+			}
+		});
+		if (!session.isVoAdmin(voId)) createButton.setEnabled(false);
+		menu.addWidget(createButton);
 
 		// delete selected groups button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteGroup());
-        removeButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                final ArrayList<Group> groupsToDelete = groups.getTableSelectedList();
-                String text = "Following groups (including all sub-groups) will be deleted.";
-                UiElements.showDeleteConfirm(groupsToDelete, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<groupsToDelete.size(); i++ ) {
-                            DeleteGroup request;
-                            if(i == groupsToDelete.size() - 1) {
-                                request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                            } else {
-                                request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
-                            }
-                            request.deleteGroup(groupsToDelete.get(i).getId());
-                        }
-                    }
-                });
-            }
-        });
-        menu.addWidget(removeButton);
+		removeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final ArrayList<Group> groupsToDelete = groups.getTableSelectedList();
+				String text = "Following groups (including all sub-groups) will be deleted.";
+				UiElements.showDeleteConfirm(groupsToDelete, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<groupsToDelete.size(); i++ ) {
+							DeleteGroup request;
+							if(i == groupsToDelete.size() - 1) {
+								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+							} else {
+								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
+							}
+							request.deleteGroup(groupsToDelete.get(i).getId());
+						}
+					}
+				});
+			}
+		});
+		menu.addWidget(removeButton);
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                groups.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+			public void searchFor(String text) {
+				groups.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
 		// add a table with a onclick
 		CellTable<Group> table = groups.getTable(new FieldUpdater<Group, String>() {
@@ -162,8 +162,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.setCellHeight(menu, "30px");
 		firstTabPanel.add(sp);
 
-        removeButton.setEnabled(false);
-        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
+		removeButton.setEnabled(false);
+		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -213,7 +213,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Groups", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Groups", getUrlWithParameters());
 		if(vo != null){
 			session.setActiveVo(vo);
 			return;

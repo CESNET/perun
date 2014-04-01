@@ -66,14 +66,14 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 	/**
 	 * Creates new instance of callback
 	 *
-     */
+	 */
 	public GetAttributesDefinitionV2() {}
 
 	/**
 	 * Creates new instance of callback
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public GetAttributesDefinitionV2(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -120,14 +120,14 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 		// Description column
 		Column<Attribute, Attribute> descriptionColumn = JsonUtils.addColumn(new PerunAttributeDescriptionCell());
 
-        // Value column
-        Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
-        valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
-            public void update(int index, Attribute object, Attribute value) {
-                object = value;
-                selectionModel.setSelected(object, object.isAttributeValid());
-            }
-        });
+		// Value column
+		Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
+		valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
+			public void update(int index, Attribute object, Attribute value) {
+				object = value;
+				selectionModel.setSelected(object, object.isAttributeValid());
+			}
+		});
 
 		// updates the columns size
 		this.table.setColumnWidth(nameColumn, 200.0, Unit.PX);
@@ -161,147 +161,147 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 		js.retrieveData(JSON_URL, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Attribute to be added as new row
-     */
-    public void addToTable(Attribute object) {
-        list.add(object);
-        oracle.add(object.getFriendlyName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Attribute to be added as new row
+	 */
+	public void addToTable(Attribute object) {
+		list.add(object);
+		oracle.add(object.getFriendlyName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Attribute to be removed as row
-     */
-    public void removeFromTable(Attribute object) {
-        selectionModel.getSelectedSet().remove(object);
-        Iterator<Attribute> it = list.iterator();
-        while(it.hasNext()) {
-            Attribute a = it.next();
-            if (a.getId() == object.getId()){
-                it.remove();
-            }
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Attribute to be removed as row
+	 */
+	public void removeFromTable(Attribute object) {
+		selectionModel.getSelectedSet().remove(object);
+		Iterator<Attribute> it = list.iterator();
+		while(it.hasNext()) {
+			Attribute a = it.next();
+			if (a.getId() == object.getId()){
+				it.remove();
+			}
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        fullBackup.clear();
-        list.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		fullBackup.clear();
+		list.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Attribute> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Attribute> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading attribute definitions.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading attribute definitions.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading attribute definitions started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading attribute definitions started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        clearTable();
-        for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
-            // check namespace for core
-            if (noCore && a.getDefinition().equals("core")) {
-                // do not add anything
-            } else {
-                // check namespace for entity
-                // if not empty, proceed to check
-                if (!entities.isEmpty()) {
-                    if (entities.contains(a.getEntity())) {
-                        // add
-                        addToTable(a);
-                    }
-                } else {
-                    addToTable(a);
-                }
-            }
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Attribute definitions loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		clearTable();
+		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
+			// check namespace for core
+			if (noCore && a.getDefinition().equals("core")) {
+				// do not add anything
+			} else {
+				// check namespace for entity
+				// if not empty, proceed to check
+				if (!entities.isEmpty()) {
+					if (entities.contains(a.getEntity())) {
+						// add
+						addToTable(a);
+					}
+				} else {
+					addToTable(a);
+				}
+			}
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Attribute definitions loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Attribute object) {
-        list.add(index, object);
-        oracle.add(object.getFriendlyName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Attribute object) {
+		list.add(index, object);
+		oracle.add(object.getFriendlyName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        //this.editable = editable;
-    }
+	public void setEditable(boolean editable) {
+		//this.editable = editable;
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Attribute> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Attribute a : list) {
-            oracle.add(a.getFriendlyName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Attribute> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Attribute a : list) {
+			oracle.add(a.getFriendlyName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Attribute> getList() {
-        return this.list;
-    }
+	public ArrayList<Attribute> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Helper method for switching show/do not show core attributes
@@ -369,11 +369,11 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 			fullBackup.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
+		if (filter.equalsIgnoreCase("")) {
 			list.addAll(fullBackup);
 		} else {
 			for (Attribute attr : fullBackup){
@@ -384,9 +384,9 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 			}
 		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
 	}
 

@@ -30,11 +30,11 @@ public class NotUserOfPerunWidget extends Composite {
 		} else {
 			// czech for czech
 			text = "<h3>Buď nejste evidováni v systemu Perun a nebo nemáte zaregistrovanou Vaši identitu, kterou jste se teď přihlasil(a).</h3>" +
-					"<h3>Pro spárování identit pokračujte na:</h3>";
+				"<h3>Pro spárování identit pokračujte na:</h3>";
 		}
 
-        String link = Utils.getIdentityConsolidatorLink(true);
-        Anchor hp = new Anchor("<h4>"+link+"</h4>", true, link);
+		String link = Utils.getIdentityConsolidatorLink(true);
+		Anchor hp = new Anchor("<h4>"+link+"</h4>", true, link);
 
 		layout.setWidget(0, 0, new HTML(new Image(LargeIcons.INSTANCE.errorIcon())+text+hp));
 

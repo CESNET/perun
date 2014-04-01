@@ -22,20 +22,20 @@ import java.util.List;
 public abstract class FacilityVirtualAttributesModuleAbstract extends FacilityAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
 
-    public Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
-        return new Attribute(attribute);
-    }
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+		return new Attribute(attribute);
+	}
 
-    public boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-        return false;
-    }
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		return false;
+	}
 
-    public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 
-    }
+	}
 
-    @Override
-    public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-        return new ArrayList<String>();
-    }
+	@Override
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		return new ArrayList<String>();
+	}
 }

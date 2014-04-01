@@ -27,40 +27,40 @@ print tableHeader(@roles);
 
 while(<>) {
 
-    #line with method definition
-    if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
-      $methodName = $1;
-      next;
-    }
+	#line with method definition
+	if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
+		$methodName = $1;
+		next;
+	}
 
 
-    if(/AuthzResolver\.isAuthorized/) {
-      #get roles and complementary objects and store them into $authorizations data structure
-      my @rolesAndObjects = ($_ =~ /AuthzResolver\.isAuthorized\(\w+,\s*Role\.([^\)]*)\)/g) ;
-      foreach $roleAndObject (@rolesAndObjects) {
-        $roleAndObject =~ /^(\w+)(,\s*(\w+))?/;
-        my $role = $1;
-        my $complementaryObject = $3;
+	if(/AuthzResolver\.isAuthorized/) {
+		#get roles and complementary objects and store them into $authorizations data structure
+		my @rolesAndObjects = ($_ =~ /AuthzResolver\.isAuthorized\(\w+,\s*Role\.([^\)]*)\)/g) ;
+		foreach $roleAndObject (@rolesAndObjects) {
+			$roleAndObject =~ /^(\w+)(,\s*(\w+))?/;
+			my $role = $1;
+			my $complementaryObject = $3;
 
-        #store
-        $authorizations->{$methodName}->{$role} = $complementaryObject;
-      }
-    }
+			#store
+			$authorizations->{$methodName}->{$role} = $complementaryObject;
+		}
+	}
 }
 
 #output
 foreach $methodName (keys %$authorizations) {
-  print "<tr><td>$methodName</td>";
-  for my $role (@roles) {
-    if(defined $authorizations->{$methodName}->{$role}) {
-      print "<td class='ok'>OK";
-      print ": ",  $authorizations->{$methodName}->{$role};
-      print "</td>";
-    } else {
-      print "<td class='nook'>--</td>";
-    }
-  }
-  print "</tr>\n";
+	print "<tr><td>$methodName</td>";
+	for my $role (@roles) {
+		if(defined $authorizations->{$methodName}->{$role}) {
+			print "<td class='ok'>OK";
+			print ": ",  $authorizations->{$methodName}->{$role};
+			print "</td>";
+		} else {
+			print "<td class='nook'>--</td>";
+		}
+	}
+	print "</tr>\n";
 }
 
 
@@ -75,36 +75,36 @@ print "\n\n";
 # Methods for print to HTML
 
 sub htmlHeader {
-  return qq{
-  <html>
-    <head>
-      <title>AuthzResolver</title>
-      <style>
-        .ok \{ background-color: #66FF66 ; \}
-        .nook \{ background-color: #FF3333 ; \}
-      </style>
-    </head>
-    <body>
-  };
+	return qq{
+	<html>
+	<head>
+	<title>AuthzResolver</title>
+	<style>
+	.ok \{ background-color: #66FF66 ; \}
+	.nook \{ background-color: #FF3333 ; \}
+	</style>
+	</head>
+	<body>
+	};
 }
 
 sub htmlFooter {
-  return qq{
-   </body>
-  </html>
-  };
+	return qq{
+	</body>
+	</html>
+	};
 }
 
 sub tableHeader {
-  $out = "<table border=1><tr>";
-  $out .= "<td></td>"; #first column is used for labels, not for data
-  for $role (@_) {
-    $out .= "<td>$role</td>";
-  }
-  $out .= "</tr>\n";
-  return $out;
+	$out = "<table border=1><tr>";
+	$out .= "<td></td>"; #first column is used for labels, not for data
+	for $role (@_) {
+		$out .= "<td>$role</td>";
+	}
+	$out .= "</tr>\n";
+	return $out;
 }
 
 sub tableFooter {
-  return "</table>\n";
+	return "</table>\n";
 }

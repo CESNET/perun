@@ -50,9 +50,9 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Create new instace of this tab
 	 *
-     * @param object vo or group for authz
-     * @param formItems application form items to display
-     */
+	 * @param object vo or group for authz
+	 * @param formItems application form items to display
+	 */
 	public PreviewFormTabItem(GeneralObject object, ArrayList<ApplicationFormItem> formItems) {
 		this.object = object;
 		this.id = object.getId();
@@ -90,11 +90,11 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 				prepareApplicationForm(sp);
 			}
 		});
-        menu.addWidget(switchType);
+		menu.addWidget(switchType);
 
 		final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.flagCzechBritainIcon());
 		menu.addWidget(switchLocale);
-        switchLocale.addClickHandler(new ClickHandler(){
+		switchLocale.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// switch type
 				if (locale.equalsIgnoreCase("en")) {
@@ -197,10 +197,10 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 				w.setTitle(itemTexts.getHelp());
 				ft.setWidget(i, 1, w);
 
-                // 2 = status
-                ft.setWidget(i, 2, gen.getStatusWidget());
+				// 2 = status
+				ft.setWidget(i, 2, gen.getStatusWidget());
 
-                // 3 = HELP
+				// 3 = HELP
 				if(itemTexts.getHelp() != null && itemTexts.getHelp().length() > 0) {
 					Label help = new Label(itemTexts.getHelp());
 					ft.setWidget(i, 3, help);
@@ -209,11 +209,11 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 				// format
 				fcf.setStyleName(i, 0, "applicationFormLabel");
 				fcf.setStyleName(i, 1, "applicationFormWidget");
-                fcf.setStyleName(i, 2, "applicationFormCheck");
-                fcf.setStyleName(i, 3, "applicationFormHelp");
+				fcf.setStyleName(i, 2, "applicationFormCheck");
+				fcf.setStyleName(i, 3, "applicationFormHelp");
 				ft.setWidth("100%");
 
-			// ELSE HTML COMMENT
+				// ELSE HTML COMMENT
 
 			} else {
 				ft.setWidget(i, 0, gen.getWidget());

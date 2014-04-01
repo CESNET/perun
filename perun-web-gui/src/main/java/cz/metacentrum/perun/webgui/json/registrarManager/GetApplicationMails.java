@@ -58,7 +58,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 
 	/**
 	 * Creates a new method instance
-     *
+	 *
 	 * @param entity VO or Group
 	 * @param id ID of entity
 	 */
@@ -69,7 +69,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 
 	/**
 	 * Creates a new method instance
-     *
+	 *
 	 * @param entity VO or Group
 	 * @param id ID of entity
 	 * @param events Custom events
@@ -118,11 +118,11 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-            loaderImage.setEmptyResultMessage("No mail notifications found for this VO.");
-        } else if (PerunEntity.GROUP.equals(entity)) {
-            loaderImage.setEmptyResultMessage("No mail notifications found for this group.");
-        }
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+			loaderImage.setEmptyResultMessage("No mail notifications found for this VO.");
+		} else if (PerunEntity.GROUP.equals(entity)) {
+			loaderImage.setEmptyResultMessage("No mail notifications found for this group.");
+		}
 
 		// columns
 		if (checkable) {
@@ -202,117 +202,117 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<ApplicationMail>().sortById(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<ApplicationMail>().sortById(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(ApplicationMail object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(ApplicationMail object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(ApplicationMail object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(ApplicationMail object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<ApplicationMail> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<ApplicationMail> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading application mails");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading application mails");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading application mails started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading application mails started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<ApplicationMail>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Application mails loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<ApplicationMail>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Application mails loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void insertToTable(int index, ApplicationMail object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, ApplicationMail object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<ApplicationMail> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<ApplicationMail> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<ApplicationMail> getList() {
-        return this.list;
-    }
+	public ArrayList<ApplicationMail> getList() {
+		return this.list;
+	}
 
 }

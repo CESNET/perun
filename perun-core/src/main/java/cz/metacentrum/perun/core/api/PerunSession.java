@@ -13,44 +13,44 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class PerunSession {
 
-    private PerunPrincipal principal;
-    private Perun perun;
-    final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
+	private PerunPrincipal principal;
+	private Perun perun;
+	final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
 
-    /**
-     * Constructor.
-     *
-     * @param perun     Perun
-     * @param principal identification of the actor, who will perform operations.
-     * @throws InternalErrorRuntimeException if any parametr is null
-     */
-    public PerunSession(Perun perun, PerunPrincipal principal) {
-        if (perun == null) throw new InternalErrorRuntimeException(new NullPointerException("perun is null"));
-        if (principal == null) throw new InternalErrorRuntimeException(new NullPointerException("principal is null"));
-        this.principal = principal;
-        this.perun = perun;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param perun     Perun
+	 * @param principal identification of the actor, who will perform operations.
+	 * @throws InternalErrorRuntimeException if any parametr is null
+	 */
+	public PerunSession(Perun perun, PerunPrincipal principal) {
+		if (perun == null) throw new InternalErrorRuntimeException(new NullPointerException("perun is null"));
+		if (principal == null) throw new InternalErrorRuntimeException(new NullPointerException("principal is null"));
+		this.principal = principal;
+		this.perun = perun;
+	}
 
-    public PerunPrincipal getPerunPrincipal() {
-        return principal;
-    }
+	public PerunPrincipal getPerunPrincipal() {
+		return principal;
+	}
 
-    public Perun getPerun() {
-        return perun;
-    }
+	public Perun getPerun() {
+		return perun;
+	}
 
-    public void destroy() throws InternalErrorException {
-      perun = null;
-      principal = null;
-    }
+	public void destroy() throws InternalErrorException {
+		perun = null;
+		principal = null;
+	}
 
-    public void validate() throws InternalErrorException {
-    }
+	public void validate() throws InternalErrorException {
+	}
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" +
-                "principal='" + principal +
-                "']";
-    }
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[" +
+			"principal='" + principal +
+			"']";
+	}
 }

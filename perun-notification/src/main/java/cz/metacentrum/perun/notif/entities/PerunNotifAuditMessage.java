@@ -19,25 +19,25 @@ import java.util.List;
 //Table name is pn_audit_message
 public class PerunNotifAuditMessage {
 
-    /**
-     * Column id
-     * Sequence pn_audit_message_id_seq
-     *
-     * Unique id of message
-     */
+	/**
+	 * Column id
+	 * Sequence pn_audit_message_id_seq
+	 *
+	 * Unique id of message
+	 */
 	private long id;
 
-    /**
-     * Column message
-     *
-     * Holds audit message
-     */
+	/**
+	 * Column message
+	 *
+	 * Holds audit message
+	 */
 	private String message;
 
-    /**
-     * Computed from message using auditparser
-     */
-    private List<PerunBean> perunBeanList;
+	/**
+	 * Computed from message using auditparser
+	 */
+	private List<PerunBean> perunBeanList;
 
 	public PerunNotifAuditMessage() {}
 
@@ -62,25 +62,25 @@ public class PerunNotifAuditMessage {
 		this.message = message;
 	}
 
-    /**
-     * Parses message from auditer to list of perunBeans,
-     * this parsing is done only once
-     *
-     * @return
-     * @throws InternalErrorException
-     */
-    public List<PerunBean> getPerunBeanList() throws InternalErrorException {
+	/**
+	 * Parses message from auditer to list of perunBeans,
+	 * this parsing is done only once
+	 *
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	public List<PerunBean> getPerunBeanList() throws InternalErrorException {
 
-        if (perunBeanList == null) {
-            perunBeanList = AuditParser.parseLog(message);
-        }
-        return perunBeanList;
-    }
+		if (perunBeanList == null) {
+			perunBeanList = AuditParser.parseLog(message);
+		}
+		return perunBeanList;
+	}
 
-    /**
-     * RowMapper to load entity from db row
-     */
-    public static final RowMapper<PerunNotifAuditMessage> PERUN_NOTIF_MESSAGE = new RowMapper<PerunNotifAuditMessage>() {
+	/**
+	 * RowMapper to load entity from db row
+	 */
+	public static final RowMapper<PerunNotifAuditMessage> PERUN_NOTIF_MESSAGE = new RowMapper<PerunNotifAuditMessage>() {
 
 		public PerunNotifAuditMessage mapRow(ResultSet rs, int i) throws SQLException {
 

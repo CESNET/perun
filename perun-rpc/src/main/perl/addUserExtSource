@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds an external source to the user. User id and external login and external source id or name are required fields
-------------------------------------
-Available options:
- --userId         | -u user id
- --extSourceId    | -e external source id
- --extSourceName  | -E external source name
- --extSourceLogin | -l external login
- --batch          | -b batch
- --help           | -h prints this help
-};
+	return qq{
+	Adds an external source to the user. User id and external login and external source id or name are required fields
+	------------------------------------
+	Available options:
+	--userId         | -u user id
+	--extSourceId    | -e external source id
+	--extSourceName  | -E external source name
+	--extSourceLogin | -l external login
+	--batch          | -b batch
+	--help           | -h prints this help
+	};
 }
 
 my ($userId,$extSourceId,$extSourceName,$extSourceLogin,$batch);
 GetOptions ("help|h" => sub { print help(); exit 0;},"userId|u=i" => \$userId,
-	"extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName,
-  "extSourceLogin|l=s" => \$extSourceLogin, "batch|b" => \$batch) || die help();
+"extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName,
+	"extSourceLogin|l=s" => \$extSourceLogin, "batch|b" => \$batch) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -36,11 +36,11 @@ my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 my $extSource;
 if ($extSourceId) {
-    $extSource = $extSourcesAgent->getExtSourceById(id => $extSourceId);
+	$extSource = $extSourcesAgent->getExtSourceById(id => $extSourceId);
 }
 if ($extSourceName) {
-    $extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
-		$extSourceId = $extSource->getId;
+	$extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
+	$extSourceId = $extSource->getId;
 }
 
 my $userExtSource = Perun::beans::UserExtSource->new;

@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Slavek Licehammer
  */
 public class WrongModuleTypeException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public WrongModuleTypeException(String message) {
-        super(message);
-    }
+	public WrongModuleTypeException(String message) {
+		super(message);
+	}
 
-    public WrongModuleTypeException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public WrongModuleTypeException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public WrongModuleTypeException(Throwable cause) {
-        super(cause);
-    }
+	public WrongModuleTypeException(Throwable cause) {
+		super(cause);
+	}
 }

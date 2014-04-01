@@ -31,9 +31,9 @@ public class GetFacilitiesCountByType implements JsonCallback
 
 
 	/**
-     * Creates a new instance of the method
+	 * Creates a new instance of the method
 	 *
-     * @param type Facility type
+	 * @param type Facility type
 	 */
 	public GetFacilitiesCountByType(String type) {
 		this.type = type;
@@ -42,7 +42,7 @@ public class GetFacilitiesCountByType implements JsonCallback
 	/**
 	 * Creates a new instance of the method
 	 *
-     * @param type Facility type
+	 * @param type Facility type
 	 * @param events Custom callback events
 	 */
 	public GetFacilitiesCountByType(String type, JsonCallbackEvents events) {

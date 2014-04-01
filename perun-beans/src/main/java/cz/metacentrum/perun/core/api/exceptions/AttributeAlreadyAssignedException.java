@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeAlreadyAssignedRunti
  * @author Slavek Licehammer
  */
 public class AttributeAlreadyAssignedException extends EntityAlreadyAssignedException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private AttributeDefinition attribute;
+	private AttributeDefinition attribute;
 
-    public AttributeAlreadyAssignedException(AttributeAlreadyAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public AttributeAlreadyAssignedException(AttributeAlreadyAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public AttributeAlreadyAssignedException(String message) {
-        super(message);
-    }
+	public AttributeAlreadyAssignedException(String message) {
+		super(message);
+	}
 
-    public AttributeAlreadyAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public AttributeAlreadyAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public AttributeAlreadyAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public AttributeAlreadyAssignedException(Throwable cause) {
+		super(cause);
+	}
 
-    public AttributeAlreadyAssignedException(AttributeDefinition attribute) {
-        super(attribute.toString());
-        this.attribute = attribute;
-    }
+	public AttributeAlreadyAssignedException(AttributeDefinition attribute) {
+		super(attribute.toString());
+		this.attribute = attribute;
+	}
 
-    public AttributeDefinition getAttribute() {
-        return attribute;
-    }
+	public AttributeDefinition getAttribute() {
+		return attribute;
+	}
 }

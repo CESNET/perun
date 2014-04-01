@@ -31,71 +31,71 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
  */
 public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
-    @Override
-    public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	@Override
+	public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-        List<Resource> usersResources = null;
-        usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
+		List<Resource> usersResources = null;
+		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 
-        List<String> homeMntPointsOnAllResources = new ArrayList<String>();
-        for (Resource res : usersResources) {
-            Attribute resAttribute;
-            try {
-                resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
-            } catch (AttributeNotExistsException ex) {
-                throw new InternalErrorException("no homemountpoints found on underlying resources", ex);
-            }
-            List<String> homeMntPoint = (List<String>) resAttribute.getValue();
-            if (homeMntPoint != null) {
-              homeMntPointsOnAllResources.addAll(homeMntPoint);
-            }
-        }
-        if (homeMntPointsOnAllResources.isEmpty()) {
-            throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
-        }
-        if (!homeMntPointsOnAllResources.contains((String) attribute.getValue())) {
-            throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
-        }
-        Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
-        Matcher match = pattern.matcher((String) attribute.getValue());
-        if (!match.matches()) {
-            throw new WrongAttributeValueException(attribute, "Attribute has wrong format");
-        }
-    }
+		List<String> homeMntPointsOnAllResources = new ArrayList<String>();
+		for (Resource res : usersResources) {
+			Attribute resAttribute;
+			try {
+				resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("no homemountpoints found on underlying resources", ex);
+			}
+			List<String> homeMntPoint = (List<String>) resAttribute.getValue();
+			if (homeMntPoint != null) {
+				homeMntPointsOnAllResources.addAll(homeMntPoint);
+			}
+		}
+		if (homeMntPointsOnAllResources.isEmpty()) {
+			throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
+		}
+		if (!homeMntPointsOnAllResources.contains((String) attribute.getValue())) {
+			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
+		}
+		Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
+		Matcher match = pattern.matcher((String) attribute.getValue());
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, "Attribute has wrong format");
+		}
+	}
 
-    @Override
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        Attribute returnAttribute = new Attribute(attribute);
-        List<Resource> usersResources = null;
-        usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
-        for (Resource res : usersResources) {
-            Attribute resAttribute;
-            try {
-                resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultHomeMountPoint");
-            } catch (AttributeNotExistsException ex) {
-               throw new InternalErrorException("no homemountpoints found on underlying user's  resources", ex);
-            }
-            if (resAttribute.getValue() != null) {
-                returnAttribute.setValue(resAttribute.getValue());
-                return returnAttribute;
-            }
-        }
-        return returnAttribute;
-    }
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		Attribute returnAttribute = new Attribute(attribute);
+		List<Resource> usersResources = null;
+		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
+		for (Resource res : usersResources) {
+			Attribute resAttribute;
+			try {
+				resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultHomeMountPoint");
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("no homemountpoints found on underlying user's  resources", ex);
+			}
+			if (resAttribute.getValue() != null) {
+				returnAttribute.setValue(resAttribute.getValue());
+				return returnAttribute;
+			}
+		}
+		return returnAttribute;
+	}
 
-    @Override
-    public List<String> getDependencies() {
-      List<String> dependencies = new ArrayList<String>();
-      dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
-      return dependencies;
-    }
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
+		return dependencies;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("homeMountPoint");
-      attr.setType(String.class.getName());
-      attr.setDescription("Home mount point.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("homeMountPoint");
+		attr.setType(String.class.getName());
+		attr.setDescription("Home mount point.");
+		return attr;
+	}
 }

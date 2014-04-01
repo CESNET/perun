@@ -54,17 +54,17 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	 */
 	private HandlerRegistration rowCountChangeHandler;
 
-    /**
-     * Widget containing info about rows
-     */
-    private HTML rowCountWidget = new HTML();
+	/**
+	 * Widget containing info about rows
+	 */
+	private HTML rowCountWidget = new HTML();
 
-    /**
+	/**
 	 * Creates a new cell table, in which you can use prepared columns
 	 *
-     * @param list Table source list
-     *
-     */
+	 * @param list Table source list
+	 *
+	 */
 	public PerunTable(ArrayList<T> list) {
 		super();
 		this.list = list;
@@ -72,20 +72,20 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 		final PerunTable<T> table = this;
 
-        rowCountWidget.addStyleName("GPBYFDEFD");
-        rowCountWidget.getElement().getStyle().setPosition(Position.ABSOLUTE);
-        rowCountWidget.getElement().getStyle().setTop(0, Unit.PX);
-        rowCountWidget.getElement().getStyle().setRight(0, Unit.PX);
-        rowCountWidget.getElement().getStyle().setBackgroundColor("#fff");
-        rowCountWidget.getElement().getStyle().setFontWeight(FontWeight.BOLD);
-        rowCountWidget.getElement().getStyle().setBorderWidth(0, Unit.PX);
-        table.getElement().appendChild(rowCountWidget.getElement());
+		rowCountWidget.addStyleName("GPBYFDEFD");
+		rowCountWidget.getElement().getStyle().setPosition(Position.ABSOLUTE);
+		rowCountWidget.getElement().getStyle().setTop(0, Unit.PX);
+		rowCountWidget.getElement().getStyle().setRight(0, Unit.PX);
+		rowCountWidget.getElement().getStyle().setBackgroundColor("#fff");
+		rowCountWidget.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+		rowCountWidget.getElement().getStyle().setBorderWidth(0, Unit.PX);
+		table.getElement().appendChild(rowCountWidget.getElement());
 
 		// when row count changes, appends the row count
 		rowCountChangeHandler = this.addRowCountChangeHandler(new RowCountChangeEvent.Handler() {
 			public void onRowCountChange(RowCountChangeEvent event) {
-                // change content of row count handler widget
-                rowCountWidget.setHTML("Count: " + String.valueOf(event.getNewRowCount()));
+				// change content of row count handler widget
+				rowCountWidget.setHTML("Count: " + String.valueOf(event.getNewRowCount()));
 			}
 		});
 
@@ -456,21 +456,21 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 		return super.addColumnSortHandler(columnSortHandler);
 	}
 
-    /**
-     * Return sort handler associated with this table
-     *
-     * @return ColumnSortHandler
-     */
-    public ListHandler<T> getColumnSortHandler() {
-        return this.columnSortHandler;
-    }
+	/**
+	 * Return sort handler associated with this table
+	 *
+	 * @return ColumnSortHandler
+	 */
+	public ListHandler<T> getColumnSortHandler() {
+		return this.columnSortHandler;
+	}
 
 	/**
 	 * Removes rowCountChangeHandler which shows count of rows in table in top right corner.
 	 */
 	public void removeRowCountChangeHandler(){
 		if (rowCountChangeHandler != null) {
-            rowCountWidget.removeFromParent();
+			rowCountWidget.removeFromParent();
 			rowCountChangeHandler.removeHandler();
 		}
 	}

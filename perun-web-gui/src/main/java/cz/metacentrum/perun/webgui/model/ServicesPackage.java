@@ -20,81 +20,81 @@ public class ServicesPackage extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-	/**
-	 * Gets name of service package
-	 *
-	 * @return name of service package
-	 */
-	public final native String getName()  /*-{
-		return this.name;
-	}-*/;
+		/**
+		 * Gets name of service package
+		 *
+		 * @return name of service package
+		 */
+		public final native String getName()  /*-{
+			return this.name;
+		}-*/;
 
-    /**
-     * Gets description of service package
-     *
-     * @return description of service package
-     */
-    public final native String getDescription()  /*-{
-        return this.description;
-    }-*/;
+		/**
+		 * Gets description of service package
+		 *
+		 * @return description of service package
+		 */
+		public final native String getDescription()  /*-{
+			return this.description;
+		}-*/;
 
-    /**
-     * Set name of service package
-     *
-     * @param name of service package
-     */
-    public final native void setName(String name)  /*-{
-        this.name = name;
-    }-*/;
+		/**
+		 * Set name of service package
+		 *
+		 * @param name of service package
+		 */
+		public final native void setName(String name)  /*-{
+			this.name = name;
+		}-*/;
 
-    /**
-     * Set description of service package
-     *
-     * @param description of service package
-     */
-    public final native void setDescription(String description)  /*-{
-        this.description = description;
-    }-*/;
+		/**
+		 * Set description of service package
+		 *
+		 * @param description of service package
+		 */
+		public final native void setDescription(String description)  /*-{
+			this.description = description;
+		}-*/;
 
-    /**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.beanName) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.beanName) {
 			return "JavaScriptObject"
+			}
+			return this.beanName;
+		}-*/;
+
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.beanName = type;
+		}-*/;
+
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
+
+		/**
+		 * Compares to another object
+		 * @param o Object to compare
+		 * @return true, if they are the same
+		 */
+		public final boolean equals(ServicesPackage o)
+		{
+			return o.getId() == this.getId();
 		}
-		return this.beanName;
-	}-*/;
-
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
-		this.beanName = type;
-	}-*/;
-
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
-
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(ServicesPackage o)
-	{
-		return o.getId() == this.getId();
-	}
 
 }

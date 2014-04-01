@@ -11,16 +11,16 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
 
-    return $self;
+	return $self;
 }
 
 sub getTaskResultsForDestinations
 {
-    return Perun::Common::callManagerMethod('getTaskResultsForDestinations', '[]TaskResult', @_);
+	return Perun::Common::callManagerMethod('getTaskResultsForDestinations', '[]TaskResult', @_);
 }
 
 1;

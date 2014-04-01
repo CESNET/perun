@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotAssignedRuntimeEx
  * @author Slavek Licehammer
  */
 public class AttributeNotAssignedException extends EntityNotAssignedException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private AttributeDefinition attribute;
+	private AttributeDefinition attribute;
 
-    public AttributeNotAssignedException(AttributeNotAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public AttributeNotAssignedException(AttributeNotAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public AttributeNotAssignedException(String message) {
-        super(message);
-    }
+	public AttributeNotAssignedException(String message) {
+		super(message);
+	}
 
-    public AttributeNotAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public AttributeNotAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public AttributeNotAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public AttributeNotAssignedException(Throwable cause) {
+		super(cause);
+	}
 
-    public AttributeNotAssignedException(AttributeDefinition attribute) {
-        super(attribute.toString());
-        this.attribute = attribute;
-    }
+	public AttributeNotAssignedException(AttributeDefinition attribute) {
+		super(attribute.toString());
+		this.attribute = attribute;
+	}
 
-    public AttributeDefinition getAttribute() {
-        return attribute;
-    }
+	public AttributeDefinition getAttribute() {
+		return attribute;
+	}
 }

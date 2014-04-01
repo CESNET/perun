@@ -24,18 +24,18 @@ import net.tanesha.recaptcha.ReCaptchaResponse;
 public enum RegistrarManagerMethod implements ManagerMethod {
 
 	/*#
-     * Retrieves all necessary data about VO under registrar session.
+	 * Retrieves all necessary data about VO under registrar session.
 	 *
 	 * @param voShortName String VO's shortname to get info about
-     * @return List<Attribute> List of VO attributes
-     */
+	 * @return List<Attribute> List of VO attributes
+	 */
 	/*#
-     * Retrieves all necessary data about VO under registrar session.
+	 * Retrieves all necessary data about VO under registrar session.
 	 *
 	 * @param voShortName String VO's shortname to get info about
 	 * @param groupName String Group's name to get info about
-     * @return List<Attribute> List of VO attributes
-     */
+	 * @return List<Attribute> List of VO attributes
+	 */
 	initialize {
 
 		@Override
@@ -51,17 +51,17 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-     * Create application form for a VO.
-     *
-     * @param vo int VO ID
-     * @return Object Always returned null
-     */
+		* Create application form for a VO.
+		*
+		* @param vo int VO ID
+		* @return Object Always returned null
+		*/
 	/*#
-     * Create application form for a group.
-     *
-     * @param group int Group ID
-     * @return Object Always returned null
-     */
+		* Create application form for a group.
+		*
+		* @param group int Group ID
+		* @return Object Always returned null
+		*/
 	createApplicationForm {
 
 		@Override
@@ -80,21 +80,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Gets an application form for a given VO.
-	 * There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
-     * just the form items are marked whether the should be present in one, the other, or both types of application.
-     *
-     * @param vo int VO ID
-     * @return ApplicationForm Registration form description
-	 */
+		* Gets an application form for a given VO.
+		* There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
+		* just the form items are marked whether the should be present in one, the other, or both types of application.
+		*
+		* @param vo int VO ID
+		* @return ApplicationForm Registration form description
+		*/
 	/*#
-	 * Gets an application form for a given Group.
-	 * There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
-     * just the form items are marked whether the should be present in one, the other, or both types of application.
-     *
-     * @param group int Group ID
-     * @return ApplicationForm Registration form description
-	 */
+		* Gets an application form for a given Group.
+		* There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
+		* just the form items are marked whether the should be present in one, the other, or both types of application.
+		*
+		* @param group int Group ID
+		* @return ApplicationForm Registration form description
+		*/
 	getApplicationForm {
 
 		@Override
@@ -110,31 +110,31 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-     * Gets all items in VO application form.
-     *
-     * @param vo int VO ID
-     * @return List<ApplicationFormItem> All form items regardless of type
-     */
+		* Gets all items in VO application form.
+		*
+		* @param vo int VO ID
+		* @return List<ApplicationFormItem> All form items regardless of type
+		*/
 	/*#
-     * Gets items of specified type in VO application form, for initital registration or extension of account.
-     *
-     * @param vo int VO ID
-     * @param type String Application type: INITIAL or EXTENSION
-     * @return List<ApplicationFormItem> Items of specified type
-     */
+		* Gets items of specified type in VO application form, for initital registration or extension of account.
+		*
+		* @param vo int VO ID
+		* @param type String Application type: INITIAL or EXTENSION
+		* @return List<ApplicationFormItem> Items of specified type
+		*/
 	/*#
-     * Gets all items in Group application form.
-     *
-     * @param group int Group ID
-     * @return List<ApplicationFormItem> All form items regardless of type
-     */
+		* Gets all items in Group application form.
+		*
+		* @param group int Group ID
+		* @return List<ApplicationFormItem> All form items regardless of type
+		*/
 	/*#
-     * Gets items of specified type in Group application form, for initital registration or extension of account.
-     *
-     * @param group int Group ID
-     * @param type String Application type: INITIAL or EXTENSION
-     * @return List<ApplicationFormItem> Items of specified type
-     */
+		* Gets items of specified type in Group application form, for initital registration or extension of account.
+		*
+		* @param group int Group ID
+		* @param type String Application type: INITIAL or EXTENSION
+		* @return List<ApplicationFormItem> Items of specified type
+		*/
 	getFormItems {
 
 		@Override
@@ -143,7 +143,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			if (parms.contains("vo")) {
 				if (parms.contains("type")) {
 					return ac.getRegistrarManager().getFormItems(ac.getSession(),
-                            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+							ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
 							AppType.valueOf(parms.readString("type")));
 				} else {
 					return ac.getRegistrarManager().getFormItems(ac.getSession(),
@@ -166,19 +166,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Updates form items sent in list.
-	 *
-	 * @param vo int VO ID
-	 * @param items List<ApplicationFormItem> Application form items
-	 * @return int Number of updated items
-	 */
+		* Updates form items sent in list.
+		*
+		* @param vo int VO ID
+		* @param items List<ApplicationFormItem> Application form items
+		* @return int Number of updated items
+		*/
 	/*#
-	 * Updates form items sent in list.
-	 *
-	 * @param group int Group ID
-	 * @param items List<ApplicationFormItem> Application form items
-	 * @return int Number of updated items
-	 */
+		* Updates form items sent in list.
+		*
+		* @param group int Group ID
+		* @param items List<ApplicationFormItem> Application form items
+		* @return int Number of updated items
+		*/
 	updateFormItems {
 
 		@Override
@@ -200,13 +200,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Updates the form attributes, not the form items.
-     * - update automatic approval style
-     * - update module_name
-	 *
-	 * @param form ApplicationForm Application form JSON object
-	 * @return ApplicationForm Updated application form or null when update failed
-	 */
+		* Updates the form attributes, not the form items.
+		* - update automatic approval style
+		* - update module_name
+		*
+		* @param form ApplicationForm Application form JSON object
+		* @return ApplicationForm Updated application form or null when update failed
+		*/
 	updateForm {
 
 		@Override
@@ -223,23 +223,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Gets the content for an application form for a given type of application and user.
-     * The values are prefilled from database for extension applications, and always from federation values
-     * taken from the user argument.
-     *
-     * @param vo int VO ID
-     * @param type String Application type: INITIAL or EXTENSION
-     * @return List<ApplicationFormItemWithPrefilledValue> Form items
-	 */
+		* Gets the content for an application form for a given type of application and user.
+		* The values are prefilled from database for extension applications, and always from federation values
+		* taken from the user argument.
+		*
+		* @param vo int VO ID
+		* @param type String Application type: INITIAL or EXTENSION
+		* @return List<ApplicationFormItemWithPrefilledValue> Form items
+		*/
 	/*#
-	 * Gets the content for an application form for a given type of application and user.
-     * The values are prefilled from database for extension applications, and always from federation values
-     * taken from the user argument.
-     *
-     * @param group int Group ID
-     * @param type String Application type: INITIAL or EXTENSION
-     * @return List<ApplicationFormItemWithPrefilledValue> Form items
-	 */
+		* Gets the content for an application form for a given type of application and user.
+		* The values are prefilled from database for extension applications, and always from federation values
+		* taken from the user argument.
+		*
+		* @param group int Group ID
+		* @param type String Application type: INITIAL or EXTENSION
+		* @return List<ApplicationFormItemWithPrefilledValue> Form items
+		*/
 	getFormItemsWithPrefilledValues {
 
 		@Override
@@ -262,18 +262,18 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-  	 * Gets all applications for a given VO.
-     *
-	 * @param vo int VO ID
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications for a given VO.
+		*
+		* @param vo int VO ID
+		* @return List<Application> Found applications
+		*/
 	/*#
-  	 * Gets all applications in a given state for a given VO.
-     *
-	 * @param vo int VO ID
-	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications in a given state for a given VO.
+		*
+		* @param vo int VO ID
+		* @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+		* @return List<Application> Found applications
+		*/
 	getApplicationsForVo {
 
 		@Override
@@ -288,18 +288,18 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-  	 * Gets all applications for a given Group.
-     *
-	 * @param group int Group ID
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications for a given Group.
+		*
+		* @param group int Group ID
+		* @return List<Application> Found applications
+		*/
 	/*#
-  	 * Gets all applications for a given Group.
-     *
-	 * @param group int Group ID
-	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications for a given Group.
+		*
+		* @param group int Group ID
+		* @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+		* @return List<Application> Found applications
+		*/
 	getApplicationsForGroup {
 
 		@Override
@@ -314,16 +314,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-  	 * Gets all applications for the current user.
-     *
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications for the current user.
+		*
+		* @return List<Application> Found applications
+		*/
 	/*#
-  	 * Gets all applications for a specific user.
-     *
-	 * @param id int User ID
-	 * @return List<Application> Found applications
-	 */
+		* Gets all applications for a specific user.
+		*
+		* @param id int User ID
+		* @return List<Application> Found applications
+		*/
 	getApplicationsForUser {
 
 		@Override
@@ -338,39 +338,39 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
-    /*#
-     * Gets all applications for member
-     *
-     * @param member ID of member to get applications for
-     * @return List<Application> Found applications
-     */
 	/*#
-     * Gets all applications for member
-     *
-     * @param member ID of member to get applications for
-     * @param group ID of group to filter applications for
-     * @return List<Application> Found applications
-     */
-     getApplicationsForMember {
+		* Gets all applications for member
+		*
+		* @param member ID of member to get applications for
+		* @return List<Application> Found applications
+		*/
+	/*#
+		* Gets all applications for member
+		*
+		* @param member ID of member to get applications for
+		* @param group ID of group to filter applications for
+		* @return List<Application> Found applications
+		*/
+	getApplicationsForMember {
 
-        @Override
-        public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		@Override
+		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-            if (parms.contains("group")) {
-                return ac.getRegistrarManager().getApplicationsForMember(ac.getSession(), ac.getGroupById(parms.readInt("group")), ac.getMemberById(parms.readInt("member")));
-            } else {
-                return ac.getRegistrarManager().getApplicationsForMember(ac.getSession(), null, ac.getMemberById(parms.readInt("member")));
-            }
-        }
+			if (parms.contains("group")) {
+				return ac.getRegistrarManager().getApplicationsForMember(ac.getSession(), ac.getGroupById(parms.readInt("group")), ac.getMemberById(parms.readInt("member")));
+			} else {
+				return ac.getRegistrarManager().getApplicationsForMember(ac.getSession(), null, ac.getMemberById(parms.readInt("member")));
+			}
+		}
 
-    },
+	},
 
-    /*#
-	 * Returns application object by its ID.
-	 *
-	 * @param id int Application ID
-	 * @return Application Found application
-	 */
+	/*#
+		* Returns application object by its ID.
+		*
+		* @param id int Application ID
+		* @return Application Found application
+		*/
 	getApplicationById {
 
 		@Override
@@ -379,11 +379,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Returns data submitted by user in given application (by id).
-	 *
-	 * @param id int Application ID
-	 * @return List<ApplicationFormItemData> Form data
-	 */
+		* Returns data submitted by user in given application (by id).
+		*
+		* @param id int Application ID
+		* @return List<ApplicationFormItemData> Form data
+		*/
 	getApplicationDataById {
 
 		@Override
@@ -395,13 +395,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Creates a new application.
-     * The method triggers approval for VOs with auto-approved applications.
-     *
-     * @param app Application Application JSON object
-     * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
-     * @return List<ApplicationFormItemData> Stored app data
-	 */
+		* Creates a new application.
+		* The method triggers approval for VOs with auto-approved applications.
+		*
+		* @param app Application Application JSON object
+		* @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+		* @return List<ApplicationFormItemData> Stored app data
+		*/
 	createApplication {
 
 		@Override
@@ -417,30 +417,30 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Deletes an application.
-	 *
-	 * @param id int Application ID
-	 */
-    deleteApplication {
+		* Deletes an application.
+		*
+		* @param id int Application ID
+		*/
+	deleteApplication {
 
-        @Override
-        public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-            ac.stateChangingCheck();
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 
-            Application app = ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
-            ac.getRegistrarManager().deleteApplication(ac.getSession(), app);
-            return null;
+			Application app = ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
+			ac.getRegistrarManager().deleteApplication(ac.getSession(), app);
+			return null;
 
-        }
+		}
 
-    },
-    /*#
-	 * Manually approves an application.
-	 * Expected to be called as a result of direct VO administrator action in the web UI.
-	 *
-	 * @param id int Application ID
-	 * @return Application Approved application
-	 */
+	},
+	/*#
+		* Manually approves an application.
+		* Expected to be called as a result of direct VO administrator action in the web UI.
+		*
+		* @param id int Application ID
+		* @return Application Approved application
+		*/
 	approveApplication {
 
 		@Override
@@ -454,20 +454,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Manually rejects an application.
-	 * Expected to be called as a result of direct VO administrator action in the web UI.
-	 *
-	 * @param id int Application ID
-	 * @return Application Rejected application
-	 */
+		* Manually rejects an application.
+		* Expected to be called as a result of direct VO administrator action in the web UI.
+		*
+		* @param id int Application ID
+		* @return Application Rejected application
+		*/
 	/*#
-	 * Manually rejects an application with a reason.
-	 * Expected to be called as a result of direct VO administrator action in the web UI.
-	 *
-	 * @param id int Application ID
-	 * @param reason String Reason description
-	 * @return Application Rejected application
-	 */
+		* Manually rejects an application with a reason.
+		* Expected to be called as a result of direct VO administrator action in the web UI.
+		*
+		* @param id int Application ID
+		* @param reason String Reason description
+		* @return Application Rejected application
+		*/
 	rejectApplication {
 
 		@Override
@@ -485,12 +485,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Forcefully marks application as verified
-     * (only when application was in NEW state)
-	 *
-	 * @param id int Application ID
-	 * @return Application Verified application
-	 */
+		* Forcefully marks application as verified
+		* (only when application was in NEW state)
+		*
+		* @param id int Application ID
+		* @return Application Verified application
+		*/
 	verifyApplication {
 
 		@Override
@@ -504,16 +504,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Validates an email.
-	 *
-	 * This method should receive all URL parameters from a URL sent by an email to validate
-     * the email address that was provided by a user. The parameters describe the user, application, email and contain
-     * a message authentication code to prevent spoofing.
-     *
-     * @param m String Parameter m
-     * @param i String Parameter i
-     * @return bool True for validated, false for non-valid
-	 */
+		* Validates an email.
+		*
+		* This method should receive all URL parameters from a URL sent by an email to validate
+		* the email address that was provided by a user. The parameters describe the user, application, email and contain
+		* a message authentication code to prevent spoofing.
+		*
+		* @param m String Parameter m
+		* @param i String Parameter i
+		* @return bool True for validated, false for non-valid
+		*/
 	validateEmail {
 
 		@Override
@@ -532,19 +532,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 
 	/*#
-	 * Adds a new item to a form.
-	 *
-	 * @param vo int VO ID
-	 * @param item ApplicationFormItem ApplicationFormItem JSON object
-	 * @return ApplicationFormItem Added ApplicationFormItem object
-	 */
+		* Adds a new item to a form.
+		*
+		* @param vo int VO ID
+		* @param item ApplicationFormItem ApplicationFormItem JSON object
+		* @return ApplicationFormItem Added ApplicationFormItem object
+		*/
 	/*#
-	 * Adds a new item to a form.
-	 *
-	 * @param group int Group ID
-	 * @param item ApplicationFormItem ApplicationFormItem JSON object
-	 * @return ApplicationFormItem Added ApplicationFormItem object
-	 */
+		* Adds a new item to a form.
+		*
+		* @param group int Group ID
+		* @param item ApplicationFormItem ApplicationFormItem JSON object
+		* @return ApplicationFormItem Added ApplicationFormItem object
+		*/
 	addFormItem {
 
 		@Override
@@ -567,23 +567,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Removes a form item permanently.
-	 * The user data associated with it remains in the database, it just loses the foreign key
-     * reference which becomes null.
-     *
-     * @param vo int VO ID
-     * @param ordnum int Item's ordnum
-     * @return Object Always null
-	 */
+		* Removes a form item permanently.
+		* The user data associated with it remains in the database, it just loses the foreign key
+		* reference which becomes null.
+		*
+		* @param vo int VO ID
+		* @param ordnum int Item's ordnum
+		* @return Object Always null
+		*/
 	/*#
-	 * Removes a form item permanently.
-	 * The user data associated with it remains in the database, it just loses the foreign key
-     * reference which becomes null.
-     *
-     * @param group int Group ID
-     * @param ordnum int Item's ordnum
-     * @return Object Always null
-	 */
+		* Removes a form item permanently.
+		* The user data associated with it remains in the database, it just loses the foreign key
+		* reference which becomes null.
+		*
+		* @param group int Group ID
+		* @param ordnum int Item's ordnum
+		* @return Object Always null
+		*/
 	deleteFormItem {
 
 		@Override
@@ -610,38 +610,38 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 
 	/*#
-	 * Copy all form items from selected VO into another.
-	 *
-	 * @param fromVo int Source VO ID
-	 * @param toVo int Destination VO ID
-	 * @return Object Always null
-	 */
-    /*#
-	 * Copy all form items from selected Group into another.
-	 *
-	 * @param fromGroup int Source Group ID
-	 * @param toGroup int Destination Group ID
-	 * @return Object Always null
-	 */
+		* Copy all form items from selected VO into another.
+		*
+		* @param fromVo int Source VO ID
+		* @param toVo int Destination VO ID
+		* @return Object Always null
+		*/
+	/*#
+		* Copy all form items from selected Group into another.
+		*
+		* @param fromGroup int Source Group ID
+		* @param toGroup int Destination Group ID
+		* @return Object Always null
+		*/
 	copyForm {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-            if (parms.contains("fromVo")) {
+			if (parms.contains("fromVo")) {
 
-                ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(),
-                        ac.getVoById(parms.readInt("fromVo")),
-                        ac.getVoById(parms.readInt("toVo")));
+				ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(),
+						ac.getVoById(parms.readInt("fromVo")),
+						ac.getVoById(parms.readInt("toVo")));
 
-            } else if (parms.contains("fromGroup")) {
+			} else if (parms.contains("fromGroup")) {
 
-                ac.getRegistrarManager().copyFormFromGroupToGroup(ac.getSession(),
-                        ac.getGroupById(parms.readInt("fromGroup")),
-                        ac.getGroupById(parms.readInt("toGroup")));
+				ac.getRegistrarManager().copyFormFromGroupToGroup(ac.getSession(),
+						ac.getGroupById(parms.readInt("fromGroup")),
+						ac.getGroupById(parms.readInt("toGroup")));
 
-            }
+			}
 
 			return null;
 
@@ -650,56 +650,56 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Copy all e-mail notifications from selected VO into another.
-	 *
-	 * @param fromVo int Source VO ID
-	 * @param toVo int Destination VO ID
-	 * @return Object Always null
-	 */
-    /*#
-	 * Copy all e-mail notifications from selected Group into another.
-	 *
-	 * @param fromGroup int Source Group ID
-	 * @param toGroup int Destination Group ID
-	 * @return Object Always null
-	 */
-    copyMails {
-
-        @Override
-        public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-            ac.stateChangingCheck();
-
-            if (parms.contains("fromVo")) {
-
-                ac.getRegistrarManager().getMailManager().copyMailsFromVoToVo(ac.getSession(),
-                        ac.getVoById(parms.readInt("fromVo")),
-                        ac.getVoById(parms.readInt("toVo")));
-
-            } else if (parms.contains("fromGroup")) {
-
-                ac.getRegistrarManager().getMailManager().copyMailsFromGroupToGroup(ac.getSession(),
-                        ac.getGroupById(parms.readInt("fromGroup")),
-                        ac.getGroupById(parms.readInt("toGroup")));
-
-            }
-
-            return null;
-
-        }
-
-    },
-    /*#
-	 * Returns all mail notifications related to specific app form.
-	 *
-	 * @param vo int VO ID
-	 * @return List<ApplicationMail> Application mails
-	 */
+		* Copy all e-mail notifications from selected VO into another.
+		*
+		* @param fromVo int Source VO ID
+		* @param toVo int Destination VO ID
+		* @return Object Always null
+		*/
 	/*#
-	 * Returns all mail notifications related to specific app form.
-	 *
-	 * @param group int Group ID
-	 * @return List<ApplicationMail> Application mails
-	 */
+		* Copy all e-mail notifications from selected Group into another.
+		*
+		* @param fromGroup int Source Group ID
+		* @param toGroup int Destination Group ID
+		* @return Object Always null
+		*/
+	copyMails {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if (parms.contains("fromVo")) {
+
+				ac.getRegistrarManager().getMailManager().copyMailsFromVoToVo(ac.getSession(),
+						ac.getVoById(parms.readInt("fromVo")),
+						ac.getVoById(parms.readInt("toVo")));
+
+			} else if (parms.contains("fromGroup")) {
+
+				ac.getRegistrarManager().getMailManager().copyMailsFromGroupToGroup(ac.getSession(),
+						ac.getGroupById(parms.readInt("fromGroup")),
+						ac.getGroupById(parms.readInt("toGroup")));
+
+			}
+
+			return null;
+
+		}
+
+	},
+	/*#
+		* Returns all mail notifications related to specific app form.
+		*
+		* @param vo int VO ID
+		* @return List<ApplicationMail> Application mails
+		*/
+	/*#
+		* Returns all mail notifications related to specific app form.
+		*
+		* @param group int Group ID
+		* @return List<ApplicationMail> Application mails
+		*/
 	getApplicationMails {
 
 		@Override
@@ -719,19 +719,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Add new mail notification.
-	 *
-	 * @param vo int VO ID
-	 * @param mail ApplicationMail ApplicationMail JSON object
-	 * @return ApplicationMail Created ApplicationMail
-	 */
+		* Add new mail notification.
+		*
+		* @param vo int VO ID
+		* @param mail ApplicationMail ApplicationMail JSON object
+		* @return ApplicationMail Created ApplicationMail
+		*/
 	/*#
-	 * Add new mail notification.
-	 *
-	 * @param group int Group ID
-	 * @param mail ApplicationMail ApplicationMail JSON object
-	 * @return ApplicationMail Created ApplicationMail
-	 */
+		* Add new mail notification.
+		*
+		* @param group int Group ID
+		* @param mail ApplicationMail ApplicationMail JSON object
+		* @return ApplicationMail Created ApplicationMail
+		*/
 	addApplicationMail {
 
 		@Override
@@ -754,12 +754,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Deletes an e-mail notification from DB based on ID property.
-	 *
-	 * @param vo int VO ID
-	 * @param id int ApplicationMail ID
-	 * @return Object Always null
-	 */
+		* Deletes an e-mail notification from DB based on ID property.
+		*
+		* @param vo int VO ID
+		* @param id int ApplicationMail ID
+		* @return Object Always null
+		*/
 	deleteApplicationMail {
 
 		@Override
@@ -783,11 +783,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Updates an e-mail notification.
-	 *
-	 * @param mail ApplicationMail ApplicationMail JSON object
-	 * @return Object Always null
-	 */
+		* Updates an e-mail notification.
+		*
+		* @param mail ApplicationMail ApplicationMail JSON object
+		* @return Object Always null
+		*/
 	updateApplicationMail {
 
 		@Override
@@ -799,11 +799,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Return mail definition including texts by ID.
-	 *
-	 * @param id int ApplicationMail ID
-	 * @return ApplicationMail ApplicationMail object
-	 */
+		* Return mail definition including texts by ID.
+		*
+		* @param id int ApplicationMail ID
+		* @return ApplicationMail ApplicationMail object
+		*/
 	getApplicationMailById {
 
 		@Override
@@ -813,12 +813,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-	 * Enable or disable sending for list of mail definitions.
-	 *
-	 * @param mails List<ApplicationMail> Mail definitions to update
-	 * @param enabled int 1 for enabled, 0 for disabled
-	 * @return Object Always null
-	 */
+		* Enable or disable sending for list of mail definitions.
+		*
+		* @param mails List<ApplicationMail> Mail definitions to update
+		* @param enabled int 1 for enabled, 0 for disabled
+		* @return Object Always null
+		*/
 	setSendingEnabled {
 
 		@Override
@@ -826,49 +826,49 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			ac.getRegistrarManager().getMailManager().setSendingEnabled(ac.getSession(),
-				parms.readList("mails", ApplicationMail.class),
-				parms.readInt("enabled")==1 ? true : false);
+					parms.readList("mails", ApplicationMail.class),
+					parms.readInt("enabled")==1 ? true : false);
 
 			return null;
 		}
 
 	},
 
-    verifyCaptcha {
+	verifyCaptcha {
 
-        @Override
-        public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-            ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
+			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
 
-            reCaptcha.setPrivateKey(Utils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
-            reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
+			reCaptcha.setPrivateKey(Utils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
+			reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
 
-            // we don't need caller's address since our key is global
-            String remoteAddress = "";
-            ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddress, parms.readString("challenge"), parms.readString("response"));
+			// we don't need caller's address since our key is global
+			String remoteAddress = "";
+			ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddress, parms.readString("challenge"), parms.readString("response"));
 
-            if (reCaptchaResponse.isValid()) {
-                return true;
-            } else {
-                return false;
-            }
+			if (reCaptchaResponse.isValid()) {
+				return true;
+			} else {
+				return false;
+			}
 
 
 
-        }
+		}
 
-    },
+	},
 
-    checkForSimilarUsers {
+	checkForSimilarUsers {
 
-        @Override
-        public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		@Override
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-            return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
+			return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
 
-        }
+		}
 
-    };
+	};
 
 }

@@ -19,73 +19,73 @@ import cz.metacentrum.perun.rpc.RpcException;
  */
 public class UrlDeserializer extends Deserializer {
 
-    private HttpServletRequest req;
+	private HttpServletRequest req;
 
-    /**
-     * Create deserializer for URL data format.
-     *
-     * @param req HttpServletRequest this deserializer is about to process
-     */
-    public UrlDeserializer(HttpServletRequest req) {
-        this.req = req;
-    }
+	/**
+	 * Create deserializer for URL data format.
+	 *
+	 * @param req HttpServletRequest this deserializer is about to process
+	 */
+	public UrlDeserializer(HttpServletRequest req) {
+		this.req = req;
+	}
 
-    @Override
-    public boolean contains(String name) {
-        return (req.getParameter(name) != null);
-    }
+	@Override
+	public boolean contains(String name) {
+		return (req.getParameter(name) != null);
+	}
 
-    @Override
-    public String readString(String name) throws RpcException {
-        if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+	@Override
+	public String readString(String name) throws RpcException {
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
-        return req.getParameter(name);
-    }
+		return req.getParameter(name);
+	}
 
-    @Override
-    public int readInt(String name) throws RpcException {
-        if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+	@Override
+	public int readInt(String name) throws RpcException {
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
-        try {
-            return Integer.parseInt(req.getParameter(name));
-        } catch (NumberFormatException ex) {
-            throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, name + " as int", ex);
-        }
-    }
+		try {
+			return Integer.parseInt(req.getParameter(name));
+		} catch (NumberFormatException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, name + " as int", ex);
+		}
+	}
 
-    @Override
-    public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
-        if (!contains(name + "[]")) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+	@Override
+	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+		if (!contains(name + "[]")) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
-        List<T> list = new ArrayList<T>();
+		List<T> list = new ArrayList<T>();
 
-        String[] stringParams = req.getParameterValues(name + "[]");
+		String[] stringParams = req.getParameterValues(name + "[]");
 
-        for (String param: stringParams) {
-            if (valueType.isAssignableFrom(String.class)) {
-                list.add(valueType.cast(param));
-            } else if (valueType.isAssignableFrom(Integer.class)) {
-                list.add(valueType.cast(Integer.valueOf(param)));
-            } else if (valueType.isAssignableFrom(Float.class)) {
-                list.add(valueType.cast(Float.valueOf(param)));
-            }
-        }
+		for (String param: stringParams) {
+			if (valueType.isAssignableFrom(String.class)) {
+				list.add(valueType.cast(param));
+			} else if (valueType.isAssignableFrom(Integer.class)) {
+				list.add(valueType.cast(Integer.valueOf(param)));
+			} else if (valueType.isAssignableFrom(Float.class)) {
+				list.add(valueType.cast(Float.valueOf(param)));
+			}
+		}
 
-        return list;
-    }
+		return list;
+	}
 
-    public String readAll() throws RpcException {
-        StringBuffer stringParams = new StringBuffer();
-        for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
-            String paramName = (String) parameters.nextElement();
-            stringParams.append(paramName + "=" + req.getParameter(paramName) + ",");
-        }
-        return stringParams.toString();
-    }
+	public String readAll() throws RpcException {
+		StringBuffer stringParams = new StringBuffer();
+		for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
+			String paramName = (String) parameters.nextElement();
+			stringParams.append(paramName + "=" + req.getParameter(paramName) + ",");
+		}
+		return stringParams.toString();
+	}
 
-    @Override
-    public HttpServletRequest getServletRequest() {
-        return this.req;
-    }
+	@Override
+	public HttpServletRequest getServletRequest() {
+		return this.req;
+	}
 
 }

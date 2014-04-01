@@ -37,10 +37,10 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
 	private static final String GROUP_JSON_URL = "groupsManager/getAdmins";
-    private static final String VO_JSON_URL = "vosManager/getAdmins";
-    private static final String FACILITY_JSON_URL = "facilitiesManager/getAdmins";
+	private static final String VO_JSON_URL = "vosManager/getAdmins";
+	private static final String FACILITY_JSON_URL = "facilitiesManager/getAdmins";
 
-    // entity ID
+	// entity ID
 	private int entityId;
 	// Selection model for the table
 	final MultiSelectionModel<User> selectionModel = new MultiSelectionModel<User>(new GeneralKeyProvider<User>());
@@ -56,28 +56,28 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private PerunEntity entity;
+	private PerunEntity entity;
 
 	/**
 	 * Creates a new instance of callback
 	 *
-     * @param entity entity
+	 * @param entity entity
 	 * @param id entity ID
-     */
+	 */
 	public GetAdmins(PerunEntity entity, int id) {
-        this.entity = entity;
+		this.entity = entity;
 		this.entityId = id;
 	}
 
 	/**
 	 * Creates a new instance of callback
 	 *
-     * @param entity entity
-     * @param id entity ID
-     * @param events
-     */
+	 * @param entity entity
+	 * @param id entity ID
+	 * @param events
+	 */
 	public GetAdmins(PerunEntity entity, int id, JsonCallbackEvents events) {
-        this.entity = entity;
+		this.entity = entity;
 		this.entityId = id;
 		this.events = events;
 	}
@@ -87,20 +87,20 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	 */
 	public void retrieveData() {
 
-        JsonClient js = new JsonClient(60000);
-        String param;
+		JsonClient js = new JsonClient(60000);
+		String param;
 
-        if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
-            param = "vo="+entityId;
-            js.retrieveData(VO_JSON_URL, param, this);
-        } else if (entity.equals(PerunEntity.GROUP)) {
-            param = "group="+entityId;
-            js.retrieveData(GROUP_JSON_URL, param, this);
-        } else if (entity.equals(PerunEntity.FACILITY)) {
-            Window.alert("Get admins for facility by new callback is not yet supported on perun side.");
-            // param = "facility="+entityId;
-            // js.retrieveData(FACILITY_JSON_URL, param, this);
-        }
+		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+			param = "vo="+entityId;
+			js.retrieveData(VO_JSON_URL, param, this);
+		} else if (entity.equals(PerunEntity.GROUP)) {
+			param = "group="+entityId;
+			js.retrieveData(GROUP_JSON_URL, param, this);
+		} else if (entity.equals(PerunEntity.FACILITY)) {
+			Window.alert("Get admins for facility by new callback is not yet supported on perun side.");
+			// param = "facility="+entityId;
+			// js.retrieveData(FACILITY_JSON_URL, param, this);
+		}
 
 	}
 
@@ -175,10 +175,10 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new Comparator<User>() {
-            public int compare(User o1, User o2) {
-                return o1.getFullName().compareTo(o2.getFullName());
-            }
-        });
+			public int compare(User o1, User o2) {
+				return o1.getFullName().compareTo(o2.getFullName());
+			}
+		});
 
 		// Add the other columns.
 		table.addColumn(nameColumn, "Name");
@@ -187,117 +187,117 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<User>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<User>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object User to be added as new row
-     */
-    public void addToTable(User object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object User to be added as new row
+	 */
+	public void addToTable(User object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object User to be removed as row
-     */
-    public void removeFromTable(User object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object User to be removed as row
+	 */
+	public void removeFromTable(User object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<User> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<User> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading admins.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading admins.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading admins started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading admins started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<User>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Admins loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<User>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Admins loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, User object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, User object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<User> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<User> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<User> getList() {
-        return this.list;
-    }
+	public ArrayList<User> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Sets external events after callback creation

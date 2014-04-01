@@ -16,13 +16,13 @@ import cz.metacentrum.perun.taskslib.model.Task;
  */
 public interface TaskScheduler {
 
-    void propagateService(ExecService execService, Date time, Facility facility) throws InternalErrorException;
+	void propagateService(ExecService execService, Date time, Facility facility) throws InternalErrorException;
 
-    void propagateServices(Pair<List<ExecService>, Facility> servicesFacility) throws InternalErrorException;
+	void propagateServices(Pair<List<ExecService>, Facility> servicesFacility) throws InternalErrorException;
 
-    void rescheduleTask(Task task);
+	void rescheduleTask(Task task);
 
-    void processPool() throws InternalErrorException;
+	void processPool() throws InternalErrorException;
 
-    int getPoolSize();
+	int getPoolSize();
 }

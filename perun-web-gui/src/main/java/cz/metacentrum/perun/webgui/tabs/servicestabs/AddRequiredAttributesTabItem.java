@@ -51,14 +51,14 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	// data
 	private int serviceId;
 	private Service service;
-    private ArrayList<AttributeDefinition> alreadyAddedList = new ArrayList<AttributeDefinition>();
-    private SimplePanel alreadyAdded = new SimplePanel();
+	private ArrayList<AttributeDefinition> alreadyAddedList = new ArrayList<AttributeDefinition>();
+	private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
 	 * Tab with form for adding attribute definition as required attribute to service
 	 *
-     * @param serviceId ID of service to add req. attribute for
-     */
+	 * @param serviceId ID of service to add req. attribute for
+	 */
 	public AddRequiredAttributesTabItem(int serviceId){
 		this.serviceId = serviceId;
 		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
@@ -71,8 +71,8 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	/**
 	 * Tab with form for adding attribute definition as required attribute to service
 	 *
-     * @param service Service to add req. attribute for
-     */
+	 * @param service Service to add req. attribute for
+	 */
 	public AddRequiredAttributesTabItem(Service service){
 		this.service = service;
 		this.serviceId = service.getId();
@@ -90,58 +90,58 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		mainTab.setSize("100%","100%");
 
 		final GetAttributesDefinition attrDefs = new GetAttributesDefinition();
-        attrDefs.setEditable(false);
+		attrDefs.setEditable(false);
 		CellTable<AttributeDefinition> table = attrDefs.getTable();
 
 		TabMenu menu = new TabMenu();
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedRequiredAttribute());
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedRequiredAttribute());
 
-        final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDefs.getOracle());
-        menu.addFilterWidget(box, new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                attrDefs.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterAttributeDefinition());
+		final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDefs.getOracle());
+		menu.addFilterWidget(box, new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				attrDefs.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterAttributeDefinition());
 
-        addButton.addClickHandler(new ClickHandler() {
+		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                final ArrayList<AttributeDefinition> attributesToAdd = attrDefs.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(attributesToAdd)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    for (int i=0; i<attributesToAdd.size(); i++ ) {
-                        final int n = i;
-                        AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
-                            @Override
-                            public void onFinished(JavaScriptObject jso) {
-                                // unselect added attribute
-                                attrDefs.getSelectionModel().setSelected(attributesToAdd.get(n), false);
-                                alreadyAddedList.add(attributesToAdd.get(n));
-                                rebuildAlreadyAddedWidget();
-                                // clear search
-                                box.getSuggestBox().setText("");
-                            }
-                        }));
-                        request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
-                    }
-                }
+				final ArrayList<AttributeDefinition> attributesToAdd = attrDefs.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(attributesToAdd)) {
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+					for (int i=0; i<attributesToAdd.size(); i++ ) {
+						final int n = i;
+						AddRequiredAttribute request = new AddRequiredAttribute(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								// unselect added attribute
+								attrDefs.getSelectionModel().setSelected(attributesToAdd.get(n), false);
+								alreadyAddedList.add(attributesToAdd.get(n));
+								rebuildAlreadyAddedWidget();
+								// clear search
+								box.getSuggestBox().setText("");
+							}
+						}));
+						request.addRequiredAttribute(serviceId, attributesToAdd.get(i).getId());
+					}
+				}
 			}
 		});
 
-        menu.addWidget(addButton);
+		menu.addWidget(addButton);
 
-        // cancel button
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
-            }
-        }));
+		// cancel button
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+			}
+		}));
 
-        addButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(attrDefs, table, addButton);
+		addButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(attrDefs, table, addButton);
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
@@ -151,7 +151,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 
 		mainTab.add(menu);
 		mainTab.setCellHeight(menu, "30px");
-        mainTab.add(alreadyAdded);
+		mainTab.add(alreadyAdded);
 		mainTab.add(sp);
 		mainTab.setCellHeight(sp, "100%");
 
@@ -161,18 +161,18 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		return getWidget();
 	}
 
-    /**
-     * Rebuild already added widget based on already added attributes
-     */
-    private void rebuildAlreadyAddedWidget() {
+	/**
+	 * Rebuild already added widget based on already added attributes
+	 */
+	private void rebuildAlreadyAddedWidget() {
 
-        alreadyAdded.setStyleName("alreadyAdded");
-        alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
-        alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-        for (int i=0; i<alreadyAddedList.size(); i++) {
-            alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
-        }
-    }
+		alreadyAdded.setStyleName("alreadyAdded");
+		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+		for (int i=0; i<alreadyAddedList.size(); i++) {
+			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
+		}
+	}
 
 	public Widget getWidget() {
 		return this.contentWidget;

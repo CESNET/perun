@@ -54,7 +54,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public FacilitiesSelectTabItem(){}
 
 	public boolean isPrepared(){
@@ -72,7 +72,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 
 		// get RICH facilities request
 		final GetFacilities facilities = new GetFacilities(true);
-        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
+		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
 
 		// retrieve data (table)
 		final CellTable<Facility> table = facilities.getTable(new FieldUpdater<Facility, String>() {
@@ -81,54 +81,54 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-        // add new facility button
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new CreateFacilityTabItem(facilities.getList(),events));
-            }
-        }));
+		// add new facility button
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTab(new CreateFacilityTabItem(facilities.getList(),events));
+			}
+		}));
 
 		// add delete facilities button
 		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteFacilities());
-        if (session.isPerunAdmin()) {
-            tabMenu.addWidget(deleteButton);
-        }
+		if (session.isPerunAdmin()) {
+			tabMenu.addWidget(deleteButton);
+		}
 
-        deleteButton.addClickHandler(new ClickHandler() {
-            @Override
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
-                final ArrayList<Facility> list = facilities.getTableSelectedList();
-                String text = "Following facilities will be deleted.";
-                UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<list.size(); i++) {
-                            if (i == list.size()-1) {
-                                DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-                                request.deleteFacility(list.get(i).getId());
-                            } else {
-                                DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                                request.deleteFacility(list.get(i).getId());
-                            }
-                        }
-                    }
-                });
+				final ArrayList<Facility> list = facilities.getTableSelectedList();
+				String text = "Following facilities will be deleted.";
+				UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<list.size(); i++) {
+							if (i == list.size()-1) {
+								DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+								request.deleteFacility(list.get(i).getId());
+							} else {
+								DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton));
+								request.deleteFacility(list.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
 		// filter box
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                facilities.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterFacilities());
+			public void searchFor(String text) {
+				facilities.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterFacilities());
 
-        tabMenu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-        tabMenu.addWidget(new HTML("<strong>Please select Facility you want to manage.</strong>"));
+		tabMenu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+		tabMenu.addWidget(new HTML("<strong>Please select Facility you want to manage.</strong>"));
 
-        deleteButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(facilities, table, deleteButton);
+		deleteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(facilities, table, deleteButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -184,8 +184,8 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open() {
-        session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "Select facility", getUrlWithParameters());
+		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN, true);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "Select facility", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

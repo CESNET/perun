@@ -13,9 +13,9 @@ import org.junit.Test;
  */
 public class urn_perun_resource_attribute_def_def_unixGroupName_namespaceTest {
 
-    @Test
-    @Ignore
-    public void testCheckAttributeValue() throws Exception {
+	@Test
+	@Ignore
+	public void testCheckAttributeValue() throws Exception {
 
-    }
+	}
 }

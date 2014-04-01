@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Michal Šťava
  */
 public class MinSizeExceededException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public MinSizeExceededException(String message) {
-        super(message);
-    }
+	public MinSizeExceededException(String message) {
+		super(message);
+	}
 
-    public MinSizeExceededException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MinSizeExceededException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public MinSizeExceededException(Throwable cause) {
-        super(cause);
-    }
+	public MinSizeExceededException(Throwable cause) {
+		super(cause);
+	}
 }

@@ -18,7 +18,7 @@ public class ServicesTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public ServicesTabs(){}
 
 	/**
@@ -51,18 +51,18 @@ public class ServicesTabs {
 			return true;
 		}
 
-        if (tab.equals(ServiceExecServicesTabItem.URL)) {
-            session.getTabManager().addTab(ServiceExecServicesTabItem.load(parameters), open);
-            return true;
-        }
-        if (tab.equals(ViewExecServiceTabItem.URL)) {
-            session.getTabManager().addTab(ViewExecServiceTabItem.load(parameters), open);
-            return true;
-        }
-        if (tab.equals(ServicePackagesTabItem.URL)) {
-            session.getTabManager().addTab(ServicePackagesTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(ServiceExecServicesTabItem.URL)) {
+			session.getTabManager().addTab(ServiceExecServicesTabItem.load(parameters), open);
+			return true;
+		}
+		if (tab.equals(ViewExecServiceTabItem.URL)) {
+			session.getTabManager().addTab(ViewExecServiceTabItem.load(parameters), open);
+			return true;
+		}
+		if (tab.equals(ServicePackagesTabItem.URL)) {
+			session.getTabManager().addTab(ServicePackagesTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

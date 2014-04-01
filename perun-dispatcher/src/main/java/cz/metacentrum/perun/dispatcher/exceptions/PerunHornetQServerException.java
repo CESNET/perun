@@ -10,14 +10,14 @@ public class PerunHornetQServerException extends DispatcherException {
 	private static final long serialVersionUID = 1L;
 
 	public PerunHornetQServerException(String message) {
-        super(message);
-    }
+		super(message);
+	}
 
-    public PerunHornetQServerException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public PerunHornetQServerException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public PerunHornetQServerException(Throwable cause) {
-        super(cause);
-    }
+	public PerunHornetQServerException(Throwable cause) {
+		super(cause);
+	}
 }

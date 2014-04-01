@@ -110,10 +110,10 @@ public class RegistrarFormItemGenerator {
 
 	private boolean visibleOnlyToAdmin = false;
 
-    /**
-     * Counter for nameing textbox classes
-     */
-    private static int counter = 0;
+	/**
+	 * Counter for nameing textbox classes
+	 */
+	private static int counter = 0;
 
 	/**
 	 * Default locale
@@ -296,16 +296,16 @@ public class RegistrarFormItemGenerator {
 					if(inputChecker.isValid(true)){
 						// is valid AND value not empty
 						if(!strValueBox.getText().equals(""))
-						{
-							// default OK?
-							if(inputChecker.useDefaultOkMessage())
-							{
-								statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-							}
-						}else{
-							// input empty - clear;
-							statusCellWrapper.clear();
-						}
+			{
+				// default OK?
+				if(inputChecker.useDefaultOkMessage())
+			{
+				statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+			}
+			}else{
+				// input empty - clear;
+				statusCellWrapper.clear();
+			}
 					}
 
 					// update
@@ -315,68 +315,68 @@ public class RegistrarFormItemGenerator {
 				}
 			});
 
-            strValueBox.addKeyUpHandler(new KeyUpHandler() {
-                public void onKeyUp(KeyUpEvent event) {
-                    DomEvent.fireNativeEvent(Document.get().createBlurEvent(), strValueBox);
-                }
-            });
+			strValueBox.addKeyUpHandler(new KeyUpHandler() {
+				public void onKeyUp(KeyUpEvent event) {
+					DomEvent.fireNativeEvent(Document.get().createBlurEvent(), strValueBox);
+				}
+			});
 
 		} else {
 
 			// Check OTHER when typing in text box
 
 			strValueBox.addKeyUpHandler(new KeyUpHandler() {
-                public void onKeyUp(KeyUpEvent event) {
-                    DomEvent.fireNativeEvent(Document.get().createChangeEvent(), strValueBox);
-                }
-            });
+				public void onKeyUp(KeyUpEvent event) {
+					DomEvent.fireNativeEvent(Document.get().createChangeEvent(), strValueBox);
+				}
+			});
 
-            // is triggered manually by onBlur + onPaste
-            strValueBox.addValueChangeHandler(new ValueChangeHandler<String>() {
-                @Override
-                public void onValueChange(ValueChangeEvent<String> event) {
-                    // check validity
-                    if (inputChecker.isValid(true)) {
-                        // is valid AND value not empty
-                        if (!strValueBox.getText().equals("")) {
-                            // default OK?
-                            if (inputChecker.useDefaultOkMessage()) {
-                                statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                            }
-                        } else {
-                            // input empty - clear;
-                            statusCellWrapper.clear();
-                        }
-                    }
+			// is triggered manually by onBlur + onPaste
+			strValueBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<String> event) {
+					// check validity
+					if (inputChecker.isValid(true)) {
+						// is valid AND value not empty
+						if (!strValueBox.getText().equals("")) {
+							// default OK?
+							if (inputChecker.useDefaultOkMessage()) {
+								statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+							}
+						} else {
+							// input empty - clear;
+							statusCellWrapper.clear();
+						}
+					}
 
-                    // update
-                    if (validationTrigger == null) return;
-                    validationTrigger.triggerValidation();
-                }
-            });
+					// update
+					if (validationTrigger == null) return;
+					validationTrigger.triggerValidation();
+				}
+			});
 
-            strValueBox.addBlurHandler(new BlurHandler() {
-                @Override
-                public void onBlur(BlurEvent event) {
-                    // check validity
-                    if (inputChecker.isValid(true)) {
-                        // is valid AND value not empty
-                        if (!strValueBox.getText().equals("")) {
-                            // default OK?
-                            if (inputChecker.useDefaultOkMessage()) {
-                                statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                            }
-                        } else {
-                            // input empty - clear;
-                            statusCellWrapper.clear();
-                        }
-                    }
+			strValueBox.addBlurHandler(new BlurHandler() {
+				@Override
+				public void onBlur(BlurEvent event) {
+					// check validity
+					if (inputChecker.isValid(true)) {
+						// is valid AND value not empty
+						if (!strValueBox.getText().equals("")) {
+							// default OK?
+							if (inputChecker.useDefaultOkMessage()) {
+								statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+							}
+						} else {
+							// input empty - clear;
+							statusCellWrapper.clear();
+						}
+					}
 
-                    // update
-                    if (validationTrigger == null) return;
-                    validationTrigger.triggerValidation();
-                }
-            });
+					// update
+					if (validationTrigger == null) return;
+					validationTrigger.triggerValidation();
+				}
+			});
 
 		}
 	}
@@ -416,9 +416,9 @@ public class RegistrarFormItemGenerator {
 			return generateListBox();
 		}
 
-        if(item.getType().equals("CHECKBOX")){
-            return generateCheckBox();
-        }
+		if(item.getType().equals("CHECKBOX")){
+			return generateCheckBox();
+		}
 
 		if(item.getType().equals("COMBOBOX")){
 			return generateComboBox();
@@ -504,8 +504,8 @@ public class RegistrarFormItemGenerator {
 		box.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		strValueBox = box;
 
-        box.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		box.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 
 		// multiple emails can be returned from RPC, they are separated by semi-colon
 		if (strValue != null && !strValue.isEmpty()) {
@@ -536,14 +536,14 @@ public class RegistrarFormItemGenerator {
 
 				// check
 				valid = JsonUtils.isValidEmail(strValueBox.getValue());
-                if(!valid){
+				if(!valid){
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.incorrectEmailFormat(), Status.ERROR));
-                    if ("".equalsIgnoreCase(strValueBox.getValue()) && !item.isRequired()) {
-                        // if not 'mail' valid, but empty and not required
-                        valid = true;
-                    } else {
-                        return false;
-                    }
+					if ("".equalsIgnoreCase(strValueBox.getValue()) && !item.isRequired()) {
+						// if not 'mail' valid, but empty and not required
+						valid = true;
+					} else {
+						return false;
+					}
 				}
 
 				// length
@@ -592,15 +592,15 @@ public class RegistrarFormItemGenerator {
 	 */
 	private Widget generatePasswordTextBox() {
 
-        final ExtendedPasswordTextBox pwdbox1 = new ExtendedPasswordTextBox();
+		final ExtendedPasswordTextBox pwdbox1 = new ExtendedPasswordTextBox();
 		final ExtendedPasswordTextBox pwdbox2 = new ExtendedPasswordTextBox();
 		pwdbox1.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		pwdbox2.setMaxLength(TEXT_BOX_MAX_LENGTH);
 
-        pwdbox1.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
-        pwdbox2.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		pwdbox1.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
+		pwdbox2.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 
 		strValueBox = pwdbox1;
 		pwdbox1.setWidth(MIN_WIDTH+"px");
@@ -629,7 +629,7 @@ public class RegistrarFormItemGenerator {
 				}
 
 				// check regex
-                valid = checkValueRegex();
+				valid = checkValueRegex();
 				if(!valid){
 					return false;
 				}
@@ -640,7 +640,7 @@ public class RegistrarFormItemGenerator {
 					valid = false;
 					return false;
 				}
-                // true by default if not changed by checks().
+				// true by default if not changed by checks().
 				return valid;
 
 			}
@@ -654,117 +654,117 @@ public class RegistrarFormItemGenerator {
 			}
 		};
 
-        // We must manually add handlers to each box
-        // reference by strValueBox is not working with manually triggered actions
+		// We must manually add handlers to each box
+		// reference by strValueBox is not working with manually triggered actions
 
-        pwdbox1.addKeyUpHandler(new KeyUpHandler() {
-            public void onKeyUp(KeyUpEvent event) {
-                DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox1);
-            }
-        });
+		pwdbox1.addKeyUpHandler(new KeyUpHandler() {
+			public void onKeyUp(KeyUpEvent event) {
+				DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox1);
+			}
+		});
 
-        // is triggered manually by onBlur + onPaste
-        pwdbox1.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<String> event) {
-                // check validity
-                if (inputChecker.isValid(true)) {
-                    // is valid AND value not empty
-                    if (!pwdbox1.getText().equals("")) {
-                        // default OK?
-                        if (inputChecker.useDefaultOkMessage()) {
-                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                        }
-                    } else {
-                        // input empty - clear;
-                        statusCellWrapper.clear();
-                    }
-                }
+		// is triggered manually by onBlur + onPaste
+		pwdbox1.addValueChangeHandler(new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				// check validity
+				if (inputChecker.isValid(true)) {
+					// is valid AND value not empty
+					if (!pwdbox1.getText().equals("")) {
+						// default OK?
+						if (inputChecker.useDefaultOkMessage()) {
+							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						}
+					} else {
+						// input empty - clear;
+						statusCellWrapper.clear();
+					}
+				}
 
-                // update
-                if (validationTrigger == null) return;
-                validationTrigger.triggerValidation();
-            }
-        });
+				// update
+				if (validationTrigger == null) return;
+				validationTrigger.triggerValidation();
+			}
+		});
 
-        pwdbox1.addBlurHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                // check validity
-                if (inputChecker.isValid(true)) {
-                    // is valid AND value not empty
-                    if (!pwdbox1.getText().equals("")) {
-                        // default OK?
-                        if (inputChecker.useDefaultOkMessage()) {
-                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                        }
-                    } else {
-                        // input empty - clear;
-                        statusCellWrapper.clear();
-                    }
-                }
+		pwdbox1.addBlurHandler(new BlurHandler() {
+			@Override
+			public void onBlur(BlurEvent event) {
+				// check validity
+				if (inputChecker.isValid(true)) {
+					// is valid AND value not empty
+					if (!pwdbox1.getText().equals("")) {
+						// default OK?
+						if (inputChecker.useDefaultOkMessage()) {
+							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						}
+					} else {
+						// input empty - clear;
+						statusCellWrapper.clear();
+					}
+				}
 
-                // update
-                if (validationTrigger == null) return;
-                validationTrigger.triggerValidation();
-            }
-        });
+				// update
+				if (validationTrigger == null) return;
+				validationTrigger.triggerValidation();
+			}
+		});
 
-        pwdbox2.addKeyUpHandler(new KeyUpHandler() {
-            public void onKeyUp(KeyUpEvent event) {
-                DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox2);
-            }
-        });
+		pwdbox2.addKeyUpHandler(new KeyUpHandler() {
+			public void onKeyUp(KeyUpEvent event) {
+				DomEvent.fireNativeEvent(Document.get().createChangeEvent(), pwdbox2);
+			}
+		});
 
-        // is triggered manually by onBlur + onPaste
-        pwdbox2.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<String> event) {
-                // check validity
-                if (inputChecker.isValid(true)) {
-                    // is valid AND value not empty
-                    if (!pwdbox2.getText().equals("")) {
-                        // default OK?
-                        if (inputChecker.useDefaultOkMessage()) {
-                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                        }
-                    } else {
-                        // input empty - clear;
-                        statusCellWrapper.clear();
-                    }
-                }
+		// is triggered manually by onBlur + onPaste
+		pwdbox2.addValueChangeHandler(new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				// check validity
+				if (inputChecker.isValid(true)) {
+					// is valid AND value not empty
+					if (!pwdbox2.getText().equals("")) {
+						// default OK?
+						if (inputChecker.useDefaultOkMessage()) {
+							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						}
+					} else {
+						// input empty - clear;
+						statusCellWrapper.clear();
+					}
+				}
 
-                // update
-                if (validationTrigger == null) return;
-                validationTrigger.triggerValidation();
-            }
-        });
+				// update
+				if (validationTrigger == null) return;
+				validationTrigger.triggerValidation();
+			}
+		});
 
-        pwdbox2.addBlurHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                // check validity
-                if (inputChecker.isValid(true)) {
-                    // is valid AND value not empty
-                    if (!pwdbox2.getText().equals("")) {
-                        // default OK?
-                        if (inputChecker.useDefaultOkMessage()) {
-                            statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                        }
-                    } else {
-                        // input empty - clear;
-                        statusCellWrapper.clear();
-                    }
-                }
+		pwdbox2.addBlurHandler(new BlurHandler() {
+			@Override
+			public void onBlur(BlurEvent event) {
+				// check validity
+				if (inputChecker.isValid(true)) {
+					// is valid AND value not empty
+					if (!pwdbox2.getText().equals("")) {
+						// default OK?
+						if (inputChecker.useDefaultOkMessage()) {
+							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						}
+					} else {
+						// input empty - clear;
+						statusCellWrapper.clear();
+					}
+				}
 
-                // update
-                if (validationTrigger == null) return;
-                validationTrigger.triggerValidation();
-            }
-        });
+				// update
+				if (validationTrigger == null) return;
+				validationTrigger.triggerValidation();
+			}
+		});
 
 		FlexTable ft = new FlexTable();
-        ft.setStyleName("appFormPasswordTable");
+		ft.setStyleName("appFormPasswordTable");
 		ft.setCellPadding(0);
 		ft.setCellSpacing(0);
 		ft.setWidget(0, 0, pwdbox1);
@@ -788,8 +788,8 @@ public class RegistrarFormItemGenerator {
 
 		Map<String,String> boxContents = parseSelectionBox(options);
 
-        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
-        //Collections.sort(keyList);
+		ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+		//Collections.sort(keyList);
 
 		int i = 0;
 		for(String key : keyList){
@@ -809,111 +809,111 @@ public class RegistrarFormItemGenerator {
 			}
 		});
 
-        if (lbox.getItemCount() != 0) {
-            // set default value
-            strValueBox.setText(lbox.getValue(lbox.getSelectedIndex()));
-        }
+		if (lbox.getItemCount() != 0) {
+			// set default value
+			strValueBox.setText(lbox.getValue(lbox.getSelectedIndex()));
+		}
 
-        return lbox;
+		return lbox;
 	}
 
-    /**
-     * Generates the checkboxes widget
-     * @return
-     */
-    private Widget generateCheckBox() {
+	/**
+	 * Generates the checkboxes widget
+	 * @return
+	 */
+	private Widget generateCheckBox() {
 
-        FlexTable ft = new FlexTable();
-        ft.setStyleName("appFormCheckBoxTable");
-        // parse options
-        String options = getOptions();
-        Map<String,String> boxContents = parseSelectionBox(options);
-        final Map<CheckBox, String> boxValueMap = new HashMap<CheckBox, String>();
+		FlexTable ft = new FlexTable();
+		ft.setStyleName("appFormCheckBoxTable");
+		// parse options
+		String options = getOptions();
+		Map<String,String> boxContents = parseSelectionBox(options);
+		final Map<CheckBox, String> boxValueMap = new HashMap<CheckBox, String>();
 
-        int i = 0;
+		int i = 0;
 
-        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
-        //Collections.sort(keyList);
+		ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+		//Collections.sort(keyList);
 
-        for(String key : keyList){
+		for(String key : keyList){
 
-            final CheckBox checkbox = new CheckBox(boxContents.get(key));
-            // pre-fill
-            for (String s : prefilledValue.split("\\|")) {
-                if (key.trim().equals(s.trim())) {
-                    checkbox.setValue(true);
-                }
-            }
-            boxValueMap.put(checkbox, key);
+			final CheckBox checkbox = new CheckBox(boxContents.get(key));
+			// pre-fill
+			for (String s : prefilledValue.split("\\|")) {
+				if (key.trim().equals(s.trim())) {
+					checkbox.setValue(true);
+				}
+			}
+			boxValueMap.put(checkbox, key);
 
-            checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                @Override
-                public void onValueChange(ValueChangeEvent<Boolean> event) {
+			checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-                    // rebuild value
-                    strValue = "";
-                    for(Map.Entry<CheckBox, String> innerEntry : boxValueMap.entrySet()) {
-                        if (innerEntry.getKey().getValue()) {
-                            // put in selected values
-                            strValue += innerEntry.getValue()+"|";
-                        }
-                    }
-                    if (strValue.length() > 1) {
-                        strValue = strValue.substring(0, strValue.length()-1);
-                    }
+					// rebuild value
+					strValue = "";
+					for(Map.Entry<CheckBox, String> innerEntry : boxValueMap.entrySet()) {
+						if (innerEntry.getKey().getValue()) {
+							// put in selected values
+							strValue += innerEntry.getValue()+"|";
+						}
+					}
+					if (strValue.length() > 1) {
+						strValue = strValue.substring(0, strValue.length()-1);
+					}
 
-                    inputChecker.isValid(true);
+					inputChecker.isValid(true);
 
-                    // update
-                    if (validationTrigger == null) return;
-                    validationTrigger.triggerValidation();
+					// update
+					if (validationTrigger == null) return;
+					validationTrigger.triggerValidation();
 
-                }
-            });
+				}
+			});
 
-            inputChecker = new FormInputChecker() {
+			inputChecker = new FormInputChecker() {
 
-                private boolean valid = true;
+				private boolean valid = true;
 
-                @Override
-                public boolean isValid(boolean forceNewValidation) {
+				@Override
+				public boolean isValid(boolean forceNewValidation) {
 
-                    // if not new, don't force
-                    if(!forceNewValidation) return valid;
+					// if not new, don't force
+					if(!forceNewValidation) return valid;
 
-                    if (item.isRequired() && strValue.isEmpty()) {
-                        statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
-                        valid = false;
-                        return valid;
-                    } else {
-                        // if not required any value is good
-                        statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-                        valid = true;
-                        return true;
-                    }
+					if (item.isRequired() && strValue.isEmpty()) {
+						statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
+						valid = false;
+						return valid;
+					} else {
+						// if not required any value is good
+						statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						valid = true;
+						return true;
+					}
 
-                }
+				}
 
-                @Override
-                public boolean isValidating() {
-                    return false;
-                }
+				@Override
+				public boolean isValidating() {
+					return false;
+				}
 
-                @Override
-                public boolean useDefaultOkMessage() {
-                    return true;
-                }
-            };
+				@Override
+				public boolean useDefaultOkMessage() {
+					return true;
+				}
+			};
 
-            // fill widget
-            ft.setWidget(i, 0, checkbox);
-            i++;
+			// fill widget
+			ft.setWidget(i, 0, checkbox);
+			i++;
 
-        }
+		}
 
-        return ft;
+		return ft;
 
-    }
+	}
 
 	/**
 	 * Generates the combobox
@@ -924,8 +924,8 @@ public class RegistrarFormItemGenerator {
 		final ListBox lbox = new ListBox();
 		final TextBox textBox = new ExtendedTextBox();
 		textBox.setMaxLength(TEXT_BOX_MAX_LENGTH);
-        textBox.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		textBox.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 		boolean anyValueSelected = false;
 		textBox.setWidth(MIN_WIDTH+"px");
 		strValueBox = textBox;
@@ -936,8 +936,8 @@ public class RegistrarFormItemGenerator {
 		String options = getOptions();
 
 		Map<String,String> boxContents = parseSelectionBox(options);
-        ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
-        //Collections.sort(keyList);
+		ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+		//Collections.sort(keyList);
 
 		int i = 0;
 		for(String key : keyList){
@@ -974,26 +974,26 @@ public class RegistrarFormItemGenerator {
 				textBox.setVisible(lbox.getSelectedIndex() == otherValueIndex);
 
 				if(lbox.getSelectedIndex() == otherValueIndex)
-				{
-					textBox.setFocus(true);
-					textBox.selectAll();
-				}
+		{
+			textBox.setFocus(true);
+			textBox.selectAll();
+		}
 
-				// validation
-				if(inputChecker.isValid(true)){
-					// is valid AND value not empty
-					if(!strValueBox.getText().equals("") || !item.isRequired())
-					{
-						// default OK?
-						if(inputChecker.useDefaultOkMessage())
-						{
-							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-						}
-					}else{
-						// input empty - clear;
-						statusCellWrapper.clear();
-					}
-				}
+		// validation
+		if(inputChecker.isValid(true)){
+			// is valid AND value not empty
+			if(!strValueBox.getText().equals("") || !item.isRequired())
+		{
+			// default OK?
+			if(inputChecker.useDefaultOkMessage())
+			{
+				statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+			}
+		}else{
+			// input empty - clear;
+			statusCellWrapper.clear();
+		}
+		}
 			}
 		});
 		// set default value
@@ -1002,7 +1002,7 @@ public class RegistrarFormItemGenerator {
 
 		// container
 		FlexTable ft = new FlexTable();
-        ft.setStyleName("appFormComboBoxTable");
+		ft.setStyleName("appFormComboBoxTable");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 		ft.setWidget(0, 0, lbox);
 		ft.setWidget(1, 0, textBox);
@@ -1022,8 +1022,8 @@ public class RegistrarFormItemGenerator {
 		strValueBox = tbox;
 		tbox.setText(strValue);
 
-        tbox.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		tbox.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 
 		setVariableWidth(tbox);
 
@@ -1042,8 +1042,8 @@ public class RegistrarFormItemGenerator {
 		strValueBox = tbox;
 		tbox.setText(strValue);
 
-        tbox.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		tbox.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 
 		setVariableWidth(tbox);
 
@@ -1055,138 +1055,138 @@ public class RegistrarFormItemGenerator {
 		} else {
 
 			// get namespace
-            if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
+			if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
 
-                final String loginNamespace = item.getPerunDestinationAttribute().substring(PERUN_ATTRIBUTE_LOGIN_NAMESPACE_POSITION);
+				final String loginNamespace = item.getPerunDestinationAttribute().substring(PERUN_ATTRIBUTE_LOGIN_NAMESPACE_POSITION);
 
-                // check if login is new
-                inputChecker = new FormInputChecker() {
+				// check if login is new
+				inputChecker = new FormInputChecker() {
 
-                    private boolean validating = false;
+					private boolean validating = false;
 
-                    private boolean valid = true;
+					private boolean valid = true;
 
-                    private Map<String, Boolean> validMap = new HashMap<String, Boolean>();
+					private Map<String, Boolean> validMap = new HashMap<String, Boolean>();
 
-                    public boolean isValid(boolean forceNewValidation) {
+					public boolean isValid(boolean forceNewValidation) {
 
-                        // if not new, don't force
-                        if(!forceNewValidation) return valid;
+						// if not new, don't force
+						if(!forceNewValidation) return valid;
 
-                        final String str = tbox.getValue();
+						final String str = tbox.getValue();
 
-                        // missing?
-                        valid = (!(item.isRequired() && str.equals("")));
-                        if(!valid){
+						// missing?
+						valid = (!(item.isRequired() && str.equals("")));
+						if(!valid){
 
-                            statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
-                            return false;
-                        }
+							statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
+							return false;
+						}
 
-                        // length
-                        valid = checkLength();
-                        if(!valid){
-                            return false;
-                        }
+						// length
+						valid = checkLength();
+						if(!valid){
+							return false;
+						}
 
-                        valid = checkValueRegex();
-                        // regex check
-                        if(!valid){
-                            return false;
-                        }
+						valid = checkValueRegex();
+						// regex check
+						if(!valid){
+							return false;
+						}
 
-                        // force check for base REGEX used in login attribute module
-                        RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
-                        boolean match = regExp.test(str);
-                        if (!match) return false;
+						// force check for base REGEX used in login attribute module
+						RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+						boolean match = regExp.test(str);
+						if (!match) return false;
 
-                        // has already checked it?
-                        if(validMap.containsKey(str)){
-                            valid = validMap.get(str);
-                            if(valid){
+						// has already checked it?
+						if(validMap.containsKey(str)){
+							valid = validMap.get(str);
+							if(valid){
 
-                                statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
-                            } else {
+								statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
+							} else {
 
-                                statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
-                            }
-                            return valid;
-                        }
+								statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
+							}
+							return valid;
+						}
 
-                        // check login
-                        validating = true;
+						// check login
+						validating = true;
 
-                        statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.validating(), Status.LOADING));
+						statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.validating(), Status.LOADING));
 
-                        // check login
-                        new IsLoginAvailable(loginNamespace, str, new JsonCallbackEvents(){
-                            @Override
-                            public void onFinished(JavaScriptObject jso){
+						// check login
+						new IsLoginAvailable(loginNamespace, str, new JsonCallbackEvents(){
+							@Override
+							public void onFinished(JavaScriptObject jso){
 
-                                // store result for the requested login
-                                BasicOverlayType bo = jso.cast();
-                                validMap.put(str, bo.getBoolean());
+								// store result for the requested login
+								BasicOverlayType bo = jso.cast();
+								validMap.put(str, bo.getBoolean());
 
-                                if(!str.equals(strValueBox.getValue())){
-                                    // value changed before request finished, don't update the valid value
-                                    return;
-                                }
+								if(!str.equals(strValueBox.getValue())){
+									// value changed before request finished, don't update the valid value
+									return;
+								}
 
-                                valid = bo.getBoolean();
+								valid = bo.getBoolean();
 
-                                validating = false;
+								validating = false;
 
-                                if(valid){
+								if(valid){
 
-                                    statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
-                                } else {
+									statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameAvailable(), Status.OK));
+								} else {
 
-                                    statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
-                                }
-                                validationTrigger.triggerValidation();
-                            }
-                        }).retrieveData();
+									statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.usernameNotAvailable(), Status.ERROR));
+								}
+								validationTrigger.triggerValidation();
+							}
+						}).retrieveData();
 
 
-                        // check login end
+						// check login end
 
-                        valid = false;
-                        return false;
-                    }
+						valid = false;
+						return false;
+					}
 
-                    public boolean isValidating() {
-                        return validating;
-                    }
+					public boolean isValidating() {
+						return validating;
+					}
 
-                    public boolean useDefaultOkMessage() {
-                        return false;
-                    }
-                };
+					public boolean useDefaultOkMessage() {
+						return false;
+					}
+				};
 
-            } else {
+			} else {
 
-                // Username has no "login-namespace"
-                // prevent such malformed applications from submission
-                tbox.setEnabled(false);
-                tbox.setValue("Wrong form item configuration !!");
-                inputChecker = new FormInputChecker() {
-                    @Override
-                    public boolean isValid(boolean forceNewValidation) {
-                        return false;
-                    }
+				// Username has no "login-namespace"
+				// prevent such malformed applications from submission
+				tbox.setEnabled(false);
+				tbox.setValue("Wrong form item configuration !!");
+				inputChecker = new FormInputChecker() {
+					@Override
+					public boolean isValid(boolean forceNewValidation) {
+						return false;
+					}
 
-                    @Override
-                    public boolean isValidating() {
-                        return false;
-                    }
+					@Override
+					public boolean isValidating() {
+						return false;
+					}
 
-                    @Override
-                    public boolean useDefaultOkMessage() {
-                        return false;
-                    }
-                };
+					@Override
+					public boolean useDefaultOkMessage() {
+						return false;
+					}
+				};
 
-            }
+			}
 
 		}
 
@@ -1204,11 +1204,11 @@ public class RegistrarFormItemGenerator {
 		strValueBox = tarea;
 		tarea.setSize("300px", "150px");
 		tarea.setText(strValue);
-        // Set maximum length of the text area
+		// Set maximum length of the text area
 		tarea.getElement().setAttribute("maxlength", String.valueOf(TEXT_AREA_MAX_LENGTH));
 
-        tarea.getElement().setClassName("apptextbox"+counter++);
-        setCutCopyPasteHandler("apptextbox"+counter);
+		tarea.getElement().setClassName("apptextbox"+counter++);
+		setCutCopyPasteHandler("apptextbox"+counter);
 
 		return tarea;
 	}
@@ -1251,11 +1251,11 @@ public class RegistrarFormItemGenerator {
 	 */
 	public String getValue() {
 
-        if(strValueBox == null) return strValue.trim();
+		if(strValueBox == null) return strValue.trim();
 
 		return strValueBox.getValue().trim();
 
-    }
+	}
 
 	/**
 	 * Returns the form item
@@ -1280,7 +1280,7 @@ public class RegistrarFormItemGenerator {
 	 * Parses the "options" into MAP
 	 *
 	 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
-     * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
+	 * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
 	 *
 	 * @param options
 	 * @return
@@ -1316,7 +1316,7 @@ public class RegistrarFormItemGenerator {
 	 * Serializes MAP into "options"
 	 *
 	 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
-     * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
+	 * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
 	 *
 	 * @param map
 	 * @return
@@ -1424,95 +1424,93 @@ public class RegistrarFormItemGenerator {
 
 	}
 
-    private class ExtendedTextBox extends TextBox {
+	private class ExtendedTextBox extends TextBox {
 
-        public ExtendedTextBox() {
-            super();
-            sinkEvents(Event.ONPASTE);
-        }
+		public ExtendedTextBox() {
+			super();
+			sinkEvents(Event.ONPASTE);
+		}
 
-        @Override
-        public void onBrowserEvent(Event event) {
-            super.onBrowserEvent(event);
-            switch (DOM.eventGetType(event)) {
-                case Event.ONPASTE:
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            ValueChangeEvent.fire(ExtendedTextBox.this, getText());
-                        }
-                    });
-                    break;
-            }
-        }
-    }
+		@Override
+		public void onBrowserEvent(Event event) {
+			super.onBrowserEvent(event);
+			switch (DOM.eventGetType(event)) {
+				case Event.ONPASTE:
+					Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+						@Override
+						public void execute() {
+							ValueChangeEvent.fire(ExtendedTextBox.this, getText());
+						}
+					});
+					break;
+			}
+		}
+	}
 
-    private class ExtendedPasswordTextBox extends PasswordTextBox {
+	private class ExtendedPasswordTextBox extends PasswordTextBox {
 
-        public ExtendedPasswordTextBox() {
-            super();
-            sinkEvents(Event.ONPASTE);
-        }
+		public ExtendedPasswordTextBox() {
+			super();
+			sinkEvents(Event.ONPASTE);
+		}
 
-        @Override
-        public void onBrowserEvent(Event event) {
-            super.onBrowserEvent(event);
-            switch (DOM.eventGetType(event)) {
-                case Event.ONPASTE:
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            ValueChangeEvent.fire(ExtendedPasswordTextBox.this, getText());
-                        }
-                    });
-                    break;
-            }
-        }
-    }
+		@Override
+		public void onBrowserEvent(Event event) {
+			super.onBrowserEvent(event);
+			switch (DOM.eventGetType(event)) {
+				case Event.ONPASTE:
+					Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+						@Override
+						public void execute() {
+							ValueChangeEvent.fire(ExtendedPasswordTextBox.this, getText());
+						}
+					});
+					break;
+			}
+		}
+	}
 
-    private class ExtendedTextArea extends TextArea {
+	private class ExtendedTextArea extends TextArea {
 
-        public ExtendedTextArea() {
-            super();
-            sinkEvents(Event.ONPASTE);
-        }
+		public ExtendedTextArea() {
+			super();
+			sinkEvents(Event.ONPASTE);
+		}
 
-        @Override
-        public void onBrowserEvent(Event event) {
-            super.onBrowserEvent(event);
-            switch (DOM.eventGetType(event)) {
-                case Event.ONPASTE:
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            ValueChangeEvent.fire(ExtendedTextArea.this, getText());
-                        }
-                    });
-                    break;
-            }
-        }
-    }
+		@Override
+		public void onBrowserEvent(Event event) {
+			super.onBrowserEvent(event);
+			switch (DOM.eventGetType(event)) {
+				case Event.ONPASTE:
+					Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+						@Override
+						public void execute() {
+							ValueChangeEvent.fire(ExtendedTextArea.this, getText());
+						}
+					});
+					break;
+			}
+		}
+	}
 
-    /**
-     * Set copy & cut & paste javascript handlers to textbox by class
-     *
-     * @param id class of textbox to assign handlers to
-     */
-    private final native void setCutCopyPasteHandler(String id) /*-{
-
-        $wnd.jQuery.ready(function() {
-            $wnd.jQuery('#'+id).bind('cut', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-            $wnd.jQuery('#'+id).bind('copy', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-            $wnd.jQuery('#'+id).bind('paste', function(e) {
-                $wnd.jQuery('#'+id).onkeyup()
-            });
-        });
-
-    }-*/;
+	/**
+	 * Set copy & cut & paste javascript handlers to textbox by class
+	 *
+	 * @param id class of textbox to assign handlers to
+	 */
+	private final native void setCutCopyPasteHandler(String id) /*-{
+				$wnd.jQuery.ready(function() {
+		$wnd.jQuery('#'+id).bind('cut', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		$wnd.jQuery('#'+id).bind('copy', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		$wnd.jQuery('#'+id).bind('paste', function(e) {
+		$wnd.jQuery('#'+id).onkeyup()
+		});
+		});
+			}-*/;
 
 
 }

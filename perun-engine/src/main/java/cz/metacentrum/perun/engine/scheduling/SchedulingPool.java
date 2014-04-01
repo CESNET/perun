@@ -13,29 +13,29 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 public interface SchedulingPool {
 
-    /**
-     * Add to the pool
-     *
-     * @param pair
-     * @return current pool size
-     */
-    int addToPool(Pair<ExecService, Facility> pair);
+	/**
+	 * Add to the pool
+	 *
+	 * @param pair
+	 * @return current pool size
+	 */
+	int addToPool(Pair<ExecService, Facility> pair);
 
-    /**
-     * Get all pairs from the pool.
-     * NOTE: This action will empty the pool!
-     *
-     * @return
-     */
-    List<Pair<ExecService, Facility>> emptyPool();
+	/**
+	 * Get all pairs from the pool.
+	 * NOTE: This action will empty the pool!
+	 *
+	 * @return
+	 */
+	List<Pair<ExecService, Facility>> emptyPool();
 
-    /**
-     * Size
-     *
-     * @return current pool size
-     */
-    int getSize();
+	/**
+	 * Size
+	 *
+	 * @return current pool size
+	 */
+	int getSize();
 
-    void close();
+	void close();
 
 }

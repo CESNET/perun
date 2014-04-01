@@ -18,7 +18,7 @@ public class FacilitiesTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public FacilitiesTabs(){}
 
 	/**
@@ -55,10 +55,10 @@ public class FacilitiesTabs {
 			return true;
 		}
 
-        if (tab.equals(FacilityHostsSettingsTabItem.URL)) {
-            session.getTabManager().addTab(FacilityHostsSettingsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(FacilityHostsSettingsTabItem.URL)) {
+			session.getTabManager().addTab(FacilityHostsSettingsTabItem.load(parameters), open);
+			return true;
+		}
 
 		if (tab.equals(FacilityStatusTabItem.URL)) {
 			session.getTabManager().addTab(FacilityStatusTabItem.load(parameters), open);
@@ -99,20 +99,20 @@ public class FacilitiesTabs {
 			return true;
 		}
 
-        if (tab.equals(FacilitiesPropagationsTabItem.URL)) {
-            session.getTabManager().addTab(FacilitiesPropagationsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(FacilitiesPropagationsTabItem.URL)) {
+			session.getTabManager().addTab(FacilitiesPropagationsTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(DestinationResultsTabItem.URL)) {
-            session.getTabManager().addTab(DestinationResultsTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(DestinationResultsTabItem.URL)) {
+			session.getTabManager().addTab(DestinationResultsTabItem.load(parameters), open);
+			return true;
+		}
 
-        if (tab.equals(CreateFacilityTabItem.URL)) {
-            session.getTabManager().addTab(CreateFacilityTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(CreateFacilityTabItem.URL)) {
+			session.getTabManager().addTab(CreateFacilityTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

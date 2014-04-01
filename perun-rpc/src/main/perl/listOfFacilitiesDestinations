@@ -9,42 +9,42 @@ use Perun::Common qw(printMessage getSortingFunction printTable);
 use Perun::beans::Destination;
 
 sub help {
-return qq{
-Prints list of Destinations used for Facilities which have resource in defined VO.
----------------------------------------------------------------
-Available options:
- --voId									| -v  filter facilities by resources available in VO (defined by ID)
- --voShortName					| -V  filter facilities by resources available in VO (defined by shortName)
- --orderById						| -i  order by destination id
- --orderByDestination		| -n  order by destination name
- --batch								| -b  batch
- --help									| -h  prints this help
-};
+	return qq{
+	Prints list of Destinations used for Facilities which have resource in defined VO.
+	---------------------------------------------------------------
+	Available options:
+	--voId									| -v  filter facilities by resources available in VO (defined by ID)
+	--voShortName					| -V  filter facilities by resources available in VO (defined by shortName)
+	--orderById						| -i  order by destination id
+	--orderByDestination		| -n  order by destination name
+	--batch								| -b  batch
+	--help									| -h  prints this help
+	};
 }
 
 
 my ($voId, $voShortName, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0; } ,
-           "voId|v=i" => \$voId,
-           "voShortName|V=s" => \$voShortName,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByDestination|n" =>  sub {$sortingFunction = getSortingFunction("getDestination", 1) },
-           "batch|b" => \$batch) || die help;
+	"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+					 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+					 "orderByDestination|n" =>  sub {$sortingFunction = getSortingFunction("getDestination", 1) },
+					 "batch|b" => \$batch) || die help;
 
-my $agent = Perun::Agent->new();
-my $vosAgent = $agent->getVosAgent;
+			 my $agent = Perun::Agent->new();
+			 my $vosAgent = $agent->getVosAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
-unless(defined $voId) {
-  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
-}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+			 unless(defined $voId) {
+				 unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+				 my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+				 $voId = $vo->getId;
+			 }
 
-my $servicesAgent = $agent->getServicesAgent;
+			 my $servicesAgent = $agent->getServicesAgent;
 
-my @destinations = $servicesAgent->getFacilitiesDestinations(vo => $voId);
-unless(@destinations) { printMessage "No destinations found", $batch; exit 0;}
+			 my @destinations = $servicesAgent->getFacilitiesDestinations(vo => $voId);
+			 unless(@destinations) { printMessage "No destinations found", $batch; exit 0;}
 
-printTable($sortingFunction, @destinations);
+			 printTable($sortingFunction, @destinations);

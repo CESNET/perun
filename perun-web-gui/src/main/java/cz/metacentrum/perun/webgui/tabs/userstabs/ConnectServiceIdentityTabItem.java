@@ -60,22 +60,22 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a new instance
 	 *
-     * @param userId
-     */
+	 * @param userId
+	 */
 	public ConnectServiceIdentityTabItem(int userId){
 		this.userId = userId;
-        new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                user = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				user = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a new instance
 	 *
-     * @param user
-     */
+	 * @param user
+	 */
 	public ConnectServiceIdentityTabItem(User user){
 		this.userId = user.getId();
 		this.user = user;
@@ -89,91 +89,91 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": connect identity");
 
-        VerticalPanel content = new VerticalPanel();
-        content.setSize("100%", "100%");
+		VerticalPanel content = new VerticalPanel();
+		content.setSize("100%", "100%");
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        // add button
+		// add button
 		final CustomButton addButton;
 
-        if (user.isServiceUser()) {
-            addButton = new CustomButton("Connect", "Add selected users to this identity",SmallIcons.INSTANCE.addIcon());
-        } else {
-            addButton = new CustomButton("Connect", "Add selected identities to user",SmallIcons.INSTANCE.addIcon());
-        }
+		if (user.isServiceUser()) {
+			addButton = new CustomButton("Connect", "Add selected users to this identity",SmallIcons.INSTANCE.addIcon());
+		} else {
+			addButton = new CustomButton("Connect", "Add selected identities to user",SmallIcons.INSTANCE.addIcon());
+		}
 
-        TabMenu menu = new TabMenu();
-        menu.addWidget(addButton);
+		TabMenu menu = new TabMenu();
+		menu.addWidget(addButton);
 
-        content.add(menu);
-        content.setCellHeight(menu, "30px");
+		content.add(menu);
+		content.setCellHeight(menu, "30px");
 
-        final FindCompleteRichUsers call = new FindCompleteRichUsers("", null);
-        if (user.isServiceUser()) {
-            call.hideService(true);
-        } else {
-            call.hidePerson(true);
-        }
+		final FindCompleteRichUsers call = new FindCompleteRichUsers("", null);
+		if (user.isServiceUser()) {
+			call.hideService(true);
+		} else {
+			call.hidePerson(true);
+		}
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            public void onClick(ClickEvent clickEvent) {
-                // close tab and refresh
-                session.getTabManager().closeTab(tab, true);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			public void onClick(ClickEvent clickEvent) {
+				// close tab and refresh
+				session.getTabManager().closeTab(tab, true);
+			}
+		}));
 
-        // search textbox
-        ExtendedTextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                call.searchFor(text);
-            }
-        }, "");
+		// search textbox
+		ExtendedTextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				call.searchFor(text);
+			}
+		}, "");
 
-        addButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent clickEvent) {
+		addButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent clickEvent) {
 
-                ArrayList<User> list = call.getTableSelectedList();
-                for (int i = 0; i < list.size(); i++) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    AddServiceUserOwner req;
-                    if (i == list.size() - 1) {
-                        req = new AddServiceUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                    } else {
-                        req = new AddServiceUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
-                    }
-                    if (user.isServiceUser()) {
-                        // service user adds user
-                        req.addServiceUser(list.get(i), user);
-                    } else {
-                        // user adds service users
-                        req.addServiceUser(user, list.get(i));
-                    }
-                }
-            }
-        });
+				ArrayList<User> list = call.getTableSelectedList();
+				for (int i = 0; i < list.size(); i++) {
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+					AddServiceUserOwner req;
+					if (i == list.size() - 1) {
+						req = new AddServiceUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+					} else {
+						req = new AddServiceUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
+					}
+					if (user.isServiceUser()) {
+						// service user adds user
+						req.addServiceUser(list.get(i), user);
+					} else {
+						// user adds service users
+						req.addServiceUser(user, list.get(i));
+					}
+				}
+			}
+		});
 
 
-        FieldUpdater<User, String> fieldUpdater = null;
-        if (session.isPerunAdmin()) {
-            fieldUpdater = new FieldUpdater<User, String>() {
-            public void update(int i, User user, String s) {
-                session.getTabManager().addTab(new UserDetailTabItem(user));
-            }
-        };
-        }
-        CellTable<User> table = call.getTable(fieldUpdater);
-        table.addStyleName("perun-table");
-        table.setWidth("100%");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
+		FieldUpdater<User, String> fieldUpdater = null;
+		if (session.isPerunAdmin()) {
+			fieldUpdater = new FieldUpdater<User, String>() {
+				public void update(int i, User user, String s) {
+					session.getTabManager().addTab(new UserDetailTabItem(user));
+				}
+			};
+		}
+		CellTable<User> table = call.getTable(fieldUpdater);
+		table.addStyleName("perun-table");
+		table.setWidth("100%");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
 
-        addButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(call, table, addButton);
+		addButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(call, table, addButton);
 
-        content.add(sp);
-        session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+		content.add(sp);
+		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
 		this.contentWidget.setWidget(new SimplePanel(content));
 

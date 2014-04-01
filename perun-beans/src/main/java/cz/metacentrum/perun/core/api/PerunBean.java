@@ -9,69 +9,69 @@ package cz.metacentrum.perun.core.api;
  */
 
 public abstract class PerunBean {
-  private int id;
+	private int id;
 
-  public PerunBean() {
-  }
+	public PerunBean() {
+	}
 
-  public PerunBean(int id) {
-    this.id = id;
-  }
+	public PerunBean(int id) {
+		this.id = id;
+	}
 
-  public int getId() {
-    return id;
-  }
+	public int getId() {
+		return id;
+	}
 
-  public void setId(int id) {
-    this.id = id;
-  }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-  /** Returns bean name like VO, Member, Resource,...
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
-
-  @Override
-  public String toString() {
-    return this.getClass().getSimpleName()+":[" +
-      "id='" + id + '\'' +
-      ']';
-  }
+	/** Returns bean name like VO, Member, Resource,...
+	*/
+	public String getBeanName() {
+		return this.getClass().getSimpleName();
+	}
 
 
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + this.id;
-    hash = 53 * hash + this.getBeanName().hashCode();
-    return hash;
-  }
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName()+":[" +
+			"id='" + id + '\'' +
+			']';
+	}
 
-  public String serializeToString() {
-      return this.getClass().getSimpleName()+":[" +
-      "id=<" + id + ">" +
-      ']';
-  }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final PerunBean other = (PerunBean) obj;
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 53 * hash + this.id;
+		hash = 53 * hash + this.getBeanName().hashCode();
+		return hash;
+	}
 
-    if (!this.getBeanName().equals(other.getBeanName())) {
-      return false;
-    }
+	public String serializeToString() {
+		return this.getClass().getSimpleName()+":[" +
+			"id=<" + id + ">" +
+			']';
+	}
 
-    if (this.id != other.id) {
-      return false;
-    }
-    return true;
-  }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PerunBean other = (PerunBean) obj;
+
+		if (!this.getBeanName().equals(other.getBeanName())) {
+			return false;
+		}
+
+		if (this.id != other.id) {
+			return false;
+		}
+		return true;
+	}
 }

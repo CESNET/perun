@@ -8,24 +8,24 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 @SuppressWarnings("serial")
 public class InternalErrorRuntimeException extends PerunRuntimeException {
 
-  private final static Logger log = LoggerFactory.getLogger(InternalErrorException.class);
+	private final static Logger log = LoggerFactory.getLogger(InternalErrorException.class);
 
-  public InternalErrorRuntimeException(String err) {
-    super(err);
+	public InternalErrorRuntimeException(String err) {
+		super(err);
 
-    log.error("Runtime Internal Error Exception:", this);
-  }
+		log.error("Runtime Internal Error Exception:", this);
+	}
 
-  public InternalErrorRuntimeException(Throwable cause) {
-    super(cause);
+	public InternalErrorRuntimeException(Throwable cause) {
+		super(cause);
 
-    log.error("Runtime Internal Error Exception:", this);
-  }
+		log.error("Runtime Internal Error Exception:", this);
+	}
 
-  public InternalErrorRuntimeException(String err, Throwable cause) {
-    super(err, cause);
+	public InternalErrorRuntimeException(String err, Throwable cause) {
+		super(err, cause);
 
-    log.error("Runtime Internal Error Exception:", this);
-  }
+		log.error("Runtime Internal Error Exception:", this);
+	}
 
 }

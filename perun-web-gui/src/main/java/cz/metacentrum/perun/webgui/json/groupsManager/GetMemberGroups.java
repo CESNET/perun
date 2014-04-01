@@ -53,14 +53,14 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private boolean checkable = true;
-    private boolean coreGroupsCheckable = false;
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
-    private ArrayList<Group> fullBackup = new ArrayList<Group>();
+	private boolean checkable = true;
+	private boolean coreGroupsCheckable = false;
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
+	private ArrayList<Group> fullBackup = new ArrayList<Group>();
 
 	/**
 	 * Creates a new instance of GroupsManager/getMemberGroups method
-     *
+	 *
 	 * @param id Member id
 	 */
 	public GetMemberGroups(int id) {
@@ -69,7 +69,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 	/**
 	 * Creates a new instance of GroupsManager/getMemberGroups method with custom field updater
-     *
+	 *
 	 * @param id Member id
 	 * @param events Custom events
 	 */
@@ -111,7 +111,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 		// Cell table
 		table = new PerunTable<Group>(list);
-        table.setHyperlinksAllowed(false);
+		table.setHyperlinksAllowed(false);
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
@@ -125,46 +125,46 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("User is not member of any group.");
+		loaderImage.setEmptyResultMessage("User is not member of any group.");
 
 		// checkbox column column
-        Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
-                new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
-            @Override
-            public Group getValue(Group object) {
-                // Get the value from the selection model.
-                object.setChecked(selectionModel.isSelected(object));
-                return object;
-            }
-        };
+		Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
+				new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
+			@Override
+			public Group getValue(Group object) {
+				// Get the value from the selection model.
+				object.setChecked(selectionModel.isSelected(object));
+				return object;
+			}
+		};
 
 
-        // updates the columns size
-        table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
+		// updates the columns size
+		table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-        // Add the columns
+		// Add the columns
 
-        // Checkbox column header
-        CheckboxCell cb = new CheckboxCell();
-        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-            public Boolean getValue() {
-                return false;//return true to see a checked checkbox.
-            }
-        };
-        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-            public void update(Boolean value) {
-                // sets selected to all, if value = true, unselect otherwise
-                for(Group obj : list){
-                    if (!obj.isCoreGroup()) {
-                        selectionModel.setSelected(obj, value);
-                    }
-                }
-            }
-        });
+		// Checkbox column header
+		CheckboxCell cb = new CheckboxCell();
+		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+			public Boolean getValue() {
+				return false;//return true to see a checked checkbox.
+			}
+		};
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+			public void update(Boolean value) {
+				// sets selected to all, if value = true, unselect otherwise
+				for(Group obj : list){
+					if (!obj.isCoreGroup()) {
+						selectionModel.setSelected(obj, value);
+					}
+				}
+			}
+		});
 
-        if (checkable) {
-            table.addColumn(checkBoxColumn, checkBoxHeader);
-        }
+		if (checkable) {
+			table.addColumn(checkBoxColumn, checkBoxHeader);
+		}
 
 		table.addIdColumn("Group ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
@@ -174,174 +174,174 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Group>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Group>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Group to be added as new row
-     */
-    public void addToTable(Group object) {
-        list.add(object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Group to be added as new row
+	 */
+	public void addToTable(Group object) {
+		list.add(object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Group to be removed as row
-     */
-    public void removeFromTable(Group object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Group to be removed as row
+	 */
+	public void removeFromTable(Group object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Group> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Group> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading members groups.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading members groups.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading members groups started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading members groups started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Group>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Groups loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Group>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Groups loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Group object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Group object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Group> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Group g : list) {
-            oracle.add(g.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Group> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Group g : list) {
+			oracle.add(g.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Group> getList() {
-        return this.list;
-    }
+	public ArrayList<Group> getList() {
+		return this.list;
+	}
 
-    public void setCoreGroupsCheckable(boolean checkable) {
-        this.coreGroupsCheckable = checkable;
-    }
+	public void setCoreGroupsCheckable(boolean checkable) {
+		this.coreGroupsCheckable = checkable;
+	}
 
-    public void setEvents(JsonCallbackEvents events) {
-        this.events = events;
-    }
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
 
-    public UnaccentMultiWordSuggestOracle getOracle(){
-        return this.oracle;
-    }
+	public UnaccentMultiWordSuggestOracle getOracle(){
+		return this.oracle;
+	}
 
-    public void filterTable(String text){
+	public void filterTable(String text){
 
-        // store list only for first time
-        if (fullBackup.isEmpty() || fullBackup == null) {
-            fullBackup.addAll(list);
-        }
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (text.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
-        } else {
-            for (Group grp : fullBackup){
-                // store facility by filter
-                if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
-                        grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
-                    list.add(grp);
-                }
-            }
-        }
+		if (text.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (Group grp : fullBackup){
+				// store facility by filter
+				if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
+						grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
+					list.add(grp);
+						}
+			}
+		}
 
-        if (list.isEmpty() && !text.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("User is not member of any group.");
-        }
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("User is not member of any group.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 }

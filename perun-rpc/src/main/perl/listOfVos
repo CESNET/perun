@@ -8,16 +8,16 @@ use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction printTable);
 
 sub help {
-return qq{
-Prints list of all VOs
----------------------------------------
-Available options:
- --orderByName | -n order by short name
- --orderById   | -i order by id
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Prints list of all VOs
+	---------------------------------------
+	Available options:
+	--orderByName | -n order by short name
+	--orderById   | -i order by id
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my $sortingFunction;

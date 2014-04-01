@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ServiceNotExistsRuntimeExcept
  * @author Martin Kuba
  */
 public class ServiceNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Service service;
+	private Service service;
 
-    public ServiceNotExistsException(ServiceNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public ServiceNotExistsException(ServiceNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public ServiceNotExistsException(String message) {
-        super(message);
-    }
+	public ServiceNotExistsException(String message) {
+		super(message);
+	}
 
-    public ServiceNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ServiceNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ServiceNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public ServiceNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public ServiceNotExistsException(Service service) {
-      super(service.toString());
-      this.service = service;
-    }
+	public ServiceNotExistsException(Service service) {
+		super(service.toString());
+		this.service = service;
+	}
 
-    public Service getService() {
-        return this.service;
-    }
+	public Service getService() {
+		return this.service;
+	}
 }

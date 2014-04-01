@@ -36,7 +36,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public IdentitySelectorTabItem(){}
 
 	public boolean isPrepared(){
@@ -45,109 +45,109 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        HorizontalPanel horizontalSplitter = new HorizontalPanel();
-        horizontalSplitter.setHeight("500px");
-        horizontalSplitter.setWidth("100%");
+		HorizontalPanel horizontalSplitter = new HorizontalPanel();
+		horizontalSplitter.setHeight("500px");
+		horizontalSplitter.setWidth("100%");
 
-        // BASE LAYOUT
-        DecoratorPanel dp = new DecoratorPanel();
-        FlexTable baseLayout = new FlexTable();
-        baseLayout.setCellSpacing(10);
-        dp.add(baseLayout);
-        baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
-        baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
-        baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+		// BASE LAYOUT
+		DecoratorPanel dp = new DecoratorPanel();
+		FlexTable baseLayout = new FlexTable();
+		baseLayout.setCellSpacing(10);
+		dp.add(baseLayout);
+		baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
+		baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
+		baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-        Anchor userName = new Anchor();
-        userName.setText(session.getUser().getFullNameWithTitles());
-        userName.addStyleName("now-managing");
-        userName.addStyleName("pointer");
-        userName.setTitle(session.getUser().getFullNameWithTitles());
-        userName.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
-        baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
-        baseLayout.setWidget(2, 1, userName);
+		Anchor userName = new Anchor();
+		userName.setText(session.getUser().getFullNameWithTitles());
+		userName.addStyleName("now-managing");
+		userName.addStyleName("pointer");
+		userName.setTitle(session.getUser().getFullNameWithTitles());
+		userName.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
+		baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+		baseLayout.setWidget(2, 1, userName);
 
-        baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
-        baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
+		baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+		baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
 
-        // SERVICE IDENTITIES LAYOUT
-        DecoratorPanel dp2 = new DecoratorPanel();
-        final FlexTable serviceLayout = new FlexTable();
-        serviceLayout.setCellSpacing(10);
-        dp2.add(serviceLayout);
+		// SERVICE IDENTITIES LAYOUT
+		DecoratorPanel dp2 = new DecoratorPanel();
+		final FlexTable serviceLayout = new FlexTable();
+		serviceLayout.setCellSpacing(10);
+		dp2.add(serviceLayout);
 
-        serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
-        serviceLayout.setHTML(1, 0, "Service identities you have access to.");
-        serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+		serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
+		serviceLayout.setHTML(1, 0, "Service identities you have access to.");
+		serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-        horizontalSplitter.add(dp);
-        horizontalSplitter.setCellWidth(dp, "50%");
-        horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
-        horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
+		horizontalSplitter.add(dp);
+		horizontalSplitter.setCellWidth(dp, "50%");
+		horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+		horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 
-        ScrollPanel sp = new ScrollPanel();
-        final FlexTable innerTable = new FlexTable();
-        sp.setWidget(innerTable);
-        sp.setStyleName("scroll-max-height");
-        serviceLayout.setWidget(2, 0, sp);
+		ScrollPanel sp = new ScrollPanel();
+		final FlexTable innerTable = new FlexTable();
+		sp.setWidget(innerTable);
+		sp.setStyleName("scroll-max-height");
+		serviceLayout.setWidget(2, 0, sp);
 
-        if (session.getEditableUsers().size() > 1) {
-            // user has service identities
-            GetServiceUsersByUser call = new GetServiceUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
-                @Override
-                public void onFinished(JavaScriptObject jso) {
-                    ArrayList<User> list = JsonUtils.jsoAsList(jso);
-                    if (list != null && !list.isEmpty()) {
+		if (session.getEditableUsers().size() > 1) {
+			// user has service identities
+			GetServiceUsersByUser call = new GetServiceUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					ArrayList<User> list = JsonUtils.jsoAsList(jso);
+					if (list != null && !list.isEmpty()) {
 
-                        int row = 0;
-                        for (User u : list) {
-                            final User u2 = u;
-                            innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
-                            Anchor userName = new Anchor();
-                            userName.setText(u2.getFullNameWithTitles());
-                            userName.addStyleName("now-managing");
-                            userName.addStyleName("pointer");
-                            userName.setTitle(u2.getFullNameWithTitles());
-                            userName.addClickHandler(new ClickHandler() {
-                                @Override
-                                public void onClick(ClickEvent event) {
-                                    session.getTabManager().addTab(new SelfDetailTabItem(u2));
-                                    session.getTabManager().closeTab(tab, false);
-                                }
-                            });
-                            innerTable.setWidget(row, 1, userName);
-                            row++;
-                        }
+						int row = 0;
+						for (User u : list) {
+							final User u2 = u;
+							innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+							Anchor userName = new Anchor();
+							userName.setText(u2.getFullNameWithTitles());
+							userName.addStyleName("now-managing");
+							userName.addStyleName("pointer");
+							userName.setTitle(u2.getFullNameWithTitles());
+							userName.addClickHandler(new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									session.getTabManager().addTab(new SelfDetailTabItem(u2));
+									session.getTabManager().closeTab(tab, false);
+								}
+							});
+							innerTable.setWidget(row, 1, userName);
+							row++;
+						}
 
-                    } else {
-                        innerTable.setHTML(0, 0, "You have no service identities");
-                    }
-                }
-                @Override
-                public void onLoadingStart() {
-                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
-                }
-                @Override
-                public void onError(PerunError error) {
-                    innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
-                }
-            });
-            call.retrieveData();
+					} else {
+						innerTable.setHTML(0, 0, "You have no service identities");
+					}
+				}
+			@Override
+			public void onLoadingStart() {
+				innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
+			}
+			@Override
+			public void onError(PerunError error) {
+				innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
+			}
+			});
+			call.retrieveData();
 
-            horizontalSplitter.add(dp2);
-            horizontalSplitter.setCellWidth(dp2, "50%");
-            horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
-            horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
+			horizontalSplitter.add(dp2);
+			horizontalSplitter.setCellWidth(dp2, "50%");
+			horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
+			horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
 
-        }
+		}
 
 		this.contentWidget.setWidget(horizontalSplitter);
 
@@ -193,7 +193,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.USER, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

@@ -16,24 +16,24 @@ import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 @org.springframework.stereotype.Service(value = "taskExecutorEngineJob")
 public class TaskExecutorEngineJob implements PerunEngineJob {
 
-    private final static Logger log = LoggerFactory.getLogger(TaskExecutorEngineJob.class);
+	private final static Logger log = LoggerFactory.getLogger(TaskExecutorEngineJob.class);
 
-    @Autowired
-    private TaskExecutorEngine taskExecutorEngine;
+	@Autowired
+	private TaskExecutorEngine taskExecutorEngine;
 
-    @Override
-    public void doTheJob() {
-        log.info("Entering TaskExecutorEngineJob: taskExecutorEngine.beginExecuting().");
-        taskExecutorEngine.beginExecuting();
-        log.info("TaskExecutorEngineJob: taskExecutorEngine.beginExecuting() has completed.");
-    }
+	@Override
+	public void doTheJob() {
+		log.info("Entering TaskExecutorEngineJob: taskExecutorEngine.beginExecuting().");
+		taskExecutorEngine.beginExecuting();
+		log.info("TaskExecutorEngineJob: taskExecutorEngine.beginExecuting() has completed.");
+	}
 
-    public TaskExecutorEngine getTaskExecutorEngine() {
-        return taskExecutorEngine;
-    }
+	public TaskExecutorEngine getTaskExecutorEngine() {
+		return taskExecutorEngine;
+	}
 
-    public void setTaskExecutorEngine(TaskExecutorEngine taskExecutorEngine) {
-        this.taskExecutorEngine = taskExecutorEngine;
-    }
+	public void setTaskExecutorEngine(TaskExecutorEngine taskExecutorEngine) {
+		this.taskExecutorEngine = taskExecutorEngine;
+	}
 
 }

@@ -21,7 +21,7 @@ public class ResourcesTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public ResourcesTabs(){}
 
 	/**

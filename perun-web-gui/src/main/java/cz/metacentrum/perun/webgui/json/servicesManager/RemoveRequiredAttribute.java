@@ -35,7 +35,7 @@ public class RemoveRequiredAttribute {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     *
+	 *
 	 * @param events custom events
 	 */
 	public RemoveRequiredAttribute(final JsonCallbackEvents events) {

@@ -27,103 +27,103 @@ import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
  */
 public class OwnersManagerImpl implements OwnersManagerImplApi {
 
-  final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
+	final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
 
-  private SimpleJdbcTemplate jdbc;
+	private SimpleJdbcTemplate jdbc;
 
-  protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
-      "owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +
-      "owners.created_by_uid as owners_created_by_uid, owners.modified_by_uid as owners_modified_by_uid";
-
-
-  /**
-   * Constructor.
-   *
-   * @param perunPool connection pool
-   */
-  public OwnersManagerImpl(DataSource perunPool) {
-    this.jdbc = new SimpleJdbcTemplate(perunPool);
-  }
-
-  private static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
-    public Owner mapRow(ResultSet rs, int i) throws SQLException {
-      Owner owner = new Owner();
-      owner.setId(rs.getInt("owners_id"));
-      owner.setName(rs.getString("owners_name"));
-      owner.setContact(rs.getString("owners_contact"));
-      owner.setTypeByString(rs.getString("owners_type"));
-      owner.setCreatedAt(rs.getString("owners_created_at"));
-      owner.setCreatedBy(rs.getString("owners_created_by"));
-      owner.setModifiedAt(rs.getString("owners_modified_at"));
-      owner.setModifiedBy(rs.getString("owners_modified_by"));
-      if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
-      else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
-      if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
-      else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
-      return owner;
-    }
-  };
+	protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
+		"owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +
+		"owners.created_by_uid as owners_created_by_uid, owners.modified_by_uid as owners_modified_by_uid";
 
 
-  public boolean ownerExists(PerunSession sess, Owner owner) throws InternalErrorException {
-    try {
-      return 1 == jdbc.queryForInt("select 1 from owners where id=?", owner.getId());
-    } catch(EmptyResultDataAccessException ex) {
-      return false;
-    } catch(RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
+	/**
+	 * Constructor.
+	 *
+	 * @param perunPool connection pool
+	 */
+	public OwnersManagerImpl(DataSource perunPool) {
+		this.jdbc = new SimpleJdbcTemplate(perunPool);
+	}
 
-  public void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
-    if(!ownerExists(sess, owner)) throw new OwnerNotExistsException("Owner: " + owner);
-  }
+	private static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
+		public Owner mapRow(ResultSet rs, int i) throws SQLException {
+			Owner owner = new Owner();
+			owner.setId(rs.getInt("owners_id"));
+			owner.setName(rs.getString("owners_name"));
+			owner.setContact(rs.getString("owners_contact"));
+			owner.setTypeByString(rs.getString("owners_type"));
+			owner.setCreatedAt(rs.getString("owners_created_at"));
+			owner.setCreatedBy(rs.getString("owners_created_by"));
+			owner.setModifiedAt(rs.getString("owners_modified_at"));
+			owner.setModifiedBy(rs.getString("owners_modified_by"));
+			if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+			else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
+			if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+			else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
+			return owner;
+		}
+	};
 
-  public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
-    Utils.notNull(owner.getName(), "owner.getName()");
-    Utils.notNull(owner.getContact(), "owner.getContact()");
-    Utils.notNull(owner.getType(), "owner.getType()");
 
-    int newId = Utils.getNewId(jdbc, "owners_id_seq");
+	public boolean ownerExists(PerunSession sess, Owner owner) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from owners where id=?", owner.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
-    try {
-      jdbc.update("insert into owners(id, name, contact, type, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-          "values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, owner.getName(),
-          owner.getContact(), owner.getType().toString(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-    } catch(RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-    owner.setId(newId);
+	public void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
+		if(!ownerExists(sess, owner)) throw new OwnerNotExistsException("Owner: " + owner);
+	}
 
-    return owner;
-  }
+	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
+		Utils.notNull(owner.getName(), "owner.getName()");
+		Utils.notNull(owner.getContact(), "owner.getContact()");
+		Utils.notNull(owner.getType(), "owner.getType()");
 
-  public void deleteOwner(PerunSession sess, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
-    try {
-      int numAffected = jdbc.update("delete from owners where id=?", owner.getId());
-      if(numAffected == 0) throw new OwnerAlreadyRemovedException("Owner: " + owner);
-    } catch(RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
+		int newId = Utils.getNewId(jdbc, "owners_id_seq");
 
-  public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException {
-    try {
-      return jdbc.queryForObject("select " + ownerMappingSelectQuery + " from owners where id=?", OWNER_MAPPER, id);
-    } catch(EmptyResultDataAccessException ex) {
-      throw new OwnerNotExistsException("Owner id=" + id, ex);
-    } catch(RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
+		try {
+			jdbc.update("insert into owners(id, name, contact, type, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+					"values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, owner.getName(),
+					owner.getContact(), owner.getType().toString(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+		owner.setId(newId);
 
-  public List<Owner> getOwners(PerunSession sess) throws InternalErrorException {
-    try {
-      return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);
-    } catch(EmptyResultDataAccessException ex) {
-      return new ArrayList<Owner>();
-    } catch(RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
+		return owner;
+	}
+
+	public void deleteOwner(PerunSession sess, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
+		try {
+			int numAffected = jdbc.update("delete from owners where id=?", owner.getId());
+			if(numAffected == 0) throw new OwnerAlreadyRemovedException("Owner: " + owner);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException {
+		try {
+			return jdbc.queryForObject("select " + ownerMappingSelectQuery + " from owners where id=?", OWNER_MAPPER, id);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new OwnerNotExistsException("Owner id=" + id, ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Owner>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

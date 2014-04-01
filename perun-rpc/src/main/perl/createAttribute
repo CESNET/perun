@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates an attribute. Attribute name, namespace and type are required fields.
---------------------------------------
-Available options:
- --attributeName       | -N attribute friendly name
- --attributeNameSpace  | -n namespace
- --attributeType       | -t attribute type (integer/string/array/hash)
- --attributeDsc        | -d description
- --batch               | -b batch
- --help                | -h prints this help
+	return qq{
+	Creates an attribute. Attribute name, namespace and type are required fields.
+	--------------------------------------
+	Available options:
+	--attributeName       | -N attribute friendly name
+	--attributeNameSpace  | -n namespace
+	--attributeType       | -t attribute type (integer/string/array/hash)
+	--attributeDsc        | -d description
+	--batch               | -b batch
+	--help                | -h prints this help
 
-};
+	};
 }
 
 my ($attributeName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "attributeName|N=s" => \$attributeName,"attributeNameSpace|n=s" => \$attributeNameSpace,
+"attributeName|N=s" => \$attributeName,"attributeNameSpace|n=s" => \$attributeNameSpace,
  "attributeType|t=s" => \$attributeType,"attributeDsc|d=s" => \$attributeDsc) || die help();
 
 # Check options

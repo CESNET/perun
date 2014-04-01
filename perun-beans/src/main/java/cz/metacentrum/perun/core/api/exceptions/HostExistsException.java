@@ -11,28 +11,28 @@ import cz.metacentrum.perun.core.api.Host;
  * @author Slavek Licehammer
  */
 public class HostExistsException extends EntityExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Host host;
+	private Host host;
 
-    public HostExistsException(String message) {
-        super(message);
-    }
+	public HostExistsException(String message) {
+		super(message);
+	}
 
-    public HostExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public HostExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public HostExistsException(Throwable cause) {
-        super(cause);
-    }
+	public HostExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public HostExistsException(Host host) {
-      super(host.toString());
-      this.host = host;
-    }
+	public HostExistsException(Host host) {
+		super(host.toString());
+		this.host = host;
+	}
 
-    public Host getHost() {
-        return this.host;
-    }
+	public Host getHost() {
+		return this.host;
+	}
 }

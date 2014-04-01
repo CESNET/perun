@@ -55,7 +55,7 @@ public class RichUserComparator implements Comparator<User>{
 	 */
 	private int compareByUserId(User o1, User o2)
 	{
-		 return o1.getId() - o2.getId();
+		return o1.getId() - o2.getId();
 	}
 
 	/**

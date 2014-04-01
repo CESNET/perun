@@ -23,67 +23,67 @@ import static org.mockito.Mockito.when;
  */
 public class urn_perun_user_facility_attribute_def_virt_shellTest {
 
-    public urn_perun_user_facility_attribute_def_virt_shellTest() {
-    }
+	public urn_perun_user_facility_attribute_def_virt_shellTest() {
+	}
 
-    private static urn_perun_user_facility_attribute_def_virt_shell classInstance;
-    private static PerunSessionImpl session;
-    private static Attribute preffered;
-    private static Attribute defDefShell;
-    private static Attribute facilityShell;
-    private static List<String> resourceShell;
-    private static List<String> listOfMntPts;
-    private static User user;
-    private static Facility facility;
-    private static Resource resource;
-    private static Resource resource1;
-    private static List<Resource> resourceList;
-
-
-    @Before
-    public void setUp() {
-        classInstance = new urn_perun_user_facility_attribute_def_virt_shell();
-        session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-        preffered = new Attribute();
-        defDefShell = new Attribute();
-        facilityShell = new Attribute();
-        resourceShell = new ArrayList();
-        listOfMntPts = new ArrayList<String>();
-        for(int i=0;i<5;i++) listOfMntPts.add("/mnt/bash" + i);
-        preffered.setValue(new ArrayList(listOfMntPts));
-        listOfMntPts.clear();
-        listOfMntPts.add("/mnt/bash2");
-        facilityShell.setValue(listOfMntPts);
-        resourceShell.addAll(listOfMntPts);
+	private static urn_perun_user_facility_attribute_def_virt_shell classInstance;
+	private static PerunSessionImpl session;
+	private static Attribute preffered;
+	private static Attribute defDefShell;
+	private static Attribute facilityShell;
+	private static List<String> resourceShell;
+	private static List<String> listOfMntPts;
+	private static User user;
+	private static Facility facility;
+	private static Resource resource;
+	private static Resource resource1;
+	private static List<Resource> resourceList;
 
 
-        user = new User();
-        facility = new Facility();
-        resource = new Resource();
-        resource.setName("myResource");
-        resource.setDescription("desc");
+	@Before
+	public void setUp() {
+		classInstance = new urn_perun_user_facility_attribute_def_virt_shell();
+		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+		preffered = new Attribute();
+		defDefShell = new Attribute();
+		facilityShell = new Attribute();
+		resourceShell = new ArrayList();
+		listOfMntPts = new ArrayList<String>();
+		for(int i=0;i<5;i++) listOfMntPts.add("/mnt/bash" + i);
+		preffered.setValue(new ArrayList(listOfMntPts));
+		listOfMntPts.clear();
+		listOfMntPts.add("/mnt/bash2");
+		facilityShell.setValue(listOfMntPts);
+		resourceShell.addAll(listOfMntPts);
 
-        resource1 = new Resource();
-        resource1.setId(1);
-        resource1.setName("myResource");
-        resource1.setDescription("desc");
 
-        resourceList = new ArrayList<Resource>();
-        resourceList.add(resource1);
-    }
+		user = new User();
+		facility = new Facility();
+		resource = new Resource();
+		resource.setName("myResource");
+		resource.setDescription("desc");
 
-    @Test
-    public void getAttributeValueTest() throws Exception{
-        System.out.println("urn_perun_user_facility_attribute_def_virt_shell.GetAttributeValue()");
+		resource1 = new Resource();
+		resource1.setId(1);
+		resource1.setName("myResource");
+		resource1.setDescription("desc");
 
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(defDefShell);
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells"))).thenReturn(facilityShell);
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"))).thenReturn(preffered);
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells")).getValue()).thenReturn(resourceShell);
-        when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(resourceList);
+		resourceList = new ArrayList<Resource>();
+		resourceList.add(resource1);
+	}
 
-        Attribute testAttr = classInstance.getAttributeValue(session, facility, user, session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "shell"));
-        assertEquals("/mnt/bash2", (String)testAttr.getValue());
+	@Test
+	public void getAttributeValueTest() throws Exception{
+		System.out.println("urn_perun_user_facility_attribute_def_virt_shell.GetAttributeValue()");
 
-    }
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(defDefShell);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells"))).thenReturn(facilityShell);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"))).thenReturn(preffered);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells")).getValue()).thenReturn(resourceShell);
+		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(resourceList);
+
+		Attribute testAttr = classInstance.getAttributeValue(session, facility, user, session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "shell"));
+		assertEquals("/mnt/bash2", (String)testAttr.getValue());
+
+	}
 }

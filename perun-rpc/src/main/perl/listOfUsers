@@ -8,22 +8,22 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of users.
-------------------------------
-Available options:
- --orderById    | -i  order by user's identifier
- --orderByName  | -n  order by user's name
- --batch        | -b  batch
- --help         | -h  prints this help
-};
+	return qq{
+	Prints list of users.
+	------------------------------
+	Available options:
+	--orderById    | -i  order by user's identifier
+	--orderByName  | -n  order by user's name
+	--batch        | -b  batch
+	--help         | -h  prints this help
+	};
 }
 
 my ($batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
-           "batch|b" => \$batch) || die help;
+	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
+	"batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
@@ -39,8 +39,8 @@ my $table = Text::ASCIITable->new();
 $table->setCols('ID','Name');
 
 foreach my $user (sort $sortingFunction @users) {
-   my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
-  $table->addRow($user->getId, $name);
+	my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
+	$table->addRow($user->getId, $name);
 }
 
 print tableToPrint($table, $batch);

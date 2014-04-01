@@ -39,7 +39,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * Main body contents
 	 */
 	private SimplePanel bodyContents = new SimplePanel();
-    private VerticalPanel formContent = new VerticalPanel();
+	private VerticalPanel formContent = new VerticalPanel();
 
 	/**
 	 * Data
@@ -74,23 +74,23 @@ public class ApplicationFormPage extends ApplicationPage {
 	private PushButton languageButtonCzech;
 	private PushButton languageButtonEnglish;
 
-    private boolean submittedOrError = false;
+	private boolean submittedOrError = false;
 
 
 	/**
 	 * Creates a new page with application form
 	 *
-     * @param vo
-     * @param type INITIAL or EXTENSION
-     */
+	 * @param vo
+	 * @param type INITIAL or EXTENSION
+	 */
 	public ApplicationFormPage(VirtualOrganization vo, Group group, String type) {
 		this.initWidget(bodyContents);
 		this.vo = vo;
 		this.group = group;
 		this.type = type;
 
-        bodyContents.setSize("100%", "100%");
-        bodyContents.setStyleName("formContent");
+		bodyContents.setSize("100%", "100%");
+		bodyContents.setStyleName("formContent");
 
 	}
 
@@ -114,15 +114,15 @@ public class ApplicationFormPage extends ApplicationPage {
 			public void onClick(ClickEvent event) {
 				Confirm conf = new Confirm(languageButtonCzech.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
 					public void onClick(ClickEvent event) {
-					// on OK
-					UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "cs");
-			        Window.Location.replace(builder.buildString());
+						// on OK
+						UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "cs");
+						Window.Location.replace(builder.buildString());
 
-				}}, new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						// on CANCEL
-					}
-				}, true);
+					}}, new ClickHandler(){
+						public void onClick(ClickEvent event) {
+							// on CANCEL
+						}
+					}, true);
 				conf.setNonScrollable(true);
 				conf.show();
 			}
@@ -132,15 +132,15 @@ public class ApplicationFormPage extends ApplicationPage {
 			public void onClick(ClickEvent event) {
 				Confirm conf = new Confirm(languageButtonEnglish.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
 					public void onClick(ClickEvent event) {
-					// on OK
-					UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "en");
-			        Window.Location.replace(builder.buildString());
+						// on OK
+						UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "en");
+						Window.Location.replace(builder.buildString());
 
-				}}, new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						// on CANCEL
-					}
-				}, true);
+					}}, new ClickHandler(){
+						public void onClick(ClickEvent event) {
+							// on CANCEL
+						}
+					}, true);
 				conf.setNonScrollable(true);
 				conf.show();
 			}
@@ -153,13 +153,13 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	protected void prepareVoForm() {
 
-        bodyContents.setWidget(formContent);
-        formContent.setWidth("100%");
-        submittedOrError = false;
+		bodyContents.setWidget(formContent);
+		formContent.setWidth("100%");
+		submittedOrError = false;
 
 		// try to get user for initial application if not found
 		if (type.equalsIgnoreCase("INITIAL") && (session.getUser() == null || session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL"))) {
-            tryToFindUserByName(null);
+			tryToFindUserByName(null);
 		}
 
 		FlexTable header = new FlexTable();
@@ -285,21 +285,21 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		// Create application request
 		CreateApplication ca = new CreateApplication(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
-            @Override
+			@Override
 			public void onLoadingStart() {
 				// show loading box
 				loadingBox.show();
 			}
-            @Override
-			public void onFinished(JavaScriptObject jso) {
-                loadingBox.hide();
-				formOk(jso);
-			}
-            @Override
-			public void onError(PerunError err) {
-                loadingBox.hide();
-				formError(err);
-			}
+		@Override
+		public void onFinished(JavaScriptObject jso) {
+			loadingBox.hide();
+			formOk(jso);
+		}
+		@Override
+		public void onError(PerunError err) {
+			loadingBox.hide();
+			formError(err);
+		}
 		}));
 
 		// Send the request
@@ -311,14 +311,14 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	protected void formOk(JavaScriptObject jso) {
 
-        ApplicationFormGui.redrawGuiWithMenu();
+		ApplicationFormGui.redrawGuiWithMenu();
 
-        submittedOrError = true;
+		submittedOrError = true;
 
-        if (session.getUser() == null || session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
-            // if not yet user of perun, retry search for similar users after app submit
-            tryToFindUserByName(jso);
-        }
+		if (session.getUser() == null || session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
+			// if not yet user of perun, retry search for similar users after app submit
+			tryToFindUserByName(jso);
+		}
 
 		Boolean autoApproval = false;
 		if (form != null) {
@@ -335,7 +335,7 @@ public class ApplicationFormPage extends ApplicationPage {
 			approveText = ApplicationMessages.INSTANCE.nonAutoApprovalApplicationText();
 		}
 
-        approveText = "<p><strong>" + approveText + "</strong></p>";
+		approveText = "<p><strong>" + approveText + "</strong></p>";
 
 		// conditional sending of validation email
 		String validationText = "";
@@ -364,9 +364,9 @@ public class ApplicationFormPage extends ApplicationPage {
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			bodyContents.setWidget(ft);
 
-            if (Location.getParameter("targetnew") != null) {
-                Location.replace(Location.getParameter("targetnew"));
-            }
+			if (Location.getParameter("targetnew") != null) {
+				Location.replace(Location.getParameter("targetnew"));
+			}
 
 		} else if (type.equalsIgnoreCase("EXTENSION")) {
 
@@ -380,14 +380,14 @@ public class ApplicationFormPage extends ApplicationPage {
 
 			if (autoApproval) {
 				// automatically extended
-                if (Location.getParameter("targetextended") != null) {
-                    Location.replace(Location.getParameter("targetextended"));
-                }
+				if (Location.getParameter("targetextended") != null) {
+					Location.replace(Location.getParameter("targetextended"));
+				}
 			} else {
 				// TODO - only when user have valid account
-                if (Location.getParameter("targetexisting") != null) {
-                    Location.replace(Location.getParameter("targetexisting"));
-                }
+				if (Location.getParameter("targetexisting") != null) {
+					Location.replace(Location.getParameter("targetexisting"));
+				}
 			}
 
 		}
@@ -401,41 +401,41 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		if (error != null ) {
 
-            submittedOrError = true;
+			submittedOrError = true;
 
-            FlexTable ft = new FlexTable();
+			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-            bodyContents.setWidget(ft);
+			bodyContents.setWidget(ft);
 
-            if (error.getName().equalsIgnoreCase("ApplicationNotCreatedException")) {
+			if (error.getName().equalsIgnoreCase("ApplicationNotCreatedException")) {
 
-                // application WAS NOT SAVED
-                ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
-                        "<p><strong>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage() + "</strong></p>");
+				// application WAS NOT SAVED
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
+						"<p><strong>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage() + "</strong></p>");
 
-                // back to form button to prevent user from losing data
-                final CustomButton back = new CustomButton("Back", "Back to application form", SmallIcons.INSTANCE.arrowLeftIcon());
+				// back to form button to prevent user from losing data
+				final CustomButton back = new CustomButton("Back", "Back to application form", SmallIcons.INSTANCE.arrowLeftIcon());
 
-                ft.setWidget(1, 0, back);
-                ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-                ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+				ft.setWidget(1, 0, back);
+				ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+				ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
-                back.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        submittedOrError = false;
-                        bodyContents.setWidget(formContent);
-                    }
-                });
+				back.addClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						submittedOrError = false;
+						bodyContents.setWidget(formContent);
+					}
+				});
 
-            } else {
-                // some minor error - application WAS SAVED
-                ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
-                        "<p><strong>" + ApplicationMessages.INSTANCE.voAdministratorWasNotified() + "</strong>"+
-                        "<p>" + ApplicationMessages.INSTANCE.ifEmailProvidedCheckInbox() + "</p>");
-            }
+			} else {
+				// some minor error - application WAS SAVED
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>" + ApplicationMessages.INSTANCE.errorWhileCreatingApplication() + "</h2>" +
+						"<p><strong>" + ApplicationMessages.INSTANCE.voAdministratorWasNotified() + "</strong>"+
+						"<p>" + ApplicationMessages.INSTANCE.ifEmailProvidedCheckInbox() + "</p>");
+			}
 
-            ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
 		}
@@ -458,60 +458,60 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * Try to find user by name
 	 *
 	 * If user found, message box shown
-     *
-     * @param jso returned data
+	 *
+	 * @param jso returned data
 	 */
 	private void tryToFindUserByName(JavaScriptObject jso) {
 
-        PerunPrincipal pp = session.getPerunPrincipal();
+		PerunPrincipal pp = session.getPerunPrincipal();
 		String displayName = pp.getAdditionInformations("displayName");
 
-        if (jso == null) {
+		if (jso == null) {
 
-            // before app submitted
-            if(displayName.equals("")){
-                displayName = pp.getAdditionInformations("cn");
-            }
+			// before app submitted
+			if(displayName.equals("")){
+				displayName = pp.getAdditionInformations("cn");
+			}
 
-        } else {
+		} else {
 
-            // after Application is submitted
-            ArrayList<ApplicationFormItemData> data = JsonUtils.jsoAsList(jso);
-            for (ApplicationFormItemData item : data) {
-                if ("urn:perun:user:attribute-def:core:lastName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
-                    // set name
-                    displayName = item.getValue();
-                    break;
-                }
-            }
+			// after Application is submitted
+			ArrayList<ApplicationFormItemData> data = JsonUtils.jsoAsList(jso);
+			for (ApplicationFormItemData item : data) {
+				if ("urn:perun:user:attribute-def:core:lastName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
+					// set name
+					displayName = item.getValue();
+					break;
+				}
+			}
 
-        }
+		}
 
-        if(displayName.equals("")){
-            // name empty
-            return;
-        }
+		if(displayName.equals("")){
+			// name empty
+			return;
+		}
 
 		// try to find
-        FindUsersByName find = new FindUsersByName(new JsonCallbackEvents(){
+		FindUsersByName find = new FindUsersByName(new JsonCallbackEvents(){
 
 			protected int usersLoginsLoaded = 0;
 			protected int usersCount = 0;
 			protected Map<User,ArrayList<Attribute>> usersLogins = new HashMap<User,ArrayList<Attribute>>();
 
-            @Override
+			@Override
 			public void onFinished(JavaScriptObject jso) {
 				ArrayList<User> users = JsonUtils.jsoAsList(jso);
 
-                for (User u : users) {
-                    if (!u.isServiceUser()) usersCount++;
-                }
+				for (User u : users) {
+					if (!u.isServiceUser()) usersCount++;
+				}
 
 				// users found, found logins for them
 				for(final User user : users) {
 
-                    // skip service users
-                    if (user.isServiceUser()) continue;
+					// skip service users
+					if (user.isServiceUser()) continue;
 
 					new GetLogins(user.getId(), new JsonCallbackEvents(){
 
@@ -536,13 +536,13 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		}, displayName);
 
-        find.retrieveData();
+		find.retrieveData();
 
-    }
+	}
 
 	/**
 	 * When similar users found, display a message
-     *
+	 *
 	 * @param usersLogins
 	 */
 	protected void similarUsersFound(Map<User,ArrayList<Attribute>> usersLogins) {
@@ -581,16 +581,16 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		}
 
-        // confirm element
-        final Confirm confirm = new Confirm(ApplicationMessages.INSTANCE.similarUsersFound(), ft, new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                Window.Location.replace(Utils.getIdentityConsolidatorLink(true));
-            }
-        }, true);
+		// confirm element
+		final Confirm confirm = new Confirm(ApplicationMessages.INSTANCE.similarUsersFound(), ft, new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				Window.Location.replace(Utils.getIdentityConsolidatorLink(true));
+			}
+		}, true);
 
-        confirm.setOkButtonText(ApplicationMessages.INSTANCE.joinIdentity());
-        confirm.setOkIcon(SmallIcons.INSTANCE.userGreenIcon());
+		confirm.setOkButtonText(ApplicationMessages.INSTANCE.joinIdentity());
+		confirm.setOkIcon(SmallIcons.INSTANCE.userGreenIcon());
 		confirm.show();
 
 	}

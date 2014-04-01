@@ -33,7 +33,7 @@ public class AddApplicationMail {
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param entity VO or Group
 	 */
 	public AddApplicationMail(PerunEntity entity) {
@@ -42,7 +42,7 @@ public class AddApplicationMail {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param entity VO or Group
 	 * @param events Custom events
 	 */

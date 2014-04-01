@@ -27,7 +27,7 @@ public class GetGroupMembersCount implements JsonCallback {
 
 	/**
 	 * Creates a new instance of the method
-     *
+	 *
 	 * @param id VO id.
 	 */
 	public GetGroupMembersCount(int id) {
@@ -37,8 +37,8 @@ public class GetGroupMembersCount implements JsonCallback {
 	/**
 	 * Creates a new instance of the method
 	 *
-     * @param id VO id.
-     * @param events events
+	 * @param id VO id.
+	 * @param events events
 	 */
 	public GetGroupMembersCount(int id, JsonCallbackEvents events) {
 		this.groupId = id;

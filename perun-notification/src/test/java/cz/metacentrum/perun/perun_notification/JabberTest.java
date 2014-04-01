@@ -26,51 +26,51 @@ import java.util.Properties;
 @ContextConfiguration(locations = { "classpath:perun-notification-applicationcontext-jabber-test.xml"})
 public class JabberTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(JabberTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(JabberTest.class);
 
-    @Autowired
-    public Properties propertiesBean;
+	@Autowired
+	public Properties propertiesBean;
 
-    public void setPropertiesBean(Properties propertiesBean) {
-        this.propertiesBean = propertiesBean;
-    }
+	public void setPropertiesBean(Properties propertiesBean) {
+		this.propertiesBean = propertiesBean;
+	}
 
-    public JabberTest() {}
+	public JabberTest() {}
 
-    @Test
-    public void testJabberTest() throws Exception {
+	@Test
+	public void testJabberTest() throws Exception {
 
-        try {
+		try {
 
-            String serverName = propertiesBean.getProperty("notif.jabber.jabberServer");
-            String serviceName = propertiesBean.getProperty("notif.jabber.serviceName");
-            String port = propertiesBean.getProperty("notif.jabber.port");
+			String serverName = propertiesBean.getProperty("notif.jabber.jabberServer");
+			String serviceName = propertiesBean.getProperty("notif.jabber.serviceName");
+			String port = propertiesBean.getProperty("notif.jabber.port");
 
-            String login = propertiesBean.getProperty("notif.jabber.username");
-            String pass = propertiesBean.getProperty("notif.jabber.password");
+			String login = propertiesBean.getProperty("notif.jabber.username");
+			String pass = propertiesBean.getProperty("notif.jabber.password");
 
-            String sendTo = propertiesBean.getProperty("notif.jabber.test.sendTo");
+			String sendTo = propertiesBean.getProperty("notif.jabber.test.sendTo");
 
 
-            ConnectionConfiguration config = new ConnectionConfiguration(serverName, Integer.parseInt(port), serviceName);
-            XMPPConnection connection = new XMPPConnection(config);
+			ConnectionConfiguration config = new ConnectionConfiguration(serverName, Integer.parseInt(port), serviceName);
+			XMPPConnection connection = new XMPPConnection(config);
 
-            connection.connect();
-            SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+			connection.connect();
+			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
-            connection.login(login, pass);
+			connection.login(login, pass);
 
-            Message message = new Message();
-            message.setTo(sendTo);
-            message.setSubject("Subject");
-            message.setBody("Body");
-            message.setType(Message.Type.headline);
-            connection.sendPacket(message);
+			Message message = new Message();
+			message.setTo(sendTo);
+			message.setSubject("Subject");
+			message.setBody("Body");
+			message.setType(Message.Type.headline);
+			connection.sendPacket(message);
 
-            connection.disconnect();
+			connection.disconnect();
 
-        } catch (XMPPException ex) {
-            logger.error("Error during jabber establish connection.", ex);
-        }
-    }
+		} catch (XMPPException ex) {
+			logger.error("Error during jabber establish connection.", ex);
+		}
+	}
 }

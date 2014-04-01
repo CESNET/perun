@@ -49,703 +49,703 @@ import java.util.ArrayList;
  */
 public class ServicesManagerEntry implements ServicesManager {
 
-  final static Logger log = LoggerFactory.getLogger(ServicesManagerEntry.class);
+	final static Logger log = LoggerFactory.getLogger(ServicesManagerEntry.class);
 
-  private PerunBl perunBl;
-  private ServicesManagerBl servicesManagerBl;
+	private PerunBl perunBl;
+	private ServicesManagerBl servicesManagerBl;
 
-  public ServicesManagerEntry(PerunBl perunBl) {
-    this.perunBl = perunBl;
-    this.servicesManagerBl = perunBl.getServicesManagerBl();
-  }
+	public ServicesManagerEntry(PerunBl perunBl) {
+		this.perunBl = perunBl;
+		this.servicesManagerBl = perunBl.getServicesManagerBl();
+	}
 
-  public ServicesManagerEntry() {
-  }
+	public ServicesManagerEntry() {
+	}
 
-  public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
-    Utils.checkPerunSession(sess);
+	public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "createService");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "createService");
+		}
 
-    getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
-    Utils.notNull(service, "service");
+		getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
+		Utils.notNull(service, "service");
 
-    return getServicesManagerBl().createService(sess, service, owner);
-  }
+		return getServicesManagerBl().createService(sess, service, owner);
+	}
 
-  public void deleteService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
+	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "deleteService");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteService");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().checkServiceExists(sess, service);
 
-    getServicesManagerBl().deleteService(sess, service);
-  }
+		getServicesManagerBl().deleteService(sess, service);
+	}
 
-  public void updateService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public void updateService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "updateService");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "updateService");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().checkServiceExists(sess, service);
 
-    getServicesManagerBl().updateService(sess, service);
-  }
+		getServicesManagerBl().updateService(sess, service);
+	}
 
-  public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
-    Utils.checkPerunSession(sess);
+	public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
-        !AuthzResolver.isAuthorized(sess, Role.RPC)) {
-      throw new PrivilegeException(sess, "getServiceById");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+			throw new PrivilegeException(sess, "getServiceById");
+				}
 
-    return getServicesManagerBl().getServiceById(sess, id);
-  }
+		return getServicesManagerBl().getServiceById(sess, id);
+	}
 
-  public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
-    Utils.checkPerunSession(sess);
+	public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getServiceByName");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getServiceByName");
+				}
 
-    Utils.notNull(name, "name");
+		Utils.notNull(name, "name");
 
-    return getServicesManagerBl().getServiceByName(sess, name);
-  }
+		return getServicesManagerBl().getServiceByName(sess, name);
+	}
 
-  public List<Service> getServices(PerunSession sess) throws InternalErrorException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public List<Service> getServices(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
-      throw new PrivilegeException(sess, "getServices");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "getServices");
+				}
 
-    return getServicesManagerBl().getServices(sess);
-  }
+		return getServicesManagerBl().getServices(sess);
+	}
 
-    @Override
-    public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException {
-        Utils.checkPerunSession(sess);
+	@Override
+	public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-        // Authorization
-        if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-            throw new PrivilegeException(sess, "getServicesByAttributeDefinition");
-        }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getServicesByAttributeDefinition");
+		}
 
-        return getServicesManagerBl().getServicesByAttributeDefinition(sess, attributeDefinition);
-    }
+		return getServicesManagerBl().getServicesByAttributeDefinition(sess, attributeDefinition);
+	}
 
-  @Override
-  public List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
-    Utils.checkPerunSession(sess);
+	@Override
+	public List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
 
-      throw new PrivilegeException(sess, "getAssignedResources");
-    }
+			throw new PrivilegeException(sess, "getAssignedResources");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().checkServiceExists(sess, service);
 
-    return getServicesManagerBl().getAssignedResources(sess, service);
-  }
+		return getServicesManagerBl().getAssignedResources(sess, service);
+	}
 
-  public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getHierarchicalData");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getHierarchicalData");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-    return getServicesManagerBl().getHierarchicalData(sess, service, facility);
-  }
+		return getServicesManagerBl().getHierarchicalData(sess, service, facility);
+	}
 
-  public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getFlatData");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getFlatData");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-    return getServicesManagerBl().getFlatData(sess, service, facility);
-  }
+		return getServicesManagerBl().getFlatData(sess, service, facility);
+	}
 
-  public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getFlatData");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getFlatData");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-    return getServicesManagerBl().getDataWithGroups(sess, service, facility);
-  }
+		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
+	}
 
-  public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
-      throw new PrivilegeException(sess, "getServicesPackages");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+			throw new PrivilegeException(sess, "getServicesPackages");
+		}
 
-    return getServicesManagerBl().getServicesPackages(sess);
-  }
+		return getServicesManagerBl().getServicesPackages(sess);
+	}
 
-  public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.RPC)) {
-      throw new PrivilegeException(sess, "getServicesPackageById");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+			throw new PrivilegeException(sess, "getServicesPackageById");
+				}
 
-    return getServicesManagerBl().getServicesPackageById(sess, servicesPackageId);
-  }
+		return getServicesManagerBl().getServicesPackageById(sess, servicesPackageId);
+	}
 
-  public ServicesPackage getServicesPackageByName(PerunSession sess, String servicesPackageName) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(servicesPackageName, "servicesPackageName");
+	public ServicesPackage getServicesPackageByName(PerunSession sess, String servicesPackageName) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(servicesPackageName, "servicesPackageName");
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
-      throw new PrivilegeException(sess, "getServicesPackageByName");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+			throw new PrivilegeException(sess, "getServicesPackageByName");
+		}
 
-    return getServicesManagerBl().getServicesPackageByName(sess, servicesPackageName);
-  }
+		return getServicesManagerBl().getServicesPackageByName(sess, servicesPackageName);
+	}
 
-  public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ServicesPackageExistsException {
-    Utils.checkPerunSession(sess);
+	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ServicesPackageExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "createServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "createServicesPackage");
+		}
 
-    Utils.notNull(servicesPackage, "servicesPackage");
+		Utils.notNull(servicesPackage, "servicesPackage");
 
-    return getServicesManagerBl().createServicesPackage(sess, servicesPackage);
-  }
+		return getServicesManagerBl().createServicesPackage(sess, servicesPackage);
+	}
 
-  public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "updateServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "updateServicesPackage");
+		}
 
-    getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+		getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
 
-    getServicesManagerBl().updateServicesPackage(sess, servicesPackage);
-  }
+		getServicesManagerBl().updateServicesPackage(sess, servicesPackage);
+	}
 
-  public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException, RelationExistsException {
-    Utils.checkPerunSession(sess);
+	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException, RelationExistsException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "deleteServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteServicesPackage");
+		}
 
-    getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+		getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
 
-    getServicesManagerBl().deleteServicesPackage(sess, servicesPackage);
-  }
+		getServicesManagerBl().deleteServicesPackage(sess, servicesPackage);
+	}
 
-  public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "addServiceToServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "addServiceToServicesPackage");
+		}
 
-    getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
-    getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+		getServicesManagerBl().checkServiceExists(sess, service);
 
-    getServicesManagerBl().addServiceToServicesPackage(sess, servicesPackage, service);
-  }
+		getServicesManagerBl().addServiceToServicesPackage(sess, servicesPackage, service);
+	}
 
-  public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException {
-    Utils.checkPerunSession(sess);
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "removeServiceFromServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeServiceFromServicesPackage");
+		}
 
-    getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
-    getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+		getServicesManagerBl().checkServiceExists(sess, service);
 
-    getServicesManagerBl().removeServiceFromServicesPackage(sess, servicesPackage, service);
-  }
+		getServicesManagerBl().removeServiceFromServicesPackage(sess, servicesPackage, service);
+	}
 
-  public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
+	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
-      throw new PrivilegeException(sess, "getServicesFromServicesPackage");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+			throw new PrivilegeException(sess, "getServicesFromServicesPackage");
+		}
 
-    getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+		getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
 
-    return getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage);
-  }
+		return getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage);
+	}
 
-  public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "addRequiredAttribute");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "addRequiredAttribute");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attribute);
 
-    getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
-  }
+		getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
+	}
 
-  public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "addRequiredAttributes");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "addRequiredAttributes");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getAttributesManagerBl().checkAttributesExists(sess, attributes);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getAttributesManagerBl().checkAttributesExists(sess, attributes);
 
-    getServicesManagerBl().addRequiredAttributes(sess, service, attributes);
-  }
+		getServicesManagerBl().addRequiredAttributes(sess, service, attributes);
+	}
 
-  public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
-    Utils.checkPerunSession(sess);
+	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "removeRequiredAttribute");
-    }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeRequiredAttribute");
+		}
 
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attribute);
 
-    getServicesManagerBl().removeRequiredAttribute(sess, service, attribute);
-  }
+		getServicesManagerBl().removeRequiredAttribute(sess, service, attribute);
+	}
 
-  public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
-    Utils.checkPerunSession(sess);
+	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
+		Utils.checkPerunSession(sess);
 
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "removeRequiredAttributes");
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getAttributesManagerBl().checkAttributesExists(sess, attributes);
-
-    getServicesManagerBl().removeRequiredAttributes(sess, service, attributes);
-  }
-
-  public void removeAllRequiredAttributes(PerunSession sess, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "removeRequiredAttribute");
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getServicesManagerBl().removeAllRequiredAttributes(sess, service);
-  }
-
-  public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
-    Utils.checkPerunSession(perunSession);
-    Utils.notNull(services, "services");
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(perunSession, "addDestination");
-    }
-
-    //prepare lists of facilities
-    List<Facility> facilitiesByHostname = new ArrayList<Facility>();
-    List<Facility> facilitiesByDestination = new ArrayList<Facility>();
-    if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
-            destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
-            destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
-        facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(perunSession, destination.getHostNameFromDestination());
-        if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(perunSession, destination.getHostNameFromDestination());
-
-        if(!facilitiesByHostname.isEmpty()) {
-            boolean hasRight = false;
-            for(Facility f: facilitiesByHostname) {
-                if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
-                    hasRight = true;
-                    break;
-                }
-            }
-            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
-        }
-
-        if(!facilitiesByDestination.isEmpty()) {
-            boolean hasRight = false;
-            for(Facility f: facilitiesByDestination) {
-                if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
-                    hasRight = true;
-                    break;
-                }
-            }
-            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
-        }
-    }
-
-    for(Service s: services) {
-        getServicesManagerBl().checkServiceExists(perunSession, s);
-    }
-    Utils.notNull(destination, "destination");
-    Utils.notNull(destination.getDestination(), "destination.destination");
-    Utils.notNull(destination.getType(), "destination.type");
-
-    return getServicesManagerBl().addDestination(perunSession, services, facility, destination);
-  }
-
-  public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(sess, "addDestination");
-    }
-
-    //prepare lists of facilities
-    List<Facility> facilitiesByHostname = new ArrayList<Facility>();
-    List<Facility> facilitiesByDestination = new ArrayList<Facility>();
-    if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
-            destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
-            destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
-        facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(sess, destination.getHostNameFromDestination());
-        if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getHostNameFromDestination());
-
-        if(!facilitiesByHostname.isEmpty()) {
-            boolean hasRight = false;
-            for(Facility f: facilitiesByHostname) {
-                if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
-                    hasRight = true;
-                    break;
-                }
-            }
-            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
-        }
-
-        if(!facilitiesByDestination.isEmpty()) {
-            boolean hasRight = false;
-            for(Facility f: facilitiesByDestination) {
-                if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
-                    hasRight = true;
-                    break;
-                }
-            }
-            if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
-        }
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-    Utils.notNull(destination, "destination");
-    Utils.notNull(destination.getDestination(), "destination.destination");
-    Utils.notNull(destination.getType(), "destination.type");
-
-    return getServicesManagerBl().addDestination(sess, service, facility, destination);
-  }
-
-  public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(sess, "removeDestination");
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    Utils.notNull(destination, "destination");
-    Utils.notNull(destination.getDestination(), "destination.destination");
-    Utils.notNull(destination.getType(), "destination.type");
-
-    getServicesManagerBl().removeDestination(sess, service, facility, destination);
-  }
-
-  public Destination getDestinationById(PerunSession sess, int id) throws PrivilegeException, InternalErrorException, DestinationNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getDestinationById");
-    }
-
-    return getServicesManagerBl().getDestinationById(sess, id);
-  }
-
-  public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getDestinations");
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    return getServicesManagerBl().getDestinations(sess, service, facility);
-  }
-
-  public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException{
-    Utils.checkPerunSession(perunSession);
-
-    //Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
-      throw new PrivilegeException(perunSession, "getAllRichDestinations");
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-    return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, facility);
-  }
-
-  public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException{
-    Utils.checkPerunSession(perunSession);
-
-    //Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) throw new PrivilegeException(perunSession, "getAllRichDestinations");
-
-    getServicesManagerBl().checkServiceExists(perunSession, service);
-    return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, service);
-  }
-
-  public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException{
-    Utils.checkPerunSession(perunSession);
-
-    //Authorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
-        !AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
-      throw new PrivilegeException(perunSession, "getRichDestinations");
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-    getServicesManagerBl().checkServiceExists(perunSession, service);
-    return getPerunBl().getServicesManagerBl().getRichDestinations(perunSession, facility, service);
-  }
-
-
-  public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-      throw new PrivilegeException(sess, "removeAllDestinations");
-    }
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    getServicesManagerBl().removeAllDestinations(sess, service, facility);
-  }
-
-  public Owner getOwner(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
-    Utils.checkPerunSession(sess);
-    //TODO Authorization
-
-    getServicesManagerBl().checkServiceExists(sess, service);
-
-    return getServicesManagerBl().getOwner(sess, service);
-
-  }
-
-  public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    return getPerunBl().getServicesManagerBl().getFacilitiesDestinations(sess, vo);
-  }
-
-  public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
-    return servicesManagerBl.getDestinationIdByName(sess, name);
-  }
-
-  public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    //Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-        !AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-      throw new PrivilegeException(sess, "getAssignedServices");
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    return getServicesManagerBl().getAssignedServices(sess, facility);
-  }
-
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
-
-  /**
-   * Sets the perunBl for this instance.
-   *
-   * @param perunBl The perunBl.
-   */
-  public void setPerunBl(PerunBl perunBl)
-  {
-    this.perunBl = perunBl;
-  }
-
-  /**
-   * Sets the servicesManagerBl for this instance.
-   *
-   * @param servicesManagerBl The servicesManagerBl.
-   */
-  public void setServicesManagerBl(ServicesManagerBl servicesManagerBl)
-  {
-    this.servicesManagerBl = servicesManagerBl;
-  }
-
-  public ServicesManagerBl getServicesManagerBl() {
-    return this.servicesManagerBl;
-  }
-
-  @Override
-  public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination) throws PrivilegeException,
-  InternalErrorException, FacilityNotExistsException, DestinationAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(sess, "addDestinationsForAllServices");
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-    Utils.notNull(destination, "destination");
-    Utils.notNull(destination.getDestination(), "destination.destination");
-    Utils.notNull(destination.getType(), "destination.type");
-
-    return getServicesManagerBl().addDestinationsForAllServicesOnFacility(sess, facility, destination);
-  }
-
-  @Override
-  public List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, ClusterNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(sess, "addDestinationsDefinedByHostsOnCluster");
-    }
-
-    // Check if the facility is cluster
-    if (!facility.getType().equals(FacilitiesManager.CLUSTERTYPE) && !facility.getType().equals(FacilitiesManager.VIRTUALCLUSTERTYPE)) {
-      throw new ClusterNotExistsException("Facility " + facility + " is not cluster or vcluster");
-    }
-    getServicesManagerBl().checkServiceExists(sess, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    return getServicesManagerBl().addDestinationsDefinedByHostsOnCluster(sess, service, facility);
-  }
-
-  @Override
-  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
-    Utils.checkPerunSession(perunSession);
-
-    // Auhtorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
-    }
-
-    getServicesManagerBl().checkServiceExists(perunSession, service);
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-
-    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, service, facility);
-  }
-
-  @Override
-  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException {
-    Utils.checkPerunSession(perunSession);
-    Utils.notNull(services, "services");
-
-    // Auhtorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
-    }
-
-    for(Service s: services) {
-        getServicesManagerBl().checkServiceExists(perunSession, s);
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-
-    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
-  }
-
-  @Override
-  public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException {
-    Utils.checkPerunSession(perunSession);
-
-    // Auhtorization
-    if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-      throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
-    }
-
-    getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
-
-    return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, facility);
-  }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeRequiredAttributes");
+		}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getAttributesManagerBl().checkAttributesExists(sess, attributes);
+
+		getServicesManagerBl().removeRequiredAttributes(sess, service, attributes);
+	}
+
+	public void removeAllRequiredAttributes(PerunSession sess, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeRequiredAttribute");
+		}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getServicesManagerBl().removeAllRequiredAttributes(sess, service);
+	}
+
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(services, "services");
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "addDestination");
+		}
+
+		//prepare lists of facilities
+		List<Facility> facilitiesByHostname = new ArrayList<Facility>();
+		List<Facility> facilitiesByDestination = new ArrayList<Facility>();
+		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
+			facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(perunSession, destination.getHostNameFromDestination());
+			if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(perunSession, destination.getHostNameFromDestination());
+
+			if(!facilitiesByHostname.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+			}
+
+			if(!facilitiesByDestination.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+			}
+				}
+
+		for(Service s: services) {
+			getServicesManagerBl().checkServiceExists(perunSession, s);
+		}
+		Utils.notNull(destination, "destination");
+		Utils.notNull(destination.getDestination(), "destination.destination");
+		Utils.notNull(destination.getType(), "destination.type");
+
+		return getServicesManagerBl().addDestination(perunSession, services, facility, destination);
+	}
+
+	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addDestination");
+		}
+
+		//prepare lists of facilities
+		List<Facility> facilitiesByHostname = new ArrayList<Facility>();
+		List<Facility> facilitiesByDestination = new ArrayList<Facility>();
+		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
+			facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(sess, destination.getHostNameFromDestination());
+			if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getHostNameFromDestination());
+
+			if(!facilitiesByHostname.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+			}
+
+			if(!facilitiesByDestination.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+			}
+				}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		Utils.notNull(destination, "destination");
+		Utils.notNull(destination.getDestination(), "destination.destination");
+		Utils.notNull(destination.getType(), "destination.type");
+
+		return getServicesManagerBl().addDestination(sess, service, facility, destination);
+	}
+
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeDestination");
+		}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		Utils.notNull(destination, "destination");
+		Utils.notNull(destination.getDestination(), "destination.destination");
+		Utils.notNull(destination.getType(), "destination.type");
+
+		getServicesManagerBl().removeDestination(sess, service, facility, destination);
+	}
+
+	public Destination getDestinationById(PerunSession sess, int id) throws PrivilegeException, InternalErrorException, DestinationNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getDestinationById");
+				}
+
+		return getServicesManagerBl().getDestinationById(sess, id);
+	}
+
+	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getDestinations");
+				}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		return getServicesManagerBl().getDestinations(sess, service, facility);
+	}
+
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException{
+		Utils.checkPerunSession(perunSession);
+
+		//Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
+			throw new PrivilegeException(perunSession, "getAllRichDestinations");
+				}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+		return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, facility);
+	}
+
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException{
+		Utils.checkPerunSession(perunSession);
+
+		//Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) throw new PrivilegeException(perunSession, "getAllRichDestinations");
+
+		getServicesManagerBl().checkServiceExists(perunSession, service);
+		return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, service);
+	}
+
+	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException{
+		Utils.checkPerunSession(perunSession);
+
+		//Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
+			throw new PrivilegeException(perunSession, "getRichDestinations");
+				}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+		getServicesManagerBl().checkServiceExists(perunSession, service);
+		return getPerunBl().getServicesManagerBl().getRichDestinations(perunSession, facility, service);
+	}
+
+
+	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeAllDestinations");
+		}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		getServicesManagerBl().removeAllDestinations(sess, service, facility);
+	}
+
+	public Owner getOwner(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+		//TODO Authorization
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+
+		return getServicesManagerBl().getOwner(sess, service);
+
+	}
+
+	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		return getPerunBl().getServicesManagerBl().getFacilitiesDestinations(sess, vo);
+	}
+
+	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
+		return servicesManagerBl.getDestinationIdByName(sess, name);
+	}
+
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getAssignedServices");
+				}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		return getServicesManagerBl().getAssignedServices(sess, facility);
+	}
+
+	public PerunBl getPerunBl() {
+		return this.perunBl;
+	}
+
+	/**
+	 * Sets the perunBl for this instance.
+	 *
+	 * @param perunBl The perunBl.
+	 */
+	public void setPerunBl(PerunBl perunBl)
+	{
+		this.perunBl = perunBl;
+	}
+
+	/**
+	 * Sets the servicesManagerBl for this instance.
+	 *
+	 * @param servicesManagerBl The servicesManagerBl.
+	 */
+	public void setServicesManagerBl(ServicesManagerBl servicesManagerBl)
+	{
+		this.servicesManagerBl = servicesManagerBl;
+	}
+
+	public ServicesManagerBl getServicesManagerBl() {
+		return this.servicesManagerBl;
+	}
+
+	@Override
+	public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination) throws PrivilegeException,
+				 InternalErrorException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+					 Utils.checkPerunSession(sess);
+
+					 // Authorization
+					 if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+						 throw new PrivilegeException(sess, "addDestinationsForAllServices");
+					 }
+
+					 getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+					 Utils.notNull(destination, "destination");
+					 Utils.notNull(destination.getDestination(), "destination.destination");
+					 Utils.notNull(destination.getType(), "destination.type");
+
+					 return getServicesManagerBl().addDestinationsForAllServicesOnFacility(sess, facility, destination);
+	}
+
+	@Override
+	public List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, ClusterNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addDestinationsDefinedByHostsOnCluster");
+		}
+
+		// Check if the facility is cluster
+		if (!facility.getType().equals(FacilitiesManager.CLUSTERTYPE) && !facility.getType().equals(FacilitiesManager.VIRTUALCLUSTERTYPE)) {
+			throw new ClusterNotExistsException("Facility " + facility + " is not cluster or vcluster");
+		}
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		return getServicesManagerBl().addDestinationsDefinedByHostsOnCluster(sess, service, facility);
+	}
+
+	@Override
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+		Utils.checkPerunSession(perunSession);
+
+		// Auhtorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+		}
+
+		getServicesManagerBl().checkServiceExists(perunSession, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, service, facility);
+	}
+
+	@Override
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(services, "services");
+
+		// Auhtorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+		}
+
+		for(Service s: services) {
+			getServicesManagerBl().checkServiceExists(perunSession, s);
+		}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
+	}
+
+	@Override
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException {
+		Utils.checkPerunSession(perunSession);
+
+		// Auhtorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+		}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, facility);
+	}
 }

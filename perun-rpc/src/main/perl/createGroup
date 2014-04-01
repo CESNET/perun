@@ -7,25 +7,25 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates a group. Group name and vo id or vo short name are required fields.
---------------------------------------
-Available options:
- --groupName       | -G group name
- --groupDsc        | -d description
- --parentGroupId   | -p parent group id
- --parentGroupName | -P parent group name
- --voId            | -v vo id
- --voShortName     | -V vo short name
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Creates a group. Group name and vo id or vo short name are required fields.
+	--------------------------------------
+	Available options:
+	--groupName       | -G group name
+	--groupDsc        | -d description
+	--parentGroupId   | -p parent group id
+	--parentGroupName | -P parent group name
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($groupName, $groupDsc, $parentGroupId, $parentGroupName, $voId, $voShortName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "groupName|G=s" => \$groupName,"groupDsc|d=s" => \$groupDsc,
+"groupName|G=s" => \$groupName,"groupDsc|d=s" => \$groupDsc,
  "parentGroupId|p=i" => \$parentGroupId,"parentGroupName|P=s" => \$parentGroupName,
  "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help();
 
@@ -38,13 +38,13 @@ my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
 if (!defined($voId)) {
-  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
+	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	$voId = $vo->getId;
 }
 
 if (defined($parentGroupName)) {
-  my $parentGroup = $groupsAgent->getGroupByName(vo => $voId, name => $parentGroupName);
-  $parentGroupId = $parentGroup->getId
+	my $parentGroup = $groupsAgent->getGroupByName(vo => $voId, name => $parentGroupName);
+	$parentGroupId = $parentGroup->getId
 }
 
 my $group = Perun::beans::Group->new;
@@ -52,9 +52,9 @@ $group->setName($groupName);
 $group->setDescription($groupDsc) if (defined($groupDsc));
 
 if (defined($parentGroupId)) {
-  $group = $groupsAgent->createGroup(parentGroup => $parentGroupId, group => $group);
+	$group = $groupsAgent->createGroup(parentGroup => $parentGroupId, group => $group);
 } else {
-  $group = $groupsAgent->createGroup(group => $group, vo => $voId);
+	$group = $groupsAgent->createGroup(group => $group, vo => $voId);
 }
 
 printMessage("Group Id:".$group->getId." successfully created", $batch);

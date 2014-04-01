@@ -15,15 +15,15 @@ import java.util.List;
  */
 public interface VirtualAttributesModuleImplApi extends AttributesModuleImplApi {
 
-    /**
-     * Get message from auditer, parse it and resolve if is needed to add another messages to DB about virtualAttribute changes.
-     *
-     * @param perunSession
-     * @param message
-     * @return list of additional messages for auditer to log it
-     * @throws InternalErrorException
-     * @throws AttributeNotExistsException
-     * @throws WrongReferenceAttributeValueException
-     */
-    List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	/**
+	 * Get message from auditer, parse it and resolve if is needed to add another messages to DB about virtualAttribute changes.
+	 *
+	 * @param perunSession
+	 * @param message
+	 * @return list of additional messages for auditer to log it
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
 }

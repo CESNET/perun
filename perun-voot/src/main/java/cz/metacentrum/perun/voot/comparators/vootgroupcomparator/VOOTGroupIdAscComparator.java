@@ -11,8 +11,8 @@ import java.util.Comparator;
  */
 public class VOOTGroupIdAscComparator implements Comparator<VOOTGroup>{
 
-    @Override
-    public int compare(VOOTGroup vootGroup1, VOOTGroup vootGroup2) {
-        return vootGroup1.getId().compareTo(vootGroup2.getId());
-    }
+	@Override
+	public int compare(VOOTGroup vootGroup1, VOOTGroup vootGroup2) {
+		return vootGroup1.getId().compareTo(vootGroup2.getId());
+	}
 }

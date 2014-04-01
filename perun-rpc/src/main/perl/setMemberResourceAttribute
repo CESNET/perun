@@ -8,25 +8,25 @@ use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
-return qq{
-Sets the member resource attribute. Resource id and member id and attribute value and attribute id or name are required.
---------------------------------------
-Available options:
- --resourceId      | -r facility id
- --memberId        | -m member id
- --attributeId     | -a attribute id
- --attributeName   | -A attribute name including namespace
- --attributeValue  | -w attribute value
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Sets the member resource attribute. Resource id and member id and attribute value and attribute id or name are required.
+	--------------------------------------
+	Available options:
+	--resourceId      | -r facility id
+	--memberId        | -m member id
+	--attributeId     | -a attribute id
+	--attributeName   | -A attribute name including namespace
+	--attributeValue  | -w attribute value
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($resourceId, $memberId, $attributeId, $attributeName, @attributeValue);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "resourceId|r=i" => \$resourceId, "attributeId|a=i" => \$attributeId,
+"resourceId|r=i" => \$resourceId, "attributeId|a=i" => \$attributeId,
  "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue,
  "memberId|m=i" => \$memberId) || die help();
 
@@ -41,9 +41,9 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
 } else {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
 }
 
 # Get the attribute definition and create the attribute

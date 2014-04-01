@@ -24,7 +24,7 @@ public class CreateResourceTag {
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private String tagName;
-    private int voId;
+	private int voId;
 
 	/**
 	 * Creates a new request
@@ -56,13 +56,13 @@ public class CreateResourceTag {
 			result = false;
 		}
 
-        if(voId == 0){
-            errorMsg += "Wrong parameter 'VO ID'.";
-            result = false;
-        }
+		if(voId == 0){
+			errorMsg += "Wrong parameter 'VO ID'.";
+			result = false;
+		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -72,12 +72,12 @@ public class CreateResourceTag {
 	 * Attempts to delete resource tag, it first tests the values and then submits them
 	 *
 	 * @param tagName Resource tag name
-     * @param voId ID of VO to create resource tag for
+	 * @param voId ID of VO to create resource tag for
 	 */
 	public void createResourceTag(final String tagName, final int voId) {
 
 		this.tagName = tagName;
-        this.voId = voId;
+		this.voId = voId;
 
 		// test arguments
 		if(!this.testDeleting()){
@@ -114,15 +114,15 @@ public class CreateResourceTag {
 	private JSONObject prepareJSONObject() {
 
 		JSONObject jsonQuery = new JSONObject();
-        JSONObject jsonTag = new JSONObject();
-        jsonTag.put("id", null);
-        jsonTag.put("tagName", new JSONString(tagName));
-        jsonTag.put("voId", new JSONNumber(voId));
+		JSONObject jsonTag = new JSONObject();
+		jsonTag.put("id", null);
+		jsonTag.put("tagName", new JSONString(tagName));
+		jsonTag.put("voId", new JSONNumber(voId));
 
 		jsonQuery.put("resourceTag", jsonTag);
-        jsonQuery.put("vo", new JSONNumber(voId));
+		jsonQuery.put("vo", new JSONNumber(voId));
 
-        return jsonQuery;
+		return jsonQuery;
 	}
 
 }

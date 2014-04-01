@@ -60,8 +60,8 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param group
-     */
+	 * @param group
+	 */
 	public SubgroupsTabItem(Group group){
 		this.group = group;
 		this.groupId = group.getId();
@@ -69,16 +69,16 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param groupId
-     */
+	 * @param groupId
+	 */
 	public SubgroupsTabItem(int groupId){
 		this.groupId = groupId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                group = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				group = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
 
 
@@ -112,50 +112,50 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu menu = new TabMenu();
 
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                // creates a new form
-                session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));
-            }
-        });
+			public void onClick(ClickEvent event) {
+				// creates a new form
+				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));
+			}
+		});
 
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
-            createButton.setEnabled(false);
-            subgroups.setCheckable(false);
-        }
-        menu.addWidget(createButton);
+		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
+			createButton.setEnabled(false);
+			subgroups.setCheckable(false);
+		}
+		menu.addWidget(createButton);
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSubGroup());
-        removeButton.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent event) {
-                final ArrayList<Group> itemsToRemove = subgroups.getTableSelectedList();
-                String text = "Following groups (including all sub-groups) will be deleted.";
-                UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<itemsToRemove.size(); i++) {
-                            DeleteGroup request;
-                            if (i == itemsToRemove.size()-1) {
-                                request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                            } else {
-                                request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
-                            }
-                            request.deleteGroup(itemsToRemove.get(i).getId());
-                        }
-                    }
-                });
+		removeButton.addClickHandler(new ClickHandler(){
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<Group> itemsToRemove = subgroups.getTableSelectedList();
+				String text = "Following groups (including all sub-groups) will be deleted.";
+				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<itemsToRemove.size(); i++) {
+							DeleteGroup request;
+							if (i == itemsToRemove.size()-1) {
+								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+							} else {
+								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
+							}
+							request.deleteGroup(itemsToRemove.get(i).getId());
+						}
+					}
+				});
 
-            }
-        });
-        menu.addWidget(removeButton);
+			}
+		});
+		menu.addWidget(removeButton);
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                subgroups.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+			public void searchFor(String text) {
+				subgroups.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
 		// add menu to the main panel
 		vp.add(menu);
@@ -168,8 +168,8 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        removeButton.setEnabled(false);
-        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
+		removeButton.setEnabled(false);
+		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
 
 		// adds the table into the panel
 		table.addStyleName("perun-table");
@@ -229,7 +229,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(group, "Subgroups", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(group, "Subgroups", getUrlWithParameters());
 		if(group != null){
 			session.setActiveGroup(group);
 			return;

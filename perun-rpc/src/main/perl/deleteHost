@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Deletes an host. Host id or host name is required.
---------------------------------------------------------------
-Available options:
- --hostId   | -i host id
- --hostName | -H host name
- --batch    | -b batch
- --help     | -h prints this help
+	return qq{
+	Deletes an host. Host id or host name is required.
+	--------------------------------------------------------------
+	Available options:
+	--hostId   | -i host id
+	--hostName | -H host name
+	--batch    | -b batch
+	--help     | -h prints this help
 
-};
+	};
 }
 
 my ($hostId, $hostName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "hostId|i=i" => \$hostId, "hostName|H=s" => \$hostName) || die help();
+"hostId|i=i" => \$hostId, "hostName|H=s" => \$hostName) || die help();
 
 # Check options
 unless (defined($hostId) or defined($hostName)) { die "ERROR: hostId or hostName is required \n";}
@@ -30,8 +30,8 @@ my $agent = Perun::Agent->new();
 my $hostsAgent = $agent->getHostsAgent;
 
 unless($hostId) {
-    my $host = $hostsAgent->getHostByName(name => $hostName);
-    $hostId = $host->getId;
+	my $host = $hostsAgent->getHostByName(name => $hostName);
+	$hostId = $host->getId;
 }
 
 $hostsAgent->deleteHost(host => $hostId);

@@ -34,8 +34,8 @@ public class GetLogins implements JsonCallback{
 	/**
 	 * Creates new instance of callback
 	 *
-     * @param userId User ID
-     */
+	 * @param userId User ID
+	 */
 	public GetLogins(int userId) {
 		this(userId, new JsonCallbackEvents());
 	}
@@ -44,9 +44,9 @@ public class GetLogins implements JsonCallback{
 	/**
 	 * Creates new instance of callback
 	 *
-     * @param userId User ID
-     * @param events external events
-     */
+	 * @param userId User ID
+	 * @param events external events
+	 */
 	public GetLogins(int userId, JsonCallbackEvents events) {
 		this.events = events;
 		this.userId = userId;

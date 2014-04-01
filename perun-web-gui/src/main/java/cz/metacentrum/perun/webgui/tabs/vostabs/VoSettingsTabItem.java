@@ -64,8 +64,8 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public VoSettingsTabItem(VirtualOrganization vo){
 		this.voId = vo.getId();
 		this.vo = vo;
@@ -74,16 +74,16 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     */
+	 * @param voId
+	 */
 	public VoSettingsTabItem(int voId){
 		this.voId = voId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -110,11 +110,11 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 		// get the table
 		CellTable<Attribute> table = jsonCallback.getTable();
 
-        if (!session.isVoAdmin(voId)) jsonCallback.setCheckable(false);
+		if (!session.isVoAdmin(voId)) jsonCallback.setCheckable(false);
 
 		final CustomButton setButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-        menu.addWidget(setButton);
-        if (!session.isVoAdmin(voId)) setButton.setEnabled(false);
+		menu.addWidget(setButton);
+		if (!session.isVoAdmin(voId)) setButton.setEnabled(false);
 
 		// refresh table
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(jsonCallback);
@@ -136,27 +136,27 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("vo", voId);
-                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, jsonCallback.getList()), true);
-            }
-        });
-        menu.addWidget(addButton);
-        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("vo", voId);
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, jsonCallback.getList()), true);
+			}
+		});
+		menu.addWidget(addButton);
+		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
 
 		// remove attr button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
 		menu.addWidget(removeButton);
-        if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
+		if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
 
 		// remove button event
 		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
 		removeButton.addClickHandler(new ClickHandler() {
 			@Override
-            public void onClick(ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					Map<String, Integer> ids = new HashMap<String,Integer>();
@@ -171,7 +171,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-        if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
+		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(menu);
@@ -225,7 +225,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
 		if(vo != null){
 			session.setActiveVo(vo);
 			return;

@@ -57,7 +57,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public StatisticsTabItem(){ }
 
 	public boolean isPrepared(){
@@ -109,7 +109,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 			public void onFinished(JavaScriptObject jso){
 				// conversion
 				ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
-                vos = new TableSorter<VirtualOrganization>().sortByName(vos);
+				vos = new TableSorter<VirtualOrganization>().sortByName(vos);
 
 				// iterating VOs
 				for(int i = 0; i<vos.size(); i++){
@@ -196,13 +196,13 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					// retrieve data
 					facStatistics.setContent(facilitiesByTypeTable);
 					for(int i = 0; i < FACILITIES_TYPES.length; i++)
-					{
-						String type = FACILITIES_TYPES[i];
-						GetFacilitiesCountByType count = new GetFacilitiesCountByType(type);
-						count.retrieveData();
-						facilitiesByTypeTable.setText(i+1, 0, type);
-						facilitiesByTypeTable.setWidget(i+1, 1, count.getFacilitiesCountLabel());
-					}
+		{
+			String type = FACILITIES_TYPES[i];
+			GetFacilitiesCountByType count = new GetFacilitiesCountByType(type);
+			count.retrieveData();
+			facilitiesByTypeTable.setText(i+1, 0, type);
+			facilitiesByTypeTable.setWidget(i+1, 1, count.getFacilitiesCountLabel());
+		}
 
 				}
 			}
@@ -259,7 +259,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Statistics", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Statistics", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

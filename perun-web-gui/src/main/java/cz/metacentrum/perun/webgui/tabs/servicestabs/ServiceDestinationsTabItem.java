@@ -63,15 +63,15 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	// data
 	private Service service;
 	private int serviceId;
-    private int lastSelectedFacilityId = 0;
+	private int lastSelectedFacilityId = 0;
 
 	/**
 	 * Provides page with service's destinations management
 	 *
 	 * You can select a facility on page or view destinations for all facilities
 	 *
-     * @param service Service to get destinations for
-     */
+	 * @param service Service to get destinations for
+	 */
 	public ServiceDestinationsTabItem(Service service){
 		this.service = service;
 		this.serviceId = service.getId();
@@ -82,15 +82,15 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	 *
 	 * You can select a facility on page or view destinations for all facilities
 	 *
-     * @param serviceId Service to get destinations for
-     */
+	 * @param serviceId Service to get destinations for
+	 */
 	public ServiceDestinationsTabItem(int serviceId){
 		this.serviceId = service.getId();
-        new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                service = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				service = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -112,10 +112,10 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 		// buttons
 		final CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
-        final CustomButton removeDestButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
+		final CustomButton removeDestButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
 
-        menu.addWidget(addDestButton);
-        menu.addWidget(removeDestButton);
+		menu.addWidget(addDestButton);
+		menu.addWidget(removeDestButton);
 		menu.addWidget(new HTML("<strong>Selected facility:</strong>"));
 
 		// listbox with facilities
@@ -127,38 +127,38 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		callback.showFacilityColumn(true);
 		callback.showServiceColumn(false);
 		final CellTable<Destination> table = callback.getEmptyTable(); // do not make callback yet
-        if (lastSelectedFacilityId == 0) {
-            callback.retrieveData();
-        }
+		if (lastSelectedFacilityId == 0) {
+			callback.retrieveData();
+		}
 
-        // refresh events called when selection changes or callback ends
-        final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                if (ls.getSelectedIndex() == 0) {
-                    // fills table with destinations of all facilities
-                    callback.clearTable();
-                    callback.retrieveData();
-                } else {
-                    callback.clearTable();
-                    ((AjaxLoaderImage)table.getEmptyTableWidget()).loadingStart();
-                    // fills table with destinations of selected facility
-                    JsonCallbackEvents localEvents = new JsonCallbackEvents(){
-                        public void onFinished(JavaScriptObject jso){
-                            JsArray<Destination> dst = JsonUtils.jsoAsArray(jso);
-                            for (int i = 0; i<dst.length(); i++) {
-                                callback.addToTable(dst.get(i));
-                            }
-                            ((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
-                        }
-                        public void onError(PerunError error){
-                            ((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
-                        }
-                    };
-                    final GetDestinations callback = new GetDestinations(ls.getSelectedObject(), service, localEvents);
-                    callback.retrieveData();
-                }
-            }
-        };
+		// refresh events called when selection changes or callback ends
+		final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				if (ls.getSelectedIndex() == 0) {
+					// fills table with destinations of all facilities
+					callback.clearTable();
+					callback.retrieveData();
+				} else {
+					callback.clearTable();
+					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingStart();
+					// fills table with destinations of selected facility
+					JsonCallbackEvents localEvents = new JsonCallbackEvents(){
+						public void onFinished(JavaScriptObject jso){
+							JsArray<Destination> dst = JsonUtils.jsoAsArray(jso);
+							for (int i = 0; i<dst.length(); i++) {
+								callback.addToTable(dst.get(i));
+							}
+							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
+						}
+						public void onError(PerunError error){
+							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
+						}
+					};
+					final GetDestinations callback = new GetDestinations(ls.getSelectedObject(), service, localEvents);
+					callback.retrieveData();
+				}
+			}
+		};
 
 		// fills listbox and table with dest. for all service facilities
 		JsonCallbackEvents events = new JsonCallbackEvents(){
@@ -173,29 +173,29 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 				}
 				for (int i=0; i<facs.size(); i++){
 					ls.addItem(facs.get(i));
-                    if (facs.get(i).getId() == lastSelectedFacilityId) {
-                        ls.setSelected(facs.get(i), true);
-                    }
+					if (facs.get(i).getId() == lastSelectedFacilityId) {
+						ls.setSelected(facs.get(i), true);
+					}
 				}
 				ls.addAllOption();
 				if (lastSelectedFacilityId == 0) {
-                    // select all
-                    ls.setItemSelected(0, true);
-                } else {
-                    // was selected
-                    addDestButton.setEnabled(true);
-                    refreshEvents.onFinished(null);
-                }
+					// select all
+					ls.setItemSelected(0, true);
+				} else {
+					// was selected
+					addDestButton.setEnabled(true);
+					refreshEvents.onFinished(null);
+				}
 			}
 			public void onError(PerunError error){
 				ls.addItem("Error while loading");
-                addDestButton.setEnabled(false);
+				addDestButton.setEnabled(false);
 			}
-            public void onLoadingStart(){
-                ls.clear();
-                ls.addItem("Loading...");
-                addDestButton.setEnabled(false);
-            }
+			public void onLoadingStart(){
+				ls.clear();
+				ls.addItem("Loading...");
+				addDestButton.setEnabled(false);
+			}
 		};
 		final GetAssignedFacilities assignedFacilities = new GetAssignedFacilities(PerunEntity.SERVICE, serviceId, events);
 		assignedFacilities.retrieveData();
@@ -204,15 +204,15 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 		ls.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-                if (ls.getSelectedIndex() > 0) {
-                    // store last selected facility id
-                    addDestButton.setEnabled(true);
-                    lastSelectedFacilityId = ls.getSelectedObject().getId();
-                } else {
-                    addDestButton.setEnabled(false);
-                    lastSelectedFacilityId = 0;
-                }
-                refreshEvents.onFinished(null);
+				if (ls.getSelectedIndex() > 0) {
+					// store last selected facility id
+					addDestButton.setEnabled(true);
+					lastSelectedFacilityId = ls.getSelectedObject().getId();
+				} else {
+					addDestButton.setEnabled(false);
+					lastSelectedFacilityId = 0;
+				}
+				refreshEvents.onFinished(null);
 			}
 		});
 
@@ -228,30 +228,30 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				// get
 				final ArrayList<Destination> destsToRemove = callback.getTableSelectedList();
-                UiElements.showDeleteConfirm(destsToRemove, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i = 0; i < destsToRemove.size(); i++) {
-                            if (i == destsToRemove.size() - 1) {
-                                RemoveDestination request = new RemoveDestination(destsToRemove.get(i).getFacility().getId(), service.getId(), JsonCallbackEvents.disableButtonEvents(removeDestButton, refreshEvents));
-                                request.removeDestination(destsToRemove.get(i).getDestination(), destsToRemove.get(i).getType());
-                            } else {
-                                RemoveDestination request = new RemoveDestination(destsToRemove.get(i).getFacility().getId(), service.getId(), JsonCallbackEvents.disableButtonEvents(removeDestButton));
-                                request.removeDestination(destsToRemove.get(i).getDestination(), destsToRemove.get(i).getType());
-                            }
-                        }
-                    }
-                });
+				UiElements.showDeleteConfirm(destsToRemove, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i = 0; i < destsToRemove.size(); i++) {
+							if (i == destsToRemove.size() - 1) {
+								RemoveDestination request = new RemoveDestination(destsToRemove.get(i).getFacility().getId(), service.getId(), JsonCallbackEvents.disableButtonEvents(removeDestButton, refreshEvents));
+								request.removeDestination(destsToRemove.get(i).getDestination(), destsToRemove.get(i).getType());
+							} else {
+								RemoveDestination request = new RemoveDestination(destsToRemove.get(i).getFacility().getId(), service.getId(), JsonCallbackEvents.disableButtonEvents(removeDestButton));
+								request.removeDestination(destsToRemove.get(i).getDestination(), destsToRemove.get(i).getType());
+							}
+						}
+					}
+				});
 			}
 		});
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                callback.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterDestinationByFacility());
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterDestinationByFacility());
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
@@ -260,10 +260,10 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        removeDestButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, removeDestButton);
+		removeDestButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeDestButton);
 
-        // add tabs to the main panel
+		// add tabs to the main panel
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();

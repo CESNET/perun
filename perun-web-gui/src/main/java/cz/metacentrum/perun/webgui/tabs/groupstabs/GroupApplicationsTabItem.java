@@ -67,8 +67,8 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param group
-     */
+	 * @param group
+	 */
 	public GroupApplicationsTabItem(Group group){
 		this.group = group;
 		this.groupId = group.getId();
@@ -77,16 +77,16 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param groupId
-     */
+	 * @param groupId
+	 */
 	public GroupApplicationsTabItem(int groupId){
 		this.groupId = groupId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                group = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				group = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -97,7 +97,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// request
 		final GetApplicationsForGroup applicationsRequest = new GetApplicationsForGroup(group.getId());
-        final JsonCallbackEvents refreshEvent = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
+		final JsonCallbackEvents refreshEvent = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+": "+"applications");
 
@@ -111,106 +111,106 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.setCellHeight(menu, "30px");
 
 		// verify button
-        final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
+		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
 		verify.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify));
-                            request.verifyApplication(list.get(i).getId());
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, refreshEvent));
-                            request.verifyApplication(list.get(i).getId());
-                        }
-                    }
-                }
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify));
+							request.verifyApplication(list.get(i).getId());
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, refreshEvent));
+							request.verifyApplication(list.get(i).getId());
+						}
+					}
+				}
 			}
 		});
 
 		// accept button
-        final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
-        approve.addClickHandler(new ClickHandler() {
+		final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
+		approve.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve));
-                            request.approveApplication(list.get(i));
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, refreshEvent));
-                            request.approveApplication(list.get(i));
-                        }
-                    }
-                }
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve));
+							request.approveApplication(list.get(i));
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, refreshEvent));
+							request.approveApplication(list.get(i));
+						}
+					}
+				}
 			}
 		});
 
 		//reject button
-        final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
+		final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
 		reject.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<Application> list = applicationsRequest.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // confirm content
-                    FlexTable content = new FlexTable();
-                    content.setCellSpacing(10);
-                    content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
-                    content.getFlexCellFormatter().setColSpan(0, 0, 2);
-                    final TextArea reason = new TextArea();
-                    reason.setSize("300px", "150px");
-                    content.setHTML(1, 0, "<strong>Reason: </strong>");
-                    content.setWidget(1, 1, reason);
+					// confirm content
+					FlexTable content = new FlexTable();
+					content.setCellSpacing(10);
+					content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
+					content.getFlexCellFormatter().setColSpan(0, 0, 2);
+					final TextArea reason = new TextArea();
+					reason.setSize("300px", "150px");
+					content.setHTML(1, 0, "<strong>Reason: </strong>");
+					content.setWidget(1, 1, reason);
 
-                    Confirm c = new Confirm("Specify reason", content, new ClickHandler(){
-                        public void onClick(ClickEvent event) {
+					Confirm c = new Confirm("Specify reason", content, new ClickHandler(){
+						public void onClick(ClickEvent event) {
 
-                            for (int i=0; i<list.size(); i++) {
-                                if (i != list.size()-1) {
-                                    HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject));
-                                    request.rejectApplication(list.get(i).getId(), reason.getText());
-                                } else {
-                                    // refresh table on last call
-                                    HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, refreshEvent));
-                                    request.rejectApplication(list.get(i).getId(), reason.getText());
-                                }
-                            }
+							for (int i=0; i<list.size(); i++) {
+								if (i != list.size()-1) {
+									HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject));
+									request.rejectApplication(list.get(i).getId(), reason.getText());
+								} else {
+									// refresh table on last call
+									HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, refreshEvent));
+									request.rejectApplication(list.get(i).getId(), reason.getText());
+								}
+							}
 
-                        }
-                    }, true);
-                    c.show();
-                }
+						}
+					}, true);
+					c.show();
+				}
 			}
 		});
 
-        // delete button
-        final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
-        delete.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                ArrayList<Application> list = applicationsRequest.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        if (i != list.size()-1) {
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete));
-                            request.deleteApplication(list.get(i).getId());
-                        } else {
-                            // refresh table on last call
-                            HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, refreshEvent));
-                            request.deleteApplication(list.get(i).getId());
-                        }
-                    }
-                }
-            }
-        });
+		// delete button
+		final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
+		delete.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				ArrayList<Application> list = applicationsRequest.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i=0; i<list.size(); i++) {
+						if (i != list.size()-1) {
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete));
+							request.deleteApplication(list.get(i).getId());
+						} else {
+							// refresh table on last call
+							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, refreshEvent));
+							request.deleteApplication(list.get(i).getId());
+						}
+					}
+				}
+			}
+		});
 
-        menu.addWidget(verify);
-        menu.addWidget(approve);
-        menu.addWidget(reject);
-        menu.addWidget(delete);
+		menu.addWidget(verify);
+		menu.addWidget(approve);
+		menu.addWidget(reject);
+		menu.addWidget(delete);
 
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
@@ -218,34 +218,34 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		// state
 		final ListBox stateListBox = new ListBox();
 		stateListBox.addItem(WidgetTranslation.INSTANCE.listboxAll(), "");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
-        stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
-        stateListBox.setSelectedIndex(3);
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
+		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
+		stateListBox.setSelectedIndex(3);
 		menu.addWidget(stateListBox);
 
-        stateListBox.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent changeEvent) {
-                applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
-                applicationsRequest.clearTable();
-                applicationsRequest.retrieveData();
-            }
-        });
+		stateListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+				applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
+				applicationsRequest.clearTable();
+				applicationsRequest.retrieveData();
+			}
+		});
 
 		// FILTER 2
-        menu.addWidget(new HTML("<strong>Submitted&nbsp;by: </strong>"));
-        menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                applicationsRequest.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterApplications());
+		menu.addWidget(new HTML("<strong>Submitted&nbsp;by: </strong>"));
+		menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				applicationsRequest.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterApplications());
 
 		// TABLE
-        applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
+		applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 		CellTable<Application> table = applicationsRequest.getTable(new FieldUpdater<Application, String>() {
 			public void update(int index, Application object, String value) {
 				session.getTabManager().addTabToCurrentTab(new ApplicationDetailTabItem(object), true);
@@ -259,23 +259,23 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
-        verify.setEnabled(false);
-        approve.setEnabled(false);
-        reject.setEnabled(false);
-        delete.setEnabled(false);
+		verify.setEnabled(false);
+		approve.setEnabled(false);
+		reject.setEnabled(false);
+		delete.setEnabled(false);
 
-        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId()))  {
+		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId()))  {
 
-            JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
-            JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
+			JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
 
-        } else {
+		} else {
 
-            applicationsRequest.setCheckable(false);
+			applicationsRequest.setCheckable(false);
 
-        }
+		}
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
@@ -321,7 +321,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(group, "Applications", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(group, "Applications", getUrlWithParameters());
 		if(group != null){
 			session.setActiveGroup(group);
 			return;

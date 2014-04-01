@@ -5,12 +5,12 @@ import javax.servlet.ServletContextListener;
 
 public class Main implements ServletContextListener {
 
-  @Override
-  public void contextDestroyed(ServletContextEvent arg0) {
+	@Override
+	public void contextDestroyed(ServletContextEvent arg0) {
 
-  }
+	}
 
-  @Override
-  public void contextInitialized(ServletContextEvent servletContextEvent) {
-  }
+	@Override
+	public void contextInitialized(ServletContextEvent servletContextEvent) {
+	}
 }

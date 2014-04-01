@@ -59,7 +59,7 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 */
 	private int compareByUserId(RichMember o1, RichMember o2)
 	{
-		 return o1.getUser().getId() - o2.getUser().getId();
+		return o1.getUser().getId() - o2.getUser().getId();
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 */
 	private int compareByMemberId(RichMember o1, RichMember o2)
 	{
-		 return o1.getId() - o2.getId();
+		return o1.getId() - o2.getId();
 	}
 
 	/**
@@ -144,8 +144,8 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	private int compareByUserFullName(RichMember o1, RichMember o2)
 	{
 		return o1
-				.getUser()
-				.getFullName()
-				.compareToIgnoreCase(o2.getUser().getFullName());
+			.getUser()
+			.getFullName()
+			.compareToIgnoreCase(o2.getUser().getFullName());
 	}
 }

@@ -32,174 +32,174 @@ import java.util.ArrayList;
  */
 public class AssignTagTabItem implements TabItem {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Loading resource");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Loading resource");
 
-    //data
-    private int resourceId;
-    private Resource resource;
+	//data
+	private int resourceId;
+	private Resource resource;
 
-    /**
-     * Create tab instance
-     * @param resourceId ID of resource to have tags assigned
-     */
-    public AssignTagTabItem(int resourceId){
-        this.resourceId = resourceId;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-            }
-        }).retrieveData();
-    }
+	/**
+	 * Create tab instance
+	 * @param resourceId ID of resource to have tags assigned
+	 */
+	public AssignTagTabItem(int resourceId){
+		this.resourceId = resourceId;
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+			}
+		}).retrieveData();
+	}
 
-    /**
-     * Creates a tab instance
-     * @param resource resource to have tags assigned
-     */
-    public AssignTagTabItem(Resource resource){
-        this.resource = resource;
-        this.resourceId = resource.getId();
-    }
+	/**
+	 * Creates a tab instance
+	 * @param resource resource to have tags assigned
+	 */
+	public AssignTagTabItem(Resource resource){
+		this.resource = resource;
+		this.resourceId = resource.getId();
+	}
 
-    public boolean isPrepared(){
-        return !(resource == null);
-    }
+	public boolean isPrepared(){
+		return !(resource == null);
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign tag");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign tag");
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        // menu
-        TabMenu menu = new TabMenu();
+		// menu
+		TabMenu menu = new TabMenu();
 
-        final GetAllResourcesTags tags = new GetAllResourcesTags(PerunEntity.VIRTUAL_ORGANIZATION, resource.getVoId());
-        final CellTable<ResourceTag> table = tags.getTable();
+		final GetAllResourcesTags tags = new GetAllResourcesTags(PerunEntity.VIRTUAL_ORGANIZATION, resource.getVoId());
+		final CellTable<ResourceTag> table = tags.getTable();
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        // button
-        final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSelectedTagsToResource());
-        assignButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                ArrayList<ResourceTag> tagsToAssign = tags.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(tagsToAssign)) {
-                    for (int i = 0; i < tagsToAssign.size(); i++) {
-                        if (i != tagsToAssign.size() - 1) {                     // call json normaly
-                            AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.disableButtonEvents(assignButton));
-                            request.assignResourceTag(tagsToAssign.get(i));
-                        } else {                                                // last change - call json with update
-                            AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                            request.assignResourceTag(tagsToAssign.get(i));
-                        }
-                    }
-                }
-            }
-        });
+		// button
+		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSelectedTagsToResource());
+		assignButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				ArrayList<ResourceTag> tagsToAssign = tags.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(tagsToAssign)) {
+					for (int i = 0; i < tagsToAssign.size(); i++) {
+						if (i != tagsToAssign.size() - 1) {                     // call json normaly
+							AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.disableButtonEvents(assignButton));
+							request.assignResourceTag(tagsToAssign.get(i));
+						} else {                                                // last change - call json with update
+							AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+							request.assignResourceTag(tagsToAssign.get(i));
+						}
+					}
+				}
+			}
+		});
 
-        menu.addWidget(assignButton);
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(assignButton);
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        menu.addFilterWidget(new ExtendedSuggestBox(tags.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                tags.filterTable(text);
-                // if single group, select
-                if (tags.getList().size() == 1) {
-                    table.getSelectionModel().setSelected(tags.getList().get(0), true);
-                }
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+		menu.addFilterWidget(new ExtendedSuggestBox(tags.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				tags.filterTable(text);
+				// if single group, select
+				if (tags.getList().size() == 1) {
+					table.getSelectionModel().setSelected(tags.getList().get(0), true);
+				}
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        assignButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(tags, table, assignButton);
+		assignButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(tags, table, assignButton);
 
-        tags.retrieveData();
+		tags.retrieveData();
 
-        table.addStyleName("perun-table");
-        table.setWidth("100%");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        vp.add(sp);
+		table.addStyleName("perun-table");
+		table.setWidth("100%");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		vp.add(sp);
 
-        session.getUiElements().resizeSmallTabPanel(sp, 350, this);
-        this.contentWidget.setWidget(vp);
+		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+		this.contentWidget.setWidget(vp);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.groupGoIcon();
-    }
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.groupGoIcon();
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + resourceId;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + resourceId;
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AssignTagTabItem other = (AssignTagTabItem) obj;
-        if (resourceId != other.resourceId)
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AssignTagTabItem other = (AssignTagTabItem) obj;
+		if (resourceId != other.resourceId)
+			return false;
+		return true;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    public void open()
-    {
-    }
+	public void open()
+	{
+	}
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(resource.getVoId())) {
-            return true;
-        } else {
-            return false;
-        }
+		if (session.isVoAdmin(resource.getVoId())) {
+			return true;
+		} else {
+			return false;
+		}
 
-    }
+	}
 
 }

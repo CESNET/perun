@@ -21,38 +21,38 @@ import java.util.Set;
  */
 public class PerunNotifObject {
 
-    /**
-     * Unique id of object
-     *
-     * Column id
-     * Sequence pn_object_id_seq
-     */
+	/**
+	 * Unique id of object
+	 *
+	 * Column id
+	 * Sequence pn_object_id_seq
+	 */
 	private Integer id;
 
-    /**
-     * Holds name of object
-     *
-     * Column name
-     */
+	/**
+	 * Holds name of object
+	 *
+	 * Column name
+	 */
 	private String name;
 
-    /**
-     * Holds Class of object
-     *
-     * Column object_class
-     */
-    private Class objectClass;
+	/**
+	 * Holds Class of object
+	 *
+	 * Column object_class
+	 */
+	private Class objectClass;
 
 	/**
 	 * Set of functions which can be called on object using java reflection
-     *
-     * Column properties
+	 *
+	 * Column properties
 	 */
 	private Set<String> properties;
 
-    public PerunNotifObject() {
-        properties = new HashSet<String>();
-    }
+	public PerunNotifObject() {
+		properties = new HashSet<String>();
+	}
 
 	public Integer getId() {
 		return id;
@@ -78,15 +78,15 @@ public class PerunNotifObject {
 		this.properties = properties;
 	}
 
-    public Class getObjectClass() {
-        return objectClass;
-    }
+	public Class getObjectClass() {
+		return objectClass;
+	}
 
-    public void setObjectClass(Class objectClass) {
-        this.objectClass = objectClass;
-    }
+	public void setObjectClass(Class objectClass) {
+		this.objectClass = objectClass;
+	}
 
-    public void addProperty(String value) {
+	public void addProperty(String value) {
 
 		if (properties == null) {
 			properties = new HashSet<String>();
@@ -95,10 +95,10 @@ public class PerunNotifObject {
 		properties.add(value);
 	}
 
-    /**
-     * RowMapper to load entity from db row
-     * Uses java reflection to resolve class
-     */
+	/**
+	 * RowMapper to load entity from db row
+	 * Uses java reflection to resolve class
+	 */
 	public static final RowMapper<PerunNotifObject> PERUN_NOTIF_OBJECT = new RowMapper<PerunNotifObject>() {
 
 		public PerunNotifObject mapRow(ResultSet rs, int i) throws SQLException {
@@ -107,30 +107,30 @@ public class PerunNotifObject {
 			object.setId(rs.getInt("id"));
 			object.setName(rs.getString("name"));
 			object.setProperties(parseSet(rs.getString("properties")));
-            String className = rs.getString("class_name");
-            if (className != null) {
-                try {
-                    Class objectClass = Class.forName(className);
-                    object.setObjectClass(objectClass);
-                } catch (ClassNotFoundException ex) {
-                    //Class cannot be resolved
-                    throw new SQLException("Class: " + className + " cannot be resolved.");
-                }
-            }
+			String className = rs.getString("class_name");
+			if (className != null) {
+				try {
+					Class objectClass = Class.forName(className);
+					object.setObjectClass(objectClass);
+				} catch (ClassNotFoundException ex) {
+					//Class cannot be resolved
+					throw new SQLException("Class: " + className + " cannot be resolved.");
+				}
+			}
 			return object;
 		}
 	};
 
-    /**
-     * Set delimiter for serialization to string
-     */
+	/**
+	 * Set delimiter for serialization to string
+	 */
 	private static final String SET_DELIMITER = ";";
 
-    /**
-     * Parses row to set of properties
-     * @param row
-     * @return
-     */
+	/**
+	 * Parses row to set of properties
+	 * @param row
+	 * @return
+	 */
 	private static Set<String> parseSet(String row) {
 
 		if (row == null) {
@@ -147,10 +147,10 @@ public class PerunNotifObject {
 		return result;
 	}
 
-    /**
-     * Serialize properties to string
-     * @return
-     */
+	/**
+	 * Serialize properties to string
+	 * @return
+	 */
 	public String getSerializedProperties() {
 
 		StringBuilder builder = new StringBuilder();
@@ -177,22 +177,22 @@ public class PerunNotifObject {
 		return perunObject.getId().equals(this.getId());
 	}
 
-    /**
-     * Method updates basic parameters
-     * @param newObject
-     */
-    public void update(PerunNotifObject newObject) {
+	/**
+	 * Method updates basic parameters
+	 * @param newObject
+	 */
+	public void update(PerunNotifObject newObject) {
 
-        this.setName(newObject.getName());
-        this.setProperties(newObject.getProperties());
-        this.setObjectClass(newObject.getObjectClass());
-    }
+		this.setName(newObject.getName());
+		this.setProperties(newObject.getProperties());
+		this.setObjectClass(newObject.getObjectClass());
+	}
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (properties != null ? properties.hashCode() : 0);
+		return result;
+	}
 }

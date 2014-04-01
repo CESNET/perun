@@ -22,37 +22,37 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-  @Override
-  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
-      Attribute attribute = new Attribute(attributeDefinition);
-      Map<String, String> idpLogins = new LinkedHashMap<String,String>();
-      List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+	@Override
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		Attribute attribute = new Attribute(attributeDefinition);
+		Map<String, String> idpLogins = new LinkedHashMap<String,String>();
+		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
-      for(UserExtSource uES: userExtSources) {
-          if(uES.getExtSource() != null) {
-              String login = uES.getLogin();
-              String type = uES.getExtSource().getType();
-              String idpIdentifier = uES.getExtSource().getName();
+		for(UserExtSource uES: userExtSources) {
+			if(uES.getExtSource() != null) {
+				String login = uES.getLogin();
+				String type = uES.getExtSource().getType();
+				String idpIdentifier = uES.getExtSource().getName();
 
-              if(type != null && login != null) {
-                  if(type.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
-                      idpLogins.put(idpIdentifier, login);
-                  }
-              }
-          }
-      }
+				if(type != null && login != null) {
+					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+						idpLogins.put(idpIdentifier, login);
+					}
+				}
+			}
+		}
 
-      attribute = new Attribute(attributeDefinition);
-      attribute.setValue(idpLogins);
-      return attribute;
-  }
+		attribute = new Attribute(attributeDefinition);
+		attribute.setValue(idpLogins);
+		return attribute;
+	}
 
-  public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-      attr.setFriendlyName("shibbolethExtSources");
-      attr.setType(LinkedHashMap.class.getName());
-      attr.setDescription("Pairs of IdP indentificator and user's EPPN.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setFriendlyName("shibbolethExtSources");
+		attr.setType(LinkedHashMap.class.getName());
+		attr.setDescription("Pairs of IdP indentificator and user's EPPN.");
+		return attr;
+	}
 }

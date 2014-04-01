@@ -91,69 +91,69 @@ public class PasswordResetGui implements EntryPoint {
 		// events after getting PerunPrincipal from RPC
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
 			@Override
-            public void onFinished(JavaScriptObject jso) {
+			public void onFinished(JavaScriptObject jso) {
 
-                // store perun principal into session for future use
-                PerunPrincipal pp = (PerunPrincipal)jso;
-                session.setPerunPrincipal(pp);
+				// store perun principal into session for future use
+				PerunPrincipal pp = (PerunPrincipal)jso;
+				session.setPerunPrincipal(pp);
 
-                // check if user exists
-                if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {
-                    // if not and no role, redraw page body
-                    RootLayoutPanel body = RootLayoutPanel.get();
-                    loadingBox.hide();
-                    body.clear();
-                    body.add(new NotUserOfPerunWidget());
-                    return;
-                }
+				// check if user exists
+				if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {
+					// if not and no role, redraw page body
+					RootLayoutPanel body = RootLayoutPanel.get();
+					loadingBox.hide();
+					body.clear();
+					body.add(new NotUserOfPerunWidget());
+					return;
+				}
 
-                // store users roles and editable entities into session
-                session.setRoles(pp.getRoles());
+				// store users roles and editable entities into session
+				session.setRoles(pp.getRoles());
 
-                // display logged user
-                session.getUiElements().setLoggedUserInfo(pp);
+				// display logged user
+				session.getUiElements().setLoggedUserInfo(pp);
 
-                GetGuiConfiguration getConf = new GetGuiConfiguration(new JsonCallbackEvents(){
-                    @Override
-                    public void onFinished(JavaScriptObject jso) {
+				GetGuiConfiguration getConf = new GetGuiConfiguration(new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
 
-                        session.setConfiguration((BasicOverlayType)jso.cast());
+						session.setConfiguration((BasicOverlayType)jso.cast());
 
-                        // hides the loading box
-                        loadingBox.hide();
+						// hides the loading box
+						loadingBox.hide();
 
-                        // add menu item and load content
-                        contentPanel.setWidget(new PasswordResetFormPage().getContent());
-                        //Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
-                        //a.fireEvent(new ClickEvent(){});
+						// add menu item and load content
+						contentPanel.setWidget(new PasswordResetFormPage().getContent());
+						//Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
+						//a.fireEvent(new ClickEvent(){});
 
-                    }
-                    @Override
-                    public void onError(PerunError error){
-                        // hides the loading box
-                        loadingBox.hide();
+					}
+				@Override
+				public void onError(PerunError error){
+					// hides the loading box
+					loadingBox.hide();
 
-                        // shows error box
-                        PopupPanel loadingFailedBox;
-                        if (error == null) {
-                            loadingFailedBox = session.getUiElements().perunLoadingFailedBox("Request timeout exceeded.");
-                        } else {
-                            if (error.getName().contains("UserNotExistsException")) {
-                                loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
-                            } else {
-                                loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
-                            }
-                        }
-                        loadingFailedBox.show();
+					// shows error box
+					PopupPanel loadingFailedBox;
+					if (error == null) {
+						loadingFailedBox = session.getUiElements().perunLoadingFailedBox("Request timeout exceeded.");
+					} else {
+						if (error.getName().contains("UserNotExistsException")) {
+							loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
+						} else {
+							loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
+						}
+					}
+					loadingFailedBox.show();
 
-                        leftMenu.addItem("Password reset", SmallIcons.INSTANCE.keyIcon(), null);
+					leftMenu.addItem("Password reset", SmallIcons.INSTANCE.keyIcon(), null);
 
-                    }
-                });
-                getConf.retrieveData();
+				}
+				});
+				getConf.retrieveData();
 
-            }
-            @Override
+			}
+			@Override
 			public void onError(PerunError error){
 				// hides the loading box
 				loadingBox.hide();

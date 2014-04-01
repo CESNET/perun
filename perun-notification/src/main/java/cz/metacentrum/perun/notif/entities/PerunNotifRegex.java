@@ -14,32 +14,32 @@ import java.util.*;
  */
 public class PerunNotifRegex {
 
-    /**
-     * Unique identifier
-     *
-     * Column id
-     * Sequence pn_regex_id_seq
-     */
+	/**
+	 * Unique identifier
+	 *
+	 * Column id
+	 * Sequence pn_regex_id_seq
+	 */
 	private int id;
 
-    /**
-     * Regex used to match against auditer message
-     *
-     * Column regex
-     */
+	/**
+	 * Regex used to match against auditer message
+	 *
+	 * Column regex
+	 */
 	private String regex;
 
-    /**
-     * Note to describe regex
-     *
-     * Column note
-     */
+	/**
+	 * Note to describe regex
+	 *
+	 * Column note
+	 */
 	private String note;
 
-    /**
-     * Objects which can be recognized from auditer message if passes regex
-     */
-    private Set<PerunNotifObject> objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+	/**
+	 * Objects which can be recognized from auditer message if passes regex
+	 */
+	private Set<PerunNotifObject> objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
 
 	public Integer getId() {
 		return id;
@@ -65,31 +65,31 @@ public class PerunNotifRegex {
 		this.note = note;
 	}
 
-    public Set<PerunNotifObject> getObjects() {
-        return objects;
-    }
+	public Set<PerunNotifObject> getObjects() {
+		return objects;
+	}
 
-    public void setObjects(Set<PerunNotifObject> objects) {
-        this.objects = objects;
-    }
+	public void setObjects(Set<PerunNotifObject> objects) {
+		this.objects = objects;
+	}
 
-    public void addObjects(List<PerunNotifObject> objects) {
-        if (objects == null) {
-            this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-        }
+	public void addObjects(List<PerunNotifObject> objects) {
+		if (objects == null) {
+			this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+		}
 
-        this.objects.addAll(objects);
-    }
+		this.objects.addAll(objects);
+	}
 
-    public void addObject(PerunNotifObject object) {
-        if (objects == null) {
-            this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-        }
+	public void addObject(PerunNotifObject object) {
+		if (objects == null) {
+			this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+		}
 
-        this.objects.add(object);
-    }
+		this.objects.add(object);
+	}
 
-    public static final RowMapper<PerunNotifRegex> PERUN_NOTIF_REGEX = new RowMapper<PerunNotifRegex>() {
+	public static final RowMapper<PerunNotifRegex> PERUN_NOTIF_REGEX = new RowMapper<PerunNotifRegex>() {
 
 		public PerunNotifRegex mapRow(ResultSet rs, int i) throws SQLException {
 
@@ -102,30 +102,30 @@ public class PerunNotifRegex {
 		}
 	};
 
-    public void update(PerunNotifRegex updatedRegex) {
-        this.setNote(updatedRegex.getNote());
-        this.setRegex(updatedRegex.getRegex());
-        this.setObjects(updatedRegex.getObjects());
-    }
+	public void update(PerunNotifRegex updatedRegex) {
+		this.setNote(updatedRegex.getNote());
+		this.setRegex(updatedRegex.getRegex());
+		this.setObjects(updatedRegex.getObjects());
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PerunNotifRegex)) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof PerunNotifRegex)) return false;
 
-        PerunNotifRegex regex1 = (PerunNotifRegex) o;
+		PerunNotifRegex regex1 = (PerunNotifRegex) o;
 
-        if (id != regex1.id) return false;
+		if (id != regex1.id) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + (regex != null ? regex.hashCode() : 0);
-        result = 31 * result + (note != null ? note.hashCode() : 0);
-        result = 31 * result + (objects != null ? objects.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = id;
+		result = 31 * result + (regex != null ? regex.hashCode() : 0);
+		result = 31 * result + (note != null ? note.hashCode() : 0);
+		result = 31 * result + (objects != null ? objects.hashCode() : 0);
+		return result;
+	}
 }

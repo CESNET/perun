@@ -36,7 +36,7 @@ public class CategoryDaoImpl implements ICategoryDao {
 	 */
 
 	public int createCategory(Category c) {
-        categoryMapper.insert(c);
+		categoryMapper.insert(c);
 		return c.getId();
 	}
 

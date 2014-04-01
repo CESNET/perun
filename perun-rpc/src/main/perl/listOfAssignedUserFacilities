@@ -8,25 +8,25 @@ use Perun::Agent;
 use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Facilities assigned to User. User is required field.
----------------------------------------------------
-Available options:
- --userId       | -u  user's id
- --orderById    | -i  order by numeric Id
- --orderByName  | -n  order by name (default)
- --batch        | -b  batch
- --help         | -h  prints this help
-};
+	return qq{
+	Prints list of Facilities assigned to User. User is required field.
+	---------------------------------------------------
+	Available options:
+	--userId       | -u  user's id
+	--orderById    | -i  order by numeric Id
+	--orderByName  | -n  order by name (default)
+	--batch        | -b  batch
+	--help         | -h  prints this help
+	};
 }
 
 our $batch;
 my ($userId, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "userId|f=i" => \$userId,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-           "batch|b" => \$batch) || die help;
+	"userId|f=i" => \$userId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+"batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $userId) { die "ERROR: userId is required\n";}

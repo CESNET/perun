@@ -32,7 +32,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	 static private final String JSON_URL = "propagationStatsReader/listAllRichTasksForFacility";
+	static private final String JSON_URL = "propagationStatsReader/listAllRichTasksForFacility";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers
@@ -46,14 +46,14 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	// entities
 	private int facilityId = 0;
 	private FieldUpdater<Task, String> tableFieldUpdater;
-    private ArrayList<Task> backupList = new ArrayList<Task>();
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private boolean checkable = true; // default is checkable
+	private ArrayList<Task> backupList = new ArrayList<Task>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private boolean checkable = true; // default is checkable
 
 	/**
 	 * New instance of callback
 	 *
-     * @param facilityId facility ID
+	 * @param facilityId facility ID
 	 */
 	public ListAllRichTasksForFacility(int facilityId) {
 		this.facilityId = facilityId;
@@ -62,7 +62,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	/**
 	 * New instance of callback with external events
 	 *
-     * @param facilityId facility ID
+	 * @param facilityId facility ID
 	 * @param events external events
 	 */
 	public ListAllRichTasksForFacility(int facilityId, JsonCallbackEvents events) {
@@ -116,12 +116,12 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
+		loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
 
 		// checkbox column column
-        if (checkable) {
-		    table.addCheckBoxColumn();
-        }
+		if (checkable) {
+			table.addCheckBoxColumn();
+		}
 
 		table.addIdColumn("Task Id", tableFieldUpdater);
 
@@ -148,12 +148,12 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 					public String getValue(Task task) {
 						return String.valueOf(task.getStatus());
 					}
-		}, tableFieldUpdater);
+				}, tableFieldUpdater);
 
 		// start COLUMN
 		TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
-                return result.getStartTime();
+				return result.getStartTime();
 			}
 		};
 
@@ -195,7 +195,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "rowred";
 				}
-				return "";
+		return "";
 
 			}
 		});
@@ -212,173 +212,173 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		js.retrieveData(JSON_URL, "facility="+facilityId,this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<Task>().sortByService(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<Task>().sortByService(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(Task object) {
-        list.add(object);
-        oracle.add(object.getExecService().getService().getName());
-        oracle.add(object.getExecService().getType());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(Task object) {
+		list.add(object);
+		oracle.add(object.getExecService().getService().getName());
+		oracle.add(object.getExecService().getType());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(Task object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(Task object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Task> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Task> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Tasks.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Tasks.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Tasks started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Tasks started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Task>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Tasks loaded: " + list.size());
-        events.onFinished(jso);
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Task>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Tasks loaded: " + list.size());
+		events.onFinished(jso);
 
-    }
+	}
 
-    public void insertToTable(int index, Task object) {
-        list.add(index, object);
-        oracle.add(object.getExecService().getService().getName());
-        oracle.add(object.getExecService().getType());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Task object) {
+		list.add(index, object);
+		oracle.add(object.getExecService().getService().getName());
+		oracle.add(object.getExecService().getType());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Task> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Task object : list) {
-            oracle.add(object.getExecService().getService().getName());
-            oracle.add(object.getExecService().getType());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Task> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Task object : list) {
+			oracle.add(object.getExecService().getService().getName());
+			oracle.add(object.getExecService().getType());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Task> getList() {
-        return this.list;
-    }
+	public ArrayList<Task> getList() {
+		return this.list;
+	}
 
-    public void setEvents(JsonCallbackEvents events) {
-        this.events = events;
-    }
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
 
-    public void filterTable(String filter){
+	public void filterTable(String filter){
 
-        // store list only for first time
-        if (backupList.isEmpty() || backupList == null) {
-            backupList.addAll(list);
-        }
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(backupList);
-        } else {
-            for (Task tsk : backupList){
-                if (tsk.getExecService().getService().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(tsk);
-                } else if (tsk.getExecService().getType().toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(tsk);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (Task tsk : backupList){
+				if (tsk.getExecService().getService().getName().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(tsk);
+				} else if (tsk.getExecService().getType().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(tsk);
+				}
+			}
+		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No service propagation results matching '"+filter+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No service propagation results matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
 
 }

@@ -56,7 +56,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public FacilitiesTabItem(){ }
 
 	public boolean isPrepared(){
@@ -84,48 +84,48 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 
 		// add new facility button
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTab(new CreateFacilityTabItem());
-            }
-        }));
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTab(new CreateFacilityTabItem());
+			}
+		}));
 
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
 
 		// add delete facilities button
 		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteFacilities());
-        tabMenu.addWidget(deleteButton);
-        deleteButton.addClickHandler(new ClickHandler() {
-            @Override
+		tabMenu.addWidget(deleteButton);
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
-                final ArrayList<Facility> list = facilities.getTableSelectedList();
-                String text = "Following facilities will be deleted.";
-                UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<list.size(); i++) {
-                            if (i == list.size()-1) {
-                                DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-                                request.deleteFacility(list.get(i).getId());
-                            } else {
-                                DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                                request.deleteFacility(list.get(i).getId());
-                            }
-                        }
-                    }
-                });
+				final ArrayList<Facility> list = facilities.getTableSelectedList();
+				String text = "Following facilities will be deleted.";
+				UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<list.size(); i++) {
+							if (i == list.size()-1) {
+								DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+								request.deleteFacility(list.get(i).getId());
+							} else {
+								DeleteFacility request = new DeleteFacility(JsonCallbackEvents.disableButtonEvents(deleteButton));
+								request.deleteFacility(list.get(i).getId());
+							}
+						}
+					}
+				});
 			}
 		});
 
 		// filter box
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                facilities.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterFacilities());
+			public void searchFor(String text) {
+				facilities.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterFacilities());
 
-        deleteButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(facilities, table, deleteButton);
+		deleteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(facilities, table, deleteButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -182,7 +182,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Facilities", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Facilities", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

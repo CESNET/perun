@@ -7,12 +7,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -34,11 +34,11 @@ sub TO_JSON
 	}
 
 	my $loa;
-  if (defined($self->{_loa})) {
-    $loa = $self->{_loa}*1;
-  } else {
-    $loa = 0;
-  }
+	if (defined($self->{_loa})) {
+		$loa = $self->{_loa}*1;
+	} else {
+		$loa = 0;
+	}
 
 	my $extSource = $self->{_extSource};
 
@@ -47,75 +47,75 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getLoa
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_loa};
+	return $self->{_loa};
 }
 
 sub setLoa
 {
-    my $self = shift;
-    $self->{_loa} = shift;
+	my $self = shift;
+	$self->{_loa} = shift;
 
-    return;
+	return;
 }
 
 sub getLogin
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_login};
+	return $self->{_login};
 }
 
 sub setLogin
 {
-    my $self = shift;
-    $self->{_login} = shift;
+	my $self = shift;
+	$self->{_login} = shift;
 
-    return;
+	return;
 }
 
 sub getExtSource
 {
 	my $self = shift;
 
-    if ( ref($self->{_extSource}) eq 'HASH' ) {
-    	return Perun::beans::ExtSource->fromHash($self->{_extSource});
-    } else {
-    	return $self->{_extSource};
+	if ( ref($self->{_extSource}) eq 'HASH' ) {
+		return Perun::beans::ExtSource->fromHash($self->{_extSource});
+	} else {
+		return $self->{_extSource};
 	}
 }
 
 sub setExtSource
 {
-    my $self = shift;
-    $self->{_extSource} = shift;
+	my $self = shift;
+	$self->{_extSource} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->getId, $self->getLogin, $self->getExtSource->getName, $self->getExtSource->getId, $self->getLoa, $self->getExtSource->getType);
+	my $self = shift;
+	return ($self->getId, $self->getLogin, $self->getExtSource->getName, $self->getExtSource->getId, $self->getLoa, $self->getExtSource->getType);
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('UserExtSource id','Login','ExtSource name', 'ExtSource id', 'LoA', 'Type');
+	return ('UserExtSource id','Login','ExtSource name', 'ExtSource id', 'LoA', 'Type');
 }
 
 1;

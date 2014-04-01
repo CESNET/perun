@@ -20,37 +20,37 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttri
  */
 public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
-  public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
-    Attribute attribute = new Attribute(attributeDefinition);
+	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		Attribute attribute = new Attribute(attributeDefinition);
 
-    Vo vo = sess.getPerunBl().getResourcesManagerBl().getVo(sess, resource);
-    attribute.setValue(vo.getShortName());
+		Vo vo = sess.getPerunBl().getResourcesManagerBl().getVo(sess, resource);
+		attribute.setValue(vo.getShortName());
 
-    return attribute;
+		return attribute;
 
-  }
+	}
 
-  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-    throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
-  }
+	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
+	}
 
-  public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
-    throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attribute);
-  }
+	public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attribute);
+	}
 
 
-  public List<String> getStrongDependencies() {
-    List<String> strongDependencies = new ArrayList<String>();
-    strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
-    return strongDependencies;
-  }
+	public List<String> getStrongDependencies() {
+		List<String> strongDependencies = new ArrayList<String>();
+		strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
+		return strongDependencies;
+	}
 
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);
-    attr.setFriendlyName("voShortName");
-    attr.setType(String.class.getName());
-    attr.setDescription("Short name of VO where this resource is assigned");
-    return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);
+		attr.setFriendlyName("voShortName");
+		attr.setType(String.class.getName());
+		attr.setDescription("Short name of VO where this resource is assigned");
+		return attr;
+	}
 }

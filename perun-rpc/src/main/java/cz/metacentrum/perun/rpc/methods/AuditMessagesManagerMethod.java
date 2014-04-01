@@ -19,25 +19,25 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
-    getMessages {
-        @Override
-        public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+	getMessages {
+		@Override
+		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-            if (parms.contains("count")) return ac.getAuditMessagesManager().getMessages(ac.getSession(), parms.readInt("count"));
-                else return ac.getAuditMessagesManager().getMessages(ac.getSession());
-        }
-    },
+			if (parms.contains("count")) return ac.getAuditMessagesManager().getMessages(ac.getSession(), parms.readInt("count"));
+			else return ac.getAuditMessagesManager().getMessages(ac.getSession());
+		}
+	},
 
-    /*#
-     * Log an auditer message
-     *
-     * @param msg String Message to be logged
-     */
-    log {
-      @Override
-      public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-          ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
-          return null;
-      }
-    };
+	/*#
+	 * Log an auditer message
+	 *
+	 * @param msg String Message to be logged
+	 */
+	log {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
+			return null;
+		}
+	};
 }

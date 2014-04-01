@@ -29,7 +29,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -49,7 +49,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public PublicationsTabItem(){
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
@@ -64,28 +64,28 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
 
-        AbsolutePanel dp = new AbsolutePanel();
-        final FlexTable menu = new FlexTable();
-        menu.setCellSpacing(5);
-        menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.booksIcon()));
-        menu.setHTML(0, 1, "Publications");
-        menu.getFlexCellFormatter().setStyleName(0, 1, "now-managing");
+		AbsolutePanel dp = new AbsolutePanel();
+		final FlexTable menu = new FlexTable();
+		menu.setCellSpacing(5);
+		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.booksIcon()));
+		menu.setHTML(0, 1, "Publications");
+		menu.getFlexCellFormatter().setStyleName(0, 1, "now-managing");
 
-        menu.setHTML(0, 2, "&nbsp;");
-        menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+		menu.setHTML(0, 2, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-        CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                tabPanel.getSelectedTabItem().draw();
-            }
-        });
-        dp.add(cb);
-        cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabPanel.getSelectedTabItem().draw();
+			}
+		});
+		dp.add(cb);
+		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
-        dp.add(menu);
-        firstTabPanel.add(dp);
-        firstTabPanel.setCellHeight(dp, "30px");
+		dp.add(menu);
+		firstTabPanel.add(dp);
+		firstTabPanel.setCellHeight(dp, "30px");
 
 		// prepare panel
 		tabPanel.clear();
@@ -99,7 +99,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		// select last active tab before clearing
 		tabPanel.finishAdding();
 
-        firstTabPanel.add(tabPanel);
+		firstTabPanel.add(tabPanel);
 		this.contentWidget.setWidget(firstTabPanel);
 
 		return getWidget();
@@ -143,7 +143,7 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Publications", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Publications", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

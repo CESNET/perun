@@ -24,34 +24,34 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_smb_conf_path extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-        /*String path = (String) attribute.getValue();
-        if (path == null) {
-            throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
-        }
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		/*String path = (String) attribute.getValue();
+			if (path == null) {
+			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
+			}
 
-        Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
-        Matcher match = pattern.matcher(path);
+			Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+			Matcher match = pattern.matcher(path);
 
-        if (!match.matches()) {
-            throw new WrongAttributeValueException(attribute, "Bad smb_conf_path attribute format " + path);
-        }*/
-    }
+			if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, "Bad smb_conf_path attribute format " + path);
+			}*/
+	}
 
 
-    public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-       /* Attribute attr = new Attribute(attribute);
-        attr.setValue("/");
-        return attr;*/
-        return new Attribute();
-    }
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		/* Attribute attr = new Attribute(attribute);
+			 attr.setValue("/");
+			 return attr;*/
+		return new Attribute();
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("smb_conf_path");
-      attr.setType(String.class.getName());
-      attr.setDescription("Path to Samba configuration files.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("smb_conf_path");
+		attr.setType(String.class.getName());
+		attr.setDescription("Path to Samba configuration files.");
+		return attr;
+	}
 }

@@ -73,10 +73,10 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     * @param group (null = if you want only VO form)
-     * @param form
-     */
+	 * @param vo
+	 * @param group (null = if you want only VO form)
+	 * @param form
+	 */
 	public MailsTabItem(VirtualOrganization vo, Group group, ApplicationForm form) {
 		this.vo = vo;
 		this.voId = vo.getId();
@@ -91,9 +91,9 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     * @param groupId (0 = if you want only VO form)
-     */
+	 * @param voId
+	 * @param groupId (0 = if you want only VO form)
+	 */
 	public MailsTabItem(int voId, int groupId) {
 		this.voId = voId;
 		JsonCallbackEvents events = new JsonCallbackEvents(){
@@ -101,7 +101,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 				vo = jso.cast();
 			}
 		};
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 
 		JsonCallbackEvents events2 = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
@@ -116,7 +116,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 					group = jso.cast();
 				}
 			};
-            new GetEntityById(PerunEntity.GROUP, groupId, events3).retrieveData();
+			new GetEntityById(PerunEntity.GROUP, groupId, events3).retrieveData();
 		} else {
 			new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId, events2).retrieveData();
 		}
@@ -161,87 +161,87 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
 		// add button
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMail(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateMailTabItem(vo, group, form));
-            }
-        }));
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateMailTabItem(vo, group, form));
+			}
+		}));
 
 		// remove button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMail());
 		menu.addWidget(removeButton);
-        removeButton.addClickHandler(new ClickHandler() {
+		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<ApplicationMail> list = mailsRequest.getTableSelectedList();
-                String text = "Following mail definitions will be removed and users won't receive them anymore.";
-                UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        for (int i=0; i<list.size(); i++) {
-                            if (i != list.size()-1) {
-                                DeleteApplicationMail request = new DeleteApplicationMail(entity, JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.deleteMail(list.get(i).getId(), entityId);
-                            } else {
-                                // refresh table on last call
-                                DeleteApplicationMail request = new DeleteApplicationMail(entity, JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(mailsRequest)));
-                                request.deleteMail(list.get(i).getId(), entityId);
-                            }
-                        }
-                    }
-                });
+				String text = "Following mail definitions will be removed and users won't receive them anymore.";
+				UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						for (int i=0; i<list.size(); i++) {
+							if (i != list.size()-1) {
+								DeleteApplicationMail request = new DeleteApplicationMail(entity, JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.deleteMail(list.get(i).getId(), entityId);
+							} else {
+								// refresh table on last call
+								DeleteApplicationMail request = new DeleteApplicationMail(entity, JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(mailsRequest)));
+								request.deleteMail(list.get(i).getId(), entityId);
+							}
+						}
+					}
+				});
 			}
 		});
 
 		// enable button
-        CustomButton enableButton = TabMenu.getPredefinedButton(ButtonType.ENABLE, ButtonTranslation.INSTANCE.enableMail(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                ArrayList<ApplicationMail> list = mailsRequest.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    SetSendingEnabled request = new SetSendingEnabled(JsonCallbackEvents.refreshTableEvents(mailsRequest));
-                    request.setEnabled(list, true);
-                }
-            }
-        });
+		CustomButton enableButton = TabMenu.getPredefinedButton(ButtonType.ENABLE, ButtonTranslation.INSTANCE.enableMail(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				ArrayList<ApplicationMail> list = mailsRequest.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					SetSendingEnabled request = new SetSendingEnabled(JsonCallbackEvents.refreshTableEvents(mailsRequest));
+					request.setEnabled(list, true);
+				}
+			}
+		});
 		menu.addWidget(enableButton);
 
 		// disable button
-        CustomButton disableButton = TabMenu.getPredefinedButton(ButtonType.DISABLE, ButtonTranslation.INSTANCE.disableMail(), new ClickHandler() {
+		CustomButton disableButton = TabMenu.getPredefinedButton(ButtonType.DISABLE, ButtonTranslation.INSTANCE.disableMail(), new ClickHandler() {
 
-            public void onClick(ClickEvent event) {
-                ArrayList<ApplicationMail> list = mailsRequest.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    SetSendingEnabled request = new SetSendingEnabled(JsonCallbackEvents.refreshTableEvents(mailsRequest));
-                    request.setEnabled(list, false);
-                }
-            }
-        });
-        menu.addWidget(disableButton);
+			public void onClick(ClickEvent event) {
+				ArrayList<ApplicationMail> list = mailsRequest.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					SetSendingEnabled request = new SetSendingEnabled(JsonCallbackEvents.refreshTableEvents(mailsRequest));
+					request.setEnabled(list, false);
+				}
+			}
+		});
+		menu.addWidget(disableButton);
 
 		// for VO only
 		if (group == null) {
 			menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.mailFooterButton(), ButtonTranslation.INSTANCE.editMailFooter(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(vo));
+					session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(vo));
 				}
 			}));
 		}
 
-        CustomButton copy;
+		CustomButton copy;
 
-        if (group == null) {
-           copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyMailsFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(voId, 0));
-                }
-            });
-        } else {
-            copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyMailsFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(group.getVoId(), groupId));
-                }
-            });
-        }
+		if (group == null) {
+			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyMailsFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(voId, 0));
+				}
+			});
+		} else {
+			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyMailsFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(group.getVoId(), groupId));
+				}
+			});
+		}
 
-        menu.addWidget(copy);
+		menu.addWidget(copy);
 
 		// TABLE
 		CellTable<ApplicationMail> table = mailsRequest.getTable(new FieldUpdater<ApplicationMail, String>() {
@@ -253,14 +253,14 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
-        removeButton.setEnabled(false);
-        enableButton.setEnabled(false);
-        disableButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(mailsRequest, table, removeButton);
-        JsonUtils.addTableManagedButton(mailsRequest, table, enableButton);
-        JsonUtils.addTableManagedButton(mailsRequest, table, disableButton);
+		removeButton.setEnabled(false);
+		enableButton.setEnabled(false);
+		disableButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(mailsRequest, table, removeButton);
+		JsonUtils.addTableManagedButton(mailsRequest, table, enableButton);
+		JsonUtils.addTableManagedButton(mailsRequest, table, disableButton);
 
-        session.getUiElements().resizePerunTable(sp, 100);
+		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
 
@@ -313,10 +313,10 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
 		if (groupId == 0) {
 			session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-            session.getUiElements().getBreadcrumbs().setLocation(vo, "Application notifications", getUrlWithParameters());
+			session.getUiElements().getBreadcrumbs().setLocation(vo, "Application notifications", getUrlWithParameters());
 		} else {
 			session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-            session.getUiElements().getBreadcrumbs().setLocation(group, "Application notifications", getUrlWithParameters());
+			session.getUiElements().getBreadcrumbs().setLocation(group, "Application notifications", getUrlWithParameters());
 		}
 		if(vo != null){
 			session.setActiveVo(vo);

@@ -47,14 +47,14 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 	/**
 	 * Creates a new callback
 	 *
-     */
+	 */
 	public GetAuditMessages() {}
 
 	/**
 	 * Creates a new callback
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public GetAuditMessages(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -112,7 +112,7 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-	    loaderImage.setEmptyResultMessage("No audit messages found.");
+		loaderImage.setEmptyResultMessage("No audit messages found.");
 
 		if(checkable) {
 			// checkbox column column
@@ -137,7 +137,7 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 		// TIME COLUMN
 		TextColumn<AuditMessage> timeColumn = new TextColumn<AuditMessage>() {
 			public String getValue(AuditMessage msg) {
-                return msg.getCreatedAt().substring(0, msg.getCreatedAt().indexOf("."));
+				return msg.getCreatedAt().substring(0, msg.getCreatedAt().indexOf("."));
 			}
 		};
 
@@ -156,116 +156,116 @@ public class GetAuditMessages implements JsonCallback, JsonCallbackTable<AuditMe
 
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<AuditMessage>().sortById(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<AuditMessage>().sortById(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object AuditMessage to be added as new row
-     */
-    public void addToTable(AuditMessage object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object AuditMessage to be added as new row
+	 */
+	public void addToTable(AuditMessage object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object AuditMessage to be removed as row
-     */
-    public void removeFromTable(AuditMessage object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object AuditMessage to be removed as row
+	 */
+	public void removeFromTable(AuditMessage object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<AuditMessage> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<AuditMessage> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading audit messages.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading audit messages.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading audit messages started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading audit messages started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<AuditMessage>jsoAsList(jso));
-        //sortTable(); comes pre-sorted
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Audit messages loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<AuditMessage>jsoAsList(jso));
+		//sortTable(); comes pre-sorted
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Audit messages loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, AuditMessage object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, AuditMessage object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<AuditMessage> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<AuditMessage> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<AuditMessage> getList() {
-        return this.list;
-    }
+	public ArrayList<AuditMessage> getList() {
+		return this.list;
+	}
 
 }

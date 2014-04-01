@@ -13,54 +13,54 @@ import cz.metacentrum.perun.core.impl.AuditerMessage;
 
 public class PerunTransactionManager extends DataSourceTransactionManager implements ResourceTransactionManager, InitializingBean {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  private Auditer auditer;
+	private Auditer auditer;
 
-  @Override
-  protected Object doSuspend(Object transaction) {
-    if(TransactionSynchronizationManager.hasResource(this.getAuditer())) {
-      List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(getAuditer());
-      logger.trace("Storing audit messages while suspending transaction. Number of messages " + messages.size());
-    }
+	@Override
+	protected Object doSuspend(Object transaction) {
+		if(TransactionSynchronizationManager.hasResource(this.getAuditer())) {
+			List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(getAuditer());
+			logger.trace("Storing audit messages while suspending transaction. Number of messages " + messages.size());
+		}
 
-    return super.doSuspend(transaction);
-  }
+		return super.doSuspend(transaction);
+	}
 
-  @Override
-  protected void doResume(Object transaction, Object suspendedResources) {
-    if(TransactionSynchronizationManager.hasResource(this.getAuditer())) {
-      List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(transaction);
-      logger.trace("Retrieving audit messages while rusuming transaction. Number of messages " + messages.size());
-    }
+	@Override
+	protected void doResume(Object transaction, Object suspendedResources) {
+		if(TransactionSynchronizationManager.hasResource(this.getAuditer())) {
+			List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(transaction);
+			logger.trace("Retrieving audit messages while rusuming transaction. Number of messages " + messages.size());
+		}
 
-    super.doResume(transaction, suspendedResources);
-  }
+		super.doResume(transaction, suspendedResources);
+	}
 
-  @Override
-  protected void doCommit(DefaultTransactionStatus status) {
-    super.doCommit(status);
-    this.getAuditer().flush();
-  }
+	@Override
+	protected void doCommit(DefaultTransactionStatus status) {
+		super.doCommit(status);
+		this.getAuditer().flush();
+	}
 
-  @Override
-  protected void doRollback(DefaultTransactionStatus status) {
-    super.doRollback(status);
-    this.getAuditer().clean();
-  }
+	@Override
+	protected void doRollback(DefaultTransactionStatus status) {
+		super.doRollback(status);
+		this.getAuditer().clean();
+	}
 
-  @Override
-  protected void doCleanupAfterCompletion(Object transaction) {
-    super.doCleanupAfterCompletion(transaction);
-    this.getAuditer().clean();
-  }
+	@Override
+	protected void doCleanupAfterCompletion(Object transaction) {
+		super.doCleanupAfterCompletion(transaction);
+		this.getAuditer().clean();
+	}
 
-  public Auditer getAuditer() {
-    return this.auditer;
-  }
+	public Auditer getAuditer() {
+		return this.auditer;
+	}
 
-  public void setAuditer(Auditer auditer) {
-    this.auditer = auditer;
-  }
+	public void setAuditer(Auditer auditer) {
+		this.auditer = auditer;
+	}
 
 }

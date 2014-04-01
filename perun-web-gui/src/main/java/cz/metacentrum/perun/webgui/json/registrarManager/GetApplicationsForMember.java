@@ -39,8 +39,8 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// MEMBER ID
 	private int memberId;
-    // GROUP ID
-    private int groupId;
+	// GROUP ID
+	private int groupId;
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getApplicationsForMember";
 	// Selection model
@@ -66,26 +66,26 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 	/**
 	 * Creates a new method instance
-     *
+	 *
 	 * @param memberId Member ID
-     * @param groupId Group ID to filter by (0 =  all)
+	 * @param groupId Group ID to filter by (0 =  all)
 	 */
 	public GetApplicationsForMember(int memberId, int groupId) {
 		this.memberId = memberId;
-        this.groupId = groupId;
-    }
+		this.groupId = groupId;
+	}
 
 	/**
 	 * Creates a new method instance
 	 *
-     * @param memberId Member ID
-     * @param groupId Group ID to filter by (0 =  all)
+	 * @param memberId Member ID
+	 * @param groupId Group ID to filter by (0 =  all)
 	 * @param events Custom events
 	 */
 	public GetApplicationsForMember(int memberId, int groupId, JsonCallbackEvents events) {
-        this.memberId = memberId;
-        this.groupId = groupId;
-        this.events = events;
+		this.memberId = memberId;
+		this.groupId = groupId;
+		this.events = events;
 	}
 
 	/**
@@ -126,11 +126,11 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        if (groupId == 0) {
-            loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
-        } else {
-            loaderImage.setEmptyResultMessage("No member's applications found for this group.");
-        }
+		if (groupId == 0) {
+			loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
+		} else {
+			loaderImage.setEmptyResultMessage("No member's applications found for this group.");
+		}
 
 		// columns
 		if (checkable) {
@@ -143,7 +143,7 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
 						// return only day
-                        return object.getCreatedAt().split(" ")[0];
+						return object.getCreatedAt().split(" ")[0];
 					}
 				}, tableFieldUpdater);
 		dateColumn.setSortable(true);
@@ -155,68 +155,68 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 		table.addColumn(dateColumn, "Created date");
 		table.setColumnWidth(dateColumn, "120px");
 
-        // Type column
-        Column<Application, String> typeColumn = new Column<Application, String>(
-                new PerunAppTypeCell()) {
-            @Override
-            public String getValue(Application object) {
-                return object.getType();
-            }
-        };
-        typeColumn.setFieldUpdater(tableFieldUpdater);
-        typeColumn.setSortable(true);
-        columnSortHandler.setComparator(typeColumn, new Comparator<Application>(){
-            public int compare(Application arg0, Application arg1) {
-                return (arg0.getType()).compareToIgnoreCase(arg1.getType());
-            }
-        });
-        table.addColumn(typeColumn, "Type");
-        table.setColumnWidth(typeColumn, "60px");
+		// Type column
+		Column<Application, String> typeColumn = new Column<Application, String>(
+				new PerunAppTypeCell()) {
+			@Override
+			public String getValue(Application object) {
+				return object.getType();
+			}
+		};
+		typeColumn.setFieldUpdater(tableFieldUpdater);
+		typeColumn.setSortable(true);
+		columnSortHandler.setComparator(typeColumn, new Comparator<Application>(){
+			public int compare(Application arg0, Application arg1) {
+				return (arg0.getType()).compareToIgnoreCase(arg1.getType());
+			}
+		});
+		table.addColumn(typeColumn, "Type");
+		table.setColumnWidth(typeColumn, "60px");
 
-        // State column
-        Column<Application, String> stateColumn = new Column<Application, String>(new CustomClickableTextCell()) {
-            @Override
-            public String getValue(Application object) {
-                return object.getTranslatedState(object.getState());
-            }
-            @Override
-            public String getCellStyleNames(Cell.Context context, Application object) {
+		// State column
+		Column<Application, String> stateColumn = new Column<Application, String>(new CustomClickableTextCell()) {
+			@Override
+			public String getValue(Application object) {
+				return object.getTranslatedState(object.getState());
+			}
+			@Override
+			public String getCellStyleNames(Cell.Context context, Application object) {
 
-                if ("NEW".equalsIgnoreCase(object.getState())) {
-                    return super.getCellStyleNames(context, object) + " rowgreen";
-                } else if ("VERIFIED".equalsIgnoreCase(object.getState())) {
-                    return super.getCellStyleNames(context, object) + " rowyellow";
-                } else if ("APPROVED".equalsIgnoreCase(object.getState())) {
-                    return super.getCellStyleNames(context, object) + " rowdarkgreen";
-                } else if ("REJECTED".equalsIgnoreCase(object.getState())) {
-                    return super.getCellStyleNames(context, object) + " rowred";
-                } else {
-                    return super.getCellStyleNames(context, object);
-                }
-            }
-        };
-        stateColumn.setFieldUpdater(tableFieldUpdater);
-        stateColumn.setSortable(true);
-        columnSortHandler.setComparator(stateColumn, new Comparator<Application>(){
-            public int compare(Application arg0, Application arg1) {
-                return (arg0.getTranslatedState(arg0.getState())).compareToIgnoreCase(arg1.getTranslatedState(arg1.getState()));
-            }
-        });
-        table.addColumn(stateColumn, "State");
-        table.setColumnWidth(stateColumn, "80px");
+				if ("NEW".equalsIgnoreCase(object.getState())) {
+					return super.getCellStyleNames(context, object) + " rowgreen";
+				} else if ("VERIFIED".equalsIgnoreCase(object.getState())) {
+					return super.getCellStyleNames(context, object) + " rowyellow";
+				} else if ("APPROVED".equalsIgnoreCase(object.getState())) {
+					return super.getCellStyleNames(context, object) + " rowdarkgreen";
+				} else if ("REJECTED".equalsIgnoreCase(object.getState())) {
+					return super.getCellStyleNames(context, object) + " rowred";
+				} else {
+					return super.getCellStyleNames(context, object);
+				}
+			}
+		};
+		stateColumn.setFieldUpdater(tableFieldUpdater);
+		stateColumn.setSortable(true);
+		columnSortHandler.setComparator(stateColumn, new Comparator<Application>(){
+			public int compare(Application arg0, Application arg1) {
+				return (arg0.getTranslatedState(arg0.getState())).compareToIgnoreCase(arg1.getTranslatedState(arg1.getState()));
+			}
+		});
+		table.addColumn(stateColumn, "State");
+		table.setColumnWidth(stateColumn, "80px");
 
 		Column<Application, String> extSourceColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {
 					@Override
 					public void render(
-							Context context,
-							SafeHtml value, SafeHtmlBuilder sb) {
+						Context context,
+						SafeHtml value, SafeHtmlBuilder sb) {
 						if (value != null) {
 							sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
 							sb.append(value);
 							sb.appendHtmlConstant("</div>");
 						}
-					}
+						}
 				},
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
@@ -252,14 +252,14 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 				new ClickableTextCell() {
 					@Override
 					public void render(
-							Context context,
-							SafeHtml value, SafeHtmlBuilder sb) {
+						Context context,
+						SafeHtml value, SafeHtmlBuilder sb) {
 						if (value != null) {
 							sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
 							sb.append(value);
 							sb.appendHtmlConstant("</div>");
 						}
-					}
+						}
 				},
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
@@ -307,34 +307,34 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 			}
 		});
 		table.addColumn(groupColumn, "Group");
-        table.setColumnWidth(groupColumn, "100px");
+		table.setColumnWidth(groupColumn, "100px");
 
-        Column<Application, String> modifiedColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<Application, String>() {
-                    public String getValue(Application object) {
-                        return object.getModifiedBy();
-                    }
-                }, tableFieldUpdater);
+		Column<Application, String> modifiedColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<Application, String>() {
+					public String getValue(Application object) {
+						return object.getModifiedBy();
+					}
+				}, tableFieldUpdater);
 
-        table.addColumn(modifiedColumn, "Modified by");
-        modifiedColumn.setSortable(true);
-        columnSortHandler.setComparator(modifiedColumn, new Comparator<Application>(){
-            public int compare(Application arg0, Application arg1) {
-                return arg0.getModifiedBy().compareTo(arg1.getModifiedBy());
-            }
-        });
+		table.addColumn(modifiedColumn, "Modified by");
+		modifiedColumn.setSortable(true);
+		columnSortHandler.setComparator(modifiedColumn, new Comparator<Application>(){
+			public int compare(Application arg0, Application arg1) {
+				return arg0.getModifiedBy().compareTo(arg1.getModifiedBy());
+			}
+		});
 
-        table.setRowStyles(new RowStyles<Application>() {
-            public String getStyleNames(Application application, int i) {
-                if (application.getType().equalsIgnoreCase("INITIAL")) {
-                    return "rowlightgreen";
-                } else {
-                    return "rowlightyellow";
-                }
-            }
-        });
+		table.setRowStyles(new RowStyles<Application>() {
+			public String getStyleNames(Application application, int i) {
+				if (application.getType().equalsIgnoreCase("INITIAL")) {
+					return "rowlightgreen";
+				} else {
+					return "rowlightyellow";
+				}
+			}
+		});
 
-        return table;
+		return table;
 
 	}
 
@@ -345,139 +345,139 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 
 		String param = "member=" + this.memberId;
 
-        if (groupId != 0) {
-            param += "&group=" + this.groupId;
-        }
+		if (groupId != 0) {
+			param += "&group=" + this.groupId;
+		}
 
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<Application>().sortByDate(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<Application>().sortByDate(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(Application object) {
-        list.add(object);
-        if (object.getGroup() != null) {
-            oracle.add(object.getGroup().getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(Application object) {
+		list.add(object);
+		if (object.getGroup() != null) {
+			oracle.add(object.getGroup().getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(Application object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(Application object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        backupList.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		backupList.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Application> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Application> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading members applications.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading members applications.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading members applications started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading members applications started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Application>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Applications loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Application>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Applications loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Application object) {
-        list.add(index, object);
-        if (object.getGroup() != null) {
-            oracle.add(object.getGroup().getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Application object) {
+		list.add(index, object);
+		if (object.getGroup() != null) {
+			oracle.add(object.getGroup().getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Application> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Application a : list) {
-            if (a.getGroup() != null) {
-                oracle.add(a.getGroup().getName());
-            }
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Application> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Application a : list) {
+			if (a.getGroup() != null) {
+				oracle.add(a.getGroup().getName());
+			}
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Application> getList() {
-        return this.list;
-    }
+	public ArrayList<Application> getList() {
+		return this.list;
+	}
 
 	public String getState() {
 		return state;
@@ -494,37 +494,37 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 			backupList.addAll(list);
 		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
+		if (filter.equalsIgnoreCase("")) {
 			list.addAll(backupList);
 		} else {
 			for (Application app : backupList){
 				// store app by filter
-                if (app.getGroup() != null) {
-                    if (app.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        list.add(app);
-                    }
-                }
+				if (app.getGroup() != null) {
+					if (app.getGroup().getName().toLowerCase().startsWith(filter.toLowerCase())) {
+						list.add(app);
+					}
+				}
 			}
 		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            // filtering is on groups only
-            loaderImage.setEmptyResultMessage("No member's applications for group matching '"+filter+"' found.");
-        } else {
-            if (groupId == 0) {
-                loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
-            } else {
-                loaderImage.setEmptyResultMessage("No member's applications found for this group.");
-            }
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			// filtering is on groups only
+			loaderImage.setEmptyResultMessage("No member's applications for group matching '"+filter+"' found.");
+		} else {
+			if (groupId == 0) {
+				loaderImage.setEmptyResultMessage("No member's applications found for this VO or it's groups.");
+			} else {
+				loaderImage.setEmptyResultMessage("No member's applications found for this group.");
+			}
+		}
 
-        loaderImage.loadingFinished();
-        dataProvider.flush();
-        dataProvider.refresh();
+		loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

@@ -8,17 +8,17 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * @author Michal Stava
  */
 public class ServiceUserMustHaveOwnerException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public ServiceUserMustHaveOwnerException(String message) {
-        super(message);
-    }
+	public ServiceUserMustHaveOwnerException(String message) {
+		super(message);
+	}
 
-    public ServiceUserMustHaveOwnerException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ServiceUserMustHaveOwnerException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ServiceUserMustHaveOwnerException(Throwable cause) {
-        super(cause);
-    }
+	public ServiceUserMustHaveOwnerException(Throwable cause) {
+		super(cause);
+	}
 }

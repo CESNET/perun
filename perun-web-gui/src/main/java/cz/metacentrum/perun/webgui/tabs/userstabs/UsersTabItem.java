@@ -63,7 +63,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public UsersTabItem(){ }
 
 	public boolean isPrepared(){
@@ -72,7 +72,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-        CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+		CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
 		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
@@ -80,17 +80,17 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
 
-        // HORIZONTAL MENU
-        TabMenu tabMenu = new TabMenu();
+		// HORIZONTAL MENU
+		TabMenu tabMenu = new TabMenu();
 
-        // search textbox
-        ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                startSearching(text);
-                searchString = text;
-            }
-        }, searchButton);
+		// search textbox
+		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				startSearching(text);
+				searchString = text;
+			}
+		}, searchButton);
 
 		// get the table
 		final CellTable<User> table = users.getTable(new FieldUpdater<User, String>() {
@@ -106,54 +106,54 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 			startSearching(searchString);
 		}
 
-        /*
-		Button b1 = tabMenu.addButton("List all", SmallIcons.INSTANCE.userGrayIcon(), new ClickHandler(){
+		/*
+			 Button b1 = tabMenu.addButton("List all", SmallIcons.INSTANCE.userGrayIcon(), new ClickHandler(){
+			 public void onClick(ClickEvent event) {
+			 GetCompleteRichUsers callback = new GetCompleteRichUsers(new JsonCallbackEvents(){
+			 public void onLoadingStart() {
+			 table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
+			 }
+			 public void onFinished(JavaScriptObject jso) {
+			 users.setList(JsonUtils.<User>jsoAsList(jso));
+			 users.sortTable();
+			 table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+			 }
+			 public void onError(PerunError error){
+			 users.clearTable();
+			 table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
+			 }
+			 });
+			 callback.retrieveData();
+			 }
+			 });
+			 b1.setTitle("List of all users in Perun");
+			 */
+
+		final CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(), ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon());
+		withoutVoButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-				GetCompleteRichUsers callback = new GetCompleteRichUsers(new JsonCallbackEvents(){
+				GetCompleteRichUsers callback = new GetCompleteRichUsers(null, new JsonCallbackEvents(){
 					public void onLoadingStart() {
+						users.clearTable();
 						table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
+						withoutVoButton.setProcessing(true);
 					}
 					public void onFinished(JavaScriptObject jso) {
 						users.setList(JsonUtils.<User>jsoAsList(jso));
 						users.sortTable();
-                        table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+						table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+						withoutVoButton.setProcessing(false);
 					}
-                    public void onError(PerunError error){
-                        users.clearTable();
-                        table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
-                    }
+					public void onError(PerunError error){
+						table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
+						withoutVoButton.setProcessing(false);
+					}
 				});
+				callback.getWithoutVo(true);
 				callback.retrieveData();
 			}
 		});
-		b1.setTitle("List of all users in Perun");
-        */
-
-		final CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(), ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon());
-        withoutVoButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				GetCompleteRichUsers callback = new GetCompleteRichUsers(null, new JsonCallbackEvents(){
-					public void onLoadingStart() {
-                        users.clearTable();
-						table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
-                        withoutVoButton.setProcessing(true);
-					}
-					public void onFinished(JavaScriptObject jso) {
-                        users.setList(JsonUtils.<User>jsoAsList(jso));
-                        users.sortTable();
-                        table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
-                        withoutVoButton.setProcessing(false);
-					}
-                    public void onError(PerunError error){
-                        table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
-                        withoutVoButton.setProcessing(false);
-                    }
-				});
-                callback.getWithoutVo(true);
-				callback.retrieveData();
-			}
-		});
-        tabMenu.addWidget(withoutVoButton);
+		tabMenu.addWidget(withoutVoButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -217,8 +217,8 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open() {
-        session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", getUrlWithParameters());
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

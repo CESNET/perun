@@ -6,58 +6,58 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my @authors = $self->{_authors};
-    my $rank = $self->{_rank};
-    my $id = $self->{_id};
-    my $externalId = $self->{_externalId};
-    my $publicationSystemId = $self->{publicationSystemId};
-    my $title = $self->{_title};
-    my $year = $self->{_year};
-    my $main = $self->{_main};
-    my $isbn = $self->{_isbn};
-    my $categoryId = $self->{_categoryId};
-    my $createdBy = $self->{_createdBy};
-    my $createdDate = $self->{_createdDate};
-    my $doi = $self->{_doi};
-    my $locked = $self->{_locked};
+	my @authors = $self->{_authors};
+	my $rank = $self->{_rank};
+	my $id = $self->{_id};
+	my $externalId = $self->{_externalId};
+	my $publicationSystemId = $self->{publicationSystemId};
+	my $title = $self->{_title};
+	my $year = $self->{_year};
+	my $main = $self->{_main};
+	my $isbn = $self->{_isbn};
+	my $categoryId = $self->{_categoryId};
+	my $createdBy = $self->{_createdBy};
+	my $createdDate = $self->{_createdDate};
+	my $doi = $self->{_doi};
+	my $locked = $self->{_locked};
 
-    my $str = 'Publication (';
-    $str .= "authors: @authors, " if (@authors);
-    $str .= "rank: $rank, " if ($rank);
-    $str .= "id: $id" if ($id);
-    $str .= "externalId: $externalId" if ($externalId);
-    $str .= "publicationSystemId: $publicationSystemId" if ($publicationSystemId);
-    $str .= "title: $title" if ($title);
-    $str .= "year: $year" if ($year);
-    $str .= "main: $main" if ($main);
-    $str .= "isbn: $isbn" if ($isbn);
-    $str .= "categoryId: $categoryId" if ($categoryId);
-    $str .= "createdBy: $createdBy" if ($createdBy);
-    $str .= "createdDate: $createdDate" if ($createdDate);
-    $str .= "doi: $doi" if ($doi);
-    $str .= "locked: $locked" if ($locked);
-    $str .= ')';
+	my $str = 'Publication (';
+	$str .= "authors: @authors, " if (@authors);
+	$str .= "rank: $rank, " if ($rank);
+	$str .= "id: $id" if ($id);
+	$str .= "externalId: $externalId" if ($externalId);
+	$str .= "publicationSystemId: $publicationSystemId" if ($publicationSystemId);
+	$str .= "title: $title" if ($title);
+	$str .= "year: $year" if ($year);
+	$str .= "main: $main" if ($main);
+	$str .= "isbn: $isbn" if ($isbn);
+	$str .= "categoryId: $categoryId" if ($categoryId);
+	$str .= "createdBy: $createdBy" if ($createdBy);
+	$str .= "createdDate: $createdDate" if ($createdDate);
+	$str .= "doi: $doi" if ($doi);
+	$str .= "locked: $locked" if ($locked);
+	$str .= ')';
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    my $publication = Perun::Common::fromHash(@_);
-    for my $author (@{$publication->{_authors}}) {
-      $author = Perun::beans::Author::fromHash("Perun::beans::Author", $author);
-    }
-    return $publication;
+	my $publication = Perun::Common::fromHash(@_);
+	for my $author (@{$publication->{_authors}}) {
+		$author = Perun::beans::Author::fromHash("Perun::beans::Author", $author);
+	}
+	return $publication;
 }
 
 sub TO_JSON
@@ -167,228 +167,228 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getTitle
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_title};
+	return $self->{_title};
 }
 
 sub setTitle
 {
-    my $self = shift;
-    $self->{_title} = shift;
+	my $self = shift;
+	$self->{_title} = shift;
 
-    return;
+	return;
 }
 
 sub getRank
 {
 	my $self = shift;
 
-    return $self->{_rank};
+	return $self->{_rank};
 }
 
 sub setRank
 {
-    my $self = shift;
-    $self->{_rank} = shift;
+	my $self = shift;
+	$self->{_rank} = shift;
 
-    return;
+	return;
 }
 
 sub getExternalId
 {
 	my $self = shift;
 
-    return $self->{_externalId};
+	return $self->{_externalId};
 }
 
 sub setExternalId
 {
-    my $self = shift;
-    $self->{_externalId} = shift;
+	my $self = shift;
+	$self->{_externalId} = shift;
 
-    return;
+	return;
 }
 
 sub getPublicationSystemId
 {
 	my $self = shift;
 
-    return $self->{_publicationSystemId};
+	return $self->{_publicationSystemId};
 }
 
 sub setPublicationSystemId
 {
-    my $self = shift;
-    $self->{_publicationSystemId} = shift;
+	my $self = shift;
+	$self->{_publicationSystemId} = shift;
 
-    return;
+	return;
 }
 
 sub getYear
 {
 	my $self = shift;
 
-    return $self->{_year};
+	return $self->{_year};
 }
 
 sub setYear
 {
-    my $self = shift;
-    $self->{_year} = shift;
+	my $self = shift;
+	$self->{_year} = shift;
 
-    return;
+	return;
 }
 
 sub getMain
 {
 	my $self = shift;
 
-    return $self->{_main};
+	return $self->{_main};
 }
 
 sub setMain
 {
-    my $self = shift;
-    $self->{_main} = shift;
+	my $self = shift;
+	$self->{_main} = shift;
 
-    return;
+	return;
 }
 
 sub getIsbn
 {
 	my $self = shift;
 
-    return $self->{_isbn};
+	return $self->{_isbn};
 }
 
 sub setIsbn
 {
-    my $self = shift;
-    $self->{_isbn} = shift;
+	my $self = shift;
+	$self->{_isbn} = shift;
 
-    return;
+	return;
 }
 
 sub getCategoryId
 {
 	my $self = shift;
 
-    return $self->{_categoryId};
+	return $self->{_categoryId};
 }
 
 sub setCategoryId
 {
-    my $self = shift;
-    $self->{_categoryId} = shift;
+	my $self = shift;
+	$self->{_categoryId} = shift;
 
-    return;
+	return;
 }
 
 sub getCreatedBy
 {
 	my $self = shift;
 
-    return $self->{_createdBy};
+	return $self->{_createdBy};
 }
 
 sub setCreatedBy
 {
-    my $self = shift;
-    $self->{_createdBy} = shift;
+	my $self = shift;
+	$self->{_createdBy} = shift;
 
-    return;
+	return;
 }
 
 sub getCreatedDate
 {
 	my $self = shift;
 
-    return $self->{_createdDate};
+	return $self->{_createdDate};
 }
 
 sub setCreatedDate
 {
-    my $self = shift;
-    $self->{_createdDate} = shift;
+	my $self = shift;
+	$self->{_createdDate} = shift;
 
-    return;
+	return;
 }
 
 sub getDoi
 {
 	my $self = shift;
 
-    return $self->{_doi};
+	return $self->{_doi};
 }
 
 sub setDoi
 {
-    my $self = shift;
-    $self->{_doi} = shift;
+	my $self = shift;
+	$self->{_doi} = shift;
 
-    return;
+	return;
 }
 
 sub getLocked
 {
 	my $self = shift;
 
-    return $self->{_locked};
+	return $self->{_locked};
 }
 
 sub setLocked
 {
-    my $self = shift;
-    $self->{_locked} = shift;
+	my $self = shift;
+	$self->{_locked} = shift;
 
-    return;
+	return;
 }
 
 sub getCathegortId
 {
 	my $self = shift;
 
-    return $self->{_cathegoryId};
+	return $self->{_cathegoryId};
 }
 
 sub setCathegortId
 {
-    my $self = shift;
-    $self->{_cathegoryId} = shift;
+	my $self = shift;
+	$self->{_cathegoryId} = shift;
 
-    return;
+	return;
 }
 
 sub getAuthors
 {
-    my $self = shift;
+	my $self = shift;
 
-    return @{$self->{_authors}};
+	return @{$self->{_authors}};
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->{_title});
+	my $self = shift;
+	return ($self->{_id}, $self->{_title});
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('ID', 'Title');
+	return ('ID', 'Title');
 }
 
 

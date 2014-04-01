@@ -66,7 +66,7 @@ public class PerunAttributeDescriptionCell extends AbstractSafeHtmlCell<cz.metac
 	protected void render(com.google.gwt.cell.client.Cell.Context context,
 			SafeHtml value, SafeHtmlBuilder sb) {
 		if (value != null) {
-	      sb.append(value);
-	    }
+			sb.append(value);
+		}
 	}
 }

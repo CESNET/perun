@@ -32,17 +32,17 @@ public class CreateAttribute {
 	private String description = "";
 	private String type = "";
 	private String namespace = "";
-    private String displayName = "";
+	private String displayName = "";
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public CreateAttribute() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public CreateAttribute(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -57,7 +57,7 @@ public class CreateAttribute {
 	 */
 	public void createAttributeDefinition(final String displayName, final String friendlyName, final String description, final String namespace, final String type) {
 
-        this.displayName = displayName;
+		this.displayName = displayName;
 		this.friendlyName = friendlyName;
 		this.description = description;
 		this.namespace = namespace;
@@ -107,13 +107,13 @@ public class CreateAttribute {
 			result = false;
 		}
 
-        if(friendlyName.length() == 0){
-            errorMsg += "You must enter attribute <strong>Display name</strong>.</ br>";
-            result = false;
-        }
+		if(friendlyName.length() == 0){
+			errorMsg += "You must enter attribute <strong>Display name</strong>.</ br>";
+			result = false;
+		}
 
 
-        if(namespace.length() == 0){
+		if(namespace.length() == 0){
 			errorMsg += "Wrong parameter <strong>EntityType+DefinitionType</strong>.</ br>";
 			result = false;
 		}
@@ -140,7 +140,7 @@ public class CreateAttribute {
 
 		JSONObject attributeDef = new JSONObject();
 		attributeDef.put("id", new JSONNumber(0));
-        attributeDef.put("displayName", new JSONString(displayName));
+		attributeDef.put("displayName", new JSONString(displayName));
 		attributeDef.put("friendlyName", new JSONString(friendlyName));
 		attributeDef.put("description", new JSONString(description));
 		attributeDef.put("namespace", new JSONString(namespace));

@@ -34,226 +34,226 @@ import java.util.ArrayList;
  */
 public class CopyFormTabItem implements TabItem {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Copy form items");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Copy form items");
 
-    /**
-     * Entity ID to set
-     */
-    private int voId = 0;
-    private int groupId = 0;
+	/**
+	 * Entity ID to set
+	 */
+	private int voId = 0;
+	private int groupId = 0;
 
-    /**
-     * Creates a tab instance
-     *
-     * @param voId
-     * @param groupId
-     */
-    public CopyFormTabItem(int voId, int groupId){
-        this.voId = voId;
-        this.groupId = groupId;
-    }
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param voId
+	 * @param groupId
+	 */
+	public CopyFormTabItem(int voId, int groupId){
+		this.voId = voId;
+		this.groupId = groupId;
+	}
 
-    public boolean isPrepared(){
-        return true;
-    }
+	public boolean isPrepared(){
+		return true;
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        final FlexTable content = new FlexTable();
-        content.setStyleName("inputFormFlexTable");
+		final FlexTable content = new FlexTable();
+		content.setStyleName("inputFormFlexTable");
 
-        // boxes
-        final ListBoxWithObjects<VirtualOrganization> vosBox = new ListBoxWithObjects<VirtualOrganization>();
-        final ListBoxWithObjects<Group> groupsBox = new ListBoxWithObjects<Group>();
+		// boxes
+		final ListBoxWithObjects<VirtualOrganization> vosBox = new ListBoxWithObjects<VirtualOrganization>();
+		final ListBoxWithObjects<Group> groupsBox = new ListBoxWithObjects<Group>();
 
-        final CustomButton save;
+		final CustomButton save;
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        VerticalPanel vp = new VerticalPanel();
-        TabMenu menu = new TabMenu();
+		VerticalPanel vp = new VerticalPanel();
+		TabMenu menu = new TabMenu();
 
-        if (groupId == 0) {
+		if (groupId == 0) {
 
-            titleWidget.setText("Copy form items from VO");
+			titleWidget.setText("Copy form items from VO");
 
-            save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyFromVo());
+			save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyFromVo());
 
-            // get them
-            GetVos vos = new GetVos(new JsonCallbackEvents(){
-                @Override
-                public void onFinished(JavaScriptObject jso) {
-                    vosBox.clear();
-                    ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
-                    vos = new TableSorter<VirtualOrganization>().sortByName(vos);
-                    vosBox.addAllItems(vos);
-                    if (vosBox.getAllObjects().size() > 0) {
-                        save.setEnabled(true);
-                    }
-                }
-                @Override
-                public void onError(PerunError error) {
-                    vosBox.addItem("Error while loading");
-                    save.setEnabled(false);
-                }
-                @Override
-                public void onLoadingStart(){
-                    vosBox.addItem("Loading...");
-                    save.setEnabled(false);
-                }
-            });
-            vos.retrieveData();
-            content.setHTML(0, 0, "Source VO:");
-            content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-            content.setWidget(0, 1, vosBox);
+			// get them
+			GetVos vos = new GetVos(new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					vosBox.clear();
+					ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
+					vos = new TableSorter<VirtualOrganization>().sortByName(vos);
+					vosBox.addAllItems(vos);
+					if (vosBox.getAllObjects().size() > 0) {
+						save.setEnabled(true);
+					}
+				}
+			@Override
+			public void onError(PerunError error) {
+				vosBox.addItem("Error while loading");
+				save.setEnabled(false);
+			}
+			@Override
+			public void onLoadingStart(){
+				vosBox.addItem("Loading...");
+				save.setEnabled(false);
+			}
+			});
+			vos.retrieveData();
+			content.setHTML(0, 0, "Source VO:");
+			content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+			content.setWidget(0, 1, vosBox);
 
-            save.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    CopyForm request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
-                    request.copyForm();
-                }
-            });
+			save.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					CopyForm request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request.copyForm();
+				}
+			});
 
-            menu.addWidget(save);
+			menu.addWidget(save);
 
-        } else {
+		} else {
 
-            titleWidget.setText("Copy form items from group");
+			titleWidget.setText("Copy form items from group");
 
-            save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyFromGroup());
+			save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyFromGroup());
 
-            // get them
-            GetAllGroups getGroups = new GetAllGroups(voId, new JsonCallbackEvents(){
-                @Override
-                public void onFinished(JavaScriptObject jso) {
-                    groupsBox.clear();
-                    ArrayList<Group> groups = JsonUtils.jsoAsList(jso);
-                    groups = new TableSorter<Group>().sortByName(groups);
-                    groupsBox.addAllItems(groups);
-                    if (groupsBox.getAllObjects().size() > 0) {
-                        save.setEnabled(true);
-                    }
-                }
-                @Override
-                public void onError(PerunError error) {
-                    groupsBox.addItem("Error while loading");
-                    save.setEnabled(false);
-                }
-                @Override
-                public void onLoadingStart(){
-                    groupsBox.addItem("Loading...");
-                    save.setEnabled(false);
-                }
-            });
-            getGroups.retrieveData();
-            content.setHTML(0, 0, "Source group:");
-            content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-            content.setWidget(0, 1, groupsBox);
-
-
-            save.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    CopyForm request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
-                    request.copyForm();
-                }
-            });
-
-            menu.addWidget(save);
-
-        }
-
-        content.setHTML(1, 0, "All items from source will be added to your form.");
-        content.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
-        content.getFlexCellFormatter().setColSpan(1, 0, 2);
-
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
-
-        vp.add(content);
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
-
-        this.contentWidget.setWidget(vp);
-
-        return getWidget();
-    }
-
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
-
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
-
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.addIcon();
-    }
+			// get them
+			GetAllGroups getGroups = new GetAllGroups(voId, new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					groupsBox.clear();
+					ArrayList<Group> groups = JsonUtils.jsoAsList(jso);
+					groups = new TableSorter<Group>().sortByName(groups);
+					groupsBox.addAllItems(groups);
+					if (groupsBox.getAllObjects().size() > 0) {
+						save.setEnabled(true);
+					}
+				}
+			@Override
+			public void onError(PerunError error) {
+				groupsBox.addItem("Error while loading");
+				save.setEnabled(false);
+			}
+			@Override
+			public void onLoadingStart(){
+				groupsBox.addItem("Loading...");
+				save.setEnabled(false);
+			}
+			});
+			getGroups.retrieveData();
+			content.setHTML(0, 0, "Source group:");
+			content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+			content.setWidget(0, 1, groupsBox);
 
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + 6786786;
-        return result;
-    }
+			save.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					CopyForm request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request.copyForm();
+				}
+			});
 
-    /**
-     * @param obj
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CopyFormTabItem create = (CopyFormTabItem) obj;
-        if (voId != create.voId){
-            return false;
-        }
+			menu.addWidget(save);
 
-        return true;
-    }
+		}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+		content.setHTML(1, 0, "All items from source will be added to your form.");
+		content.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+		content.getFlexCellFormatter().setColSpan(1, 0, 2);
 
-    public void open()
-    {
-        // no open for inner tab
-    }
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-    public boolean isAuthorized() {
+		vp.add(content);
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+		this.contentWidget.setWidget(vp);
+
+		return getWidget();
+	}
+
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
+
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
+
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.addIcon();
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + 6786786;
+		return result;
+	}
+
+	/**
+	 * @param obj
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CopyFormTabItem create = (CopyFormTabItem) obj;
+		if (voId != create.voId){
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
+
+	public void open()
+	{
+		// no open for inner tab
+	}
+
+	public boolean isAuthorized() {
+
+		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }

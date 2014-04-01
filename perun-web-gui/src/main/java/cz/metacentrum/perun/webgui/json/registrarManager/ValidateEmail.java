@@ -29,9 +29,9 @@ public class ValidateEmail implements JsonCallback {
 
 	/**
 	 * Creates a new request
-     *
-     * @param i
-     * @param m
+	 *
+	 * @param i
+	 * @param m
 	 */
 	public ValidateEmail(String i, String m) {
 		this.i = i;
@@ -40,9 +40,9 @@ public class ValidateEmail implements JsonCallback {
 
 	/**
 	 * Creates a new request with custom events
-     *
-     * @param i
-     * @param m
+	 *
+	 * @param i
+	 * @param m
 	 * @param events Custom events
 	 */
 	public ValidateEmail(String i, String m, JsonCallbackEvents events) {

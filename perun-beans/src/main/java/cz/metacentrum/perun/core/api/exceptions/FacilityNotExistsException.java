@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.FacilityNotExistsRuntimeExcep
  * @author Martin Kuba
  */
 public class FacilityNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Facility facility;
+	private Facility facility;
 
-    public FacilityNotExistsException(FacilityNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public FacilityNotExistsException(FacilityNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public FacilityNotExistsException(String message) {
-        super(message);
-    }
+	public FacilityNotExistsException(String message) {
+		super(message);
+	}
 
-    public FacilityNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public FacilityNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public FacilityNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public FacilityNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public FacilityNotExistsException(Facility facility) {
-      super(facility.toString());
-      this.facility = facility;
-    }
+	public FacilityNotExistsException(Facility facility) {
+		super(facility.toString());
+		this.facility = facility;
+	}
 
-    public Facility getFacility() {
-      return facility;
-    }
+	public Facility getFacility() {
+		return facility;
+	}
 }

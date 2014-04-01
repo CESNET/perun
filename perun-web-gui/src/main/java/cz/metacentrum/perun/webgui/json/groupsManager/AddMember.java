@@ -28,8 +28,8 @@ public class AddMember {
 	private int memberId = 0;
 	private int groupId = 0;
 
-    private RichMember member = null;
-    private Group group = null;
+	private RichMember member = null;
+	private Group group = null;
 
 	/**
 	 * Creates a new request
@@ -83,46 +83,46 @@ public class AddMember {
 		jspc.sendData(JSON_URL, prepareJSONObject());
 	}
 
-    /**
-     * Attempts to add member to group
-     *
-     * @param group group
-     * @param member member to be member of group
-     */
-    public void addMemberToGroup(final Group group,final RichMember member) {
+	/**
+	 * Attempts to add member to group
+	 *
+	 * @param group group
+	 * @param member member to be member of group
+	 */
+	public void addMemberToGroup(final Group group,final RichMember member) {
 
-        this.group = group;
-        this.member = member;
+		this.group = group;
+		this.member = member;
 
-        this.memberId = (member != null) ? member.getId() : 0;
-        this.groupId = (group != null) ? group.getId() : 0;
+		this.memberId = (member != null) ? member.getId() : 0;
+		this.groupId = (group != null) ? group.getId() : 0;
 
-        // test arguments
-        if(!this.testAdding()){
-            return;
-        }
+		// test arguments
+		if(!this.testAdding()){
+			return;
+		}
 
-        // new events
-        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Adding member: " + member.getUser().getFullName() + " to group: " + group.getShortName() + " failed.");
-                events.onError(error);
-            };
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding member: " + member.getUser().getFullName() + " to group: " + group.getShortName() + " failed.");
+				events.onError(error);
+			};
 
-            public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " added to group: " + group.getShortName());
-                events.onFinished(jso);
-            };
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " added to group: " + group.getShortName());
+				events.onFinished(jso);
+			};
 
-            public void onLoadingStart() {
-                events.onLoadingStart();
-            };
-        };
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
 
-        // sending data
-        JsonPostClient jspc = new JsonPostClient(newEvents);
-        jspc.sendData(JSON_URL, prepareJSONObject());
-    }
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(JSON_URL, prepareJSONObject());
+	}
 
 	/**
 	 * Tests the values, if the process can continue
@@ -145,7 +145,7 @@ public class AddMember {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

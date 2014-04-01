@@ -35,466 +35,466 @@ import java.util.Map;
  */
 public class MemberSettingsTabItem implements TabItem {
 
-    /**
-     * member id
-     */
-    private RichMember member;
-    private int memberId;
+	/**
+	 * member id
+	 */
+	private RichMember member;
+	private int memberId;
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Loading member's settings");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Loading member's settings");
 
-    // 0 = NO RESOURCE SELECTED
-    private int lastSelectedResourceId = 0;
-    private int lastSelectedFilterIndex = 1;  // 1 = required as default
-    private int groupId = 0;
+	// 0 = NO RESOURCE SELECTED
+	private int lastSelectedResourceId = 0;
+	private int lastSelectedFilterIndex = 1;  // 1 = required as default
+	private int groupId = 0;
 
-    /**
-     * Constructor
-     *
-     * @param member RichMember object, typically from table
-     */
-    public MemberSettingsTabItem(RichMember member, int groupId){
-        this.member = member;
-        this.memberId = member.getId();
-        this.groupId = groupId;
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param member RichMember object, typically from table
+	 */
+	public MemberSettingsTabItem(RichMember member, int groupId){
+		this.member = member;
+		this.memberId = member.getId();
+		this.groupId = groupId;
+	}
 
-    public boolean isPrepared(){
-        return !(member == null);
-    }
+	public boolean isPrepared(){
+		return !(member == null);
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim())+ ": Settings");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim())+ ": Settings");
 
-        // CONTENT WIDGET
-        final VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%","100%");
+		// CONTENT WIDGET
+		final VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%","100%");
 
-        // MENU
-        TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		// MENU
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        // callbacks
-        final GetAttributesV2 callback = new GetAttributesV2();
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) {
-            callback.setCheckable(false);
-        }
-        callback.getMemberAttributes(member.getId(), 1); // member & user attrs
-        final CellTable<Attribute> table = callback.getEmptyTable();
+		// callbacks
+		final GetAttributesV2 callback = new GetAttributesV2();
+		if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) {
+			callback.setCheckable(false);
+		}
+		callback.getMemberAttributes(member.getId(), 1); // member & user attrs
+		final CellTable<Attribute> table = callback.getEmptyTable();
 
-        // others callbacks
-        final Map<String, Integer> ids = new HashMap<String, Integer>();
-        ids.put("member", member.getId());
-        ids.put("workWithUserAttributes", 1); // work with user
-        final GetResourceRequiredAttributesV2 resourceRequired = new GetResourceRequiredAttributesV2(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
-        final GetRequiredAttributes required = new GetRequiredAttributes(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
+		// others callbacks
+		final Map<String, Integer> ids = new HashMap<String, Integer>();
+		ids.put("member", member.getId());
+		ids.put("workWithUserAttributes", 1); // work with user
+		final GetResourceRequiredAttributesV2 resourceRequired = new GetResourceRequiredAttributesV2(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
+		final GetRequiredAttributes required = new GetRequiredAttributes(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
 
-        if (lastSelectedFilterIndex == 1 || lastSelectedResourceId == 0) {
-            required.retrieveData(); // load required by default
-        }
+		if (lastSelectedFilterIndex == 1 || lastSelectedResourceId == 0) {
+			required.retrieveData(); // load required by default
+		}
 
-        // listbox with resources
-        final ListBoxWithObjects<Resource> listbox = new ListBoxWithObjects<Resource>();
-        // listbox for filtering attributes callbacks
-        final ListBox filter = new ListBox();
-        filter.addItem("All filled attributes");
-        filter.addItem("Required");
-        filter.addItem("Resource required");
-        filter.setSelectedIndex(lastSelectedFilterIndex); // required as default
+		// listbox with resources
+		final ListBoxWithObjects<Resource> listbox = new ListBoxWithObjects<Resource>();
+		// listbox for filtering attributes callbacks
+		final ListBox filter = new ListBox();
+		filter.addItem("All filled attributes");
+		filter.addItem("Required");
+		filter.addItem("Resource required");
+		filter.setSelectedIndex(lastSelectedFilterIndex); // required as default
 
-        // change table on selection one of the listboxs
-        final ChangeHandler changehandler = new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                // if resource selected
-                if (listbox.getSelectedIndex() > 0) {
-                    // if all attributes
-                    if (filter.getSelectedIndex() == 0) {
-                        callback.clearTable();
-                        callback.getMemberAttributes(member.getId(), 1); // with user
-                        callback.retrieveData();
-                        callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
-                        callback.retrieveData();
-                        callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
-                        callback.retrieveData();
-                        // if required attributes
-                    } else if (filter.getSelectedIndex() == 1) {
-                        callback.clearTable();
-                        ids.clear();
-                        UiElements.generateInfo("Not valid option", "Skipping to \"Resource required\" option.");
-                        filter.setSelectedIndex(2);
-                        lastSelectedFilterIndex = 2;
-                        ids.put("member", member.getId());
-                        ids.put("resource", listbox.getSelectedObject().getId());
-                        ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
-                        ids.put("workWithUserAttributes",1);
-                        resourceRequired.retrieveData();
-                        // if resource required
-                    } else if (filter.getSelectedIndex() == 2) {
-                        callback.clearTable();
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("resource", listbox.getSelectedObject().getId());
-                        ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
-                        ids.put("workWithUserAttributes",1);
-                        resourceRequired.retrieveData();
-                    }
-                    // if no resource selected
-                } else {
-                    // if all attributes
-                    if (filter.getSelectedIndex() == 0) {
-                        callback.clearTable();
-                        callback.getMemberAttributes(member.getId(), 1);
-                        callback.retrieveData();
-                        // if required attributes
-                    } else if (filter.getSelectedIndex() == 1) {
-                        callback.clearTable();
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("workWithUserAttributes", 1);
-                        required.retrieveData();
-                        // if resource required
-                    } else if (filter.getSelectedIndex() == 2) {
-                        callback.clearTable();
-                        ((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
-                        UiElements.generateInfo("Not valid option", "You must select resource first.");
-                    }
-                }
-            }
-        };
+		// change table on selection one of the listboxs
+		final ChangeHandler changehandler = new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				// if resource selected
+				if (listbox.getSelectedIndex() > 0) {
+					// if all attributes
+					if (filter.getSelectedIndex() == 0) {
+						callback.clearTable();
+						callback.getMemberAttributes(member.getId(), 1); // with user
+						callback.retrieveData();
+						callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
+						callback.retrieveData();
+						callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
+						callback.retrieveData();
+						// if required attributes
+					} else if (filter.getSelectedIndex() == 1) {
+						callback.clearTable();
+						ids.clear();
+						UiElements.generateInfo("Not valid option", "Skipping to \"Resource required\" option.");
+						filter.setSelectedIndex(2);
+						lastSelectedFilterIndex = 2;
+						ids.put("member", member.getId());
+						ids.put("resource", listbox.getSelectedObject().getId());
+						ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
+						ids.put("workWithUserAttributes",1);
+						resourceRequired.retrieveData();
+						// if resource required
+					} else if (filter.getSelectedIndex() == 2) {
+						callback.clearTable();
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("resource", listbox.getSelectedObject().getId());
+						ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
+						ids.put("workWithUserAttributes",1);
+						resourceRequired.retrieveData();
+					}
+					// if no resource selected
+				} else {
+					// if all attributes
+					if (filter.getSelectedIndex() == 0) {
+						callback.clearTable();
+						callback.getMemberAttributes(member.getId(), 1);
+						callback.retrieveData();
+						// if required attributes
+					} else if (filter.getSelectedIndex() == 1) {
+						callback.clearTable();
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("workWithUserAttributes", 1);
+						required.retrieveData();
+						// if resource required
+					} else if (filter.getSelectedIndex() == 2) {
+						callback.clearTable();
+						((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
+						UiElements.generateInfo("Not valid option", "You must select resource first.");
+					}
+				}
+			}
+		};
 
-        ChangeHandler resourceChangeHandler = new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                if (listbox.getSelectedIndex() > 0) {
-                    // if resource selected
-                    // load resource-required (by default)
-                    filter.setSelectedIndex(2);
-                    lastSelectedFilterIndex = 2;
-                } else {
-                    // else load required by default
-                    filter.setSelectedIndex(1);
-                    lastSelectedFilterIndex = 1;
-                }
-                if (listbox.getSelectedObject() != null) {
-                    lastSelectedResourceId = listbox.getSelectedObject().getId();
-                } else {
-                    lastSelectedResourceId = 0;
-                }
-                changehandler.onChange(event);
-            }
-        };
+		ChangeHandler resourceChangeHandler = new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				if (listbox.getSelectedIndex() > 0) {
+					// if resource selected
+					// load resource-required (by default)
+					filter.setSelectedIndex(2);
+					lastSelectedFilterIndex = 2;
+				} else {
+					// else load required by default
+					filter.setSelectedIndex(1);
+					lastSelectedFilterIndex = 1;
+				}
+				if (listbox.getSelectedObject() != null) {
+					lastSelectedResourceId = listbox.getSelectedObject().getId();
+				} else {
+					lastSelectedResourceId = 0;
+				}
+				changehandler.onChange(event);
+			}
+		};
 
-        ChangeHandler filterChangeHandler = new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                // if required and resource selected
-                if (filter.getSelectedIndex() == 1 && listbox.getSelectedIndex() > 0) {
-                    // cance resource selection
-                    listbox.setSelectedIndex(0);
-                    lastSelectedResourceId = 0;
-                }
-                lastSelectedFilterIndex = filter.getSelectedIndex();
-                changehandler.onChange(event);
-            }
-        };
+		ChangeHandler filterChangeHandler = new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				// if required and resource selected
+				if (filter.getSelectedIndex() == 1 && listbox.getSelectedIndex() > 0) {
+					// cance resource selection
+					listbox.setSelectedIndex(0);
+					lastSelectedResourceId = 0;
+				}
+				lastSelectedFilterIndex = filter.getSelectedIndex();
+				changehandler.onChange(event);
+			}
+		};
 
-        // refresh table on listbox change
-        listbox.addChangeHandler(resourceChangeHandler);
-        filter.addChangeHandler(filterChangeHandler);
+		// refresh table on listbox change
+		listbox.addChangeHandler(resourceChangeHandler);
+		filter.addChangeHandler(filterChangeHandler);
 
-        // fill listbox with member's resources
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                listbox.clear();
+		// fill listbox with member's resources
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				listbox.clear();
 
-                ArrayList<Resource> res = JsonUtils.jsoAsList(jso);
-                res = new TableSorter<Resource>().sortByName(res);
+				ArrayList<Resource> res = JsonUtils.jsoAsList(jso);
+				res = new TableSorter<Resource>().sortByName(res);
 
-                if (res != null && !res.isEmpty()) {
-                    listbox.addNotSelectedOption();
-                } else {
-                    listbox.addItem("No resource available");
-                }
+				if (res != null && !res.isEmpty()) {
+					listbox.addNotSelectedOption();
+				} else {
+					listbox.addItem("No resource available");
+				}
 
-                for (int i=0; i<res.size(); i++) {
-                    listbox.addItem(res.get(i));
-                    // select last selected
-                    if (res.get(i).getId() == lastSelectedResourceId) {
-                        listbox.setSelected(res.get(i), true);
-                    }
-                }
-                if (lastSelectedFilterIndex != 1 && lastSelectedResourceId != 0) {
-                    DomEvent.fireNativeEvent(Document.get().createChangeEvent(), filter);
-                }
-            }
-            public void onLoadingStart() {
-                listbox.clear();
-                listbox.addItem("Loading...");
-            }
-            public void onError(PerunError error) {
-                listbox.clear();
-                listbox.addItem("Error while loading");
-            }
-        };
+				for (int i=0; i<res.size(); i++) {
+					listbox.addItem(res.get(i));
+					// select last selected
+					if (res.get(i).getId() == lastSelectedResourceId) {
+						listbox.setSelected(res.get(i), true);
+					}
+				}
+				if (lastSelectedFilterIndex != 1 && lastSelectedResourceId != 0) {
+					DomEvent.fireNativeEvent(Document.get().createChangeEvent(), filter);
+				}
+			}
+			public void onLoadingStart() {
+				listbox.clear();
+				listbox.addItem("Loading...");
+			}
+			public void onError(PerunError error) {
+				listbox.clear();
+				listbox.addItem("Error while loading");
+			}
+		};
 
-        // get member resources
-        GetAssignedResources res = new GetAssignedResources(member.getId(), PerunEntity.MEMBER, events);
-        res.retrieveData();
+		// get member resources
+		GetAssignedResources res = new GetAssignedResources(member.getId(), PerunEntity.MEMBER, events);
+		res.retrieveData();
 
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        // save changes in attributes
-        final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) saveChangesButton.setEnabled(false);
-        saveChangesButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		// save changes in attributes
+		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+		if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) saveChangesButton.setEnabled(false);
+		saveChangesButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
+				if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
 
-                    // if resource selected
-                    if (listbox.getSelectedIndex() > 0) {
-                        // if all attributes
-                        SetAttributes request;
-                        if (filter.getSelectedIndex() == 0) {
-                            request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    callback.getMemberAttributes(member.getId(), 1); // with user
-                                    callback.retrieveData();
-                                    callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
-                                    callback.retrieveData();
-                                    callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
-                                    callback.retrieveData();
-                                }
-                            }));
-                        } else {
-                            // if required or resource-required
-                            request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    ids.clear();
-                                    ids.put("member", member.getId());
-                                    ids.put("resource", listbox.getSelectedObject().getId());
-                                    ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
-                                    ids.put("workWithUserAttributes", 1);
-                                    resourceRequired.retrieveData();
-                                }
-                            }));
-                        }
-                        // make setAttributesCall
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("resource", listbox.getSelectedObject().getId());
-                        ids.put("facility", listbox.getSelectedObject().getFacilityId());
-                        ids.put("user", member.getUserId());
-                        request.setAttributes(ids, callback.getTableSelectedList());
-                    } else {
-                        // if resource not selected
-                        SetAttributes request;
-                        if (filter.getSelectedIndex() == 1) {
-                            // if required attr option - refresh different callback
-                            request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    required.retrieveData();
-                                }
-                            }));
-                        } else {
-                            request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    callback.retrieveData();
-                                }
-                            }));
-                        }
-                        // make setAttributes call
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("workWithUserAttributes", 1);
-                        request.setAttributes(ids, callback.getTableSelectedList());
-                    }
+					// if resource selected
+					if (listbox.getSelectedIndex() > 0) {
+						// if all attributes
+						SetAttributes request;
+						if (filter.getSelectedIndex() == 0) {
+							request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									callback.getMemberAttributes(member.getId(), 1); // with user
+									callback.retrieveData();
+									callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
+									callback.retrieveData();
+									callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
+									callback.retrieveData();
+								}
+							}));
+						} else {
+							// if required or resource-required
+							request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									ids.clear();
+									ids.put("member", member.getId());
+									ids.put("resource", listbox.getSelectedObject().getId());
+									ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
+									ids.put("workWithUserAttributes", 1);
+									resourceRequired.retrieveData();
+								}
+							}));
+						}
+						// make setAttributesCall
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("resource", listbox.getSelectedObject().getId());
+						ids.put("facility", listbox.getSelectedObject().getFacilityId());
+						ids.put("user", member.getUserId());
+						request.setAttributes(ids, callback.getTableSelectedList());
+					} else {
+						// if resource not selected
+						SetAttributes request;
+						if (filter.getSelectedIndex() == 1) {
+							// if required attr option - refresh different callback
+							request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									required.retrieveData();
+								}
+							}));
+						} else {
+							request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									callback.retrieveData();
+								}
+							}));
+						}
+						// make setAttributes call
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("workWithUserAttributes", 1);
+						request.setAttributes(ids, callback.getTableSelectedList());
+					}
 
-                }
+				}
 
-            }
-        });
-        menu.addWidget(saveChangesButton);
+			}
+		});
+		menu.addWidget(saveChangesButton);
 
-        // buttons
-        CustomButton setNewMemberAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                Map<String, Integer> ids = new HashMap<String,Integer>();
-                ids.put("member", member.getId());
-                ids.put("user", member.getUser().getId());
-                if (listbox.getSelectedIndex() > 0) {
-                    ids.put("resource", listbox.getSelectedObject().getId());
-                    ids.put("facility", listbox.getSelectedObject().getFacilityId());
-                }
-                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
-            }
-        });
-        if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) setNewMemberAttributeButton.setEnabled(false);
-        menu.addWidget(setNewMemberAttributeButton);
+		// buttons
+		CustomButton setNewMemberAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				Map<String, Integer> ids = new HashMap<String,Integer>();
+				ids.put("member", member.getId());
+				ids.put("user", member.getUser().getId());
+				if (listbox.getSelectedIndex() > 0) {
+					ids.put("resource", listbox.getSelectedObject().getId());
+					ids.put("facility", listbox.getSelectedObject().getFacilityId());
+				}
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
+			}
+		});
+		if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) setNewMemberAttributeButton.setEnabled(false);
+		menu.addWidget(setNewMemberAttributeButton);
 
-        // REMOVE ATTRIBUTES BUTTON
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
-        removeButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
+		// REMOVE ATTRIBUTES BUTTON
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+		removeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 
-                // if selected
-                if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
+				// if selected
+				if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
 
-                    // if resource selected
-                    if (listbox.getSelectedIndex() > 0) {
-                        // if all attributes
-                        RemoveAttributes request;
-                        if (filter.getSelectedIndex() == 0) {
-                            request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    callback.getMemberAttributes(member.getId(), 1); // with user
-                                    callback.retrieveData();
-                                    callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
-                                    callback.retrieveData();
-                                    callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
-                                    callback.retrieveData();
-                                }
-                            }));
-                        } else {
-                            // if required or resource-required
-                            request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    ids.clear();
-                                    ids.put("member", member.getId());
-                                    ids.put("resource", listbox.getSelectedObject().getId());
-                                    ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
-                                    ids.put("workWithUserAttributes",1);
-                                    resourceRequired.retrieveData();
-                                }
-                            }));
-                        }
-                        // make removeAttributesCall
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("resource", listbox.getSelectedObject().getId());
-                        ids.put("facility",listbox.getSelectedObject().getFacilityId());
-                        ids.put("user", member.getUserId());
-                        request.removeAttributes(ids, callback.getTableSelectedList());
-                    } else {
-                        // if resource not selected
-                        RemoveAttributes request;
-                        if (filter.getSelectedIndex() == 1) {
-                            // if required attr option - refresh different callback
-                            request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    required.retrieveData();
-                                }
-                            }));
-                        } else {
-                            request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
-                                public void onFinished(JavaScriptObject jso) {
-                                    callback.clearTable();
-                                    callback.retrieveData();
-                                }
-                            }));
-                        }
-                        // make removeAttributes call
-                        ids.clear();
-                        ids.put("member", member.getId());
-                        ids.put("workWithUserAttributes", 1);
-                        request.removeAttributes(ids, callback.getTableSelectedList());
-                    }
+					// if resource selected
+					if (listbox.getSelectedIndex() > 0) {
+						// if all attributes
+						RemoveAttributes request;
+						if (filter.getSelectedIndex() == 0) {
+							request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									callback.getMemberAttributes(member.getId(), 1); // with user
+									callback.retrieveData();
+									callback.getMemberResourceAttributes(member.getId(), listbox.getSelectedObject().getId());
+									callback.retrieveData();
+									callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
+									callback.retrieveData();
+								}
+							}));
+						} else {
+							// if required or resource-required
+							request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									ids.clear();
+									ids.put("member", member.getId());
+									ids.put("resource", listbox.getSelectedObject().getId());
+									ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
+									ids.put("workWithUserAttributes",1);
+									resourceRequired.retrieveData();
+								}
+							}));
+						}
+						// make removeAttributesCall
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("resource", listbox.getSelectedObject().getId());
+						ids.put("facility",listbox.getSelectedObject().getFacilityId());
+						ids.put("user", member.getUserId());
+						request.removeAttributes(ids, callback.getTableSelectedList());
+					} else {
+						// if resource not selected
+						RemoveAttributes request;
+						if (filter.getSelectedIndex() == 1) {
+							// if required attr option - refresh different callback
+							request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									required.retrieveData();
+								}
+							}));
+						} else {
+							request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+								public void onFinished(JavaScriptObject jso) {
+									callback.clearTable();
+									callback.retrieveData();
+								}
+							}));
+						}
+						// make removeAttributes call
+						ids.clear();
+						ids.put("member", member.getId());
+						ids.put("workWithUserAttributes", 1);
+						request.removeAttributes(ids, callback.getTableSelectedList());
+					}
 
-                }
+				}
 
-            }
-        });
+			}
+		});
 
-        removeButton.setEnabled(false);
-        if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(callback, table, removeButton);
-        menu.addWidget(removeButton);
+		removeButton.setEnabled(false);
+		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) JsonUtils.addTableManagedButton(callback, table, removeButton);
+		menu.addWidget(removeButton);
 
-        // add listbox to menu
-        menu.addWidget(new HTML("<strong>Assigned resources: </strong>"));
-        menu.addWidget(listbox);
-        menu.addWidget(new HTML("<strong>Filter: </strong>"));
-        menu.addWidget(filter);
+		// add listbox to menu
+		menu.addWidget(new HTML("<strong>Assigned resources: </strong>"));
+		menu.addWidget(listbox);
+		menu.addWidget(new HTML("<strong>Filter: </strong>"));
+		menu.addWidget(filter);
 
-        // ATTRIBUTES TABLE
-        vp.add(sp);
-        vp.setCellHeight(sp, "100%");
+		// ATTRIBUTES TABLE
+		vp.add(sp);
+		vp.setCellHeight(sp, "100%");
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.attributesDisplayIcon();
-    }
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.attributesDisplayIcon();
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + memberId + 1;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + memberId + 1;
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MemberSettingsTabItem other = (MemberSettingsTabItem) obj;
-        if (memberId != other.memberId)
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MemberSettingsTabItem other = (MemberSettingsTabItem) obj;
+		if (memberId != other.memberId)
+			return false;
+		return true;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    public void open() { }
+	public void open() { }
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
-            return true;
-        } else {
-            return false;
-        }
+		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
+			return true;
+		} else {
+			return false;
+		}
 
-    }
+	}
 
 }

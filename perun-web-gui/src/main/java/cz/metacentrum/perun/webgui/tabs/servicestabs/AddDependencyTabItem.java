@@ -53,8 +53,8 @@ public class AddDependencyTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     * @param service
-     */
+	 * @param service
+	 */
 	public AddDependencyTabItem(ExecService service){
 		this.execService = service;
 		this.execServiceId = service.getId();
@@ -62,15 +62,15 @@ public class AddDependencyTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     * @param serviceId
-     */
+	 * @param serviceId
+	 */
 	public AddDependencyTabItem(int serviceId){
 		this.execServiceId = serviceId;
 		new GetEntityById(PerunEntity.EXEC_SERVICE, execServiceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                execService = jso.cast();
-            }
-        }).retrieveData();
+			public void onFinished(JavaScriptObject jso){
+				execService = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared() {
@@ -83,65 +83,65 @@ public class AddDependencyTabItem implements TabItem {
 		// TITLE
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(execService.getService().getName()) + ": add dependency");
 
-        final VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%","100%");
+		final VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%","100%");
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // close tab events
-        final TabItem tab = this;
+		// close tab events
+		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
 		final ListBoxWithObjects<ExecService> listBox = new ListBoxWithObjects<ExecService>();
 
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService());
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService());
 
-        // fill listbox after callback finishes
+		// fill listbox after callback finishes
 		final JsonCallbackEvents localEvents = new JsonCallbackEvents(){
 			@Override
-            public void onFinished(JavaScriptObject jso) {
+			public void onFinished(JavaScriptObject jso) {
 				listBox.clear();
-                ArrayList<ExecService> execs = JsonUtils.jsoAsList(jso);
+				ArrayList<ExecService> execs = JsonUtils.jsoAsList(jso);
 				if (execs != null && !execs.isEmpty()) {
-                    execs = new TableSorter<ExecService>().sortByService(execs);
-                    for (int i=0; i<execs.size(); i++){
-                        listBox.addItem(execs.get(i));
-                    }
-                    addButton.setEnabled(true);
-                } else {
-                    listBox.addItem("No exec service available");
-                }
+					execs = new TableSorter<ExecService>().sortByService(execs);
+					for (int i=0; i<execs.size(); i++){
+						listBox.addItem(execs.get(i));
+					}
+					addButton.setEnabled(true);
+				} else {
+					listBox.addItem("No exec service available");
+				}
 			}
-            @Override
-            public void onLoadingStart(){
-                listBox.clear();
-                listBox.addItem("Loading...");
-                addButton.setEnabled(false);
-            }
-            @Override
-            public void onError(PerunError error){
-                listBox.addItem("Error while loading");
-                addButton.setEnabled(false);
-            }
+			@Override
+			public void onLoadingStart(){
+				listBox.clear();
+				listBox.addItem("Loading...");
+				addButton.setEnabled(false);
+			}
+			@Override
+			public void onError(PerunError error){
+				listBox.addItem("Error while loading");
+				addButton.setEnabled(false);
+			}
 		};
 
 		// callback for all services
 		ListExecServices callback = new ListExecServices(0, localEvents);
 		callback.retrieveData();
 
-        // layout
+		// layout
 
-        layout.setHTML(0, 0, "ExecService:");
-        layout.setHTML(1, 0, "Depend On:");
+		layout.setHTML(0, 0, "ExecService:");
+		layout.setHTML(1, 0, "Depend On:");
 
-        layout.setHTML(0, 1, execService.getService().getName() + " " + execService.getType());
-        layout.setWidget(1, 1, listBox);
+		layout.setHTML(0, 1, execService.getService().getName() + " " + execService.getType());
+		layout.setWidget(1, 1, listBox);
 
-        final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab);
+		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab);
 
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -150,24 +150,24 @@ public class AddDependencyTabItem implements TabItem {
 			}
 		});
 
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        menu.addWidget(addButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(addButton);
+		menu.addWidget(cancelButton);
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
 

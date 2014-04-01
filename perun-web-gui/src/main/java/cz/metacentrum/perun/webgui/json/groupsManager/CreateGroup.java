@@ -120,7 +120,7 @@ public class CreateGroup {
 				// if group admin, grant access in GUI !!
 				if (session.isGroupAdmin() && gp != null) {
 					session.addEditableGroup(gp.getId());
-                    session.getUiElements().setLogSuccessText("Group "+ gp.getName() +" successfully created!");
+					session.getUiElements().setLogSuccessText("Group "+ gp.getName() +" successfully created!");
 				}
 				events.onFinished(jso);
 			};
@@ -157,8 +157,8 @@ public class CreateGroup {
 		}
 
 		if(errorMsg.length()>0){
-            Confirm c = new Confirm("Error while creating Group", new HTML(errorMsg), true);
-            c.show();
+			Confirm c = new Confirm("Error while creating Group", new HTML(errorMsg), true);
+			c.show();
 		}
 
 		return result;

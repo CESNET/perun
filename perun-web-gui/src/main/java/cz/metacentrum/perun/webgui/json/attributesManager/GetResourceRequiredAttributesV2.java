@@ -63,14 +63,14 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 	/**
 	 * Creates a new callback
-     */
+	 */
 	public GetResourceRequiredAttributesV2() {}
 
 	/**
 	 * Creates a new callback
 	 *
-     * @param ids IDS of entities which we want attributes for
-     */
+	 * @param ids IDS of entities which we want attributes for
+	 */
 	public GetResourceRequiredAttributesV2(Map<String, Integer> ids) {
 		this.ids = ids;
 	}
@@ -78,9 +78,9 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 	/**
 	 * Creates a new callback
 	 *
-     * @param ids IDS of entities which we want attributes for
-     * @param events external events
-     */
+	 * @param ids IDS of entities which we want attributes for
+	 * @param events external events
+	 */
 	public GetResourceRequiredAttributesV2(Map<String, Integer> ids, JsonCallbackEvents events) {
 		this.events = events;
 		this.ids = ids;
@@ -156,42 +156,42 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 		// checkbox column
 		if (checkable) {
 
-            // checkbox column column
-            Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
-                    new PerunCheckboxCell<Attribute>(true, false, false)) {
-                @Override
-                public Attribute getValue(Attribute object) {
-                    // Get the value from the selection model.
-                    GeneralObject go = object.cast();
-                    go.setChecked(selectionModel.isSelected(object));
-                    return go.cast();
-                }
-            };
+			// checkbox column column
+			Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
+					new PerunCheckboxCell<Attribute>(true, false, false)) {
+				@Override
+				public Attribute getValue(Attribute object) {
+					// Get the value from the selection model.
+					GeneralObject go = object.cast();
+					go.setChecked(selectionModel.isSelected(object));
+					return go.cast();
+				}
+			};
 
-            // updates the columns size
-            table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
+			// updates the columns size
+			table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
 
-            // Add the columns
+			// Add the columns
 
-            // Checkbox column header
-            CheckboxCell cb = new CheckboxCell();
-            Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-                public Boolean getValue() {
-                    return false;//return true to see a checked checkbox.
-                }
-            };
-            checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-                public void update(Boolean value) {
-                    // sets selected to all, if value = true, unselect otherwise
-                    for(Attribute obj : list){
-                        if (obj.isWritable()) {
-                            selectionModel.setSelected(obj, value);
-                        }
-                    }
-                }
-            });
+			// Checkbox column header
+			CheckboxCell cb = new CheckboxCell();
+			Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+				public Boolean getValue() {
+					return false;//return true to see a checked checkbox.
+				}
+			};
+			checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+				public void update(Boolean value) {
+					// sets selected to all, if value = true, unselect otherwise
+					for(Attribute obj : list){
+						if (obj.isWritable()) {
+							selectionModel.setSelected(obj, value);
+						}
+					}
+				}
+			});
 
-            table.addColumn(checkBoxColumn, checkBoxHeader);
+			table.addColumn(checkBoxColumn, checkBoxHeader);
 
 		}
 
@@ -203,7 +203,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 		// Value column
 		Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
-        valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
+		valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
 			public void update(int index, Attribute object, Attribute value) {
 				object = value;
 				selectionModel.setSelected(object, object.isAttributeValid());
@@ -235,123 +235,123 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 		return this.table;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Attribute to be added as new row
-     */
-    public void addToTable(Attribute object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Attribute to be added as new row
+	 */
+	public void addToTable(Attribute object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Attribute to be removed as row
-     */
-    public void removeFromTable(Attribute object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Attribute to be removed as row
+	 */
+	public void removeFromTable(Attribute object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Attribute> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Attribute> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading resource required attributes.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading resource required attributes.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading resource required attributes started.");
-        loaderImage.loadingStart();
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading resource required attributes started.");
+		loaderImage.loadingStart();
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        clearTable();
-        for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
-            if (!a.getDefinition().equals("core")) {
-                addToTable(a);
-            }
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Resource required attributes loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		clearTable();
+		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
+			if (!a.getDefinition().equals("core")) {
+				addToTable(a);
+			}
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Resource required attributes loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Attribute object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Attribute object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        //this.editable = editable;
-    }
+	public void setEditable(boolean editable) {
+		//this.editable = editable;
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Attribute> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Attribute> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Attribute> getList() {
-        return this.list;
-    }
+	public ArrayList<Attribute> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Sets entities and their ids to this callback

@@ -20,7 +20,7 @@ public class CopyManagers {
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// facility
-    private int sourceFacility = 0;
+	private int sourceFacility = 0;
 	private int destinationFacility = 0;
 	// URL to call
 	final String JSON_URL = "facilitiesManager/copyManagers";
@@ -51,15 +51,15 @@ public class CopyManagers {
 		boolean result = true;
 		String errorMsg = "";
 
-        if(sourceFacility == 0){
-            errorMsg += "Source facility can't be 0.\n";
-            result = false;
-        }
+		if(sourceFacility == 0){
+			errorMsg += "Source facility can't be 0.\n";
+			result = false;
+		}
 
-        if(destinationFacility == 0){
-            errorMsg += "Destination facility can't be 0..\n";
-            result = false;
-        }
+		if(destinationFacility == 0){
+			errorMsg += "Destination facility can't be 0..\n";
+			result = false;
+		}
 
 		if(errorMsg.length()>0){
 			Window.alert(errorMsg);
@@ -77,7 +77,7 @@ public class CopyManagers {
 	public void copyFacilityManagers(int sourceFacility, int destinationFacility)
 	{
 
-        this.sourceFacility = sourceFacility;
+		this.sourceFacility = sourceFacility;
 		this.destinationFacility = destinationFacility;
 
 		// test arguments
@@ -122,7 +122,7 @@ public class CopyManagers {
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("srcFacility", new JSONNumber(sourceFacility));
-        jsonQuery.put("destFacility", new JSONNumber(destinationFacility));
+		jsonQuery.put("destFacility", new JSONNumber(destinationFacility));
 		return jsonQuery;
 
 	}

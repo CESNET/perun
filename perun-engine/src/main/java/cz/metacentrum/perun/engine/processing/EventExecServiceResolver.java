@@ -12,7 +12,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 
 public interface EventExecServiceResolver {
 
-    public List<Pair<List<ExecService>, Facility>> parseEvent(String event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	public List<Pair<List<ExecService>, Facility>> parseEvent(String event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
-    public void refreshProcessingRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	public void refreshProcessingRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 }

@@ -53,11 +53,11 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 	 */
 	private Label titleWidget = new Label("Attributes");
 
-    ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+	ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public AttributeDefinitionsTabItem(){}
 
 	public boolean isPrepared(){
@@ -80,83 +80,83 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu tabMenu = new TabMenu();
 
 		// create buttons
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createAttributeDefinition(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
-            }
-        }));
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createAttributeDefinition(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
+			}
+		}));
 
 		// remove button
 		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteAttributeDefinition());
-        deleteButton.setEnabled(false);
-        deleteButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                final ArrayList<AttributeDefinition> attrDefToBeDeleted = attrDef.getTableSelectedList();
-                String text = "Following attribute definitions will be deleted.";
-                UiElements.showDeleteConfirm(attrDefToBeDeleted, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i = 0; i < attrDefToBeDeleted.size(); i++) {
-                            DeleteAttribute request;
-                            // if last, refresh
-                            if (i == attrDefToBeDeleted.size() - 1) {
-                                request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, refreshTabEvents));
-                            } else {
-                                request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                            }
-                            request.deleteAttributeDefinition(attrDefToBeDeleted.get(i).getId());
-                        }
-                    }
-                });
-            }
-        });
-        tabMenu.addWidget(deleteButton);
+		deleteButton.setEnabled(false);
+		deleteButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final ArrayList<AttributeDefinition> attrDefToBeDeleted = attrDef.getTableSelectedList();
+				String text = "Following attribute definitions will be deleted.";
+				UiElements.showDeleteConfirm(attrDefToBeDeleted, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i = 0; i < attrDefToBeDeleted.size(); i++) {
+							DeleteAttribute request;
+							// if last, refresh
+							if (i == attrDefToBeDeleted.size() - 1) {
+								request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, refreshTabEvents));
+							} else {
+								request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton));
+							}
+							request.deleteAttributeDefinition(attrDefToBeDeleted.get(i).getId());
+						}
+					}
+				});
+			}
+		});
+		tabMenu.addWidget(deleteButton);
 
 		// filter box
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(attrDef.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                attrDef.filterTable(text);
-            }
-        }, buttonTranslation.filterAttributeDefinition());
+			public void searchFor(String text) {
+				attrDef.filterTable(text);
+			}
+		}, buttonTranslation.filterAttributeDefinition());
 
-        final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-        saveButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ArrayList<AttributeDefinition> list = attrDef.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    for (int i = 0; i < list.size(); i++) {
-                        UpdateAttribute request;
-                        // if last, refresh
-                        if (i == list.size() - 1) {
-                            request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, refreshTabEvents));
-                        } else {
-                            request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton));
-                        }
-                        request.updateAttribute(list.get(i));
-                    }
-                }
-            }
-        });
-        tabMenu.addWidget(saveButton);
+		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+		saveButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				final ArrayList<AttributeDefinition> list = attrDef.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+					for (int i = 0; i < list.size(); i++) {
+						UpdateAttribute request;
+						// if last, refresh
+						if (i == list.size() - 1) {
+							request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, refreshTabEvents));
+						} else {
+							request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton));
+						}
+						request.updateAttribute(list.get(i));
+					}
+				}
+			}
+		});
+		tabMenu.addWidget(saveButton);
 
 		// add menu to page
 		mainPage.add(tabMenu);
 		mainPage.setCellHeight(tabMenu, "30px");
 
 		CellTable<AttributeDefinition> attrDefTable = attrDef.getTable(new FieldUpdater<AttributeDefinition, String>() {
-            @Override
-            public void update(int index, AttributeDefinition object, String value) {
-                session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
-            }
-        });
+			@Override
+			public void update(int index, AttributeDefinition object, String value) {
+				session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
+			}
+		});
 		attrDefTable.setStyleName("perun-table");
 		ScrollPanel scrollTable = new ScrollPanel(attrDefTable);
 		scrollTable.addStyleName("perun-tableScrollPanel");
 
-        JsonUtils.addTableManagedButton(attrDef, attrDefTable, deleteButton);
+		JsonUtils.addTableManagedButton(attrDef, attrDefTable, deleteButton);
 
 		// put page into scroll panel
 		mainPage.add(scrollTable);
@@ -205,8 +205,8 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public void open() {
-	    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Attributes", getUrlWithParameters());
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Attributes", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

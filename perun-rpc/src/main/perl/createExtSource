@@ -8,21 +8,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates an External source. ExtSource name and type are required fields.
---------------------------------------
-Available options:
- --extSourceName   | -e extSrouce name
- --extSourceType   | -t type (KERBEROS/IDP/INTERNAL/SQL/LDAP/ISMU/X509)
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Creates an External source. ExtSource name and type are required fields.
+	--------------------------------------
+	Available options:
+	--extSourceName   | -e extSrouce name
+	--extSourceType   | -t type (KERBEROS/IDP/INTERNAL/SQL/LDAP/ISMU/X509)
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($extSourceName, $extSourceType, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "extSourceName|e=s" => \$extSourceName,"extSourceType|t=s" => \$extSourceType) || die help();
+"extSourceName|e=s" => \$extSourceName,"extSourceType|t=s" => \$extSourceType) || die help();
 
 # Check options
 unless (defined($extSourceName)) { die "ERROR: extSourceName is required \n";}
@@ -33,27 +33,27 @@ unless ($extSourceType !~ /^\s*$/) { die "ERROR: extSourceType cannot be empty s
 # Convert type
 my $extSourceTypeInternal;
 switch ($extSourceType) {
-  case "KERBEROS" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceKerberos";
-  }
-  case "IDP" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceIdp";
-  }
-  case "INTERNAL" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceInternal";
-  }
-  case "LDAP" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceLdap";
-  }
-  case "ISMU" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceISMU";
-  }
-  case "SQL" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceSql";
-  }
-  case "X509" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceX509";
-  }
+	case "KERBEROS" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceKerberos";
+	}
+	case "IDP" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceIdp";
+	}
+	case "INTERNAL" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceInternal";
+	}
+	case "LDAP" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceLdap";
+	}
+	case "ISMU" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceISMU";
+	}
+	case "SQL" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceSql";
+	}
+	case "X509" {
+		$extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceX509";
+	}
 }
 
 my $agent = Perun::Agent->new();

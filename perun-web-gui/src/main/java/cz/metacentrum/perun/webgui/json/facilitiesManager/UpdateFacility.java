@@ -42,14 +42,14 @@ public class UpdateFacility {
 
 	/**
 	 * Updates facility details
-     *
+	 *
 	 * @param fac Facility with updated details
 	 */
 	public void updateFacility(Facility fac) {
 
 		if (fac == null) {
-            UiElements.generateAlert("Error updating facility", "Facility to update can't be null.");
-            return;
+			UiElements.generateAlert("Error updating facility", "Facility to update can't be null.");
+			return;
 		}
 
 		// GROUP OBJECT

@@ -11,11 +11,11 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
 
-    return $self;
+	return $self;
 }
 
 #(facility => $facilityId)
@@ -26,7 +26,7 @@ sub new
 #(member => $memberId, workWithUserAttributes => $boolean)
 sub getAttributes
 {
-    return Perun::Common::callManagerMethod('getAttributes', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('getAttributes', '[]Attribute', @_);
 }
 
 #(facility => $facilityId, attributes => $arrayOfAttributes)
@@ -35,7 +35,7 @@ sub getAttributes
 #(resource => $resourceId, member => $memberId, attributes => $arrayOfAttributes)
 sub setAttributes
 {
-    return Perun::Common::callManagerMethod('setAttributes', '', @_);
+	return Perun::Common::callManagerMethod('setAttributes', '', @_);
 }
 
 #(facility => $facilityId, attributeName => $string)
@@ -45,31 +45,31 @@ sub setAttributes
 #(key => $string_key, attributeName => $string)
 sub getAttribute
 {
-    return Perun::Common::callManagerMethod('getAttribute', 'Attribute', @_);
+	return Perun::Common::callManagerMethod('getAttribute', 'Attribute', @_);
 }
 
 #(attributeName => $string)
 sub getAttributeDefinition
 {
-    return Perun::Common::callManagerMethod('getAttributeDefinition', 'AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod('getAttributeDefinition', 'AttributeDefinition', @_);
 }
 
 #()
 sub getAttributesDefinition
 {
-    return Perun::Common::callManagerMethod('getAttributesDefinition', '[]AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod('getAttributesDefinition', '[]AttributeDefinition', @_);
 }
 
 #(namespace => $string)
 sub  getAttributesDefinitionByNamespace
 {
-    return Perun::Common::callManagerMethod(' getAttributesDefinitionByNamespace', '[]AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod(' getAttributesDefinitionByNamespace', '[]AttributeDefinition', @_);
 }
 
 #(id => $number)
 sub getAttributeDefinitionById
 {
-    return Perun::Common::callManagerMethod('getAttributeDefinitionById', 'AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod('getAttributeDefinitionById', 'AttributeDefinition', @_);
 }
 
 #(facility => $facilityId, id => $number)
@@ -78,7 +78,7 @@ sub getAttributeDefinitionById
 #(resource => $resourceId, member => $memberId, id => $number)
 sub getAttributeById
 {
-    return Perun::Common::callManagerMethod('getAttributeById', 'Attribute', @_);
+	return Perun::Common::callManagerMethod('getAttributeById', 'Attribute', @_);
 }
 
 #(facility => $facilityId, attribute => $attribute)
@@ -89,20 +89,20 @@ sub getAttributeById
 #(key => $string_key, attribute => $attribute)
 sub setAttribute
 {
-    return Perun::Common::callManagerMethod('setAttribute', '', @_);
+	return Perun::Common::callManagerMethod('setAttribute', '', @_);
 }
 
 #(attribute => $attribute)
 #(attribute => $attribute, defaultAttribute => $attributeId)
 sub createAttribute
 {
-    return Perun::Common::callManagerMethod('createAttribute', 'AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod('createAttribute', 'AttributeDefinition', @_);
 }
 
 #(attribute => $attributeId)
 sub deleteAttribute
 {
-    return Perun::Common::callManagerMethod('deleteAttribute', '', @_);
+	return Perun::Common::callManagerMethod('deleteAttribute', '', @_);
 }
 
 #(service => $serviceId, facility => $facilityId)
@@ -115,13 +115,13 @@ sub deleteAttribute
 #(user => $userId)
 sub getRequiredAttributes
 {
-    return Perun::Common::callManagerMethod('getRequiredAttributes', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('getRequiredAttributes', '[]Attribute', @_);
 }
 
 #(service => $serviceId)
 sub getRequiredAttributesDefinition
 {
-    return Perun::Common::callManagerMethod('getRequiredAttributesDefinition', '[]AttributeDefinition', @_);
+	return Perun::Common::callManagerMethod('getRequiredAttributesDefinition', '[]AttributeDefinition', @_);
 }
 
 #(resourceToGetServicesFrom => $resourceId, member => $memberId)
@@ -132,27 +132,27 @@ sub getRequiredAttributesDefinition
 #(resourceToGetServicesFrom => $resourceId, resource => $resource2Id,  group => $groupId)
 sub getResourceRequiredAttributes
 {
-    return Perun::Common::callManagerMethod('getResourceRequiredAttributes', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('getResourceRequiredAttributes', '[]Attribute', @_);
 }
 
 #(facility => $facilityId)
 sub getAllRequiredAttributes
 {
-    return Perun::Common::callManagerMethod('getAllRequiredAttributes', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('getAllRequiredAttributes', '[]Attribute', @_);
 }
 
 #(resource => $resourceId, attribute => $attribute)
 #(resource => $resourceId, member => $memberId, attribute => $attribute)
 sub fillAttribute
 {
-    return Perun::Common::callManagerMethod('fillAttribute', 'Attribute', @_);
+	return Perun::Common::callManagerMethod('fillAttribute', 'Attribute', @_);
 }
 
 #(resource => $resourceId, attributes => $arrayOfattributes)
 #(resource => $resourceId, member => $memberId, attributes => $arrayOfattributes)
 sub fillAttributes
 {
-    return Perun::Common::callManagerMethod('fillAttributes', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('fillAttributes', '[]Attribute', @_);
 }
 
 #(facility => $facilityId, attribute => $attribute)
@@ -161,7 +161,7 @@ sub fillAttributes
 #(resource => $resourceId, member => $memberId, attribute => $attribute)
 sub checkAttributeValue
 {
-    return Perun::Common::callManagerMethod('checkAttributeValue', '', @_);
+	return Perun::Common::callManagerMethod('checkAttributeValue', '', @_);
 }
 
 #(facility => $facilityId, attributes => $arrayOfAttributes)
@@ -170,7 +170,7 @@ sub checkAttributeValue
 #(resource => $resourceId, member => $memberId, attributes => $arrayOfAttributes)
 sub checkAttributesValue
 {
-    return Perun::Common::callManagerMethod('checkAttributeValue', '', @_);
+	return Perun::Common::callManagerMethod('checkAttributeValue', '', @_);
 }
 
 #(facility => $facilityId, attributes => $arrayOfAttributeIds)
@@ -179,7 +179,7 @@ sub checkAttributesValue
 #(resource => $resourceId, member => $memberId, attributes => $arrayOfAttributeIds)
 sub removeAttributes
 {
-    return Perun::Common::callManagerMethod('removeAttributes', '', @_);
+	return Perun::Common::callManagerMethod('removeAttributes', '', @_);
 }
 
 #(facility => $facilityId, attribute => $attributeId)
@@ -188,7 +188,7 @@ sub removeAttributes
 #(resource => $resourceId, member => $memberId, attribute => $attributeId)
 sub removeAttribute
 {
-    return Perun::Common::callManagerMethod('removeAttribute', '', @_);
+	return Perun::Common::callManagerMethod('removeAttribute', '', @_);
 }
 
 #(facility => $facilityId)
@@ -197,17 +197,17 @@ sub removeAttribute
 #(resource => $resourceId, member => $memberId)
 sub removeAllAttributes
 {
-    return Perun::Common::callManagerMethod('removeAllAttributes', '', @_);
+	return Perun::Common::callManagerMethod('removeAllAttributes', '', @_);
 }
 
 #(member => $memberId)
 sub doTheMagic
 {
-    return Perun::Common::callManagerMethod('doTheMagic', '', @_);
+	return Perun::Common::callManagerMethod('doTheMagic', '', @_);
 }
 
 sub getLogins
 {
-		return Perun::Common::callManagerMethod('getLogins', '[]Attribute', @_);
+	return Perun::Common::callManagerMethod('getLogins', '[]Attribute', @_);
 }
 1;

@@ -12,20 +12,20 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class GroupResourceMismatchException extends PerunException {
 
-    public GroupResourceMismatchException(Throwable cause) {
-        super(cause);
-    }
+	public GroupResourceMismatchException(Throwable cause) {
+		super(cause);
+	}
 
-    public GroupResourceMismatchException(String message, Throwable cause) {
-        super(message,cause);
-    }
+	public GroupResourceMismatchException(String message, Throwable cause) {
+		super(message,cause);
+	}
 
-    public GroupResourceMismatchException(String message) {
-        super(message);
-    }
+	public GroupResourceMismatchException(String message) {
+		super(message);
+	}
 
-    public GroupResourceMismatchException() {
-    }
+	public GroupResourceMismatchException() {
+	}
 
 
 }

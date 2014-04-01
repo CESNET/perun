@@ -7,25 +7,25 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected destination from the facility. Facility id or name, attribute id and destination and type are required.
---------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -p facility type
- --serviceId    | -s service id
- --destination  | -D destination
- --type         | -t destination type
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected destination from the facility. Facility id or name, attribute id and destination and type are required.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -p facility type
+	--serviceId    | -s service id
+	--destination  | -D destination
+	--type         | -t destination type
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $destination, $typ, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId, "serviceId|s=i" => \$serviceId,
+"facilityId|f=i" => \$facilityId, "serviceId|s=i" => \$serviceId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|p=s" => \$facilityType,
  "destination|D=s" => \$destination,
@@ -41,9 +41,9 @@ unless ($destination !~ /^\s*$/) { die "ERROR: destination cannot be empty strin
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $servicesAgent = $agent->getServicesAgent;

@@ -81,9 +81,9 @@ public class PublicationServiceImpl implements IPublicationService {
 		if (p.getLocked() == null) {
 			p.setLocked(false);
 		}
-        if (p.getCreatedByUid() == null && sess != null) {
-            p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-        }
+		if (p.getCreatedByUid() == null && sess != null) {
+			p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+		}
 
 		if (p.getExternalId() == 0 && p.getPublicationSystemId() == 0) {
 			// check existence
@@ -224,11 +224,11 @@ public class PublicationServiceImpl implements IPublicationService {
 		// or user who created record (publication.createdBy==actor property)
 		try {
 			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-                    !pub.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
-                    !pub.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId())) {
+					!pub.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+					!pub.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId())) {
 				// not perun admin or author of record
 				throw new CabinetException("You are not allowed to delete publications you didn't created.", ErrorCodes.NOT_AUTHORIZED);
-			}
+					}
 		} catch (PerunException pe) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}

@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Slavek Licehammer
  */
 public class ModuleNotExistsException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public ModuleNotExistsException(String message) {
-        super(message);
-    }
+	public ModuleNotExistsException(String message) {
+		super(message);
+	}
 
-    public ModuleNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ModuleNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ModuleNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public ModuleNotExistsException(Throwable cause) {
+		super(cause);
+	}
 }

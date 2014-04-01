@@ -9,21 +9,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceNotAssignedRuntimeEx
  * @author Slavek Licehammer
  */
 public class ExtSourceNotAssignedException extends EntityNotAssignedException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public ExtSourceNotAssignedException(ExtSourceNotAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public ExtSourceNotAssignedException(ExtSourceNotAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public ExtSourceNotAssignedException(String message) {
-        super(message);
-    }
+	public ExtSourceNotAssignedException(String message) {
+		super(message);
+	}
 
-    public ExtSourceNotAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ExtSourceNotAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ExtSourceNotAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public ExtSourceNotAssignedException(Throwable cause) {
+		super(cause);
+	}
 }

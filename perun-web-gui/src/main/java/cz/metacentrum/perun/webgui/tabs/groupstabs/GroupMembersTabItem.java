@@ -65,7 +65,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	// members table wrapper
 	ScrollPanel tableWrapper = new ScrollPanel();
 
-    String searchString = "";
+	String searchString = "";
 
 	/**
 	 * Group
@@ -76,8 +76,8 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param group
-     */
+	 * @param group
+	 */
 	public GroupMembersTabItem(Group group){
 		this.group = group;
 		this.groupId = group.getId();
@@ -86,16 +86,16 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param groupId
-     */
+	 * @param groupId
+	 */
 	public GroupMembersTabItem(int groupId){
 		this.groupId = groupId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                group = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				group = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -111,16 +111,16 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-        // DISABLED CHECKBOX
-        final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
-        disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
+		// DISABLED CHECKBOX
+		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
+		disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
 
-        JsonCallbackEvents disableCheckboxEvent = JsonCallbackEvents.disableCheckboxEvents(disabled);
+		JsonCallbackEvents disableCheckboxEvent = JsonCallbackEvents.disableCheckboxEvents(disabled);
 
 		// CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, disableCheckboxEvent);
 		members.setIndirectCheckable(false);
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) members.setCheckable(false);
+		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) members.setCheckable(false);
 
 		// refreshMembers
 		final JsonCallbackEvents refreshMembersEvent = JsonCallbackEvents.refreshTableEvents(members);
@@ -129,102 +129,102 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		TabMenu tabMenu = new TabMenu();
 		boolean isMembersGroup = group.isCoreGroup();
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());
 
 		if(!isMembersGroup){
 
 			// ADD
 			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToGroup(), new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new AddMemberToGroupTabItem(group), true);
-                }
-            });
-            if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
-            tabMenu.addWidget(addButton);
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new AddMemberToGroupTabItem(group), true);
+				}
+			});
+			if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
+			tabMenu.addWidget(addButton);
 
 			// REMOVE
 
 			// remove button
 			removeButton.addClickHandler(new ClickHandler() {
 				@Override
-                public void onClick(ClickEvent event) {
+				public void onClick(ClickEvent event) {
 					final ArrayList<RichMember> itemsToRemove = members.getTableSelectedList();
 					final JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(removeButton);
 					final JsonCallbackEvents refreshEvents = JsonCallbackEvents.disableButtonEvents(removeButton, refreshMembersEvent);
-                    String text = "Following members will be removed from group. They will lose access to resources provided by this group.";
-                    UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                            for (int i=0; i<itemsToRemove.size(); i++ ) {
-                                RemoveMember request;
-                                if(i == itemsToRemove.size() - 1){
-                                    request = new RemoveMember(refreshEvents);
-                                }else{
-                                    request = new RemoveMember(events);
-                                }
-                                request.removeMemberFromGroup(group, itemsToRemove.get(i));
-                            }
-                        }
-                    });
+					String text = "Following members will be removed from group. They will lose access to resources provided by this group.";
+					UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+							for (int i=0; i<itemsToRemove.size(); i++ ) {
+								RemoveMember request;
+								if(i == itemsToRemove.size() - 1){
+									request = new RemoveMember(refreshEvents);
+								}else{
+									request = new RemoveMember(events);
+								}
+								request.removeMemberFromGroup(group, itemsToRemove.get(i));
+							}
+						}
+					});
 				}
 			});
-            if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
-            tabMenu.addWidget(removeButton);
+			if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
+			tabMenu.addWidget(removeButton);
 
-        } else {
+		} else {
 
-            // is core group
-            tabMenu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-            Anchor a = new Anchor("<strong>To edit VO members use VO manager section in menu.</strong>", true);
-            a.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTab(new VoMembersTabItem(group.getVoId()));
-                }
-            });
-            tabMenu.addWidget(a);
+			// is core group
+			tabMenu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+			Anchor a = new Anchor("<strong>To edit VO members use VO manager section in menu.</strong>", true);
+			a.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTab(new VoMembersTabItem(group.getVoId()));
+				}
+			});
+			tabMenu.addWidget(a);
 
-            members.setCheckable(false);
+			members.setCheckable(false);
 
-        }
+		}
 
-        disabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
-                members.excludeDisabled(!disabled.getValue());
-                members.clearTable();
-                members.retrieveData();
-            }
-        });
+		disabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+				members.excludeDisabled(!disabled.getValue());
+				members.clearTable();
+				members.retrieveData();
+			}
+		});
 
 
-        final ExtendedSuggestBox box = new ExtendedSuggestBox(members.getOracle());
-        box.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
-                searchString = box.getSuggestBox().getText().trim();
-            }
-        });
+		final ExtendedSuggestBox box = new ExtendedSuggestBox(members.getOracle());
+		box.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
+				searchString = box.getSuggestBox().getText().trim();
+			}
+		});
 
-        tabMenu.addFilterWidget(box, new PerunSearchEvent() {
-            public void searchFor(String text) {
-                members.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterMembers());
+		tabMenu.addFilterWidget(box, new PerunSearchEvent() {
+			public void searchFor(String text) {
+				members.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterMembers());
 
-        // set search on finished if necessary (like changing show/hide disabled)
-        members.setEvents(new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                members.filterTable(searchString);
-            }
-        });
+		// set search on finished if necessary (like changing show/hide disabled)
+		members.setEvents(new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				members.filterTable(searchString);
+			}
+		});
 
 		tabMenu.addWidget(disabled);
 
 		vp.add(tabMenu);
-        vp.setCellHeight(tabMenu, "30px");
+		vp.setCellHeight(tabMenu, "30px");
 		vp.add(pageWidget);
 
 		/* WHEN TAB RELOADS, CHECK THE STATE */
@@ -240,9 +240,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	 */
 	private void listAllAction(final GetCompleteRichMembers members, CustomButton removeButton, CheckBox disabled) {
 
-        members.excludeDisabled(!disabled.getValue());
+		members.excludeDisabled(!disabled.getValue());
 
-        removeButton.setEnabled(false);
+		removeButton.setEnabled(false);
 
 		// get the table
 		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, RichMember>() {
@@ -253,7 +253,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(members, table, removeButton);
+		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(members, table, removeButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -316,7 +316,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(group, "Members", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(group, "Members", getUrlWithParameters());
 		if(group != null){
 			session.setActiveGroup(group);
 			return;

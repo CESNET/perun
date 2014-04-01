@@ -29,14 +29,14 @@ public class RemoveUserExtSource {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public RemoveUserExtSource() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events custom events
-     */
+	 * @param events custom events
+	 */
 	public RemoveUserExtSource(final JsonCallbackEvents events) {
 		this.events = events;
 	}

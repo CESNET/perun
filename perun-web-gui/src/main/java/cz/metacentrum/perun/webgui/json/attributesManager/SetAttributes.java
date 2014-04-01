@@ -41,14 +41,14 @@ public class SetAttributes {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public SetAttributes() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events externalEvents
-     */
+	 * @param events externalEvents
+	 */
 	public SetAttributes(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -152,7 +152,7 @@ public class SetAttributes {
 			JSONValue type = attr.get("type");
 			JSONValue description = attr.get("description");
 			JSONValue value = attr.get("value");
-            JSONValue displayName = attr.get("displayName");
+			JSONValue displayName = attr.get("displayName");
 
 			// create new Attribute jsonObject
 			JSONObject newAttr = new JSONObject();
@@ -162,7 +162,7 @@ public class SetAttributes {
 			newAttr.put("description", description);
 			newAttr.put("namespace", namespace);
 			newAttr.put("friendlyName", friendlyName);
-            newAttr.put("displayName", displayName);
+			newAttr.put("displayName", displayName);
 
 			// put attribute into array
 			array.set(array.size(), newAttr);

@@ -34,7 +34,7 @@ public class UpdateForm {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param events Custom events
 	 */
 	public UpdateForm(JsonCallbackEvents events) {

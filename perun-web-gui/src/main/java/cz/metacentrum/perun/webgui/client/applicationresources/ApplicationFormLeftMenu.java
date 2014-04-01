@@ -40,7 +40,7 @@ public class ApplicationFormLeftMenu extends Composite{
 
 	private SimplePanel content = new SimplePanel();
 
-    private ArrayList<Anchor> listOfLinks = new ArrayList<Anchor>();
+	private ArrayList<Anchor> listOfLinks = new ArrayList<Anchor>();
 
 	/**
 	 * Creates the left menu & navigation
@@ -64,7 +64,7 @@ public class ApplicationFormLeftMenu extends Composite{
 
 		// creating the section
 		stackPanel.add(menuContantsWrapper, header.getElement().getString(), true);
-        stackPanel.setHeight("100%");
+		stackPanel.setHeight("100%");
 		stackPanel.setWidth("280px");
 
 		menuContents.setWidth("100%");
@@ -79,70 +79,70 @@ public class ApplicationFormLeftMenu extends Composite{
 	 * @param label
 	 * @param res
 	 * @param w
-     * @return anochor we can click on
+	 * @return anochor we can click on
 	 */
 	private Anchor addMenuContents(String label, ImageResource res, final Widget w) {
 
 		int i = menuContents.getRowCount();
 
-        Image img = new Image(res);
-        menuContents.setWidget(i, 0, img);
+		Image img = new Image(res);
+		menuContents.setWidget(i, 0, img);
 
 		// user click on the menu item
 		final Anchor link = new Anchor(label);
 		listOfLinks.add(link);
-        link.addClickHandler(new ClickHandler() {
+		link.addClickHandler(new ClickHandler() {
 
 			public void onClick(ClickEvent event) {
 
 				if(w instanceof ApplicationPage)
-				{
-					ApplicationPage ap = (ApplicationPage) w;
-					ap.menuClick();
-				}
-                for (Anchor l : listOfLinks) {
-                    // remove others
-                    l.removeStyleName("mainMenuActive");
-                }
-                // bold to selected
-                link.addStyleName("mainMenuActive");
-				content.setWidget(w);
+		{
+			ApplicationPage ap = (ApplicationPage) w;
+			ap.menuClick();
+		}
+		for (Anchor l : listOfLinks) {
+			// remove others
+			l.removeStyleName("mainMenuActive");
+		}
+		// bold to selected
+		link.addStyleName("mainMenuActive");
+		content.setWidget(w);
 			}
 		});
 
 		menuContents.setWidget(i, 1, link);
 
-        return link;
+		return link;
 	}
 
-    public void addLogoutItem() {
+	public void addLogoutItem() {
 
-        // if not anonymous identity
-        if (!PerunWebSession.getInstance().getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+		// if not anonymous identity
+		if (!PerunWebSession.getInstance().getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
-            int i = menuContents.getRowCount();
-            menuContents.setWidget(i, 0, new Image(SmallIcons.INSTANCE.doorOutIcon()));
-            Anchor a = new Anchor(ApplicationMessages.INSTANCE.logout());
-            a.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    Logout call = new Logout(new JsonCallbackEvents(){
-                        @Override
-                        public void onFinished(JavaScriptObject jso) {
-                            Utils.clearFederationCookies();
-                            History.newItem("logout");
-                            RootLayoutPanel.get().clear();
-                            RootLayoutPanel.get().add(new LogoutWidget());
-                        }
-                    });
-                    call.retrieveData();
-                }
-            });
-            menuContents.setWidget(i, 1, a);
+			int i = menuContents.getRowCount();
+			menuContents.setWidget(i, 0, new Image(SmallIcons.INSTANCE.doorOutIcon()));
+			Anchor a = new Anchor(ApplicationMessages.INSTANCE.logout());
+			a.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					Logout call = new Logout(new JsonCallbackEvents(){
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+							Utils.clearFederationCookies();
+							History.newItem("logout");
+							RootLayoutPanel.get().clear();
+							RootLayoutPanel.get().add(new LogoutWidget());
+						}
+					});
+					call.retrieveData();
+				}
+			});
+			menuContents.setWidget(i, 1, a);
 
-        }
+		}
 
-    }
+	}
 
 	/**
 	 * Adds the item
@@ -150,7 +150,7 @@ public class ApplicationFormLeftMenu extends Composite{
 	 * @param label label
 	 * @param res image
 	 * @param w content
-     * @return anchor we can click on
+	 * @return anchor we can click on
 	 */
 	public Anchor addItem(String label, ImageResource res, Widget w){
 
@@ -162,7 +162,7 @@ public class ApplicationFormLeftMenu extends Composite{
 			content.setWidget(w);
 		}
 
-        return a;
+		return a;
 
 	}
 

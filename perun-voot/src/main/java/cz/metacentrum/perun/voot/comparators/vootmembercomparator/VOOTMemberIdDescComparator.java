@@ -11,8 +11,8 @@ import java.util.Comparator;
  */
 public class VOOTMemberIdDescComparator implements Comparator<VOOTMember>{
 
-    @Override
-    public int compare(VOOTMember vootMember1, VOOTMember vootMember2) {
-        return vootMember2.getId().compareTo(vootMember1.getId());
-    }
+	@Override
+	public int compare(VOOTMember vootMember1, VOOTMember vootMember2) {
+		return vootMember2.getId().compareTo(vootMember1.getId());
+	}
 }

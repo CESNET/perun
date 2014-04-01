@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.SubGroupCannotBeRemovedRuntim
  * @author Slavek Licehammer
  */
 public class SubGroupCannotBeRemovedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Group group;
+	private Group group;
 
-    public SubGroupCannotBeRemovedException(SubGroupCannotBeRemovedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public SubGroupCannotBeRemovedException(SubGroupCannotBeRemovedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public SubGroupCannotBeRemovedException(String message) {
-        super(message);
-    }
+	public SubGroupCannotBeRemovedException(String message) {
+		super(message);
+	}
 
-    public SubGroupCannotBeRemovedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public SubGroupCannotBeRemovedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public SubGroupCannotBeRemovedException(Throwable cause) {
-        super(cause);
-    }
+	public SubGroupCannotBeRemovedException(Throwable cause) {
+		super(cause);
+	}
 
-    public SubGroupCannotBeRemovedException(Group group) {
-        super(group.toString());
-        this.group = group;
-    }
+	public SubGroupCannotBeRemovedException(Group group) {
+		super(group.toString());
+		this.group = group;
+	}
 
-    public Group getGroup() {
-        return group;
-    }
+	public Group getGroup() {
+		return group;
+	}
 }

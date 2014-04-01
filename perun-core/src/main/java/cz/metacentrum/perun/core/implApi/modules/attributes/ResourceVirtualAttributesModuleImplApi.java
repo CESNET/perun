@@ -16,40 +16,40 @@ import org.mockito.stubbing.VoidMethodStubbable;
  */
 public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
-    /**
-     * This method will return computed value.
-     *
-     * @param sess PerunSession
-     * @param resource resource which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
+	/**
+	 * This method will return computed value.
+	 *
+	 * @param sess PerunSession
+	 * @param resource resource which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
 
-    /**
-     * Method sets attributes' values which are dependent on this virtual attribute.
-     *
-     * @param sess PerunSession
-     * @param resource resource which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @return true if attribute was really changed
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     */
-    boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	/**
+	 * Method sets attributes' values which are dependent on this virtual attribute.
+	 *
+	 * @param sess PerunSession
+	 * @param resource resource which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 */
+	boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
-    /**
-     * Currently do nothing.
-     *
-     * @param sess PerunSession
-     * @param resource resource which is needed for computing the value
-     * @param attribute attribute to operate on
-     * @throws InternalErrorException if an exception is raised in particular
-     *         implementation, the exception is wrapped in InternalErrorException
-     * @throws WrongReferenceAttributeValueException
-     * @throws WrongAttributeValueException
-     */
-    void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	/**
+	 * Currently do nothing.
+	 *
+	 * @param sess PerunSession
+	 * @param resource resource which is needed for computing the value
+	 * @param attribute attribute to operate on
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

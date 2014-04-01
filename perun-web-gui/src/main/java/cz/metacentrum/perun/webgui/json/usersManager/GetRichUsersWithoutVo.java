@@ -116,75 +116,75 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 			}
 		});
 
-        // SERVICE COLUMN
-        Column<User, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<User, String>() {
-            public String getValue(User user) {
-                if (user.isServiceUser()) {
-                    return "Service";
-                } else {
-                    return "Person";
-                }
-            }
-        },tableFieldUpdater);
+		// SERVICE COLUMN
+		Column<User, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<User, String>() {
+			public String getValue(User user) {
+				if (user.isServiceUser()) {
+					return "Service";
+				} else {
+					return "Person";
+				}
+			}
+		},tableFieldUpdater);
 
-        serviceColumn.setSortable(true);
-        columnSortHandler.setComparator(serviceColumn, new Comparator<User>() {
-            public int compare(User o1, User o2) {
-                return String.valueOf(o1.isServiceUser()).compareToIgnoreCase(String.valueOf(o2.isServiceUser()));  // sort by name without titles
-            }
-        });
+		serviceColumn.setSortable(true);
+		columnSortHandler.setComparator(serviceColumn, new Comparator<User>() {
+			public int compare(User o1, User o2) {
+				return String.valueOf(o1.isServiceUser()).compareToIgnoreCase(String.valueOf(o2.isServiceUser()));  // sort by name without titles
+			}
+		});
 
-        // Create organization column.
-        Column<User, String> organizationColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<User, String>() {
-                    public String getValue(User object) {
-                        Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
-                        String value = "";
-                        if (at != null) {
-                            value = at.getValue();
-                        }
-                        return value;
-                    }
-                }, this.tableFieldUpdater);
+		// Create organization column.
+		Column<User, String> organizationColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<User, String>() {
+					public String getValue(User object) {
+						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
+						String value = "";
+						if (at != null) {
+							value = at.getValue();
+						}
+						return value;
+					}
+				}, this.tableFieldUpdater);
 
-        // Create e-mail column.
-        Column<User, String> emailColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<User, String>() {
-                    public String getValue(User object) {
+		// Create e-mail column.
+		Column<User, String> emailColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<User, String>() {
+					public String getValue(User object) {
 
-                        Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
+						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
 
-                        String value = "";
+						String value = "";
 
-                        if (at != null) {
-                            value = at.getValue();
-                            // replace "," to " " in emails
-                            value = value.replace(",", " ");
-                        }
+						if (at != null) {
+							value = at.getValue();
+							// replace "," to " " in emails
+							value = value.replace(",", " ");
+						}
 
-                        return value;
-                    }
-                }, this.tableFieldUpdater);
+						return value;
+					}
+				}, this.tableFieldUpdater);
 
-        // Create name column.
-        Column<User, String> loginsColumn = JsonUtils.addColumn(
-                new JsonUtils.GetValue<User, String>() {
-                    public String getValue(User object) {
-                        return object.getUserLogins();
-                    }
-                }, this.tableFieldUpdater);
+		// Create name column.
+		Column<User, String> loginsColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<User, String>() {
+					public String getValue(User object) {
+						return object.getUserLogins();
+					}
+				}, this.tableFieldUpdater);
 
-        organizationColumn.setSortable(true);
-        columnSortHandler.setComparator(organizationColumn, new RichUserComparator(RichUserComparator.Column.ORGANIZATION));
+		organizationColumn.setSortable(true);
+		columnSortHandler.setComparator(organizationColumn, new RichUserComparator(RichUserComparator.Column.ORGANIZATION));
 
-        emailColumn.setSortable(true);
-        columnSortHandler.setComparator(emailColumn, new RichUserComparator(RichUserComparator.Column.EMAIL));
+		emailColumn.setSortable(true);
+		columnSortHandler.setComparator(emailColumn, new RichUserComparator(RichUserComparator.Column.EMAIL));
 
-        table.addColumn(nameColumn, "Name");
-        table.addColumn(organizationColumn, "Organization");
-        table.addColumn(emailColumn, "E-mail");
-        table.addColumn(loginsColumn, "Logins");
-        table.addColumn(serviceColumn, "User type");
+		table.addColumn(nameColumn, "Name");
+		table.addColumn(organizationColumn, "Organization");
+		table.addColumn(emailColumn, "E-mail");
+		table.addColumn(loginsColumn, "Logins");
+		table.addColumn(serviceColumn, "User type");
 
 		return table;
 
@@ -199,116 +199,116 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 		js.retrieveData(JSON_URL, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<User>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<User>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object user to be added as new row
-     */
-    public void addToTable(User object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object user to be added as new row
+	 */
+	public void addToTable(User object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object user to be removed as row
-     */
-    public void removeFromTable(User object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object user to be removed as row
+	 */
+	public void removeFromTable(User object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<User> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<User> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading users.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading users.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading users started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading users started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<User>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Users loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<User>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Users loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, User object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, User object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<User> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<User> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<User> getList() {
-        return this.list;
-    }
+	public ArrayList<User> getList() {
+		return this.list;
+	}
 
 }

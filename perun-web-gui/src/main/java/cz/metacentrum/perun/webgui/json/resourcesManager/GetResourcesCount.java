@@ -28,7 +28,7 @@ public class GetResourcesCount implements JsonCallback {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Label with number
 	private Label resourcesCountLabel = new Label();
-    private Hyperlink hyp = new Hyperlink();
+	private Hyperlink hyp = new Hyperlink();
 
 	/**
 	 * Creates a new instance of the method
@@ -41,7 +41,7 @@ public class GetResourcesCount implements JsonCallback {
 	/**
 	 * Creates a new instance of the method
 	 * @param id VO id.
-     * @param events events
+	 * @param events events
 	 */
 	public GetResourcesCount(int id, JsonCallbackEvents events) {
 		this.voId = id;
@@ -83,7 +83,7 @@ public class GetResourcesCount implements JsonCallback {
 		BasicOverlayType count = (BasicOverlayType) jso;
 		session.getUiElements().setLogText("Loading resources count finished: " + count.getInt());
 		resourcesCountLabel.setText(String.valueOf(count.getInt()));
-        hyp.setText(String.valueOf(count.getInt()));
+		hyp.setText(String.valueOf(count.getInt()));
 		events.onFinished(jso);
 	}
 
@@ -96,16 +96,16 @@ public class GetResourcesCount implements JsonCallback {
 		return this.resourcesCountLabel;
 	}
 
-    /**
-     * Returns the resources count as hyperlink
-     * to VO-Resources
-     *
-     * @return hyperlink
-     */
-    public Hyperlink getResourcesCountHyperlink()
-    {
-        hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoResourcesTabItem(voId)));
-        return this.hyp;
-    }
+	/**
+	 * Returns the resources count as hyperlink
+	 * to VO-Resources
+	 *
+	 * @return hyperlink
+	 */
+	public Hyperlink getResourcesCountHyperlink()
+	{
+		hyp.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoResourcesTabItem(voId)));
+		return this.hyp;
+	}
 
 }

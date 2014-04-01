@@ -28,14 +28,14 @@ public class PublicationForGUI extends Publication{
 				isbn, categoryId, createdBy, createdDate, doi, locked);
 	}
 
-    public PublicationForGUI(List<Author> authors, Double rank, Integer id,
-                             Integer externalId, Integer publicationSystemId, String title,
-                             Integer year, String main, String isbn, Integer categoryId,
-                             String createdBy, Date createdDate, String doi, Boolean locked, Integer createdByUid) {
-        super(authors, rank, id, externalId, publicationSystemId, title, year, main,
-                isbn, categoryId, createdBy, createdDate, doi, locked);
-        setCreatedByUid(createdByUid);
-    }
+	public PublicationForGUI(List<Author> authors, Double rank, Integer id,
+			Integer externalId, Integer publicationSystemId, String title,
+			Integer year, String main, String isbn, Integer categoryId,
+			String createdBy, Date createdDate, String doi, Boolean locked, Integer createdByUid) {
+		super(authors, rank, id, externalId, publicationSystemId, title, year, main,
+				isbn, categoryId, createdBy, createdDate, doi, locked);
+		setCreatedByUid(createdByUid);
+	}
 
 	public PublicationForGUI(Publication pub){
 		setId(pub.getId());
@@ -52,7 +52,7 @@ public class PublicationForGUI extends Publication{
 		setRank(pub.getRank());
 		setDoi(pub.getDoi());
 		setLocked(pub.getLocked());
-        setCreatedByUid(pub.getCreatedByUid());
+		setCreatedByUid(pub.getCreatedByUid());
 	}
 
 	public List<ThanksForGUI> getThanks() {
@@ -81,7 +81,7 @@ public class PublicationForGUI extends Publication{
 
 	@Override
 	public String toString() {
-			return getClass().getSimpleName()+":[id=" + this.getId() + ", externalId=" + this.getExternalId() + ", pubSysId=" + this.getPublicationSystemId() + ", pubSysName=" + this.getPubSystemName() + ", title=" + this.getTitle() + ", categoryId=" + this.getCategoryId() + ", categoryName=" + this.getCategoryName() + ", year=" + this.getYear() + ", isbn=" + this.getIsbn() + ", doi=" + this.getDoi() + ", locked=" + this.getLocked() + ", main=" + this.getMain() + ", createdBy=" + this.getCreatedBy() + ", createdDate=" + this.getCreatedDate() + ", rank=" + this.getRank() + ", createdByUid=" + this.getCreatedByUid() + ", authors=" + this.getAuthors() + ", thanks=" + this.getThanks() + "]";
+		return getClass().getSimpleName()+":[id=" + this.getId() + ", externalId=" + this.getExternalId() + ", pubSysId=" + this.getPublicationSystemId() + ", pubSysName=" + this.getPubSystemName() + ", title=" + this.getTitle() + ", categoryId=" + this.getCategoryId() + ", categoryName=" + this.getCategoryName() + ", year=" + this.getYear() + ", isbn=" + this.getIsbn() + ", doi=" + this.getDoi() + ", locked=" + this.getLocked() + ", main=" + this.getMain() + ", createdBy=" + this.getCreatedBy() + ", createdDate=" + this.getCreatedDate() + ", rank=" + this.getRank() + ", createdByUid=" + this.getCreatedByUid() + ", authors=" + this.getAuthors() + ", thanks=" + this.getThanks() + "]";
 	}
 
 }

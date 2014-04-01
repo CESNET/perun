@@ -32,6 +32,6 @@ public interface PerunNotifPoolMessageManager {
 	/**
 	 * Process poolMessages from db. Orders them by templateId and keyAttributes and checks conditionals
 	 * set in templates whether sent notification or not. Procesed messages are removed from db.
-     */
+	 */
 	public void processPerunNotifPoolMessagesFromDb();
 }

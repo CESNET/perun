@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ResourceNotExistsRuntimeExcep
  * @author Slavek Licehammer
  */
 public class ResourceNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Resource resource;
+	private Resource resource;
 
-    public ResourceNotExistsException(ResourceNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public ResourceNotExistsException(ResourceNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public ResourceNotExistsException(String message) {
-        super(message);
-    }
+	public ResourceNotExistsException(String message) {
+		super(message);
+	}
 
-    public ResourceNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ResourceNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ResourceNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public ResourceNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public ResourceNotExistsException(Resource resource) {
-      super(resource.toString());
-      this.resource = resource;
-    }
+	public ResourceNotExistsException(Resource resource) {
+		super(resource.toString());
+		this.resource = resource;
+	}
 
-    public Resource getResource() {
-        return this.resource;
-    }
+	public Resource getResource() {
+		return this.resource;
+	}
 }

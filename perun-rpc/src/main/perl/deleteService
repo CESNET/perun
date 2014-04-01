@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Deletes a service. Service id or name is required.
---------------------------------------------------
-Available options:
- --serviceId   | -s service id
- --serviceName | -S service name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Deletes a service. Service id or name is required.
+	--------------------------------------------------
+	Available options:
+	--serviceId   | -s service id
+	--serviceName | -S service name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($serviceId, $serviceName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "serviceId|s=i" => \$serviceId,
+"serviceId|s=i" => \$serviceId,
  "serviceName|S=s" => \$serviceName) || die help();
 
 # Check options
@@ -31,8 +31,8 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 unless($serviceId) {
-    my $service = $servicesAgent->getServiceByName(name => $serviceName);
-    $serviceId=$service->getId;
+	my $service = $servicesAgent->getServiceByName(name => $serviceName);
+	$serviceId=$service->getId;
 }
 
 $servicesAgent->deleteService(service => $serviceId);

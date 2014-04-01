@@ -63,13 +63,13 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoExistsException.class)
-	public void createVoWhichAlreadyExists() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "createVoWhichAlreadyExists()");
+		public void createVoWhichAlreadyExists() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "createVoWhichAlreadyExists()");
 
-		vosManagerEntry.createVo(sess, myVo);
-		// this should throw exception
-		vosManagerEntry.createVo(sess, myVo);
-	}
+			vosManagerEntry.createVo(sess, myVo);
+			// this should throw exception
+			vosManagerEntry.createVo(sess, myVo);
+		}
 
 	@Test
 	public void getVoById() throws Exception {
@@ -101,12 +101,12 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-	public void getVoWhichNotExists() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getVoWhichNotExists()");
+		public void getVoWhichNotExists() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "getVoWhichNotExists()");
 
-		final String nonExistingShortName = "_i_am_not_in_db_";
-		vosManagerEntry.getVoByShortName(sess, nonExistingShortName);
-	}
+			final String nonExistingShortName = "_i_am_not_in_db_";
+			vosManagerEntry.getVoByShortName(sess, nonExistingShortName);
+		}
 
 	@Test
 	public void getVos() throws Exception {
@@ -140,11 +140,11 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-	public void updateVoWhichNotExists() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "updateVoWhichNotExists()");
+		public void updateVoWhichNotExists() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "updateVoWhichNotExists()");
 
-		vosManagerEntry.updateVo(sess, new Vo());
-	}
+			vosManagerEntry.updateVo(sess, new Vo());
+		}
 
 	@Test
 	@Ignore
@@ -166,14 +166,14 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-	@Ignore
-	public void findCandidatesForNonExistingVo() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "findCandidatesForNonExistingVo()");
+		@Ignore
+		public void findCandidatesForNonExistingVo() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "findCandidatesForNonExistingVo()");
 
-		addExtSourceDelegate(new Vo());
+			addExtSourceDelegate(new Vo());
 
-		vosManagerEntry.findCandidates(sess, new Vo(), "kouril");
-	}
+			vosManagerEntry.findCandidates(sess, new Vo(), "kouril");
+		}
 
 	@Test
 	@Ignore
@@ -199,7 +199,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
 		final Member member = createMemberFromExtSource(createdVo);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		vosManagerEntry.addAdmin(sess, createdVo, user);
 		final List<User> admins = vosManagerEntry.getAdmins(sess, createdVo);
 
@@ -213,7 +213,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Member member = createMemberFromExtSource(createdVo);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		vosManagerEntry.addAdmin(sess, new Vo(), user);
 	}
@@ -227,22 +227,22 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		vosManagerEntry.addAdmin(sess, createdVo, new User());
 	}
 
-        @Test
+	@Test
 	public void addAdminWithGroup() throws Exception {
 		System.out.println(VOS_MANAGER_ENTRY + "addAdminWithGroup()");
 
-                final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
 		// set up authorized group
-                Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-                Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
 		vosManagerEntry.addAdmin(sess, createdVo, returnedGroup);
 
 		final List<Group> admins = vosManagerEntry.getAdminGroups(sess, createdVo);
 
 		assertNotNull(admins);
 		assertTrue(admins.size() > 0);
-                assertTrue(admins.contains(authorizedGroup));
+		assertTrue(admins.contains(authorizedGroup));
 	}
 
 	@Test
@@ -251,18 +251,18 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
-                // set up first user
-                final Member member = createMemberFromExtSource(createdVo);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-                vosManagerEntry.addAdmin(sess, createdVo, user);
+		// set up first user
+		final Member member = createMemberFromExtSource(createdVo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		vosManagerEntry.addAdmin(sess, createdVo, user);
 
-                // set up authorized group
-                Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-                Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
+		// set up authorized group
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
 		vosManagerEntry.addAdmin(sess, createdVo, returnedGroup);
 
-                // set up second user
-                Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		// set up second user
+		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
 		candidate.setFirstName("Josef");
 		candidate.setId(4);
 		candidate.setMiddleName("");
@@ -270,42 +270,42 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
-                        "cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
+					"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 
-                Member member2 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-                User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
-                perun.getGroupsManager().addMember(sess, returnedGroup, member2);
+		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		perun.getGroupsManager().addMember(sess, returnedGroup, member2);
 
-                // test
+		// test
 		List<User> admins = vosManagerEntry.getAdmins(sess, createdVo);
 		assertTrue("group shoud have 2 admins",admins.size() == 2);
 		assertTrue("our member as direct user should be admin",admins.contains(user));
-                assertTrue("our member as member of admin group should be admin",admins.contains(user2));
+		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
 
-        @Test
+	@Test
 	public void getDirectAdmins() throws Exception {
 		System.out.println(VOS_MANAGER_ENTRY + "getDirectAdmins()");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
 		final Member member = createMemberFromExtSource(createdVo);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		vosManagerEntry.addAdmin(sess, createdVo, user);
 		assertTrue(vosManagerEntry.getDirectAdmins(sess, createdVo).contains(user));
 	}
 
-        @Test
+	@Test
 	public void getAdminGroups() throws Exception {
 		System.out.println(VOS_MANAGER_ENTRY + "getAdminGroups()");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
 		final Group group = new Group("testGroup", "just for testing");
-                perun.getGroupsManager().createGroup(sess, createdVo, group);
+		perun.getGroupsManager().createGroup(sess, createdVo, group);
 
 		vosManagerEntry.addAdmin(sess, createdVo, group);
 		assertTrue(vosManagerEntry.getAdminGroups(sess, createdVo).contains(group));
@@ -326,7 +326,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Member member = createMemberFromExtSource(createdVo);
-                User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		vosManagerEntry.addAdmin(sess, createdVo, user);
 		assertEquals(user, vosManagerEntry.getAdmins(sess, createdVo).get(0));
@@ -335,15 +335,15 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertFalse(vosManagerEntry.getAdmins(sess, createdVo).contains(user));
 	}
 
-        @Test
+	@Test
 	public void removeAdminWithGroup() throws Exception {
 		System.out.println(VOS_MANAGER_ENTRY + "removeAdminWithGroup()");
 
-                final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
-                // set up authorized group
-                Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-                Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
+		// set up authorized group
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, createdVo, authorizedGroup);
 		vosManagerEntry.addAdmin(sess, createdVo, returnedGroup);
 
 		vosManagerEntry.removeAdmin(sess, createdVo, returnedGroup);
@@ -351,29 +351,29 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-	public void deleteVo() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "deleteVo()");
+		public void deleteVo() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "deleteVo()");
 
-		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
-		vosManagerEntry.deleteVo(sess, createdVo);
-		vosManagerEntry.getVoById(sess, createdVo.getId());
-	}
+			final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+			vosManagerEntry.deleteVo(sess, createdVo);
+			vosManagerEntry.getVoById(sess, createdVo.getId());
+		}
 
 	@Test(expected = VoNotExistsException.class)
-	public void deleteVoWhichNotExists() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "deleteVoWhichNotExists()");
+		public void deleteVoWhichNotExists() throws Exception {
+			System.out.println(VOS_MANAGER_ENTRY + "deleteVoWhichNotExists()");
 
-		vosManagerEntry.deleteVo(sess, new Vo());
-	}
+			vosManagerEntry.deleteVo(sess, new Vo());
+		}
 
 	// private methods ------------------------------------------------------------------
 
 	private Member createMemberFromExtSource(final Vo createdVo)
-			throws Exception {
+		throws Exception {
 
 		//This is obsolete approach which is dependent on extSource, remove these lines in future...
-		//addExtSourceDelegate(createdVo);
-		//final List<Candidate> candidates = vosManagerEntry.findCandidates(sess,
+	//addExtSourceDelegate(createdVo);
+//final List<Candidate> candidates = vosManagerEntry.findCandidates(sess,
 		//		createdVo, "kouril", 1);
 
 		final Candidate candidate = prepareCandidate();

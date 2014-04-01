@@ -27,8 +27,8 @@ public class RemoveMember {
 	// ids
 	private int memberId = 0;
 	private int groupId = 0;
-    private RichMember member = null;
-    private Group group = null;
+	private RichMember member = null;
+	private Group group = null;
 
 	/**
 	 * Creates a new request
@@ -86,47 +86,47 @@ public class RemoveMember {
 
 	}
 
-    /**
-     * Attempts to remove member from group
-     *
-     * @param group group
-     * @param member member to be removed from group
-     */
-    public void removeMemberFromGroup(final Group group,final RichMember member) {
+	/**
+	 * Attempts to remove member from group
+	 *
+	 * @param group group
+	 * @param member member to be removed from group
+	 */
+	public void removeMemberFromGroup(final Group group,final RichMember member) {
 
-        this.group = group;
-        this.member = member;
+		this.group = group;
+		this.member = member;
 
-        this.memberId = (member != null) ? member.getId() : 0;
-        this.groupId = (group != null) ? group.getId() : 0;
+		this.memberId = (member != null) ? member.getId() : 0;
+		this.groupId = (group != null) ? group.getId() : 0;
 
-        // test arguments
-        if(!this.testRemoving()){
-            return;
-        }
+		// test arguments
+		if(!this.testRemoving()){
+			return;
+		}
 
-        // new events
-        JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-            public void onError(PerunError error) {
-                session.getUiElements().setLogErrorText("Removing member: " + member.getUser().getFullName() + " from group: " + group.getShortName() + " failed.");
-                events.onError(error);
-            };
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Removing member: " + member.getUser().getFullName() + " from group: " + group.getShortName() + " failed.");
+				events.onError(error);
+			};
 
-            public void onFinished(JavaScriptObject jso) {
-                session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " removed from group: " + group.getShortName());
-                events.onFinished(jso);
-            };
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " removed from group: " + group.getShortName());
+				events.onFinished(jso);
+			};
 
-            public void onLoadingStart() {
-                events.onLoadingStart();
-            };
-        };
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
 
-        // sending data
-        JsonPostClient jspc = new JsonPostClient(newEvents);
-        jspc.sendData(JSON_URL, prepareJSONObject());
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(JSON_URL, prepareJSONObject());
 
-    }
+	}
 
 	/**
 	 * Tests the values, if the process can continue
@@ -149,7 +149,7 @@ public class RemoveMember {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

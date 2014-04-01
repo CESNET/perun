@@ -6,32 +6,32 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $id = $self->{_id};
-    my $name = $self->{_name};
-    my $description = $self->{_description};
+	my $id = $self->{_id};
+	my $name = $self->{_name};
+	my $description = $self->{_description};
 
-    my $str = 'Resource (';
-    $str .= "id: $id, " if ($id);
-    $str .= "name: $name, " if ($name);
-    $str .= "description: $description" if ($description);
-    $str .= ')';
+	my $str = 'Resource (';
+	$str .= "id: $id, " if ($id);
+	$str .= "name: $name, " if ($name);
+	$str .= "description: $description" if ($description);
+	$str .= ')';
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -64,56 +64,56 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getDescription
 {
 	my $self = shift;
 
-    return $self->{_description};
+	return $self->{_description};
 }
 
 sub setDescription
 {
-    my $self = shift;
-    $self->{_description} = shift;
+	my $self = shift;
+	$self->{_description} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->{_name});
+	my $self = shift;
+	return ($self->{_id}, $self->{_name});
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('ID', 'Name');
+	return ('ID', 'Name');
 }
 
 

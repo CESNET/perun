@@ -17,6 +17,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 public interface ProcessingRuleDao {
 
-    public Map<ProcessingRule, List<ExecService>> getRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	public Map<ProcessingRule, List<ExecService>> getRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
 }

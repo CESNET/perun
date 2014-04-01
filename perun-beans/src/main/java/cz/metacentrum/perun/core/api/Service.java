@@ -10,19 +10,19 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class Service extends Auditable {
 	private String name;
 
-        public Service(){
-          super();
-        }
+	public Service(){
+		super();
+	}
 
-        public Service(int id, String name){
-            super(id);
-            this.name = name;
-        }
+	public Service(int id, String name){
+		super(id);
+		this.name = name;
+	}
 
-        public Service(int id, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
-            super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
-            this.name = name;
-        }
+	public Service(int id, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
+		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;
@@ -59,18 +59,18 @@ public class Service extends Auditable {
 		return true;
 	}
 
-        @Override
-        public String serializeToString() {
-              return this.getClass().getSimpleName() +":[" +
-                            "id=<" + getId() + ">" +
-                            ", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-                            ']';
-        }
+	@Override
+	public String serializeToString() {
+		return this.getClass().getSimpleName() +":[" +
+			"id=<" + getId() + ">" +
+			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
+			']';
+	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ":[id='" + getId() + "', name='" + name
-				+ "']";
+			+ "']";
 	}
 
 

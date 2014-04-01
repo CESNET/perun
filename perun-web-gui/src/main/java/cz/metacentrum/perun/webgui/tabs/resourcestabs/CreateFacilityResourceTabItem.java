@@ -57,23 +57,23 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	private int facilityId;
 
 	/**
-     * @param facility facility which should have resource added
-     */
+	 * @param facility facility which should have resource added
+	 */
 	public CreateFacilityResourceTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
 
 	/**
-     * @param facilityId facility which should have resource added
-     */
+	 * @param facilityId facility which should have resource added
+	 */
 	public CreateFacilityResourceTabItem(int facilityId){
 		this.facilityId = facilityId;
 		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -84,8 +84,8 @@ public class CreateFacilityResourceTabItem implements TabItem {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + "): create resource");
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
 		// form inputs
 		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
@@ -93,81 +93,81 @@ public class CreateFacilityResourceTabItem implements TabItem {
 
 		final ListBoxWithObjects<VirtualOrganization> vosDropDown = new ListBoxWithObjects<VirtualOrganization>();
 
-        // send button
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createResource());
+		// send button
+		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createResource());
 
-        // local events fills the listbox of Vos and Slds
+		// local events fills the listbox of Vos and Slds
 		JsonCallbackEvents event = new JsonCallbackEvents(){
 			@Override
-            public void onFinished(JavaScriptObject jso){
+			public void onFinished(JavaScriptObject jso){
 				// fill VOs listbox
-                vosDropDown.clear();
+				vosDropDown.clear();
 				ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
-                vos = new TableSorter<VirtualOrganization>().sortByName(vos);
+				vos = new TableSorter<VirtualOrganization>().sortByName(vos);
 				for (VirtualOrganization vo : vos) {
 					vosDropDown.addItem(vo);
 				}
-                if (!vos.isEmpty()) createButton.setEnabled(true);
+				if (!vos.isEmpty()) createButton.setEnabled(true);
 			}
-            @Override
-            public void onLoadingStart() {
-                vosDropDown.clear();
-                vosDropDown.addItem("Loading...");
-                createButton.setEnabled(false);
-            }
-            @Override
-            public void onError(PerunError error) {
-                vosDropDown.clear();
-                vosDropDown.addItem("Error while loading");
-                createButton.setEnabled(false);
-            }
+			@Override
+			public void onLoadingStart() {
+				vosDropDown.clear();
+				vosDropDown.addItem("Loading...");
+				createButton.setEnabled(false);
+			}
+			@Override
+			public void onError(PerunError error) {
+				vosDropDown.clear();
+				vosDropDown.addItem("Error while loading");
+				createButton.setEnabled(false);
+			}
 		};
 		// load available VOs
 		final GetVos vos = new GetVos(event);
-        vos.setForceAll(true);
+		vos.setForceAll(true);
 		vos.retrieveData();
 
 		// layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // Add some standard form options
-        layout.setHTML(0, 0, "Name:");
-        layout.setWidget(0, 1, nameTextBox);
-        layout.setHTML(1, 0, "Description:");
-        layout.setWidget(1, 1, descriptionTextBox);
-        layout.setHTML(2, 0, "VO:");
-        layout.setWidget(2, 1, vosDropDown);
-        layout.setHTML(3, 0, "Facility:");
-        layout.setHTML(3, 1, facility.getName()+" ("+facility.getType()+")");
+		// Add some standard form options
+		layout.setHTML(0, 0, "Name:");
+		layout.setWidget(0, 1, nameTextBox);
+		layout.setHTML(1, 0, "Description:");
+		layout.setWidget(1, 1, descriptionTextBox);
+		layout.setHTML(2, 0, "VO:");
+		layout.setWidget(2, 1, vosDropDown);
+		layout.setHTML(3, 0, "Facility:");
+		layout.setHTML(3, 1, facility.getName()+" ("+facility.getType()+")");
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        layout.setWidth("350px");
+		layout.setWidth("350px");
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    nameTextBox.setError("Name can't be empty.");
-                    return false;
-                }
-                nameTextBox.setOk();
-                return true;
-            }
-        };
-        nameTextBox.setValidator(validator);
-
-        createButton.addClickHandler(new ClickHandler() {
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
-            public void onClick(ClickEvent event) {
+			public boolean validateTextBox() {
+				if (nameTextBox.getTextBox().getText().trim().isEmpty()) {
+					nameTextBox.setError("Name can't be empty.");
+					return false;
+				}
+				nameTextBox.setOk();
+				return true;
+			}
+		};
+		nameTextBox.setValidator(validator);
 
-                // loads new tab when creating successful, also disable button
+		createButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				// loads new tab when creating successful, also disable button
 				JsonCallbackEvents localEvents = new JsonCallbackEvents(){
 					public void onLoadingStart() {
 						(JsonCallbackEvents.disableButtonEvents(createButton)).onLoadingStart();
@@ -181,29 +181,29 @@ public class CreateFacilityResourceTabItem implements TabItem {
 						(JsonCallbackEvents.disableButtonEvents(createButton)).onError(error);
 					}
 				};
-                if (validator.validateTextBox()) {
-                    // request
-                    CreateResource request = new CreateResource(localEvents);
-                    request.createResource(nameTextBox.getTextBox().getText().trim(), descriptionTextBox.getText().trim(), facility.getId(), vosDropDown.getSelectedObject().getId());
-                }
+				if (validator.validateTextBox()) {
+					// request
+					CreateResource request = new CreateResource(localEvents);
+					request.createResource(nameTextBox.getTextBox().getText().trim(), descriptionTextBox.getText().trim(), facility.getId(), vosDropDown.getSelectedObject().getId());
+				}
 			}
 		});
 
-        menu.addWidget(createButton);
+		menu.addWidget(createButton);
 
-        final TabItem tab = this;
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		final TabItem tab = this;
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}

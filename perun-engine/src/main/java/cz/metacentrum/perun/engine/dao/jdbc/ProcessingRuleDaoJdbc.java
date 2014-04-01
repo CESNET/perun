@@ -31,52 +31,52 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 @Transactional
 public class ProcessingRuleDaoJdbc extends JdbcDaoSupport implements ProcessingRuleDao {
 
-    @SuppressWarnings("unused")
-    private final static Logger log = LoggerFactory.getLogger(ProcessingRuleDaoJdbc.class);
-    @Autowired
-    private EngineManager engineManager;
+	@SuppressWarnings("unused")
+	private final static Logger log = LoggerFactory.getLogger(ProcessingRuleDaoJdbc.class);
+	@Autowired
+	private EngineManager engineManager;
 
-    public static final RowMapper<ProcessingRule> PROCESSING_RULE_ROWMAPPER = new RowMapper<ProcessingRule>() {
+	public static final RowMapper<ProcessingRule> PROCESSING_RULE_ROWMAPPER = new RowMapper<ProcessingRule>() {
 
-        public ProcessingRule mapRow(ResultSet rs, int i) throws SQLException {
+		public ProcessingRule mapRow(ResultSet rs, int i) throws SQLException {
 
-            ProcessingRule processingRule = new ProcessingRule();
-            processingRule.setId(rs.getInt("id"));
-            processingRule.setRule(rs.getString("processing_rule"));
+			ProcessingRule processingRule = new ProcessingRule();
+			processingRule.setId(rs.getInt("id"));
+			processingRule.setRule(rs.getString("processing_rule"));
 
-            return processingRule;
-        }
+			return processingRule;
+		}
 
-    };
+	};
 
-    @Override
-    public Map<ProcessingRule, List<ExecService>> getRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-        Map<ProcessingRule, List<ExecService>> rulesExecServices = new HashMap<ProcessingRule, List<ExecService>>();
-        for (ProcessingRule processingRule : listProcessingRules()) {
-            rulesExecServices.put(processingRule, getExecServices(processingRule));
-        }
-        return rulesExecServices;
-    }
+	@Override
+	public Map<ProcessingRule, List<ExecService>> getRules() throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		Map<ProcessingRule, List<ExecService>> rulesExecServices = new HashMap<ProcessingRule, List<ExecService>>();
+		for (ProcessingRule processingRule : listProcessingRules()) {
+			rulesExecServices.put(processingRule, getExecServices(processingRule));
+		}
+		return rulesExecServices;
+	}
 
-    private List<ProcessingRule> listProcessingRules() {
-        return this.getJdbcTemplate().query("select id, processing_rule from processing_rules", PROCESSING_RULE_ROWMAPPER);
-    }
+	private List<ProcessingRule> listProcessingRules() {
+		return this.getJdbcTemplate().query("select id, processing_rule from processing_rules", PROCESSING_RULE_ROWMAPPER);
+	}
 
-    private List<ExecService> getExecServices(ProcessingRule processingRule) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-        List<ExecService> execServicesTiedToTheProcessingRule = new ArrayList<ExecService>();
-        List<Integer> services = this.getJdbcTemplate().queryForList("select service_id from service_processing_rule where " + "service_processing_rule.processing_rule_id = ?",
-                new Integer[] { processingRule.getId() }, Integer.class);
-        for (Integer serviceId : services) {
-            execServicesTiedToTheProcessingRule.addAll(Rpc.GeneralServiceManager.listExecServices(engineManager.getRpcCaller(), serviceId));
-        }
-        return execServicesTiedToTheProcessingRule;
-    }
+	private List<ExecService> getExecServices(ProcessingRule processingRule) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		List<ExecService> execServicesTiedToTheProcessingRule = new ArrayList<ExecService>();
+		List<Integer> services = this.getJdbcTemplate().queryForList("select service_id from service_processing_rule where " + "service_processing_rule.processing_rule_id = ?",
+				new Integer[] { processingRule.getId() }, Integer.class);
+		for (Integer serviceId : services) {
+			execServicesTiedToTheProcessingRule.addAll(Rpc.GeneralServiceManager.listExecServices(engineManager.getRpcCaller(), serviceId));
+		}
+		return execServicesTiedToTheProcessingRule;
+	}
 
-    public EngineManager getEngineManager() {
-        return engineManager;
-    }
+	public EngineManager getEngineManager() {
+		return engineManager;
+	}
 
-    public void setEngineManager(EngineManager engineManager) {
-        this.engineManager = engineManager;
-    }
+	public void setEngineManager(EngineManager engineManager) {
+		this.engineManager = engineManager;
+	}
 }

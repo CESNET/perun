@@ -54,7 +54,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public SelfApplicationsTabItem(){
 		this.user = session.getActiveUser();
 		this.userId = user.getId();
@@ -62,8 +62,8 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance with custom user
-     * @param user
-     */
+	 * @param user
+	 */
 	public SelfApplicationsTabItem(User user){
 		this.user = user;
 		this.userId = user.getId();
@@ -71,16 +71,16 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance with custom user
-     * @param userId
-     */
-    public SelfApplicationsTabItem(int userId) {
-        this.userId = userId;
-        new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                user = jso.cast();
-            }
-        }).retrieveData();
-    }
+	 * @param userId
+	 */
+	public SelfApplicationsTabItem(int userId) {
+		this.userId = userId;
+		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				user = jso.cast();
+			}
+		}).retrieveData();
+	}
 
 	public boolean isPrepared(){
 		return !(user == null);
@@ -101,16 +101,16 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		// tab menu for filtering
 		TabMenu tabMenu = new TabMenu();
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(req.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                req.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterByVoOrGroup());
+			@Override
+			public void searchFor(String text) {
+				req.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterByVoOrGroup());
 
 		bodyContents.add(tabMenu);
 
 		CellTable<Application> appsTable = req.getTable(new FieldUpdater<Application, String>() {
-            @Override
+			@Override
 			public void update(int index, Application object, String value) {
 				session.getTabManager().addTab(new SelfApplicationDetailTabItem(object));
 			}
@@ -121,7 +121,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		sp.addStyleName("perun-tableScrollPanel");
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        bodyContents.add(sp);
+		bodyContents.add(sp);
 		this.contentWidget.setWidget(bodyContents);
 		return getWidget();
 
@@ -166,9 +166,9 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public void open() {
-        session.setActiveUser(user);
-        session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Applications", getUrlWithParameters());
+		session.setActiveUser(user);
+		session.getUiElements().getMenu().openMenu(MainMenu.USER);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Applications", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

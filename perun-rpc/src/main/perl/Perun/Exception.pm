@@ -6,96 +6,96 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $type = $self->{_type};
-    my $name = $self->{_name};
-    my $errorId = $self->{_errorId};
-    my $errorInfo = $self->{_errorInfo};
+	my $type = $self->{_type};
+	my $name = $self->{_name};
+	my $errorId = $self->{_errorId};
+	my $errorInfo = $self->{_errorInfo};
 
-    my $str = 'ERROR: ';
-    $str .= "$type " if ($type);
-    $str .= "$name " if ($name);
+	my $str = 'ERROR: ';
+	$str .= "$type " if ($type);
+	$str .= "$name " if ($name);
 
-    $str .= "(ErrorId: $errorId)" if ($errorId);
+	$str .= "(ErrorId: $errorId)" if ($errorId);
 
-    $str .= ": $errorInfo" if ($errorInfo);
+	$str .= ": $errorInfo" if ($errorInfo);
 
-    $str .= "\n";
-    return $str;
+	$str .= "\n";
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub getType
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_type};
+	return $self->{_type};
 }
 
 sub setType
 {
-    my $self = shift;
-    $self->{_type} = shift;
+	my $self = shift;
+	$self->{_type} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getErrorId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_errorId};
+	return $self->{_errorId};
 }
 
 sub setErrorId
 {
-    my $self = shift;
-    $self->{_errorId} = shift;
+	my $self = shift;
+	$self->{_errorId} = shift;
 
-    return;
+	return;
 }
 
 sub getErrorInfo
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_errorInfo};
+	return $self->{_errorInfo};
 }
 
 sub setErrorInfo
 {
-    my $self = shift;
-    $self->{_errorInfo} = shift;
+	my $self = shift;
+	$self->{_errorInfo} = shift;
 
-    return;
+	return;
 }
 
 1;

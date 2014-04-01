@@ -48,8 +48,8 @@ public interface IPerunService {
 	 * Finds all users(authors) in Perun with filled logins
 	 *
 	 * @param sess session
- 	 * @return list of users
- 	 * @throws CabinetException
+	 * @return list of users
+	 * @throws CabinetException
 	 */
 	List<User> findAllUsers(PerunSession sess) throws CabinetException ;
 

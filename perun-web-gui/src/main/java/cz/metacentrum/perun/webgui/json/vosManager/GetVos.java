@@ -32,7 +32,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 
 	// JSON URL
 	private final String JSON_URL = "vosManager/getVos";
-    private final String JSON_URL_ALL_VOS = "vosManager/getAllVos";
+	private final String JSON_URL_ALL_VOS = "vosManager/getAllVos";
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// Data provider.
@@ -49,11 +49,11 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	private FieldUpdater<VirtualOrganization, VirtualOrganization> tableFieldUpdater;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    // oracle
-    private ArrayList<VirtualOrganization> fullBackup = new ArrayList<VirtualOrganization>();
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private boolean forceAll = false;
-    private boolean checkable = true;
+	// oracle
+	private ArrayList<VirtualOrganization> fullBackup = new ArrayList<VirtualOrganization>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private boolean forceAll = false;
+	private boolean checkable = true;
 
 	/**
 	 * Creates a new instance of the request
@@ -68,21 +68,21 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		this.events = events;
 	}
 
-    public void setForceAll(boolean force) {
-        this.forceAll = force;
-    }
+	public void setForceAll(boolean force) {
+		this.forceAll = force;
+	}
 
 	public void retrieveData(){
 
 		JsonClient js = new JsonClient();
 
-        if (forceAll) {
-            js.retrieveData(JSON_URL_ALL_VOS, this);
-        } else {
-            js.retrieveData(JSON_URL, this);
-        }
+		if (forceAll) {
+			js.retrieveData(JSON_URL_ALL_VOS, this);
+		} else {
+			js.retrieveData(JSON_URL, this);
+		}
 
-    }
+	}
 
 	/**
 	 * Returns the table widget with VOs and custom onclick.
@@ -124,25 +124,25 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        if (forceAll) {
-            loaderImage.setEmptyResultMessage("No VOs found.");
-        } else {
-            loaderImage.setEmptyResultMessage("You are not manager of any VO.");
-        }
+		if (forceAll) {
+			loaderImage.setEmptyResultMessage("No VOs found.");
+		} else {
+			loaderImage.setEmptyResultMessage("You are not manager of any VO.");
+		}
 
 		// columns
 		if (checkable) {
-            table.addCheckBoxColumn();
-        }
+			table.addCheckBoxColumn();
+		}
 
-        VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
-        IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
+		VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
+		IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
 
-        columnProvider.addIdColumn(authz, 100);
-        columnProvider.addShortNameColumn(authz, 200);
-        columnProvider.addNameColumn(authz);
+		columnProvider.addIdColumn(authz, 100);
+		columnProvider.addShortNameColumn(authz, 200);
+		columnProvider.addNameColumn(authz);
 
-        return table;
+		return table;
 
 	}
 
@@ -167,8 +167,8 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	 */
 	public void sortTable() {
 		list = new TableSorter<VirtualOrganization>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -178,10 +178,10 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	 */
 	public void addToTable(VirtualOrganization object) {
 		list.add(object);
-        oracle.add(object.getName());
-        oracle.add(object.getShortName());
-        dataProvider.flush();
-        dataProvider.refresh();
+		oracle.add(object.getName());
+		oracle.add(object.getShortName());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -190,10 +190,10 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	 * @param object VO to be removed as row
 	 */
 	public void removeFromTable(VirtualOrganization object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -202,11 +202,11 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
-        oracle.clear();
-        fullBackup.clear();
+		oracle.clear();
+		fullBackup.clear();
 		selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -214,11 +214,11 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	 * @param jso The JavaScript object returned by the query.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+		setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
 		sortTable();
-        session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
+		session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
 		events.onFinished(jso);
-        loaderImage.loadingFinished();
+		loaderImage.loadingFinished();
 	}
 
 	/**
@@ -240,10 +240,10 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 
 	public void insertToTable(int index, VirtualOrganization object) {
 		list.add(index, object);
-        oracle.add(object.getName());
-        oracle.add(object.getShortName());
-        dataProvider.flush();
-        dataProvider.refresh();
+		oracle.add(object.getName());
+		oracle.add(object.getShortName());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public void setEditable(boolean editable) {
@@ -255,66 +255,66 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	}
 
 	public void setList(ArrayList<VirtualOrganization> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (VirtualOrganization vo : list) {
-            oracle.add(vo.getName());
-            oracle.add(vo.getShortName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
+		clearTable();
+		this.list.addAll(list);
+		for (VirtualOrganization vo : list) {
+			oracle.add(vo.getName());
+			oracle.add(vo.getShortName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public ArrayList<VirtualOrganization> getList() {
 		return this.list;
 	}
 
-    @Override
-    public void filterTable(String filter) {
+	@Override
+	public void filterTable(String filter) {
 
-        // store list only for first time
-        if (fullBackup.isEmpty() || fullBackup == null) {
-            fullBackup.addAll(list);
-        }
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
-        } else {
-            for (VirtualOrganization vo : fullBackup){
-                // store facility by filter
-                if (vo.getName().toLowerCase().startsWith(filter.toLowerCase()) || vo.getShortName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(vo);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (VirtualOrganization vo : fullBackup){
+				// store facility by filter
+				if (vo.getName().toLowerCase().startsWith(filter.toLowerCase()) || vo.getShortName().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(vo);
+				}
+			}
+		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No VO matching '"+filter+"' found.");
-        } else {
-            if (forceAll) {
-                loaderImage.setEmptyResultMessage("No VOs found.");
-            } else {
-                loaderImage.setEmptyResultMessage("You are not manager of any VO.");
-            }
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No VO matching '"+filter+"' found.");
+		} else {
+			if (forceAll) {
+				loaderImage.setEmptyResultMessage("No VOs found.");
+			} else {
+				loaderImage.setEmptyResultMessage("You are not manager of any VO.");
+			}
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    @Override
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    @Override
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 }

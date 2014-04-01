@@ -18,7 +18,7 @@ public class PerunAdminTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public PerunAdminTabs(){}
 
 	/**
@@ -34,15 +34,15 @@ public class PerunAdminTabs {
 		// if active
 		boolean open = ("1".equals(parameters.get("active")));
 
-        if (tab.equals(VosTabItem.URL)) {
-            session.getTabManager().addTab(new VosTabItem(), open);
-            return true;
-        }
+		if (tab.equals(VosTabItem.URL)) {
+			session.getTabManager().addTab(new VosTabItem(), open);
+			return true;
+		}
 
-        if (tab.equals(FacilitiesTabItem.URL)) {
-            session.getTabManager().addTab(new FacilitiesTabItem(), open);
-            return true;
-        }
+		if (tab.equals(FacilitiesTabItem.URL)) {
+			session.getTabManager().addTab(new FacilitiesTabItem(), open);
+			return true;
+		}
 
 		if (tab.equals(AuditLogTabItem.URL)) {
 			session.getTabManager().addTab(AuditLogTabItem.load(parameters), open);
@@ -69,10 +69,10 @@ public class PerunAdminTabs {
 			return true;
 		}
 
-        if (tab.equals(OwnersTabItem.URL)) {
-            session.getTabManager().addTab(OwnersTabItem.load(parameters), open);
-            return true;
-        }
+		if (tab.equals(OwnersTabItem.URL)) {
+			session.getTabManager().addTab(OwnersTabItem.load(parameters), open);
+			return true;
+		}
 
 		return false;
 

@@ -26,10 +26,10 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 @Transactional
 public class ExecServiceDaoJdbc extends JdbcDaoSupport implements ExecServiceDao {
 
-  public final static String execServiceMappingSelectQuery = " exec_services.id as exec_services_id, exec_services.default_delay as exec_s_default_delay," +
-  		" exec_services.default_recurrence as exec_s_default_recurrence, exec_services.enabled as exec_services_enabled," +
-  		" exec_services.script as exec_services_script, exec_services.type as exec_services_type, " +
-  		" exec_services.service_id as exec_services_service_id ";
+	public final static String execServiceMappingSelectQuery = " exec_services.id as exec_services_id, exec_services.default_delay as exec_s_default_delay," +
+		" exec_services.default_recurrence as exec_s_default_recurrence, exec_services.enabled as exec_services_enabled," +
+		" exec_services.script as exec_services_script, exec_services.type as exec_services_type, " +
+		" exec_services.service_id as exec_services_service_id ";
 
 	public static final RowMapper<ExecService> EXEC_SERVICE_ROWMAPPER = new RowMapper<ExecService>() {
 

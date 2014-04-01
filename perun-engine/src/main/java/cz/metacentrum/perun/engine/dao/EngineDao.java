@@ -11,9 +11,9 @@ import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
  */
 public interface EngineDao {
 
-    void loadDispatcherAddress() throws DispatcherNotConfiguredException;
+	void loadDispatcherAddress() throws DispatcherNotConfiguredException;
 
-    void registerEngine() throws EngineNotConfiguredException;
+	void registerEngine() throws EngineNotConfiguredException;
 
-    void checkIn();
+	void checkIn();
 }

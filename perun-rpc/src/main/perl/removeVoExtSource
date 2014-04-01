@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes external source from the vo. External source id or name and Vo id or vo short name are required fields.
-------------------------------------
-Available options:
- --extSourceId    | -e external source id
- --extSourceName  | -E external source name
- --voId           | -v vo id
- --voShortName    | -V vo short name
- --batch          | -b batch
- --help           | -h prints this help
+	return qq{
+	Removes external source from the vo. External source id or name and Vo id or vo short name are required fields.
+	------------------------------------
+	Available options:
+	--extSourceId    | -e external source id
+	--extSourceName  | -E external source name
+	--voId           | -v vo id
+	--voShortName    | -V vo short name
+	--batch          | -b batch
+	--help           | -h prints this help
 
-};
+	};
 }
 
 my ($voId, $voShortName, $extSourceId, $extSourceName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
+"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
  "extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName ) || die help();
 
 # Check options
@@ -35,13 +35,13 @@ my $vosAgent = $agent->getVosAgent;
 my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 if (!defined($voId)) {
-  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
+	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	$voId = $vo->getId;
 }
 
 if (!defined($extSourceId)) {
-  my $extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
-  $extSourceId = $extSource->getId;
+	my $extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
+	$extSourceId = $extSource->getId;
 }
 
 $extSourcesAgent->removeExtSource(vo => $voId, source => $extSourceId);

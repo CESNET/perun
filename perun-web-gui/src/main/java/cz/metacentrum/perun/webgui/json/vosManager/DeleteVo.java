@@ -32,14 +32,14 @@ public class DeleteVo {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public DeleteVo() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events Custom events
-     */
+	 * @param events Custom events
+	 */
 	public DeleteVo(JsonCallbackEvents events) {
 		this.events = events;
 	}

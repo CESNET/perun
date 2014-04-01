@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates a vo. Vo full and short name are required fields.
---------------------------------------
-Available options:
- --voFullName   | -n vo full name
- --voShortName  | -V vo short name (max. 16 characters)
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Creates a vo. Vo full and short name are required fields.
+	--------------------------------------
+	Available options:
+	--voFullName   | -n vo full name
+	--voShortName  | -V vo short name (max. 16 characters)
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($voFullName, $voShortName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "voFullName|n=s" => \$voFullName,"voShortName|V=s" => \$voShortName) || die help();
+"voFullName|n=s" => \$voFullName,"voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($voFullName)) { die "ERROR: voFullName is required \n";}

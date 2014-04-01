@@ -28,18 +28,18 @@ public class ApplicationMail extends JavaScriptObject {
 	 * @return
 	 */
 	static public ApplicationMail construct(String appType, int formId, String mailType, boolean send, Map<String, MailText> message) {
-          ApplicationMail mail = new JSONObject().getJavaScriptObject().cast();
+		ApplicationMail mail = new JSONObject().getJavaScriptObject().cast();
 
-          mail.setAppType(appType);
-          mail.setFormId(formId);
-          mail.setMailType(mailType);
-          mail.setSend(send);
+		mail.setAppType(appType);
+		mail.setFormId(formId);
+		mail.setMailType(mailType);
+		mail.setSend(send);
 
-          for(Map.Entry<String, MailText> entry : message.entrySet()) {
-            mail.setMessage(entry.getKey(), entry.getValue());
-          }
+		for(Map.Entry<String, MailText> entry : message.entrySet()) {
+			mail.setMessage(entry.getKey(), entry.getValue());
+		}
 
-          return mail;
+		return mail;
 	}
 
 	/**
@@ -50,177 +50,177 @@ public class ApplicationMail extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-	/**
-	 * Connection to correct application form (VO)
-	 * @return id
-	 */
-	public final native int getFormId() /*-{
-		return this.formId;
-	}-*/;
+		/**
+		 * Connection to correct application form (VO)
+		 * @return id
+		 */
+		public final native int getFormId() /*-{
+			return this.formId;
+		}-*/;
 
-	/**
-	 * Connection to correct application form (VO)
-	 * @param id
-	 */
-	public final native void setFormId(int id) /*-{
-		this.formId = id;
-	}-*/;
+		/**
+		 * Connection to correct application form (VO)
+		 * @param id
+		 */
+		public final native void setFormId(int id) /*-{
+			this.formId = id;
+		}-*/;
 
-	/**
-	 * Get mail type
-	 * @return mail type
-	 */
-	public final native String getMailType() /*-{
-		if(typeof this.mailType === 'undefined'){
+		/**
+		 * Get mail type
+		 * @return mail type
+		 */
+		public final native String getMailType() /*-{
+			if(typeof this.mailType === 'undefined'){
 			this.mailType = "";
-		}
-		return this.mailType;
-	}-*/;
+			}
+			return this.mailType;
+		}-*/;
 
-	/**
-	 * Set mail type
-	 */
-	public final native void setMailType(String mailType) /*-{
-		this.mailType = mailType;
-	}-*/;
+		/**
+		 * Set mail type
+		 */
+		public final native void setMailType(String mailType) /*-{
+			this.mailType = mailType;
+		}-*/;
 
-	/**
-	 * Get app type
-	 * @return app type
-	 */
-	public final native String getAppType() /*-{
-		if(typeof this.appType === 'undefined'){
+		/**
+		 * Get app type
+		 * @return app type
+		 */
+		public final native String getAppType() /*-{
+			if(typeof this.appType === 'undefined'){
 			this.appType = "";
-		}
-		return this.appType;
-	}-*/;
+			}
+			return this.appType;
+		}-*/;
 
-	/**
-	 * Set app type
-	 */
-	public final native void setAppType(String appType) /*-{
-		this.appType = appType;
-	}-*/;
+		/**
+		 * Set app type
+		 */
+		public final native void setAppType(String appType) /*-{
+			this.appType = appType;
+		}-*/;
 
 
-	/**
-	 * Get message
-	 * @return type
-	 */
-	public final native MailText getMessage(String locale) /*-{
-		if(typeof this.message === 'undefined'){
+		/**
+		 * Get message
+		 * @return type
+		 */
+		public final native MailText getMessage(String locale) /*-{
+			if(typeof this.message === 'undefined'){
 			this.message = {};
-		}
-		if(!(locale in this.message)){
+			}
+			if(!(locale in this.message)){
 			this.message[locale] = {locale: locale, text : "", subject : ""};
-		}
-		return this.message[locale];
-	}-*/;
+			}
+			return this.message[locale];
+		}-*/;
 
-	/**
-	 * Set message
-	 * @param locale
-	 */
-	public final native void setMessage(String locale, MailText message) /*-{
-		if(typeof this.message === 'undefined'){
+		/**
+		 * Set message
+		 * @param locale
+		 */
+		public final native void setMessage(String locale, MailText message) /*-{
+			if(typeof this.message === 'undefined'){
 			this.message = {};
-		}
-		this.message[locale] = message;
-	}-*/;
+			}
+			this.message[locale] = message;
+		}-*/;
 
-	/**
-	 * Get sending enabled
-	 * @return whether is sending enabled
-	 */
-	public final native boolean isSend() /*-{
-		return this.send;
-	}-*/;
+		/**
+		 * Get sending enabled
+		 * @return whether is sending enabled
+		 */
+		public final native boolean isSend() /*-{
+			return this.send;
+		}-*/;
 
-	/**
-	 * Set sending enabled
-	 * @param send is sending enabled
-	 */
-	public final native void setSend(boolean send) /*-{
-		this.send = send;
-	}-*/;
+		/**
+		 * Set sending enabled
+		 * @param send is sending enabled
+		 */
+		public final native void setSend(boolean send) /*-{
+			this.send = send;
+		}-*/;
 
 
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.beanName) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.beanName) {
 			return "JavaScriptObject"
+			}
+			return this.beanName;
+		}-*/;
+
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.beanName = type;
+		}-*/;
+
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
+
+		/**
+		 * Compares to another object
+		 * @param o Object to compare
+		 * @return true, if they are the same
+		 */
+		public final boolean equals(ApplicationMail o)
+		{
+			return o.getId() == this.getId();
 		}
-		return this.beanName;
-	}-*/;
 
 	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
+	 * Return translated version of current mail type or empty string
+	 * @return translated mail type
 	 */
-	public final native void setObjectType(String type) /*-{
-		this.beanName = type;
-	}-*/;
+	public static final String getTranslatedMailType(String type) {
+
+		if ("APP_CREATED_USER".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeAppCreatedUser();
+		} else if ("APP_CREATED_VO_ADMIN".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeAppCreatedVoAdmin();
+		} else if ("MAIL_VALIDATION".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeMailValidation();
+		} else if ("APP_APPROVED_USER".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeAppApprovedUser();
+		} else if ("APP_REJECTED_USER".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeAppRejectedUser();
+		} else if ("APP_ERROR_VO_ADMIN".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeAppErrorVoAdmin();
+		} else {
+			return "";
+		}
+
+	};
 
 	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
+	 * Define possible values of MailType
 	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
-
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(ApplicationMail o)
-	{
-		return o.getId() == this.getId();
+	public enum MailType {
+		APP_CREATED_USER,
+			APP_CREATED_VO_ADMIN,
+			MAIL_VALIDATION,
+			APP_APPROVED_USER,
+			APP_REJECTED_USER,
+			APP_ERROR_VO_ADMIN
 	}
-
-    /**
-     * Return translated version of current mail type or empty string
-     * @return translated mail type
-     */
-    public static final String getTranslatedMailType(String type) {
-
-        if ("APP_CREATED_USER".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeAppCreatedUser();
-        } else if ("APP_CREATED_VO_ADMIN".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeAppCreatedVoAdmin();
-        } else if ("MAIL_VALIDATION".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeMailValidation();
-        } else if ("APP_APPROVED_USER".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeAppApprovedUser();
-        } else if ("APP_REJECTED_USER".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeAppRejectedUser();
-        } else if ("APP_ERROR_VO_ADMIN".equalsIgnoreCase(type)) {
-            return ObjectTranslation.INSTANCE.applicationMailTypeAppErrorVoAdmin();
-        } else {
-            return "";
-        }
-
-    };
-
-    /**
-     * Define possible values of MailType
-     */
-    public enum MailType {
-        APP_CREATED_USER,
-        APP_CREATED_VO_ADMIN,
-        MAIL_VALIDATION,
-        APP_APPROVED_USER,
-        APP_REJECTED_USER,
-        APP_ERROR_VO_ADMIN
-    }
 
 }

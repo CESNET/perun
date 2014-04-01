@@ -21,86 +21,86 @@ public class RichService extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-	/**
-	 * Gets name of service
-	 *
-	 * @return name of service
-	 */
-	public final native String getName()  /*-{
-		return this.name;
-	}-*/;
+		/**
+		 * Gets name of service
+		 *
+		 * @return name of service
+		 */
+		public final native String getName()  /*-{
+			return this.name;
+		}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.beanName) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.beanName) {
 			return "JavaScriptObject"
-		}
-		return this.beanName;
-	}-*/;
+			}
+			return this.beanName;
+		}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
-		this.beanName = type;
-	}-*/;
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.beanName = type;
+		}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
 
-	public final native String getAllowedOnFacility()/*-{
-		if (this.allowedOnFacility==true) {
+		public final native String getAllowedOnFacility()/*-{
+			if (this.allowedOnFacility==true) {
 			return "Allowed";
-		} else {
+			} else {
 			return "Denied";
-		}
-	}-*/;
+			}
+		}-*/;
 
-	public final native String getGenAllowedOnFacility()/*-{
-		if (this.genAllowedOnFacility==true) {
+		public final native String getGenAllowedOnFacility()/*-{
+			if (this.genAllowedOnFacility==true) {
 			return "Allowed";
-		} else {
+			} else {
 			return "Denied";
-		}
-	}-*/;
+			}
+		}-*/;
 
-	public final native String getSendAllowedOnFacility()/*-{
-		if (this.sendAllowedOnFacility==true) {
+		public final native String getSendAllowedOnFacility()/*-{
+			if (this.sendAllowedOnFacility==true) {
 			return "Allowed";
-		} else {
+			} else {
 			return "Denied";
+			}
+		}-*/;
+
+		public final native ExecService getGenExecService()/*-{
+			return this.genExecService;
+		}-*/;
+
+		public final native ExecService getSendExecService()/*-{
+			return this.sendExecService;
+		}-*/;
+
+		/**
+		 * Compares to another object
+		 * @param o Object to compare
+		 * @return true, if they are the same
+		 */
+		public final boolean equals(Service o)
+		{
+			return o.getId() == this.getId();
 		}
-	}-*/;
-
-	public final native ExecService getGenExecService()/*-{
-		return this.genExecService;
-	}-*/;
-
-	public final native ExecService getSendExecService()/*-{
-		return this.sendExecService;
-	}-*/;
-
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Service o)
-	{
-		return o.getId() == this.getId();
-	}
 
 }

@@ -16,26 +16,26 @@ import cz.metacentrum.perun.rpc.RpcException;
  */
 public abstract interface Serializer {
 
-    /**
-     * @return Content-type of this serializer's output format and its encoding.
-     */
-    String getContentType();
+	/**
+	 * @return Content-type of this serializer's output format and its encoding.
+	 */
+	String getContentType();
 
-    void write(Object object) throws IllegalArgumentException, IOException, RpcException;
+	void write(Object object) throws IllegalArgumentException, IOException, RpcException;
 
-    /**
-     * Serializes {@code PerunException}.
-     *
-     * @param pex {@code PerunException} to serialize
-     * @throws IOException If an IO error occurs
-     */
-    void writePerunException(PerunException pex) throws IOException;
+	/**
+	 * Serializes {@code PerunException}.
+	 *
+	 * @param pex {@code PerunException} to serialize
+	 * @throws IOException If an IO error occurs
+	 */
+	void writePerunException(PerunException pex) throws IOException;
 
-    /**
-     * Serializes {@code PerunRuntimeException}.
-     *
-     * @param prex {@code PerunRuntimeException} to serialize
-     * @throws IOException If an IO error occurs
-     */
-    void writePerunRuntimeException(PerunRuntimeException prex) throws IOException;
+	/**
+	 * Serializes {@code PerunRuntimeException}.
+	 *
+	 * @param prex {@code PerunRuntimeException} to serialize
+	 * @throws IOException If an IO error occurs
+	 */
+	void writePerunRuntimeException(PerunRuntimeException prex) throws IOException;
 }

@@ -102,11 +102,11 @@ public class ServiceForGUI extends Service {
 	@Override
 	public String toString() {
 		return "ServiceForGUI [allowedOnFacility=" + allowedOnFacility
-				+ ", genAllowedOnFacility = " + genAllowedOnFacility
-				+ ", sendAllowedOnFacility = " + sendAllowedOnFacility
-				+ ", generate = " + generate
-				+ ", send = " + send
-				+ ", Service=" + super.toString() + "]";
+			+ ", genAllowedOnFacility = " + genAllowedOnFacility
+			+ ", sendAllowedOnFacility = " + sendAllowedOnFacility
+			+ ", generate = " + generate
+			+ ", send = " + send
+			+ ", Service=" + super.toString() + "]";
 	}
 
 }

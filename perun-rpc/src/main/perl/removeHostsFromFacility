@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected hosts from the facility. Facility id and one or more host id are required fields.
-------------------------------------
-Available options:
- --hosts        | -H list Of Hosts
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected hosts from the facility. Facility id and one or more host id are required fields.
+	------------------------------------
+	Available options:
+	--hosts        | -H list Of Hosts
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my (@hosts, $facilityId, $facilityName, $facilityType, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
+	"batch|b" => \$batch,
 'hosts|H=i@{1,}' => \@hosts,
 "facilityId|f=i" => \$facilityId,
 "facilityType|t=s" => \$facilityType,
@@ -45,8 +45,8 @@ my $hostsAgent = $agent->getHostsAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId = $facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId = $facility->getId;
 }
 
 $facilitiesAgent->removeHosts(hosts => \@hosts, facility => $facilityId);

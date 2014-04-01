@@ -9,22 +9,22 @@ import cz.metacentrum.perun.core.api.exceptions.rt.OwnerAlreadyAssignedRuntimeEx
  * @author Slavek Licehammer
  */
 public class OwnerAlreadyAssignedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public OwnerAlreadyAssignedException(OwnerAlreadyAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public OwnerAlreadyAssignedException(OwnerAlreadyAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public OwnerAlreadyAssignedException(String message) {
-        super(message);
-    }
+	public OwnerAlreadyAssignedException(String message) {
+		super(message);
+	}
 
-    public OwnerAlreadyAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public OwnerAlreadyAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public OwnerAlreadyAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public OwnerAlreadyAssignedException(Throwable cause) {
+		super(cause);
+	}
 
 }

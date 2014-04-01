@@ -22,11 +22,11 @@ public class ThanksForGUI extends Thanks {
 		super(id, publicationId, ownerId, createdBy, createdDate);
 	}
 
-    public ThanksForGUI(Integer id, Integer publicationId, Integer ownerId,
-                        String createdBy, Date createdDate, Integer createByUid) {
-        super(id, publicationId, ownerId, createdBy, createdDate);
-        setCreatedByUid(createByUid);
-    }
+	public ThanksForGUI(Integer id, Integer publicationId, Integer ownerId,
+			String createdBy, Date createdDate, Integer createByUid) {
+		super(id, publicationId, ownerId, createdBy, createdDate);
+		setCreatedByUid(createByUid);
+	}
 
 	public ThanksForGUI(Thanks thanks) {
 		setId(thanks.getId());
@@ -34,7 +34,7 @@ public class ThanksForGUI extends Thanks {
 		setCreatedBy(thanks.getCreatedBy());
 		setCreatedDate(thanks.getCreatedDate());
 		setOwnerId(thanks.getOwnerId());
-        setCreatedByUid(thanks.getCreatedByUid());
+		setCreatedByUid(thanks.getCreatedByUid());
 	}
 
 	public String getOwnerName() {

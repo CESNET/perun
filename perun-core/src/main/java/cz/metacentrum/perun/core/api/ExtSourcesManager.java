@@ -42,31 +42,31 @@ public interface ExtSourcesManager {
 	public final static String CONFIGURATIONFILE = Utils.configurationsLocations + "perun-extSources.xml";
 
 	/**
-   * Creates an external source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @return ExtSource object with newly associated ID.
-   *
-   * @throws InternalErrorException
-   * @throws ExtSourceExistsException
-   * @throws PrivilegeException
-   */
-  ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException, PrivilegeException;
+	 * Creates an external source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @return ExtSource object with newly associated ID.
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceExistsException
+	 * @throws PrivilegeException
+	 */
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException, PrivilegeException;
 
-  /**
-   * Deletes an external source.
-   *
-   * @param perunSession
-   * @param extSource
-   *
-   * @throws InternalErrorException
-   * @throws ExtSourceExistsException
-   * @throws PrivilegeException
-   * @throws ExtSourceAlreadyRemovedException when 0 rows are affected by deleting from DB
-   */
-  void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException;
+	/**
+	 * Deletes an external source.
+	 *
+	 * @param perunSession
+	 * @param extSource
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceExistsException
+	 * @throws PrivilegeException
+	 * @throws ExtSourceAlreadyRemovedException when 0 rows are affected by deleting from DB
+	 */
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Searches for the external source with specified id.
@@ -147,7 +147,7 @@ public interface ExtSourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
 	 * @throws PrivilegeException
-     * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 */
 	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
@@ -165,40 +165,40 @@ public interface ExtSourcesManager {
 	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException;
 
 	/**
-   * Returns list of users stored by this ExtSource, which are not valid.
-   *
-   * @param perunSession
-   * @param source
-   *
-   * @return list of users, who is not in the extSource anymore
-   *
-   * @throws InternalErrorException
-   * @throws ExtSourceNotExistsException
-   * @throws PrivilegeException
-   */
-  List<User> getInvalidUsers(PerunSession perunSession, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException;
+	 * Returns list of users stored by this ExtSource, which are not valid.
+	 *
+	 * @param perunSession
+	 * @param source
+	 *
+	 * @return list of users, who is not in the extSource anymore
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<User> getInvalidUsers(PerunSession perunSession, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException;
 
-  /**
-   * Get the candidate from the ExtSource defined by the extsource login.
-   *
-   * @param perunSession
-   * @param source
-   * @param login
-   * @return a Candidate object
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   * @throws ExtSourceNotExistsException
-   * @throws CandidateNotExistsException
-   * @throws ExtSourceUnsupportedOperationException
-   */
-  Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
+	/**
+	 * Get the candidate from the ExtSource defined by the extsource login.
+	 *
+	 * @param perunSession
+	 * @param source
+	 * @param login
+	 * @return a Candidate object
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ExtSourceNotExistsException
+	 * @throws CandidateNotExistsException
+	 * @throws ExtSourceUnsupportedOperationException
+	 */
+	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
 
-  /**
-   * Loads ext source definitions from the configuration file and updates entries stored in the DB.
-   *
-   * @param sess
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   */
-  void loadExtSourcesDefinitions(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	/**
+	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.
+	 *
+	 * @param sess
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	void loadExtSourcesDefinitions(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

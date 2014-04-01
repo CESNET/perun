@@ -71,7 +71,7 @@ public class JsonClient  {
 
 	/**
 	 * Is callback silent ? (doesn't show processing)
-     *
+	 *
 	 * @return TRUE = silent / FALSE = normal
 	 */
 	public boolean isSilent() {
@@ -80,7 +80,7 @@ public class JsonClient  {
 
 	/**
 	 * Whether should the json client show "Loading" or not
-     *
+	 *
 	 * @param silent TRUE = do not show call as processing / FALSE = normal
 	 */
 	public void setSilent(boolean silent) {
@@ -143,8 +143,8 @@ public class JsonClient  {
 	 * @param url URL after the prefix.
 	 * @param parameters Parameters to send.
 	 * @param m JsonCallback, which is called after it finishes.
-     *
-     * @return ID of request
+	 *
+	 * @return ID of request
 	 */
 	public int retrieveData(String url, String parameters, JsonCallback m){
 
@@ -168,9 +168,9 @@ public class JsonClient  {
 			loadingStarted();
 		}
 
-        String rpcUrl = URL.encode(urlPrefix + url) + "?callback=";
+		String rpcUrl = URL.encode(urlPrefix + url) + "?callback=";
 
-        // params - cache
+		// params - cache
 		parameters = "cache=" + cacheEnabled + "&" + URL.encode(parameters);
 
 		// new request ID
@@ -196,8 +196,8 @@ public class JsonClient  {
 	 *
 	 * @param url URL after the prefix.
 	 * @param m JsonCallback, which is called after it finishes.
-     *
-     * @return ID of request
+	 *
+	 * @return ID of request
 	 */
 	public int retrieveData(String url, JsonCallback m)
 	{
@@ -215,78 +215,69 @@ public class JsonClient  {
 	 * @param timeout Timeout
 	 */
 	private native static void getJson(int requestId, String url, JsonClient handler, String params, int timeout, boolean important) /*-{
-
-			var callback = "callback" + requestId;
-			var parameters = "&" + params;
-
-			// [2] Define the callback function on the window object.
-			window[callback] = function(jso) {
-
+				var callback = "callback" + requestId;
+		var parameters = "&" + params;
+				// [2] Define the callback function on the window object.
+		window[callback] = function(jso) {
 				// if not already done - expired?
-				if (window[callback + "done"]) {
-					return;
+		if (window[callback + "done"]) {
+		return;
+		}
+		// [3]
+		// basic type or not?
+		try
+		{
+		if ((typeof jso) != "object")
+		{
+		jso = {value: jso};
+		}
+		}catch(err){
 				}
-				// [3]
-				// basic type or not?
-				try
-  				{
-	  				if ((typeof jso) != "object")
-					{
-						jso = {value: jso};
-					}
-				}catch(err){
-
-				}
-				window[callback + "done"] = true;
-				handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, jso);
-			}
-
-			// [1] Create a script element.
-			var script = document.createElement("script");
-			script.setAttribute("src", url + callback + parameters);
-			script.setAttribute("type", "text/javascript");
-
-			// [4] JSON download has a timeout.
-			setTimeout(
-					function() {
-						if (!window[callback + "done"]) {
-							handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, null);
-						}
-
-
+		window[callback + "done"] = true;
+		handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, jso);
+		}
+				// [1] Create a script element.
+		var script = document.createElement("script");
+		script.setAttribute("src", url + callback + parameters);
+		script.setAttribute("type", "text/javascript");
+				// [4] JSON download has a timeout.
+		setTimeout(
+		function() {
+		if (!window[callback + "done"]) {
+		handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, null);
+		}
 						// [5] Cleanup. Remove script and callback elements.
-						document.body.removeChild(script);
-						delete window[callback];
-						delete window[callback + "done"];
-					}, timeout);
-
-			// [6] Attach the script element to the document body.
-			document.body.appendChild(script);
+		document.body.removeChild(script);
+		delete window[callback];
+		delete window[callback + "done"];
+		}, timeout);
+				// [6] Attach the script element to the document body.
+		document.body.appendChild(script);
 	}-*/;
 
 
-	/**
-	 * Removes all running requests, which are NOT IMPORTANT (auth, ...)
-	 */
-	public static void removeRunningRequests()
-	{
-		Set<Integer> requestsToRemove = new HashSet<Integer>();
-
-
-		for(Map.Entry<Integer, JsonClientRequest> entry : activeRequestsMap.entrySet())
+		/**
+		 * Removes all running requests, which are NOT IMPORTANT (auth, ...)
+		 */
+		public static void removeRunningRequests()
 		{
-			JsonClientRequest request = entry.getValue();
-			if(!request.isImportant()){
-				requestsToRemove.add(request.getId());
+			Set<Integer> requestsToRemove = new HashSet<Integer>();
+
+
+			for(Map.Entry<Integer, JsonClientRequest> entry : activeRequestsMap.entrySet())
+			{
+				JsonClientRequest request = entry.getValue();
+				if(!request.isImportant()){
+					requestsToRemove.add(request.getId());
+				}
+			}
+
+
+			for(int request : requestsToRemove)
+			{
+				removeRunningRequest(request);
 			}
 		}
-
-
-		for(int request : requestsToRemove)
-		{
-			removeRunningRequest(request);
-		}
-	}
 
 
 	/**
@@ -315,40 +306,40 @@ public class JsonClient  {
 		window[callback + "done"] = true;
 	}-*/;
 
-	/**
-	 * Handle the response to the request for stock data from a remote server.
-	 * @param jso JavaScriptObject to be processed. If null, the error is called.
-	 */
-	public void handleJsonResponseFromCache(final JavaScriptObject jso)
-	{
-
-		// if an ERROR
-		if (jso == null)
+		/**
+		 * Handle the response to the request for stock data from a remote server.
+		 * @param jso JavaScriptObject to be processed. If null, the error is called.
+		 */
+		public void handleJsonResponseFromCache(final JavaScriptObject jso)
 		{
-			this.module.onError(null);
-		}
-		else
-		{
-			// try to recognize an error
-			PerunError error = jso.cast();
-			if(!error.getErrorId().equals("")){
-				// if error, alert it
-				if(!hidden)
-				{
-                    JsonErrorHandler.alertBox(error, cacheKey, null);
-				}
-				module.onError(error);
 
-			}else{ // no error
-				// OK
-				module.onFinished(jso);
-
-				// fire the resize event
-				UiElements.runResizeCommands();
+			// if an ERROR
+			if (jso == null)
+			{
+				this.module.onError(null);
 			}
-		}
+			else
+			{
+				// try to recognize an error
+				PerunError error = jso.cast();
+				if(!error.getErrorId().equals("")){
+					// if error, alert it
+					if(!hidden)
+					{
+						JsonErrorHandler.alertBox(error, cacheKey, null);
+					}
+					module.onError(error);
 
-	}
+				}else{ // no error
+					// OK
+					module.onFinished(jso);
+
+					// fire the resize event
+					UiElements.runResizeCommands();
+				}
+			}
+
+		}
 
 	/**
 	 * Handle the response to the request for stock data from a remote server.
@@ -395,18 +386,18 @@ public class JsonClient  {
 		text.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if(activeRequestsMap.size() == 0)
-				{
-					loadingFinished();
-					return;
-				}
+		{
+			loadingFinished();
+			return;
+		}
 
-				activeRequestsDialog.setModal(false);
-				activeRequestsDialog.setWidth("400px");
-				activeRequestsDialog.setGlassEnabled(true);
-				activeRequestsDialog.center();
-				activeRequestsDialog.show();
+		activeRequestsDialog.setModal(false);
+		activeRequestsDialog.setWidth("400px");
+		activeRequestsDialog.setGlassEnabled(true);
+		activeRequestsDialog.center();
+		activeRequestsDialog.show();
 
-				refreshLoadingDetails();
+		refreshLoadingDetails();
 			}
 		});
 		loadingWidget.setWidget(0, 1, text);
@@ -417,12 +408,12 @@ public class JsonClient  {
 	 */
 	static private void loadingFinished(){
 
-        Label text = new Label("No active requests");
+		Label text = new Label("No active requests");
 		Image image = new Image(SmallIcons.INSTANCE.acceptIcon());
 		image.setTitle("No active requests");
 
-        loadingWidget.setWidget(0, 0, image);
-        loadingWidget.setWidget(0, 1, text);
+		loadingWidget.setWidget(0, 0, image);
+		loadingWidget.setWidget(0, 1, text);
 
 		activeRequestsDialog.hide();
 	}
@@ -454,20 +445,20 @@ public class JsonClient  {
 		activeRequestsDialog.center();
 	}
 
-    /**
-     * Enable caching of call results
-     *
-     * @param enable TRUE = cache enabled / FALSE = cache disabled
-     */
+	/**
+	 * Enable caching of call results
+	 *
+	 * @param enable TRUE = cache enabled / FALSE = cache disabled
+	 */
 	public void setCacheEnabled(boolean enable) {
 		this.cacheEnabled = enable;
 	}
 
-    /**
-     * Set callback as hidden, meaning DO NOT SHOW ERROR if occurs
-     *
-     * @param hidden TRUE = hidden / FALSE = normal
-     */
+	/**
+	 * Set callback as hidden, meaning DO NOT SHOW ERROR if occurs
+	 *
+	 * @param hidden TRUE = hidden / FALSE = normal
+	 */
 	public void setHidden(boolean hidden) {
 		this.hidden  = hidden;
 	}

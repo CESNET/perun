@@ -17,8 +17,8 @@ public interface PerunNotifPoolMessageDao {
 
 	/**
 	 * Saves perunNotifPoolMessage to db, keyAttributes of poolMessage are serialized to string
-     * and values are URLEncoded
-     *
+	 * and values are URLEncoded
+	 *
 	 * @param poolMessage
 	 */
 	public void savePerunNotifPoolMessage(
@@ -37,9 +37,9 @@ public interface PerunNotifPoolMessageDao {
 	 */
 	public void setAllCreatedToNow();
 
-    /**
-     * Removes all pool messages from db containing given ids.
-     * @param proccessedIds
-     */
-    public void removeAllPoolMessages(Set<Integer> proccessedIds);
+	/**
+	 * Removes all pool messages from db containing given ids.
+	 * @param proccessedIds
+	 */
+	public void removeAllPoolMessages(Set<Integer> proccessedIds);
 }

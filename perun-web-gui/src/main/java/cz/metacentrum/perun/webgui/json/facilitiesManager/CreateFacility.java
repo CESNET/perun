@@ -57,7 +57,7 @@ public class CreateFacility {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -70,7 +70,7 @@ public class CreateFacility {
 	 */
 	public void createFacility(final String name) {
 
-        this.name = name;
+		this.name = name;
 		this.type = "general"; // FIXME - fake type, while transition to removing this property
 
 		// test arguments

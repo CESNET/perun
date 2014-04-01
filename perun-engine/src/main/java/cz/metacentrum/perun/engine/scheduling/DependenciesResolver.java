@@ -15,9 +15,9 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 public interface DependenciesResolver {
 
-    List<ExecService> listDependencies(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<ExecService> listDependencies(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
-    List<ExecService> listDependantServices(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<ExecService> listDependantServices(ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
-    List<ExecService> listDependencies(int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<ExecService> listDependencies(int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 }

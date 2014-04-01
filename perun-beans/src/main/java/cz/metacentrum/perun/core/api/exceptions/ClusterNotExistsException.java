@@ -12,21 +12,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ClusterNotExistsRuntimeExcept
  * @author Michal Karm Babacek
  */
 public class ClusterNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public ClusterNotExistsException(ClusterNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public ClusterNotExistsException(ClusterNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public ClusterNotExistsException(String message) {
-        super(message);
-    }
+	public ClusterNotExistsException(String message) {
+		super(message);
+	}
 
-    public ClusterNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ClusterNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ClusterNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public ClusterNotExistsException(Throwable cause) {
+		super(cause);
+	}
 }

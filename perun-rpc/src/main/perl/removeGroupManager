@@ -7,19 +7,19 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes group Manager. User id and group id or group name and Vo id or vo short name are required fields.
-------------------------------------
-Available options:
- --userId      | -u user id
- --groupId     | -g group id
- --groupName   | -G group name
- --voId        | -v vo id
- --voShortName | -V vo short name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Removes group Manager. User id and group id or group name and Vo id or vo short name are required fields.
+	------------------------------------
+	Available options:
+	--userId      | -u user id
+	--groupId     | -g group id
+	--groupName   | -G group name
+	--voId        | -v vo id
+	--voShortName | -V vo short name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 our $batch;
@@ -38,13 +38,13 @@ my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
 if (!defined($groupId)) {
-  if (!defined($voId)) {
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId = $vo->getId;
-  }
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
 
-  my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-  $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
 }
 
 $groupsAgent->removeAdmin( group => $groupId, user => $userId);

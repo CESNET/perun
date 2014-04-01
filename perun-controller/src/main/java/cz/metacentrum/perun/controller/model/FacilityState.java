@@ -20,7 +20,7 @@ public class FacilityState implements Comparable<FacilityState> {
 
 	private Facility facility;
 	private FacilityPropagationState state;
-    private Map<String, FacilityPropagationState> results = new HashMap<String, FacilityPropagationState>();
+	private Map<String, FacilityPropagationState> results = new HashMap<String, FacilityPropagationState>();
 
 	public Facility getFacility() {
 		return facility;
@@ -35,20 +35,20 @@ public class FacilityState implements Comparable<FacilityState> {
 		this.state = state;
 	}
 
-    public Map<String, FacilityPropagationState> getResults() {
-        return results;
-    }
+	public Map<String, FacilityPropagationState> getResults() {
+		return results;
+	}
 
-    public void setResults(Map<String, FacilityPropagationState> results) {
-        this.results = results;
-    }
+	public void setResults(Map<String, FacilityPropagationState> results) {
+		this.results = results;
+	}
 
-    @Override
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((facility == null) ? 0 : facility.hashCode());
+			+ ((facility == null) ? 0 : facility.hashCode());
 		return result;
 	}
 
@@ -74,10 +74,10 @@ public class FacilityState implements Comparable<FacilityState> {
 		return "FacilityState [facility=" + facility + ", state=" + state + "]";
 	}
 
-    @Override
-    public int compareTo(FacilityState facility) {
-        if (facility == null || this.facility == null || this.facility.getName() == null) throw new NullPointerException("Facility or facility name");
-        return this.facility.getName().compareTo(facility.getFacility().getName());
-    }
+	@Override
+	public int compareTo(FacilityState facility) {
+		if (facility == null || this.facility == null || this.facility.getName() == null) throw new NullPointerException("Facility or facility name");
+		return this.facility.getName().compareTo(facility.getFacility().getName());
+	}
 
 }

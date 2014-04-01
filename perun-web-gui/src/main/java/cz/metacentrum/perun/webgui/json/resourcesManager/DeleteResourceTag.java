@@ -55,7 +55,7 @@ public class DeleteResourceTag {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -104,17 +104,17 @@ public class DeleteResourceTag {
 	 */
 	private JSONObject prepareJSONObject() {
 
-        JSONObject jsonQuery = new JSONObject();
-        JSONObject jsonTag = new JSONObject(tag);
+		JSONObject jsonQuery = new JSONObject();
+		JSONObject jsonTag = new JSONObject(tag);
 
-        JSONObject newJsonTag = new JSONObject();
-        newJsonTag.put("id", jsonTag.get("id"));
-        newJsonTag.put("tagName", jsonTag.get("tagName"));
-        newJsonTag.put("voId", jsonTag.get("voId"));
+		JSONObject newJsonTag = new JSONObject();
+		newJsonTag.put("id", jsonTag.get("id"));
+		newJsonTag.put("tagName", jsonTag.get("tagName"));
+		newJsonTag.put("voId", jsonTag.get("voId"));
 
-        jsonQuery.put("resourceTag", newJsonTag);
+		jsonQuery.put("resourceTag", newJsonTag);
 
-        return jsonQuery;
+		return jsonQuery;
 	}
 
 }

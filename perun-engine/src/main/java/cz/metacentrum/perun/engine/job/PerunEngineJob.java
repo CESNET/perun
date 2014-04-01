@@ -8,6 +8,6 @@ package cz.metacentrum.perun.engine.job;
  */
 public interface PerunEngineJob {
 
-    void doTheJob();
+	void doTheJob();
 
 }

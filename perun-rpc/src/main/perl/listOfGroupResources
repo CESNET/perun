@@ -8,22 +8,22 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Tool prints list of Resources where the Group is assigned to. Group is required fields.
-------------------------------
-Available options:
- --groupId     | -g  Group identifier
- --orderById   | -i  order by numeric Id (default)
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Tool prints list of Resources where the Group is assigned to. Group is required fields.
+	------------------------------
+	Available options:
+	--groupId     | -g  Group identifier
+	--orderById   | -i  order by numeric Id (default)
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 my ($groupId, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "groupId|g=i" => \$groupId,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "batch|b" => \$batch) || die help;
+	"groupId|g=i" => \$groupId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+"batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 
@@ -41,8 +41,8 @@ my $table = Text::ASCIITable->new();
 $table->setCols('ID','Name', 'Facility ID');
 
 foreach my $resource (sort $sortingFunction @resources) {
-  my $facility = $resourcesAgent->getFacility(resource => $resource->getId);
-  $table->addRow($resource->getId, $resource->getName, $facility->getId);
+	my $facility = $resourcesAgent->getFacility(resource => $resource->getId);
+	$table->addRow($resource->getId, $resource->getName, $facility->getId);
 }
 
 print tableToPrint($table, $batch);

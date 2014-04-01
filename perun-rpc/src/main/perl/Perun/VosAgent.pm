@@ -11,16 +11,16 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
 
-    return $self;
+	return $self;
 }
 
 sub getVos
 {
-    return Perun::Common::callManagerMethod('getVos', '[]Vo', @_);
+	return Perun::Common::callManagerMethod('getVos', '[]Vo', @_);
 }
 
 sub deleteVo
@@ -40,42 +40,42 @@ sub updateVo
 
 sub getVoByShortName
 {
-    return Perun::Common::callManagerMethod('getVoByShortName', 'Vo', @_);
+	return Perun::Common::callManagerMethod('getVoByShortName', 'Vo', @_);
 }
 
 sub getVoById
 {
-    return Perun::Common::callManagerMethod('getVoById', 'Vo', @_);
+	return Perun::Common::callManagerMethod('getVoById', 'Vo', @_);
 }
 
 sub findCandidates
 {
-    return Perun::Common::callManagerMethod('findCandidates', '[]Candidate', @_);
+	return Perun::Common::callManagerMethod('findCandidates', '[]Candidate', @_);
 }
 
 sub addAdmin
 {
-    return Perun::Common::callManagerMethod('addAdmin', 'null', @_);
+	return Perun::Common::callManagerMethod('addAdmin', 'null', @_);
 }
 
 sub removeAdmin
 {
-    return Perun::Common::callManagerMethod('removeAdmin', 'null', @_);
+	return Perun::Common::callManagerMethod('removeAdmin', 'null', @_);
 }
 
 sub getAdmins
 {
-    return Perun::Common::callManagerMethod('getAdmins', '[]User', @_);
+	return Perun::Common::callManagerMethod('getAdmins', '[]User', @_);
 }
 
 sub getRichAdmins
 {
-    return Perun::Common::callManagerMethod('getRichAdmins', '[]RichUser', @_);
+	return Perun::Common::callManagerMethod('getRichAdmins', '[]RichUser', @_);
 }
 
 sub getRichAdminsWithAttributes
 {
-    return Perun::Common::callManagerMethod('getRichAdminsWithAttributes', '[]RichUser', @_);
+	return Perun::Common::callManagerMethod('getRichAdminsWithAttributes', '[]RichUser', @_);
 }
 
 1;

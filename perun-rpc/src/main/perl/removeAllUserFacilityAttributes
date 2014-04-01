@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes all attributes from the user and facility. Facility id or name and user id are required.
---------------------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --userId       | -u user id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes all attributes from the user and facility. Facility id or name and user id are required.
+	--------------------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--userId       | -u user id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $userId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId,
+"facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
  "userId|u=i" => \$userId) || die help();
@@ -34,9 +34,9 @@ unless (defined($userId)) { die "ERROR: userId is required \n";}
 
 my $agent = Perun::Agent->new();
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;

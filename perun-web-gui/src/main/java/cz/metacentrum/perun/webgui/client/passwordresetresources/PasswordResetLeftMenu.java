@@ -25,7 +25,7 @@ public class PasswordResetLeftMenu extends Composite {
 
 	private SimplePanel content = new SimplePanel();
 
-    private ArrayList<Anchor> listOfLinks = new ArrayList<Anchor>();
+	private ArrayList<Anchor> listOfLinks = new ArrayList<Anchor>();
 
 	/**
 	 * Creates the left menu & navigation
@@ -34,10 +34,10 @@ public class PasswordResetLeftMenu extends Composite {
 
 		this.initWidget(stackPanel);
 
-        listOfLinks.clear();
+		listOfLinks.clear();
 
 		SimplePanel menuContentsWrapper= new SimplePanel(menuContents);
-        menuContentsWrapper.setHeight("100%");
+		menuContentsWrapper.setHeight("100%");
 		stackPanel.addStyleName("menuStackPanel");
 
 		// stack panel header & image
@@ -53,7 +53,7 @@ public class PasswordResetLeftMenu extends Composite {
 		stackPanel.setWidth("240px");
 
 		menuContents.setWidth("100%");
-        menuContents.setStyleName("mainMenuItems");
+		menuContents.setStyleName("mainMenuItems");
 
 	}
 
@@ -67,28 +67,28 @@ public class PasswordResetLeftMenu extends Composite {
 	 */
 	public Anchor addMenuContents(String label, ImageResource res, final Widget w) {
 
-        int rowCount = menuContents.getRowCount();
-        menuContents.setWidget(rowCount, 0, new Image(res));
+		int rowCount = menuContents.getRowCount();
+		menuContents.setWidget(rowCount, 0, new Image(res));
 
 
-        // user click on the menu item
+		// user click on the menu item
 		final Anchor link = new Anchor(label);
-        listOfLinks.add(link);
+		listOfLinks.add(link);
 		link.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-                for (Anchor l : listOfLinks) {
-                    // remove others
-                    l.removeStyleName("mainMenuActive");
-                }
-                // bold to selected
-                link.addStyleName("mainMenuActive");
+				for (Anchor l : listOfLinks) {
+					// remove others
+					l.removeStyleName("mainMenuActive");
+				}
+				// bold to selected
+				link.addStyleName("mainMenuActive");
 				content.setWidget(w);
 			}
 		});
 
 		menuContents.setWidget(rowCount, 1, link);
 
-        return link;
+		return link;
 
 	}
 

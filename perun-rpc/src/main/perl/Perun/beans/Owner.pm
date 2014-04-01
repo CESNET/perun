@@ -6,34 +6,34 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $id = $self->{_id};
-    my $name = $self->{_name};
-    my $contact = $self->{_contact};
-    my $type = $self->{_type};
+	my $id = $self->{_id};
+	my $name = $self->{_name};
+	my $contact = $self->{_contact};
+	my $type = $self->{_type};
 
-    my $str = 'Owner (';
-    $str .= "id: $id, " if ($id);
-    $str .= "name: $name, " if ($name);
-    $str .= "contact: $contact" if ($contact);
-    $str .= "type: $type" if ($type);
-    $str .= ')';
+	my $str = 'Owner (';
+	$str .= "id: $id, " if ($id);
+	$str .= "name: $name, " if ($name);
+	$str .= "contact: $contact" if ($contact);
+	$str .= "type: $type" if ($type);
+	$str .= ')';
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -53,71 +53,71 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getContact
 {
 	my $self = shift;
 
-    return $self->{_contact};
+	return $self->{_contact};
 }
 
 sub setContact
 {
-    my $self = shift;
-    $self->{_contact} = shift;
+	my $self = shift;
+	$self->{_contact} = shift;
 
-    return;
+	return;
 }
 
 sub getType
 {
 	my $self = shift;
 
-    return $self->{_type};
+	return $self->{_type};
 }
 
 sub setType
 {
-    my $self = shift;
-    $self->{_type} = shift;
+	my $self = shift;
+	$self->{_type} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-  my $owner = shift;
-  return ($owner->getId, $owner->getName, $owner->getType, $owner->getContact);
+	my $owner = shift;
+	return ($owner->getId, $owner->getName, $owner->getType, $owner->getContact);
 }
 
 sub getCommonArrayRepresentationHeading {
-  return qw(Id Name Type Contact);
+	return qw(Id Name Type Contact);
 }
 
 

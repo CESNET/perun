@@ -21,7 +21,7 @@ public class RegistrarTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public RegistrarTabs(){}
 
 	/**

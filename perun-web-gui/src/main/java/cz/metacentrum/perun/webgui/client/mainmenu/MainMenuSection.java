@@ -19,20 +19,20 @@ import java.util.ArrayList;
  */
 public class MainMenuSection {
 
-    private int rowCounter = 0;
+	private int rowCounter = 0;
 	private FlexTable sectionPanel = new FlexTable();
 	private ArrayList<MainMenuItem> items = new ArrayList<MainMenuItem>();
 	private String title = "";
 	private Image image;
 	private TabItemWithUrl tabItem;
-    private boolean displayAdvanced = JsonUtils.isExtendedInfoVisible();
-    private int role;
+	private boolean displayAdvanced = JsonUtils.isExtendedInfoVisible();
+	private int role;
 
 	public MainMenuSection(String title, TabItemWithUrl tabItem){
 		this.title = title;
 		this.tabItem = tabItem;
-        sectionPanel.addStyleName("mainMenuItems");
-        sectionPanel.setWidth("100%");
+		sectionPanel.addStyleName("mainMenuItems");
+		sectionPanel.setWidth("100%");
 	}
 
 	public MainMenuSection(String title, TabItemWithUrl tabItem, Image image){
@@ -44,83 +44,83 @@ public class MainMenuSection {
 		this(title, tabItem, new Image(imageResource));
 	}
 
-    public MainMenuSection(String title, TabItemWithUrl tabItem, ImageResource imageResource, int role){
-        this(title, tabItem, new Image(imageResource));
-        this.role = role;
-    }
+	public MainMenuSection(String title, TabItemWithUrl tabItem, ImageResource imageResource, int role){
+		this(title, tabItem, new Image(imageResource));
+		this.role = role;
+	}
 
 	public MainMenuItem addItem(MainMenuItem item){
 
-        this.sectionPanel.setWidget(rowCounter, 0, item.getIcon());
-        this.sectionPanel.setWidget(rowCounter, 1, item.getWidget());
+		this.sectionPanel.setWidget(rowCounter, 0, item.getIcon());
+		this.sectionPanel.setWidget(rowCounter, 1, item.getWidget());
 
-        items.add(item);
+		items.add(item);
 
-        this.sectionPanel.getFlexCellFormatter().setWidth(rowCounter, 0, "20px");
-        this.sectionPanel.getFlexCellFormatter().setVerticalAlignment(rowCounter, 0, HasVerticalAlignment.ALIGN_TOP);
-        this.sectionPanel.getFlexCellFormatter().setVerticalAlignment(rowCounter, 1, HasVerticalAlignment.ALIGN_TOP);
+		this.sectionPanel.getFlexCellFormatter().setWidth(rowCounter, 0, "20px");
+		this.sectionPanel.getFlexCellFormatter().setVerticalAlignment(rowCounter, 0, HasVerticalAlignment.ALIGN_TOP);
+		this.sectionPanel.getFlexCellFormatter().setVerticalAlignment(rowCounter, 1, HasVerticalAlignment.ALIGN_TOP);
 
-        rowCounter++;
+		rowCounter++;
 
-        return item;
+		return item;
 
-    }
+	}
 
-    public void addAdvancedLink(boolean active) {
+	public void addAdvancedLink(boolean active) {
 
-        if (!JsonUtils.isExtendedInfoVisible()) {
+		if (!JsonUtils.isExtendedInfoVisible()) {
 
-            if (active) {
+			if (active) {
 
-                final Anchor a = new Anchor("");
+				final Anchor a = new Anchor("");
 
-                if (displayAdvanced) {
-                    a.setHTML("<i>&lt;&lt; hide advanced</i>");
-                } else {
-                    a.setHTML("<i>show advanced &gt;&gt;</i>");
-                }
+				if (displayAdvanced) {
+					a.setHTML("<i>&lt;&lt; hide advanced</i>");
+				} else {
+					a.setHTML("<i>show advanced &gt;&gt;</i>");
+				}
 
-                a.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        displayAdvanced = !displayAdvanced;
-                        // rebuild this menu
-                        PerunWebSession.getInstance().getUiElements().getMenu().saveAdvancedStateToBrowser(role+"", displayAdvanced);
-                        PerunWebSession.getInstance().getUiElements().getMenu().updateLinks(role);
-                    }
-                });
+				a.addClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						displayAdvanced = !displayAdvanced;
+						// rebuild this menu
+						PerunWebSession.getInstance().getUiElements().getMenu().saveAdvancedStateToBrowser(role+"", displayAdvanced);
+						PerunWebSession.getInstance().getUiElements().getMenu().updateLinks(role);
+					}
+				});
 
-                this.sectionPanel.setWidget(rowCounter, 0, a);
-                this.sectionPanel.getFlexCellFormatter().setColSpan(rowCounter, 0, 2);
+				this.sectionPanel.setWidget(rowCounter, 0, a);
+				this.sectionPanel.getFlexCellFormatter().setColSpan(rowCounter, 0, 2);
 
-            } else {
+			} else {
 
-                HTML a = new HTML();
-                a.addStyleName("mainMenuNotActive");
-                if (displayAdvanced) {
-                    a.setHTML("<i>&lt;&lt; hide advanced</i>");
-                } else {
-                    a.setHTML("<i>show advanced &gt;&gt;</i>");
-                }
-                this.sectionPanel.setWidget(rowCounter, 0, a);
-                this.sectionPanel.getFlexCellFormatter().setColSpan(rowCounter, 0, 2);
+				HTML a = new HTML();
+				a.addStyleName("mainMenuNotActive");
+				if (displayAdvanced) {
+					a.setHTML("<i>&lt;&lt; hide advanced</i>");
+				} else {
+					a.setHTML("<i>show advanced &gt;&gt;</i>");
+				}
+				this.sectionPanel.setWidget(rowCounter, 0, a);
+				this.sectionPanel.getFlexCellFormatter().setColSpan(rowCounter, 0, 2);
 
-            }
+			}
 
-            rowCounter++;
+			rowCounter++;
 
-        }
+		}
 
-    }
+	}
 
-    public void addSplitter() {
+	public void addSplitter() {
 
-        if (rowCounter > 0)  {
-            sectionPanel.getFlexCellFormatter().addStyleName(rowCounter-1, 0, "mainMenuSplitter");
-            sectionPanel.getFlexCellFormatter().addStyleName(rowCounter-1, 1, "mainMenuSplitter");
-        }
+		if (rowCounter > 0)  {
+			sectionPanel.getFlexCellFormatter().addStyleName(rowCounter-1, 0, "mainMenuSplitter");
+			sectionPanel.getFlexCellFormatter().addStyleName(rowCounter-1, 1, "mainMenuSplitter");
+		}
 
-    }
+	}
 
 	public Widget getWidget()
 	{
@@ -156,17 +156,17 @@ public class MainMenuSection {
 	}
 
 	public void clear() {
-        sectionPanel.removeAllRows();
-        rowCounter = 0;
-        this.items.clear();
-    }
+		sectionPanel.removeAllRows();
+		rowCounter = 0;
+		this.items.clear();
+	}
 
-    public boolean isDisplayAdvanced() {
-        return this.displayAdvanced;
-    }
+	public boolean isDisplayAdvanced() {
+		return this.displayAdvanced;
+	}
 
-    public void setDisplayAdvanced(boolean advanced) {
-        this.displayAdvanced = advanced;
-    }
+	public void setDisplayAdvanced(boolean advanced) {
+		this.displayAdvanced = advanced;
+	}
 
 }

@@ -107,7 +107,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 		// retrieve data
 		retrieveData();
 
-        dataProvider = new ListDataProvider<Group>(list);
+		dataProvider = new ListDataProvider<Group>(list);
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);

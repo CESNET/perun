@@ -134,7 +134,7 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 		}else if(go.getObjectType().equals("Group")){
 			url = session.getTabManager().getLinkForTab(new GroupDetailTabItem(go.getId()));
 		}else if(go.getObjectType().equals("Facility")){
-            //url = session.getTabManager().getLinkForTab(new FacilityDetailTabItem(session, go.getId()));
+			//url = session.getTabManager().getLinkForTab(new FacilityDetailTabItem(session, go.getId()));
 		}
 
 
@@ -148,7 +148,7 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 	protected void render(com.google.gwt.cell.client.Cell.Context context,
 			SafeHtml value, SafeHtmlBuilder sb) {
 		if (value != null) {
-	      sb.append(value);
-	    }
+			sb.append(value);
+		}
 	}
 }

@@ -7,19 +7,19 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Principal Roles
----------------------------------
-Available options:
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Prints list of Principal Roles
+	---------------------------------
+	Available options:
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($batch);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "batch|b" => \$batch) || die help;
+	"batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
@@ -32,7 +32,7 @@ my $table = Text::ASCIITable->new();
 $table->setCols('Role Name');
 
 foreach my $role (@roles) {
-  $table->addRow($role);
+	$table->addRow($role);
 }
 
 print tableToPrint($table, $batch);

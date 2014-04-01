@@ -8,26 +8,26 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class DuplicateRegistrationAttemptException extends PerunException {
-    private final String actor;
-    private final String extSourceName;
-    private final int appId;
+	private final String actor;
+	private final String extSourceName;
+	private final int appId;
 
-    public DuplicateRegistrationAttemptException(String message, String actor, String extSourceName, int appId) {
-        super(message);
-        this.actor = actor;
-        this.extSourceName = extSourceName;
-        this.appId = appId;
-    }
+	public DuplicateRegistrationAttemptException(String message, String actor, String extSourceName, int appId) {
+		super(message);
+		this.actor = actor;
+		this.extSourceName = extSourceName;
+		this.appId = appId;
+	}
 
-    public String getActor() {
-        return actor;
-    }
+	public String getActor() {
+		return actor;
+	}
 
-    public String getExtSourceName() {
-        return extSourceName;
-    }
+	public String getExtSourceName() {
+		return extSourceName;
+	}
 
-    public int getApplicationId() {
-        return appId;
-    }
+	public int getApplicationId() {
+		return appId;
+	}
 }

@@ -55,8 +55,8 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facility Facility
-     */
+	 * @param facility Facility
+	 */
 	public AddFacilityOwnerTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -92,37 +92,37 @@ public class AddFacilityOwnerTabItem implements TabItem {
 				// get
 				ArrayList<Owner> list = owners.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                    for (int i=0; i<list.size(); i++) {
-                        if (i == list.size()-1) {
-                            AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addOwner(facilityId, list.get(i).getId());
-                        } else {
-                            AddOwner request = new AddOwner(JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addOwner(facilityId, list.get(i).getId());
-                        }
-                    }
-                }
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+					for (int i=0; i<list.size(); i++) {
+						if (i == list.size()-1) {
+							AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addOwner(facilityId, list.get(i).getId());
+						} else {
+							AddOwner request = new AddOwner(JsonCallbackEvents.disableButtonEvents(addButton));
+							request.addOwner(facilityId, list.get(i).getId());
+						}
+					}
+				}
 			}
 		});
 
-        tabMenu.addWidget(addButton);
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		tabMenu.addWidget(addButton);
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                owners.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterOwners());
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				owners.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterOwners());
 
-        addButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(owners, table, addButton);
+		addButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(owners, table, addButton);
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");

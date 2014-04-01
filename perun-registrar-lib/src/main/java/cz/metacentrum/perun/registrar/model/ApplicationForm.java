@@ -10,33 +10,33 @@ import cz.metacentrum.perun.core.api.Vo;
  */
 public class ApplicationForm {
 
-    private int id;
-    private Vo vo;
-    private Group group;
-    private boolean automaticApproval;
-    private boolean automaticApprovalExtension;
-    private String moduleClassName;
+	private int id;
+	private Vo vo;
+	private Group group;
+	private boolean automaticApproval;
+	private boolean automaticApprovalExtension;
+	private String moduleClassName;
 
-    public ApplicationForm() {
-    }
+	public ApplicationForm() {
+	}
 
-    public int getId() {
-        return id;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public Vo getVo() {
-        return vo;
-    }
+	public Vo getVo() {
+		return vo;
+	}
 
-    public void setVo(Vo vo) {
-        this.vo = vo;
-    }
+	public void setVo(Vo vo) {
+		this.vo = vo;
+	}
 
-    public Group getGroup() {
+	public Group getGroup() {
 		return group;
 	}
 
@@ -45,20 +45,20 @@ public class ApplicationForm {
 	}
 
 	public boolean isAutomaticApproval() {
-        return automaticApproval;
-    }
+		return automaticApproval;
+	}
 
 	public void setAutomaticApproval(boolean automaticApproval) {
-        this.automaticApproval = automaticApproval;
-    }
+		this.automaticApproval = automaticApproval;
+	}
 
-    public boolean isAutomaticApprovalExtension() {
-        return automaticApprovalExtension;
-    }
+	public boolean isAutomaticApprovalExtension() {
+		return automaticApprovalExtension;
+	}
 
-    public void setAutomaticApprovalExtension(boolean automaticApproval) {
-        this.automaticApprovalExtension = automaticApproval;
-    }
+	public void setAutomaticApprovalExtension(boolean automaticApproval) {
+		this.automaticApprovalExtension = automaticApproval;
+	}
 
 	public String getModuleClassName() {
 		return moduleClassName;
@@ -68,26 +68,26 @@ public class ApplicationForm {
 		this.moduleClassName = moduleClassName;
 	}
 
-    /**
-     * Return bean name as PerunBean does.
-     *
-     * @return Class simple name (beanName)
-     */
-    public String getBeanName() {
-        return this.getClass().getSimpleName();
-    }
+	/**
+	 * Return bean name as PerunBean does.
+	 *
+	 * @return Class simple name (beanName)
+	 */
+	public String getBeanName() {
+		return this.getClass().getSimpleName();
+	}
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName()+":[" +
-                "id='" + getId() + '\'' +
-                ", vo='" + getVo() + '\'' +
-                ", group='" + getGroup() + '\'' +
-                ", automaticApproval='" + isAutomaticApproval() + '\'' +
-                ", automaticApprovalExtension='" + isAutomaticApprovalExtension() + '\'' +
-                ", moduleClassName='" + getModuleClassName() + '\'' +
-                "]";
-    }
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName()+":[" +
+			"id='" + getId() + '\'' +
+			", vo='" + getVo() + '\'' +
+			", group='" + getGroup() + '\'' +
+			", automaticApproval='" + isAutomaticApproval() + '\'' +
+			", automaticApprovalExtension='" + isAutomaticApprovalExtension() + '\'' +
+			", moduleClassName='" + getModuleClassName() + '\'' +
+			"]";
+	}
 
 	@Override
 	public int hashCode() {

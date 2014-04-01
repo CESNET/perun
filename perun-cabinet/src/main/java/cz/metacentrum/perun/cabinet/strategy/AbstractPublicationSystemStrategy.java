@@ -59,7 +59,7 @@ public abstract class AbstractPublicationSystemStrategy {
 
 		//}
 		return (publications != null) ? publications
-				: new ArrayList<Publication>();
+			: new ArrayList<Publication>();
 	}
 
 	protected String capitalize(String name) {

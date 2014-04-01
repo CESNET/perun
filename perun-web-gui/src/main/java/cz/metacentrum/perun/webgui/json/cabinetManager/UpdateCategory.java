@@ -32,14 +32,14 @@ public class UpdateCategory {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public UpdateCategory() {}
 
 	/**
 	 * Creates a new request with custom events
-     *
-     * @param events external events
-     */
+	 *
+	 * @param events external events
+	 */
 	public UpdateCategory(JsonCallbackEvents events) {
 		this.events = events;
 	}

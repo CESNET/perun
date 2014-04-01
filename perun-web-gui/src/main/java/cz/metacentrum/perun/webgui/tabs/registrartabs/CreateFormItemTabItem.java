@@ -61,7 +61,7 @@ public class CreateFormItemTabItem implements TabItem{
 	/**
 	 * Creates a tab instance
 	 *
-     *
+	 *
 	 */
 	public CreateFormItemTabItem(ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events){
 		this.sourceList = sourceList;
@@ -80,26 +80,26 @@ public class CreateFormItemTabItem implements TabItem{
 
 		// flex table
 		FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
+		layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
 		// select widget short name
 		final ExtendedTextBox shortNameTextBox = new ExtendedTextBox();
 		shortNameTextBox.setWidth("200px");
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (shortNameTextBox.getTextBox().getText().trim().isEmpty()) {
-                    shortNameTextBox.setError("Short name can't be empty.");
-                    return false;
-                } else {
-                    shortNameTextBox.setOk();
-                    return true;
-                }
-            }
-        };
-        shortNameTextBox.setValidator(validator);
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (shortNameTextBox.getTextBox().getText().trim().isEmpty()) {
+					shortNameTextBox.setError("Short name can't be empty.");
+					return false;
+				} else {
+					shortNameTextBox.setOk();
+					return true;
+				}
+			}
+		};
+		shortNameTextBox.setValidator(validator);
 
 		// select widget type
 		final ListBox typeListBox = new ListBox();
@@ -125,47 +125,47 @@ public class CreateFormItemTabItem implements TabItem{
 			insertAfterListBox.addItem(label, (i + 1) + "");
 		}
 
-        layout.setHTML(0, 0, "Short name:");
-        layout.setWidget(0, 1, shortNameTextBox);
-        layout.setHTML(1, 0, "Input widget:");
-        layout.setWidget(1, 1, typeListBox);
+		layout.setHTML(0, 0, "Short name:");
+		layout.setWidget(0, 1, shortNameTextBox);
+		layout.setHTML(1, 0, "Input widget:");
+		layout.setWidget(1, 1, typeListBox);
 		layout.setHTML(2, 0, "Insert after:");
 		layout.setWidget(2, 1, insertAfterListBox);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
 		// create button
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFormItem(), new ClickHandler() {
 
-            public void onClick(ClickEvent event) {
+			public void onClick(ClickEvent event) {
 
-                if (validator.validateTextBox()) {
+				if (validator.validateTextBox()) {
 
-                    int positionToAdd = Integer.parseInt(insertAfterListBox.getValue(insertAfterListBox.getSelectedIndex()));
-                    String type = typeListBox.getValue(typeListBox.getSelectedIndex());
-                    String shortName = shortNameTextBox.getTextBox().getText().trim();
-                    createItem(shortName, type, positionToAdd);
+					int positionToAdd = Integer.parseInt(insertAfterListBox.getValue(insertAfterListBox.getSelectedIndex()));
+					String type = typeListBox.getValue(typeListBox.getSelectedIndex());
+					String shortName = shortNameTextBox.getTextBox().getText().trim();
+					createItem(shortName, type, positionToAdd);
 
-                }
+				}
 
-            }
-        }));
+			}
+		}));
 
-        final TabItem tab = this;
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		final TabItem tab = this;
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
 

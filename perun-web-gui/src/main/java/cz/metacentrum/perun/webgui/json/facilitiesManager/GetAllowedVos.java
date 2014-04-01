@@ -33,10 +33,10 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 	static private final String JSON_URL = "facilitiesManager/getAllowedVos";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-    // data providers
+	// data providers
 	private ListDataProvider<VirtualOrganization> dataProvider = new ListDataProvider<VirtualOrganization>();
 	private ArrayList<VirtualOrganization> list = new ArrayList<VirtualOrganization>();
-    private PerunTable<VirtualOrganization> table;
+	private PerunTable<VirtualOrganization> table;
 	// Selection model
 	final MultiSelectionModel<VirtualOrganization> selectionModel = new MultiSelectionModel<VirtualOrganization>(new GeneralKeyProvider<VirtualOrganization>());
 	private int facilityId = 0;
@@ -96,12 +96,12 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 			table.addCheckBoxColumn();
 		}
 
-        VoColumnProvider columnProvider = new VoColumnProvider(table, null);
-        // FIXME we need field updater
-        IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
-        columnProvider.addIdColumn(authz, 100);
-        columnProvider.addShortNameColumn(authz, 200);
-        columnProvider.addNameColumn(authz, 0);
+		VoColumnProvider columnProvider = new VoColumnProvider(table, null);
+		// FIXME we need field updater
+		IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
+		columnProvider.addIdColumn(authz, 100);
+		columnProvider.addShortNameColumn(authz, 200);
+		columnProvider.addNameColumn(authz, 0);
 
 		return table;
 
@@ -115,116 +115,116 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 		js.retrieveData(JSON_URL, "facility="+facilityId, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<VirtualOrganization>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<VirtualOrganization>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object VirtualOrganization to be added as new row
-     */
-    public void addToTable(VirtualOrganization object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object VirtualOrganization to be added as new row
+	 */
+	public void addToTable(VirtualOrganization object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object VirtualOrganization to be removed as row
-     */
-    public void removeFromTable(VirtualOrganization object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object VirtualOrganization to be removed as row
+	 */
+	public void removeFromTable(VirtualOrganization object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<VirtualOrganization> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<VirtualOrganization> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading allowed VOs.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading allowed VOs.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading allowed VOs started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading allowed VOs started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Loading allowed VOs finished: "+ list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Loading allowed VOs finished: "+ list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, VirtualOrganization object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, VirtualOrganization object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<VirtualOrganization> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<VirtualOrganization> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<VirtualOrganization> getList() {
-        return this.list;
-    }
+	public ArrayList<VirtualOrganization> getList() {
+		return this.list;
+	}
 
 }

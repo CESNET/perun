@@ -9,21 +9,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.EntityExistsRuntimeException;
  * @author Slavek Licehammer
  */
 public class EntityExistsException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public EntityExistsException(EntityExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public EntityExistsException(EntityExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public EntityExistsException(String message) {
-        super(message);
-    }
+	public EntityExistsException(String message) {
+		super(message);
+	}
 
-    public EntityExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public EntityExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public EntityExistsException(Throwable cause) {
-        super(cause);
-    }
+	public EntityExistsException(Throwable cause) {
+		super(cause);
+	}
 }

@@ -7,18 +7,18 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds facility destination. Facility, service and destination and type are required fields.
---------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -p facility type
- --serviceId    | -s service id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Adds facility destination. Facility, service and destination and type are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -p facility type
+	--serviceId    | -s service id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 our $batch;
@@ -38,9 +38,9 @@ unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $servicesAgent = $agent->getServicesAgent;
@@ -51,8 +51,8 @@ unless(@hosts) { printMessage "No host found", $batch; exit 0;}
 
 my $typ="host";
 foreach my $host (@hosts) {
-    my $destination=$host->getHostname;
-    $servicesAgent->addDestination(facility => $facilityId, service => $serviceId, destination => $destination, type => $typ);
+	my $destination=$host->getHostname;
+	$servicesAgent->addDestination(facility => $facilityId, service => $serviceId, destination => $destination, type => $typ);
 
-    printMessage("Destination '$destination' successfully added for the service Id:$serviceId on the facility Id:$facilityId", $batch);
+	printMessage("Destination '$destination' successfully added for the service Id:$serviceId on the facility Id:$facilityId", $batch);
 }

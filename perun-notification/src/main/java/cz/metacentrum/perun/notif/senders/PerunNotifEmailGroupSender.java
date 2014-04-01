@@ -30,79 +30,79 @@ import java.util.Set;
  */
 public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
-    private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailGroupSender.class);
+	private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailGroupSender.class);
 
-    @Autowired
-    private PerunBl perun;
+	@Autowired
+	private PerunBl perun;
 
-    @Autowired
-    private PerunNotifEmailManager perunNotifEmailManager;
+	@Autowired
+	private PerunNotifEmailManager perunNotifEmailManager;
 
-    private PerunSession session;
+	private PerunSession session;
 
-    @PostConstruct
-    public void init() throws Exception {
-        this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-    }
+	@PostConstruct
+	public void init() throws Exception {
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+	}
 
-    @Override
-    public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
+	@Override
+	public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
 
-        if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_GROUP)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_GROUP)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    @Override
-    public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend) {
+	@Override
+	public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend) {
 
-        Set<Integer> usedPoolIds = new HashSet<Integer>();
-        List<PerunNotifEmailMessageToSendDto> messagesToSend = new ArrayList<PerunNotifEmailMessageToSendDto>();
+		Set<Integer> usedPoolIds = new HashSet<Integer>();
+		List<PerunNotifEmailMessageToSendDto> messagesToSend = new ArrayList<PerunNotifEmailMessageToSendDto>();
 
-        for (PerunNotifMessageDto messageDto : dtosToSend) {
-            PoolMessage dto = messageDto.getPoolMessage();
-            PerunNotifTemplate template = messageDto.getTemplate();
-            PerunNotifReceiver receiver = messageDto.getReceiver();
+		for (PerunNotifMessageDto messageDto : dtosToSend) {
+			PoolMessage dto = messageDto.getPoolMessage();
+			PerunNotifTemplate template = messageDto.getTemplate();
+			PerunNotifReceiver receiver = messageDto.getReceiver();
 
-            try {
-                String groupSender = dto.getKeyAttributes().get(template.getSender());
-                if (groupSender == null || groupSender.isEmpty()) {
-                    groupSender = template.getSender();
-                }
-                logger.debug("Calculated sender : {}", groupSender);
+			try {
+				String groupSender = dto.getKeyAttributes().get(template.getSender());
+				if (groupSender == null || groupSender.isEmpty()) {
+					groupSender = template.getSender();
+				}
+				logger.debug("Calculated sender : {}", groupSender);
 
-                Integer groupId = Integer.valueOf(receiver.getTarget());
-                Group group = perun.getGroupsManagerBl().getGroupById(session, groupId);
-                List<Member> groupMembers = perun.getGroupsManagerBl().getGroupMembers(session, group);
-                if (groupMembers != null) {
-                    for (Member member : groupMembers) {
-                        try {
-                            PerunNotifEmailMessageToSendDto memberEmailDto = new PerunNotifEmailMessageToSendDto();
-                            memberEmailDto.setMessage(messageDto.getMessageToSend());
-                            memberEmailDto.setSubject(messageDto.getSubject());
-                            memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, member, "urn:perun:user:attribute-def:def:preferredMail").getValue());
-                            memberEmailDto.setSender(groupSender);
+				Integer groupId = Integer.valueOf(receiver.getTarget());
+				Group group = perun.getGroupsManagerBl().getGroupById(session, groupId);
+				List<Member> groupMembers = perun.getGroupsManagerBl().getGroupMembers(session, group);
+				if (groupMembers != null) {
+					for (Member member : groupMembers) {
+						try {
+							PerunNotifEmailMessageToSendDto memberEmailDto = new PerunNotifEmailMessageToSendDto();
+							memberEmailDto.setMessage(messageDto.getMessageToSend());
+							memberEmailDto.setSubject(messageDto.getSubject());
+							memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, member, "urn:perun:user:attribute-def:def:preferredMail").getValue());
+							memberEmailDto.setSender(groupSender);
 
-                            messagesToSend.add(memberEmailDto);
-                        } catch (Exception ex) {
-                            logger.error("PreferredEmail cannot be retrieved, userId: {}", member.getUserId(), ex);
-                        }
-                    }
-                }
-                usedPoolIds.addAll(messageDto.getUsedPoolIds());
-            } catch (NumberFormatException ex) {
-                logger.error("GroupId cannot be parsed: {}", receiver.getTarget());
-            } catch (GroupNotExistsException ex) {
-                logger.error("Group with id: {} does not exists.", receiver.getTarget());
-            } catch (InternalErrorException ex) {
-                logger.error("Error during processing messageDto.", ex);
-            }
-        }
+							messagesToSend.add(memberEmailDto);
+						} catch (Exception ex) {
+							logger.error("PreferredEmail cannot be retrieved, userId: {}", member.getUserId(), ex);
+						}
+					}
+				}
+				usedPoolIds.addAll(messageDto.getUsedPoolIds());
+			} catch (NumberFormatException ex) {
+				logger.error("GroupId cannot be parsed: {}", receiver.getTarget());
+			} catch (GroupNotExistsException ex) {
+				logger.error("Group with id: {} does not exists.", receiver.getTarget());
+			} catch (InternalErrorException ex) {
+				logger.error("Error during processing messageDto.", ex);
+			}
+		}
 
-        perunNotifEmailManager.sendMessages(messagesToSend);
+		perunNotifEmailManager.sendMessages(messagesToSend);
 
-        return usedPoolIds;
-    }
+		return usedPoolIds;
+	}
 }

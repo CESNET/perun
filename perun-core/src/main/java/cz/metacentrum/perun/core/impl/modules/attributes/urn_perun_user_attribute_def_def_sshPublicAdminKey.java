@@ -22,16 +22,16 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-  public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-    if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user,"Cant be null.");
-  }
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user,"Cant be null.");
+	}
 
-  public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-      attr.setFriendlyName("sshPublicAdminKey");
-      attr.setType(ArrayList.class.getName());
-      attr.setDescription("User's SSH public keys used from root access.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("sshPublicAdminKey");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("User's SSH public keys used from root access.");
+		return attr;
+	}
 }

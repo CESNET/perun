@@ -34,225 +34,225 @@ import java.util.ArrayList;
  */
 public class CopyMailsTabItem implements TabItem {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Copy mails");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Copy mails");
 
-    /**
-     * Entity ID to set
-     */
-    private int voId = 0;
-    private int groupId = 0;
+	/**
+	 * Entity ID to set
+	 */
+	private int voId = 0;
+	private int groupId = 0;
 
-    /**
-     * Creates a tab instance
-     *
-     * @param voId
-     * @param groupId
-     */
-    public CopyMailsTabItem(int voId, int groupId){
-        this.voId = voId;
-        this.groupId = groupId;
-    }
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param voId
+	 * @param groupId
+	 */
+	public CopyMailsTabItem(int voId, int groupId){
+		this.voId = voId;
+		this.groupId = groupId;
+	}
 
-    public boolean isPrepared(){
-        return true;
-    }
+	public boolean isPrepared(){
+		return true;
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        final FlexTable content = new FlexTable();
-        content.setStyleName("inputFormFlexTable");
+		final FlexTable content = new FlexTable();
+		content.setStyleName("inputFormFlexTable");
 
-        // boxes
-        final ListBoxWithObjects<VirtualOrganization> vosBox = new ListBoxWithObjects<VirtualOrganization>();
-        final ListBoxWithObjects<Group> groupsBox = new ListBoxWithObjects<Group>();
+		// boxes
+		final ListBoxWithObjects<VirtualOrganization> vosBox = new ListBoxWithObjects<VirtualOrganization>();
+		final ListBoxWithObjects<Group> groupsBox = new ListBoxWithObjects<Group>();
 
-        final CustomButton save;
+		final CustomButton save;
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        VerticalPanel vp = new VerticalPanel();
-        TabMenu menu = new TabMenu();
+		VerticalPanel vp = new VerticalPanel();
+		TabMenu menu = new TabMenu();
 
-        if (groupId == 0) {
+		if (groupId == 0) {
 
-            titleWidget.setText("Copy mails from VO");
+			titleWidget.setText("Copy mails from VO");
 
-            save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyMailsFromVo());
+			save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyMailsFromVo());
 
-            // get them
-            GetVos vos = new GetVos(new JsonCallbackEvents(){
-                @Override
-                public void onFinished(JavaScriptObject jso) {
-                    vosBox.clear();
-                    ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
-                    vos = new TableSorter<VirtualOrganization>().sortByName(vos);
-                    vosBox.addAllItems(vos);
-                    if (vosBox.getAllObjects().size() > 0) {
-                        save.setEnabled(true);
-                    }
-                }
-                @Override
-                public void onError(PerunError error) {
-                    vosBox.addItem("Error while loading");
-                    save.setEnabled(false);
-                }
-                @Override
-                public void onLoadingStart(){
-                    vosBox.addItem("Loading...");
-                    save.setEnabled(false);
-                }
-            });
-            vos.retrieveData();
-            content.setHTML(0, 0, "Source VO:");
-            content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-            content.setWidget(0, 1, vosBox);
+			// get them
+			GetVos vos = new GetVos(new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					vosBox.clear();
+					ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
+					vos = new TableSorter<VirtualOrganization>().sortByName(vos);
+					vosBox.addAllItems(vos);
+					if (vosBox.getAllObjects().size() > 0) {
+						save.setEnabled(true);
+					}
+				}
+			@Override
+			public void onError(PerunError error) {
+				vosBox.addItem("Error while loading");
+				save.setEnabled(false);
+			}
+			@Override
+			public void onLoadingStart(){
+				vosBox.addItem("Loading...");
+				save.setEnabled(false);
+			}
+			});
+			vos.retrieveData();
+			content.setHTML(0, 0, "Source VO:");
+			content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+			content.setWidget(0, 1, vosBox);
 
-            save.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    CopyMails request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
-                    request.copyMails();
-                }
-            });
+			save.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					CopyMails request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request.copyMails();
+				}
+			});
 
-            menu.addWidget(save);
+			menu.addWidget(save);
 
-        } else {
+		} else {
 
-            titleWidget.setText("Copy mails from group");
+			titleWidget.setText("Copy mails from group");
 
-            save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyMailsFromGroup());
+			save = TabMenu.getPredefinedButton(ButtonType.OK, ButtonTranslation.INSTANCE.copyMailsFromGroup());
 
-            // get them
-            GetAllGroups getGroups = new GetAllGroups(voId, new JsonCallbackEvents(){
-                @Override
-                public void onFinished(JavaScriptObject jso) {
-                    groupsBox.clear();
-                    ArrayList<Group> groups = JsonUtils.jsoAsList(jso);
-                    groups = new TableSorter<Group>().sortByName(groups);
-                    groupsBox.addAllItems(groups);
-                    if (groupsBox.getAllObjects().size() > 0) {
-                        save.setEnabled(true);
-                    }
-                }
-                @Override
-                public void onError(PerunError error) {
-                    groupsBox.addItem("Error while loading");
-                    save.setEnabled(false);
-                }
-                @Override
-                public void onLoadingStart(){
-                    groupsBox.addItem("Loading...");
-                    save.setEnabled(false);
-                }
-            });
-            getGroups.retrieveData();
-            content.setHTML(0, 0, "Source group:");
-            content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-            content.setWidget(0, 1, groupsBox);
+			// get them
+			GetAllGroups getGroups = new GetAllGroups(voId, new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					groupsBox.clear();
+					ArrayList<Group> groups = JsonUtils.jsoAsList(jso);
+					groups = new TableSorter<Group>().sortByName(groups);
+					groupsBox.addAllItems(groups);
+					if (groupsBox.getAllObjects().size() > 0) {
+						save.setEnabled(true);
+					}
+				}
+			@Override
+			public void onError(PerunError error) {
+				groupsBox.addItem("Error while loading");
+				save.setEnabled(false);
+			}
+			@Override
+			public void onLoadingStart(){
+				groupsBox.addItem("Loading...");
+				save.setEnabled(false);
+			}
+			});
+			getGroups.retrieveData();
+			content.setHTML(0, 0, "Source group:");
+			content.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+			content.setWidget(0, 1, groupsBox);
 
-            save.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent clickEvent) {
-                    CopyMails request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
-                    request.copyMails();
-                }
-            });
+			save.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					CopyMails request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request.copyMails();
+				}
+			});
 
-            menu.addWidget(save);
+			menu.addWidget(save);
 
-        }
+		}
 
-        content.setHTML(1, 0, "All mail definitions will be added to yours.");
-        content.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
-        content.getFlexCellFormatter().setColSpan(1, 0, 2);
+		content.setHTML(1, 0, "All mail definitions will be added to yours.");
+		content.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+		content.getFlexCellFormatter().setColSpan(1, 0, 2);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        vp.add(content);
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(content);
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.addIcon();
-    }
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.addIcon();
+	}
 
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + 6786786;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + 6786786;
+		return result;
+	}
 
-    /**
-     * @param obj
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CopyMailsTabItem create = (CopyMailsTabItem) obj;
-        if (voId != create.voId){
-            return false;
-        }
+	/**
+	 * @param obj
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CopyMailsTabItem create = (CopyMailsTabItem) obj;
+		if (voId != create.voId){
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    public void open()
-    {
-        // no open for inner tab
-    }
+	public void open()
+	{
+		// no open for inner tab
+	}
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 
-        if (session.isVoAdmin(voId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (session.isVoAdmin(voId)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }

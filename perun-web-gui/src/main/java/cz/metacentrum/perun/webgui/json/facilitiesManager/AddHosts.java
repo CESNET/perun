@@ -29,8 +29,8 @@ public class AddHosts {
 
 	/**
 	 * Creates a new request
-     *
-     * @param facilityId ID of facility
+	 *
+	 * @param facilityId ID of facility
 	 */
 	public AddHosts(int facilityId) {
 		this.facilityId = facilityId;
@@ -39,8 +39,8 @@ public class AddHosts {
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param facilityId ID of facility
-     * @param events external events
+	 * @param facilityId ID of facility
+	 * @param events external events
 	 */
 	public AddHosts(int facilityId, final JsonCallbackEvents events) {
 		this.facilityId = facilityId;
@@ -110,7 +110,7 @@ public class AddHosts {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;

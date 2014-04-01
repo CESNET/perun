@@ -38,7 +38,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Content widget - should be simple panel
@@ -60,22 +60,22 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param publicationId id
-     */
+	 * @param publicationId id
+	 */
 	public CreateThanksTabItem(int publicationId){
 		this.publicationId = publicationId;
-        new GetEntityById(PerunEntity.PUBLICATION, publicationId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                publication = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.PUBLICATION, publicationId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				publication = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a tab instance
 	 *
-     * @param publication
-     */
+	 * @param publication
+	 */
 	public CreateThanksTabItem(Publication publication){
 		this.publication = publication;
 		this.publicationId = publication.getId();
@@ -84,9 +84,9 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param publication
-     * @param extEvents
-     */
+	 * @param publication
+	 * @param extEvents
+	 */
 	public CreateThanksTabItem(Publication publication, JsonCallbackEvents extEvents){
 		this.publication = publication;
 		this.publicationId = publication.getId();
@@ -114,45 +114,45 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		// add button
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement for selected owner(s)");
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
 		// click handler
 		addButton.addClickHandler(new ClickHandler(){
 			@Override
-            public void onClick(ClickEvent event) {
-                ArrayList<Owner> list = owners.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    for (int i=0; i<list.size(); i++) {
-                        final String name = list.get(i).getName();
-                        // add name events
-                        JsonCallbackEvents thanksEvents = new JsonCallbackEvents(){
-                            public void onFinished(JavaScriptObject jso){
-                                updateAlreadyAdded(name);
-                            }
-                        };
-                        // merge with refresh?
-                        if (i == list.size()-1 && events != null) {
-                            thanksEvents = JsonCallbackEvents.mergeEvents(thanksEvents, events);
-                        }
-                        CreateThanks request = new CreateThanks(publicationId, JsonCallbackEvents.disableButtonEvents(addButton, thanksEvents));
-                        request.createThanks(list.get(i).getId());
-                        if (i == list.size()-1) {
-                            owners.clearTableSelectedSet();
-                        }
-                    }
-                }
+			public void onClick(ClickEvent event) {
+				ArrayList<Owner> list = owners.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i=0; i<list.size(); i++) {
+						final String name = list.get(i).getName();
+						// add name events
+						JsonCallbackEvents thanksEvents = new JsonCallbackEvents(){
+							public void onFinished(JavaScriptObject jso){
+								updateAlreadyAdded(name);
+							}
+						};
+						// merge with refresh?
+						if (i == list.size()-1 && events != null) {
+							thanksEvents = JsonCallbackEvents.mergeEvents(thanksEvents, events);
+						}
+						CreateThanks request = new CreateThanks(publicationId, JsonCallbackEvents.disableButtonEvents(addButton, thanksEvents));
+						request.createThanks(list.get(i).getId());
+						if (i == list.size()-1) {
+							owners.clearTableSelectedSet();
+						}
+					}
+				}
 			}
 		});
 
-        menu.addWidget(addButton);
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                // trigger refresh of sub-tab via event
-                events.onFinished(null);
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(addButton);
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// trigger refresh of sub-tab via event
+				events.onFinished(null);
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
 		// add already added
 		vp.add(alreadyAddedOwners);
@@ -169,10 +169,10 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		// resize small tab panel to correct size on screen
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-        addButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(owners, table, addButton);
+		addButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(owners, table, addButton);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}

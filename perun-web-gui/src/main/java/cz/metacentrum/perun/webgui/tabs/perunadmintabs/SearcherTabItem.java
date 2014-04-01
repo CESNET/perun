@@ -44,7 +44,7 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public SearcherTabItem(){ }
 
 	public boolean isPrepared(){
@@ -67,11 +67,11 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 				request.clearParameters();
 
 				for(Map.Entry<String, String> entry : map.entrySet())
-				{
-					request.addSearchParameter(entry.getKey(), entry.getValue());
-				}
+		{
+			request.addSearchParameter(entry.getKey(), entry.getValue());
+		}
 
-				request.search();
+		request.search();
 			}
 		});
 
@@ -143,7 +143,7 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Searcher", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Searcher", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

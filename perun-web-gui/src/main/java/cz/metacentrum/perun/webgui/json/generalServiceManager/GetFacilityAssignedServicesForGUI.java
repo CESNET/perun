@@ -101,25 +101,25 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Can't configure services propagation. No service assigned to this facility.");
+		loaderImage.setEmptyResultMessage("Can't configure services propagation. No service assigned to this facility.");
 
 		// checkbox column column
 		/*
-		Column<RichService, RichService> checkBoxColumn = new Column<RichService, RichService>(
-				new PerunCheckboxCell<RichService>(true, false, false)) {
-			@Override
-			public RichService getValue(RichService object) {
-				// Get the value from the selection model.
-				// object must be general to set checked
-				GeneralObject obj = object.cast();
-				obj.setChecked(selectionModel.isSelected(object));
-				return object;
-			}
-		};
+			 Column<RichService, RichService> checkBoxColumn = new Column<RichService, RichService>(
+			 new PerunCheckboxCell<RichService>(true, false, false)) {
+			 @Override
+			 public RichService getValue(RichService object) {
+		// Get the value from the selection model.
+		// object must be general to set checked
+		GeneralObject obj = object.cast();
+		obj.setChecked(selectionModel.isSelected(object));
+		return object;
+			 }
+			 };
 
-		table.addColumn(checkBoxColumn);
-		table.setColumnWidth(checkBoxColumn, "60px");
-		*/
+			 table.addColumn(checkBoxColumn);
+			 table.setColumnWidth(checkBoxColumn, "60px");
+			 */
 
 		table.addCheckBoxColumn();
 
@@ -187,118 +187,118 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 		js.retrieveData(JSON_URL, "id="+facilityId, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<RichService>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<RichService>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(RichService object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(RichService object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(RichService object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(RichService object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<RichService> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<RichService> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading RichServices.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading RichServices.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading RichServices started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading RichServices started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<RichService>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("RichServices loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<RichService>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("RichServices loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void insertToTable(int index, RichService object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, RichService object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<RichService> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<RichService> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<RichService> getList() {
-        return this.list;
-    }
+	public ArrayList<RichService> getList() {
+		return this.list;
+	}
 
 
 	/**
@@ -319,22 +319,22 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 		this.events = events;
 	}
 
-    private String getAllowedValue(RichService object) {
+	private String getAllowedValue(RichService object) {
 
-        String result = "GENERATE: ";
-        if (object.getGenExecService() != null) {
-            result += object.getGenAllowedOnFacility();
-        } else {
-            result += "Not determined";
-        }
-        result += " SEND: ";
-        if (object.getSendExecService() != null) {
-            result += object.getSendAllowedOnFacility();
-        } else {
-            result += "Not determined";
-        }
-        return result;
+		String result = "GENERATE: ";
+		if (object.getGenExecService() != null) {
+			result += object.getGenAllowedOnFacility();
+		} else {
+			result += "Not determined";
+		}
+		result += " SEND: ";
+		if (object.getSendExecService() != null) {
+			result += object.getSendAllowedOnFacility();
+		} else {
+			result += "Not determined";
+		}
+		return result;
 
-    }
+	}
 
 }

@@ -8,25 +8,25 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Groups assigned to Resource. Group is required field.
-------------------------------------------------
-Available options:
- --resourceId  | -r resource idetifier
- --orderById   | -i order by numeric ID (default)
- --orderByName | -n order by name
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Prints list of Groups assigned to Resource. Group is required field.
+	------------------------------------------------
+	Available options:
+	--resourceId  | -r resource idetifier
+	--orderById   | -i order by numeric ID (default)
+	--orderByName | -n order by name
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($resourceId, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "resourceId|r=i" => \$resourceId,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-           "batch|b" => \$batch) || die help;
+	"resourceId|r=i" => \$resourceId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+"batch|b" => \$batch) || die help;
 
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
@@ -44,7 +44,7 @@ my $table = Text::ASCIITable->new();
 $table->setCols('ID','Name', 'Description');
 
 foreach my $group (sort $sortingFunction @groups) {
-  $table->addRow($group->getId, $group->getName, $group->getDescription);
+	$table->addRow($group->getId, $group->getName, $group->getDescription);
 }
 
 print tableToPrint($table, $batch);

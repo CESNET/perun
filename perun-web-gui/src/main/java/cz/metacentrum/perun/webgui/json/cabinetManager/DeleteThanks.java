@@ -28,14 +28,14 @@ public class DeleteThanks {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public DeleteThanks() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public DeleteThanks(JsonCallbackEvents events) {
 		this.events = events;
 	}

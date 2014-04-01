@@ -57,24 +57,24 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 	private int resourceId;
 	private TabPanelForTabItems tabPanel;
 
-    private int facilityId = 0; // if non zero, tab was opened from facility admin section
+	private int facilityId = 0; // if non zero, tab was opened from facility admin section
 
 	/**
 	 * Creates a tab instance
-     * @param resource resource to get details for
-     * @param facilityId (optional) if tab was opened from facility manager section
-     */
+	 * @param resource resource to get details for
+	 * @param facilityId (optional) if tab was opened from facility manager section
+	 */
 	public ResourceDetailTabItem(RichResource resource, int facilityId){
 		this.resource = resource;
 		this.resourceId = resource.getId();
 		this.tabPanel = new TabPanelForTabItems(this);
-        this.facilityId = facilityId;
+		this.facilityId = facilityId;
 	}
 
 	/**
 	 * Creates a tab instance
-     * @param resourceId resource to get details for
-     */
+	 * @param resourceId resource to get details for
+	 */
 	public ResourceDetailTabItem(int resourceId, int fid){
 		this.resourceId = resourceId;
 		new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
@@ -83,7 +83,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 		}).retrieveData();
 		this.tabPanel = new TabPanelForTabItems(this);
-        this.facilityId = fid;
+		this.facilityId = fid;
 	}
 
 	public boolean isPrepared(){
@@ -98,112 +98,112 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-        AbsolutePanel dp = new AbsolutePanel();
-        //dp.setStyleName("decoration");
+		AbsolutePanel dp = new AbsolutePanel();
+		//dp.setStyleName("decoration");
 		final FlexTable menu = new FlexTable();
-        menu.setCellSpacing(5);
+		menu.setCellSpacing(5);
 
 		// MAIN INFO PANEL
 
-        // resource info
-        menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.serverGroupIcon()));
-        Label resourceName = new Label();
-        resourceName.setText(Utils.getStrippedStringWithEllipsis(resource.getName(), 40));
-        resourceName.setStyleName("now-managing");
-        resourceName.setTitle(resource.getName());
-        menu.setWidget(0, 1, resourceName);
+		// resource info
+		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.serverGroupIcon()));
+		Label resourceName = new Label();
+		resourceName.setText(Utils.getStrippedStringWithEllipsis(resource.getName(), 40));
+		resourceName.setStyleName("now-managing");
+		resourceName.setTitle(resource.getName());
+		menu.setWidget(0, 1, resourceName);
 
-        menu.setHTML(0, 2, "&nbsp;");
-        menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+		menu.setHTML(0, 2, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-        int column = 3;
-        if (JsonUtils.isExtendedInfoVisible()) {
-            menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getId()+"</span>");
-            column++;
-            menu.setHTML(0, column, "&nbsp;");
-            menu.getFlexCellFormatter().setWidth(0, column, "25px");
-            column++;
-        }
-        menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"</span>");
+		int column = 3;
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"</span>");
 
-        if (session.isFacilityAdmin(resource.getFacilityId())) {
+		if (session.isFacilityAdmin(resource.getFacilityId())) {
 
-            column++;
+			column++;
 
-            menu.setHTML(0, column, "&nbsp;");
-            menu.getFlexCellFormatter().setWidth(0, column, "25px");
-            column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
 
-            Anchor a = new Anchor("View facility details >>");
-            a.setStyleName("pointer");
-            a.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTab(new FacilityDetailTabItem(resource.getFacility()));
-                }
-            });
-            menu.setWidget(0, column, a);
+			Anchor a = new Anchor("View facility details >>");
+			a.setStyleName("pointer");
+			a.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTab(new FacilityDetailTabItem(resource.getFacility()));
+				}
+			});
+			menu.setWidget(0, column, a);
 
-        }
+		}
 
-        CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                tabPanel.getSelectedTabItem().draw();
-            }
-        });
-        dp.add(cb);
-        cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
+		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabPanel.getSelectedTabItem().draw();
+			}
+		});
+		dp.add(cb);
+		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
-        final JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
-                    public void onFinished(JavaScriptObject jso){
-                        resource = jso.cast();
-                        open();
-                        draw();
-                    }
-                }).retrieveData();
-            }
-        };
+		final JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
+					public void onFinished(JavaScriptObject jso){
+						resource = jso.cast();
+						open();
+						draw();
+					}
+				}).retrieveData();
+			}
+		};
 
 		CustomButton change = new CustomButton("",ButtonTranslation.INSTANCE.editResourceDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
-        if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) change.setEnabled(false);
-        change.addClickHandler(new ClickHandler(){
-	    	public void onClick(ClickEvent event) {
-	    		// prepare confirm content
-                Resource r = resource.cast();
-	    		session.getTabManager().addTabToCurrentTab(new EditResourceDetailsTabItem(r, events));
-	    	}
-	    });
-        dp.add(change);
-        change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) change.setEnabled(false);
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				// prepare confirm content
+				Resource r = resource.cast();
+				session.getTabManager().addTabToCurrentTab(new EditResourceDetailsTabItem(r, events));
+			}
+		});
+		dp.add(change);
+		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
-        dp.add(menu);
+		dp.add(menu);
 		vp.add(dp);
-        vp.setCellHeight(dp, "30px");
+		vp.setCellHeight(dp, "30px");
 
 		// TAB PANEL WITH INNER TABS
 		tabPanel.clear();
 
-        Resource r = resource.cast();
-        tabPanel.add(new ResourceAssignedGroupsTabItem(r), "Assigned groups");
-        tabPanel.add(new ResourceAssignedServicesTabItem(r), "Assigned services");
-        tabPanel.add(new ResourceSettingsTabItem(r, null), "Service settings");
-        if (session.isVoAdmin(r.getVoId()) || session.isVoObserver(r.getVoId())) {
-            tabPanel.add(new ResourceTagsTabItem(r), "Tags");
-        }
+		Resource r = resource.cast();
+		tabPanel.add(new ResourceAssignedGroupsTabItem(r), "Assigned groups");
+		tabPanel.add(new ResourceAssignedServicesTabItem(r), "Assigned services");
+		tabPanel.add(new ResourceSettingsTabItem(r, null), "Service settings");
+		if (session.isVoAdmin(r.getVoId()) || session.isVoObserver(r.getVoId())) {
+			tabPanel.add(new ResourceTagsTabItem(r), "Tags");
+		}
 
-        // Resize must be called after page fully displays
-        Scheduler.get().scheduleDeferred(new Command() {
-            @Override
-            public void execute() {
-                tabPanel.finishAdding();
-            }
-        });
+		// Resize must be called after page fully displays
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				tabPanel.finishAdding();
+			}
+		});
 
-        vp.add(tabPanel);
-        this.contentWidget.setWidget(vp);
+		vp.add(tabPanel);
+		this.contentWidget.setWidget(vp);
 		return getWidget();
 	}
 
@@ -246,17 +246,17 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open() {
-        if (facilityId == 0) {
-            // opened from VO section
-            session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-            session.getUiElements().getBreadcrumbs().setLocation(resource.getVo(), "Resources", VosTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ VoResourcesTabItem.URL+"?id="+resource.getVoId());
-            session.setActiveVo(resource.getVo());
-        } else {
-            // opened from facility section
-            session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-            session.getUiElements().getBreadcrumbs().setLocation(resource.getFacility(), "Resources", FacilitiesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ FacilityResourcesTabItem.URL+"?id="+resource.getFacilityId());
-            session.setActiveFacility(resource.getFacility());
-        }
+		if (facilityId == 0) {
+			// opened from VO section
+			session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+			session.getUiElements().getBreadcrumbs().setLocation(resource.getVo(), "Resources", VosTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ VoResourcesTabItem.URL+"?id="+resource.getVoId());
+			session.setActiveVo(resource.getVo());
+		} else {
+			// opened from facility section
+			session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+			session.getUiElements().getBreadcrumbs().setLocation(resource.getFacility(), "Resources", FacilitiesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ FacilityResourcesTabItem.URL+"?id="+resource.getFacilityId());
+			session.setActiveFacility(resource.getFacility());
+		}
 
 	}
 
@@ -283,8 +283,8 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 
 	static public ResourceDetailTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
-        int fid = Integer.parseInt(parameters.get("fid"));
-        return new ResourceDetailTabItem(id, fid);
+		int fid = Integer.parseInt(parameters.get("fid"));
+		return new ResourceDetailTabItem(id, fid);
 	}
 
 	static public ResourceDetailTabItem load(RichResource resource, int fid) {

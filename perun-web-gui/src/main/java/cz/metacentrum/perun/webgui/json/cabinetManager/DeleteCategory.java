@@ -28,14 +28,14 @@ public class DeleteCategory {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public DeleteCategory() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public DeleteCategory(JsonCallbackEvents events) {
 		this.events = events;
 	}

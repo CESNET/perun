@@ -30,19 +30,19 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 	 * An html string representation of a checked input box.
 	 */
 	private static final SafeHtml INPUT_CHECKED = SafeHtmlUtils
-			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" checked/>");
+		.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" checked/>");
 
 	/**
 	 * An html string representation of an unchecked input box.
 	 */
 	private static final SafeHtml INPUT_UNCHECKED = SafeHtmlUtils
-			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\"/>");
+		.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\"/>");
 
 	/**
 	 * An html string representation of a disabled input box.
 	 */
 	private static final SafeHtml INPUT_DISABLED = SafeHtmlUtils
-			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled/>");
+		.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled/>");
 
 
 	private final boolean dependsOnSelection;
@@ -107,7 +107,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		String type = event.getType();
 
 		boolean enterPressed = "keydown".equals(type)
-				&& event.getKeyCode() == KeyCodes.KEY_ENTER;
+			&& event.getKeyCode() == KeyCodes.KEY_ENTER;
 		if ("change".equals(type) || enterPressed) {
 			InputElement input = parent.getFirstChild().cast();
 			Boolean isChecked = input.isChecked();
@@ -163,21 +163,21 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 			}
 		}
 
-        // is service disabled on facility
-        if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichMember")) {
-            if(((RichMember)value).getMembershipType().equalsIgnoreCase("INDIRECT") && !editable){
-                sb.append(INPUT_DISABLED);
-                return;
-            }
-        }
+		// is service disabled on facility
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichMember")) {
+			if(((RichMember)value).getMembershipType().equalsIgnoreCase("INDIRECT") && !editable){
+				sb.append(INPUT_DISABLED);
+				return;
+			}
+		}
 
-        // attribute is read only (better don't allow selection)
-        if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Attribute")) {
-            if(((Attribute)value).isWritable() == false){
-                sb.append(INPUT_DISABLED);
-                return;
-            }
-        }
+		// attribute is read only (better don't allow selection)
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Attribute")) {
+			if(((Attribute)value).isWritable() == false){
+				sb.append(INPUT_DISABLED);
+				return;
+			}
+		}
 
 		// Get the view data.
 		Object key = context.getKey();

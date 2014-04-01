@@ -25,32 +25,32 @@ import java.util.regex.Pattern;
  */
 public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
-    private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
-    private Auditer auditer;
-    private PerunBl perunBl;
+	private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
+	private Auditer auditer;
+	private PerunBl perunBl;
 
-    public void setAuditer(Auditer auditer) {
-        this.auditer = auditer;
-    }
+	public void setAuditer(Auditer auditer) {
+		this.auditer = auditer;
+	}
 
-    public Auditer getAuditer() {
-        return auditer;
-    }
+	public Auditer getAuditer() {
+		return auditer;
+	}
 
-    public PerunBl getPerunBl() {
-        return perunBl;
-    }
+	public PerunBl getPerunBl() {
+		return perunBl;
+	}
 
-    public void setPerunBl(PerunBl perunBl) {
-        this.perunBl = perunBl;
-    }
+	public void setPerunBl(PerunBl perunBl) {
+		this.perunBl = perunBl;
+	}
 
-    public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
+	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
 
-        return perunBl.getAuditer().getMessages(count);
-    }
+		return perunBl.getAuditer().getMessages(count);
+	}
 
-    public void log(PerunSession sess, String message) throws InternalErrorException {
-        perunBl.getAuditer().log(sess, message);
-    }
+	public void log(PerunSession sess, String message) throws InternalErrorException {
+		perunBl.getAuditer().log(sess, message);
+	}
 }

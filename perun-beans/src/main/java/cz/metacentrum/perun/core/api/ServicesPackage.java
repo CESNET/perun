@@ -11,20 +11,20 @@ public class ServicesPackage extends Auditable {
 	private String description;
 	private String name;
 
-        public ServicesPackage(){
-        }
+	public ServicesPackage(){
+	}
 
-        public ServicesPackage(int id, String description, String name) {
-            super(id);
-            this.description = description;
-            this.name = name;
-        }
+	public ServicesPackage(int id, String description, String name) {
+		super(id);
+		this.description = description;
+		this.name = name;
+	}
 
-        public ServicesPackage(int id, String description, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
-            super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
-            this.description = description;
-            this.name = name;
-        }
+	public ServicesPackage(int id, String description, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+		this.description = description;
+		this.name = name;
+	}
 
 	public int getId() {
 		return id;
@@ -72,11 +72,11 @@ public class ServicesPackage extends Auditable {
 		return true;
 	}
 
-        public String toString() {
-          return getClass().getSimpleName() + ":[" +
-                 "id='" + id + "'" +
-                 "description='" + description + "'" +
-                 "name='" + name + "'" +
-                 "]";
-        }
+	public String toString() {
+		return getClass().getSimpleName() + ":[" +
+			"id='" + id + "'" +
+			"description='" + description + "'" +
+			"name='" + name + "'" +
+			"]";
+	}
 }

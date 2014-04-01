@@ -25,7 +25,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Perun web session
 	 */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 	/**
 	 * Content widget - should be simple panel
 	 */
@@ -37,7 +37,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public PublicationSystemsTabItem(){}
 
 	public boolean isPrepared(){
@@ -48,8 +48,8 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 
 		// main panel
 		VerticalPanel vp = new VerticalPanel();
-        vp.getElement().setAttribute("style", "padding-top: 5px;");
-        vp.setSize("100%", "100%");
+		vp.getElement().setAttribute("style", "padding-top: 5px;");
+		vp.setSize("100%", "100%");
 
 		FindAllPublicationSystems call = new FindAllPublicationSystems();
 		call.setCheckable(false);

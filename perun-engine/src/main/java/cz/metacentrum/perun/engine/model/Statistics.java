@@ -6,17 +6,17 @@ package cz.metacentrum.perun.engine.model;
  *
  */
 public class Statistics {
-    /**
-     * To be defined
-     */
-    private String stats;
+	/**
+	 * To be defined
+	 */
+	private String stats;
 
-    public String getStats() {
-        return stats;
-    }
+	public String getStats() {
+		return stats;
+	}
 
-    public void setStats(String stats) {
-        this.stats = stats;
-    }
+	public void setStats(String stats) {
+		this.stats = stats;
+	}
 
 }

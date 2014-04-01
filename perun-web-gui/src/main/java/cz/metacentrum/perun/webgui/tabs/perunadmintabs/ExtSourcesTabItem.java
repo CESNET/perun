@@ -44,7 +44,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public ExtSourcesTabItem(){}
 
 	public boolean isPrepared(){
@@ -57,18 +57,18 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel mainPage = new VerticalPanel();
 		mainPage.setWidth("100%");
 
-        // create new instance for jsonCall getExtSources
-        final GetExtSources getExtSources = new GetExtSources();
-        getExtSources.setCheckable(false);
+		// create new instance for jsonCall getExtSources
+		final GetExtSources getExtSources = new GetExtSources();
+		getExtSources.setCheckable(false);
 
-        // menu
-        TabMenu menu = new TabMenu();
-        menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                getExtSources.filterTable(text);
-            }
-        }, "Filter external sources by name or type");
+		// menu
+		TabMenu menu = new TabMenu();
+		menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				getExtSources.filterTable(text);
+			}
+		}, "Filter external sources by name or type");
 
 		// get CellTable from jsonCall
 		CellTable<ExtSource> extSourcesTable = getExtSources.getTable();
@@ -77,8 +77,8 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		scrollTable.addStyleName("perun-tableScrollPanel");
 
 		// put page into scroll panel
-        mainPage.add(menu);
-        mainPage.setCellHeight(menu, "30px");
+		mainPage.add(menu);
+		mainPage.setCellHeight(menu, "30px");
 		mainPage.add(scrollTable);
 
 		session.getUiElements().resizePerunTable(scrollTable, 350, this);
@@ -131,7 +131,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

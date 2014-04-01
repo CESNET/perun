@@ -43,7 +43,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setRank(0.0);
 		p.setLocked(false);
 		p.setDoi("DOI");
-        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
 		int id = publicationService.createPublication(sess, p);
 
@@ -69,7 +69,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setRank(0.0);
 		p.setLocked(false);
 		p.setDoi("DOI");
-        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
 		int id = publicationService.createPublication(sess, p);
 		assertTrue(id > 0);
@@ -197,16 +197,16 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 	}
 
 	@Test (expected=CabinetException.class)
-	public void updatePublicationWhenCantUpdateTest() throws CabinetException {
-		System.out.println("updatePublicationWhenWhenCantUpdateTest()");
+		public void updatePublicationWhenCantUpdateTest() throws CabinetException {
+			System.out.println("updatePublicationWhenWhenCantUpdateTest()");
 
-		// make pub2 same as pub 1
-		publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
-		publicationTwo.setExternalId(publicationOne.getExternalId());
+			// make pub2 same as pub 1
+			publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
+			publicationTwo.setExternalId(publicationOne.getExternalId());
 
-		publicationService.updatePublicationById(sess, publicationTwo);
+			publicationService.updatePublicationById(sess, publicationTwo);
 
-	}
+		}
 
 	@Test
 	public void lockPublicationsTest() throws CabinetException {
@@ -249,7 +249,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setMain(main);
 		p.setTitle(title);
 		p.setDoi(doi);
-        p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
 		int id = publicationService.createPublication(sess, p);
 

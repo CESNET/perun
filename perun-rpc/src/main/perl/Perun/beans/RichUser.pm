@@ -8,12 +8,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -24,39 +24,39 @@ sub TO_JSON
 }
 
 sub getId {
-  return shift->{_id};
+	return shift->{_id};
 }
 
 sub getUserAttributes {
-  return shift->{_userAttributes};
+	return shift->{_userAttributes};
 }
 
 sub getLastName {
-    return shift->{_lastName};
+	return shift->{_lastName};
 }
 
 sub getCommonName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return ($self->{_firstName} . ' ' . (defined $self->{_middleName} ? $self->{_middleName} . ' ' : '') . $self->{_lastName});
+	return ($self->{_firstName} . ' ' . (defined $self->{_middleName} ? $self->{_middleName} . ' ' : '') . $self->{_lastName});
 }
 
 sub getDisplayName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
+	return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
 }
 
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->getDisplayName);
+	my $self = shift;
+	return ($self->{_id}, $self->getDisplayName);
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('User Id', 'Name');
+	return ('User Id', 'Name');
 }
 
 1;

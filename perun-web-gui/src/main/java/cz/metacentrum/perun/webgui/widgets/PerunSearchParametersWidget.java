@@ -37,7 +37,7 @@ public class PerunSearchParametersWidget extends Composite {
 	private ArrayList<AttributeDefinition> availableAttrDefs = new ArrayList<AttributeDefinition>();
 
 	private SearchEvent event;
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
 	 * Search inteface
@@ -107,17 +107,17 @@ public class PerunSearchParametersWidget extends Composite {
 
 				// take only defs we need
 				ArrayList<AttributeDefinition> allDefs = JsonUtils.jsoAsList(jso);
-                for(AttributeDefinition def : allDefs)
+				for(AttributeDefinition def : allDefs)
 				{
-                    if (def.getEntity().equals(ent)) {
-                        availableAttrDefs.add(def);
-                    }
+					if (def.getEntity().equals(ent)) {
+						availableAttrDefs.add(def);
+					}
 				}
-                availableAttrDefs = new TableSorter<AttributeDefinition>().sortByAttrDefNameTranslation(availableAttrDefs);
+				availableAttrDefs = new TableSorter<AttributeDefinition>().sortByAttrDefNameTranslation(availableAttrDefs);
 
 				// add parameter button
 				addParameter();
-                rebuild();
+				rebuild();
 
 			}
 
@@ -155,7 +155,7 @@ public class PerunSearchParametersWidget extends Composite {
 		inputs.put(lb, tb);
 		lb.addAllItems(availableAttrDefs);
 
-        rebuild();
+		rebuild();
 
 	}
 
@@ -179,57 +179,57 @@ public class PerunSearchParametersWidget extends Composite {
 		event.search(attrsToSearchBy);
 	}
 
-    /**
-     * Method which rebuild whole searcher widget when number of params changes
-     */
-    protected void rebuild() {
+	/**
+	 * Method which rebuild whole searcher widget when number of params changes
+	 */
+	protected void rebuild() {
 
-        ft.clear();
+		ft.clear();
 
-        //ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
-        //ft.getFlexCellFormatter().setColSpan(0, 0, 4);
+		//ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
+		//ft.getFlexCellFormatter().setColSpan(0, 0, 4);
 
-        int row = 1;
-        for(Map.Entry<ListBoxWithObjects<AttributeDefinition>, TextBox> entry : inputs.entrySet())
-        {
+		int row = 1;
+		for(Map.Entry<ListBoxWithObjects<AttributeDefinition>, TextBox> entry : inputs.entrySet())
+		{
 
-            final ListBoxWithObjects<AttributeDefinition> lb = entry.getKey();
-            int selectedItem = lb.getSelectedIndex();
-            lb.clear();
-            lb.addAllItems(availableAttrDefs);
-            lb.setSelectedIndex(selectedItem);
+			final ListBoxWithObjects<AttributeDefinition> lb = entry.getKey();
+			int selectedItem = lb.getSelectedIndex();
+			lb.clear();
+			lb.addAllItems(availableAttrDefs);
+			lb.setSelectedIndex(selectedItem);
 
-            CustomButton rb = new CustomButton("", SmallIcons.INSTANCE.deleteIcon());
+			CustomButton rb = new CustomButton("", SmallIcons.INSTANCE.deleteIcon());
 
-            ft.setWidget(row, 0, lb);
-            ft.setText(row, 1, "=");
-            ft.setWidget(row, 2, entry.getValue());
-            ft.setWidget(row, 3, rb);
+			ft.setWidget(row, 0, lb);
+			ft.setText(row, 1, "=");
+			ft.setWidget(row, 2, entry.getValue());
+			ft.setWidget(row, 3, rb);
 
-            if (inputs.entrySet().size() <= 1) {
-                // allow remove if more than 1
-                rb.setEnabled(false);
-                rb.setTitle("Enabled only when more than 1 parameter is used.");
-            }
+			if (inputs.entrySet().size() <= 1) {
+				// allow remove if more than 1
+				rb.setEnabled(false);
+				rb.setTitle("Enabled only when more than 1 parameter is used.");
+			}
 
-            rb.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent clickEvent) {
-                    inputs.keySet().remove(lb);
-                    rebuild();
-                }
-            });
+			rb.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+					inputs.keySet().remove(lb);
+					rebuild();
+				}
+			});
 
-            row++;
+			row++;
 
-        }
+		}
 
-        ft.setWidget(row, 0, addParameterButton);
-        ft.setHTML(row, 1, "");
-        ft.setWidget(row, 2, searchButton);
+		ft.setWidget(row, 0, addParameterButton);
+		ft.setHTML(row, 1, "");
+		ft.setWidget(row, 2, searchButton);
 
 
 
-    }
+	}
 
 
 }

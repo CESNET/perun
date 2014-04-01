@@ -35,14 +35,14 @@ public class GetListOfAttributes implements JsonCallback {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public GetListOfAttributes() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events externalEvents
-     */
+	 * @param events externalEvents
+	 */
 	public GetListOfAttributes(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -132,8 +132,8 @@ public class GetListOfAttributes implements JsonCallback {
 		events.onLoadingStart();
 	}
 
-    public void setEvents(JsonCallbackEvents events) {
-        this.events = events;
-    }
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
 
 }

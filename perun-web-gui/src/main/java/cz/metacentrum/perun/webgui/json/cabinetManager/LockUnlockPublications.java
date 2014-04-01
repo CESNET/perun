@@ -32,14 +32,14 @@ public class LockUnlockPublications {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public LockUnlockPublications() {}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public LockUnlockPublications(JsonCallbackEvents events) {
 		this.events = events;
 	}

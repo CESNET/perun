@@ -53,19 +53,19 @@ import java.util.Set;
 public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private ModulesUtilsBl modulesUtilsBl;
-        private final static String MODULES_UTILS_ENTRY = "ModulesUtilsBl.";
+	private final static String MODULES_UTILS_ENTRY = "ModulesUtilsBl.";
 
-        // these are in DB only when setUp"Type"() and must be used in correct (this) order
+	// these are in DB only when setUp"Type"() and must be used in correct (this) order
 	private Vo vo;
-        private Service service;
-        private Host host;
+	private Service service;
+	private Host host;
 	private Member member;
 	private Facility facility;
 	private Resource resource;
 	private List<Attribute> attributes; // always have just 1 attribute we setUp"AttrType"()
 	private Group group;
 
-        private String namespace = "someNamespace";
+	private String namespace = "someNamespace";
 
 	@Before
 	public void setUp() throws Exception {
@@ -73,472 +73,472 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace1ForResource() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace1()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
 
-                List<Resource> resources = new ArrayList<Resource>();
-                resources.add(resource);
+		List<Resource> resources = new ArrayList<Resource>();
+		resources.add(resource);
 
-                List<Attribute> attrs = setUpResourceAttribute();
-                perun.getAttributesManagerBl().setAttribute(sess, resource, attrs.get(0));
+		List<Attribute> attrs = setUpResourceAttribute();
+		perun.getAttributesManagerBl().setAttribute(sess, resource, attrs.get(0));
 
 		assertEquals(0, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, resource, attrs.get(0)));
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace2ForResource() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace2()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
 
-                List<Resource> resources = new ArrayList<Resource>();
-                resources.add(resource);
+		List<Resource> resources = new ArrayList<Resource>();
+		resources.add(resource);
 
-                List<Attribute> attrs = setUpResourceAttribute();
-                perun.getAttributesManagerBl().setAttribute(sess, resource, attrs.get(0));
-                Attribute attr = attrs.get(0);
-                attr.setValue("Jina value");
+		List<Attribute> attrs = setUpResourceAttribute();
+		perun.getAttributesManagerBl().setAttribute(sess, resource, attrs.get(0));
+		Attribute attr = attrs.get(0);
+		attr.setValue("Jina value");
 
 		assertEquals(1, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, resource, attrs.get(0)));
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace3ForResource() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace3()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
 
-                List<Resource> resources = new ArrayList<Resource>();
-                resources.add(resource);
+		List<Resource> resources = new ArrayList<Resource>();
+		resources.add(resource);
 
-                List<Attribute> attrs = setUpResourceAttribute();
+		List<Attribute> attrs = setUpResourceAttribute();
 
 		assertEquals(-1, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, resource, attrs.get(0)));
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace1ForGroup() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace1ForGroup()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
 
-                List<Group> groups = new ArrayList<Group>();
-                groups.add(group);
+		List<Group> groups = new ArrayList<Group>();
+		groups.add(group);
 
-                List<Attribute> attrs = setUpGroupAttribute();
-                perun.getAttributesManagerBl().setAttribute(sess, group, attrs.get(0));
+		List<Attribute> attrs = setUpGroupAttribute();
+		perun.getAttributesManagerBl().setAttribute(sess, group, attrs.get(0));
 
 		assertEquals(0, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, group, attrs.get(0)));
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace2ForGroup() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace2ForGroup()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
 
-                List<Group> groups = new ArrayList<Group>();
-                groups.add(group);
+		List<Group> groups = new ArrayList<Group>();
+		groups.add(group);
 
-                List<Attribute> attrs = setUpGroupAttribute();
-                perun.getAttributesManagerBl().setAttribute(sess, group, attrs.get(0));
-                Attribute attr = attrs.get(0);
-                attr.setValue("Jina value");
+		List<Attribute> attrs = setUpGroupAttribute();
+		perun.getAttributesManagerBl().setAttribute(sess, group, attrs.get(0));
+		Attribute attr = attrs.get(0);
+		attr.setValue("Jina value");
 
 		assertEquals(1, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, group, attrs.get(0)));
 	}
 
-        @Test
+	@Test
 	public void haveTheSameAttributeWithTheSameNamespace3ForGroup() throws Exception {
 		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace3ForGroup()");
 
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
 
-                List<Group> groups = new ArrayList<Group>();
-                groups.add(group);
+		List<Group> groups = new ArrayList<Group>();
+		groups.add(group);
 
-                List<Attribute> attrs = setUpGroupAttribute();
+		List<Attribute> attrs = setUpGroupAttribute();
 
 		assertEquals(-1, modulesUtilsBl.haveTheSameAttributeWithTheSameNamespace((PerunSessionImpl) sess, group, attrs.get(0)));
 	}
 
-        @Test
-        public void getCommonGIDOfResourcesWithSameNameInSameNamespace() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfResourcesWithSameNameInSameNamespace()");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-
-                List<Resource> resources = new ArrayList<Resource>();
-                resources.add(resource);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                Attribute resourceGID = null;
-                for(Attribute a: attributes) {
-                    if(a.getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
-
-                        resourceGID = a;
-                        break;
-                    }
-                }
-                perun.getAttributesManagerBl().setAttribute(sess, resource, resourceGID);
-
-                assertEquals(new Integer(112), modulesUtilsBl.getCommonGIDOfResourcesWithSameNameInSameNamespace((PerunSessionImpl) sess, resources, namespace, null));
-        }
-
-        @Test
-        public void getCommonGIDOfGroupsWithSameNameInSameNamespace() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfGroupsWithSameNameInSameNamespace()");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                List<Group> groups = new ArrayList<Group>();
-                groups.add(group);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                Attribute groupGID = null;
-                for(Attribute a: attributes) {
-                    if(a.getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
-
-                        groupGID = a;
-                        break;
-                    }
-                }
-                perun.getAttributesManagerBl().setAttribute(sess, group, groupGID);
-
-                assertEquals(new Integer(111), modulesUtilsBl.getCommonGIDOfGroupsWithSameNameInSameNamespace((PerunSessionImpl) sess, groups, namespace, null));
-        }
-
-        @Test
-        public void getFreeGID() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getFreeGID()");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-                Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
-
-                minGID.setValue(100000);
-                maxGID.setValue(100500);
-
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                Attribute groupGID = null;
-                Attribute resourceGID = null;
-                for(Attribute a: attributes) {
-                    if(a.getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
-                        groupGID = a;
-                    } else if(a.getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
-                        resourceGID = a;
-                    }
-                }
-
-                Integer freeGIDForGroupAttribute = modulesUtilsBl.getFreeGID((PerunSessionImpl) sess, resourceGID);
-                Integer freeGIDForResourceAttribute = modulesUtilsBl.getFreeGID((PerunSessionImpl) sess, groupGID);
-                assertTrue(freeGIDForGroupAttribute != null);
-                assertTrue(freeGIDForResourceAttribute != null);
-                assertEquals(freeGIDForGroupAttribute, freeGIDForResourceAttribute);
-        }
-
-        @Test
-        public void checkIfGIDIsWithinRange() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "checkIfGIDIsWithinRange");
-
-                Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-                Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
-
-                minGID.setValue(100000);
-                maxGID.setValue(100500);
-
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                int i = 0;
-                for(Attribute a: attributes) {
-                    if(a.getFriendlyName().startsWith("unixGID-namespace")) {
-                        if(i == 0) a.setValue(2000);
-                        else a.setValue(100005);
-                        try {
-                            modulesUtilsBl.checkIfGIDIsWithinRange((PerunSessionImpl) sess, a);
-                        } catch (WrongAttributeValueException ex) {
-                            i++;
-                        }
-                    }
-                }
-                assertEquals(1, i);
-        }
-
-        @Test
-        public void haveRightToWriteAttributeInAnyGroupOrResource() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "haveRightToWriteAttributeInAnyGroupOrResource");
-
-                Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                List<Group> groups = new ArrayList<Group>();
-                List<Resource> resources = new ArrayList<Resource>();
-                groups.add(group);
-                resources.add(resource);
-
-                assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, null, minGID, minGID));
-                assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, resources, minGID, minGID));
-                assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, resources, minGID, minGID));
-                assertFalse(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, null, minGID, minGID));
-        }
-
-        @Test
-        public void getListOfResourceGIDsFromListOfGroupGIDs() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getListOfResourceGIDsFromListOfGroupGIDs");
-
-                List<Attribute> groupAttr = new ArrayList<Attribute>();
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-
-                for(Attribute a: attributes) {
-                    if(a.getName().startsWith(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID")) {
-                        groupAttr.add(a);
-                        break;
-                    }
-                }
-
-                List<Attribute> resourceAttr = modulesUtilsBl.getListOfResourceGIDsFromListOfGroupGIDs((PerunSessionImpl) sess, groupAttr);
-
-                assertEquals(1, resourceAttr.size());
-                assertTrue(resourceAttr.get(0).getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace));
-        }
-
-        @Test
-        public void getListOfGroupGIDsFromListOfResourceGIDs() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getListOfGroupGIDsFromListOfResourceGIDs");
-
-                List<Attribute> resourceAttr = new ArrayList<Attribute>();
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-
-                for(Attribute a: attributes) {
-                    if(a.getName().startsWith(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID")) {
-                        resourceAttr.add(a);
-                        break;
-                    }
-                }
-
-                List<Attribute> groupAttr = modulesUtilsBl.getListOfGroupGIDsFromListOfResourceGIDs((PerunSessionImpl) sess, resourceAttr);
-
-                assertEquals(1, groupAttr.size());
-                assertTrue(groupAttr.get(0).getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace));
-        }
-
-        @Test
-        public void getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                List<Facility> facilities = new ArrayList<Facility>();
-                facilities.add(facility);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
-                for(Attribute a: facilityAttributes) {
-                    perun.getAttributesManagerBl().setAttribute(sess, facility, a);
-                }
-
-                for(Attribute a: attributes) {
-                    if(a.getFriendlyName().startsWith("unixGroupName")) {
-                        Set<String> groupNamesSet = modulesUtilsBl.getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace((PerunSessionImpl) sess, facilities, a);
-                        assertEquals(1, groupNamesSet.size());
-                        assertTrue(groupNamesSet.contains(namespace));
-                    }
-                }
-        }
-
-        @Test
-        public void getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                List<Facility> facilities = new ArrayList<Facility>();
-                facilities.add(facility);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
-                for(Attribute a: facilityAttributes) {
-                    perun.getAttributesManagerBl().setAttribute(sess, facility, a);
-                }
-
-                for(Attribute a: attributes) {
-                    if(a.getFriendlyName().startsWith("unixGID")) {
-                        Set<String> groupNamesSet = modulesUtilsBl.getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace((PerunSessionImpl) sess, facilities, a);
-                        assertEquals(1, groupNamesSet.size());
-                        assertTrue(groupNamesSet.contains(namespace));
-                    }
-                }
-        }
-
-        @Test
-        public void checkReservedNames() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "checkReservedNames");
-
-                String goodName = "cokoliv";
-                String badName = "sys";
-
-                Attribute attr = new Attribute();
-                attr.setValue(goodName);
-
-                modulesUtilsBl.checkReservedNames(attr);
-
-                attr.setValue(badName);
-                boolean ok = false;
-
-                try {
-                    modulesUtilsBl.checkReservedNames(attr);
-                    ok = false;
-                } catch (WrongAttributeValueException ex) {
-                    ok = true;
-                }
-
-                assertTrue(ok);
-        }
-
-        @Test
-        public void getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
-                for(Attribute a: facilityAttributes) {
-                    perun.getAttributesManagerBl().setAttribute(sess, facility, a);
-                }
-
-                Attribute unixGroupNameNamespace = modulesUtilsBl.getUnixGroupNameNamespaceAttributeWithNotNullValue((PerunSessionImpl) sess, resource);
-                Attribute unixGIDNamespace = modulesUtilsBl.getUnixGIDNamespaceAttributeWithNotNullValue((PerunSessionImpl) sess, resource);
-
-                assertTrue(facilityAttributes.size() == 2);
-                assertTrue(facilityAttributes.contains(unixGroupNameNamespace));
-                assertTrue(facilityAttributes.contains(unixGIDNamespace));
-        }
-
-        @Test
-        public void isGroupUnixGIDNamespaceFillable() throws Exception {
-                System.out.println(MODULES_UTILS_ENTRY + "isGroupUnixGIDNamespaceFillable");
-
-                vo = setUpVo();
-                facility = setUpFacility();
-                resource = setUpResource();
-                group = setUpGroup();
-
-                Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-                Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
-
-                minGID.setValue(100000);
-                maxGID.setValue(100500);
-
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-                perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
-
-                perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
-
-                List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
-                List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
-                for(Attribute a: facilityAttributes) {
-                    perun.getAttributesManagerBl().setAttribute(sess, facility, a);
-                }
-                Attribute unixGIDNamespace = null;
-
-                for(Attribute a: attributes) {
-                    if(a.getNamespace().equals(AttributesManager.NS_GROUP_ATTR_DEF)) {
-                        perun.getAttributesManagerBl().setAttribute(sess, group, a);
-                        if(a.getFriendlyName().startsWith("unixGID")) unixGIDNamespace = a;
-                    }
-                }
-                assertTrue(modulesUtilsBl.isGroupUnixGIDNamespaceFillable((PerunSessionImpl) sess, group, unixGIDNamespace));
-        }
-
-        @Test
-        public void isNameOfEmailValid() throws Exception {
-            System.out.println(MODULES_UTILS_ENTRY + "isNameOfEmailValid");
-
-            assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "user@domain.com"));
-            assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.second@domain.second.com"));
-            assertFalse(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.seconddomain.second.com"));
-            assertFalse(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.second@domain.second..com"));
-        }
-
-        @Test
-        public void testShellValue() throws Exception {
-            System.out.println(MODULES_UTILS_ENTRY + "testShellValue()");
-
-            Attribute attr = new Attribute();
-            String shell = "/bin/csh";
-
-            modulesUtilsBl.checkFormatOfShell(shell, attr);
-        }
-
-        @Test(expected=WrongAttributeValueException.class)
-        public void testShellValueWrongFormat() throws Exception {
-            System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormat()");
-
-            Attribute attr = new Attribute();
-            String shell = "/bin/bash/";
-
-            modulesUtilsBl.checkFormatOfShell(shell, attr);
-        }
-
-        @Test(expected=WrongAttributeValueException.class)
-        public void testShellValueWrongFormatInvalidCharacter() throws Exception {
-            System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormatInvalidCharacter()");
-
-            Attribute attr = new Attribute();
-            String shell = "/\n";
-
-            modulesUtilsBl.checkFormatOfShell(shell, attr);
-        }
+	@Test
+	public void getCommonGIDOfResourcesWithSameNameInSameNamespace() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfResourcesWithSameNameInSameNamespace()");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		List<Resource> resources = new ArrayList<Resource>();
+		resources.add(resource);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		Attribute resourceGID = null;
+		for(Attribute a: attributes) {
+			if(a.getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
+
+				resourceGID = a;
+				break;
+			}
+		}
+		perun.getAttributesManagerBl().setAttribute(sess, resource, resourceGID);
+
+		assertEquals(new Integer(112), modulesUtilsBl.getCommonGIDOfResourcesWithSameNameInSameNamespace((PerunSessionImpl) sess, resources, namespace, null));
+	}
+
+	@Test
+	public void getCommonGIDOfGroupsWithSameNameInSameNamespace() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfGroupsWithSameNameInSameNamespace()");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		List<Group> groups = new ArrayList<Group>();
+		groups.add(group);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		Attribute groupGID = null;
+		for(Attribute a: attributes) {
+			if(a.getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
+
+				groupGID = a;
+				break;
+			}
+		}
+		perun.getAttributesManagerBl().setAttribute(sess, group, groupGID);
+
+		assertEquals(new Integer(111), modulesUtilsBl.getCommonGIDOfGroupsWithSameNameInSameNamespace((PerunSessionImpl) sess, groups, namespace, null));
+	}
+
+	@Test
+	public void getFreeGID() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getFreeGID()");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+
+		minGID.setValue(100000);
+		maxGID.setValue(100500);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		Attribute groupGID = null;
+		Attribute resourceGID = null;
+		for(Attribute a: attributes) {
+			if(a.getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
+				groupGID = a;
+			} else if(a.getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace)) {
+				resourceGID = a;
+			}
+		}
+
+		Integer freeGIDForGroupAttribute = modulesUtilsBl.getFreeGID((PerunSessionImpl) sess, resourceGID);
+		Integer freeGIDForResourceAttribute = modulesUtilsBl.getFreeGID((PerunSessionImpl) sess, groupGID);
+		assertTrue(freeGIDForGroupAttribute != null);
+		assertTrue(freeGIDForResourceAttribute != null);
+		assertEquals(freeGIDForGroupAttribute, freeGIDForResourceAttribute);
+	}
+
+	@Test
+	public void checkIfGIDIsWithinRange() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "checkIfGIDIsWithinRange");
+
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+
+		minGID.setValue(100000);
+		maxGID.setValue(100500);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		int i = 0;
+		for(Attribute a: attributes) {
+			if(a.getFriendlyName().startsWith("unixGID-namespace")) {
+				if(i == 0) a.setValue(2000);
+				else a.setValue(100005);
+				try {
+					modulesUtilsBl.checkIfGIDIsWithinRange((PerunSessionImpl) sess, a);
+				} catch (WrongAttributeValueException ex) {
+					i++;
+				}
+			}
+		}
+		assertEquals(1, i);
+	}
+
+	@Test
+	public void haveRightToWriteAttributeInAnyGroupOrResource() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "haveRightToWriteAttributeInAnyGroupOrResource");
+
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		List<Group> groups = new ArrayList<Group>();
+		List<Resource> resources = new ArrayList<Resource>();
+		groups.add(group);
+		resources.add(resource);
+
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, null, minGID, minGID));
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, resources, minGID, minGID));
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, resources, minGID, minGID));
+		assertFalse(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, null, minGID, minGID));
+	}
+
+	@Test
+	public void getListOfResourceGIDsFromListOfGroupGIDs() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getListOfResourceGIDsFromListOfGroupGIDs");
+
+		List<Attribute> groupAttr = new ArrayList<Attribute>();
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+
+		for(Attribute a: attributes) {
+			if(a.getName().startsWith(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID")) {
+				groupAttr.add(a);
+				break;
+			}
+		}
+
+		List<Attribute> resourceAttr = modulesUtilsBl.getListOfResourceGIDsFromListOfGroupGIDs((PerunSessionImpl) sess, groupAttr);
+
+		assertEquals(1, resourceAttr.size());
+		assertTrue(resourceAttr.get(0).getName().equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace));
+	}
+
+	@Test
+	public void getListOfGroupGIDsFromListOfResourceGIDs() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getListOfGroupGIDsFromListOfResourceGIDs");
+
+		List<Attribute> resourceAttr = new ArrayList<Attribute>();
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+
+		for(Attribute a: attributes) {
+			if(a.getName().startsWith(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID")) {
+				resourceAttr.add(a);
+				break;
+			}
+		}
+
+		List<Attribute> groupAttr = modulesUtilsBl.getListOfGroupGIDsFromListOfResourceGIDs((PerunSessionImpl) sess, resourceAttr);
+
+		assertEquals(1, groupAttr.size());
+		assertTrue(groupAttr.get(0).getName().equals(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace));
+	}
+
+	@Test
+	public void getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		List<Facility> facilities = new ArrayList<Facility>();
+		facilities.add(facility);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
+		for(Attribute a: facilityAttributes) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, a);
+		}
+
+		for(Attribute a: attributes) {
+			if(a.getFriendlyName().startsWith("unixGroupName")) {
+				Set<String> groupNamesSet = modulesUtilsBl.getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace((PerunSessionImpl) sess, facilities, a);
+				assertEquals(1, groupNamesSet.size());
+				assertTrue(groupNamesSet.contains(namespace));
+			}
+		}
+	}
+
+	@Test
+	public void getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		List<Facility> facilities = new ArrayList<Facility>();
+		facilities.add(facility);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
+		for(Attribute a: facilityAttributes) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, a);
+		}
+
+		for(Attribute a: attributes) {
+			if(a.getFriendlyName().startsWith("unixGID")) {
+				Set<String> groupNamesSet = modulesUtilsBl.getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace((PerunSessionImpl) sess, facilities, a);
+				assertEquals(1, groupNamesSet.size());
+				assertTrue(groupNamesSet.contains(namespace));
+			}
+		}
+	}
+
+	@Test
+	public void checkReservedNames() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "checkReservedNames");
+
+		String goodName = "cokoliv";
+		String badName = "sys";
+
+		Attribute attr = new Attribute();
+		attr.setValue(goodName);
+
+		modulesUtilsBl.checkReservedNames(attr);
+
+		attr.setValue(badName);
+		boolean ok = false;
+
+		try {
+			modulesUtilsBl.checkReservedNames(attr);
+			ok = false;
+		} catch (WrongAttributeValueException ex) {
+			ok = true;
+		}
+
+		assertTrue(ok);
+	}
+
+	@Test
+	public void getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
+		for(Attribute a: facilityAttributes) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, a);
+		}
+
+		Attribute unixGroupNameNamespace = modulesUtilsBl.getUnixGroupNameNamespaceAttributeWithNotNullValue((PerunSessionImpl) sess, resource);
+		Attribute unixGIDNamespace = modulesUtilsBl.getUnixGIDNamespaceAttributeWithNotNullValue((PerunSessionImpl) sess, resource);
+
+		assertTrue(facilityAttributes.size() == 2);
+		assertTrue(facilityAttributes.contains(unixGroupNameNamespace));
+		assertTrue(facilityAttributes.contains(unixGIDNamespace));
+	}
+
+	@Test
+	public void isGroupUnixGIDNamespaceFillable() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "isGroupUnixGIDNamespaceFillable");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+
+		minGID.setValue(100000);
+		maxGID.setValue(100500);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
+		List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();
+		for(Attribute a: facilityAttributes) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, a);
+		}
+		Attribute unixGIDNamespace = null;
+
+		for(Attribute a: attributes) {
+			if(a.getNamespace().equals(AttributesManager.NS_GROUP_ATTR_DEF)) {
+				perun.getAttributesManagerBl().setAttribute(sess, group, a);
+				if(a.getFriendlyName().startsWith("unixGID")) unixGIDNamespace = a;
+			}
+		}
+		assertTrue(modulesUtilsBl.isGroupUnixGIDNamespaceFillable((PerunSessionImpl) sess, group, unixGIDNamespace));
+	}
+
+	@Test
+	public void isNameOfEmailValid() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "isNameOfEmailValid");
+
+		assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "user@domain.com"));
+		assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.second@domain.second.com"));
+		assertFalse(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.seconddomain.second.com"));
+		assertFalse(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.second@domain.second..com"));
+	}
+
+	@Test
+	public void testShellValue() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "testShellValue()");
+
+		Attribute attr = new Attribute();
+		String shell = "/bin/csh";
+
+		modulesUtilsBl.checkFormatOfShell(shell, attr);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void testShellValueWrongFormat() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormat()");
+
+		Attribute attr = new Attribute();
+		String shell = "/bin/bash/";
+
+		modulesUtilsBl.checkFormatOfShell(shell, attr);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void testShellValueWrongFormatInvalidCharacter() throws Exception {
+		System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormatInvalidCharacter()");
+
+		Attribute attr = new Attribute();
+		String shell = "/\n";
+
+		modulesUtilsBl.checkFormatOfShell(shell, attr);
+	}
 
 	// private methods ------------------------------------------------------------------
 
-        private Vo setUpVo() throws Exception {
+	private Vo setUpVo() throws Exception {
 
 		Vo vo = new Vo();
 		vo.setName("AttributesMangerTestVo");
@@ -573,7 +573,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private Service setUpService() throws Exception {
+	private Service setUpService() throws Exception {
 
 		Service service = new Service();
 		service.setName("AttributesManagerTestService");
@@ -581,7 +581,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Owner owner = new Owner();
 		owner.setName("AttrManagerTestServiceOwner");
 		owner.setContact("AttrManagTestContact");
-                owner.setType(OwnerType.technical);
+		owner.setType(OwnerType.technical);
 
 		perun.getOwnersManager().createOwner(sess, owner);
 		perun.getServicesManager().createService(sess, service, owner);
@@ -659,7 +659,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private List<Attribute> setUpHostAttribute() throws Exception {
+	private List<Attribute> setUpHostAttribute() throws Exception {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:host:attribute-def:opt");
@@ -696,21 +696,21 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private List<Attribute> setUpEntitylessAttribute() throws Exception {
+	private List<Attribute> setUpEntitylessAttribute() throws Exception {
 
-            Attribute attr = new Attribute();
-            attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-            attr.setFriendlyName("entityless_test_attribute");
-            attr.setType(String.class.getName());
-            attr.setValue("EntitylessAttribute");
-            assertNotNull("unable to create facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
-            //create new entityless attribute
+		Attribute attr = new Attribute();
+		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attr.setFriendlyName("entityless_test_attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("EntitylessAttribute");
+		assertNotNull("unable to create facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
+		//create new entityless attribute
 
-            List<Attribute> attributes = new ArrayList<Attribute>();
-            attributes.add(attr);
-            // put attribute into list because setAttributes requires it
-            return attributes;
-        }
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.add(attr);
+		// put attribute into list because setAttributes requires it
+		return attributes;
+	}
 
 	private List<Attribute> setUpVoAttribute() throws Exception {
 
@@ -748,92 +748,92 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private List<Attribute> setUpFacilityGroupNameAndGIDNamespaceAttributes() throws Exception {
-                Attribute facilityGroupNameNamespace = new Attribute();
-                Attribute facilityGIDNamespace = new Attribute();
+	private List<Attribute> setUpFacilityGroupNameAndGIDNamespaceAttributes() throws Exception {
+		Attribute facilityGroupNameNamespace = new Attribute();
+		Attribute facilityGIDNamespace = new Attribute();
 
-                List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<Attribute>();
 
-                try {
-                    facilityGIDNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
-                    facilityGIDNamespace.setValue(namespace);
-                } catch (AttributeNotExistsException ex) {
-                    facilityGIDNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-                    facilityGIDNamespace.setFriendlyName("unixGID-namespace");
-                    facilityGIDNamespace.setType(String.class.getName());
-                    facilityGIDNamespace.setValue(namespace);
-                    assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, facilityGIDNamespace));
-                }
-                attributes.add(facilityGIDNamespace);
+		try {
+			facilityGIDNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
+			facilityGIDNamespace.setValue(namespace);
+		} catch (AttributeNotExistsException ex) {
+			facilityGIDNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+			facilityGIDNamespace.setFriendlyName("unixGID-namespace");
+			facilityGIDNamespace.setType(String.class.getName());
+			facilityGIDNamespace.setValue(namespace);
+			assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, facilityGIDNamespace));
+		}
+		attributes.add(facilityGIDNamespace);
 
-                try {
-                    facilityGroupNameNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace"));
-                    facilityGroupNameNamespace.setValue(namespace);
-                } catch (AttributeNotExistsException ex) {
-                    facilityGroupNameNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-                    facilityGroupNameNamespace.setFriendlyName("unixGroupName-namespace");
-                    facilityGroupNameNamespace.setType(String.class.getName());
-                    facilityGroupNameNamespace.setValue(namespace);
-                    assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, facilityGroupNameNamespace));
-                }
-                attributes.add(facilityGroupNameNamespace);
+		try {
+			facilityGroupNameNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace"));
+			facilityGroupNameNamespace.setValue(namespace);
+		} catch (AttributeNotExistsException ex) {
+			facilityGroupNameNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+			facilityGroupNameNamespace.setFriendlyName("unixGroupName-namespace");
+			facilityGroupNameNamespace.setType(String.class.getName());
+			facilityGroupNameNamespace.setValue(namespace);
+			assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, facilityGroupNameNamespace));
+		}
+		attributes.add(facilityGroupNameNamespace);
 
-                return attributes;
-        }
+		return attributes;
+	}
 
-        private List<Attribute> setUpGroupNamesAndGIDForGroupAndResource() throws Exception {
-                Attribute groupUnixGroupName = new Attribute();
-                Attribute resourceUnixGroupName = new Attribute();
-                Attribute groupGID = new Attribute();
-                Attribute resourceGID = new Attribute();
+	private List<Attribute> setUpGroupNamesAndGIDForGroupAndResource() throws Exception {
+		Attribute groupUnixGroupName = new Attribute();
+		Attribute resourceUnixGroupName = new Attribute();
+		Attribute groupGID = new Attribute();
+		Attribute resourceGID = new Attribute();
 
-                List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<Attribute>();
 
 		groupUnixGroupName.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		groupUnixGroupName.setFriendlyName("unixGroupName-namespace:" + namespace);
 		groupUnixGroupName.setType(String.class.getName());
 		groupUnixGroupName.setValue("Group_unixGroupName-namespace_" + namespace);
 		assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, groupUnixGroupName));
-                attributes.add(groupUnixGroupName);
+		attributes.add(groupUnixGroupName);
 
-                resourceUnixGroupName.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		resourceUnixGroupName.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		resourceUnixGroupName.setFriendlyName("unixGroupName-namespace:" + namespace);
 		resourceUnixGroupName.setType(String.class.getName());
 		resourceUnixGroupName.setValue("Resource_unixGroupName-namespace_" + namespace);
 		assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, resourceUnixGroupName));
-                attributes.add(resourceUnixGroupName);
+		attributes.add(resourceUnixGroupName);
 
-                groupGID.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		groupGID.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		groupGID.setFriendlyName("unixGID-namespace:" + namespace);
 		groupGID.setType(Integer.class.getName());
 		groupGID.setValue(111);
 		assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, groupGID));
-                attributes.add(groupGID);
+		attributes.add(groupGID);
 
-                resourceGID.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		resourceGID.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		resourceGID.setFriendlyName("unixGID-namespace:" + namespace);
 		resourceGID.setType(Integer.class.getName());
 		resourceGID.setValue(112);
 		assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, resourceGID));
-                attributes.add(resourceGID);
+		attributes.add(resourceGID);
 
-                return attributes;
-        }
+		return attributes;
+	}
 
-        private List<Attribute> setUpResourceUnixGIDNamespaceAttribute() throws Exception {
+	private List<Attribute> setUpResourceUnixGIDNamespaceAttribute() throws Exception {
 
-                Attribute attr = new Attribute();
-                attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-                attr.setFriendlyName("unixGID-namespace:" + namespace);
-                attr.setType(String.class.getName());
-                attr.setValue("111");
-                assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
+		Attribute attr = new Attribute();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("unixGID-namespace:" + namespace);
+		attr.setType(String.class.getName());
+		attr.setValue("111");
+		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
 
-                List<Attribute> attributes = new ArrayList<Attribute>();
-                attributes.add(attr);
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.add(attr);
 
-                return attributes;
-        }
+		return attributes;
+	}
 
 	private List<Attribute> setUpMemberResourceAttribute() throws Exception {
 
@@ -891,7 +891,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private List<Attribute> setUpResourceLargeAttribute() throws Exception {
+	private List<Attribute> setUpResourceLargeAttribute() throws Exception {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:resource:attribute-def:opt");
@@ -899,7 +899,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setType(LinkedHashMap.class.getName());
 		Map<String, String> value = new LinkedHashMap<String, String>();
 		value.put("ResourceLargeAttribute", "test value");
-                value.put("ResourceTestLargeAttr", "test value 2");
+		value.put("ResourceTestLargeAttr", "test value 2");
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
@@ -950,67 +950,67 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        private List<Attribute> setUpGroupAttributes() throws Exception {
+	private List<Attribute> setUpGroupAttributes() throws Exception {
 
-                Attribute attr = new Attribute();
-                String namespace = "group_test_uniqueattribute:specialNamespace";
-                attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
-                attr.setFriendlyName(namespace + "1");
-                attr.setType(String.class.getName());
-                attr.setValue("GroupAttribute");
+		Attribute attr = new Attribute();
+		String namespace = "group_test_uniqueattribute:specialNamespace";
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
+		attr.setFriendlyName(namespace + "1");
+		attr.setType(String.class.getName());
+		attr.setValue("GroupAttribute");
 
-                List<Attribute> attributes = new ArrayList<Attribute>();
-                assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
-                attributes.add(attr);
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
+		attributes.add(attr);
 
-                Attribute attr2 = new Attribute(attr);
-                attr2.setFriendlyName(namespace + "2");
-                assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr2));
-                attributes.add(attr2);
+		Attribute attr2 = new Attribute(attr);
+		attr2.setFriendlyName(namespace + "2");
+		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr2));
+		attributes.add(attr2);
 
-                Attribute attr3 = new Attribute(attr);
-                attr3.setFriendlyName(namespace + "3");
-                assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr3));
-                attributes.add(attr3);
+		Attribute attr3 = new Attribute(attr);
+		attr3.setFriendlyName(namespace + "3");
+		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr3));
+		attributes.add(attr3);
 
-                //And one attribute with other name
-                Attribute attr4 = new Attribute(attr);
-                attr4.setFriendlyName("group_test_uniqueEattribute:specialNamespace");
-                assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
+		//And one attribute with other name
+		Attribute attr4 = new Attribute(attr);
+		attr4.setFriendlyName("group_test_uniqueEattribute:specialNamespace");
+		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
 
-                return attributes;
-        }
+		return attributes;
+	}
 
-        private List<Attribute> setUpResourceAttributes() throws Exception {
+	private List<Attribute> setUpResourceAttributes() throws Exception {
 
-                Attribute attr = new Attribute();
-                String namespace = "resource_test_uniqueattribute:specialNamespace";
-                attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
-                attr.setFriendlyName(namespace + "1");
-                attr.setType(String.class.getName());
-                attr.setValue("ResourceAttribute");
+		Attribute attr = new Attribute();
+		String namespace = "resource_test_uniqueattribute:specialNamespace";
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
+		attr.setFriendlyName(namespace + "1");
+		attr.setType(String.class.getName());
+		attr.setValue("ResourceAttribute");
 
-                List<Attribute> attributes = new ArrayList<Attribute>();
-                assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
-                attributes.add(attr);
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
+		attributes.add(attr);
 
-                Attribute attr2 = new Attribute(attr);
-                attr2.setFriendlyName(namespace + "2");
-                assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr2));
-                attributes.add(attr2);
+		Attribute attr2 = new Attribute(attr);
+		attr2.setFriendlyName(namespace + "2");
+		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr2));
+		attributes.add(attr2);
 
-                Attribute attr3 = new Attribute(attr);
-                attr3.setFriendlyName(namespace + "3");
-                assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr3));
-                attributes.add(attr3);
+		Attribute attr3 = new Attribute(attr);
+		attr3.setFriendlyName(namespace + "3");
+		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr3));
+		attributes.add(attr3);
 
-                //And one attribute with other name
-                Attribute attr4 = new Attribute(attr);
-                attr4.setFriendlyName("resource_test_uniqueEattribute:specialNamespace");
-                assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
+		//And one attribute with other name
+		Attribute attr4 = new Attribute(attr);
+		attr4.setFriendlyName("resource_test_uniqueEattribute:specialNamespace");
+		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
 
-                return attributes;
-        }
+		return attributes;
+	}
 
 	private List<Attribute> setUpGroupResourceAttribute() throws Exception {
 
@@ -1031,15 +1031,15 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-        public Attribute setAttributeInNamespace(String namespace) throws Exception {
-                AttributeDefinition attrDef = new AttributeDefinition();
-                attrDef.setNamespace(namespace);
-                attrDef.setDescription("Test attribute description");
-                attrDef.setFriendlyName("testingAttribute");
-                attrDef.setType(String.class.getName());
-                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-                Attribute attribute = new Attribute(attrDef);
-                attribute.setValue("Testing value");
-                return attribute;
-        }
+	public Attribute setAttributeInNamespace(String namespace) throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(namespace);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
+	}
 }

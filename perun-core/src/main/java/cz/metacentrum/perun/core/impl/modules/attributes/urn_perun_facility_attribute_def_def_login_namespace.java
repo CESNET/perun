@@ -25,32 +25,32 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_login_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    @Override
-    /**
-     * Checks if the corresponding attribute uf:login-namespace:[namespace] exists.
-     */
-    public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-      String userFacilityLoginNamespaceAttributeName =
-        AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
+	@Override
+	/**
+	 * Checks if the corresponding attribute uf:login-namespace:[namespace] exists.
+	 */
+	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		String userFacilityLoginNamespaceAttributeName =
+			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
 
-      try {
-        session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, userFacilityLoginNamespaceAttributeName);
-      } catch (AttributeNotExistsException e) {
-        throw new ConsistencyErrorException("Attribute " + userFacilityLoginNamespaceAttributeName + " doesn't exists");
-      }
-    }
+		try {
+			session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, userFacilityLoginNamespaceAttributeName);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("Attribute " + userFacilityLoginNamespaceAttributeName + " doesn't exists");
+		}
+	}
 
-    @Override
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-      return new Attribute(attribute);
-    }
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("login_namespace");
-      attr.setType(String.class.getName());
-      attr.setDescription("All available home mount points.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("login_namespace");
+		attr.setType(String.class.getName());
+		attr.setDescription("All available home mount points.");
+		return attr;
+	}
 }

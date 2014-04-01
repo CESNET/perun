@@ -60,26 +60,26 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 	/**
 	 * Tab with required attributes management for selected service
 	 *
-     * @param serviceId ID of service to get required attributes for
-     */
+	 * @param serviceId ID of service to get required attributes for
+	 */
 	public ServiceRequiredAttributesTabItem(int serviceId){
 		this.serviceId = serviceId;
-        new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                service = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				service = jso.cast();
+			}
+		}).retrieveData();
 	}
 
-    /**
-     * Tab with required attributes management for selected service
-     *
-     * @param service service to get required attributes for
-     */
-    public ServiceRequiredAttributesTabItem(Service service) {
-        this.service = service;
-        this.serviceId = service.getId();
-    }
+	/**
+	 * Tab with required attributes management for selected service
+	 *
+	 * @param service service to get required attributes for
+	 */
+	public ServiceRequiredAttributesTabItem(Service service) {
+		this.service = service;
+		this.serviceId = service.getId();
+	}
 
 	public boolean isPrepared(){
 		return !(service == null);
@@ -89,9 +89,9 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 
 	public Widget draw() {
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": Required attributes");
+		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": Required attributes");
 
-        VerticalPanel vp = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
 		// create new json call for required attributes of service with id=?
@@ -103,38 +103,38 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		// custom event
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addRequiredAttribute(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new AddRequiredAttributesTabItem(service), true);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addRequiredAttribute(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new AddRequiredAttributesTabItem(service), true);
+			}
+		}));
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedRequiredAttributes());
-        removeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ArrayList<AttributeDefinition> attrsForRemoving = servReqAttr.getTableSelectedList();
-                UiElements.showDeleteConfirm(attrsForRemoving, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<attrsForRemoving.size(); i++ ) {
-                            if (i == attrsForRemoving.size()-1) {
-                                RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
-                            } else {
-                                RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
-                            }
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedRequiredAttributes());
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				final ArrayList<AttributeDefinition> attrsForRemoving = servReqAttr.getTableSelectedList();
+				UiElements.showDeleteConfirm(attrsForRemoving, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<attrsForRemoving.size(); i++ ) {
+							if (i == attrsForRemoving.size()-1) {
+								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
+							} else {
+								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
+							}
 
-                        }
-                    }
-                });
-            }
-        });
+						}
+					}
+				});
+			}
+		});
 
-        menu.addWidget(removeButton);
+		menu.addWidget(removeButton);
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
@@ -150,8 +150,8 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
 
-        removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(servReqAttr, reqAttrTable, removeButton);
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(servReqAttr, reqAttrTable, removeButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 

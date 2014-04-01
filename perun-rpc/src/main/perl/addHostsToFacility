@@ -7,23 +7,23 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds facility hosts. Facility and hosts are required fields.
---------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facilityType
- --hosts        | -H list Of Hosts
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Adds facility hosts. Facility and hosts are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facilityType
+	--hosts        | -H list Of Hosts
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, @hosts, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
+	"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
 "facilityName|F=s" => \$facilityName,
 "facilityType|t=s" => \$facilityType,
@@ -37,8 +37,8 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 

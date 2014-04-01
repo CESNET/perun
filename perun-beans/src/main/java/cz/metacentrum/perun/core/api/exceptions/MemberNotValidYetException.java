@@ -8,28 +8,28 @@ import cz.metacentrum.perun.core.api.Member;
  * @author Slavek Licehammer
  */
 public class MemberNotValidYetException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Member member;
+	private Member member;
 
-    public MemberNotValidYetException(String message) {
-        super(message);
-    }
+	public MemberNotValidYetException(String message) {
+		super(message);
+	}
 
-    public MemberNotValidYetException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MemberNotValidYetException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public MemberNotValidYetException(Throwable cause) {
-        super(cause);
-    }
+	public MemberNotValidYetException(Throwable cause) {
+		super(cause);
+	}
 
-    public MemberNotValidYetException(Member member) {
-      super(member.toString());
-      this.member = member;
-    }
+	public MemberNotValidYetException(Member member) {
+		super(member.toString());
+		this.member = member;
+	}
 
-    public Member getMember() {
-        return this.member;
-    }
+	public Member getMember() {
+		return this.member;
+	}
 }

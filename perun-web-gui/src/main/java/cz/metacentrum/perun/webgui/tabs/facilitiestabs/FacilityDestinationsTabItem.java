@@ -59,8 +59,8 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param facility
-     */
+	 * @param facility
+	 */
 	public FacilityDestinationsTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -69,15 +69,15 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facilityId
-     */
+	 * @param facilityId
+	 */
 	public FacilityDestinationsTabItem(int facilityId){
 		this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -115,44 +115,44 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 		// buttons
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(facility));
-            }
-        }));
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(facility));
+			}
+		}));
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
-        menu.addWidget(removeButton);
-        removeButton.addClickHandler(new ClickHandler(){
+		menu.addWidget(removeButton);
+		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<Destination> destForRemoving = callback.getTableSelectedList();
-                String text = "Following destinations will be removed. <strong>Removing destination will stop propagation of service configuration for this destination/service.</strong>";
-                UiElements.showDeleteConfirm(destForRemoving, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<destForRemoving.size(); i++ ) {
-                            if (i == destForRemoving.size()-1) {
-                                RemoveDestination request = new RemoveDestination(facility.getId(), destForRemoving.get(i).getService().getId(), JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                                request.removeDestination(destForRemoving.get(i).getDestination(), destForRemoving.get(i).getType());
-                            } else {
-                                RemoveDestination request = new RemoveDestination(facility.getId(), destForRemoving.get(i).getService().getId(), JsonCallbackEvents.disableButtonEvents(removeButton));
-                                request.removeDestination(destForRemoving.get(i).getDestination(), destForRemoving.get(i).getType());
-                            }
-                        }
-                    }
-                });
+				String text = "Following destinations will be removed. <strong>Removing destination will stop propagation of service configuration for this destination/service.</strong>";
+				UiElements.showDeleteConfirm(destForRemoving, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<destForRemoving.size(); i++ ) {
+							if (i == destForRemoving.size()-1) {
+								RemoveDestination request = new RemoveDestination(facility.getId(), destForRemoving.get(i).getService().getId(), JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.removeDestination(destForRemoving.get(i).getDestination(), destForRemoving.get(i).getType());
+							} else {
+								RemoveDestination request = new RemoveDestination(facility.getId(), destForRemoving.get(i).getService().getId(), JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.removeDestination(destForRemoving.get(i).getDestination(), destForRemoving.get(i).getType());
+							}
+						}
+					}
+				});
 			}
 		});
 
-        removeButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(callback, table, removeButton);
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeButton);
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                callback.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterDestination());
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterDestination());
 
 		this.contentWidget.setWidget(vp);
 
@@ -203,7 +203,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Services destinations", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services destinations", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {

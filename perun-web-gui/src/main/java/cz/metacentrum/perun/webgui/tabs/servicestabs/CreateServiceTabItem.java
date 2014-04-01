@@ -51,7 +51,7 @@ public class CreateServiceTabItem implements TabItem {
 
 	/**
 	 * Tab with create service form
-     */
+	 */
 	public CreateServiceTabItem(){}
 
 	public boolean isPrepared(){
@@ -60,103 +60,103 @@ public class CreateServiceTabItem implements TabItem {
 
 	public Widget draw() {
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        final ExtendedTextBox serviceName = new ExtendedTextBox();
-        final ListBoxWithObjects<Owner> ownersDropDown = new ListBoxWithObjects<Owner>();
+		final ExtendedTextBox serviceName = new ExtendedTextBox();
+		final ListBoxWithObjects<Owner> ownersDropDown = new ListBoxWithObjects<Owner>();
 
-        final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (serviceName.getTextBox().getText().trim().isEmpty()) {
-                    serviceName.setError("Name can't be empty");
-                    return false;
-                } else {
-                    serviceName.setOk();
-                    return true;
-                }
-            }
-        };
-        serviceName.setValidator(validator);
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (serviceName.getTextBox().getText().trim().isEmpty()) {
+					serviceName.setError("Name can't be empty");
+					return false;
+				} else {
+					serviceName.setOk();
+					return true;
+				}
+			}
+		};
+		serviceName.setValidator(validator);
 
-        // prepares layout
-        FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+		// prepares layout
+		FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-        // close tab events
-        final TabItem tab = this;
+		// close tab events
+		final TabItem tab = this;
 
-        TabMenu menu = new TabMenu();
+		TabMenu menu = new TabMenu();
 
-        // fill form
-        layout.setHTML(0, 0, "Name:");
-        layout.setWidget(0, 1, serviceName);
-        layout.setHTML(1, 0, "Owner:");
-        layout.setWidget(1, 1, ownersDropDown);
+		// fill form
+		layout.setHTML(0, 0, "Name:");
+		layout.setWidget(0, 1, serviceName);
+		layout.setHTML(1, 0, "Owner:");
+		layout.setWidget(1, 1, ownersDropDown);
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            cellFormatter.addStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			cellFormatter.addStyleName(i, 0, "itemName");
+		}
 
-        // create button
-        final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService());
-        createButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (validator.validateTextBox()) {
-                    CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-                    request.createService(serviceName.getTextBox().getText().trim(), ownersDropDown.getSelectedObject().getId());
-                }
-            }
-        });
+		// create button
+		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService());
+		createButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (validator.validateTextBox()) {
+					CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					request.createService(serviceName.getTextBox().getText().trim(), ownersDropDown.getSelectedObject().getId());
+				}
+			}
+		});
 
-        // cancel button
-        final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
-        cancelButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// cancel button
+		final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
+		cancelButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        menu.addWidget(createButton);
-        menu.addWidget(cancelButton);
+		menu.addWidget(createButton);
+		menu.addWidget(cancelButton);
 
 		// get owners
 		final GetOwners owners = new GetOwners(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				ownersDropDown.clear();
-                // convert
-                ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
+				// convert
+				ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
 				own = new TableSorter<Owner>().sortByName(own);
 				// check
 				if (own.isEmpty() || own == null) {
 					ownersDropDown.addItem("No owners available");
 					return;
 				}
-                createButton.setEnabled(true);
+				createButton.setEnabled(true);
 				// process
 				for (int i=0; i<own.size(); i++){
 					ownersDropDown.addItem(own.get(i));
 				}
 			}
-            public void onLoadingStart() {
-                createButton.setEnabled(false);
-                ownersDropDown.clear();
-                ownersDropDown.addItem("Loading...");
-            }
-            public void onError(PerunError error) {
-                createButton.setEnabled(false);
-            }
-        });
+			public void onLoadingStart() {
+				createButton.setEnabled(false);
+				ownersDropDown.clear();
+				ownersDropDown.addItem("Loading...");
+			}
+			public void onError(PerunError error) {
+				createButton.setEnabled(false);
+			}
+		});
 		owners.retrieveData();
 
-        vp.add(layout);
-        vp.add(menu);
-        vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.add(layout);
+		vp.add(menu);
+		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        // add tabs to the main panel
+		// add tabs to the main panel
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();

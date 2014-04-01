@@ -62,13 +62,13 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	private Map<String, TextBox> messagesSubjects = new HashMap<String, TextBox>();
 
 	private CustomButton saveButton;
-    private TabLayoutPanel tabPanel = new TabLayoutPanel(35, Unit.PX);
+	private TabLayoutPanel tabPanel = new TabLayoutPanel(35, Unit.PX);
 
 	/**
 	 * Creates a tab instance
 	 *
-     * @param appMail
-     */
+	 * @param appMail
+	 */
 	public EditMailTabItem(ApplicationMail appMail){
 		this.appMail = appMail;
 		this.appMailId = appMail.getId();
@@ -77,15 +77,15 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param appMailId
-     */
+	 * @param appMailId
+	 */
 	public EditMailTabItem(int appMailId){
 		this.appMailId = appMailId;
 		new GetEntityById(PerunEntity.APPLICATION_MAIL, appMailId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                appMail = jso.cast();
-            }
-        }).retrieveData();
+			public void onFinished(JavaScriptObject jso) {
+				appMail = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -100,49 +100,49 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Widget messageTab(String locale) {
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("500px", "350px");
-        vp.setSpacing(10);
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("500px", "350px");
+		vp.setSpacing(10);
 
-        // layout
-        FlexTable ft = new FlexTable();
-        ft.setStyleName("inputFormFlexTable");
-        FlexCellFormatter ftf = ft.getFlexCellFormatter();
+		// layout
+		FlexTable ft = new FlexTable();
+		ft.setStyleName("inputFormFlexTable");
+		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
-        // inputs
-        TextBox tb = new TextBox();
-        tb.setWidth("385px");
-        messagesSubjects.put(locale, tb);
+		// inputs
+		TextBox tb = new TextBox();
+		tb.setWidth("385px");
+		messagesSubjects.put(locale, tb);
 
-        TextArea ta = new TextArea();
-        ta.setSize("450px", "190px");
-        messagesTextAreas.put(locale, ta);
+		TextArea ta = new TextArea();
+		ta.setSize("450px", "190px");
+		messagesTextAreas.put(locale, ta);
 
-        // adds inputs to the flex table
-        ft.setHTML(0, 0, "Subject:");
-        ftf.setStyleName(0, 0, "itemName");
-        ft.setWidget(0, 1, tb);
-        ftf.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+		// adds inputs to the flex table
+		ft.setHTML(0, 0, "Subject:");
+		ftf.setStyleName(0, 0, "itemName");
+		ft.setWidget(0, 1, tb);
+		ftf.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
 
-        ft.setHTML(1, 0, "Text:");
-        ftf.setStyleName(1, 0, "itemName");
-        //ftf.setColSpan(1, 0, 2);
+		ft.setHTML(1, 0, "Text:");
+		ftf.setStyleName(1, 0, "itemName");
+		//ftf.setColSpan(1, 0, 2);
 
-        Anchor a = new Anchor("see available tags >>");
-        a.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                // select last tab
-                tabPanel.selectTab(tabPanel.getWidgetCount()-1);
-            }
-        });
-        ft.setWidget(1, 1, a);
+		Anchor a = new Anchor("see available tags >>");
+		a.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				// select last tab
+				tabPanel.selectTab(tabPanel.getWidgetCount()-1);
+			}
+		});
+		ft.setWidget(1, 1, a);
 
-        ft.setWidget(2, 0, ta);
-        ftf.setColSpan(2, 0, 2);
+		ft.setWidget(2, 0, ta);
+		ftf.setColSpan(2, 0, 2);
 
-        vp.add(ft);
-        vp.add(new HTML("&nbsp;"));
+		vp.add(ft);
+		vp.add(new HTML("&nbsp;"));
 
 		// fill values
 		MailText message = appMail.getMessage(locale);
@@ -151,7 +151,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 			tb.setText(message.getSubject());
 		}
 
-        return vp;
+		return vp;
 	}
 
 	/**
@@ -161,134 +161,134 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Widget basicInformationTab() {
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("500px", "350px");
-        vp.setSpacing(10);
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("500px", "350px");
+		vp.setSpacing(10);
 
-        // layout
-        FlexTable ft = new FlexTable();
-        ft.setStyleName("inputFormFlexTable");
-        FlexCellFormatter ftf = ft.getFlexCellFormatter();
+		// layout
+		FlexTable ft = new FlexTable();
+		ft.setStyleName("inputFormFlexTable");
+		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
-        vp.add(ft);
-        vp.add(new HTML("&nbsp;"));
+		vp.add(ft);
+		vp.add(new HTML("&nbsp;"));
 
-        // basic info
-        int row = 0;
+		// basic info
+		int row = 0;
 
-        ft.setHTML(row, 0, "E-mail type:");
-        ft.setHTML(row, 1, ApplicationMail.getTranslatedMailType(appMail.getMailType()));
-        ftf.setStyleName(row, 0, "itemName");
+		ft.setHTML(row, 0, "E-mail type:");
+		ft.setHTML(row, 1, ApplicationMail.getTranslatedMailType(appMail.getMailType()));
+		ftf.setStyleName(row, 0, "itemName");
 
-        row++;
-        ft.setHTML(row, 1, "Type of notification (action which trigger sending and who is notified).");
-        ftf.setStyleName(row, 1, "inputFormInlineComment");
+		row++;
+		ft.setHTML(row, 1, "Type of notification (action which trigger sending and who is notified).");
+		ftf.setStyleName(row, 1, "inputFormInlineComment");
 
-        row++;
+		row++;
 
-        ft.setHTML(row, 0, "Application type: ");
-        ft.setHTML(row, 1, Application.getTranslatedType(appMail.getAppType()));
-        ftf.setStyleName(row, 0, "itemName");
-        ftf.setWidth(row, 0, "120px");
+		ft.setHTML(row, 0, "Application type: ");
+		ft.setHTML(row, 1, Application.getTranslatedType(appMail.getAppType()));
+		ftf.setStyleName(row, 0, "itemName");
+		ftf.setWidth(row, 0, "120px");
 
-        row++;
-        ft.setHTML(row, 1, "Application type which will trigger sending.");
-        ftf.setStyleName(row, 1, "inputFormInlineComment");
+		row++;
+		ft.setHTML(row, 1, "Application type which will trigger sending.");
+		ftf.setStyleName(row, 1, "inputFormInlineComment");
 
-        row++;
+		row++;
 
-        sendingEnabledCheckBox.setValue(appMail.isSend());
-        ft.setHTML(row, 0, "Sending enabled:");
-        ft.setWidget(row, 1, sendingEnabledCheckBox);
-        ftf.setStyleName(row, 0, "itemName");
+		sendingEnabledCheckBox.setValue(appMail.isSend());
+		ft.setHTML(row, 0, "Sending enabled:");
+		ft.setWidget(row, 1, sendingEnabledCheckBox);
+		ftf.setStyleName(row, 0, "itemName");
 
-        row++;
-        ft.setHTML(row, 1, "If checked, notification will be sent. Un-check it to temporary disable sending.");
-        ftf.setStyleName(row, 1, "inputFormInlineComment");
+		row++;
+		ft.setHTML(row, 1, "If checked, notification will be sent. Un-check it to temporary disable sending.");
+		ftf.setStyleName(row, 1, "inputFormInlineComment");
 
 		return vp;
 
 	}
 
-    /**
-     * Returns flex table with available tags
-     *
-     * @return
-     */
-    private Widget availableTagsTab()
-    {
+	/**
+	 * Returns flex table with available tags
+	 *
+	 * @return
+	 */
+	private Widget availableTagsTab()
+	{
 
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("500px", "350px");
-        vp.setSpacing(10);
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("500px", "350px");
+		vp.setSpacing(10);
 
-        // layout
-        FlexTable ft = new FlexTable();
-        ft.setStyleName("inputFormFlexTable");
-        FlexCellFormatter ftf = ft.getFlexCellFormatter();
+		// layout
+		FlexTable ft = new FlexTable();
+		ft.setStyleName("inputFormFlexTable");
+		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
-        ScrollPanel sp = new ScrollPanel(ft);
-        sp.addStyleName("perun-tableScrollPanel");
-        sp.setSize("100%", "300px");
+		ScrollPanel sp = new ScrollPanel(ft);
+		sp.addStyleName("perun-tableScrollPanel");
+		sp.setSize("100%", "300px");
 
-        vp.add(sp);
-        vp.add(new HTML("&nbsp;"));
+		vp.add(sp);
+		vp.add(new HTML("&nbsp;"));
 
-        ft.setHTML(0, 0, "Following tags can be used in mail's subject and text and are replaced by actual data on sending. Just copy/paste tags from here to input form. When no data for tag is found, it's replaced by whitespace.");
-        ftf.addStyleName(0, 0, "inputFormInlineComment");
+		ft.setHTML(0, 0, "Following tags can be used in mail's subject and text and are replaced by actual data on sending. Just copy/paste tags from here to input form. When no data for tag is found, it's replaced by whitespace.");
+		ftf.addStyleName(0, 0, "inputFormInlineComment");
 
-        HTML text = new HTML("<strong><u>Application related:</u></strong><br/>" +
+		HTML text = new HTML("<strong><u>Application related:</u></strong><br/>" +
 
-                "</br><strong>{appId}</strong> - application ID" +
-                "<br/><strong>{actor}</strong> - user's login used when submitting application" +
-                "<br/><strong>{extSource}</strong> - user's identity provider when submitting application" +
-                "<br/><strong>{voName}</strong> - name of VO of application form" +
-                "<br/><strong>{groupName}</strong> - name of group, if application form is for group membership" +
-                "<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
-                "<br/><strong>{errors}</strong> - errors description, what happened while processing new application. Useful for VO administrators." +
-                "<br/><strong>{customMessage}</strong> - optional message passed by administrators when rejecting an application" +
+				"</br><strong>{appId}</strong> - application ID" +
+				"<br/><strong>{actor}</strong> - user's login used when submitting application" +
+				"<br/><strong>{extSource}</strong> - user's identity provider when submitting application" +
+				"<br/><strong>{voName}</strong> - name of VO of application form" +
+				"<br/><strong>{groupName}</strong> - name of group, if application form is for group membership" +
+				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
+				"<br/><strong>{errors}</strong> - errors description, what happened while processing new application. Useful for VO administrators." +
+				"<br/><strong>{customMessage}</strong> - optional message passed by administrators when rejecting an application" +
 
-                "<br/></br><strong><u>User related:</u></strong><br/>" +
+				"<br/></br><strong><u>User related:</u></strong><br/>" +
 
-                "<br/><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
-                "<br/><strong>{lastName}</strong> - user's last name taken from application form or Perun" +
-                "<br/><strong>{displayName}</strong> - user's display name taken from application form or Perun" +
-                "<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from application form or Perun. You MUST specify namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
-                "<br/><strong>{membershipExpiration}</strong> - membership expiration date decided after membership creation or extension." +
+				"<br/><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
+				"<br/><strong>{lastName}</strong> - user's last name taken from application form or Perun" +
+				"<br/><strong>{displayName}</strong> - user's display name taken from application form or Perun" +
+				"<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from application form or Perun. You MUST specify namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
+				"<br/><strong>{membershipExpiration}</strong> - membership expiration date decided after membership creation or extension." +
 
-                "<br/></br><strong><u>Validation links for users:</u></strong><br/>" +
+				"<br/></br><strong><u>Validation links for users:</u></strong><br/>" +
 
-                "<br/><span class=\"inputFormInlineComment\">Works only for \"Mail validation / user \" mail type! Used to verify email address provided by users =&gt; verify application.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Works only for \"Mail validation / user \" mail type! Used to verify email address provided by users =&gt; verify application.</span><br/>" +
 
-                "<br/><strong>{validationLink}</strong> - link with federation authz" +
-                "<br/><strong>{validationLinkKrb}</strong> - link with kerberos authz" +
-                "<br/><strong>{validationLinkCert}</strong> - link with IGTF certificate authz" +
-                "<br/><strong>{validationLinkNon}</strong> - link without any authz" +
+				"<br/><strong>{validationLink}</strong> - link with federation authz" +
+				"<br/><strong>{validationLinkKrb}</strong> - link with kerberos authz" +
+				"<br/><strong>{validationLinkCert}</strong> - link with IGTF certificate authz" +
+				"<br/><strong>{validationLinkNon}</strong> - link without any authz" +
 
-                "<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
+				"<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
 
-                "<br/><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span><br/>" +
 
-                "<br/><strong>{appGuiUrl}</strong> - link with federation authz" +
-                "<br/><strong>{appGuiUrlKrb}</strong> - link with kerberos authz" +
-                "<br/><strong>{appGuiUrlCert}</strong> - link with IGTF certificate authz" +
-                "<br/><strong>{appGuiUrlNon}</strong> - link without any authz" +
+				"<br/><strong>{appGuiUrl}</strong> - link with federation authz" +
+				"<br/><strong>{appGuiUrlKrb}</strong> - link with kerberos authz" +
+				"<br/><strong>{appGuiUrlCert}</strong> - link with IGTF certificate authz" +
+				"<br/><strong>{appGuiUrlNon}</strong> - link without any authz" +
 
-                "<br/></br><strong><u>Application GUI links for administrators:</u></strong><br/>" +
+				"<br/></br><strong><u>Application GUI links for administrators:</u></strong><br/>" +
 
-                "<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the application detail, where they can check and approve or reject application.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the application detail, where they can check and approve or reject application.</span><br/>" +
 
-                "<br/><strong>{appDetailUrlFed}</strong> - link with federation authz" +
-                "<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
-                "<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz");
+				"<br/><strong>{appDetailUrlFed}</strong> - link with federation authz" +
+				"<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
+				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz");
 
-        text.getElement().setAttribute("style", "line-height: 1.5em !important;");
+		text.getElement().setAttribute("style", "line-height: 1.5em !important;");
 
-        ft.setWidget(1, 0, text);
+		ft.setWidget(1, 0, text);
 
-        return vp;
+		return vp;
 
-    }
+	}
 
 	public Widget draw() {
 
@@ -302,12 +302,12 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("500px");
-        vp.setHeight("350px");
+		vp.setHeight("350px");
 
 		// tab panel
-        tabPanel.addStyleName("smallTabPanel");
-        tabPanel.addStyleName("smallTabPanelWithBorder");
-        tabPanel.setHeight("350px");
+		tabPanel.addStyleName("smallTabPanel");
+		tabPanel.addStyleName("smallTabPanelWithBorder");
+		tabPanel.setHeight("350px");
 
 		// basic settings
 		tabPanel.add(basicInformationTab(), "Basic settings");
@@ -317,49 +317,49 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 			tabPanel.add(messageTab(locale), "Lang: "+locale);
 		}
 
-        tabPanel.add(availableTagsTab(), "Available tags");
+		tabPanel.add(availableTagsTab(), "Available tags");
 
 		// add menu
 		final TabItem tab = this;
 		TabMenu tabMenu = new TabMenu();
 		saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveEmailNotificationForApplication(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                // values
-                boolean send = sendingEnabledCheckBox.getValue();
-                appMail.setSend(send);
+			public void onClick(ClickEvent event) {
+				// values
+				boolean send = sendingEnabledCheckBox.getValue();
+				appMail.setSend(send);
 
-                // messages
-                for(Map.Entry<String, TextArea> entry : messagesTextAreas.entrySet())
-                {
-                    String locale = entry.getKey();
-                    String subject = messagesSubjects.get(entry.getKey()).getValue();
-                    String text = entry.getValue().getText();
-                    MailText mt = MailText.construct(locale, subject, text);
+				// messages
+				for(Map.Entry<String, TextArea> entry : messagesTextAreas.entrySet())
+		{
+			String locale = entry.getKey();
+			String subject = messagesSubjects.get(entry.getKey()).getValue();
+			String text = entry.getValue().getText();
+			MailText mt = MailText.construct(locale, subject, text);
 
-                    appMail.setMessage(locale, mt);
-                }
+			appMail.setMessage(locale, mt);
+		}
 
-                // request
-                UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
-                req.updateMail(appMail);
-            }
-        });
-        tabMenu.addWidget(saveButton);
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		// request
+		UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
+		req.updateMail(appMail);
+			}
+		});
+		tabMenu.addWidget(saveButton);
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
 		// add tab panel to main panel
 		vp.add(tabPanel);
 		vp.setCellWidth(tabPanel, "500px");
-        vp.setCellHeight(tabPanel, "350px");
+		vp.setCellHeight(tabPanel, "350px");
 
-        vp.add(tabMenu);
+		vp.add(tabMenu);
 		vp.setCellHeight(tabMenu, "30px");
-        vp.setCellHorizontalAlignment(tabMenu, HasHorizontalAlignment.ALIGN_RIGHT);
+		vp.setCellHorizontalAlignment(tabMenu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
 

@@ -37,13 +37,13 @@ public class PerunServiceImpl implements IPerunService {
 	private static final String ATTR_COEF_NAMESPACE = "urn:perun:user:attribute-def:def";
 	private static final String ATTR_COEF_FRIENDLY_NAME = "priorityCoeficient";
 	private static final String ATTR_COEF_DESCRIPTION = "Priority coefficient based on user's publications.";
-    private static final String ATTR_COEF_DISPLAY_NAME = "Priority coefficient";
+	private static final String ATTR_COEF_DISPLAY_NAME = "Priority coefficient";
 
 	private static final String ATTR_PUBS_TYPE = "java.util.LinkedHashMap";
 	private static final String ATTR_PUBS_NAMESPACE = "urn:perun:user:attribute-def:def";
 	private static final String ATTR_PUBS_FRIENDLY_NAME = "publications";
 	private static final String ATTR_PUBS_DESCRIPTION = "Number of acknowledgements per resource provider.";
-    private static final String ATTR_PUBS_DISPLAY_NAME = "Publications";
+	private static final String ATTR_PUBS_DISPLAY_NAME = "Publications";
 
 	// debug vars, delete it
 	public static int CACHE_INVOKED_TOTAL_COUNT = 0;
@@ -197,8 +197,8 @@ public class PerunServiceImpl implements IPerunService {
 			// if not - create it
 			log.warn("Attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
 			AttributeDefinition attributeDefinition = new AttributeDefinition();
-            attributeDefinition.setDisplayName(ATTR_COEF_DISPLAY_NAME);
-            attributeDefinition.setDescription(ATTR_COEF_DESCRIPTION);
+			attributeDefinition.setDisplayName(ATTR_COEF_DISPLAY_NAME);
+			attributeDefinition.setDescription(ATTR_COEF_DESCRIPTION);
 			attributeDefinition.setFriendlyName(ATTR_COEF_FRIENDLY_NAME);
 			attributeDefinition.setNamespace(ATTR_COEF_NAMESPACE);
 			attributeDefinition.setType(ATTR_COEF_TYPE);
@@ -218,8 +218,8 @@ public class PerunServiceImpl implements IPerunService {
 			// if not - create it
 			log.warn("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
 			AttributeDefinition attributeDefinition = new AttributeDefinition();
-            attributeDefinition.setDisplayName(ATTR_PUBS_DISPLAY_NAME);
-            attributeDefinition.setDescription(ATTR_PUBS_DESCRIPTION);
+			attributeDefinition.setDisplayName(ATTR_PUBS_DISPLAY_NAME);
+			attributeDefinition.setDescription(ATTR_PUBS_DESCRIPTION);
 			attributeDefinition.setFriendlyName(ATTR_PUBS_FRIENDLY_NAME);
 			attributeDefinition.setNamespace(ATTR_PUBS_NAMESPACE);
 			attributeDefinition.setType(ATTR_PUBS_TYPE);

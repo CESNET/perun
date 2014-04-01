@@ -70,15 +70,15 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	// data
 	private Facility facility;
 	private int facilityId;
-    private boolean hide = false;
+	private boolean hide = false;
 
-    private int lastServiceId = 0;
-    private boolean lastCheckBoxValue = true;
+	private int lastServiceId = 0;
+	private boolean lastCheckBoxValue = true;
 
 	/**
 	 * Creates a tab instance
-     * @param facility facility to get services from
-     */
+	 * @param facility facility to get services from
+	 */
 	public FacilitySettingsTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -87,25 +87,25 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facilityId
-     */
+	 * @param facilityId
+	 */
 	public FacilitySettingsTabItem(int facilityId){
 		this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
 
-    public void hideServicesSwitch(boolean hide) {
-        this.hide = hide;
-        lastCheckBoxValue = !hide;
-    }
+	public void hideServicesSwitch(boolean hide) {
+		this.hide = hide;
+		lastCheckBoxValue = !hide;
+	}
 
 	public Widget draw() {
 
@@ -142,13 +142,13 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() > 0) {
 					// if service selected
 					ids.put("service",servList.getSelectedObject().getId());
-                    lastServiceId = servList.getSelectedObject().getId();
+					lastServiceId = servList.getSelectedObject().getId();
 				} else if (switchServicesChb.getValue() == false) {
 					ids.put("service",servList.getSelectedObject().getId());
-                    lastServiceId = servList.getSelectedObject().getId();
+					lastServiceId = servList.getSelectedObject().getId();
 				} else {
 					ids.remove("service");
-                    lastServiceId = 0;
+					lastServiceId = 0;
 				}
 				reqAttrs.setIds(ids);
 				reqAttrs.clearTable();
@@ -172,31 +172,31 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 					return;
 				}
 				if (switchServicesChb.getValue() == true) {
-                    servList.addAllOption();
-                    if (lastServiceId == 0) {
-                        servList.setSelectedIndex(0);
-                        ids.remove("service"); // remove if present - we use all as default
-                    } else {
-                        for (Service s : servList.getAllObjects()) {
-                            if (s.getId() == lastServiceId) {
-                                servList.setSelected(s, true);
-                                ids.put("service", lastServiceId);
-                                break;
-                            }
-                        }
-                    }
+					servList.addAllOption();
+					if (lastServiceId == 0) {
+						servList.setSelectedIndex(0);
+						ids.remove("service"); // remove if present - we use all as default
+					} else {
+						for (Service s : servList.getAllObjects()) {
+							if (s.getId() == lastServiceId) {
+								servList.setSelected(s, true);
+								ids.put("service", lastServiceId);
+								break;
+							}
+						}
+					}
 				} else {
-                    if (lastServiceId == 0) {
-                        ids.put("service", servList.getSelectedObject().getId());
-                    } else {
-                        for (Service s : servList.getAllObjects()) {
-                            if (s.getId() == lastServiceId) {
-                                servList.setSelected(s, true);
-                                ids.put("service", lastServiceId);
-                                break;
-                            }
-                        }
-                    }
+					if (lastServiceId == 0) {
+						ids.put("service", servList.getSelectedObject().getId());
+					} else {
+						for (Service s : servList.getAllObjects()) {
+							if (s.getId() == lastServiceId) {
+								servList.setSelected(s, true);
+								ids.put("service", lastServiceId);
+								break;
+							}
+						}
+					}
 				}
 				reqAttrs.clearTable();
 				reqAttrs.setIds(ids);
@@ -204,29 +204,29 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 			}
 			@Override
 			public void onError(PerunError error) {
-                servList.clear();
+				servList.clear();
 				((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
 				servList.addItem("Error while loading");
 			}
-            @Override
-            public void onLoadingStart() {
-                servList.removeAllOption();
-                servList.clear();
-                servList.addItem("Loading...");
-            }
+			@Override
+			public void onLoadingStart() {
+				servList.removeAllOption();
+				servList.clear();
+				servList.addItem("Loading...");
+			}
 		};
 
 		final GetServices allServices = new GetServices(event);
 		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(),event);
 
-        // if hide and unchecked or just unchecked
-        if (!lastCheckBoxValue) {
-            allServices.retrieveData();
-        } else {
-            assignedServices.retrieveData();
-        }
+		// if hide and unchecked or just unchecked
+		if (!lastCheckBoxValue) {
+			allServices.retrieveData();
+		} else {
+			assignedServices.retrieveData();
+		}
 
-        // Save changes button
+		// Save changes button
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
 		final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(reqAttrs);
 		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents);
@@ -255,11 +255,11 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        // switch serv checkbox
+		// switch serv checkbox
 		switchServicesChb.addClickHandler(new ClickHandler(){
 			// load proper set of services on click
 			public void onClick(ClickEvent event) {
-                lastCheckBoxValue = switchServicesChb.getValue();
+				lastCheckBoxValue = switchServicesChb.getValue();
 				if (switchServicesChb.getValue() == true) {
 					assignedServices.retrieveData();
 				} else {
@@ -270,12 +270,12 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 		// allow to set new (currently unused facility attribute)
 		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                Map<String, Integer> ids = new HashMap<String, Integer>();
-                ids.put("facility", facility.getId());
-                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, reqAttrs.getList()), true);
-            }
-        });
+			public void onClick(ClickEvent event) {
+				Map<String, Integer> ids = new HashMap<String, Integer>();
+				ids.put("facility", facility.getId());
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, reqAttrs.getList()), true);
+			}
+		});
 
 		menu.addWidget(saveChangesButton);
 		menu.addWidget(setNewAttributeButton);
@@ -283,29 +283,29 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		menu.addWidget(new HTML("<strong>Service: </strong>"));
 		menu.addWidget(servList);
 
-        if (!hide) {
-            menu.addWidget(switchServicesChb);
-        }
+		if (!hide) {
+			menu.addWidget(switchServicesChb);
+		}
 
 		/* TODO - not yet implemented
 
-		CustomButton fillDefaultButton = new CustomButton("Fill default values", SmallIcons.INSTANCE.scriptGoIcon(), new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				Window.alert("not yet implemented");
-			}
-		});
-		fillDefaultButton.setTitle("Fill default values for this service/facility - nothing is saved unless you click on 'Save changes'");
-		CustomButton checkValuesButton = new CustomButton("Check values", SmallIcons.INSTANCE.scriptGearIcon(), new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				Window.alert("not yet implemented");
-			}
-		});
-		checkValuesButton.setTitle("Checks inserted values against current Perun state - nothing is saved unless you click on 'Save changes'");
+			 CustomButton fillDefaultButton = new CustomButton("Fill default values", SmallIcons.INSTANCE.scriptGoIcon(), new ClickHandler(){
+			 public void onClick(ClickEvent event) {
+			 Window.alert("not yet implemented");
+			 }
+			 });
+			 fillDefaultButton.setTitle("Fill default values for this service/facility - nothing is saved unless you click on 'Save changes'");
+			 CustomButton checkValuesButton = new CustomButton("Check values", SmallIcons.INSTANCE.scriptGearIcon(), new ClickHandler(){
+			 public void onClick(ClickEvent event) {
+			 Window.alert("not yet implemented");
+			 }
+			 });
+			 checkValuesButton.setTitle("Checks inserted values against current Perun state - nothing is saved unless you click on 'Save changes'");
 
-		menu.addWidget(fillDefaultButton);
-		menu.addWidget(checkValuesButton);
+			 menu.addWidget(fillDefaultButton);
+			 menu.addWidget(checkValuesButton);
 
-		*/
+*/
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
@@ -360,7 +360,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {

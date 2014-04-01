@@ -38,7 +38,7 @@ import java.util.Map;
 public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {
 
 	// TAB NEEDED
-    private PerunWebSession session = PerunWebSession.getInstance();
+	private PerunWebSession session = PerunWebSession.getInstance();
 	private User user;
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Add publication");
@@ -57,13 +57,13 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	private TabItem tab; // tab to be closed or reloaded
 	private ArrayList<Category> categories = new ArrayList<Category>(); // available categories
 	private int defaultCategoryId = 0; // default category ID
-    private int categoryId = 0;
+	private int categoryId = 0;
 
 
 	/**
 	 * Creates a tab instance
 	 *
-     */
+	 */
 	public AddPublicationsTabItem() {
 		this.user = session.getUser();
 		this.userId = session.getUser().getId();
@@ -72,8 +72,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	/**
 	 * Creates a tab instance
 	 *
-     * @param user
-     */
+	 * @param user
+	 */
 	public AddPublicationsTabItem(User user){
 		this.user = user;
 		this.userId = user.getId();
@@ -81,15 +81,15 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 	/**
 	 * Creates a tab instance
-     * @param userId
-     */
+	 * @param userId
+	 */
 	public AddPublicationsTabItem(int userId){
 		this.userId = userId;
-        new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                user = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				user = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -111,8 +111,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Add publication");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Please select either \"Create\" or \"Import\" for new publication.</strong>" +
-					"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
-					"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));
+						"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
+						"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));
 
 		} else if (state == State.CREATE) {
 
@@ -123,11 +123,11 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Create publication");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Enter publication title and full citation.</strong></li>" +
-					"<li>If known, <strong>enter publication's ISBN / ISSN / DOI</strong>" +
-					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>" +
-					"<li>Please use <strong>\"Check\" button</strong> to see, if same publication already exists in Perun. If so, you don't have to create new, just add yourself as author of publication.</li>" +
-					"<li>When satisfied, <strong>click on \"Create\" button</strong> to submit your publication.</li>" +
-					"<li>You will be then able to review publication details.</li><ol>"));
+						"<li>If known, <strong>enter publication's ISBN / ISSN / DOI</strong>" +
+						"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>" +
+						"<li>Please use <strong>\"Check\" button</strong> to see, if same publication already exists in Perun. If so, you don't have to create new, just add yourself as author of publication.</li>" +
+						"<li>When satisfied, <strong>click on \"Create\" button</strong> to submit your publication.</li>" +
+						"<li>You will be then able to review publication details.</li><ol>"));
 
 		} else if (state == State.IMPORT) {
 
@@ -138,13 +138,13 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Import publications");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Select ext. publication system for searching</strong>. Currently we can import publications reported in IS MU and OBD ZČU.</li>" +
-					"<li><strong>Select year range</strong> to search and click on \"Search in\" button." +
-					"<p> - Search in IS MU is based on your's UČO." +
-					"<br /> - Search in OBD ZČU is based on your last name.</p></li>" +
-					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>"+
-					"<li><strong>Select publications to import</strong> and <strong>click on \"Import\" button.</strong></li>" +
-					"<li>You will be then able to review publication details." +
-					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));
+						"<li><strong>Select year range</strong> to search and click on \"Search in\" button." +
+						"<p> - Search in IS MU is based on your's UČO." +
+						"<br /> - Search in OBD ZČU is based on your last name.</p></li>" +
+						"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>"+
+						"<li><strong>Select publications to import</strong> and <strong>click on \"Import\" button.</strong></li>" +
+						"<li>You will be then able to review publication details." +
+						"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));
 
 
 		} else if (state == State.REVIEW){
@@ -153,12 +153,12 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 			// help widget
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Click on publication title</strong> to edit it's details." +
-					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p>" +
-					"<li><strong>Update full citation</strong> if needed and click on \"Save changes\" button.</li>" +
-					"<li><strong>Select category</strong> where publication belongs and click on \"Save changes\" button. If not sure, keep it as it is (\"Ke kontrole\").</li>" +
-					"<li><strong>Add acknowledgment</strong> mentioned in your publication. Typically \"MetaCentrum\" or \"CERIT-SC\".</li>" +
-					"<li><strong>Add authors</strong> of your publication. Authors can be only users of PERUN. If not added, they can't have benefits from reporting publication.</li>" +
-					"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));
+						"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p>" +
+						"<li><strong>Update full citation</strong> if needed and click on \"Save changes\" button.</li>" +
+						"<li><strong>Select category</strong> where publication belongs and click on \"Save changes\" button. If not sure, keep it as it is (\"Ke kontrole\").</li>" +
+						"<li><strong>Add acknowledgment</strong> mentioned in your publication. Typically \"MetaCentrum\" or \"CERIT-SC\".</li>" +
+						"<li><strong>Add authors</strong> of your publication. Authors can be only users of PERUN. If not added, they can't have benefits from reporting publication.</li>" +
+						"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));
 
 		}
 
@@ -178,35 +178,35 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		// IMPORT LAYOUT
 		DecoratorPanel dp = new DecoratorPanel();
 		FlexTable importLayout = new FlexTable();
-        importLayout.setCellSpacing(10);
+		importLayout.setCellSpacing(10);
 		dp.add(importLayout);
 		// button
 		CustomButton importButton = new CustomButton("Import publication", SmallIcons.INSTANCE.addIcon());
-        // layout
-        importLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Import publication</span>");
-        importLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Are you from MU, ZCU? You can import publications you have already reported in university publication systems.</span>");
-        importLayout.setWidget(2, 0, importButton);
+		// layout
+		importLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Import publication</span>");
+		importLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Are you from MU, ZCU? You can import publications you have already reported in university publication systems.</span>");
+		importLayout.setWidget(2, 0, importButton);
 
-        // CREATE LAYOUT
-        DecoratorPanel dp2 = new DecoratorPanel();
-        FlexTable createLayout = new FlexTable();
-        createLayout.setCellSpacing(10);
-        dp2.add(createLayout);
-        // button
-        CustomButton createButton = new CustomButton("Create publication", SmallIcons.INSTANCE.addIcon());
-        // layout
-        createLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Create publication</span>");
-        createLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Use when you want to add custom publication or report publication created by other user.</span>");
-        createLayout.setWidget(2, 0, createButton);
+		// CREATE LAYOUT
+		DecoratorPanel dp2 = new DecoratorPanel();
+		FlexTable createLayout = new FlexTable();
+		createLayout.setCellSpacing(10);
+		dp2.add(createLayout);
+		// button
+		CustomButton createButton = new CustomButton("Create publication", SmallIcons.INSTANCE.addIcon());
+		// layout
+		createLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Create publication</span>");
+		createLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Use when you want to add custom publication or report publication created by other user.</span>");
+		createLayout.setWidget(2, 0, createButton);
 
 		// ADD CONTENT
 		vp.add(dp);
 		dp.setWidth("400px");
 		vp.add(dp2);
 		dp2.setWidth("400px");
-        vp.setCellWidth(dp, "50%");
-        vp.setCellWidth(dp2, "50%");
-        vp.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+		vp.setCellWidth(dp, "50%");
+		vp.setCellWidth(dp2, "50%");
+		vp.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
 		vp.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
 		vp.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 		vp.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
@@ -242,26 +242,26 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		// MAIN MENU
 
-        FlexTable header = new FlexTable();
-        header.setStyleName("wizardHeader");
-        mainPanel.add(header);
+		FlexTable header = new FlexTable();
+		header.setStyleName("wizardHeader");
+		mainPanel.add(header);
 
 		// splitter
 		HTML splitter = new HTML("<hr size=\"1\" width=\"100%\" />");
 		mainPanel.add(splitter);
 
-        int column = 0;
+		int column = 0;
 
-        header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.bookEditIcon()));
-        column++;
+		header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.bookEditIcon()));
+		column++;
 
-        Label headerTitle = new Label();
-        headerTitle.getElement().setAttribute("style", "font-size: 1.35em;");
+		Label headerTitle = new Label();
+		headerTitle.getElement().setAttribute("style", "font-size: 1.35em;");
 
-        header.setWidget(0, column, headerTitle);
-        column++;
+		header.setWidget(0, column, headerTitle);
+		column++;
 
-        headerTitle.setText("Create publication");
+		headerTitle.setText("Create publication");
 
 		// Widgets
 		final CustomButton backButton = TabMenu.getPredefinedButton(ButtonType.BACK, "Go back to start page - !! ALL UNSAVED CHANGES WILL BE LOST !!", new ClickHandler(){
@@ -274,7 +274,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		});
 
 		header.setWidget(0, column, backButton);
-        column++;
+		column++;
 
 		final ExtendedTextBox title = new ExtendedTextBox();
 		title.getTextBox().setMaxLength(1024);
@@ -284,72 +284,72 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		doi.setMaxLength(256);
 		final ExtendedTextArea cite = new ExtendedTextArea();
 		cite.getTextArea().setSize("380px", "75px");
-        cite.getTextArea().getElement().setAttribute("maxlength", "4000");
+		cite.getTextArea().getElement().setAttribute("maxlength", "4000");
 		final ListBox year = new ListBox();
 		final CheckBox addAsAuthor = new CheckBox("Add me as author");
 		addAsAuthor.setValue(true);
 		addAsAuthor.setTitle("When checked, you will be automatically added as author of created publication");
 
-        final ExtendedTextBox.TextBoxValidator titleValidator = new ExtendedTextBox.TextBoxValidator() {
-            @Override
-            public boolean validateTextBox() {
-                if (title.getTextBox().getText().trim().isEmpty()) {
-                    title.setError("Publication title can't be empty.");
-                    return false;
-                } else {
-                    title.setOk();
-                    return true;
-                }
-            }
-        };
-        title.setValidator(titleValidator);
+		final ExtendedTextBox.TextBoxValidator titleValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (title.getTextBox().getText().trim().isEmpty()) {
+					title.setError("Publication title can't be empty.");
+					return false;
+				} else {
+					title.setOk();
+					return true;
+				}
+			}
+		};
+		title.setValidator(titleValidator);
 
-        final ExtendedTextArea.TextAreaValidator citeValidator = new ExtendedTextArea.TextAreaValidator() {
-            @Override
-            public boolean validateTextArea() {
-                if (cite.getTextArea().getText().trim().isEmpty()) {
-                    cite.setError("Publication citation can't be empty.");
-                    return false;
-                } else {
-                    cite.setOk();
-                    return true;
-                }
-            }
-        };
-        cite.setValidator(citeValidator);
+		final ExtendedTextArea.TextAreaValidator citeValidator = new ExtendedTextArea.TextAreaValidator() {
+			@Override
+			public boolean validateTextArea() {
+				if (cite.getTextArea().getText().trim().isEmpty()) {
+					cite.setError("Publication citation can't be empty.");
+					return false;
+				} else {
+					cite.setOk();
+					return true;
+				}
+			}
+		};
+		cite.setValidator(citeValidator);
 
 		final CustomButton finishButton = TabMenu.getPredefinedButton(ButtonType.CREATE, "Create publication in Perun");
-        finishButton.setEnabled(false); // enable only after search for similar publications
-        finishButton.addClickHandler(new ClickHandler(){
+		finishButton.setEnabled(false); // enable only after search for similar publications
+		finishButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 
 				// check
-                if (titleValidator.validateTextBox() && citeValidator.validateTextArea()) {
+				if (titleValidator.validateTextBox() && citeValidator.validateTextArea()) {
 
-                    // create
-                    CreatePublication request = new CreatePublication(JsonCallbackEvents.disableButtonEvents(finishButton, new JsonCallbackEvents(){
-                        public void onFinished(JavaScriptObject jso) {
-                            Publication pub = jso.cast();
-                            importedPublications.add(pub);
-                            counter--;
-                            if (addAsAuthor.getValue()) {
-                                CreateAuthorship request = new CreateAuthorship();
-                                request.createAuthorship(pub.getId(), userId);
-                                previousState = State.CREATE;
-                                state = State.REVIEW;
-                                session.getTabManager().reloadTab(tab);
-                            }
-                        }
-                        @Override
-                        public void onError(PerunError error) {
-                            hadError = true;
-                            counter--;
-                        }
-                    }));
-                    request.createPublication(title.getTextBox().getText().trim(), categoryId, Integer.parseInt(year.getValue(year.getSelectedIndex())), isbn.getText().trim(), doi.getText().trim(), cite.getTextArea().getText().trim());
-                    counter++;
+					// create
+					CreatePublication request = new CreatePublication(JsonCallbackEvents.disableButtonEvents(finishButton, new JsonCallbackEvents(){
+						public void onFinished(JavaScriptObject jso) {
+							Publication pub = jso.cast();
+							importedPublications.add(pub);
+							counter--;
+							if (addAsAuthor.getValue()) {
+								CreateAuthorship request = new CreateAuthorship();
+								request.createAuthorship(pub.getId(), userId);
+								previousState = State.CREATE;
+								state = State.REVIEW;
+								session.getTabManager().reloadTab(tab);
+							}
+						}
+						@Override
+						public void onError(PerunError error) {
+							hadError = true;
+							counter--;
+						}
+					}));
+					request.createPublication(title.getTextBox().getText().trim(), categoryId, Integer.parseInt(year.getValue(year.getSelectedIndex())), isbn.getText().trim(), doi.getText().trim(), cite.getTextArea().getText().trim());
+					counter++;
 
-                }
+				}
 
 			}
 		});
@@ -378,99 +378,99 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		// check layout
 		final FlexTable checkLayout = new FlexTable();
-        checkLayout.setSize("100%", "100%");
+		checkLayout.setSize("100%", "100%");
 
-        // form layout
-        final FlexTable layout = new FlexTable();
-        layout.setStyleName("inputFormFlexTable");
-        layout.setWidth("600px");
+		// form layout
+		final FlexTable layout = new FlexTable();
+		layout.setStyleName("inputFormFlexTable");
+		layout.setWidth("600px");
 
-        final CustomButton checkButton = new CustomButton("Check", "Check if same publication exist in Perun", SmallIcons.INSTANCE.booksIcon());
-        filterCall.setEvents(JsonCallbackEvents.disableButtonEvents(checkButton, new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                finishButton.setEnabled(true);
-                ArrayList<Publication> pubs = JsonUtils.jsoAsList(jso);
-                if (pubs == null || pubs.isEmpty()) {
-                    UiElements.generateInfo("No similar publications", "No similar publications were found. You can continue reporting new publication.");
-                } else {
-                    backButton.setEnabled(false);
-                    checkButton.setEnabled(false);
-                    mainPanel.remove(layout);
-                    mainPanel.add(checkLayout);
-                }
-            }
-            @Override
-            public void onError(PerunError error) {
-                finishButton.setEnabled(true);
-            }
-            @Override
-            public void onLoadingStart() {
-            }
-        }));
-        checkButton.addClickHandler(new ClickHandler(){
+		final CustomButton checkButton = new CustomButton("Check", "Check if same publication exist in Perun", SmallIcons.INSTANCE.booksIcon());
+		filterCall.setEvents(JsonCallbackEvents.disableButtonEvents(checkButton, new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				finishButton.setEnabled(true);
+				ArrayList<Publication> pubs = JsonUtils.jsoAsList(jso);
+				if (pubs == null || pubs.isEmpty()) {
+					UiElements.generateInfo("No similar publications", "No similar publications were found. You can continue reporting new publication.");
+				} else {
+					backButton.setEnabled(false);
+					checkButton.setEnabled(false);
+					mainPanel.remove(layout);
+					mainPanel.add(checkLayout);
+				}
+			}
+		@Override
+		public void onError(PerunError error) {
+			finishButton.setEnabled(true);
+		}
+		@Override
+		public void onLoadingStart() {
+		}
+		}));
+		checkButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-                if (titleValidator.validateTextBox() && citeValidator.validateTextArea()) {
-                    ids.clear();
-                    ids.put("authors", 1);
-                    if (!title.getTextBox().getText().trim().equals("")) {
-                        ids.put("title", title.getTextBox().getText().trim());
-                    }
-                    if (!isbn.getText().trim().equals("")) {
-                        ids.put("isbn", isbn.getText().trim());
-                    }
-                    if (!doi.getText().equals("")) {
-                        ids.put("doi", doi.getText());
-                    }
-                    filterCall.clearTable();
-                    filterCall.retrieveData();
-                }
+				if (titleValidator.validateTextBox() && citeValidator.validateTextArea()) {
+					ids.clear();
+					ids.put("authors", 1);
+					if (!title.getTextBox().getText().trim().equals("")) {
+						ids.put("title", title.getTextBox().getText().trim());
+					}
+					if (!isbn.getText().trim().equals("")) {
+						ids.put("isbn", isbn.getText().trim());
+					}
+					if (!doi.getText().equals("")) {
+						ids.put("doi", doi.getText());
+					}
+					filterCall.clearTable();
+					filterCall.retrieveData();
+				}
 			}
 		});
 
-        final ListBoxWithObjects<Category> category = new ListBoxWithObjects<Category>();
+		final ListBoxWithObjects<Category> category = new ListBoxWithObjects<Category>();
 		FindAllCategories request = new FindAllCategories(new JsonCallbackEvents(){
 			@Override
-            public void onFinished(JavaScriptObject jso){
+			public void onFinished(JavaScriptObject jso){
 				category.clear();
-                categories = JsonUtils.<Category>jsoAsList(jso);
+				categories = JsonUtils.<Category>jsoAsList(jso);
 				if (categories != null && !categories.isEmpty()) {
 					for (Category c : categories) {
-                        category.addItem(c);
-                        if (c.getName().equalsIgnoreCase("Ke kontrole")) {
-                            defaultCategoryId = c.getId(); // set default
-                            categoryId = c.getId();
-                            category.setSelected(c, true);
-                        }
+						category.addItem(c);
+						if (c.getName().equalsIgnoreCase("Ke kontrole")) {
+							defaultCategoryId = c.getId(); // set default
+							categoryId = c.getId();
+							category.setSelected(c, true);
+						}
 					}
-                    checkButton.setEnabled(true);
+					checkButton.setEnabled(true);
 				} else {
-                    category.addItem("No category available");
-                }
+					category.addItem("No category available");
+				}
 			}
-            @Override
-            public void onError(PerunError error){
-                category.clear();
-                category.addItem("Error while loading");
-                // categories must be loaded !!
-                checkButton.setEnabled(false);
-                finishButton.setEnabled(false);
-			}
-            @Override
-            public void onLoadingStart(){
-                category.clear();
-                category.addItem("Loading...");
-            }
+		@Override
+		public void onError(PerunError error){
+			category.clear();
+			category.addItem("Error while loading");
+			// categories must be loaded !!
+			checkButton.setEnabled(false);
+			finishButton.setEnabled(false);
+		}
+		@Override
+		public void onLoadingStart(){
+			category.clear();
+			category.addItem("Loading...");
+		}
 		});
 		request.retrieveData();
 
-        category.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                // put new publication in right category
-                categoryId = category.getSelectedObject().getId();
-            }
-        });
+		category.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				// put new publication in right category
+				categoryId = category.getSelectedObject().getId();
+			}
+		});
 
 		// set year
 		for (int i=2004; i<= JsonUtils.getCurrentYear(); i++) {
@@ -487,43 +487,43 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		layout.setWidget(2, 1, isbn);
 		layout.setHTML(3, 0, "DOI:");
 		layout.setWidget(3, 1, doi);
-        layout.setHTML(4, 0, "Category:");
-        layout.setWidget(4, 1, category);
-        layout.setHTML(5, 0, "Full&nbsp;cite:");
+		layout.setHTML(4, 0, "Category:");
+		layout.setWidget(4, 1, category);
+		layout.setHTML(5, 0, "Full&nbsp;cite:");
 		layout.setWidget(5, 1, cite);
-        layout.setHTML(6, 1, "Citation as close as possible to ČSN ISO 690 or ČSN ISO 690-2.");
-        layout.getFlexCellFormatter().setStyleName(6, 1, "inputFormInlineComment");
+		layout.setHTML(6, 1, "Citation as close as possible to ČSN ISO 690 or ČSN ISO 690-2.");
+		layout.getFlexCellFormatter().setStyleName(6, 1, "inputFormInlineComment");
 
-        for (int i=0; i<layout.getRowCount(); i++) {
-            layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
-        }
+		for (int i=0; i<layout.getRowCount(); i++) {
+			layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
+		}
 
-        header.setWidget(0, column, checkButton);
-        column++;
-        header.setWidget(0, column, finishButton);
-        column++;
-        header.setWidget(0, column, addAsAuthor);
-        column++;
+		header.setWidget(0, column, checkButton);
+		column++;
+		header.setWidget(0, column, finishButton);
+		column++;
+		header.setWidget(0, column, addAsAuthor);
+		column++;
 
-        checkLayout.setWidget(0, 0, new CustomButton("Back to input form", "Back to Create publication form.", SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                mainPanel.add(layout);
-                mainPanel.remove(checkLayout);
+		checkLayout.setWidget(0, 0, new CustomButton("Back to input form", "Back to Create publication form.", SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				mainPanel.add(layout);
+				mainPanel.remove(checkLayout);
 
-                backButton.setEnabled(true);
-                checkButton.setEnabled(true);
-            }
-        }));
-        checkLayout.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+				backButton.setEnabled(true);
+				checkButton.setEnabled(true);
+			}
+		}));
+		checkLayout.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
-        checkLayout.getFlexCellFormatter().setWidth(0, 0, "180px");
+		checkLayout.getFlexCellFormatter().setWidth(0, 0, "180px");
 		checkLayout.setHTML(0, 1, "<span class=\"input-status-error\">Please check if your publication is not already listed below.</span><ul><li>If NO, continue with Create button above.</br>&nbsp;</li><li>If YES, click on it to see details and add yourself between authors. If desired publication is locked for changes, notify administrators (meta@cesnet.cz) about your request.</li></ul>");
 		checkLayout.setWidget(1, 0, sp);
 		checkLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
 
 		mainPanel.add(layout);
-        mainPanel.setCellHeight(layout, "100%");
+		mainPanel.setCellHeight(layout, "100%");
 
 		this.contentWidget.setWidget(mainPanel);
 
@@ -541,18 +541,18 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		// MAIN MENU
 		TabMenu menu = new TabMenu();
 		mainPanel.add(menu);
-        mainPanel.setCellHeight(menu, "30px");
+		mainPanel.setCellHeight(menu, "30px");
 
-        menu.addWidget(new Image(LargeIcons.INSTANCE.bookEditIcon()));
+		menu.addWidget(new Image(LargeIcons.INSTANCE.bookEditIcon()));
 
-        Label headerTitle = new Label("Import publications");
-        headerTitle.getElement().setAttribute("style", "font-size: 1.35em;");
-        menu.addWidget(headerTitle);
+		Label headerTitle = new Label("Import publications");
+		headerTitle.getElement().setAttribute("style", "font-size: 1.35em;");
+		menu.addWidget(headerTitle);
 
-        CustomButton searchButton = new CustomButton("Search in", SmallIcons.INSTANCE.booksIcon());
-        searchButton.setTitle("Search in external source for yours publications");
+		CustomButton searchButton = new CustomButton("Search in", SmallIcons.INSTANCE.booksIcon());
+		searchButton.setTitle("Search in external source for yours publications");
 
-        // CALLBACK
+		// CALLBACK
 		final FindExternalPublications find = new FindExternalPublications(userId, JsonCallbackEvents.disableButtonEvents(searchButton));
 
 		// WIDGETS
@@ -595,7 +595,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			}
 			public void onError(PerunError error){
 				importButton.setTitle("Unable to retrieve default category. Please refresh tab.");
-                importButton.setEnabled(false);
+				importButton.setEnabled(false);
 			}
 		});
 		request.retrieveData();
@@ -622,11 +622,11 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 						public void onError(PerunError error) {
 							// FIXME - for local testing
 							/*
-							pub.setId(624);
-							pub.setLocked(false);
-							pub.setCategoryName("Ke kontrole");
-							importedPublications.add(pub);
-							*/
+								 pub.setId(624);
+								 pub.setLocked(false);
+								 pub.setCategoryName("Ke kontrole");
+								 importedPublications.add(pub);
+								 */
 							counter--;
 							hadError = true;
 						}
@@ -684,20 +684,20 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			}
 		});
 
-        menu.addWidget(backButton);
-        menu.addWidget(importButton);
-        menu.addWidget(addAsAuthor);
+		menu.addWidget(backButton);
+		menu.addWidget(importButton);
+		menu.addWidget(addAsAuthor);
 		menu.addWidget(searchButton);
 		menu.addWidget(namespace);
 		menu.addWidget(new HTML("<strong>Year between:</strong>"));
 		menu.addWidget(yearSince);
 		menu.addWidget(yearTill);
 
-        // GET TABLE
+		// GET TABLE
 		CellTable<Publication> table = find.getEmptyTable();
 
-        importButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(find, table, importButton);
+		importButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(find, table, importButton);
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel();
@@ -752,7 +752,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 				}
 			}
 		});
-        menu.addWidget(finishButton);
+		menu.addWidget(finishButton);
 		finishButton.setTitle("");
 		finishButton.setVisible(false);
 
@@ -841,20 +841,20 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 									scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
 								}
 							}
-							// FIXME - testing
-							/*
-							@Override
-							public void onError(PerunError error) {
-								onFinished(null);
-							}
-							*/
+						// FIXME - testing
+						/*
+							 @Override
+							 public void onError(PerunError error) {
+							 onFinished(null);
+							 }
+							 */
 						});
 						request.updatePublication(pub);
 
 					}
 				}
 			});
-            pubHeader.addWidget(finishPublicationButton);
+			pubHeader.addWidget(finishPublicationButton);
 			finishPublicationButton.setTitle("Finish editing publication (remove from view)");
 			finishPublicationButton.setVisible(false);
 
@@ -946,46 +946,46 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			CellTable<Thanks> thanksTable = thanksCall.getTable();
 
 			// button
-            thanksMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement to publication", new ClickHandler(){
+			thanksMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement to publication", new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(thanksCall);
 					session.getTabManager().addTabToCurrentTab(new CreateThanksTabItem(pub, events), true);
 				}
 			}));
 
-            final CustomButton removeThanksButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove acknowledgement from publication");
-            removeThanksButton.addClickHandler(new ClickHandler(){
-                public void onClick(ClickEvent event) {
-                    final ArrayList<Thanks> list = thanksCall.getTableSelectedList();
-                    String text = "Following acknowledgements will be removed from publication. Publication authors may loose benefits granted by them.";
-                    UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                            for(int i=0; i<list.size(); i++){
-                                if (i == list.size()-1) {
-                                    DeleteThanks request = new DeleteThanks(JsonCallbackEvents.disableButtonEvents(removeThanksButton, JsonCallbackEvents.refreshTableEvents(thanksCall)));
-                                    request.deleteThanks(list.get(i).getId());
-                                } else {
-                                    DeleteThanks request = new DeleteThanks(JsonCallbackEvents.disableButtonEvents(removeThanksButton));
-                                    request.deleteThanks(list.get(i).getId());
-                                }
-                            }
-                        }
-                    });
-                }});
+			final CustomButton removeThanksButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove acknowledgement from publication");
+			removeThanksButton.addClickHandler(new ClickHandler(){
+				public void onClick(ClickEvent event) {
+					final ArrayList<Thanks> list = thanksCall.getTableSelectedList();
+					String text = "Following acknowledgements will be removed from publication. Publication authors may loose benefits granted by them.";
+					UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+							for(int i=0; i<list.size(); i++){
+								if (i == list.size()-1) {
+									DeleteThanks request = new DeleteThanks(JsonCallbackEvents.disableButtonEvents(removeThanksButton, JsonCallbackEvents.refreshTableEvents(thanksCall)));
+									request.deleteThanks(list.get(i).getId());
+								} else {
+									DeleteThanks request = new DeleteThanks(JsonCallbackEvents.disableButtonEvents(removeThanksButton));
+									request.deleteThanks(list.get(i).getId());
+								}
+							}
+						}
+					});
+				}});
 
-            removeThanksButton.setEnabled(false);
-            JsonUtils.addTableManagedButton(thanksCall, thanksTable, removeThanksButton);
+			removeThanksButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(thanksCall, thanksTable, removeThanksButton);
 
-            /*
+			/*
 			// refresh table button
 			thanksMenu.addButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    thanksCall.clearTable();
-                    thanksCall.retrieveData();
-                }
-            });
+			public void onClick(ClickEvent event) {
+			thanksCall.clearTable();
+			thanksCall.retrieveData();
+			}
+			});
 			*/
 			thanksTable.addStyleName("perun-table");
 			ScrollPanel sp = new ScrollPanel();
@@ -1011,8 +1011,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 				authorMenu.setVisible(false);
 			}
 
-            final CustomButton addMyselfButton = new CustomButton("Add myself", "Add you as author", SmallIcons.INSTANCE.addIcon());
-            addMyselfButton.addClickHandler(new ClickHandler() {
+			final CustomButton addMyselfButton = new CustomButton("Add myself", "Add you as author", SmallIcons.INSTANCE.addIcon());
+			addMyselfButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					if (session.isPerunAdmin() && session.getUser() == null) {
 						// for perunadmin to load session
@@ -1024,7 +1024,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					}
 				}
 			});
-            authorMenu.addWidget(addMyselfButton);
+			authorMenu.addWidget(addMyselfButton);
 
 			CustomButton addOthersButton = new CustomButton("Add others", "Add more authors", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -1032,48 +1032,48 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					session.getTabManager().addTabToCurrentTab(new AddAuthorTabItem(pub, events), true);
 				}
 			});
-            authorMenu.addWidget(addOthersButton);
+			authorMenu.addWidget(addOthersButton);
 
-            final CustomButton removeAuthorButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove selected author(s) from publication");
+			final CustomButton removeAuthorButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove selected author(s) from publication");
 			removeAuthorButton.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-
-                    final ArrayList<Author> list = authorCall.getTableSelectedList();
-                    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(authorCall);
-                    String text = "Following authors will be removed from publication. They will lose all benefits granted by reporting this publication.";
-                    UiElements.showDeleteConfirm(list, text, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                            for (int i = 0; i < list.size(); i++) {
-                                if (i == list.size() - 1) {
-                                    DeleteAuthorship request = new DeleteAuthorship(JsonCallbackEvents.disableButtonEvents(removeAuthorButton, events));
-                                    request.deleteAuthorship(pub.getId(), list.get(i).getId());
-                                } else {
-                                    DeleteAuthorship request = new DeleteAuthorship(JsonCallbackEvents.disableButtonEvents(removeAuthorButton));
-                                    request.deleteAuthorship(pub.getId(), list.get(i).getId());
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-
-            /*
-			// refresh table button
-			authorMenu.addButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
-					authorCall.clearTable();
-					authorCall.retrieveData();
+
+					final ArrayList<Author> list = authorCall.getTableSelectedList();
+					final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(authorCall);
+					String text = "Following authors will be removed from publication. They will lose all benefits granted by reporting this publication.";
+					UiElements.showDeleteConfirm(list, text, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+							for (int i = 0; i < list.size(); i++) {
+								if (i == list.size() - 1) {
+									DeleteAuthorship request = new DeleteAuthorship(JsonCallbackEvents.disableButtonEvents(removeAuthorButton, events));
+									request.deleteAuthorship(pub.getId(), list.get(i).getId());
+								} else {
+									DeleteAuthorship request = new DeleteAuthorship(JsonCallbackEvents.disableButtonEvents(removeAuthorButton));
+									request.deleteAuthorship(pub.getId(), list.get(i).getId());
+								}
+							}
+						}
+					});
 				}
 			});
-            */
+
+			/*
+			// refresh table button
+			authorMenu.addButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler(){
+			public void onClick(ClickEvent event) {
+			authorCall.clearTable();
+			authorCall.retrieveData();
+			}
+			});
+			*/
 
 			// fill table
 			CellTable<Author> authTable = authorCall.getEmptyTable();
 
-            removeAuthorButton.setEnabled(false);
-            JsonUtils.addTableManagedButton(authorCall, authTable, removeAuthorButton);
+			removeAuthorButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(authorCall, authTable, removeAuthorButton);
 
 			authTable.addStyleName("perun-table");
 			authorCall.retrieveData();
@@ -1149,7 +1149,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.USER);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My publications", CabinetTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"userpubs?user="+userId, "Add publication", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My publications", CabinetTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"userpubs?user="+userId, "Add publication", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

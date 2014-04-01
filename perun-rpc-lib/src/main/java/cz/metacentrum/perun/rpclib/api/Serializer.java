@@ -13,5 +13,5 @@ import cz.metacentrum.perun.rpclib.RpcException;
  * @since 0.1
  */
 public abstract interface Serializer {
-    void write(Object object) throws IllegalArgumentException, IOException, RpcException;
+	void write(Object object) throws IllegalArgumentException, IOException, RpcException;
 }

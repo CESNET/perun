@@ -86,9 +86,9 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 
 		// the request itself
 		JsonClient js = new JsonClient(60000); // set 1 minute timeout for searching external sources
-        if (searchString != null && !searchString.isEmpty()) {
-            js.retrieveData(JSON_URL, "vo="+voId+"&searchString="+searchString, this);
-        }
+		if (searchString != null && !searchString.isEmpty()) {
+			js.retrieveData(JSON_URL, "vo="+voId+"&searchString="+searchString, this);
+		}
 
 	}
 
@@ -97,34 +97,34 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	 */
 	public void searchFor(String searchString) {
 
-        if (searchString == null || searchString.isEmpty()) return;
+		if (searchString == null || searchString.isEmpty()) return;
 
-        loaderImage.setEmptyResultMessage("No user matching '"+searchString+"' found.");
+		loaderImage.setEmptyResultMessage("No user matching '"+searchString+"' found.");
 		this.searchString = searchString;
 
-        clearTable();
-        retrieveData();
+		clearTable();
+		retrieveData();
 
 	}
 
-    /**
-     * Returns the table widget with Candidates
-     *
-     * @return table widget
-     */
-    public CellTable<Candidate> getTable(){
+	/**
+	 * Returns the table widget with Candidates
+	 *
+	 * @return table widget
+	 */
+	public CellTable<Candidate> getTable(){
 
-        retrieveData();
-        return getEmptyTable();
+		retrieveData();
+		return getEmptyTable();
 
-    }
+	}
 
-    /**
-     * Returns the empty table widget
-     *
-     * @return table widget
-     */
-    public CellTable<Candidate> getEmptyTable(){
+	/**
+	 * Returns the empty table widget
+	 *
+	 * @return table widget
+	 */
+	public CellTable<Candidate> getEmptyTable(){
 
 
 		// Table data provider.
@@ -242,9 +242,9 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	 * Sorts table by objects Names
 	 */
 	public void sortTable() {
-        list = new TableSorter<Candidate>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
+		list = new TableSorter<Candidate>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -253,11 +253,11 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	 * @param jso The JavaScript object returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Candidate>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Candidates loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+		setList(JsonUtils.<Candidate>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Candidates loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 	}
 
 	/**
@@ -278,22 +278,22 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	}
 
 	public void insertToTable(int index, Candidate object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public void addToTable(Candidate object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public void removeFromTable(Candidate object) {
-        selectionModel.setSelected(object, false);
-        list.remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		selectionModel.setSelected(object, false);
+		list.remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public void setEditable(boolean editable) {
@@ -314,10 +314,10 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	}
 
 	public void setList(ArrayList<Candidate> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	public ArrayList<Candidate> getList() {

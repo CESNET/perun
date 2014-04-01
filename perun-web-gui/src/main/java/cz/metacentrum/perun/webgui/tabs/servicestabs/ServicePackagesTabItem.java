@@ -37,210 +37,210 @@ import java.util.Map;
  */
 public class ServicePackagesTabItem implements TabItem, TabItemWithUrl {
 
-    /**
-     * Perun web session
-     */
-    private PerunWebSession session = PerunWebSession.getInstance();
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
-    /**
-     * Content widget - should be simple panel
-     */
-    private SimplePanel contentWidget = new SimplePanel();
+	/**
+	 * Content widget - should be simple panel
+	 */
+	private SimplePanel contentWidget = new SimplePanel();
 
-    /**
-     * Title widget
-     */
-    private Label titleWidget = new Label("Services packages");
+	/**
+	 * Title widget
+	 */
+	private Label titleWidget = new Label("Services packages");
 
-    /**
-     * Creates a tab instance
-     */
-    public ServicePackagesTabItem(){}
+	/**
+	 * Creates a tab instance
+	 */
+	public ServicePackagesTabItem(){}
 
-    public boolean isPrepared(){
-        return true;
-    }
+	public boolean isPrepared(){
+		return true;
+	}
 
-    public Widget draw() {
+	public Widget draw() {
 
-        // create widget for the whole page
-        VerticalPanel mainTab = new VerticalPanel();
-        mainTab.setSize("100%", "100%");
+		// create widget for the whole page
+		VerticalPanel mainTab = new VerticalPanel();
+		mainTab.setSize("100%", "100%");
 
-        // create widget for menu on page
-        TabMenu tabMenu = new TabMenu();
+		// create widget for menu on page
+		TabMenu tabMenu = new TabMenu();
 
-        // get services
-        final GetServicesPackages services = new GetServicesPackages();
-        services.setEditable(true);
+		// get services
+		final GetServicesPackages services = new GetServicesPackages();
+		services.setEditable(true);
 
-        final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(services);
+		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(services);
 
-        // get the table of services with custom field updater (lines are clickable and open service details)
-        CellTable<ServicesPackage> table = services.getTable(new FieldUpdater<ServicesPackage, String>() {
-            // when user click on a row -> open new tab
-            public void update(int index, ServicesPackage object, String value) {
-                session.getTabManager().addTabToCurrentTab(new ServicePackageDetailTabItem(object), true);
-            }
-        });
+		// get the table of services with custom field updater (lines are clickable and open service details)
+		CellTable<ServicesPackage> table = services.getTable(new FieldUpdater<ServicesPackage, String>() {
+			// when user click on a row -> open new tab
+			public void update(int index, ServicesPackage object, String value) {
+				session.getTabManager().addTabToCurrentTab(new ServicePackageDetailTabItem(object), true);
+			}
+		});
 
-        // create button
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createServicePackage(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new CreateServicePackageTabItem());
-            }
-        }));
+		// create button
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createServicePackage(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new CreateServicePackageTabItem());
+			}
+		}));
 
-        final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServicePackages());
+		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServicePackages());
 
-        deleteButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
 
-                // get selected items
-                final ArrayList<ServicesPackage> itemsToRemove  = services.getTableSelectedList();
-                UiElements.showDeleteConfirm(itemsToRemove, "Following services packages will be deleted.", new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<itemsToRemove.size(); i++ ) {
-                            DeleteServicePackage request;
-                            if(i == itemsToRemove.size()-1){
-                                request = new DeleteServicePackage(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-                            }else{
-                                request = new DeleteServicePackage(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                            }
-                            request.deleteServicePackage(itemsToRemove.get(i).getId());
-                        }
-                    }
-                });
-            }
-        });
-        tabMenu.addWidget(deleteButton);
+				// get selected items
+				final ArrayList<ServicesPackage> itemsToRemove  = services.getTableSelectedList();
+				UiElements.showDeleteConfirm(itemsToRemove, "Following services packages will be deleted.", new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<itemsToRemove.size(); i++ ) {
+							DeleteServicePackage request;
+							if(i == itemsToRemove.size()-1){
+								request = new DeleteServicePackage(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+							}else{
+								request = new DeleteServicePackage(JsonCallbackEvents.disableButtonEvents(deleteButton));
+							}
+							request.deleteServicePackage(itemsToRemove.get(i).getId());
+						}
+					}
+				});
+			}
+		});
+		tabMenu.addWidget(deleteButton);
 
-        tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                services.filterTable(text);
-            }
-        }, "Filter service package by name");
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				services.filterTable(text);
+			}
+		}, "Filter service package by name");
 
-        final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInServicesPackages());
-        save.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                // get selected items
-                final ArrayList<ServicesPackage> itemsToUpdate  = services.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(itemsToUpdate)) {
-                    // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                    for (int i=0; i<itemsToUpdate.size(); i++ ) {
-                        UpdateServicePackage request;
-                        if(i == itemsToUpdate.size()-1){
-                            request = new UpdateServicePackage(JsonCallbackEvents.disableButtonEvents(save, events));
-                        }else{
-                            request = new UpdateServicePackage(JsonCallbackEvents.disableButtonEvents(save));
-                        }
-                        request.updateServicePackage(itemsToUpdate.get(i));
-                    }
-                }
-            }
-        });
-        tabMenu.addWidget(save);
+		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInServicesPackages());
+		save.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// get selected items
+				final ArrayList<ServicesPackage> itemsToUpdate  = services.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(itemsToUpdate)) {
+					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+					for (int i=0; i<itemsToUpdate.size(); i++ ) {
+						UpdateServicePackage request;
+						if(i == itemsToUpdate.size()-1){
+							request = new UpdateServicePackage(JsonCallbackEvents.disableButtonEvents(save, events));
+						}else{
+							request = new UpdateServicePackage(JsonCallbackEvents.disableButtonEvents(save));
+						}
+						request.updateServicePackage(itemsToUpdate.get(i));
+					}
+				}
+			}
+		});
+		tabMenu.addWidget(save);
 
-        // add menu to page itself
-        mainTab.add(tabMenu);
-        mainTab.setCellHeight(tabMenu, "30px");
+		// add menu to page itself
+		mainTab.add(tabMenu);
+		mainTab.setCellHeight(tabMenu, "30px");
 
-        // add styling to table with services
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        mainTab.add(sp);
+		// add styling to table with services
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		mainTab.add(sp);
 
-        deleteButton.setEnabled(false);
-        save.setEnabled(false);
-        JsonUtils.addTableManagedButton(services, table, deleteButton);
-        JsonUtils.addTableManagedButton(services, table, save);
+		deleteButton.setEnabled(false);
+		save.setEnabled(false);
+		JsonUtils.addTableManagedButton(services, table, deleteButton);
+		JsonUtils.addTableManagedButton(services, table, save);
 
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        this.contentWidget.setWidget(mainTab);
+		this.contentWidget.setWidget(mainTab);
 
-        return getWidget();
-    }
+		return getWidget();
+	}
 
-    public Widget getWidget() {
-        return this.contentWidget;
-    }
+	public Widget getWidget() {
+		return this.contentWidget;
+	}
 
-    public Widget getTitle() {
-        return this.titleWidget;
-    }
+	public Widget getTitle() {
+		return this.titleWidget;
+	}
 
-    public ImageResource getIcon() {
-        return SmallIcons.INSTANCE.packageIcon();
-    }
-
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + 122341;
-        return result;
-    }
-
-    /**
-     * @param obj
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+	public ImageResource getIcon() {
+		return SmallIcons.INSTANCE.packageIcon();
+	}
 
 
-        return true;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + 122341;
+		return result;
+	}
 
-    public boolean multipleInstancesEnabled() {
-        return false;
-    }
+	/**
+	 * @param obj
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 
-    public void open()
-    {
-        session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services packages", getUrlWithParameters());
-    }
 
-    public boolean isAuthorized() {
+		return true;
+	}
 
-        if (session.isPerunAdmin()) {
-            return true;
-        } else {
-            return false;
-        }
+	public boolean multipleInstancesEnabled() {
+		return false;
+	}
 
-    }
+	public void open()
+	{
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services packages", getUrlWithParameters());
+	}
 
-    public final static String URL = "pack";
+	public boolean isAuthorized() {
 
-    public String getUrl()
-    {
-        return URL;
-    }
+		if (session.isPerunAdmin()) {
+			return true;
+		} else {
+			return false;
+		}
 
-    public String getUrlWithParameters()
-    {
-        return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-    }
+	}
 
-    static public ServicePackagesTabItem load(Map<String, String> parameters)
-    {
-        return new ServicePackagesTabItem();
-    }
+	public final static String URL = "pack";
+
+	public String getUrl()
+	{
+		return URL;
+	}
+
+	public String getUrlWithParameters()
+	{
+		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+	}
+
+	static public ServicePackagesTabItem load(Map<String, String> parameters)
+	{
+		return new ServicePackagesTabItem();
+	}
 }

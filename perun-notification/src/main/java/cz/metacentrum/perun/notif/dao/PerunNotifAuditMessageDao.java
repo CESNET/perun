@@ -28,7 +28,7 @@ public interface PerunNotifAuditMessageDao {
 
 	/**
 	 * Gets all perun messages from db, these messages were not processed
-     * This can happen for example during restart of server
+	 * This can happen for example during restart of server
 	 * @return
 	 */
 	public List<PerunNotifAuditMessage> getAll();

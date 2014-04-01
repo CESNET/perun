@@ -75,13 +75,13 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test (expected=DataIntegrityViolationException.class)
-	public void deleteCategoryWhenPublicationExistsTest() throws Exception {
-		System.out.println("deleteCategoryWhenPublicationExistsTest()");
+		public void deleteCategoryWhenPublicationExistsTest() throws Exception {
+			System.out.println("deleteCategoryWhenPublicationExistsTest()");
 
-		categoryService.deleteCategoryById(c1.getId());
-		// should throw exception
+			categoryService.deleteCategoryById(c1.getId());
+			// should throw exception
 
-	}
+		}
 
 	@Test
 	public void deleteCategoryTest() throws Exception {

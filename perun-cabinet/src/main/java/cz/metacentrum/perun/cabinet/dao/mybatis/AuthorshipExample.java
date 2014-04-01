@@ -416,15 +416,15 @@ public class AuthorshipExample {
 			return (Criteria) this;
 		}
 
-        public Criteria andCreatedByLike(String value) {
-            addCriterion("createdBy like", value, "createdBy");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByLike(String value) {
+			addCriterion("createdBy like", value, "createdBy");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByNotLike(String value) {
-            addCriterion("createdBy not like", value, "createdBy");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByNotLike(String value) {
+			addCriterion("createdBy not like", value, "createdBy");
+			return (Criteria) this;
+		}
 
 		public Criteria andCreatedByIn(List<String> values) {
 			addCriterion("createdBy in", values, "createdBy");
@@ -446,65 +446,65 @@ public class AuthorshipExample {
 			return (Criteria) this;
 		}
 
-        public Criteria andCreatedByUidIsNull() {
-            addCriterion("created_by_uid is null");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidIsNull() {
+			addCriterion("created_by_uid is null");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidIsNotNull() {
-            addCriterion("created_by_uid is not null");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidIsNotNull() {
+			addCriterion("created_by_uid is not null");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidEqualTo(Integer value) {
-            addCriterion("created_by_uid =", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidEqualTo(Integer value) {
+			addCriterion("created_by_uid =", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidNotEqualTo(Integer value) {
-            addCriterion("created_by_uid <>", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidNotEqualTo(Integer value) {
+			addCriterion("created_by_uid <>", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidGreaterThan(Integer value) {
-            addCriterion("created_by_uid >", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidGreaterThan(Integer value) {
+			addCriterion("created_by_uid >", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidGreaterThanOrEqualTo(Integer value) {
-            addCriterion("created_by_uid >=", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidGreaterThanOrEqualTo(Integer value) {
+			addCriterion("created_by_uid >=", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidLessThan(Integer value) {
-            addCriterion("created_by_uid <", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidLessThan(Integer value) {
+			addCriterion("created_by_uid <", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidLessThanOrEqualTo(Integer value) {
-            addCriterion("created_by_uid <=", value, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidLessThanOrEqualTo(Integer value) {
+			addCriterion("created_by_uid <=", value, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidIn(List<Integer> values) {
-            addCriterion("created_by_uid in", values, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidIn(List<Integer> values) {
+			addCriterion("created_by_uid in", values, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidNotIn(List<Integer> values) {
-            addCriterion("created_by_uid not in", values, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidNotIn(List<Integer> values) {
+			addCriterion("created_by_uid not in", values, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidBetween(Integer value1, Integer value2) {
-            addCriterion("created_by_uid between", value1, value2, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidBetween(Integer value1, Integer value2) {
+			addCriterion("created_by_uid between", value1, value2, "createdByUid");
+			return (Criteria) this;
+		}
 
-        public Criteria andCreatedByUidNotBetween(Integer value1, Integer value2) {
-            addCriterion("created_by_uid not between", value1, value2, "createdByUid");
-            return (Criteria) this;
-        }
+		public Criteria andCreatedByUidNotBetween(Integer value1, Integer value2) {
+			addCriterion("created_by_uid not between", value1, value2, "createdByUid");
+			return (Criteria) this;
+		}
 
 		public Criteria andCreatedDateIsNull() {
 			addCriterion("createdDate is null");

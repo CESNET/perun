@@ -28,7 +28,7 @@ public class CreateResource {
 	private String resourceName = "";
 	private String resourceDescription = "";
 	private int facilityId = 0;
-    private int voId = 0;
+	private int voId = 0;
 
 	/**
 	 * Creates a new request
@@ -68,10 +68,10 @@ public class CreateResource {
 			result = false;
 		}
 
-        if(voId == 0){
-            errorMsg += "Wrong parameter VO ID'.\n";
-            result = false;
-        }
+		if(voId == 0){
+			errorMsg += "Wrong parameter VO ID'.\n";
+			result = false;
+		}
 
 		if(errorMsg.length()>0){
 			Window.alert(errorMsg);
@@ -93,7 +93,7 @@ public class CreateResource {
 		this.resourceName = resourceName;
 		this.resourceDescription = resourceDescription;
 		this.facilityId = facilityId;
-        this.voId = voId;
+		this.voId = voId;
 
 		// test arguments
 		if(!this.testCreating()){
@@ -138,9 +138,9 @@ public class CreateResource {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("resource",resource);
 		jsonQuery.put("facility", new JSONNumber(facilityId));
-        jsonQuery.put("vo", new JSONNumber(voId));
+		jsonQuery.put("vo", new JSONNumber(voId));
 
-        return jsonQuery;
+		return jsonQuery;
 
 	}
 

@@ -9,21 +9,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.EntityNotAssignedRuntimeExcep
  * @author Slavek Licehammer
  */
 public class EntityNotAssignedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public EntityNotAssignedException(EntityNotAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public EntityNotAssignedException(EntityNotAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public EntityNotAssignedException(String message) {
-        super(message);
-    }
+	public EntityNotAssignedException(String message) {
+		super(message);
+	}
 
-    public EntityNotAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public EntityNotAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public EntityNotAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public EntityNotAssignedException(Throwable cause) {
+		super(cause);
+	}
 }

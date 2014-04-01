@@ -7,16 +7,16 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    my $candidate = Perun::Common::fromHash(@_);
-    for my $aues (@{$candidate->{_additionalUserExtSources}}) {
-      $aues = Perun::beans::UserExtSource::fromHash("Perun::beans::UserExtSource", $aues);
-    }
-    return $candidate;
+	my $candidate = Perun::Common::fromHash(@_);
+	for my $aues (@{$candidate->{_additionalUserExtSources}}) {
+		$aues = Perun::beans::UserExtSource::fromHash("Perun::beans::UserExtSource", $aues);
+	}
+	return $candidate;
 }
 
 sub TO_JSON
@@ -70,164 +70,164 @@ sub TO_JSON
 	}
 
 	return {id => $id, userExtSource => $userExtSource, additionalUserExtSources => $additionalUserExtSources, attributes => $attributes, firstName => $firstName, lastName => $lastName,
-	    middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter};
+		middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter};
 }
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getTitleBefore
 {
 	my $self = shift;
 
-    return $self->{_titleBefore};
+	return $self->{_titleBefore};
 }
 
 sub setTitleBefore
 {
-    my $self = shift;
-    $self->{_titleBefore} = shift;
+	my $self = shift;
+	$self->{_titleBefore} = shift;
 
-    return;
+	return;
 }
 
 sub getFirstName
 {
 	my $self = shift;
 
-    return $self->{_firstName};
+	return $self->{_firstName};
 }
 
 sub setFirstName
 {
-    my $self = shift;
-    $self->{_firstName} = shift;
+	my $self = shift;
+	$self->{_firstName} = shift;
 
-    return;
+	return;
 }
 
 sub getMiddleName
 {
 	my $self = shift;
 
-    return $self->{_middleName};
+	return $self->{_middleName};
 }
 
 sub setMiddleName
 {
-    my $self = shift;
-    $self->{_middleName} = shift;
+	my $self = shift;
+	$self->{_middleName} = shift;
 
-    return;
+	return;
 }
 
 sub getLastName
 {
 	my $self = shift;
 
-    return $self->{_lastName};
+	return $self->{_lastName};
 }
 
 sub setLastName
 {
-    my $self = shift;
-    $self->{_lastName} = shift;
+	my $self = shift;
+	$self->{_lastName} = shift;
 
-    return;
+	return;
 }
 
 sub getTitleAfter
 {
 	my $self = shift;
 
-    return $self->{_titleAfter};
+	return $self->{_titleAfter};
 }
 
 sub setTitleAfter
 {
-    my $self = shift;
-    $self->{_titleAfter} = shift;
+	my $self = shift;
+	$self->{_titleAfter} = shift;
 
-    return;
+	return;
 }
 
 sub getCommonName
 {
 	my $self = shift;
 
-    return ($self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName});
+	return ($self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName});
 }
 
 sub getDisplayName
 {
 	my $self = shift;
 
-    return ($self->{_titleBefore} . ' ' . $self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName} . ' ' . $self->{_titleAfter});
+	return ($self->{_titleBefore} . ' ' . $self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName} . ' ' . $self->{_titleAfter});
 }
 
 sub getUserExtSource
 {
-    my $self = shift;
+	my $self = shift;
 
-    if ( ref($self->{_userExtSource}) eq 'HASH' ) {
-    	return Perun::beans::UserExtSource->fromHash($self->{_userExtSource});
-    } else {
-    	return $self->{_userExtSource};
+	if ( ref($self->{_userExtSource}) eq 'HASH' ) {
+		return Perun::beans::UserExtSource->fromHash($self->{_userExtSource});
+	} else {
+		return $self->{_userExtSource};
 	}
 }
 
 sub setUserExtSource
 {
-    my $self = shift;
-    $self->{_userExtSource} = shift;
+	my $self = shift;
+	$self->{_userExtSource} = shift;
 
-    return;
+	return;
 }
 
 sub getAdditionalUserExtSources
 {
-    my $self = shift;
+	my $self = shift;
 
-    if ( ref($self->{_additionalUserExtSources}) eq 'HASH' ) {
-    	return Perun::beans::UserExtSource->fromHash($self->{_additionalUserExtSources});
-    } else {
-    	return $self->{_additionalUserExtSources};
+	if ( ref($self->{_additionalUserExtSources}) eq 'HASH' ) {
+		return Perun::beans::UserExtSource->fromHash($self->{_additionalUserExtSources});
+	} else {
+		return $self->{_additionalUserExtSources};
 	}
 }
 
 sub setAdditionalUserExtSources
 {
-    my $self = shift;
-    $self->{_additionalUserExtSources} = shift;
+	my $self = shift;
+	$self->{_additionalUserExtSources} = shift;
 
-    return;
+	return;
 }
 
 sub getAttributes
 {
 	my $self = shift;
 
-    return $self->{_attributes};
+	return $self->{_attributes};
 }
 
 sub setAttributes
 {
-    my $self = shift;
-    $self->{_attributes} = shift;
+	my $self = shift;
+	$self->{_attributes} = shift;
 
-    return;
+	return;
 }
 
 1;

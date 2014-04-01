@@ -7,13 +7,13 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Load external source definitions.
-------------------------------------
-Available options:
- --help        | -h prints this help
+	return qq{
+	Load external source definitions.
+	------------------------------------
+	Available options:
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $batch);

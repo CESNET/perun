@@ -62,21 +62,21 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		this.events = events;
 	}
 
-    /**
-     * Return table with task results and start callback
-     *
-     * @return table
-     */
-    public CellTable<TaskResult> getTable() {
+	/**
+	 * Return table with task results and start callback
+	 *
+	 * @return table
+	 */
+	public CellTable<TaskResult> getTable() {
 
-        retrieveData();
-        return getEmptyTable();
+		retrieveData();
+		return getEmptyTable();
 
-    }
+	}
 
 	/**
 	 * Return table definition
-     *
+	 *
 	 * @return table widget
 	 */
 	public CellTable<TaskResult> getEmptyTable() {
@@ -86,7 +86,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 		// Cell table
 		table = new PerunTable<TaskResult>(list);
-        table.removeRowCountChangeHandler();
+		table.removeRowCountChangeHandler();
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
@@ -100,7 +100,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No propagation results found.");
+		loaderImage.setEmptyResultMessage("No propagation results found.");
 
 		table.addIdColumn("Result Id", null, 85);
 
@@ -134,18 +134,18 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 			}
 		});
 
-        TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
-            @Override
-            public String getValue(TaskResult taskResult) {
-                return taskResult.getService().getName();
-            }
-        };
-        servColumn.setSortable(true);
-        columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
-            public int compare(TaskResult o1, TaskResult o2) {
-                return o1.getService().getName().compareToIgnoreCase(o2.getService().getName());
-            }
-        });
+		TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult taskResult) {
+				return taskResult.getService().getName();
+			}
+		};
+		servColumn.setSortable(true);
+		columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
+			public int compare(TaskResult o1, TaskResult o2) {
+				return o1.getService().getName().compareToIgnoreCase(o2.getService().getName());
+			}
+		});
 
 		// status column
 		TextColumn<TaskResult> statusColumn = new TextColumn<TaskResult>() {
@@ -216,7 +216,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		// Add the other columns.
 		table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
-        table.addColumn(servColumn, "Service");
+		table.addColumn(servColumn, "Service");
 		table.addColumn(statusColumn, "Status");
 		table.addColumn(timeColumn, "Time");
 		table.addColumn(returnCodeColumn, "Return code");
@@ -239,7 +239,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
-				return "";
+		return "";
 
 			}
 		});
@@ -256,117 +256,117 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		js.retrieveData(JSON_URL, "task="+taskId, this);
 	}
 
-    /**
-     * Sorts table by objects date
-     */
-    public void sortTable() {
-        list = new TableSorter<TaskResult>().sortByRichTaskResultDestination(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects date
+	 */
+	public void sortTable() {
+		list = new TableSorter<TaskResult>().sortByRichTaskResultDestination(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Resource to be added as new row
-     */
-    public void addToTable(TaskResult object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Resource to be added as new row
+	 */
+	public void addToTable(TaskResult object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Resource to be removed as row
-     */
-    public void removeFromTable(TaskResult object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Resource to be removed as row
+	 */
+	public void removeFromTable(TaskResult object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<TaskResult> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<TaskResult> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading Task results.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading Task results.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading Task results started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading Task results started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called when loading successfully finishes.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<TaskResult>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Task results loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+	/**
+	 * Called when loading successfully finishes.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<TaskResult>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Task results loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    public void insertToTable(int index, TaskResult object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, TaskResult object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        // TODO Auto-generated method stub
-    }
+	public void setCheckable(boolean checkable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setList(ArrayList<TaskResult> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<TaskResult> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<TaskResult> getList() {
-        return this.list;
-    }
+	public ArrayList<TaskResult> getList() {
+		return this.list;
+	}
 
 }

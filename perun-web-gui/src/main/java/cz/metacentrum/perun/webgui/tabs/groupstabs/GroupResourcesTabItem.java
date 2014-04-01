@@ -60,8 +60,8 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param group
-     */
+	 * @param group
+	 */
 	public GroupResourcesTabItem(Group group){
 		this.group = group;
 		this.groupId = group.getId();
@@ -70,8 +70,8 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param groupId
-     */
+	 * @param groupId
+	 */
 	public GroupResourcesTabItem(int groupId){
 		this.groupId = groupId;
 		JsonCallbackEvents events = new JsonCallbackEvents(){
@@ -100,44 +100,44 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// get VO resources
 		final GetAssignedRichResources resources = new GetAssignedRichResources(groupId, PerunEntity.GROUP);
-        if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) resources.setCheckable(false);
+		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) resources.setCheckable(false);
 
 		// custom events for viewResource
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
 
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromSelectedResources());
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromSelectedResources());
 
 		// add / remove resource from group can be done by vo / perun admin only.
 		if (session.isVoAdmin(group.getVoId())) {
 
 			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToResources(), new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(group, resources.getList()), true);
-                }
-            }));
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(group, resources.getList()), true);
+				}
+			}));
 
-            removeButton.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    final ArrayList<RichResource> toRemove = resources.getTableSelectedList();
-                    String text = "Following resources will be removed from group and it's members won't have access to them anymore.";
-                    UiElements.showDeleteConfirm(toRemove, text, new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-                            RemoveGroupFromResources request = new RemoveGroupFromResources(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-                            request.removeGroupFromResources(group, toRemove);
-                        }
-                    });
-                }
-            });
-            menu.addWidget(removeButton);
+			removeButton.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					final ArrayList<RichResource> toRemove = resources.getTableSelectedList();
+					String text = "Following resources will be removed from group and it's members won't have access to them anymore.";
+					UiElements.showDeleteConfirm(toRemove, text, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+							RemoveGroupFromResources request = new RemoveGroupFromResources(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+							request.removeGroupFromResources(group, toRemove);
+						}
+					});
+				}
+			});
+			menu.addWidget(removeButton);
 		}
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
-            public void searchFor(String text) {
-                resources.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterResources());
+			public void searchFor(String text) {
+				resources.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterResources());
 
 		// add menu to the main panel
 		vp.add(menu);
@@ -145,19 +145,19 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		CellTable<RichResource> table;
 
-        // perun / vo admin can set attributes
-        if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId())) {
-            table = resources.getTable(new FieldUpdater<RichResource, String>() {
-                public void update(int index, RichResource object, String value) {
-                    session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
-                }
-            });
-        } else {
-            table = resources.getTable();
-        }
+		// perun / vo admin can set attributes
+		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId())) {
+			table = resources.getTable(new FieldUpdater<RichResource, String>() {
+				public void update(int index, RichResource object, String value) {
+					session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
+				}
+			});
+		} else {
+			table = resources.getTable();
+		}
 
-        removeButton.setEnabled(false);
-        if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
+		removeButton.setEnabled(false);
+		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
@@ -211,7 +211,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(group, "Resources", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(group, "Resources", getUrlWithParameters());
 		if(group != null){
 			session.setActiveGroup(group);
 		} else {

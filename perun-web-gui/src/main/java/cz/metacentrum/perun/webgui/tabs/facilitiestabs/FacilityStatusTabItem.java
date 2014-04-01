@@ -55,8 +55,8 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Creates a tab instance
-     * @param facility facility to get services and status from
-     */
+	 * @param facility facility to get services and status from
+	 */
 	public FacilityStatusTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -65,15 +65,15 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facilityId
-     */
+	 * @param facilityId
+	 */
 	public FacilityStatusTabItem(int facilityId){
 		this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 
@@ -92,18 +92,18 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 		// get empty table
 		final ListAllRichTasksForFacility callback = new ListAllRichTasksForFacility(facility.getId());
-        callback.setCheckable(false);
+		callback.setCheckable(false);
 
-        final CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                callback.clearTable();
-                callback.retrieveData();
-            }
-        });
+		final CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				callback.clearTable();
+				callback.retrieveData();
+			}
+		});
 
-        callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
+		callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
 
-        final CellTable<Task> table = callback.getTable(new FieldUpdater<Task, String>(){
+		final CellTable<Task> table = callback.getTable(new FieldUpdater<Task, String>(){
 			// on row click
 			public void update(int index, final Task object, String value) {
 				// show results
@@ -118,12 +118,12 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 		menu.addWidget(refreshButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                callback.filterTable(text);
-            }
-        }, "Filter propagations by service name or type");
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, "Filter propagations by service name or type");
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
@@ -175,7 +175,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Propagation status", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Propagation status", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {

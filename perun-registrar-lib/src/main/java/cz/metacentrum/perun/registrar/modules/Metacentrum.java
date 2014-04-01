@@ -18,41 +18,41 @@ import java.util.List;
  */
 public class Metacentrum implements RegistrarModule {
 
-    final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
+	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
 
-    @Override
-    public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-        return data;
-    }
+	@Override
+	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
+		return data;
+	}
 
-    /**
-     * Add all new Metacentrum members to "storage" group.
-     */
-    @Override
-    public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	/**
+	 * Add all new Metacentrum members to "storage" group.
+	 */
+	@Override
+	public Application approveApplication(PerunSession session, Application app) throws PerunException {
 
-        // get perun from session
-        Perun perun = session.getPerun();
+		// get perun from session
+		Perun perun = session.getPerun();
 
-        if (Application.AppType.INITIAL.equals(app.getType())) {
+		if (Application.AppType.INITIAL.equals(app.getType())) {
 
-            Vo vo = app.getVo();
-            User user = app.getUser();
-            Group group = perun.getGroupsManager().getGroupByName(session, vo, "storage");
-            Member mem = perun.getMembersManager().getMemberByUser(session, vo, user);
+			Vo vo = app.getVo();
+			User user = app.getUser();
+			Group group = perun.getGroupsManager().getGroupByName(session, vo, "storage");
+			Member mem = perun.getMembersManager().getMemberByUser(session, vo, user);
 
-            try  {
-                perun.getGroupsManager().addMember(session, group, mem);
-            } catch (AlreadyMemberException ex) {
+			try  {
+				perun.getGroupsManager().addMember(session, group, mem);
+			} catch (AlreadyMemberException ex) {
 
-            }
-        }
-        return app;
+			}
+		}
+		return app;
 
-    }
+	}
 
-    @Override
-    public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-        return app;
-    }
+	@Override
+	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
+		return app;
+	}
 }

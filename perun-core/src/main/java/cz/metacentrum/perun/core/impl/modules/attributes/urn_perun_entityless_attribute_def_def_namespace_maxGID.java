@@ -19,29 +19,29 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 public class urn_perun_entityless_attribute_def_def_namespace_maxGID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-        Integer maxGID = (Integer) attribute.getValue();
-        if(maxGID != null) {
-          if(maxGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
-          try {
-            Attribute minGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
-          } catch (AttributeNotExistsException ex) {
-              throw new ConsistencyErrorException("Attribute namespace-minGID is supposed to exist.",ex);
-          }
-          Integer minGID = (Integer) attribute.getValue();
-          if(minGID != null) {
-              if(maxGID < minGID) throw new WrongAttributeValueException(attribute, "Attribute value must be more than minGID. MinGID = " + minGID + ", and maxGID try to set = " + maxGID);
-          }
-        }
-    }
+	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Integer maxGID = (Integer) attribute.getValue();
+		if(maxGID != null) {
+			if(maxGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
+			try {
+				Attribute minGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException("Attribute namespace-minGID is supposed to exist.",ex);
+			}
+			Integer minGID = (Integer) attribute.getValue();
+			if(minGID != null) {
+				if(maxGID < minGID) throw new WrongAttributeValueException(attribute, "Attribute value must be more than minGID. MinGID = " + minGID + ", and maxGID try to set = " + maxGID);
+			}
+		}
+	}
 
-    @Override
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-      attr.setFriendlyName("namespace_maxGID");
-      attr.setType(Integer.class.getName());
-      attr.setDescription("Maximal value of Group ID.");
-      return attr;
-    }
+	@Override
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attr.setFriendlyName("namespace_maxGID");
+		attr.setType(Integer.class.getName());
+		attr.setDescription("Maximal value of Group ID.");
+		return attr;
+	}
 }

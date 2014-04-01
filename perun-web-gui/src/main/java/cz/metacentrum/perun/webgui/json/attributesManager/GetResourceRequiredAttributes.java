@@ -61,8 +61,8 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 	/**
 	 * Creates a new callback
 	 *
-     * @param ids IDS of entities we want attributes for
-     */
+	 * @param ids IDS of entities we want attributes for
+	 */
 	public GetResourceRequiredAttributes(Map<String, Integer> ids) {
 		this.ids = ids;
 	}
@@ -70,9 +70,9 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 	/**
 	 * Creates a new callback
 	 *
-     * @param ids IDS of entities we want attributes for
-     * @param events external events
-     */
+	 * @param ids IDS of entities we want attributes for
+	 * @param events external events
+	 */
 	public GetResourceRequiredAttributes(Map<String, Integer> ids, JsonCallbackEvents events) {
 		this.events = events;
 		this.ids = ids;
@@ -203,21 +203,21 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getFriendlyName().compareToIgnoreCase(
-						o2.getFriendlyName());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getFriendlyName().compareToIgnoreCase(
+							o2.getFriendlyName());
+					}
+				});
 
 
 		// Sorting type column
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getType().compareToIgnoreCase(o2.getType());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getType().compareToIgnoreCase(o2.getType());
+					}
+				});
 
 
 
@@ -225,28 +225,28 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 		valueColumn.setSortable(true);
 		columnSortHandler.setComparator(valueColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getValue().compareToIgnoreCase(o2.getValue());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getValue().compareToIgnoreCase(o2.getValue());
+					}
+				});
 
 		// Sorting value column
 		entityColumn.setSortable(true);
 		columnSortHandler.setComparator(entityColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getEntity().compareToIgnoreCase(o2.getEntity());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getEntity().compareToIgnoreCase(o2.getEntity());
+					}
+				});
 
 		// Sorting value column
 		defTypeColumn.setSortable(true);
 		columnSortHandler.setComparator(defTypeColumn,
 				new Comparator<Attribute>() {
-			public int compare(Attribute o1, Attribute o2) {
-				return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
-			}
-		});
+					public int compare(Attribute o1, Attribute o2) {
+						return o1.getDefinition().compareToIgnoreCase(o2.getDefinition());
+					}
+				});
 
 		// Add the columns.
 		this.table.addColumnSortHandler(columnSortHandler);
@@ -260,42 +260,42 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 
 		// Add the columns.
 
-        // checkbox column column
-        Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
-                new PerunCheckboxCell<Attribute>(true, false, false)) {
-            @Override
-            public Attribute getValue(Attribute object) {
-                // Get the value from the selection model.
-                GeneralObject go = object.cast();
-                go.setChecked(selectionModel.isSelected(object));
-                return go.cast();
-            }
-        };
+		// checkbox column column
+		Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
+				new PerunCheckboxCell<Attribute>(true, false, false)) {
+			@Override
+			public Attribute getValue(Attribute object) {
+				// Get the value from the selection model.
+				GeneralObject go = object.cast();
+				go.setChecked(selectionModel.isSelected(object));
+				return go.cast();
+			}
+		};
 
-        // updates the columns size
-        table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
+		// updates the columns size
+		table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
 
-        // Add the columns
+		// Add the columns
 
-        // Checkbox column header
-        CheckboxCell cb = new CheckboxCell();
-        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-            public Boolean getValue() {
-                return false;//return true to see a checked checkbox.
-            }
-        };
-        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-            public void update(Boolean value) {
-                // sets selected to all, if value = true, unselect otherwise
-                for(Attribute obj : list){
-                    if (obj.isWritable()) {
-                        selectionModel.setSelected(obj, value);
-                    }
-                }
-            }
-        });
+		// Checkbox column header
+		CheckboxCell cb = new CheckboxCell();
+		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+			public Boolean getValue() {
+				return false;//return true to see a checked checkbox.
+			}
+		};
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+			public void update(Boolean value) {
+				// sets selected to all, if value = true, unselect otherwise
+				for(Attribute obj : list){
+					if (obj.isWritable()) {
+						selectionModel.setSelected(obj, value);
+					}
+				}
+			}
+		});
 
-        table.addColumn(checkBoxColumn, checkBoxHeader);
+		table.addColumn(checkBoxColumn, checkBoxHeader);
 
 		this.table.addIdColumn("Attribute ID");
 		this.table.addColumn(nameColumn, "Name");
@@ -308,123 +308,123 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 		return this.table;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Attribute>().sortByFriendlyName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Attribute>().sortByFriendlyName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Attribute to be added as new row
-     */
-    public void addToTable(Attribute object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Attribute to be added as new row
+	 */
+	public void addToTable(Attribute object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Attribute to be removed as row
-     */
-    public void removeFromTable(Attribute object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Attribute to be removed as row
+	 */
+	public void removeFromTable(Attribute object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Attribute> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Attribute> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading required attributes.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading required attributes.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading required attributes started.");
-        loaderImage.loadingStart();
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading required attributes started.");
+		loaderImage.loadingStart();
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        clearTable();
-        for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
-            if (!a.getDefinition().equals("core")) {
-                addToTable(a);
-            }
-        }
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Required attributes loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		clearTable();
+		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
+			if (!a.getDefinition().equals("core")) {
+				addToTable(a);
+			}
+		}
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Required attributes loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Attribute object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Attribute object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        //this.editable = editable;
-    }
+	public void setEditable(boolean editable) {
+		//this.editable = editable;
+	}
 
-    public void setCheckable(boolean checkable) {
-        //this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		//this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Attribute> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Attribute> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Attribute> getList() {
-        return this.list;
-    }
+	public ArrayList<Attribute> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Returns shorten string for ValueTypeColum

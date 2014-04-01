@@ -8,17 +8,17 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Jirka Mauritz <jirmauritz@gmail.com>
  */
 public class WrongPatternException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public WrongPatternException(String message) {
-        super(message);
-    }
+	public WrongPatternException(String message) {
+		super(message);
+	}
 
-    public WrongPatternException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public WrongPatternException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public WrongPatternException(Throwable cause) {
-        super(cause);
-    }
+	public WrongPatternException(Throwable cause) {
+		super(cause);
+	}
 }

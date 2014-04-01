@@ -7,8 +7,8 @@ package cz.metacentrum.perun.notif.mail;
  */
 public class PerunNotifPlainMessage extends MessagePreparator implements EmailMessage {
 
-    public PerunNotifPlainMessage(String from, String fromText, String subject, String messageContent) {
+	public PerunNotifPlainMessage(String from, String fromText, String subject, String messageContent) {
 
-        super(from, fromText, subject, messageContent, EmailType.PLAIN);
-    }
+		super(from, fromText, subject, messageContent, EmailType.PLAIN);
+	}
 }

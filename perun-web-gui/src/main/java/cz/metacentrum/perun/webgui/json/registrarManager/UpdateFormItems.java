@@ -39,7 +39,7 @@ public class UpdateFormItems {
 
 	/**
 	 * Creates a new request
-     *
+	 *
 	 * @param entity VO or Group
 	 * @param id ID of entity
 	 */
@@ -50,7 +50,7 @@ public class UpdateFormItems {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param entity VO or Group
 	 * @param id ID of entity
 	 * @param events Custom events

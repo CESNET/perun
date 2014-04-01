@@ -38,7 +38,7 @@ public class UpdateApplicationMail {
 
 	/**
 	 * Creates a new request with custom events
-     *
+	 *
 	 * @param events Custom events
 	 */
 	public UpdateApplicationMail(JsonCallbackEvents events) {

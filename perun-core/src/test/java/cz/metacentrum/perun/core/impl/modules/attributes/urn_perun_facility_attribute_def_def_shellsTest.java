@@ -28,47 +28,47 @@ import static org.mockito.Mockito.when;
  */
 public class urn_perun_facility_attribute_def_def_shellsTest {
 
-    private static urn_perun_facility_attribute_def_def_shells classInstance;
-    private static PerunSessionImpl session;
-    private static Attribute attribute;
-    private static ModulesUtilsBlImpl modulesUtils;
+	private static urn_perun_facility_attribute_def_def_shells classInstance;
+	private static PerunSessionImpl session;
+	private static Attribute attribute;
+	private static ModulesUtilsBlImpl modulesUtils;
 
-    @Before
-    public void setUp() {
-        classInstance = new urn_perun_facility_attribute_def_def_shells();
-        session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-        attribute = new Attribute();
-    }
+	@Before
+	public void setUp() {
+		classInstance = new urn_perun_facility_attribute_def_def_shells();
+		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+		attribute = new Attribute();
+	}
 
-    /**
-     * Test of checkAttributeValue method, of class urn_perun_facility_attribute_def_def_shells.
-     * with all properly set
-     */
-    @Test
-    public void testCheckAttributeValue() throws Exception {
-        System.out.println("testCheckAttributeValue()");
+	/**
+	 * Test of checkAttributeValue method, of class urn_perun_facility_attribute_def_def_shells.
+	 * with all properly set
+	 */
+	@Test
+	public void testCheckAttributeValue() throws Exception {
+		System.out.println("testCheckAttributeValue()");
 
-        ArrayList<String> shells = new ArrayList<String>();
-        shells.add("/bin/bash");
-        shells.add("/bin/csh");
-        attribute.setValue(shells);
+		ArrayList<String> shells = new ArrayList<String>();
+		shells.add("/bin/bash");
+		shells.add("/bin/csh");
+		attribute.setValue(shells);
 
-        classInstance.checkAttributeValue(session, new Facility(), attribute);
+		classInstance.checkAttributeValue(session, new Facility(), attribute);
 
-    }
+	}
 
-    @Test(expected=WrongAttributeValueException.class)
-    public void testCheckAttributeValueEmptyAttribute() throws Exception {
-        System.out.println("testCheckAttributeValueEmptyAttribute()");
+	@Test(expected=WrongAttributeValueException.class)
+	public void testCheckAttributeValueEmptyAttribute() throws Exception {
+		System.out.println("testCheckAttributeValueEmptyAttribute()");
 
-        classInstance.checkAttributeValue(session, new Facility(), attribute);
-    }
+		classInstance.checkAttributeValue(session, new Facility(), attribute);
+	}
 
-    @Test(expected=WrongAttributeValueException.class)
-    public void testCheckAttributeValueNoShellsSet() throws Exception {
-        System.out.println("testCheckAttributeValueNoShellsSet()");
+	@Test(expected=WrongAttributeValueException.class)
+	public void testCheckAttributeValueNoShellsSet() throws Exception {
+		System.out.println("testCheckAttributeValueNoShellsSet()");
 
-        attribute.setValue(new ArrayList<String>());
-        classInstance.checkAttributeValue(session, new Facility(), attribute);
-    }
+		attribute.setValue(new ArrayList<String>());
+		classInstance.checkAttributeValue(session, new Facility(), attribute);
+	}
 }

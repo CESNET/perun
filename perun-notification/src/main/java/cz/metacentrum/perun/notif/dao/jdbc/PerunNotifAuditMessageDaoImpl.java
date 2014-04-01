@@ -37,14 +37,14 @@ public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements Per
 
 		logger.debug("Removing perunNotifAuditMessage with id = {}", id);
 		this.getJdbcTemplate().update("delete from pn_audit_message where id=?", id);
-        logger.debug("PerunNotifAuditMessage with id: {} removed.", id);
+		logger.debug("PerunNotifAuditMessage with id: {} removed.", id);
 	}
 
 	public List<PerunNotifAuditMessage> getAll() {
 
-        logger.debug("Listing all perunNotifAuditMessages.");
+		logger.debug("Listing all perunNotifAuditMessages.");
 		List<PerunNotifAuditMessage> result = this.getJdbcTemplate().query("SELECT * FROM pn_audit_message", PerunNotifAuditMessage.PERUN_NOTIF_MESSAGE);
-        logger.debug("Result of list of PerunNotifAuditMessage: {}", result);
+		logger.debug("Result of list of PerunNotifAuditMessage: {}", result);
 		return result;
 	}
 }

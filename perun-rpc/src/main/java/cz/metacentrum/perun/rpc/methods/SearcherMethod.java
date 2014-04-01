@@ -12,15 +12,15 @@ import java.util.LinkedHashMap;
 
 public enum SearcherMethod implements ManagerMethod {
 
-  getUsers {
+	getUsers {
 
-    @Override
-    public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.stateChangingCheck();
+		@Override
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 
-      return ac.getSearcher().getUsers(ac.getSession(),
-              //FIXME this parameter maybe not correct
-              parms.read("attributesWithSearchingValues", LinkedHashMap.class));
-    }
-  };
+			return ac.getSearcher().getUsers(ac.getSession(),
+					//FIXME this parameter maybe not correct
+					parms.read("attributesWithSearchingValues", LinkedHashMap.class));
+		}
+	};
 }

@@ -8,22 +8,22 @@ use Text::ASCIITable;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Prints list of Attributes Definition
-------------------------------------------
-Available options:
- --orderById   | -i  order by numeric Id
- --orderByName | -n  order by name (default)
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Prints list of Attributes Definition
+	------------------------------------------
+	Available options:
+	--orderById   | -i  order by numeric Id
+	--orderByName | -n  order by name (default)
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 my ($sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help; exit 0;} ,
-            "batch|b" => \$batch,
-            "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help;
+	"batch|b" => \$batch,
+"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help;
 
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
@@ -38,7 +38,7 @@ my $table = Text::ASCIITable->new();
 $table->setCols('Id','namespace','friendlyName', 'type', 'Description');
 
 for my $attribute (sort $sortingFunction @attrs) {
-  $table->addRow($attribute->getId, $attribute->getNamespace, $attribute->getFriendlyName, $attribute->getType, $attribute->getDescription);
+	$table->addRow($attribute->getId, $attribute->getNamespace, $attribute->getFriendlyName, $attribute->getType, $attribute->getDescription);
 }
 
 print tableToPrint($table, $batch);

@@ -25,98 +25,98 @@ import java.io.OutputStream;
  */
 public final class JsonSerializer implements Serializer {
 
-    @JsonIgnoreProperties({"name"})
-    private interface AttributeMixIn {
-    }
+	@JsonIgnoreProperties({"name"})
+	private interface AttributeMixIn {
+	}
 
-    @JsonIgnoreProperties({"name"})
-    private interface AttributeDefinitionMixIn {
-    }
+	@JsonIgnoreProperties({"name"})
+	private interface AttributeDefinitionMixIn {
+	}
 
-    @JsonIgnoreProperties({"commonName", "displayName"})
-    private interface UserMixIn {
-    }
+	@JsonIgnoreProperties({"commonName", "displayName"})
+		private interface UserMixIn {
+		}
 
-    @JsonIgnoreProperties({"userExtSources"})
-    private interface CandidateMixIn {
-    }
+	@JsonIgnoreProperties({"userExtSources"})
+	private interface CandidateMixIn {
+	}
 
-    @JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
-    private interface PerunExceptionMixIn {
-    }
+	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
+		private interface PerunExceptionMixIn {
+		}
 
-    public static final String CONTENT_TYPE = "application/json; charset=utf-8";
-    private static final ObjectMapper mapper = new ObjectMapper();
+	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
+	private static final ObjectMapper mapper = new ObjectMapper();
 
-    static {
-        mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
-        mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-        mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-        mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
-        mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
-        mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
-    }
+	static {
+		mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
+	}
 
-    private static final JsonFactory jsonFactory = new JsonFactory();
+	private static final JsonFactory jsonFactory = new JsonFactory();
 
-    static {
-        //FIXME odstraneno disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
-        jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).setCodec(mapper);
-    }
+	static {
+		//FIXME odstraneno disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+		jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).setCodec(mapper);
+	}
 
-    private OutputStream out;
+	private OutputStream out;
 
-    /**
-     * @param out {@code OutputStream} to output serialized data
-     * @throws IOException if an IO error occurs
-     */
-    public JsonSerializer(OutputStream out) throws IOException {
-        this.out = out;
-    }
+	/**
+	 * @param out {@code OutputStream} to output serialized data
+	 * @throws IOException if an IO error occurs
+	 */
+	public JsonSerializer(OutputStream out) throws IOException {
+		this.out = out;
+	}
 
-    @Override
-    public String getContentType() {
-        return CONTENT_TYPE;
-    }
+	@Override
+	public String getContentType() {
+		return CONTENT_TYPE;
+	}
 
-    @Override
-    public void write(Object object) throws RpcException, IOException {
-        JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+	@Override
+	public void write(Object object) throws RpcException, IOException {
+		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
 
-        try {
-            gen.writeObject(object);
-            gen.flush();
-            gen.close();
-        } catch (JsonProcessingException ex) {
-            throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, ex);
-        }
-    }
+		try {
+			gen.writeObject(object);
+			gen.flush();
+			gen.close();
+		} catch (JsonProcessingException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, ex);
+		}
+	}
 
-    @Override
-    public void writePerunException(PerunException pex) throws IOException {
+	@Override
+	public void writePerunException(PerunException pex) throws IOException {
 
-        JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-        if (pex == null) {
-            throw new IllegalArgumentException("pex is null");
-        } else {
-            gen.writeObject(pex);
-            gen.flush();
-        }
-        gen.close();
+		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		if (pex == null) {
+			throw new IllegalArgumentException("pex is null");
+		} else {
+			gen.writeObject(pex);
+			gen.flush();
+		}
+		gen.close();
 
-    }
+	}
 
-    @Override
-    public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
+	@Override
+	public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
 
-        JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-        if (prex == null) {
-            throw new IllegalArgumentException("prex is null");
-        } else {
-            gen.writeObject(prex);
-            gen.flush();
-        }
-        gen.close();
+		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		if (prex == null) {
+			throw new IllegalArgumentException("prex is null");
+		} else {
+			gen.writeObject(prex);
+			gen.flush();
+		}
+		gen.close();
 
-    }
+	}
 }

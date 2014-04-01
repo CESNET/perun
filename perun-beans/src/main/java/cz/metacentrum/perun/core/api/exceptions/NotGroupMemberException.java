@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.NotGroupMemberRuntimeExceptio
  * @author Michal Prochazka
  */
 public class NotGroupMemberException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Member member;
+	private Member member;
 
-    public NotGroupMemberException(NotGroupMemberRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public NotGroupMemberException(NotGroupMemberRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public NotGroupMemberException(String message) {
-        super(message);
-    }
+	public NotGroupMemberException(String message) {
+		super(message);
+	}
 
-    public NotGroupMemberException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public NotGroupMemberException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public NotGroupMemberException(Throwable cause) {
-        super(cause);
-    }
+	public NotGroupMemberException(Throwable cause) {
+		super(cause);
+	}
 
-    public NotGroupMemberException(Member member) {
-        super(member.toString());
-        this.member = member;
-    }
+	public NotGroupMemberException(Member member) {
+		super(member.toString());
+		this.member = member;
+	}
 
-    public Member getMember() {
-        return member;
-    }
+	public Member getMember() {
+		return member;
+	}
 }

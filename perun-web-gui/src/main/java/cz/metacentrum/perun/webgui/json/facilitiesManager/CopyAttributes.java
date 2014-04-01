@@ -20,7 +20,7 @@ public class CopyAttributes {
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// facility
-    private int sourceFacility = 0;
+	private int sourceFacility = 0;
 	private int destinationFacility = 0;
 	// URL to call
 	final String JSON_URL = "facilitiesManager/copyAttributes";
@@ -77,7 +77,7 @@ public class CopyAttributes {
 	public void copyFacilityAttributes(int sourceFacility, int destinationFacility)
 	{
 
-        this.sourceFacility = sourceFacility;
+		this.sourceFacility = sourceFacility;
 		this.destinationFacility = destinationFacility;
 
 		// test arguments
@@ -122,7 +122,7 @@ public class CopyAttributes {
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("srcFacility", new JSONNumber(sourceFacility));
-        jsonQuery.put("destFacility", new JSONNumber(destinationFacility));
+		jsonQuery.put("destFacility", new JSONNumber(destinationFacility));
 		return jsonQuery;
 
 	}

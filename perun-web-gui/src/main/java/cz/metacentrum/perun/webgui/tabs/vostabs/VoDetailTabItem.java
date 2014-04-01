@@ -55,33 +55,33 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 	private Label titleWidget = new Label("Loading vo");
 
 	private int voId;
-    private TabPanelForTabItems tabPanel;
+	private TabPanelForTabItems tabPanel;
 
 	/**
 	 * Creates a new view VO class
 	 *
-     * @param vo
-     */
+	 * @param vo
+	 */
 	public VoDetailTabItem(VirtualOrganization vo){
 		this.vo = vo;
 		this.voId = vo.getId();
-        tabPanel = new TabPanelForTabItems(this);
+		tabPanel = new TabPanelForTabItems(this);
 	}
 
 	/**
 	 * Creates a new view VO class
 	 *
-     * @param voId
-     */
+	 * @param voId
+	 */
 	public VoDetailTabItem(int voId){
 		this.voId = voId;
-        tabPanel = new TabPanelForTabItems(this);
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		tabPanel = new TabPanelForTabItems(this);
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -90,98 +90,98 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-        this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()));
+		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()));
 
-        // main panel
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSize("100%", "100%");
+		// main panel
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
 
-        // The table
-        AbsolutePanel dp = new AbsolutePanel();
-        //dp.setStyleName("decoration");
-        final FlexTable menu = new FlexTable();
-        menu.setCellSpacing(5);
+		// The table
+		AbsolutePanel dp = new AbsolutePanel();
+		//dp.setStyleName("decoration");
+		final FlexTable menu = new FlexTable();
+		menu.setCellSpacing(5);
 
-        // Add VO information
-        menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.buildingIcon()));
-        Label voName = new Label();
-        voName.setText(Utils.getStrippedStringWithEllipsis(vo.getName(), 40));
-        voName.setStyleName("now-managing");
-        voName.setTitle(vo.getName());
-        menu.setWidget(0, 1, voName);
+		// Add VO information
+		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.buildingIcon()));
+		Label voName = new Label();
+		voName.setText(Utils.getStrippedStringWithEllipsis(vo.getName(), 40));
+		voName.setStyleName("now-managing");
+		voName.setTitle(vo.getName());
+		menu.setWidget(0, 1, voName);
 
-        menu.setHTML(0, 2, "&nbsp;");
-        menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+		menu.setHTML(0, 2, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-        int column = 3;
-        if (JsonUtils.isExtendedInfoVisible()) {
-            menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getId()+"</span>");
-            column++;
-            menu.setHTML(0, column, "&nbsp;");
-            menu.getFlexCellFormatter().setWidth(0, column, "25px");
-            column++;
-        }
+		int column = 3;
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
 
-        menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
+		menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
 
-        CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                tabPanel.getSelectedTabItem().draw();
-            }
-        });
-        dp.add(cb);
-        cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
+		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabPanel.getSelectedTabItem().draw();
+			}
+		});
+		dp.add(cb);
+		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
-        final JsonCallbackEvents events = new JsonCallbackEvents() {
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                // set VO and redraw tab
-                vo = jso.cast();
-                open();
-                draw();
-            }
-        };
+		final JsonCallbackEvents events = new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				// set VO and redraw tab
+				vo = jso.cast();
+				open();
+				draw();
+			}
+		};
 
-        CustomButton change = new CustomButton("", "Edit VO details", SmallIcons.INSTANCE.applicationFormEditIcon());
-        change.addClickHandler(new ClickHandler(){
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new EditVoDetailsTabItem(vo, events));
-            }
-        });
+		CustomButton change = new CustomButton("", "Edit VO details", SmallIcons.INSTANCE.applicationFormEditIcon());
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new EditVoDetailsTabItem(vo, events));
+			}
+		});
 
-        if (!session.isVoAdmin(voId)) change.setEnabled(false);
-        dp.add(change);
-        change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		if (!session.isVoAdmin(voId)) change.setEnabled(false);
+		dp.add(change);
+		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
-        dp.add(menu);
-        vp.add(dp);
-        vp.setCellHeight(dp, "30px");
+		dp.add(menu);
+		vp.add(dp);
+		vp.setCellHeight(dp, "30px");
 
-        tabPanel.clear();
+		tabPanel.clear();
 
-        tabPanel.add(new VoOverviewTabItem(vo), "Overview");
-        tabPanel.add(new VoMembersTabItem(vo), "Members");
-        tabPanel.add(new VoGroupsTabItem(vo), "Groups");
-        tabPanel.add(new VoResourcesTabItem(vo), "Resources");
-        tabPanel.add(new VoApplicationsTabItem(vo), "Applications");
-        tabPanel.add(new VoApplicationFormSettingsTabItem(vo), "Application form");
-        tabPanel.add(new VoSettingsTabItem(vo), "Settings");
-        tabPanel.add(new VoManagersTabItem(vo), "Managers");
-        tabPanel.add(new VoExtSourcesTabItem(vo), "External sources");
-        //tabPanel.add(new VoFacilitiesPropagationsTabItem(session, vo), "Facilities states");
+		tabPanel.add(new VoOverviewTabItem(vo), "Overview");
+		tabPanel.add(new VoMembersTabItem(vo), "Members");
+		tabPanel.add(new VoGroupsTabItem(vo), "Groups");
+		tabPanel.add(new VoResourcesTabItem(vo), "Resources");
+		tabPanel.add(new VoApplicationsTabItem(vo), "Applications");
+		tabPanel.add(new VoApplicationFormSettingsTabItem(vo), "Application form");
+		tabPanel.add(new VoSettingsTabItem(vo), "Settings");
+		tabPanel.add(new VoManagersTabItem(vo), "Managers");
+		tabPanel.add(new VoExtSourcesTabItem(vo), "External sources");
+		//tabPanel.add(new VoFacilitiesPropagationsTabItem(session, vo), "Facilities states");
 
-        // Resize must be called after page fully displays
-        Scheduler.get().scheduleDeferred(new Command() {
-            @Override
-            public void execute() {
-                tabPanel.finishAdding();
-            }
-        });
+		// Resize must be called after page fully displays
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				tabPanel.finishAdding();
+			}
+		});
 
-        vp.add(tabPanel);
+		vp.add(tabPanel);
 
-        this.contentWidget.setWidget(vp);
+		this.contentWidget.setWidget(vp);
 
 		return getWidget();
 	}
@@ -226,15 +226,15 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "", "");
-        if(vo != null){
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "", "");
+		if(vo != null){
 			session.setActiveVo(vo);
 		} else {
-            session.setActiveVoId(voId);
-        }
-    }
+			session.setActiveVoId(voId);
+		}
+	}
 
-    public boolean isAuthorized() {
+	public boolean isAuthorized() {
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
 			return true;
 		} else {

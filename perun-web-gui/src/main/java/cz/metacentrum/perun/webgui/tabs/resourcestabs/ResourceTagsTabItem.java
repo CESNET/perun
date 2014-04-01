@@ -58,21 +58,21 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param resourceId ID of resource to get groups management for
-     */
+	 * @param resourceId ID of resource to get groups management for
+	 */
 	public ResourceTagsTabItem(int resourceId){
 		this.resourceId = resourceId;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a tab instance
-     * @param resource resource to get groups management for
-     */
+	 * @param resource resource to get groups management for
+	 */
 	public ResourceTagsTabItem(Resource resource){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -96,59 +96,59 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(tags);
 
 		CustomButton assignTagsButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignTagsToResource(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AssignTagTabItem(resource), true);
-            }
-        });
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new AssignTagTabItem(resource), true);
+			}
+		});
 
 		final CustomButton removeTagsButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedTagsFromResource());
 		removeTagsButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                final ArrayList<ResourceTag> tagsToRemove = tags.getTableSelectedList();
-                String text = "Following groups will be removed from resource.";
-                UiElements.showDeleteConfirm(tagsToRemove, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
-                        for (int i = 0; i < tagsToRemove.size(); i++) {
-                            if (i == tagsToRemove.size() - 1) {
-                                RemoveResourceTag request = new RemoveResourceTag(resource.getId(), JsonCallbackEvents.disableButtonEvents(removeTagsButton, localEvents));
-                                request.removeResourceTag(tagsToRemove.get(i));
-                            } else {
-                                RemoveResourceTag request = new RemoveResourceTag(resource.getId(), JsonCallbackEvents.disableButtonEvents(removeTagsButton));
-                                request.removeResourceTag(tagsToRemove.get(i));
-                            }
-                        }
-                    }
-                });
-            }
-        });
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<ResourceTag> tagsToRemove = tags.getTableSelectedList();
+				String text = "Following groups will be removed from resource.";
+				UiElements.showDeleteConfirm(tagsToRemove, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < tagsToRemove.size(); i++) {
+							if (i == tagsToRemove.size() - 1) {
+								RemoveResourceTag request = new RemoveResourceTag(resource.getId(), JsonCallbackEvents.disableButtonEvents(removeTagsButton, localEvents));
+								request.removeResourceTag(tagsToRemove.get(i));
+							} else {
+								RemoveResourceTag request = new RemoveResourceTag(resource.getId(), JsonCallbackEvents.disableButtonEvents(removeTagsButton));
+								request.removeResourceTag(tagsToRemove.get(i));
+							}
+						}
+					}
+				});
+			}
+		});
 
-        if (!session.isVoAdmin(resource.getVoId())) {
-            assignTagsButton.setEnabled(false);
-            removeTagsButton.setEnabled(false);
-            tags.setCheckable(false);
-        }
+		if (!session.isVoAdmin(resource.getVoId())) {
+			assignTagsButton.setEnabled(false);
+			removeTagsButton.setEnabled(false);
+			tags.setCheckable(false);
+		}
 		menu.addWidget(assignTagsButton);
 		menu.addWidget(removeTagsButton);
 
-        menu.addFilterWidget(new ExtendedSuggestBox(tags.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                tags.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterTags());
+		menu.addFilterWidget(new ExtendedSuggestBox(tags.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				tags.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterTags());
 
-        // display menu to vo admin only
-        vp.add(menu);
-        vp.setCellHeight(menu,"30px");
+		// display menu to vo admin only
+		vp.add(menu);
+		vp.setCellHeight(menu,"30px");
 
 		// table with field updater which leads to group detail
 		CellTable<ResourceTag> table = tags.getTable();
 
-        removeTagsButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(tags, table, removeTagsButton);
+		removeTagsButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(tags, table, removeTagsButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");

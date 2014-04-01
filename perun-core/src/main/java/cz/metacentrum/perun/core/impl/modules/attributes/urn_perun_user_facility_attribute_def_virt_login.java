@@ -28,137 +28,137 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
-  @Override
-  /**
-   * Calls checkAttribute on u:login-namespace:[login-namespace]
-   */
-  public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-    if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Login can't be null");
+	@Override
+	/**
+	 * Calls checkAttribute on u:login-namespace:[login-namespace]
+	 */
+	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Login can't be null");
 
-    // Get the login
-    try  {
-      Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+		// Get the login
+		try  {
+			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 
-      Attribute loginAttribute = null;
-      if (loginNamespaceAttribute.getValue() != null) {
-        // Get the u:login-namespace[loginNamespaceAttribute]
-        loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
+			Attribute loginAttribute = null;
+			if (loginNamespaceAttribute.getValue() != null) {
+				// Get the u:login-namespace[loginNamespaceAttribute]
+				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
 
-        loginAttribute.setValue(attribute.getValue());
-        sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, loginAttribute);
-      } else {
-        throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
-      }
-    } catch (AttributeNotExistsException e) {
-      throw new ConsistencyErrorException(e);
-    }
-  }
+				loginAttribute.setValue(attribute.getValue());
+				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, loginAttribute);
+			} else {
+				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
 
-  @Override
-  /**
-   * Calls fillAttribute on u:login-namespace:[login-namespace]
-   */
-  public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
-    Attribute virtLoginAttribute = new Attribute(attributeDefinition);
+	@Override
+	/**
+	 * Calls fillAttribute on u:login-namespace:[login-namespace]
+	 */
+	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+		Attribute virtLoginAttribute = new Attribute(attributeDefinition);
 
-    try {
-    Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+		try {
+			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 
-    if (loginNamespaceAttribute.getValue() != null) {
-      // Get the u:login-namespace[loginNamespaceAttribute]
-      Attribute loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
-      loginAttribute.setValue(loginAttribute.getValue());
-      loginAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, loginAttribute);
+			if (loginNamespaceAttribute.getValue() != null) {
+				// Get the u:login-namespace[loginNamespaceAttribute]
+				Attribute loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
+				loginAttribute.setValue(loginAttribute.getValue());
+				loginAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, loginAttribute);
 
-      virtLoginAttribute.setValue(loginAttribute.getValue());
-    } else {
-      virtLoginAttribute.setValue(null);
-    }
-    } catch (AttributeNotExistsException e) {
-      throw new ConsistencyErrorException(e);
-    }
-    return virtLoginAttribute;
-  }
+				virtLoginAttribute.setValue(loginAttribute.getValue());
+			} else {
+				virtLoginAttribute.setValue(null);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+		return virtLoginAttribute;
+	}
 
-  @Override
-  /**
-   * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
-   */
-  public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
-    Attribute attr = new Attribute(attributeDefinition);
+	@Override
+	/**
+	 * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
+	 */
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		Attribute attr = new Attribute(attributeDefinition);
 
-    Attribute loginAttribute = null;
+		Attribute loginAttribute = null;
 
-    try {
-      // Get the f:login-namespace attribute
-      Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+		try {
+			// Get the f:login-namespace attribute
+			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 
-      if (loginNamespaceAttribute.getValue() != null) {
-        // Get the u:login-namespace[loginNamespaceAttribute]
-        loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
-        attr = Utils.copyAttributeToVirtualAttributeWithValue(loginAttribute, attr);
-      } else {
-        attr.setValue(null);
-      }
-    } catch (AttributeNotExistsException e) {
-      throw new InternalErrorException(e);
-    } catch (WrongAttributeAssignmentException e) {
-      throw new ConsistencyErrorException(e);
-    }
+			if (loginNamespaceAttribute.getValue() != null) {
+				// Get the u:login-namespace[loginNamespaceAttribute]
+				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
+				attr = Utils.copyAttributeToVirtualAttributeWithValue(loginAttribute, attr);
+			} else {
+				attr.setValue(null);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
 
-    return attr;
-  }
+		return attr;
+	}
 
-  @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-    AttributeDefinition userLoginAttributeDefinition;
-    try {
-      // Get the f:login-namespace attribute
-      Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+	@Override
+	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		AttributeDefinition userLoginAttributeDefinition;
+		try {
+			// Get the f:login-namespace attribute
+			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 
-      if (loginNamespaceAttribute.getValue() == null) {
-        throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
-      }
+			if (loginNamespaceAttribute.getValue() == null) {
+				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
+			}
 
-      userLoginAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
-    } catch (AttributeNotExistsException e) {
-      throw new InternalErrorException(e);
-    } catch (WrongAttributeAssignmentException e) {
-      throw new ConsistencyErrorException(e);
-    }
+			userLoginAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
 
-    Attribute userLoginAttribute = new Attribute(userLoginAttributeDefinition);
-    userLoginAttribute.setValue(attribute.getValue());
+		Attribute userLoginAttribute = new Attribute(userLoginAttributeDefinition);
+		userLoginAttribute.setValue(attribute.getValue());
 
-    try {
-      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userLoginAttribute);
-    } catch (WrongAttributeValueException e) {
-      throw new InternalErrorException(e);
-    } catch (WrongAttributeAssignmentException e) {
-      throw new ConsistencyErrorException(e);
-    }
-  }
+		try {
+			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userLoginAttribute);
+		} catch (WrongAttributeValueException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
 
-    /**
-     * Not impelmented
-     */
-    public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
-    }
+	/**
+	 * Not impelmented
+	 */
+	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+	}
 
-    @Override
-    public List<String> getStrongDependencies() {
-      List<String> StrongDependencies = new ArrayList<String>();
-      StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-      StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace" + ":*");
-      return StrongDependencies;
-    }
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> StrongDependencies = new ArrayList<String>();
+		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+		StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace" + ":*");
+		return StrongDependencies;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-      attr.setFriendlyName("login");
-      attr.setType(String.class.getName());
-      attr.setDescription("Login if is set.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		attr.setFriendlyName("login");
+		attr.setType(String.class.getName());
+		attr.setDescription("Login if is set.");
+		return attr;
+	}
 }

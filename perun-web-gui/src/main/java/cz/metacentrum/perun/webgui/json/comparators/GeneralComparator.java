@@ -60,7 +60,7 @@ public class GeneralComparator<T extends JavaScriptObject> implements Comparator
 	 */
 	private int compareById(GeneralObject o1, GeneralObject o2)
 	{
-		 return o1.getId() - o2.getId();
+		return o1.getId() - o2.getId();
 	}
 
 

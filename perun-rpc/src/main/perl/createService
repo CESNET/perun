@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Creates a service. Service name and owner id are required fields.
---------------------------------------
-Available options:
- --serviceName  | -S service name
- --ownerId      | -o owner id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Creates a service. Service name and owner id are required fields.
+	--------------------------------------
+	Available options:
+	--serviceName  | -S service name
+	--ownerId      | -o owner id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($serviceName, $ownerId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "serviceName|S=s" => \$serviceName,"ownerId|o=i" => \$ownerId) || die help();
+"serviceName|S=s" => \$serviceName,"ownerId|o=i" => \$ownerId) || die help();
 
 # Check options
 unless (defined($serviceName)) { die "ERROR: serviceName is required \n";}

@@ -12,87 +12,87 @@ import com.google.gwt.i18n.client.Constants;
 public interface PerunWebConstants extends Constants {
 
 
-    public static final PerunWebConstants INSTANCE =  GWT.create(PerunWebConstants.class);
+	public static final PerunWebConstants INSTANCE =  GWT.create(PerunWebConstants.class);
 
-    /**
-     * Default RPC URL
-     * @return RPC URL string
-     */
-    String perunRpcUrl();
+	/**
+	 * Default RPC URL
+	 * @return RPC URL string
+	 */
+	String perunRpcUrl();
 
-    /**
-     * Federation RPC URL
-     * @return RPC URL string
-     */
-    String perunRpcUrlFed();
+	/**
+	 * Federation RPC URL
+	 * @return RPC URL string
+	 */
+	String perunRpcUrlFed();
 
-    /**
-     * Certificate RPC URL
-     * @return RPC URL string
-     */
-    String perunRpcUrlCert();
+	/**
+	 * Certificate RPC URL
+	 * @return RPC URL string
+	 */
+	String perunRpcUrlCert();
 
 
-    /**
-     * Kerberos RPC URL
-     * @return RPC URL string
-     */
-    String perunRpcUrlKrb();
+	/**
+	 * Kerberos RPC URL
+	 * @return RPC URL string
+	 */
+	String perunRpcUrlKrb();
 
-    /**
-     * Federation RPC URL for forceAuth
-     * @return RPC URL string
-     */
-    String perunRpcUrlForceAuthFed();
+	/**
+	 * Federation RPC URL for forceAuth
+	 * @return RPC URL string
+	 */
+	String perunRpcUrlForceAuthFed();
 
-    /**
-     * Kerberos authz with EINFRA namespace
-     *
-     * @return RPC URL string
-     */
-    String perunRpcUrlKrbEinfra();
+	/**
+	 * Kerberos authz with EINFRA namespace
+	 *
+	 * @return RPC URL string
+	 */
+	String perunRpcUrlKrbEinfra();
 
-    /**
-     * Base timeout for all callbacks to RPC when callback is
-     * removed from page and marked as ServerError (request timeout exceeded)
-     *
-     * @return Callbacks timeout (time in milliseconds)
-     */
-    int jsonTimeout();
+	/**
+	 * Base timeout for all callbacks to RPC when callback is
+	 * removed from page and marked as ServerError (request timeout exceeded)
+	 *
+	 * @return Callbacks timeout (time in milliseconds)
+	 */
+	int jsonTimeout();
 
-    /**
-     * Default interval for refreshing window with pending requests
-     *
-     * @return time in milliseconds
-     */
-    int pendingRequestsRefreshInterval();
+	/**
+	 * Default interval for refreshing window with pending requests
+	 *
+	 * @return time in milliseconds
+	 */
+	int pendingRequestsRefreshInterval();
 
-    /**
-     * Link in the footer of GUI
-     *
-     * @return
-     */
-    String footerPerunLink();
+	/**
+	 * Link in the footer of GUI
+	 *
+	 * @return
+	 */
+	String footerPerunLink();
 
-    /**
-     * License text in footer
-     *
-     * @return
-     */
-    String footerPerunLicense();
+	/**
+	 * License text in footer
+	 *
+	 * @return
+	 */
+	String footerPerunLicense();
 
-    /**
-     * Copyright text in footer
-     *
-     * @return
-     */
-    String footerPerunCopyright();
+	/**
+	 * Copyright text in footer
+	 *
+	 * @return
+	 */
+	String footerPerunCopyright();
 
-    /**
-     * Copyright text in footer
-     *
-     * @return
-     */
-    String guiVersion();
+	/**
+	 * Copyright text in footer
+	 *
+	 * @return
+	 */
+	String guiVersion();
 
 }

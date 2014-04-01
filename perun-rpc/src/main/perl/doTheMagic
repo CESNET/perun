@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Sets all atributes for the member to valid value.
-------------------------------------
-Available options:
- --memberId    | -m member id
- --batch       | -b batch
- --help        | -h prints this help
+	return qq{
+	Sets all atributes for the member to valid value.
+	------------------------------------
+	Available options:
+	--memberId    | -m member id
+	--batch       | -b batch
+	--help        | -h prints this help
 
-};
+	};
 }
 
 my $memberId;
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "memberId|m=i" => \$memberId) || die help();
+"memberId|m=i" => \$memberId) || die help();
 
 # Check options
 unless(defined $memberId) {die "ERROR: memberId is required\n";}

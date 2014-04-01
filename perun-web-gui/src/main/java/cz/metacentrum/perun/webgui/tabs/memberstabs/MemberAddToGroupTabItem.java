@@ -32,7 +32,7 @@ import java.util.ArrayList;
  */
 public class MemberAddToGroupTabItem implements TabItem {
 
-    private RichMember member;
+	private RichMember member;
 	private int memberId;
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
@@ -41,8 +41,8 @@ public class MemberAddToGroupTabItem implements TabItem {
 	/**
 	 * Constructor
 	 *
-     * @param member RichMember object, typically from table
-     */
+	 * @param member RichMember object, typically from table
+	 */
 	public MemberAddToGroupTabItem(RichMember member){
 		this.member = member;
 		this.memberId = member.getId();
@@ -56,64 +56,64 @@ public class MemberAddToGroupTabItem implements TabItem {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": add to group(s)");
 
-        // main widget panel
+		// main widget panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-        TabMenu menu = new TabMenu();
-        vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 
-        final GetAllGroups groups = new GetAllGroups(member.getVoId());
+		final GetAllGroups groups = new GetAllGroups(member.getVoId());
 
-        final TabItem tab = this;
-        final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to selected group(s)");
-        addButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                ArrayList<Group> list = groups.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(list)) {
-                    // TODO - should have only one callback to core
-                    for (int i=0; i<list.size(); i++) {
-                        if (i == list.size()-1) {
-                            // last
-                            AddMember request = new AddMember(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
-                            request.addMemberToGroup(list.get(i), member);
-                        } else {
-                            AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton));
-                            request.addMemberToGroup(list.get(i), member);
-                        }
-                    }
-                }
-            }
-        });
-        menu.addWidget(addButton);
-        addButton.setEnabled(false);
+		final TabItem tab = this;
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to selected group(s)");
+		addButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				ArrayList<Group> list = groups.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					// TODO - should have only one callback to core
+					for (int i=0; i<list.size(); i++) {
+						if (i == list.size()-1) {
+							// last
+							AddMember request = new AddMember(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addMemberToGroup(list.get(i), member);
+						} else {
+							AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton));
+							request.addMemberToGroup(list.get(i), member);
+						}
+					}
+				}
+			}
+		});
+		menu.addWidget(addButton);
+		addButton.setEnabled(false);
 
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                groups.filterTable(text);
-            }
-        }, "Filter groups by name");
+		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				groups.filterTable(text);
+			}
+		}, "Filter groups by name");
 
-        CellTable<Group> table = groups.getTable();
+		CellTable<Group> table = groups.getTable();
 
-        JsonUtils.addTableManagedButton(groups, table, addButton);
+		JsonUtils.addTableManagedButton(groups, table, addButton);
 
-        table.addStyleName("perun-table");
-        ScrollPanel sp = new ScrollPanel(table);
-        sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		table.addStyleName("perun-table");
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        vp.add(sp);
+		vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
 

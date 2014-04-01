@@ -9,12 +9,12 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 @SuppressWarnings("serial")
 public class AttributeExistsRuntimeException extends EntityExistsRuntimeException {
 
-    public AttributeExistsRuntimeException() {
-        super();
-    }
+	public AttributeExistsRuntimeException() {
+		super();
+	}
 
-    public AttributeExistsRuntimeException(Throwable cause) {
-        super(cause);
-    }
+	public AttributeExistsRuntimeException(Throwable cause) {
+		super(cause);
+	}
 
 }

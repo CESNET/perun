@@ -68,13 +68,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getResourceByIdWhenResourceNotExist() throws Exception {
-		System.out.println("ResourcesManager.getResourceByIdWhenResourceNotExists");
+		public void getResourceByIdWhenResourceNotExist() throws Exception {
+			System.out.println("ResourcesManager.getResourceByIdWhenResourceNotExists");
 
-		resourcesManager.getResourceById(sess, 0);
-		// shouldn't find Resource
+			resourcesManager.getResourceById(sess, 0);
+			// shouldn't find Resource
 
-	}
+		}
 
 	@Test
 	public void createResource() throws Exception {
@@ -93,18 +93,18 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-	public void createResourceWhenFacilityNotExists() throws Exception {
-		System.out.println("ResourcesManager.createResourceWhenFacilityNotExists");
+		public void createResourceWhenFacilityNotExists() throws Exception {
+			System.out.println("ResourcesManager.createResourceWhenFacilityNotExists");
 
-		vo = setUpVo();
+			vo = setUpVo();
 
-		Resource resource = new Resource();
-		resource.setName("ResourcesManagerTestResource2");
-		resource.setDescription("Testovaci2");
-		resourcesManager.createResource(sess, resource, vo, new Facility());
-		// shouldn't find facility
+			Resource resource = new Resource();
+			resource.setName("ResourcesManagerTestResource2");
+			resource.setDescription("Testovaci2");
+			resourcesManager.createResource(sess, resource, vo, new Facility());
+			// shouldn't find facility
 
-	}
+		}
 
 	@Test
 	public void deleteResource() throws Exception {
@@ -123,22 +123,22 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Ignore //Resource can be deleted with assigned group
-	@Test (expected=RelationExistsException.class)
-	public void deleteResourceWhenRelationExists() throws Exception {
-		System.out.println("ResourcesManager.deleteResourceWhenRelationExists");
+		@Test (expected=RelationExistsException.class)
+		public void deleteResourceWhenRelationExists() throws Exception {
+			System.out.println("ResourcesManager.deleteResourceWhenRelationExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		assertNotNull("unable to create resource before deletion",resource);
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
+			assertNotNull("unable to create resource before deletion",resource);
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
+			resourcesManager.assignGroupToResource(sess, group, resource);
 
-		resourcesManager.deleteResource(sess, resource);
-		// shouldn't delete resource with assigned group
+			resourcesManager.deleteResource(sess, resource);
+			// shouldn't delete resource with assigned group
 
-	}
+		}
 
 	@Test
 	public void deleteAllResources() throws Exception {
@@ -157,12 +157,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=VoNotExistsException.class)
-	public void deleteAllResourcesWhenVoNotExists() throws Exception {
-		System.out.println("ResourcesManager.deleteAllResourcesWhenVoNotExists");
+		public void deleteAllResourcesWhenVoNotExists() throws Exception {
+			System.out.println("ResourcesManager.deleteAllResourcesWhenVoNotExists");
 
-		resourcesManager.deleteAllResources(sess, new Vo());
+			resourcesManager.deleteAllResources(sess, new Vo());
 
-	}
+		}
 
 	@Test
 	public void getFacility() throws Exception {
@@ -179,13 +179,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getFacilityWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.getFacilityWhenResourceNotExists");
+		public void getFacilityWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.getFacilityWhenResourceNotExists");
 
-		resourcesManager.getFacility(sess, new Resource());
-		// shouldn't find resource
+			resourcesManager.getFacility(sess, new Resource());
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test
 	public void setFacility() throws Exception {
@@ -201,12 +201,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		newFacility.setType("TestingFacility2");
 		newFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
 		/*
-	     Owner owner = new Owner();
-	     owner.setName("ResourcesManagerTestOwner2");
-	     owner.setContact("testingOwner2");
-	     perun.getOwnersManager().createOwner(sess, owner);
-	     perun.getFacilitiesManager().addOwner(sess, newFacility, owner);
-		 */
+			 Owner owner = new Owner();
+			 owner.setName("ResourcesManagerTestOwner2");
+			 owner.setContact("testingOwner2");
+			 perun.getOwnersManager().createOwner(sess, owner);
+			 perun.getFacilitiesManager().addOwner(sess, newFacility, owner);
+			 */
 		resourcesManager.setFacility(sess, resource, newFacility);
 
 		Facility returnedFacility = resourcesManager.getFacility(sess, resource);
@@ -216,29 +216,29 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void setFacilityWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.setFacilityWhenResourceNotExists");
+		public void setFacilityWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.setFacilityWhenResourceNotExists");
 
-		facility = setUpFacility();
+			facility = setUpFacility();
 
-		resourcesManager.setFacility(sess, new Resource(), facility);
-		// shouldn't find resource
+			resourcesManager.setFacility(sess, new Resource(), facility);
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=FacilityNotExistsException.class)
-	public void setFacilityWhenFacilityNotExists() throws Exception {
-		System.out.println("ResourcesManager.setFacilityWhenFacilityNotExists");
+		public void setFacilityWhenFacilityNotExists() throws Exception {
+			System.out.println("ResourcesManager.setFacilityWhenFacilityNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		assertNotNull("unable to create resource",resource);
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
+			assertNotNull("unable to create resource",resource);
 
-		resourcesManager.setFacility(sess, resource, new Facility());
-		// shouldn't find facility
+			resourcesManager.setFacility(sess, resource, new Facility());
+			// shouldn't find facility
 
-	}
+		}
 
 	@Test
 	public void getVo() throws Exception {
@@ -256,12 +256,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getVoWhenResourceNotExist() throws Exception {
-		System.out.println("ResourcesManager.getVoWhenResourceNotExists");
+		public void getVoWhenResourceNotExist() throws Exception {
+			System.out.println("ResourcesManager.getVoWhenResourceNotExists");
 
-		resourcesManager.getVo(sess, new Resource());
+			resourcesManager.getVo(sess, new Resource());
 
-	}
+		}
 
 	@Test
 	public void getAllowedMembers() throws Exception {
@@ -301,13 +301,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getAllowedMembersWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.getAllowedMembersResourceNotExists");
+		public void getAllowedMembersWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.getAllowedMembersResourceNotExists");
 
-		resourcesManager.getAllowedMembers(sess, new Resource());
-		// shouldn't find resource
+			resourcesManager.getAllowedMembers(sess, new Resource());
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test
 	public void assginGroupToResource() throws Exception {
@@ -328,46 +328,46 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void assginGroupToResourceWhenGroupNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignGroupToResourceWhenGroupNotExists");
+		public void assginGroupToResourceWhenGroupNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignGroupToResourceWhenGroupNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		assertNotNull("unable to create resource",resource);
-		resourcesManager.assignGroupToResource(sess, new Group(), resource);
-		// shouldn't find group
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
+			assertNotNull("unable to create resource",resource);
+			resourcesManager.assignGroupToResource(sess, new Group(), resource);
+			// shouldn't find group
 
-	}
+		}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void assginGroupToResourceWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignGroupToResourceWhenResourceNotExists");
+		public void assginGroupToResourceWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignGroupToResourceWhenResourceNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, new Resource());
-		// shouldn't find resource
+			vo = setUpVo();
+			facility = setUpFacility();
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
+			resourcesManager.assignGroupToResource(sess, group, new Resource());
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=GroupAlreadyAssignedException.class)
-	public void assginGroupToResourceWhenGroupAlreadyAssigned() throws Exception {
-		System.out.println("ResourcesManager.assignGroupToResourceWhenGroupAlreadyAssigned");
+		public void assginGroupToResourceWhenGroupAlreadyAssigned() throws Exception {
+			System.out.println("ResourcesManager.assignGroupToResourceWhenGroupAlreadyAssigned");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
+			resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		// shouldn't add group twice
+			resourcesManager.assignGroupToResource(sess, group, resource);
+			resourcesManager.assignGroupToResource(sess, group, resource);
+			// shouldn't add group twice
 
-	}
+		}
 
 	// TODO jak otestovat další 2 výjimky na atributy ?
 
@@ -389,62 +389,62 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void removeGroupFromResourceWhenGroupNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeGroupFromResourceWhenGroupNotExists");
+		public void removeGroupFromResourceWhenGroupNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeGroupFromResourceWhenGroupNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.removeGroupFromResource(sess, new Group(), resource);
-		// shouldn't find Group
+			resourcesManager.removeGroupFromResource(sess, new Group(), resource);
+			// shouldn't find Group
 
-	}
+		}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void removeGroupFromResourceWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeGroupFromResourceWhenResourceNotExists");
+		public void removeGroupFromResourceWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeGroupFromResourceWhenResourceNotExists");
 
-		vo = setUpVo();
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
+			vo = setUpVo();
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
 
-		resourcesManager.removeGroupFromResource(sess, group, new Resource());
-		// shouldn't find resource
+			resourcesManager.removeGroupFromResource(sess, group, new Resource());
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=SubGroupCannotBeRemovedException.class)
-        @Ignore //Because of removing grouper
-	public void removeGroupFromResourceWhichIsSubGroup() throws Exception {
-		System.out.println("ResourcesManager.removeGroupFromResourceWhichIsSubGroup");
+		@Ignore //Because of removing grouper
+		public void removeGroupFromResourceWhichIsSubGroup() throws Exception {
+			System.out.println("ResourcesManager.removeGroupFromResourceWhichIsSubGroup");
 
-		vo = setUpVo();
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
-		subGroup = setUpSubGroup(group);
-		facility = setUpFacility();
-		resource = setUpResource();
-		resourcesManager.assignGroupToResource(sess, group, resource);
+			vo = setUpVo();
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
+			subGroup = setUpSubGroup(group);
+			facility = setUpFacility();
+			resource = setUpResource();
+			resourcesManager.assignGroupToResource(sess, group, resource);
 
-		resourcesManager.removeGroupFromResource(sess, subGroup, resource);
-		// shouldn't remove subGroup when parent group was assigned
+			resourcesManager.removeGroupFromResource(sess, subGroup, resource);
+			// shouldn't remove subGroup when parent group was assigned
 
-	}
+		}
 
 	@Test (expected=GroupNotDefinedOnResourceException.class)
-	public void removeGroupFromResourceWhichWasNotDefinedOnResource() throws Exception {
-		System.out.println("ResourcesManager.removeGroupFromResourceWhichWasNotDefinedOnResource");
+		public void removeGroupFromResourceWhichWasNotDefinedOnResource() throws Exception {
+			System.out.println("ResourcesManager.removeGroupFromResourceWhichWasNotDefinedOnResource");
 
-		vo = setUpVo();
-		member = setUpMember(vo);
-		group = setUpGroup(vo, member);
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			member = setUpMember(vo);
+			group = setUpGroup(vo, member);
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.removeGroupFromResource(sess, group, resource);
+			resourcesManager.removeGroupFromResource(sess, group, resource);
 
-	}
+		}
 
 
 	@Test
@@ -466,12 +466,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getAssignedGroupsWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.getAssignedGroupsWhenResourceNotExists");
+		public void getAssignedGroupsWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.getAssignedGroupsWhenResourceNotExists");
 
-		resourcesManager.getAssignedGroups(sess, new Resource());
-		// shouldn't find resource
-	}
+			resourcesManager.getAssignedGroups(sess, new Resource());
+			// shouldn't find resource
+		}
 
 	@Test
 	public void getAssignedResources() throws Exception {
@@ -492,13 +492,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void getAssignedResourcesWhenGroupNotExists() throws Exception {
-		System.out.println("ResourcesManager.getAssignedResourcesWhenGroupNotExists");
+		public void getAssignedResourcesWhenGroupNotExists() throws Exception {
+			System.out.println("ResourcesManager.getAssignedResourcesWhenGroupNotExists");
 
-		resourcesManager.getAssignedResources(sess, new Group());
-		// shouldn't find group
+			resourcesManager.getAssignedResources(sess, new Group());
+			// shouldn't find group
 
-	}
+		}
 
 	@Test
 	public void getAssignedRichResources() throws Exception {
@@ -524,15 +524,15 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void getAssignedRichResourcesWhenGroupNotExists() throws Exception {
-		System.out.println("ResourcesManager.getAssignedRichResourcesWhenGroupNotExists");
+		public void getAssignedRichResourcesWhenGroupNotExists() throws Exception {
+			System.out.println("ResourcesManager.getAssignedRichResourcesWhenGroupNotExists");
 
-		resourcesManager.getAssignedRichResources(sess, new Group());
-		// shouldn't find group
+			resourcesManager.getAssignedRichResources(sess, new Group());
+			// shouldn't find group
 
-	}
+		}
 
-        @Test
+	@Test
 	public void getAssignedResourcesForMember() throws Exception {
 		System.out.println("ResourcesManager.getAssignedResourcesForMember");
 
@@ -541,21 +541,21 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		facility = setUpFacility();
 		resource = setUpResource();
-                Resource sndResource = setUpResource();
-                service = setUpService();
+		Resource sndResource = setUpResource();
+		service = setUpService();
 
-                // both the resources assign to the group
+		// both the resources assign to the group
 		resourcesManager.assignGroupToResource(sess, group, resource);
-                resourcesManager.assignGroupToResource(sess, group, sndResource);
-                // but only one of them assign to the service
-                resourcesManager.assignService(sess, resource, service);
+		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		// but only one of them assign to the service
+		resourcesManager.assignService(sess, resource, service);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, member, service);
 		assertTrue("there should have been only 1 assigned resource",resources.size() == 1);
 		assertTrue("our resource should be in our resource list",resources.contains(resource));
 	}
 
-        @Test
+	@Test
 	public void getAssignedRichResourcesForMember() throws Exception {
 		System.out.println("ResourcesManager.getAssignedRichResourcesForMember");
 
@@ -563,17 +563,17 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
 		facility = setUpFacility();
-                resource = setUpResource();
+		resource = setUpResource();
 		RichResource richResource = new RichResource(resource);
-                richResource.setFacility(facility);
-                Resource sndResource = setUpResource();
-                service = setUpService();
+		richResource.setFacility(facility);
+		Resource sndResource = setUpResource();
+		service = setUpService();
 
-                // both the resources assign to the group
+		// both the resources assign to the group
 		resourcesManager.assignGroupToResource(sess, group, resource);
-                resourcesManager.assignGroupToResource(sess, group, sndResource);
-                // but only one of them assign to the service
-                resourcesManager.assignService(sess, resource, service);
+		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		// but only one of them assign to the service
+		resourcesManager.assignService(sess, resource, service);
 
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
 		assertTrue("there should have been only 1 assigned rich resource",resources.size() == 1);
@@ -597,43 +597,43 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-	public void assignServiceWhenServiceNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignServiceWhenServiceNotExists");
+		public void assignServiceWhenServiceNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignServiceWhenServiceNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.assignService(sess, resource, new Service());
-		// shouldn't find service
+			resourcesManager.assignService(sess, resource, new Service());
+			// shouldn't find service
 
-	}
+		}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void assignServiceWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignServiceWhenResourceNotExists");
+		public void assignServiceWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignServiceWhenResourceNotExists");
 
-		service = setUpService();
+			service = setUpService();
 
-		resourcesManager.assignService(sess, new Resource(), service);
-		// shouldn't find resource
+			resourcesManager.assignService(sess, new Resource(), service);
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=ServiceAlreadyAssignedException.class)
-	public void assignServiceWhenServiceAlreadyAssigned() throws Exception {
-		System.out.println("ResourcesManager.assignServiceWhenServiceAlreadyAssigned");
+		public void assignServiceWhenServiceAlreadyAssigned() throws Exception {
+			System.out.println("ResourcesManager.assignServiceWhenServiceAlreadyAssigned");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		service = setUpService();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
+			service = setUpService();
 
-		resourcesManager.assignService(sess, resource, service);
-		resourcesManager.assignService(sess, resource, service);
-		// shouldn't add service twice
+			resourcesManager.assignService(sess, resource, service);
+			resourcesManager.assignService(sess, resource, service);
+			// shouldn't add service twice
 
-	}
+		}
 
 	@Test
 	public void getAssignedServices() throws Exception {
@@ -652,13 +652,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void getAssignedServicesWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.getAssignedServicesWhenResourceNotExists");
+		public void getAssignedServicesWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.getAssignedServicesWhenResourceNotExists");
 
-		resourcesManager.getAssignedServices(sess, new Resource());
-		// shouldn't find resource
+			resourcesManager.getAssignedServices(sess, new Resource());
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test
 	public void assignServicesPackage() throws Exception {
@@ -679,29 +679,29 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void assignServicesPackageWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignServicesPackageWhenResourceNotExists");
+		public void assignServicesPackageWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignServicesPackageWhenResourceNotExists");
 
-		service = setUpService();
-		ServicesPackage servicesPackage = setUpServicesPackage(service);
+			service = setUpService();
+			ServicesPackage servicesPackage = setUpServicesPackage(service);
 
-		resourcesManager.assignServicesPackage(sess, new Resource(), servicesPackage);
-		// shouldn't find resource
+			resourcesManager.assignServicesPackage(sess, new Resource(), servicesPackage);
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-	public void assignServicesPackageWhenPackageNotExists() throws Exception {
-		System.out.println("ResourcesManager.assignServicesPackageWhenPackageNotExists");
+		public void assignServicesPackageWhenPackageNotExists() throws Exception {
+			System.out.println("ResourcesManager.assignServicesPackageWhenPackageNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.assignServicesPackage(sess, resource, new ServicesPackage());
-		// shouldn't find package
+			resourcesManager.assignServicesPackage(sess, resource, new ServicesPackage());
+			// shouldn't find package
 
-	}
+		}
 
 	@Test
 	public void removeService() throws Exception {
@@ -721,42 +721,42 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void removeServiceWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeServiceWhenResourceNotExists");
+		public void removeServiceWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeServiceWhenResourceNotExists");
 
-		service = setUpService();
+			service = setUpService();
 
-		resourcesManager.removeService(sess, new Resource(), service);
-		// shouldn't find resource
+			resourcesManager.removeService(sess, new Resource(), service);
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=ServiceNotExistsException.class)
-	public void removeServiceWhenServiceNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeServiceWhenServiceNotExists");
+		public void removeServiceWhenServiceNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeServiceWhenServiceNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.removeService(sess, resource, new Service());
-		// shouldn't find service
+			resourcesManager.removeService(sess, resource, new Service());
+			// shouldn't find service
 
-	}
+		}
 
 	@Test (expected=ServiceNotAssignedException.class)
-	public void removeServiceWhenServiceNotAssigned() throws Exception {
-		System.out.println("ResourcesManager.removeServiceWhenServiceNotAssigned");
+		public void removeServiceWhenServiceNotAssigned() throws Exception {
+			System.out.println("ResourcesManager.removeServiceWhenServiceNotAssigned");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		service = setUpService();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
+			service = setUpService();
 
-		resourcesManager.removeService(sess, resource, service);
-		// shouldn't be able to remove not added service
+			resourcesManager.removeService(sess, resource, service);
+			// shouldn't be able to remove not added service
 
-	}
+		}
 
 	@Test
 	public void removeServicesPackage() throws Exception {
@@ -777,29 +777,29 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
-	public void removeServicesPackageWhenResourceNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeServicesPackageWhenResourceNotExists");
+		public void removeServicesPackageWhenResourceNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeServicesPackageWhenResourceNotExists");
 
-		service = setUpService();
-		ServicesPackage servicesPackage = setUpServicesPackage(service);
+			service = setUpService();
+			ServicesPackage servicesPackage = setUpServicesPackage(service);
 
-		resourcesManager.removeServicesPackage(sess, new Resource(), servicesPackage);
-		// shouldn't find resource
+			resourcesManager.removeServicesPackage(sess, new Resource(), servicesPackage);
+			// shouldn't find resource
 
-	}
+		}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-	public void removeServicesPackageWhenPackageNotExists() throws Exception {
-		System.out.println("ResourcesManager.removeServicesPackageWhenPackageNotExists");
+		public void removeServicesPackageWhenPackageNotExists() throws Exception {
+			System.out.println("ResourcesManager.removeServicesPackageWhenPackageNotExists");
 
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
+			vo = setUpVo();
+			facility = setUpFacility();
+			resource = setUpResource();
 
-		resourcesManager.removeServicesPackage(sess, resource, new ServicesPackage());
-		// shouldn't find services package
+			resourcesManager.removeServicesPackage(sess, resource, new ServicesPackage());
+			// shouldn't find services package
 
-	}
+		}
 
 	@Test
 	public void getResources() throws Exception {
@@ -816,13 +816,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=VoNotExistsException.class)
-	public void getResourcesWhenVoNotExists() throws Exception {
-		System.out.println("ResourcesManager.getResourcesWhenVoNotExists");
+		public void getResourcesWhenVoNotExists() throws Exception {
+			System.out.println("ResourcesManager.getResourcesWhenVoNotExists");
 
-		resourcesManager.getResources(sess, new Vo());
-		// shouldn't find VO
+			resourcesManager.getResources(sess, new Vo());
+			// shouldn't find VO
 
-	}
+		}
 
 	@Test
 	public void getRichResources() throws Exception {
@@ -844,162 +844,162 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test (expected=VoNotExistsException.class)
-	public void getRichResourcesWhenVoNotExists() throws Exception {
-		System.out.println("ResourcesManager.getRichResourcesWhenVoNotExists");
+		public void getRichResourcesWhenVoNotExists() throws Exception {
+			System.out.println("ResourcesManager.getRichResourcesWhenVoNotExists");
 
-		resourcesManager.getRichResources(sess, new Vo());
-		// shouldn't find VO
+			resourcesManager.getRichResources(sess, new Vo());
+			// shouldn't find VO
+
+		}
+
+	@Test
+	public void updateResource() throws Exception {
+		System.out.println("ResourcesManager.updateResource");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		Resource resourceToUpdate = resourcesManager.createResource(sess, resource, vo, facility);
+		resourceToUpdate.setName("TESTNAME1");
+		resource.setDescription("TESTDESC1");
+		final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
+		assertEquals(resourceToUpdate, updatedResource1);
+
+		resourceToUpdate.setName("TESTNAME2");
+		final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
+		assertEquals(resourceToUpdate, updatedResource2);
+
+		resource.setDescription("TESTDESC3");
+		final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
+		assertEquals(resourceToUpdate, updatedResource3);
+	}
+
+
+	@Test
+	public void getAllResourcesTagsForResource() throws Exception {
+		System.out.println("ResourcesManager.getAllResourcesTagsForResource");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		ResourceTag tag = setUpResoruceTag();
+
+		resourcesManager.assignResourceTagToResource(sess, tag, resource);
+		List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+		assertTrue("Created tag is not returned from resource", tags.contains(tag));
 
 	}
 
-    @Test
-    public void updateResource() throws Exception {
-        System.out.println("ResourcesManager.updateResource");
+	@Test
+	public void getAllResourcesTagsForVo() throws Exception {
+		System.out.println("ResourcesManager.getAllResourcesTagsForVo");
 
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
+		vo = setUpVo();
+		ResourceTag tag = setUpResoruceTag();
+		List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForVo(sess, vo);
+		assertTrue("Created tag is not returned from VO", tags.contains(tag));
 
-        Resource resourceToUpdate = resourcesManager.createResource(sess, resource, vo, facility);
-        resourceToUpdate.setName("TESTNAME1");
-        resource.setDescription("TESTDESC1");
-        final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
-        assertEquals(resourceToUpdate, updatedResource1);
+	}
 
-        resourceToUpdate.setName("TESTNAME2");
-        final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
-        assertEquals(resourceToUpdate, updatedResource2);
+	@Test
+	public void getAllResourcesByResourceTag() throws Exception {
+		System.out.println("ResourcesManager.getAllResourcesByResourceTag");
 
-        resource.setDescription("TESTDESC3");
-        final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
-        assertEquals(resourceToUpdate, updatedResource3);
-    }
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		ResourceTag tag = setUpResoruceTag();
 
+		resourcesManager.assignResourceTagToResource(sess, tag, resource);
+		List<Resource> resources = perun.getResourcesManager().getAllResourcesByResourceTag(sess, tag);
+		assertTrue("Resource with tag is not returned by same tag", resources.contains(resource));
 
-    @Test
-    public void getAllResourcesTagsForResource() throws Exception {
-        System.out.println("ResourcesManager.getAllResourcesTagsForResource");
+	}
 
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
-        ResourceTag tag = setUpResoruceTag();
+	@Test
+	public void copyAttributes() throws Exception {
+		System.out.println("ResourcesManager.copyAttributes");
 
-        resourcesManager.assignResourceTagToResource(sess, tag, resource);
-        List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
-        assertTrue("Created tag is not returned from resource", tags.contains(tag));
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
 
-    }
+		// set up second resource
+		Resource newResource = new Resource();
+		newResource.setName("SecondResource");
+		newResource.setDescription("pro kopirovani");
+		Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
 
-    @Test
-    public void getAllResourcesTagsForVo() throws Exception {
-        System.out.println("ResourcesManager.getAllResourcesTagsForVo");
+		// add first attribute to source
+		Attribute firstAttribute = setUpAttribute1();
+		perun.getAttributesManager().setAttribute(sess, resource, firstAttribute);
 
-        vo = setUpVo();
-        ResourceTag tag = setUpResoruceTag();
-        List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForVo(sess, vo);
-        assertTrue("Created tag is not returned from VO", tags.contains(tag));
+		// add second attribute to both
+		Attribute secondAttribute = setUpAttribute2();
+		perun.getAttributesManager().setAttribute(sess, resource, secondAttribute);
+		perun.getAttributesManager().setAttribute(sess, secondResource, secondAttribute);
 
-    }
+		// add third attribute to destination
+		Attribute thirdAttribute = setUpAttribute3();
+		perun.getAttributesManager().setAttribute(sess, secondResource, thirdAttribute);
 
-    @Test
-    public void getAllResourcesByResourceTag() throws Exception {
-        System.out.println("ResourcesManager.getAllResourcesByResourceTag");
+		// copy
+		resourcesManager.copyAttributes(sess, resource, secondResource);
 
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
-        ResourceTag tag = setUpResoruceTag();
+		// tests
+		List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondResource);
+		assertNotNull(destinationAttributes);
+		assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, resource).size()) == 1);
+		assertTrue(destinationAttributes.contains(firstAttribute));
+		assertTrue(destinationAttributes.contains(secondAttribute));
+		assertTrue(destinationAttributes.contains(thirdAttribute));
+	}
 
-        resourcesManager.assignResourceTagToResource(sess, tag, resource);
-        List<Resource> resources = perun.getResourcesManager().getAllResourcesByResourceTag(sess, tag);
-        assertTrue("Resource with tag is not returned by same tag", resources.contains(resource));
+	@Test
+	public void copyServices() throws Exception {
+		System.out.println("ResourcesManager.copyServices");
 
-    }
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		resourcesManager.assignService(sess, resource, service);
 
-    @Test
-    public void copyAttributes() throws Exception {
-        System.out.println("ResourcesManager.copyAttributes");
+		// set up second resource
+		Resource newResource = new Resource();
+		newResource.setName("SecondResource");
+		newResource.setDescription("pro kopirovani");
+		Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
 
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
+		resourcesManager.copyServices(sess, resource, secondResource);
 
-        // set up second resource
-        Resource newResource = new Resource();
-        newResource.setName("SecondResource");
-        newResource.setDescription("pro kopirovani");
-        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
+		//test
+		assertTrue(resourcesManager.getAssignedServices(sess, secondResource).contains(service));
+	}
 
-        // add first attribute to source
-        Attribute firstAttribute = setUpAttribute1();
-        perun.getAttributesManager().setAttribute(sess, resource, firstAttribute);
+	@Test
+	public void copyGroups() throws Exception {
+		System.out.println("ResourcesManager.copyGroups");
 
-        // add second attribute to both
-        Attribute secondAttribute = setUpAttribute2();
-        perun.getAttributesManager().setAttribute(sess, resource, secondAttribute);
-        perun.getAttributesManager().setAttribute(sess, secondResource, secondAttribute);
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		resourcesManager.assignGroupToResource(sess, group, resource);
 
-        // add third attribute to destination
-        Attribute thirdAttribute = setUpAttribute3();
-        perun.getAttributesManager().setAttribute(sess, secondResource, thirdAttribute);
+		// set up second resource
+		Resource newResource = new Resource();
+		newResource.setName("SecondResource");
+		newResource.setDescription("pro kopirovani");
+		Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
 
-        // copy
-        resourcesManager.copyAttributes(sess, resource, secondResource);
+		resourcesManager.copyGroups(sess, resource, secondResource);
 
-        // tests
-        List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondResource);
-        assertNotNull(destinationAttributes);
-        assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, resource).size()) == 1);
-        assertTrue(destinationAttributes.contains(firstAttribute));
-        assertTrue(destinationAttributes.contains(secondAttribute));
-        assertTrue(destinationAttributes.contains(thirdAttribute));
-    }
-
-    @Test
-    public void copyServices() throws Exception {
-        System.out.println("ResourcesManager.copyServices");
-
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
-        service = setUpService();
-        resourcesManager.assignService(sess, resource, service);
-
-        // set up second resource
-        Resource newResource = new Resource();
-        newResource.setName("SecondResource");
-        newResource.setDescription("pro kopirovani");
-        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
-
-        resourcesManager.copyServices(sess, resource, secondResource);
-
-        //test
-        assertTrue(resourcesManager.getAssignedServices(sess, secondResource).contains(service));
-    }
-
-    @Test
-    public void copyGroups() throws Exception {
-        System.out.println("ResourcesManager.copyGroups");
-
-        vo = setUpVo();
-        facility = setUpFacility();
-        resource = setUpResource();
-        member = setUpMember(vo);
-        group = setUpGroup(vo, member);
-        resourcesManager.assignGroupToResource(sess, group, resource);
-
-        // set up second resource
-        Resource newResource = new Resource();
-        newResource.setName("SecondResource");
-        newResource.setDescription("pro kopirovani");
-        Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
-
-        resourcesManager.copyGroups(sess, resource, secondResource);
-
-        //test
-        assertTrue(resourcesManager.getAssignedGroups(sess, secondResource).contains(group));
-    }
+		//test
+		assertTrue(resourcesManager.getAssignedGroups(sess, secondResource).contains(group));
+	}
 
 	// PRIVATE METHODS -----------------------------------------------------------
 
@@ -1012,14 +1012,14 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
-    private ResourceTag setUpResoruceTag() throws Exception {
+	private ResourceTag setUpResoruceTag() throws Exception {
 
-        ResourceTag tag = new ResourceTag(0, "ResourceManagerTestResourceTag", vo.getId());
-        tag = perun.getResourcesManager().createResourceTag(sess, tag, vo);
-        assertNotNull("unable to create testing ResourceTag", tag);
-        return tag;
+		ResourceTag tag = new ResourceTag(0, "ResourceManagerTestResourceTag", vo.getId());
+		tag = perun.getResourcesManager().createResourceTag(sess, tag, vo);
+		assertNotNull("unable to create testing ResourceTag", tag);
+		return tag;
 
-    }
+	}
 
 	private Member setUpMember(Vo vo) throws Exception {
 
@@ -1079,12 +1079,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility.setType("Testing");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 		/*
-	      Owner owner = new Owner();
-	      owner.setName("ResourcesManagerTestOwner");
-	      owner.setContact("testingOwner");
-	      perun.getOwnersManager().createOwner(sess, owner);
-	      perun.getFacilitiesManager().addOwner(sess, facility, owner);
-		 */
+			 Owner owner = new Owner();
+			 owner.setName("ResourcesManagerTestOwner");
+			 owner.setContact("testingOwner");
+			 perun.getOwnersManager().createOwner(sess, owner);
+			 perun.getFacilitiesManager().addOwner(sess, facility, owner);
+			 */
 		return facility;
 
 	}
@@ -1104,7 +1104,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Owner owner = new Owner();
 		owner.setName("ResourcesManagerTestServiceOwner");
 		owner.setContact("testingServiceOwner");
-                owner.setType(OwnerType.technical);
+		owner.setType(OwnerType.technical);
 		perun.getOwnersManager().createOwner(sess, owner);
 
 		Service service = new Service();
@@ -1127,39 +1127,39 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
-        private Attribute setUpAttribute1() throws Exception {
-                AttributeDefinition attrDef = new AttributeDefinition();
-                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-                attrDef.setDescription("Test attribute description");
-                attrDef.setFriendlyName("testingAttribute");
-                attrDef.setType(String.class.getName());
-                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-                Attribute attribute = new Attribute(attrDef);
-                attribute.setValue("Testing value");
-                return attribute;
-        }
+	private Attribute setUpAttribute1() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
+	}
 
-        private Attribute setUpAttribute2() throws Exception {
-                AttributeDefinition attrDef = new AttributeDefinition();
-                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-                attrDef.setDescription("Test attribute2 description");
-                attrDef.setFriendlyName("testingAttribute2");
-                attrDef.setType(String.class.getName());
-                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-                Attribute attribute = new Attribute(attrDef);
-                attribute.setValue("Testing value for second attribute");
-                return attribute;
-        }
+	private Attribute setUpAttribute2() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attrDef.setDescription("Test attribute2 description");
+		attrDef.setFriendlyName("testingAttribute2");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value for second attribute");
+		return attribute;
+	}
 
-        private Attribute setUpAttribute3() throws Exception {
-                AttributeDefinition attrDef = new AttributeDefinition();
-                attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-                attrDef.setDescription("Test attribute3 description");
-                attrDef.setFriendlyName("testingAttribute3");
-                attrDef.setType(String.class.getName());
-                attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-                Attribute attribute = new Attribute(attrDef);
-                attribute.setValue("Testing value for third attribute");
-                return attribute;
-        }
+	private Attribute setUpAttribute3() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attrDef.setDescription("Test attribute3 description");
+		attrDef.setFriendlyName("testingAttribute3");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value for third attribute");
+		return attribute;
+	}
 }

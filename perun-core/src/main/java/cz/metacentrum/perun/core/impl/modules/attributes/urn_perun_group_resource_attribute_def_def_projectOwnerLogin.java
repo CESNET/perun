@@ -32,50 +32,50 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-      String ownerLogin = (String) attribute.getValue();
-      if (ownerLogin == null) return;
+	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String ownerLogin = (String) attribute.getValue();
+		if (ownerLogin == null) return;
 
-      Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
-      Matcher match = pattern.matcher(ownerLogin);
+		Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
+		Matcher match = pattern.matcher(ownerLogin);
 
-      if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
-      }
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
+		}
 
-      //Get Facility from resource
-      Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		//Get Facility from resource
+		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
-      //Get all users
-      List<User> users = sess.getPerunBl().getUsersManagerBl().getUsers(sess);
+		//Get all users
+		List<User> users = sess.getPerunBl().getUsersManagerBl().getUsers(sess);
 
-      //Check if exists any user with this login
-      for(User u: users) {
-        Attribute userLogin = null;
-        try {
-          userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
-        } catch (AttributeNotExistsException ex) {
-          throw new ConsistencyErrorException("Not existing attribute user_login", ex);
-        }
-        if (ownerLogin.equals(userLogin.getValue())) return;
-      }
+		//Check if exists any user with this login
+		for(User u: users) {
+			Attribute userLogin = null;
+			try {
+				userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException("Not existing attribute user_login", ex);
+			}
+			if (ownerLogin.equals(userLogin.getValue())) return;
+		}
 
-      throw new WrongAttributeValueException(attribute, group, resource, "There is no user with this login:'" + ownerLogin);
-    }
+		throw new WrongAttributeValueException(attribute, group, resource, "There is no user with this login:'" + ownerLogin);
+	}
 
-    @Override
-    public List<String> getStrongDependencies() {
-      List<String> strongDependencies = new ArrayList<String>();
-      strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
-      return strongDependencies;
-    }
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> strongDependencies = new ArrayList<String>();
+		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
+		return strongDependencies;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-      attr.setFriendlyName("projectOwnerLogin");
-      attr.setType(String.class.getName());
-      attr.setDescription("Login of user, who is owner of project directory.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("projectOwnerLogin");
+		attr.setType(String.class.getName());
+		attr.setDescription("Login of user, who is owner of project directory.");
+		return attr;
+	}
 }

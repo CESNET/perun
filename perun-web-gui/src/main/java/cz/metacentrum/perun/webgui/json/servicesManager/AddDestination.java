@@ -29,8 +29,8 @@ public class AddDestination {
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// ids
-    private Facility facility;
-    private ArrayList<Service> services = new ArrayList<Service>();
+	private Facility facility;
+	private ArrayList<Service> services = new ArrayList<Service>();
 	private String destination = "";
 	private String type = "";
 
@@ -70,40 +70,40 @@ public class AddDestination {
 		}
 
 		if(services == null || services.isEmpty()){
-            errorMsg += "Wrong parameter <strong>Service</strong>.</br>";
-            result = false;
+			errorMsg += "Wrong parameter <strong>Service</strong>.</br>";
+			result = false;
 		}
 
 		if(destination.length() == 0){
-            errorMsg += "Wrong parameter <strong>Destination</strong>.</br>";
+			errorMsg += "Wrong parameter <strong>Destination</strong>.</br>";
 			result = false;
 		}
 
 		if(type.length() == 0){
-            errorMsg += "Wrong parameter <strong>Destination type</strong>.";
+			errorMsg += "Wrong parameter <strong>Destination type</strong>.";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter Error", errorMsg);
+			UiElements.generateAlert("Parameter Error", errorMsg);
 		}
 
 		return result;
 	}
 
-    /**
-     * Attempts to add new Destination to service and facility, it first tests the values and then
-     * submits them.
-     *
-     * @param destination destination string
-     * @param type type of destination
-     * @param service service to add destination to
-     */
-    public void addDestination(final String destination, final String type, final Service service) {
-        ArrayList<Service> servs = new ArrayList<Service>();
-        servs.add(service);
-        addDestination(destination, type, servs);
-    }
+	/**
+	 * Attempts to add new Destination to service and facility, it first tests the values and then
+	 * submits them.
+	 *
+	 * @param destination destination string
+	 * @param type type of destination
+	 * @param service service to add destination to
+	 */
+	public void addDestination(final String destination, final String type, final Service service) {
+		ArrayList<Service> servs = new ArrayList<Service>();
+		servs.add(service);
+		addDestination(destination, type, servs);
+	}
 
 	/**
 	 * Attempts to add new Destination to services and facility, it first tests the values and then
@@ -111,15 +111,15 @@ public class AddDestination {
 	 *
 	 * @param destination destination string
 	 * @param type type of destination
-     * @param services services to add destination to
+	 * @param services services to add destination to
 	 */
 	public void addDestination(final String destination, final String type, final ArrayList<Service> services) {
 
 		this.destination = destination;
 		this.type = type;
-        if (services != null && !services.isEmpty()) {
-            this.services = services;
-        }
+		if (services != null && !services.isEmpty()) {
+			this.services = services;
+		}
 
 		// test arguments
 		if(!this.testCreating()){
@@ -160,17 +160,17 @@ public class AddDestination {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("destination", new JSONString(destination));
 		jsonQuery.put("type", new JSONString(type));
-        jsonQuery.put("facility", new JSONNumber(facility.getId()));
+		jsonQuery.put("facility", new JSONNumber(facility.getId()));
 
-        JSONArray servs = new JSONArray();
-        for (int i=0; i<services.size(); i++) {
-            // rebuild service object
-            JSONObject srv = new JSONObject();
-            srv.put("id", new JSONNumber(services.get(i).getId()));
-            srv.put("name", new JSONString(services.get(i).getName()));
-            servs.set(i, srv);
-        }
-        jsonQuery.put("services", servs);
+		JSONArray servs = new JSONArray();
+		for (int i=0; i<services.size(); i++) {
+			// rebuild service object
+			JSONObject srv = new JSONObject();
+			srv.put("id", new JSONNumber(services.get(i).getId()));
+			srv.put("name", new JSONString(services.get(i).getName()));
+			servs.set(i, srv);
+		}
+		jsonQuery.put("services", servs);
 
 		return jsonQuery;
 

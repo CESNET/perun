@@ -56,21 +56,21 @@ public class AssignServiceTabItem implements TabItem {
 	private Resource resource;
 
 	/**
-     * @param resourceId ID of resource to have group assigned
-     */
+	 * @param resourceId ID of resource to have group assigned
+	 */
 	public AssignServiceTabItem(int resourceId){
 		this.resourceId = resourceId;
-        new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                resource = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				resource = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	/**
 	 * Creates a tab instance
-     * @param resource resource
-     */
+	 * @param resource resource
+	 */
 	public AssignServiceTabItem(Resource resource){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -92,13 +92,13 @@ public class AssignServiceTabItem implements TabItem {
 
 		final GetServices services = new GetServices();
 
-        final CellTable<Service> table = services.getEmptyTable(new FieldUpdater<Service, String>() {
-            public void update(int index, Service object, String value) {
-                session.getTabManager().addTab(new ResourceSettingsTabItem(resource, object));
-            }
-        });
+		final CellTable<Service> table = services.getEmptyTable(new FieldUpdater<Service, String>() {
+			public void update(int index, Service object, String value) {
+				session.getTabManager().addTab(new ResourceSettingsTabItem(resource, object));
+			}
+		});
 
-        // remove already assigned services from offering
+		// remove already assigned services from offering
 		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
 			public void onFinished(JavaScriptObject jso){
 				// second callback
@@ -108,9 +108,9 @@ public class AssignServiceTabItem implements TabItem {
 						for (int i=0; i<srvToRemove.length(); i++) {
 							services.removeFromTable(srvToRemove.get(i));
 						}
-                        if (services.getList().size() == 1) {
-                            table.getSelectionModel().setSelected(services.getList().get(0), true);
-                        }
+						if (services.getList().size() == 1) {
+							table.getSelectionModel().setSelected(services.getList().get(0), true);
+						}
 					}
 				});
 				alreadyAssigned.retrieveData();
@@ -127,44 +127,44 @@ public class AssignServiceTabItem implements TabItem {
 			public void onClick(ClickEvent event) {
 				ArrayList<Service> servicesToAssign = services.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(servicesToAssign)) {
-                    for (int i=0; i<servicesToAssign.size(); i++ ) {
-                        if (i != servicesToAssign.size()-1) {	                 // call json normaly
-                            AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton));
-                            request.assignService(servicesToAssign.get(i).getId(), resourceId);
-                        } else {                                                // last change - call json with update
-                            AssignService request = new AssignService(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                            request.assignService(servicesToAssign.get(i).getId(), resourceId);
-                        }
-                    }
-                }
+					for (int i=0; i<servicesToAssign.size(); i++ ) {
+						if (i != servicesToAssign.size()-1) {	                 // call json normaly
+							AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton));
+							request.assignService(servicesToAssign.get(i).getId(), resourceId);
+						} else {                                                // last change - call json with update
+							AssignService request = new AssignService(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+							request.assignService(servicesToAssign.get(i).getId(), resourceId);
+						}
+					}
+				}
 			}
 		});
 
 		menu.addWidget(assignButton);
-        menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        menu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                services.filterTable(text);
-                if (services.getList().size() == 1) {
-                    table.getSelectionModel().setSelected(services.getList().get(0), true);
-                }
-            }
-        }, "Filter services by name");
+		menu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				services.filterTable(text);
+				if (services.getList().size() == 1) {
+					table.getSelectionModel().setSelected(services.getList().get(0), true);
+				}
+			}
+		}, "Filter services by name");
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-        services.retrieveData();
+		services.retrieveData();
 
-        assignButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(services, table, assignButton);
+		assignButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(services, table, assignButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");

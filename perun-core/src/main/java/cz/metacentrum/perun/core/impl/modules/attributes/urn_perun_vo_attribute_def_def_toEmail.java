@@ -19,35 +19,35 @@ import java.util.List;
  */
 public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
-    @Override
-    public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-        List<String> toEmails = null;
+	@Override
+	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<String> toEmails = null;
 
-        // null attribute
-        if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo toEmail list cannot be null.");
+		// null attribute
+		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo toEmail list cannot be null.");
 
-        // wrong type of the attribute
-        if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
+		// wrong type of the attribute
+		if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
 
-        toEmails = (List) attribute.getValue();
+		toEmails = (List) attribute.getValue();
 
-        // the List is empty
-        if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");
+		// the List is empty
+		if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");
 
-        for (String email : toEmails) {
-            if (email == null) throw new WrongAttributeValueException(attribute, "Email " + email + " is null.");
-            if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, email))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has toEmail " + email +" which is not valid.");
-        }
-    }
+		for (String email : toEmails) {
+			if (email == null) throw new WrongAttributeValueException(attribute, "Email " + email + " is null.");
+			if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, email))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has toEmail " + email +" which is not valid.");
+		}
+	}
 
-    @Override
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
-      attr.setFriendlyName("toEmail");
-      attr.setType(ArrayList.class.getName());
-      attr.setDescription("Email addresses (of VO managers) used as \"to\" in mail notifications");
-      return attr;
-    }
+	@Override
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setFriendlyName("toEmail");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("Email addresses (of VO managers) used as \"to\" in mail notifications");
+		return attr;
+	}
 
 }

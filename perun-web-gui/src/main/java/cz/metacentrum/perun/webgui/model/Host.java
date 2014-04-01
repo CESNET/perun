@@ -20,53 +20,53 @@ public class Host extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-	/**
-	 * Get name of host
-	 *
-	 * @return name of host
-	 */
-	public final native String getName() /*-{
-		return this.hostname;
-	}-*/;
+		/**
+		 * Get name of host
+		 *
+		 * @return name of host
+		 */
+		public final native String getName() /*-{
+			return this.hostname;
+		}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.beanName) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.beanName) {
 			return "JavaScriptObject"
+			}
+			return this.beanName;
+		}-*/;
+
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.beanName = type;
+		}-*/;
+
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
+
+		/**
+		 * Compares to another object
+		 * @param o Object to compare
+		 * @return true, if they are the same
+		 */
+		public final boolean equals(Host o)
+		{
+			return o.getId() == this.getId();
 		}
-		return this.beanName;
-	}-*/;
-
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
-		this.beanName = type;
-	}-*/;
-
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
-
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Host o)
-	{
-		return o.getId() == this.getId();
-	}
 }

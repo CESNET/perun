@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected attribute from the member. Member id and attribute id are required.
---------------------------------------
-Available options:
- --memberId     | -m member id
- --attributeId  | -a attribute id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected attribute from the member. Member id and attribute id are required.
+	--------------------------------------
+	Available options:
+	--memberId     | -m member id
+	--attributeId  | -a attribute id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($memberId, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
+"memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}

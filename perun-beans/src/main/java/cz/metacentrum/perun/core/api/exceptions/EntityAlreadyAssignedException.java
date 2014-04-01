@@ -9,21 +9,21 @@ import cz.metacentrum.perun.core.api.exceptions.rt.EntityAlreadyAssignedRuntimeE
  * @author Slavek Licehammer
  */
 public class EntityAlreadyAssignedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public EntityAlreadyAssignedException(EntityAlreadyAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public EntityAlreadyAssignedException(EntityAlreadyAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public EntityAlreadyAssignedException(String message) {
-        super(message);
-    }
+	public EntityAlreadyAssignedException(String message) {
+		super(message);
+	}
 
-    public EntityAlreadyAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public EntityAlreadyAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public EntityAlreadyAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public EntityAlreadyAssignedException(Throwable cause) {
+		super(cause);
+	}
 }

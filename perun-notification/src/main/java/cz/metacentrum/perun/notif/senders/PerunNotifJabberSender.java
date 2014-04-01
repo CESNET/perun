@@ -29,107 +29,107 @@ import java.util.*;
  */
 public class PerunNotifJabberSender implements PerunNotifSender {
 
-    private static final Logger logger = LoggerFactory.getLogger(PerunNotifJabberSender.class);
+	private static final Logger logger = LoggerFactory.getLogger(PerunNotifJabberSender.class);
 
-    @Autowired
-    private PerunBl perun;
+	@Autowired
+	private PerunBl perun;
 
-    @Autowired
-    private Properties propertiesBean;
+	@Autowired
+	private Properties propertiesBean;
 
-    private PerunSession session;
+	private PerunSession session;
 
-    private String jabberServer;
-    private int port;
-    private String serviceName;
-    private String username;
-    private String password;
+	private String jabberServer;
+	private int port;
+	private String serviceName;
+	private String username;
+	private String password;
 
-    @PostConstruct
-    public void init() throws Exception {
-        this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-        this.jabberServer = (String)  propertiesBean.get("notif.jabber.jabberServer");
-        this.port = Integer.valueOf((String) propertiesBean.get("notif.jabber.port"));
-        this.serviceName = (String) propertiesBean.get("notif.jabber.serviceName");
-        this.username = (String) propertiesBean.get("notif.jabber.username");
-        this.password = (String) propertiesBean.get("notif.jabber.password");
-    }
+	@PostConstruct
+	public void init() throws Exception {
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.jabberServer = (String)  propertiesBean.get("notif.jabber.jabberServer");
+		this.port = Integer.valueOf((String) propertiesBean.get("notif.jabber.port"));
+		this.serviceName = (String) propertiesBean.get("notif.jabber.serviceName");
+		this.username = (String) propertiesBean.get("notif.jabber.username");
+		this.password = (String) propertiesBean.get("notif.jabber.password");
+	}
 
-    @Override
-    public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
+	@Override
+	public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
 
-        if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.JABBER)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.JABBER)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    @Override
-    public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend) {
+	@Override
+	public Set<Integer> send(List<PerunNotifMessageDto> dtosToSend) {
 
-        Set<Integer> usedPools = new HashSet<Integer>();
-        try {
-            ConnectionConfiguration config = new ConnectionConfiguration(jabberServer, port, serviceName);
-            XMPPConnection connection = new XMPPConnection(config);
+		Set<Integer> usedPools = new HashSet<Integer>();
+		try {
+			ConnectionConfiguration config = new ConnectionConfiguration(jabberServer, port, serviceName);
+			XMPPConnection connection = new XMPPConnection(config);
 
-            connection.connect();
-            SASLAuthentication.supportSASLMechanism("PLAIN", 0);
-            connection.login(username, password);
+			connection.connect();
+			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+			connection.login(username, password);
 
-            for (PerunNotifMessageDto messageDto : dtosToSend) {
+			for (PerunNotifMessageDto messageDto : dtosToSend) {
 
-                PerunNotifReceiver receiver = messageDto.getReceiver();
-                PoolMessage dto = messageDto.getPoolMessage();
+				PerunNotifReceiver receiver = messageDto.getReceiver();
+				PoolMessage dto = messageDto.getPoolMessage();
 
-                Message message = new Message();
-                message.setSubject(messageDto.getSubject());
-                message.setBody(messageDto.getMessageToSend());
-                message.setType(Message.Type.headline);
+				Message message = new Message();
+				message.setSubject(messageDto.getSubject());
+				message.setBody(messageDto.getMessageToSend());
+				message.setType(Message.Type.headline);
 
-                String myReceiverId = dto.getKeyAttributes().get(receiver.getTarget());
-                if (myReceiverId == null || myReceiverId.isEmpty()) {
-                    //Can be set one static account
-                    message.setTo(receiver.getTarget());
-                } else {
-                    //We try to resolve id
-                    Integer id = null;
-                    try {
-                        id = Integer.valueOf(myReceiverId);
-                    } catch (NumberFormatException ex) {
-                        logger.error("Cannot resolve id: {}, error: {}", Arrays.asList(id, ex.getMessage()));
-                        logger.debug("ST:", ex);
-                    }
-                    if (id != null) {
-                        try {
-                            User user = perun.getUsersManagerBl().getUserById(session, id);
-                            Attribute emailAttribute = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:jabber");
-                            if (emailAttribute != null && StringUtils.hasText(emailAttribute.toString())) {
-                                message.setTo((String) emailAttribute.getValue());
-                            }
-                        } catch (UserNotExistsException ex) {
-                            logger.error("Cannot found user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
-                            logger.debug("ST:", ex);
-                        } catch (AttributeNotExistsException ex) {
-                            logger.warn("Cannot found email for user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
-                            logger.debug("ST:", ex);
-                        } catch (Exception ex) {
-                            logger.error("Error during user email recognition, ex: {}", ex.getMessage());
-                            logger.debug("ST:", ex);
-                        }
-                    }
-                }
+				String myReceiverId = dto.getKeyAttributes().get(receiver.getTarget());
+				if (myReceiverId == null || myReceiverId.isEmpty()) {
+					//Can be set one static account
+					message.setTo(receiver.getTarget());
+				} else {
+					//We try to resolve id
+					Integer id = null;
+					try {
+						id = Integer.valueOf(myReceiverId);
+					} catch (NumberFormatException ex) {
+						logger.error("Cannot resolve id: {}, error: {}", Arrays.asList(id, ex.getMessage()));
+						logger.debug("ST:", ex);
+					}
+					if (id != null) {
+						try {
+							User user = perun.getUsersManagerBl().getUserById(session, id);
+							Attribute emailAttribute = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:jabber");
+							if (emailAttribute != null && StringUtils.hasText(emailAttribute.toString())) {
+								message.setTo((String) emailAttribute.getValue());
+							}
+						} catch (UserNotExistsException ex) {
+							logger.error("Cannot found user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
+							logger.debug("ST:", ex);
+						} catch (AttributeNotExistsException ex) {
+							logger.warn("Cannot found email for user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
+							logger.debug("ST:", ex);
+						} catch (Exception ex) {
+							logger.error("Error during user email recognition, ex: {}", ex.getMessage());
+							logger.debug("ST:", ex);
+						}
+					}
+				}
 
-                connection.sendPacket(message);
+				connection.sendPacket(message);
 
-                usedPools.addAll(messageDto.getUsedPoolIds());
-            }
+				usedPools.addAll(messageDto.getUsedPoolIds());
+			}
 
-            connection.disconnect();
-        } catch (XMPPException ex) {
-            logger.error("Error during jabber establish connection.", ex);
-        }
+			connection.disconnect();
+		} catch (XMPPException ex) {
+			logger.error("Error during jabber establish connection.", ex);
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

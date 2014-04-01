@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.OwnerNotExistsRuntimeExceptio
  * @author Slavek Licehammer
  */
 public class OwnerNotExistsException extends EntityNotExistsException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Owner owner;
+	private Owner owner;
 
-    public OwnerNotExistsException(OwnerNotExistsRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public OwnerNotExistsException(OwnerNotExistsRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public OwnerNotExistsException(String message) {
-        super(message);
-    }
+	public OwnerNotExistsException(String message) {
+		super(message);
+	}
 
-    public OwnerNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public OwnerNotExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public OwnerNotExistsException(Throwable cause) {
-        super(cause);
-    }
+	public OwnerNotExistsException(Throwable cause) {
+		super(cause);
+	}
 
-    public OwnerNotExistsException(Owner owner) {
-      super(owner.toString());
-      this.owner = owner;
-    }
+	public OwnerNotExistsException(Owner owner) {
+		super(owner.toString());
+		this.owner = owner;
+	}
 
-    public Owner getOwner() {
-        return this.owner;
-    }
+	public Owner getOwner() {
+		return this.owner;
+	}
 }

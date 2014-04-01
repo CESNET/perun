@@ -8,39 +8,39 @@ use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction printTable);
 
 sub help {
-return qq{
-Tool prints list of VO Managers. Vo is required fields.
-------------------------------
-Available options:
- --voId        | -v  VO idetifier
- --voShortName | -V  VO short name
- --orderById   | -i  order by Managers's identifier
- --batch       | -b  batch
- --help        | -h  prints this help
-};
+	return qq{
+	Tool prints list of VO Managers. Vo is required fields.
+	------------------------------
+	Available options:
+	--voId        | -v  VO idetifier
+	--voShortName | -V  VO short name
+	--orderById   | -i  order by Managers's identifier
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
 }
 
 our $batch;
 my ($voId, $voShortName, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-           "voId|v=i" => \$voId,
-           "voShortName|V=s" => \$voShortName,
-           "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "batch|b" => \$batch) || die help;
+	"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+					 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+					 "batch|b" => \$batch) || die help;
 
-my $agent = Perun::Agent->new();
-my $vosAgent = $agent->getVosAgent;
+			 my $agent = Perun::Agent->new();
+			 my $vosAgent = $agent->getVosAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
-unless(defined $voId) {
-  unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-  my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-  $voId = $vo->getId;
-}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+			 unless(defined $voId) {
+				 unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+				 my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+				 $voId = $vo->getId;
+			 }
 
-my @richUsers = $vosAgent->getRichAdmins(vo => $voId, pageSize => 0, pageNum => 0);
-unless(@richUsers) { printMessage "No Managers found", $batch; exit 0; }
+			 my @richUsers = $vosAgent->getRichAdmins(vo => $voId, pageSize => 0, pageNum => 0);
+			 unless(@richUsers) { printMessage "No Managers found", $batch; exit 0; }
 
 #output
-printTable($sortingFunction, @richUsers);
+			 printTable($sortingFunction, @richUsers);

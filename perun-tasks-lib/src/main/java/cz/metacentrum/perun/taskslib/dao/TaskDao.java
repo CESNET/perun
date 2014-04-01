@@ -47,38 +47,38 @@ public interface TaskDao {
 
 	int countTasks();
 
-    Task getTask(int execServiceId, int facilityId);
+	Task getTask(int execServiceId, int facilityId);
 
-    int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
+	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
 
-    Task getTask(ExecService execService, Facility facility, int engineID);
+	Task getTask(ExecService execService, Facility facility, int engineID);
 
-    Task getTask(int execServiceId, int facilityId, int engineID);
+	Task getTask(int execServiceId, int facilityId, int engineID);
 
-    Task getTaskById(int id);
+	Task getTaskById(int id);
 
-    Task getTaskById(int id, int engineID);
+	Task getTaskById(int id, int engineID);
 
-    List<Task> listAllTasks(int engineID);
+	List<Task> listAllTasks(int engineID);
 
-    List<Task> listAllTasksInState(TaskStatus state, int engineID);
+	List<Task> listAllTasksInState(TaskStatus state, int engineID);
 
-    List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID);
+	List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID);
 
-    List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID);
+	List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID);
 
-    List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID);
+	List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID);
 
-    void updateTask(Task task, int engineID);
+	void updateTask(Task task, int engineID);
 
-    boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
+	boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
 
-    void removeTask(ExecService execService, Facility facility, int engineID);
+	void removeTask(ExecService execService, Facility facility, int engineID);
 
-    void removeTask(int id, int engineID);
+	void removeTask(int id, int engineID);
 
-    int countTasks(int engineID);
+	int countTasks(int engineID);
 
-    List<Task> listAllTasksNotInState(TaskStatus state, int engineID);
+	List<Task> listAllTasksNotInState(TaskStatus state, int engineID);
 
 }

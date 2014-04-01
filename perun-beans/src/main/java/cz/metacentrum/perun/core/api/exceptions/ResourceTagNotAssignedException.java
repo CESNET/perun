@@ -8,28 +8,28 @@ import cz.metacentrum.perun.core.api.ResourceTag;
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class ResourceTagNotAssignedException extends EntityAlreadyAssignedException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private ResourceTag resourceTag;
+	private ResourceTag resourceTag;
 
-    public ResourceTagNotAssignedException(String message) {
-        super(message);
-    }
+	public ResourceTagNotAssignedException(String message) {
+		super(message);
+	}
 
-    public ResourceTagNotAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ResourceTagNotAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ResourceTagNotAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public ResourceTagNotAssignedException(Throwable cause) {
+		super(cause);
+	}
 
-    public ResourceTagNotAssignedException(ResourceTag resourceTag) {
-        super(resourceTag.toString());
-        this.resourceTag = resourceTag;
-    }
+	public ResourceTagNotAssignedException(ResourceTag resourceTag) {
+		super(resourceTag.toString());
+		this.resourceTag = resourceTag;
+	}
 
-    public ResourceTag getResourceTag() {
-        return resourceTag;
-    }
+	public ResourceTag getResourceTag() {
+		return resourceTag;
+	}
 }

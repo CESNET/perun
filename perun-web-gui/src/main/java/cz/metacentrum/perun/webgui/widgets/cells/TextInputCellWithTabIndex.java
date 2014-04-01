@@ -16,7 +16,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class TextInputCellWithTabIndex extends
-		AbstractInputCell<String, TextInputCellWithTabIndex.ViewData> {
+AbstractInputCell<String, TextInputCellWithTabIndex.ViewData> {
 
 	/**
 	 * Count of current inputcells
@@ -59,7 +59,7 @@ public class TextInputCellWithTabIndex extends
 			}
 			ViewData vd = (ViewData) other;
 			return equalsOrNull(lastValue, vd.lastValue)
-					&& equalsOrNull(curValue, vd.curValue);
+				&& equalsOrNull(curValue, vd.curValue);
 		}
 
 		/**
@@ -119,7 +119,7 @@ public class TextInputCellWithTabIndex extends
 
 	interface Template extends SafeHtmlTemplates {
 		@Template("<input type=\"text\" value=\"{0}\" tabindex=\"{1}\"></input>")
-		SafeHtml input(String value, int tabIndex);
+			SafeHtml input(String value, int tabIndex);
 	}
 
 	/**
@@ -202,7 +202,7 @@ public class TextInputCellWithTabIndex extends
 				&& !vd.getCurrentValue().equals(vd.getLastValue())) {
 			vd.setLastValue(newValue);
 			valueUpdater.update(newValue);
-		}
+				}
 
 		// Blur the element.
 		super.finishEditing(parent, newValue, key, valueUpdater);

@@ -68,8 +68,8 @@ public class CreateOwner {
 		}
 
 		if(errorMsg.length()>0){
-            Confirm c = new Confirm("Error while creating Owner", new HTML(errorMsg), true);
-            c.show();
+			Confirm c = new Confirm("Error while creating Owner", new HTML(errorMsg), true);
+			c.show();
 		}
 
 		return result;
@@ -80,7 +80,7 @@ public class CreateOwner {
 	 *
 	 * @param ownerName name of future owner
 	 * @param ownerContact owners contact (mail, phone, vo etc.)
-     * @param ownerType type of owner (administrative, technical)
+	 * @param ownerType type of owner (administrative, technical)
 	 */
 	public void createOwner(final String ownerName, final String ownerContact, final String ownerType)
 	{

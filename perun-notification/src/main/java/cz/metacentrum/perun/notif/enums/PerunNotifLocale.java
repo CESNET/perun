@@ -11,42 +11,42 @@ import java.util.Locale;
  */
 public enum PerunNotifLocale {
 
-    cs("cs"),
-    en("en");
+	cs("cs"),
+		en("en");
 
-    PerunNotifLocale(String key) {
-        this.key = key;
-    }
+	PerunNotifLocale(String key) {
+		this.key = key;
+	}
 
-    String key;
+	String key;
 
-    public String toString() {
-        return key;
-    }
+	public String toString() {
+		return key;
+	}
 
-    public String getKey() {
-        return key;
-    }
+	public String getKey() {
+		return key;
+	}
 
-    public static PerunNotifLocale resolvePerunNotifLocale(String locale) {
+	public static PerunNotifLocale resolvePerunNotifLocale(String locale) {
 
-        for (PerunNotifLocale notifLocale : values()) {
-            if (notifLocale.getKey().equals(locale)) {
-                return notifLocale;
-            }
-        }
+		for (PerunNotifLocale notifLocale : values()) {
+			if (notifLocale.getKey().equals(locale)) {
+				return notifLocale;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public static PerunNotifLocale resolvePerunNotifLocale(Locale locale) {
+	public static PerunNotifLocale resolvePerunNotifLocale(Locale locale) {
 
-        for (PerunNotifLocale notifLocale : values()) {
-            if (notifLocale.getKey().equalsIgnoreCase(locale.getLanguage())) {
-                return notifLocale;
-            }
-        }
+		for (PerunNotifLocale notifLocale : values()) {
+			if (notifLocale.getKey().equalsIgnoreCase(locale.getLanguage())) {
+				return notifLocale;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

@@ -54,8 +54,8 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 	/**
 	 * Creates a new request
 	 *
-     * @param pubId id
-     */
+	 * @param pubId id
+	 */
 	public FindAuthorsByPublicationId(Integer pubId) {
 		this.pubId = pubId;
 	}
@@ -63,9 +63,9 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 	/**
 	 * Creates a new request
 	 *
-     * @param pubId  id
-     * @param events external events
-     */
+	 * @param pubId  id
+	 * @param events external events
+	 */
 	public FindAuthorsByPublicationId(Integer pubId, JsonCallbackEvents events) {
 		this(pubId);
 		this.events = events;
@@ -113,7 +113,7 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Publication has no authors.");
+		loaderImage.setEmptyResultMessage("Publication has no authors.");
 
 		// show checkbox column
 		if(this.checkable) {
@@ -156,14 +156,14 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 		/*
 		// qualified COLUMN
 		Column<Author, String> qualifiedColumn = JsonUtils.addColumn(
-				new CustomClickableTextCell(), "",
-				new JsonUtils.GetValue<Author, String>() {
-					public String getValue(Author object) {
-						return String.valueOf(object.isQualified());
-					}
-				}, this.tableFieldUpdater);
+		new CustomClickableTextCell(), "",
+		new JsonUtils.GetValue<Author, String>() {
+		public String getValue(Author object) {
+		return String.valueOf(object.isQualified());
+		}
+		}, this.tableFieldUpdater);
 		table.addColumn(qualifiedColumn, "Qualified");
-		 */
+		*/
 
 		// login COLUMN
 		Column<Author, String> loginColumn = JsonUtils.addColumn(
@@ -209,116 +209,116 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 		return;
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Author>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Author>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Author to be added as new row
-     */
-    public void addToTable(Author object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Author to be added as new row
+	 */
+	public void addToTable(Author object) {
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Author to be removed as row
-     */
-    public void removeFromTable(Author object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Author to be removed as row
+	 */
+	public void removeFromTable(Author object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Author> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Author> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading authors.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading authors.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading authors started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading authors started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Author>jsoAsList(jso));
-        sortTable();
-        loaderImage.loadingFinished();
-        session.getUiElements().setLogText("Authors loaded: " + list.size());
-        events.onFinished(jso);
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Author>jsoAsList(jso));
+		sortTable();
+		loaderImage.loadingFinished();
+		session.getUiElements().setLogText("Authors loaded: " + list.size());
+		events.onFinished(jso);
+	}
 
-    public void insertToTable(int index, Author object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Author object) {
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Author> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Author> list) {
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Author> getList() {
-        return this.list;
-    }
+	public ArrayList<Author> getList() {
+		return this.list;
+	}
 
 }

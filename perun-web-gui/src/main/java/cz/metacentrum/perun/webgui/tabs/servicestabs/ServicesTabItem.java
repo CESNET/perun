@@ -55,7 +55,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     */
+	 */
 	public ServicesTabItem(){}
 
 	public boolean isPrepared(){
@@ -85,46 +85,46 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// create button
-        tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new CreateServiceTabItem());
-            }
-        }));
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new CreateServiceTabItem());
+			}
+		}));
 
-        final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServices());
+		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServices());
 
-        deleteButton.addClickHandler(new ClickHandler() {
-            @Override
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
 
 				// get selected items
 				final ArrayList<Service> itemsToRemove  = services.getTableSelectedList();
-                UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-                        for (int i=0; i<itemsToRemove.size(); i++ ) {
-                            DeleteService request;
-                            if(i == itemsToRemove.size()-1){
-                                request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-                            }else{
-                                request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                            }
-                            request.deleteService(itemsToRemove.get(i).getId());
-                        }
-                    }
-                });
+				UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+						for (int i=0; i<itemsToRemove.size(); i++ ) {
+							DeleteService request;
+							if(i == itemsToRemove.size()-1){
+								request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+							}else{
+								request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton));
+							}
+							request.deleteService(itemsToRemove.get(i).getId());
+						}
+					}
+				});
 			}
 		});
-        tabMenu.addWidget(deleteButton);
+		tabMenu.addWidget(deleteButton);
 
-        tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                services.filterTable(text);
-            }
-        }, "Filter services by name");
+		tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				services.filterTable(text);
+			}
+		}, "Filter services by name");
 
 		// add menu to page itself
 		mainTab.add(tabMenu);
@@ -136,8 +136,8 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 		sp.addStyleName("perun-tableScrollPanel");
 		mainTab.add(sp);
 
-        deleteButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(services, table, deleteButton);
+		deleteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(services, table, deleteButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -190,7 +190,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {

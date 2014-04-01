@@ -8,28 +8,28 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-return qq{
-Lists all required facility attributes. Facility id or name is required option.
------------------------------------------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -t facility type
- --orderById    | -i order by attribute id
- --orderByName  | -n order by attribute friendly name
- --batch        | -b batch
- --help         | -h help
+	return qq{
+	Lists all required facility attributes. Facility id or name is required option.
+	-----------------------------------------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -t facility type
+	--orderById    | -i order by attribute id
+	--orderByName  | -n order by attribute friendly name
+	--batch        | -b batch
+	--help         | -h help
 
-};
+	};
 }
 
 my ($facilityId,$facilityName, $facilityType, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-  "facilityId|f=i" => \$facilityId,
-  "facilityName|F=s" => \$facilityName,
-  "facilityType|t=s" => \$facilityType,
-  "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-  "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+"facilityId|f=i" => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+"facilityType|t=s" => \$facilityType,
+	"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
@@ -39,9 +39,9 @@ unless (defined($facilityId) or (defined($facilityName) and defined($facilityTyp
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
@@ -53,6 +53,6 @@ my $table = Text::ASCIITable->new();
 $table->setCols('attribute Id','attribute friendly name','namespace', 'value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-    $table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
+	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
 }
 print tableToPrint($table, $batch);

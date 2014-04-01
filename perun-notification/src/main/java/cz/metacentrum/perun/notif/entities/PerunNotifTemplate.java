@@ -21,32 +21,32 @@ import java.util.*;
  */
 public class PerunNotifTemplate {
 
-    /**
-     * Unique identifier of template
-     *
-     * Column id
-     * Sequence pn_template_id_seq
-     */
+	/**
+	 * Unique identifier of template
+	 *
+	 * Column id
+	 * Sequence pn_template_id_seq
+	 */
 	private int id;
 
-    /**
-     * Name of template
-     */
-    private String name;
+	/**
+	 * Name of template
+	 */
+	private String name;
 
 	/**
 	 * Regexes to recognize affiliation to this template, if notifyTrigger waits for
 	 * all regexes to execute notify, the regexes are taken from here.
-     *
-     * Relation saved in pn_template_regex
+	 *
+	 * Relation saved in pn_template_regex
 	 */
 	private Set<PerunNotifRegex> matchingRegexs;
 
-    /**
-     * Receivers to which message is send
-     *
-     * Relation saved in pn_template_receiver
-     */
+	/**
+	 * Receivers to which message is send
+	 *
+	 * Relation saved in pn_template_receiver
+	 */
 	private Set<PerunNotifReceiver> receivers;
 
 	/**
@@ -54,61 +54,61 @@ public class PerunNotifTemplate {
 	 * These properties are same for every auditerMessage which we collect
 	 * Example: User is same in every message but content is different
 	 * Properties are key which is className of object and values, which are properties retrievable from class
-     *
-     * Column primary_properties
+	 *
+	 * Column primary_properties
 	 */
 	private Map<String, List<String>> primaryProperties;
 
-    /**
-     * Notify trigger based on which processing is executed
-     *
-     * Column notify_trigger
-     */
+	/**
+	 * Notify trigger based on which processing is executed
+	 *
+	 * Column notify_trigger
+	 */
 	private PerunNotifNotifyTrigger notifyTrigger;
 
-    /**
-     * Contains freemarker templates which are used to create content of result message
-     *
-     */
-    private List<PerunNotifTemplateMessage> perunNotifTemplateMessages;
+	/**
+	 * Contains freemarker templates which are used to create content of result message
+	 *
+	 */
+	private List<PerunNotifTemplateMessage> perunNotifTemplateMessages;
 
 	/**
 	 * Defines millis of oldest message waiting to be sent. If message is older
-     * messages is always sent. Can be disabled, based on notifyTrigger
-     *
-     * Column oldest_message_time
+	 * messages is always sent. Can be disabled, based on notifyTrigger
+	 *
+	 * Column oldest_message_time
 	 */
 	private Long oldestMessageTime;
 
 	/**
 	 * Time to the youngest message, if message is younger we expect another message soon and we wait
-     * so we can aggregate
-     *
-     * Column youngest_message_time
+	 * so we can aggregate
+	 *
+	 * Column youngest_message_time
 	 */
 	private Long youngestMessageTime;
 
-    /**
-     * Defines method which returns locale which will be used to localize message
-     *
-     * Column locale
-     */
-    private String locale;
+	/**
+	 * Defines method which returns locale which will be used to localize message
+	 *
+	 * Column locale
+	 */
+	private String locale;
 
-    /**
-     * String value which is used  as sender of message
-     *
-     * Column sender
-     */
-    private String sender;
+	/**
+	 * String value which is used  as sender of message
+	 *
+	 * Column sender
+	 */
+	private String sender;
 
-    public PerunNotifTemplate() {
+	public PerunNotifTemplate() {
 
-        perunNotifTemplateMessages = new ArrayList<PerunNotifTemplateMessage>();
-        primaryProperties = new HashMap<String, List<String>>();
-        receivers = new HashSet<PerunNotifReceiver>();
-        matchingRegexs = new HashSet<PerunNotifRegex>();
-    }
+		perunNotifTemplateMessages = new ArrayList<PerunNotifTemplateMessage>();
+		primaryProperties = new HashMap<String, List<String>>();
+		receivers = new HashSet<PerunNotifReceiver>();
+		matchingRegexs = new HashSet<PerunNotifRegex>();
+	}
 
 	public int getId() {
 		return id;
@@ -131,13 +131,13 @@ public class PerunNotifTemplate {
 	}
 
 	public void setReceivers(List<? extends PerunNotifReceiver> receivers) {
-        if (receivers == null) {
-            this.receivers = null;
-        } else {
-            Set<PerunNotifReceiver> newReceivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
-            newReceivers.addAll(receivers);
-            this.receivers = newReceivers;
-        }
+		if (receivers == null) {
+			this.receivers = null;
+		} else {
+			Set<PerunNotifReceiver> newReceivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
+			newReceivers.addAll(receivers);
+			this.receivers = newReceivers;
+		}
 	}
 
 	public Map<String, List<String>> getPrimaryProperties() {
@@ -164,15 +164,15 @@ public class PerunNotifTemplate {
 		this.oldestMessageTime = oldestMessageTime;
 	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public Long getYoungestMessageTime() {
+	public Long getYoungestMessageTime() {
 		return youngestMessageTime;
 	}
 
@@ -180,70 +180,70 @@ public class PerunNotifTemplate {
 		this.youngestMessageTime = youngestMessageTime;
 	}
 
-    public List<PerunNotifTemplateMessage> getPerunNotifTemplateMessages() {
-        return perunNotifTemplateMessages;
-    }
+	public List<PerunNotifTemplateMessage> getPerunNotifTemplateMessages() {
+		return perunNotifTemplateMessages;
+	}
 
-    public void setPerunNotifTemplateMessages(List<PerunNotifTemplateMessage> perunNotifTemplateMessages) {
-        this.perunNotifTemplateMessages = perunNotifTemplateMessages;
-    }
+	public void setPerunNotifTemplateMessages(List<PerunNotifTemplateMessage> perunNotifTemplateMessages) {
+		this.perunNotifTemplateMessages = perunNotifTemplateMessages;
+	}
 
-    public String getLocale() {
-        return locale;
-    }
+	public String getLocale() {
+		return locale;
+	}
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
 
-    public String getSender() {
-        return sender;
-    }
+	public String getSender() {
+		return sender;
+	}
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
 
-    public void addReceiver(PerunNotifReceiver receiver) {
+	public void addReceiver(PerunNotifReceiver receiver) {
 
-        if (receivers == null) {
-            receivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
-        }
+		if (receivers == null) {
+			receivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
+		}
 
-        receivers.add(receiver);
-    }
+		receivers.add(receiver);
+	}
 
-    public void addPerunNotifTemplateMessage(PerunNotifTemplateMessage message) {
+	public void addPerunNotifTemplateMessage(PerunNotifTemplateMessage message) {
 
-        if (perunNotifTemplateMessages == null) {
-            perunNotifTemplateMessages = new ArrayList<PerunNotifTemplateMessage>();
-        }
+		if (perunNotifTemplateMessages == null) {
+			perunNotifTemplateMessages = new ArrayList<PerunNotifTemplateMessage>();
+		}
 
-        perunNotifTemplateMessages.add(message);
-    }
+		perunNotifTemplateMessages.add(message);
+	}
 
-    public void addPerunNotifRegex(PerunNotifRegex regex) {
+	public void addPerunNotifRegex(PerunNotifRegex regex) {
 
-        if (matchingRegexs == null) {
-            matchingRegexs = new HashSet<PerunNotifRegex>();
-        }
+		if (matchingRegexs == null) {
+			matchingRegexs = new HashSet<PerunNotifRegex>();
+		}
 
-        matchingRegexs.add(regex);
-    }
+		matchingRegexs.add(regex);
+	}
 
-    public static final RowMapper<PerunNotifTemplate> PERUN_NOTIF_TEMPLATE = new RowMapper<PerunNotifTemplate>() {
+	public static final RowMapper<PerunNotifTemplate> PERUN_NOTIF_TEMPLATE = new RowMapper<PerunNotifTemplate>() {
 
 		public PerunNotifTemplate mapRow(ResultSet rs, int i) throws SQLException {
 
 			PerunNotifTemplate template = new PerunNotifTemplate();
 			template.setId(rs.getInt("id"));
-            template.setName(rs.getString("name"));
+			template.setName(rs.getString("name"));
 			template.setPrimaryProperties(parseMapWithList(rs.getString("primary_properties")));
 			template.setNotifyTrigger(PerunNotifNotifyTrigger.resolve(rs.getString("notify_trigger")));
 			template.setYoungestMessageTime(rs.getLong("youngest_message_time"));
 			template.setOldestMessageTime(rs.getLong("oldest_message_time"));
-            template.setLocale(rs.getString("locale"));
-            template.setSender(rs.getString("sender"));
+			template.setLocale(rs.getString("locale"));
+			template.setSender(rs.getString("sender"));
 
 			return template;
 		}
@@ -272,26 +272,26 @@ public class PerunNotifTemplate {
 		return result;
 	}
 
-    private static Map<PerunNotifLocale, String> parseMapWithLocale(String row) throws UnsupportedEncodingException {
+	private static Map<PerunNotifLocale, String> parseMapWithLocale(String row) throws UnsupportedEncodingException {
 
-        if (row == null) {
-            return null;
-        }
+		if (row == null) {
+			return null;
+		}
 
-        Map<PerunNotifLocale, String> result = new HashMap<PerunNotifLocale, String>();
+		Map<PerunNotifLocale, String> result = new HashMap<PerunNotifLocale, String>();
 
-        String[] splittedValue = row.split(PerunNotifTemplate.MAP_DELIMITER);
-        for (String entry : splittedValue) {
-            String key = entry.substring(0, entry.indexOf("="));
-            String value = entry.substring(entry.indexOf("=") + 1);
+		String[] splittedValue = row.split(PerunNotifTemplate.MAP_DELIMITER);
+		for (String entry : splittedValue) {
+			String key = entry.substring(0, entry.indexOf("="));
+			String value = entry.substring(entry.indexOf("=") + 1);
 
-            PerunNotifLocale locale = PerunNotifLocale.resolvePerunNotifLocale(key);
+			PerunNotifLocale locale = PerunNotifLocale.resolvePerunNotifLocale(key);
 
-            result.put(locale, URLDecoder.decode(value, "utf-8"));
-        }
+			result.put(locale, URLDecoder.decode(value, "utf-8"));
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 	public String getSerializedPrimaryProperties() {
 
@@ -320,57 +320,57 @@ public class PerunNotifTemplate {
 		return builder.toString();
 	}
 
-    private String serializeSubjectMap(Map<PerunNotifLocale, String> subjectMap) throws UnsupportedEncodingException {
+	private String serializeSubjectMap(Map<PerunNotifLocale, String> subjectMap) throws UnsupportedEncodingException {
 
-        StringBuilder builder = new StringBuilder();
-        for (Iterator<PerunNotifLocale> keyIterator = subjectMap.keySet().iterator(); keyIterator.hasNext(); ) {
-            PerunNotifLocale key = keyIterator.next();
-            builder.append(key.getKey() + "=");
-            builder.append(URLEncoder.encode(subjectMap.get(key), "utf-8"));
-            if (keyIterator.hasNext()) {
-                builder.append(MAP_DELIMITER);
-            }
-        }
+		StringBuilder builder = new StringBuilder();
+		for (Iterator<PerunNotifLocale> keyIterator = subjectMap.keySet().iterator(); keyIterator.hasNext(); ) {
+			PerunNotifLocale key = keyIterator.next();
+			builder.append(key.getKey() + "=");
+			builder.append(URLEncoder.encode(subjectMap.get(key), "utf-8"));
+			if (keyIterator.hasNext()) {
+				builder.append(MAP_DELIMITER);
+			}
+		}
 
-        return builder.toString();
-    }
+		return builder.toString();
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PerunNotifTemplate)) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof PerunNotifTemplate)) return false;
 
-        PerunNotifTemplate that = (PerunNotifTemplate) o;
+		PerunNotifTemplate that = (PerunNotifTemplate) o;
 
-        if (id != that.id) return false;
+		if (id != that.id) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + (matchingRegexs != null ? matchingRegexs.hashCode() : 0);
-        result = 31 * result + (receivers != null ? receivers.hashCode() : 0);
-        result = 31 * result + (primaryProperties != null ? primaryProperties.hashCode() : 0);
-        result = 31 * result + (notifyTrigger != null ? notifyTrigger.hashCode() : 0);
-        result = 31 * result + (perunNotifTemplateMessages != null ? perunNotifTemplateMessages.hashCode() : 0);
-        result = 31 * result + (oldestMessageTime != null ? oldestMessageTime.hashCode() : 0);
-        result = 31 * result + (youngestMessageTime != null ? youngestMessageTime.hashCode() : 0);
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = id;
+		result = 31 * result + (matchingRegexs != null ? matchingRegexs.hashCode() : 0);
+		result = 31 * result + (receivers != null ? receivers.hashCode() : 0);
+		result = 31 * result + (primaryProperties != null ? primaryProperties.hashCode() : 0);
+		result = 31 * result + (notifyTrigger != null ? notifyTrigger.hashCode() : 0);
+		result = 31 * result + (perunNotifTemplateMessages != null ? perunNotifTemplateMessages.hashCode() : 0);
+		result = 31 * result + (oldestMessageTime != null ? oldestMessageTime.hashCode() : 0);
+		result = 31 * result + (youngestMessageTime != null ? youngestMessageTime.hashCode() : 0);
+		result = 31 * result + (locale != null ? locale.hashCode() : 0);
+		return result;
+	}
 
-    public void update(PerunNotifTemplate updatedTemplate) {
+	public void update(PerunNotifTemplate updatedTemplate) {
 
-        this.matchingRegexs = updatedTemplate.getMatchingRegexs();
-        this.receivers = updatedTemplate.getReceivers();
-        this.primaryProperties = updatedTemplate.getPrimaryProperties();
-        this.notifyTrigger = updatedTemplate.getNotifyTrigger();
-        this.perunNotifTemplateMessages = updatedTemplate.getPerunNotifTemplateMessages();
-        this.oldestMessageTime = updatedTemplate.getOldestMessageTime();
-        this.youngestMessageTime = updatedTemplate.getYoungestMessageTime();
-        this.locale = updatedTemplate.getLocale();
-        this.sender = updatedTemplate.getSender();
-    }
+		this.matchingRegexs = updatedTemplate.getMatchingRegexs();
+		this.receivers = updatedTemplate.getReceivers();
+		this.primaryProperties = updatedTemplate.getPrimaryProperties();
+		this.notifyTrigger = updatedTemplate.getNotifyTrigger();
+		this.perunNotifTemplateMessages = updatedTemplate.getPerunNotifTemplateMessages();
+		this.oldestMessageTime = updatedTemplate.getOldestMessageTime();
+		this.youngestMessageTime = updatedTemplate.getYoungestMessageTime();
+		this.locale = updatedTemplate.getLocale();
+		this.sender = updatedTemplate.getSender();
+	}
 }

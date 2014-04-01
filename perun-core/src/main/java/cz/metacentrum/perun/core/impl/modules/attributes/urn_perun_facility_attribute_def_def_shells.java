@@ -25,44 +25,44 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_shells extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi  {
 
-    @Override
-    /**
-     * Checks if the facility has properly set shells. There must be at least one
-     * shell per facility which must match regular expression
-     * e.g. corretct unix path.
-     */
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-        List<String> shells = (List<String>) attribute.getValue();
+	@Override
+	/**
+	 * Checks if the facility has properly set shells. There must be at least one
+	 * shell per facility which must match regular expression
+	 * e.g. corretct unix path.
+	 */
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		List<String> shells = (List<String>) attribute.getValue();
 
-        if (shells == null) {
-            throw new WrongAttributeValueException(attribute, "This attribute cannot be null.");
-        }
+		if (shells == null) {
+			throw new WrongAttributeValueException(attribute, "This attribute cannot be null.");
+		}
 
-        if (!shells.isEmpty()) {
-            for (String st : shells) {
-                perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
-            }
-        } else {
-            throw new WrongAttributeValueException(attribute);
-        }
-    }
+		if (!shells.isEmpty()) {
+			for (String st : shells) {
+				perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
+			}
+		} else {
+			throw new WrongAttributeValueException(attribute);
+		}
+	}
 
-    @Override
-    /**
-     * Method for filling shells at specified facility is not implemented yet.
-     * Probably it will not be neccessary.
-     */
-    public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-        return new Attribute(attribute);
-    }
+	@Override
+	/**
+	 * Method for filling shells at specified facility is not implemented yet.
+	 * Probably it will not be neccessary.
+	 */
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		return new Attribute(attribute);
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-      attr.setFriendlyName("shells");
-      attr.setType(ArrayList.class.getName());
-      attr.setDescription("All available shells");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("shells");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("All available shells");
+		return attr;
+	}
 
 }

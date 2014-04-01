@@ -29,132 +29,132 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
-  /**
-   * Checks the new UID of the user at the specified facility. The new UID must
-   * not be lower than the min UID or greater than the max UID. Also no collision between
-   * existing user and the new user is allowed.
-   */
-  @Override
-    public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-      try {
-	Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+	/**
+	 * Checks the new UID of the user at the specified facility. The new UID must
+	 * not be lower than the min UID or greater than the max UID. Also no collision between
+	 * existing user and the new user is allowed.
+	 */
+	@Override
+	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		try {
+			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-	Attribute uidAttribute = null;
-	if (uidNamespaceAttribute.getValue() != null) {
-	  // Get the u:uid-namespace[uidNamespaceAttribute]
-	  uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
-	  uidAttribute.setValue(attribute.getValue());
-	  sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, uidAttribute);
-	} else {
-	  throw new WrongReferenceAttributeValueException(attribute, uidAttribute);
+			Attribute uidAttribute = null;
+			if (uidNamespaceAttribute.getValue() != null) {
+				// Get the u:uid-namespace[uidNamespaceAttribute]
+				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				uidAttribute.setValue(attribute.getValue());
+				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, uidAttribute);
+			} else {
+				throw new WrongReferenceAttributeValueException(attribute, uidAttribute);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
 	}
-      } catch (AttributeNotExistsException e) {
-	throw new ConsistencyErrorException(e);
-      }
-    }
 
-  /**
-   * Fills the new UID for the user at the specified facility. First empty slot
-   * in range (minUID, maxUID) is returned.
-   */
-  @Override
-    public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-      try {
-	Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+	/**
+	 * Fills the new UID for the user at the specified facility. First empty slot
+	 * in range (minUID, maxUID) is returned.
+	 */
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		try {
+			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-	Attribute attr = new Attribute(attribute);
-	if (uidNamespaceAttribute.getValue() != null) {
-	  // Get the u:uid-namespace[uidNamespaceAttribute]
-	  Attribute uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
-	  uidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, uidAttribute);
-	  attr.setValue(uidAttribute.getValue());
-	} else {
-	  attr.setValue(null);
+			Attribute attr = new Attribute(attribute);
+			if (uidNamespaceAttribute.getValue() != null) {
+				// Get the u:uid-namespace[uidNamespaceAttribute]
+				Attribute uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				uidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, uidAttribute);
+				attr.setValue(uidAttribute.getValue());
+			} else {
+				attr.setValue(null);
+			}
+			return attr;
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
 	}
-	return attr;
-      } catch (AttributeNotExistsException e) {
-	throw new ConsistencyErrorException(e);
-      }
-    }
 
-  /**
-   * Gets the value of the attribute f:uid-namespace and then finds the value of the attribute u:uid-namespace:[uid-namespace]
-   */
-  @Override
-    public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
-      Attribute attr = new Attribute(attributeDefinition);
+	/**
+	 * Gets the value of the attribute f:uid-namespace and then finds the value of the attribute u:uid-namespace:[uid-namespace]
+	 */
+	@Override
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		Attribute attr = new Attribute(attributeDefinition);
 
-      Attribute uidAttribute = null;
+		Attribute uidAttribute = null;
 
-      try {
-	// Get the f:uid-namespace attribute
-	Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+		try {
+			// Get the f:uid-namespace attribute
+			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-	if (uidNamespaceAttribute.getValue() != null) {
-	  // Get the u:uid-namespace[uidNamespaceAttribute]
-	  uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
-	  attr = Utils.copyAttributeToVirtualAttributeWithValue(uidAttribute, attr);
-	} else {
-	  attr.setValue(null);
+			if (uidNamespaceAttribute.getValue() != null) {
+				// Get the u:uid-namespace[uidNamespaceAttribute]
+				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				attr = Utils.copyAttributeToVirtualAttributeWithValue(uidAttribute, attr);
+			} else {
+				attr.setValue(null);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
+
+		return attr;
 	}
-      } catch (AttributeNotExistsException e) {
-	throw new ConsistencyErrorException(e);
-      } catch (WrongAttributeAssignmentException e) {
-	throw new ConsistencyErrorException(e);
-      }
 
-      return attr;
-    }
+	@Override
+	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		AttributeDefinition userUidAttributeDefinition;
+		try {
+			// Get the f:uid-namespace attribute
+			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-  @Override
-    public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
-      AttributeDefinition userUidAttributeDefinition;
-      try {
-	// Get the f:uid-namespace attribute
-	Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+			if (uidNamespaceAttribute.getValue() == null) {
+				throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
+			}
+			userUidAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
 
-	if (uidNamespaceAttribute.getValue() == null) {
-	  throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
+		Attribute userUidAttribute = new Attribute(userUidAttributeDefinition);
+		userUidAttribute.setValue(attribute.getValue());
+
+		try {
+			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userUidAttribute);
+		} catch(WrongAttributeValueException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new ConsistencyErrorException(e);
+		}
 	}
-	userUidAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
-      } catch (AttributeNotExistsException e) {
-	throw new InternalErrorException(e);
-      } catch (WrongAttributeAssignmentException e) {
-	throw new ConsistencyErrorException(e);
-      }
 
-      Attribute userUidAttribute = new Attribute(userUidAttributeDefinition);
-      userUidAttribute.setValue(attribute.getValue());
+	/**
+	 * Not impelmented
+	 */
+	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+	}
 
-      try {
-	return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userUidAttribute);
-      } catch(WrongAttributeValueException e) {
-        throw new InternalErrorException(e);
-      } catch (WrongAttributeAssignmentException e) {
-	throw new ConsistencyErrorException(e);
-      }
-    }
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> StrongDependencies = new ArrayList<String>();
+		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+		StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace" + ":*");
+		return StrongDependencies;
+	}
 
-   /**
-    * Not impelmented
-    */
-    public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
-    }
-
-    @Override
-    public List<String> getStrongDependencies() {
-      List<String> StrongDependencies = new ArrayList<String>();
-      StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
-      StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace" + ":*");
-      return StrongDependencies;
-    }
-
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-      attr.setFriendlyName("UID");
-      attr.setType(String.class.getName());
-      attr.setDescription("UID if is set.");
-      return attr;
-  }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		attr.setFriendlyName("UID");
+		attr.setType(String.class.getName());
+		attr.setDescription("UID if is set.");
+		return attr;
+	}
 }

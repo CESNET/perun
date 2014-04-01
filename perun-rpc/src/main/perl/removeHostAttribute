@@ -7,21 +7,21 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Removes selected attribute from the host. Host id and attribute id are required.
---------------------------------------
-Available options:
- --hostId       | -H host id
- --attributeId  | -a attribute id
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Removes selected attribute from the host. Host id and attribute id are required.
+	--------------------------------------
+	Available options:
+	--hostId       | -H host id
+	--attributeId  | -a attribute id
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($hostId, $hostName, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "hostId|H=i" => \$hostId,
+"hostId|H=i" => \$hostId,
  "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
@@ -31,9 +31,9 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 my $agent = Perun::Agent->new();
 
 #unless($hostId) {
-    #my $hostsAgent = $agent->getHostsAgent;
-    #my $host = $hostsAgent->getHostByName(name => $hostName);
-    #$hostId=$host->getId;
+#my $hostsAgent = $agent->getHostsAgent;
+#my $host = $hostsAgent->getHostByName(name => $hostName);
+#$hostId=$host->getId;
 #}
 
 my $attributesAgent = $agent->getAttributesAgent;

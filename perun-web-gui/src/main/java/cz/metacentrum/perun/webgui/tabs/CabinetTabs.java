@@ -18,7 +18,7 @@ public class CabinetTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public CabinetTabs(){}
 
 	/**

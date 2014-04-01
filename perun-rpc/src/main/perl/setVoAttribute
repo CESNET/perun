@@ -8,25 +8,25 @@ use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
-return qq{
-Sets the VO attribute. VO id or VO short name and attribute value and attribute id or name are required.
----------------------------------------------------------------
-Available options:
- --voId            | -v vo id
- --voShortName     | -V vo short name
- --attributeId     | -a attribute id
- --attributeName   | -A attribute name including namespace
- --attributeValue  | -w attribute value
- --batch           | -b batch
- --help            | -h prints this help
+	return qq{
+	Sets the VO attribute. VO id or VO short name and attribute value and attribute id or name are required.
+	---------------------------------------------------------------
+	Available options:
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--attributeId     | -a attribute id
+	--attributeName   | -A attribute name including namespace
+	--attributeValue  | -w attribute value
+	--batch           | -b batch
+	--help            | -h prints this help
 
-};
+	};
 }
 
 my ($voId, $voShortName, $attributeId, $attributeName, @attributeValue);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "voId|v=i" => \$voId,
+"voId|v=i" => \$voId,
  "voShortName|V=s" => \$voShortName,
  "attributeId|a=i" => \$attributeId,
  "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
@@ -38,18 +38,18 @@ unless (@attributeValue) { die "ERROR: attributeValue is required \n";}
 
 my $agent = Perun::Agent->new();
 unless($voId) {
-    my $vosAgent = $agent->getVosAgent;
-    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-    $voId=$vo->getId;
+	my $vosAgent = $agent->getVosAgent;
+	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	$voId=$vo->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
 } else {
-  $attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
 }
 
 # Get the attribute definition and create the attribute

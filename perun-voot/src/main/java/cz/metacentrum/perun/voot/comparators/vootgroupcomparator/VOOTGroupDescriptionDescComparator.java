@@ -11,8 +11,8 @@ import java.util.Comparator;
  */
 public class VOOTGroupDescriptionDescComparator implements Comparator<VOOTGroup>{
 
-    @Override
-    public int compare(VOOTGroup vootGroup1, VOOTGroup vootGroup2) {
-        return vootGroup2.getDescription().compareTo(vootGroup1.getDescription());
-    }
+	@Override
+	public int compare(VOOTGroup vootGroup1, VOOTGroup vootGroup2) {
+		return vootGroup2.getDescription().compareTo(vootGroup1.getDescription());
+	}
 }

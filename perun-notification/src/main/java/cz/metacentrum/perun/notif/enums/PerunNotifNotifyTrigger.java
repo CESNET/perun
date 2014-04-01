@@ -13,8 +13,8 @@ public enum PerunNotifNotifyTrigger {
 
 	// All type of objects must be received
 	ALL_REGEX_IDS("all_regex_ids"),
-	// Many object of same type, executed by time
-	STREAM("stream");
+		// Many object of same type, executed by time
+		STREAM("stream");
 
 	private PerunNotifNotifyTrigger(String key) {
 		this.key = key;

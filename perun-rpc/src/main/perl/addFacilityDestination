@@ -7,20 +7,20 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
-Adds facility destination. Facility, service and destination and type are required fields.
---------------------------------------
-Available options:
- --facilityId   | -f facility id
- --facilityName | -F facility name
- --facilityType | -p facility type
- --serviceId    | -s service id
- --destination  | -D destination string
- --type         | -t destination type (host/email/url)
- --batch        | -b batch
- --help         | -h prints this help
+	return qq{
+	Adds facility destination. Facility, service and destination and type are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--facilityType | -p facility type
+	--serviceId    | -s service id
+	--destination  | -D destination string
+	--type         | -t destination type (host/email/url)
+	--batch        | -b batch
+	--help         | -h prints this help
 
-};
+	};
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $destination, $typ, $batch);
@@ -42,9 +42,9 @@ unless ($destination !~ /^\s*$/) { die "ERROR: destination cannot be empty strin
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-    $facilityId=$facility->getId;
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	$facilityId=$facility->getId;
 }
 
 my $servicesAgent = $agent->getServicesAgent;

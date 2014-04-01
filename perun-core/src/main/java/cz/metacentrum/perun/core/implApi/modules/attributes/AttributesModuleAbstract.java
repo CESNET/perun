@@ -12,23 +12,23 @@ import java.util.List;
  */
 public abstract class AttributesModuleAbstract implements AttributesModuleImplApi {
 
-    public List<String> getDependencies() {
-      List<String> dependecies = new ArrayList<String>();
-      return dependecies;
-    }
+	public List<String> getDependencies() {
+		List<String> dependecies = new ArrayList<String>();
+		return dependecies;
+	}
 
-    public List<String> getStrongDependencies() {
-      List<String> dependecies = new ArrayList<String>();
-      return dependecies;
-    }
+	public List<String> getStrongDependencies() {
+		List<String> dependecies = new ArrayList<String>();
+		return dependecies;
+	}
 
-    public List<Role> getAuthorizedRoles() {
-      List<Role> roles = new ArrayList<Role>();
-      return roles;
-    }
+	public List<Role> getAuthorizedRoles() {
+		List<Role> roles = new ArrayList<Role>();
+		return roles;
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		return attr;
+	}
 }

@@ -60,8 +60,8 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Creates a tab instance
-     * @param facility facility to get resources from
-     */
+	 * @param facility facility to get resources from
+	 */
 	public FacilityResourcesTabItem(Facility facility){
 		this.facility = facility;
 		this.facilityId = facility.getId();
@@ -70,15 +70,15 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-     * @param facilityId
-     */
+	 * @param facilityId
+	 */
 	public FacilityResourcesTabItem(int facilityId){
 		this.facilityId = facilityId;
-        new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso){
-                facility = jso.cast();
-            }
-        }).retrieveData();
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				facility = jso.cast();
+			}
+		}).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -105,43 +105,43 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// create resource button
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createResource(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new CreateFacilityResourceTabItem(facility), false);
-            }
-        }));
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateFacilityResourceTabItem(facility), false);
+			}
+		}));
 
-        final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteResource());
-        menu.addWidget(deleteButton);
-        deleteButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ArrayList<RichResource> toDelete = resources.getTableSelectedList();
-                String text = "Following resources will be deleted.";
-                UiElements.showDeleteConfirm(toDelete, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i=0; i<toDelete.size(); i++ ) {
-                            if (i == toDelete.size()-1) {
-                                DeleteResource request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-                                request.deleteResource(toDelete.get(i).getId());
-                            } else {
-                                DeleteResource request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(deleteButton));
-                                request.deleteResource(toDelete.get(i).getId());
-                            }
-                        }
-                    }
-                });
+		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteResource());
+		menu.addWidget(deleteButton);
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				final ArrayList<RichResource> toDelete = resources.getTableSelectedList();
+				String text = "Following resources will be deleted.";
+				UiElements.showDeleteConfirm(toDelete, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i=0; i<toDelete.size(); i++ ) {
+							if (i == toDelete.size()-1) {
+								DeleteResource request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+								request.deleteResource(toDelete.get(i).getId());
+							} else {
+								DeleteResource request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(deleteButton));
+								request.deleteResource(toDelete.get(i).getId());
+							}
+						}
+					}
+				});
 
-            }
-        });
+			}
+		});
 
-        menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                resources.filterTable(text);
-            }
-        }, "Filter resources by name or VO name");
+		menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				resources.filterTable(text);
+			}
+		}, "Filter resources by name or VO name");
 
 		CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
 			public void update(int index, RichResource object, String value) {
@@ -149,18 +149,18 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-        deleteButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(resources, table, deleteButton);
+		deleteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(resources, table, deleteButton);
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-        session.getUiElements().resizePerunTable(sp, 350, this);
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
-        vp.add(menu);
+		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-        vp.add(sp);
+		vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
 
@@ -209,7 +209,7 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(facility, "Resources", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Resources", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {

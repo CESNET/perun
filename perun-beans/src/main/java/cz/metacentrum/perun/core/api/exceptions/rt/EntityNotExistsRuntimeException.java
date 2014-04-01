@@ -7,21 +7,21 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  *
  */
 public class EntityNotExistsRuntimeException extends PerunRuntimeException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    public EntityNotExistsRuntimeException() {
-      super();
-    }
+	public EntityNotExistsRuntimeException() {
+		super();
+	}
 
-    public EntityNotExistsRuntimeException(Throwable cause) {
-        super(cause);
-    }
+	public EntityNotExistsRuntimeException(Throwable cause) {
+		super(cause);
+	}
 
-    public EntityNotExistsRuntimeException(String err) {
-        super(err);
-    }
+	public EntityNotExistsRuntimeException(String err) {
+		super(err);
+	}
 
-    public EntityNotExistsRuntimeException(String err, Throwable cause) {
-        super(err, cause);
-    }
+	public EntityNotExistsRuntimeException(String err, Throwable cause) {
+		super(err, cause);
+	}
 }

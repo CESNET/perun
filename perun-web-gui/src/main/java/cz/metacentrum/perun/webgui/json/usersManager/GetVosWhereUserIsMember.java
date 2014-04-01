@@ -125,11 +125,11 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 			table.addCheckBoxColumn();
 		}
 
-        VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
-        IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
-        columnProvider.addIdColumn(authz, 100);
-        columnProvider.addShortNameColumn(authz, 200);
-        columnProvider.addNameColumn(authz, 0);
+		VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
+		IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
+		columnProvider.addIdColumn(authz, 100);
+		columnProvider.addShortNameColumn(authz, 200);
+		columnProvider.addNameColumn(authz, 0);
 
 		return table;
 	}
@@ -138,9 +138,9 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	 * Sorts table by objects Name
 	 */
 	public void sortTable() {
-        list = new TableSorter<VirtualOrganization>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
+		list = new TableSorter<VirtualOrganization>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -164,11 +164,11 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	 * Clear all table content
 	 */
 	public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -176,11 +176,11 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	 * @param jso The JavaScript object returned by the query.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
+		setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
 	}
 
 	/**
@@ -206,28 +206,28 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	 * @param object VO to be added as new row
 	 */
 	public void addToTable(VirtualOrganization object) {
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
 	 * Inserts the element to the table
 	 */
 	public void insertToTable(int index, VirtualOrganization object) {
-        list.add(index, object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.add(index, object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
 	 * Removes an element from the table
 	 */
 	public void removeFromTable(VirtualOrganization object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
@@ -248,17 +248,17 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	 * Sets the source list
 	 */
 	public void setList(ArrayList<VirtualOrganization> list) {
-        clearTable();
-        this.list.addAll(list);
-        dataProvider.flush();
-        dataProvider.refresh();
+		clearTable();
+		this.list.addAll(list);
+		dataProvider.flush();
+		dataProvider.refresh();
 	}
 
 	/**
 	 * Returns the source list
 	 */
 	public ArrayList<VirtualOrganization> getList() {
-        return this.list;
+		return this.list;
 	}
 
 }

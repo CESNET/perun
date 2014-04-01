@@ -10,8 +10,8 @@ $members = $client -> retrieveData("membersManager/getRichMembers", $params);
 
 // ERROR WHILE DECODING RESPONSE
 if($members === false){
-    print "Error while parsing response.";
-    exit;
+	print "Error while parsing response.";
+	exit;
 }
 
 // PRINTING DATA
@@ -24,10 +24,10 @@ print "    <th>Last name</th>\n";
 print "  </tr>\n";
 
 foreach($members as $richMember){
-    print "  <tr>\n";
-    print "    <td>{$richMember -> user -> firstName}</td>\n";
-    print "    <td>{$richMember -> user -> lastName}</td>\n";
-    print "  </tr>\n";
+	print "  <tr>\n";
+	print "    <td>{$richMember -> user -> firstName}</td>\n";
+	print "    <td>{$richMember -> user -> lastName}</td>\n";
+	print "  </tr>\n";
 }
 
 print "</table>\n";

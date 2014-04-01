@@ -76,7 +76,7 @@ public class AuthorshipDaoImpl implements IAuthorshipDao {
 
 	public List<Authorship> findByFilter(Authorship filter, SortParam sortParam) {
 
-        if (sortParam == null) {
+		if (sortParam == null) {
 			return findByFilter(filter);
 		}
 

@@ -7,12 +7,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -38,32 +38,32 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getHostname
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_hostname};
+	return $self->{_hostname};
 }
 
 sub setHostname
 {
-    my $self = shift;
-    $self->{_hostname} = shift;
+	my $self = shift;
+	$self->{_hostname} = shift;
 
-    return;
+	return;
 }
 
 1;

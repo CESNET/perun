@@ -20,7 +20,7 @@ public class MembersTabs {
 
 	/**
 	 * Creates a new instance of pages
-     */
+	 */
 	public MembersTabs(){}
 
 	/**

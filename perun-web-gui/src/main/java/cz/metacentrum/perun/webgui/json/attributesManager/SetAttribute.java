@@ -40,14 +40,14 @@ public class SetAttribute {
 	/**
 	 * Creates a new request
 	 *
-     */
+	 */
 	public SetAttribute() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events external events
-     */
+	 * @param events external events
+	 */
 	public SetAttribute(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -147,7 +147,7 @@ public class SetAttribute {
 		newAttr.put("description", description);
 		newAttr.put("namespace", namespace);
 		newAttr.put("friendlyName", friendlyName);
-        newAttr.put("displayName", attr.get("displayName"));
+		newAttr.put("displayName", attr.get("displayName"));
 
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();

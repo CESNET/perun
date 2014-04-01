@@ -29,17 +29,17 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 	public void findOwnersIntegrationTest() throws InternalErrorException, PrivilegeException, CabinetException {
 		System.out.println("findOwnersIntegrationTest()");
 
-        Owner owner = new Owner();
-        owner.setName("cabinetOwner");
-        owner.setContact("cabinet@owner.cz");
-        owner.setType(OwnerType.administrative);
-        owner = perun.getOwnersManager().createOwner(sess, owner);
+		Owner owner = new Owner();
+		owner.setName("cabinetOwner");
+		owner.setContact("cabinet@owner.cz");
+		owner.setType(OwnerType.administrative);
+		owner = perun.getOwnersManager().createOwner(sess, owner);
 
 		List<Owner> owners = perunService.findAllOwners(sess);
 
 		assertNotNull(owners);
 		assertTrue(owners.size() > 0);
-        assertTrue(owners.contains(owner));
+		assertTrue(owners.contains(owner));
 
 	}
 

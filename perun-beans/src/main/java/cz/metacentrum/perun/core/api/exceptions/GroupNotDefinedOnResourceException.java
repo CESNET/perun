@@ -9,22 +9,22 @@ import cz.metacentrum.perun.core.api.exceptions.rt.GroupNotDefinedOnResourceRunt
  * @author Martin Kuba
  */
 public class GroupNotDefinedOnResourceException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public GroupNotDefinedOnResourceException(GroupNotDefinedOnResourceRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public GroupNotDefinedOnResourceException(GroupNotDefinedOnResourceRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public GroupNotDefinedOnResourceException(String message) {
-        super(message);
-    }
+	public GroupNotDefinedOnResourceException(String message) {
+		super(message);
+	}
 
-    public GroupNotDefinedOnResourceException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public GroupNotDefinedOnResourceException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public GroupNotDefinedOnResourceException(Throwable cause) {
-        super(cause);
-    }
+	public GroupNotDefinedOnResourceException(Throwable cause) {
+		super(cause);
+	}
 }

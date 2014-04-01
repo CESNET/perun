@@ -8,12 +8,12 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -24,52 +24,52 @@ sub TO_JSON
 }
 
 sub getUserId {
-  return shift->{_user}->{id};
+	return shift->{_user}->{id};
 }
 
 sub getMemberId {
-  return shift->{_id};
+	return shift->{_id};
 }
 
 sub getUserAttributes {
-  return shift->{_userAttributes};
+	return shift->{_userAttributes};
 }
 
 sub getMemberAttributes {
-  return shift->{_memberAttributes};
+	return shift->{_memberAttributes};
 }
 
 sub getCommonName {
-  my $user = shift->{_user};
+	my $user = shift->{_user};
 
-  my $str = "";
-  $str .= $user->{firstName} . ' '   if defined $user->{firstName};
-  $str .= $user->{middleName} . ' '  if defined $user->{middleName};
-  $str .= $user->{lastName}          if defined $user->{lastName};
+	my $str = "";
+	$str .= $user->{firstName} . ' '   if defined $user->{firstName};
+	$str .= $user->{middleName} . ' '  if defined $user->{middleName};
+	$str .= $user->{lastName}          if defined $user->{lastName};
 
-  return $str;
+	return $str;
 }
 
 sub getDisplayName {
-  my $user = shift->{_user};
+	my $user = shift->{_user};
 
-  my $str = "";
-  $str .= $user->{titleBefore} . ' ' if defined $user->{titleBefore};
-  $str .= $user->{firstName} . ' '   if defined $user->{firstName};
-  $str .= $user->{middleName} . ' '  if defined $user->{middleName};
-  $str .= $user->{lastName} . ' '    if defined $user->{lastName};
-  $str .= $user->{titleAfter}        if defined $user->{titleAfter};
+	my $str = "";
+	$str .= $user->{titleBefore} . ' ' if defined $user->{titleBefore};
+	$str .= $user->{firstName} . ' '   if defined $user->{firstName};
+	$str .= $user->{middleName} . ' '  if defined $user->{middleName};
+	$str .= $user->{lastName} . ' '    if defined $user->{lastName};
+	$str .= $user->{titleAfter}        if defined $user->{titleAfter};
 
-  return $str;
+	return $str;
 }
 
 sub getCommonArrayRepresentation {
-  my $self = shift;
-  return ($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status});
+	my $self = shift;
+	return ($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status});
 }
 
 sub getCommonArrayRepresentationHeading {
-  return ('Member Id', 'User Id', 'Name', 'Status');
+	return ('Member Id', 'User Id', 'Name', 'Status');
 }
 
 1;

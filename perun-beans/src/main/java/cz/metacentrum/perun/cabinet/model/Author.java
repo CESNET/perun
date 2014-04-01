@@ -39,7 +39,7 @@ public class Author implements Serializable {
 
 	/**
 	 * Authorships related to this author.
- 	 * Provides authorships.getAuthorship(pubId).getCreatedBy() display for GUI.
+	 * Provides authorships.getAuthorship(pubId).getCreatedBy() display for GUI.
 	 * Used when displaying authors for some publication.
 	 * !! This property must be filled manually !!
 	 */
@@ -125,27 +125,27 @@ public class Author implements Serializable {
 		return this.getClass().getSimpleName();
 	}
 
-    public String getDisplayName() {
-        String name = "";
-        if (titleBefore != null) name = titleBefore;
-        if (firstName != null) {
-          if (name.length() != 0) name += " ";
-          name += firstName;
-        }
-        if (middleName != null) {
-           if (name.length() != 0) name += " ";
-           name += middleName;
-        }
-        if (lastName != null) {
-          if (name.length() != 0) name += " ";
-          name += lastName;
-        }
-        if (titleAfter != null) {
-          if (name.length() != 0) name += " ";
-          name += titleAfter;
-        }
-        return name;
-    }
+	public String getDisplayName() {
+		String name = "";
+		if (titleBefore != null) name = titleBefore;
+		if (firstName != null) {
+			if (name.length() != 0) name += " ";
+			name += firstName;
+		}
+		if (middleName != null) {
+			if (name.length() != 0) name += " ";
+			name += middleName;
+		}
+		if (lastName != null) {
+			if (name.length() != 0) name += " ";
+			name += lastName;
+		}
+		if (titleAfter != null) {
+			if (name.length() != 0) name += " ";
+			name += titleAfter;
+		}
+		return name;
+	}
 
 	@Override
 	public String toString() {
@@ -157,16 +157,16 @@ public class Author implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((firstName == null) ? 0 : firstName.hashCode());
+			+ ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result
-				+ ((lastName == null) ? 0 : lastName.hashCode());
+			+ ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result
-				+ ((middleName == null) ? 0 : middleName.hashCode());
+			+ ((middleName == null) ? 0 : middleName.hashCode());
 		result = prime * result
-				+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
+			+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
 		result = prime * result
-				+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
+			+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
 		return result;
 	}
 

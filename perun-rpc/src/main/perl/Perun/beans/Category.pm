@@ -7,85 +7,85 @@ use Perun::Common;
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
 {
-        my $self = shift;
+	my $self = shift;
 
-        my $id;
-        if (defined($self->{_id})) {
-                $id = $self->{_id}*1;
-        } else {
-                $id = 0;
-        }
+	my $id;
+	if (defined($self->{_id})) {
+		$id = $self->{_id}*1;
+	} else {
+		$id = 0;
+	}
 
-        my $name;
-        if (defined($self->{_name})) {
-                $name="$self->{_name}";
-        } else {
-                $name = undef;
-        }
+	my $name;
+	if (defined($self->{_name})) {
+		$name="$self->{_name}";
+	} else {
+		$name = undef;
+	}
 
-        my $rank;
-        if (defined($self->{_rank})) {
-                $rank = $self->{_rank}*1;
-        } else {
-                $rank = 0;
-        }
+	my $rank;
+	if (defined($self->{_rank})) {
+		$rank = $self->{_rank}*1;
+	} else {
+		$rank = 0;
+	}
 
-        return {id => $id, name => $name, rank => $rank};
+	return {id => $id, name => $name, rank => $rank};
 }
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-        my $self = shift;
+	my $self = shift;
 
-    return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-    my $self = shift;
-    $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-    return;
+	return;
 }
 
 sub getRank
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_rank};
+	return $self->{_rank};
 }
 
 sub setRank
 {
-    my $self = shift;
-    $self->{_rank} = shift;
+	my $self = shift;
+	$self->{_rank} = shift;
 
-    return;
+	return;
 }
 
 1;

@@ -9,26 +9,26 @@ public class Pair<L,R>  implements Serializable{
 	private L left;
 	private R right;
 
-    public Pair(L left, R right) {
-    	this.left = left;
-    	this.right = right;
-    }
+	public Pair(L left, R right) {
+		this.left = left;
+		this.right = right;
+	}
 
-    public Pair() {
-    }
+	public Pair() {
+	}
 
-    public void put(L left, R right) {
-    	this.left = left;
-    	this.right = right;
-    }
+	public void put(L left, R right) {
+		this.left = left;
+		this.right = right;
+	}
 
-    public L getLeft() {
-    	return left;
-    }
+	public L getLeft() {
+		return left;
+	}
 
-    public R getRight() {
-    	return right;
-    }
+	public R getRight() {
+		return right;
+	}
 
 	@Override
 	public int hashCode() {
@@ -64,7 +64,7 @@ public class Pair<L,R>  implements Serializable{
 
 	@Override
 	public String toString() {
-	  return this.getClass().getSimpleName() + "[Left:" + this.getLeft() + ", Right:" + this.getRight() + "]";
+		return this.getClass().getSimpleName() + "[Left:" + this.getLeft() + ", Right:" + this.getRight() + "]";
 	}
 
 }

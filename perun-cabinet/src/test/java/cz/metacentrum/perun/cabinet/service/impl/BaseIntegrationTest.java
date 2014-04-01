@@ -39,11 +39,11 @@ public class BaseIntegrationTest {
 	public Publication publicationTwo = null;
 	public Category c1 = null;
 	public static int USER_ID = 0;
-    public static int USER_ID_2 = 1;
-    public PublicationSystem pubSysZcu;
-    public PublicationSystem pubSysMu;
+	public static int USER_ID_2 = 1;
+	public PublicationSystem pubSysZcu;
+	public PublicationSystem pubSysMu;
 
-    private boolean init = false;
+	private boolean init = false;
 	private int p1Id;
 
 	@Autowired protected IAuthorshipDao authorshipDao;
@@ -52,9 +52,9 @@ public class BaseIntegrationTest {
 	@Autowired protected IPublicationSystemDao publicationSystemDao;
 	@Autowired protected IPerunService perunService;
 	@Autowired protected IAuthorService authorService;
-    @Autowired protected Properties cabinetProperties;
+	@Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
-			   PerunSession sess;
+	PerunSession sess;
 
 	// setters -------------------------
 
@@ -82,9 +82,9 @@ public class BaseIntegrationTest {
 		this.publicationSystemDao = publicationSystemDao;
 	}
 
-    public void setCabinetProperties(Properties cabinetProperties) {
-        this.cabinetProperties = cabinetProperties;
-    }
+	public void setCabinetProperties(Properties cabinetProperties) {
+		this.cabinetProperties = cabinetProperties;
+	}
 
 	// test -------------------------------
 
@@ -93,58 +93,58 @@ public class BaseIntegrationTest {
 
 		if (init) return; //do only once for all tests
 
-        // principal
+		// principal
 
-        PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-        sess = perun.getPerunSession(pp);
+		PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		sess = perun.getPerunSession(pp);
 
-        // setup world
+		// setup world
 
-        User user = new User();
-        user.setLastName("cabinetTestUser");
-        user.setServiceUser(false);
-        user = perun.getUsersManagerBl().createUser(sess, user);
-        USER_ID = user.getId();
+		User user = new User();
+		user.setLastName("cabinetTestUser");
+		user.setServiceUser(false);
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		USER_ID = user.getId();
 
-        User user2 = new User();
-        user2.setLastName("cabinetTestUser2");
-        user2.setServiceUser(false);
-        user2 = perun.getUsersManagerBl().createUser(sess, user2);
-        USER_ID_2 = user2.getId();
+		User user2 = new User();
+		user2.setLastName("cabinetTestUser2");
+		user2.setServiceUser(false);
+		user2 = perun.getUsersManagerBl().createUser(sess, user2);
+		USER_ID_2 = user2.getId();
 
-        // category
+		// category
 
-        c1 = new Category(null, "patent", 3.9);
-        int categoryId = categoryDao.createCategory(c1);
-        c1.setId(categoryId);
+		c1 = new Category(null, "patent", 3.9);
+		int categoryId = categoryDao.createCategory(c1);
+		c1.setId(categoryId);
 
-        // publication systems
+		// publication systems
 
-        PublicationSystem ps = new PublicationSystem();
-        ps.setFriendlyName("OBD");
-        ps.setLoginNamespace("zcu");
-        ps.setUrl("http://obd.zcu.cz:6443/fcgi/verso.fpl?");
-        ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.OBD30Strategy");
+		PublicationSystem ps = new PublicationSystem();
+		ps.setFriendlyName("OBD");
+		ps.setLoginNamespace("zcu");
+		ps.setUrl("http://obd.zcu.cz:6443/fcgi/verso.fpl?");
+		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.OBD30Strategy");
 
-        int id = publicationSystemDao.createPublicationSystem(ps);
-        pubSysZcu = ps;
+		int id = publicationSystemDao.createPublicationSystem(ps);
+		pubSysZcu = ps;
 
-        assertTrue(id > 0);
+		assertTrue(id > 0);
 
-        PublicationSystem ps2 = new PublicationSystem();
-        ps2.setFriendlyName("Masarykova Univerzita - Prezentátor");
-        ps2.setLoginNamespace("mu");
-        ps2.setUrl("https://is.muni.cz/auth/prezentator/index.pl");
-        ps2.setUsername(cabinetProperties.getProperty("perun.cabinet.mu.login"));
-        ps2.setPassword(cabinetProperties.getProperty("perun.cabinet.mu.password"));
-        ps2.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
+		PublicationSystem ps2 = new PublicationSystem();
+		ps2.setFriendlyName("Masarykova Univerzita - Prezentátor");
+		ps2.setLoginNamespace("mu");
+		ps2.setUrl("https://is.muni.cz/auth/prezentator/index.pl");
+		ps2.setUsername(cabinetProperties.getProperty("perun.cabinet.mu.login"));
+		ps2.setPassword(cabinetProperties.getProperty("perun.cabinet.mu.password"));
+		ps2.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
 
-        int id2 = publicationSystemDao.createPublicationSystem(ps2);
-        pubSysMu = ps2;
+		int id2 = publicationSystemDao.createPublicationSystem(ps2);
+		pubSysMu = ps2;
 
-        assertTrue(id2 > 0);
+		assertTrue(id2 > 0);
 
-        // create publication
+		// create publication
 
 		Publication p1 = new Publication();
 		p1.setCategoryId(c1.getId());
@@ -206,9 +206,9 @@ public class BaseIntegrationTest {
 
 	}
 
-    @Test
-    public void dummyTest() {
-        // FIXME - Dummy test to prevent JUnit4 'No runnable methods' error.
-    }
+	@Test
+	public void dummyTest() {
+		// FIXME - Dummy test to prevent JUnit4 'No runnable methods' error.
+	}
 
 }

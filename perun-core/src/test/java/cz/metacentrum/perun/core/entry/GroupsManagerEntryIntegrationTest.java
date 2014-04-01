@@ -42,1216 +42,1216 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  */
 public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-    // these must be setUp"type" before every method to be in DB
-    final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
-    final Group group = new Group("GroupsManagerTestGroup1","testovaci1");
-    final Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
-    final Group group21 = new Group("GroupsManagerTestGroup21","testovaci21");
-    final Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
-    final Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
-    private Vo vo;
-    // exists before every method
-    private GroupsManager groupsManager;
-    private GroupsManagerBl groupsManagerBl;
+	// these must be setUp"type" before every method to be in DB
+	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+	final Group group = new Group("GroupsManagerTestGroup1","testovaci1");
+	final Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
+	final Group group21 = new Group("GroupsManagerTestGroup21","testovaci21");
+	final Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
+	final Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
+	private Vo vo;
+	// exists before every method
+	private GroupsManager groupsManager;
+	private GroupsManagerBl groupsManagerBl;
 
-    @Before
-    public void setUpBeforeEveryMethod() throws Exception {
+	@Before
+	public void setUpBeforeEveryMethod() throws Exception {
 
-        groupsManager = perun.getGroupsManager();
-        groupsManagerBl = perun.getGroupsManagerBl();
-        // vo = setUpVo();
-        // setUpGroup(vo);
-        // moved to every method to save testing time
+		groupsManager = perun.getGroupsManager();
+		groupsManagerBl = perun.getGroupsManagerBl();
+		// vo = setUpVo();
+		// setUpGroup(vo);
+		// moved to every method to save testing time
 
-    }
+	}
 
-    @Test
-    public void getGroupsUsers() throws Exception {
-        System.out.println("GroupsManager.getGroupsUsers");
+	@Test
+	public void getGroupsUsers() throws Exception {
+		System.out.println("GroupsManager.getGroupsUsers");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManagerBl.addMember(sess, group, member);
-        User u = perun.getUsersManager().getUserByMember(sess, member);
+		Member member = setUpMember(vo);
+		groupsManagerBl.addMember(sess, group, member);
+		User u = perun.getUsersManager().getUserByMember(sess, member);
 
-        List<User> users = groupsManagerBl.getGroupUsers(sess, group);
-        assertTrue("Users of group can't be null", users != null);
-        assertTrue("Group must have exactly 1 user", users.size() == 1);
-        assertTrue("User of group is not same as originally added", users.contains(u));
+		List<User> users = groupsManagerBl.getGroupUsers(sess, group);
+		assertTrue("Users of group can't be null", users != null);
+		assertTrue("Group must have exactly 1 user", users.size() == 1);
+		assertTrue("User of group is not same as originally added", users.contains(u));
 
-    }
+	}
 
-    @Test
-    public void testGroupNameLength() throws Exception {
-        System.out.println("GroupsManager.testGroupNameLength");
+	@Test
+	public void testGroupNameLength() throws Exception {
+		System.out.println("GroupsManager.testGroupNameLength");
 
-        Vo vo = setUpVo();
+		Vo vo = setUpVo();
 
-        Group g1 = new Group();
-        Group g2 = new Group();
+		Group g1 = new Group();
+		Group g2 = new Group();
 
-        String name1 = "";
-        String name2 = "";
+		String name1 = "";
+		String name2 = "";
 
-        for (int i=0; i<120; i++) {
-            name1 += "a";
-            name2 += "b";
-        }
+		for (int i=0; i<120; i++) {
+			name1 += "a";
+			name2 += "b";
+		}
 
-        g1.setName(name1);
-        g2.setName(name2);
+		g1.setName(name1);
+		g2.setName(name2);
 
-        g1.setDescription("desc");
-        g2.setDescription("desc2");
+		g1.setDescription("desc");
+		g2.setDescription("desc2");
 
-        // create group
-        g1 = groupsManager.createGroup(sess, vo , g1);
-        // create sub-group
-        g2 = groupsManager.createGroup(sess, g1, g2);
+		// create group
+		g1 = groupsManager.createGroup(sess, vo , g1);
+		// create sub-group
+		g2 = groupsManager.createGroup(sess, g1, g2);
 
-        Group g3 = groupsManager.getGroupById(sess, g2.getId());
+		Group g3 = groupsManager.getGroupById(sess, g2.getId());
 
-        assertTrue("Result name must be made from parentGroup name and group name.", g3.getName().equals(name1+":"+name2));
-        assertTrue("Name is longer than 128 chars.", g3.getName().length() >= 128);
+		assertTrue("Result name must be made from parentGroup name and group name.", g3.getName().equals(name1+":"+name2));
+		assertTrue("Name is longer than 128 chars.", g3.getName().length() >= 128);
 
 
-    }
+	}
 
-    @Test
-    public void createGroup() throws Exception {
-        System.out.println("GroupsManager.createGroup");
+	@Test
+	public void createGroup() throws Exception {
+		System.out.println("GroupsManager.createGroup");
 
-        vo = setUpVo();
+		vo = setUpVo();
 
-        Group returnedGroup = groupsManager.createGroup(sess, vo, group2);
-        assertNotNull(returnedGroup);
-        assertNotNull(groupsManager.createGroup(sess, returnedGroup, group21));
+		Group returnedGroup = groupsManager.createGroup(sess, vo, group2);
+		assertNotNull(returnedGroup);
+		assertNotNull(groupsManager.createGroup(sess, returnedGroup, group21));
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void createGroupWhenParentNotExist() throws Exception {
-        System.out.println("GroupsManager.createGroupWhenParentNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void createGroupWhenParentNotExist() throws Exception {
+			System.out.println("GroupsManager.createGroupWhenParentNotExists");
 
-        groupsManager.createGroup(sess, new Group(), new Group("GroupsManagerTestGroup2","testovaci2"));
+			groupsManager.createGroup(sess, new Group(), new Group("GroupsManagerTestGroup2","testovaci2"));
 
-    }
+		}
 
-    @Test (expected=VoNotExistsException.class)
-    public void createGroupWhenVoNotExist() throws Exception {
-        System.out.println("GroupsManager.createGroupWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void createGroupWhenVoNotExist() throws Exception {
+			System.out.println("GroupsManager.createGroupWhenVoNotExists");
 
-        groupsManager.createGroup(sess, new Vo(), new Group("GroupsManagerTestGroup2","testovaci2"));
+			groupsManager.createGroup(sess, new Vo(), new Group("GroupsManagerTestGroup2","testovaci2"));
 
-    }
+		}
 
-    @Test (expected=GroupExistsException.class)
-    public void createGroupWhenSameGroupExist() throws Exception {
-        System.out.println("GroupsManager.createGroupWhenSameGroupExists");
+	@Test (expected=GroupExistsException.class)
+		public void createGroupWhenSameGroupExist() throws Exception {
+			System.out.println("GroupsManager.createGroupWhenSameGroupExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.createGroup(sess, vo, group);
-        // shouldn't be able to create group with same name
-    }
+			groupsManager.createGroup(sess, vo, group);
+			// shouldn't be able to create group with same name
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void deleteGroup() throws Exception {
-        System.out.println("GroupsManager.deleteGroup");
+	@Test (expected=GroupNotExistsException.class)
+		public void deleteGroup() throws Exception {
+			System.out.println("GroupsManager.deleteGroup");
 
-        vo = setUpVo();
-        setUpGroup(vo);
-        // assertNotNull(groupsManager.createGroup(sess, group, group2));
-        // create sub-group
-        groupsManager.deleteGroup(sess, group);
-        // delete group including sub-group
-        groupsManager.getGroupById(sess, group.getId());
-        // shouldn't find group
+			vo = setUpVo();
+			setUpGroup(vo);
+			// assertNotNull(groupsManager.createGroup(sess, group, group2));
+			// create sub-group
+			groupsManager.deleteGroup(sess, group);
+			// delete group including sub-group
+			groupsManager.getGroupById(sess, group.getId());
+			// shouldn't find group
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void deleteGroupWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.deleteGroupWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void deleteGroupWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.deleteGroupWhenGroupNotExists");
 
-        groupsManager.deleteGroup(sess, new Group());
+			groupsManager.deleteGroup(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void trywhat(){
+	@Test
+	public void trywhat(){
 
-    }
+	}
 
-    @Test (expected=RelationExistsException.class)
-    public void deleteGroupWhenContainsMember() throws Exception {
-        System.out.println("GroupsManager.deleteGroupWhenContainsMember");
+	@Test (expected=RelationExistsException.class)
+		public void deleteGroupWhenContainsMember() throws Exception {
+			System.out.println("GroupsManager.deleteGroupWhenContainsMember");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
+			Member member = setUpMember(vo);
+			groupsManager.addMember(sess, group, member);
 
-        groupsManager.deleteGroup(sess, group);
+			groupsManager.deleteGroup(sess, group);
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void deleteGroupForce() throws Exception {
-        System.out.println("GroupsManager.deleteGroupForce");
+	@Test (expected=GroupNotExistsException.class)
+		public void deleteGroupForce() throws Exception {
+			System.out.println("GroupsManager.deleteGroupForce");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
-        assertNotNull(groupsManager.createGroup(sess, group, group2)); // create sub-group
-        groupsManager.deleteGroup(sess, group, true); // force delete
-        groupsManager.getGroupById(sess, group2.getId()); // shouldn't find our sub-group even when parent had member
+			Member member = setUpMember(vo);
+			groupsManager.addMember(sess, group, member);
+			assertNotNull(groupsManager.createGroup(sess, group, group2)); // create sub-group
+			groupsManager.deleteGroup(sess, group, true); // force delete
+			groupsManager.getGroupById(sess, group2.getId()); // shouldn't find our sub-group even when parent had member
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void deleteGroupForceWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.deleteGroupForceWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void deleteGroupForceWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.deleteGroupForceWhenGroupNotExists");
 
-        groupsManager.deleteGroup(sess, new Group(), true);
+			groupsManager.deleteGroup(sess, new Group(), true);
 
-    }
+		}
 
-    @Test
-    public void deleteAllGroups() throws Exception {
-        System.out.println("GroupsManager.deleteAllGroups");
+	@Test
+	public void deleteAllGroups() throws Exception {
+		System.out.println("GroupsManager.deleteAllGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        groupsManager.deleteAllGroups(sess, vo);
-
-        List<Group> groups = groupsManager.getAllGroups(sess, vo);
-        assertEquals("groups should contains only 'members' group", 1, groups.size());
-
-    }
-
-    @Test(expected=VoNotExistsException.class)
-    public void deleteAllGroupsWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.deleteAllGroupsWhenVoNotExists");
-
-        groupsManager.deleteAllGroups(sess, new Vo());
-
-    }
-
-    @Test
-    public void updateGroup() throws Exception {
-        System.out.println("GroupsManager.updateGroup");
-
-        vo = setUpVo();
-        setUpGroup(vo);
-
-        group.setName("GroupsManagerTestGroup1Updated");
-        Group returnedGroup = groupsManager.updateGroup(sess, group);
-        assertNotNull(returnedGroup);
-        assertEquals("Groups should be the same after update", returnedGroup, group);
-
-    }
-
-    @Test (expected=GroupNotExistsException.class)
-    public void updateGroupWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.updateGroupWhenGroupNotExists");
-
-        groupsManager.updateGroup(sess, new Group());
-        // shouldn't be able to update
-
-    }
-
-    @Test
-    public void getGroupById() throws Exception {
-        System.out.println("GroupsManager.getGroupById");
-
-        vo = setUpVo();
-        setUpGroup(vo);
-
-        Group returnedGroup = groupsManager.getGroupById(sess, group.getId());
-        assertNotNull(returnedGroup);
-        assertEquals("both groups should be the same",returnedGroup,group);
-
-    }
-
-    @Test
-    public void getAssignedGroupsToResourceWithSubgroups() throws Exception {
-        System.out.println("GroupsManager.getAssignedGroupsToResourceWithSubgroups");
-        Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
-        Group parentGroup = new Group("TestGroupParent", "ParentGroup");
-        Group subgroup1 = new Group("TestGroup1", "Test1");
-        Group subgroup2 = new Group("TestGroup2", "Test2");
-        parentGroup = groupsManagerBl.createGroup(sess, createdVo, parentGroup);
-        subgroup1 = groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
-        subgroup2 = groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
-        Group subgroupOfSubgroup1 = new Group("TestGroupSubgroupOfSubgroup", "SubSubGroup");
-        subgroupOfSubgroup1 = groupsManagerBl.createGroup(sess, subgroup2, subgroupOfSubgroup1);
-        //Fake Group
-        Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
-        Facility facility = new Facility();
-        facility.setName("TestForGetSubgroups");
-        facility.setType("Testing");
-        perun.getFacilitiesManager().createFacility(sess, facility);
-        Resource resource = new Resource();
-        resource.setName("TestForGetSubgroups");
-        resource.setDescription("Testovaci");
-        resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
-        sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource);
-        sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource);
-
-        List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, true);
-        assertNotNull(groupsList);
-        assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup1));
-        assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup2));
-        assertTrue("Expected this group is contained in list.",groupsList.remove(parentGroup));
-        assertTrue("Expected this group is contained in list.",groupsList.remove(subgroupOfSubgroup1));
-        assertTrue(groupsList.isEmpty());
-    }
+		groupsManager.deleteAllGroups(sess, vo);
+
+		List<Group> groups = groupsManager.getAllGroups(sess, vo);
+		assertEquals("groups should contains only 'members' group", 1, groups.size());
+
+	}
+
+	@Test(expected=VoNotExistsException.class)
+	public void deleteAllGroupsWhenVoNotExists() throws Exception {
+		System.out.println("GroupsManager.deleteAllGroupsWhenVoNotExists");
+
+		groupsManager.deleteAllGroups(sess, new Vo());
+
+	}
+
+	@Test
+	public void updateGroup() throws Exception {
+		System.out.println("GroupsManager.updateGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		group.setName("GroupsManagerTestGroup1Updated");
+		Group returnedGroup = groupsManager.updateGroup(sess, group);
+		assertNotNull(returnedGroup);
+		assertEquals("Groups should be the same after update", returnedGroup, group);
+
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+		public void updateGroupWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.updateGroupWhenGroupNotExists");
+
+			groupsManager.updateGroup(sess, new Group());
+			// shouldn't be able to update
+
+		}
+
+	@Test
+	public void getGroupById() throws Exception {
+		System.out.println("GroupsManager.getGroupById");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Group returnedGroup = groupsManager.getGroupById(sess, group.getId());
+		assertNotNull(returnedGroup);
+		assertEquals("both groups should be the same",returnedGroup,group);
+
+	}
+
+	@Test
+	public void getAssignedGroupsToResourceWithSubgroups() throws Exception {
+		System.out.println("GroupsManager.getAssignedGroupsToResourceWithSubgroups");
+		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
+		Group parentGroup = new Group("TestGroupParent", "ParentGroup");
+		Group subgroup1 = new Group("TestGroup1", "Test1");
+		Group subgroup2 = new Group("TestGroup2", "Test2");
+		parentGroup = groupsManagerBl.createGroup(sess, createdVo, parentGroup);
+		subgroup1 = groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
+		subgroup2 = groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
+		Group subgroupOfSubgroup1 = new Group("TestGroupSubgroupOfSubgroup", "SubSubGroup");
+		subgroupOfSubgroup1 = groupsManagerBl.createGroup(sess, subgroup2, subgroupOfSubgroup1);
+		//Fake Group
+		Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
+		Facility facility = new Facility();
+		facility.setName("TestForGetSubgroups");
+		facility.setType("Testing");
+		perun.getFacilitiesManager().createFacility(sess, facility);
+		Resource resource = new Resource();
+		resource.setName("TestForGetSubgroups");
+		resource.setDescription("Testovaci");
+		resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource);
+
+		List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, true);
+		assertNotNull(groupsList);
+		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup1));
+		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup2));
+		assertTrue("Expected this group is contained in list.",groupsList.remove(parentGroup));
+		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroupOfSubgroup1));
+		assertTrue(groupsList.isEmpty());
+	}
 
-    @Test
-    public void getAssignedGroupsToResourceWithoutSubgroups() throws Exception {
-        System.out.println("GroupsManager.getAssignedGroupsToResourceWithoutSubgroups");
-        Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
-        Group parentGroup = new Group("TestGroupParent", "ParentGroup");
-        Group subgroup1 = new Group("TestGroup1", "Test1");
-        Group subgroup2 = new Group("TestGroup2", "Test2");
-        parentGroup = groupsManagerBl.createGroup(sess, createdVo, parentGroup);
-        subgroup1 = groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
-        subgroup2 = groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
-        //Fake Group
-        Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
-        Facility facility = new Facility();
-        facility.setName("TestForGetSubgroups");
-        facility.setType("Testing");
-        perun.getFacilitiesManager().createFacility(sess, facility);
-        Resource resource = new Resource();
-        resource.setName("TestForGetSubgroups");
-        resource.setDescription("Testovaci");
-        resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
-        sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource);
-        sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource);
+	@Test
+	public void getAssignedGroupsToResourceWithoutSubgroups() throws Exception {
+		System.out.println("GroupsManager.getAssignedGroupsToResourceWithoutSubgroups");
+		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
+		Group parentGroup = new Group("TestGroupParent", "ParentGroup");
+		Group subgroup1 = new Group("TestGroup1", "Test1");
+		Group subgroup2 = new Group("TestGroup2", "Test2");
+		parentGroup = groupsManagerBl.createGroup(sess, createdVo, parentGroup);
+		subgroup1 = groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
+		subgroup2 = groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
+		//Fake Group
+		Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
+		Facility facility = new Facility();
+		facility.setName("TestForGetSubgroups");
+		facility.setType("Testing");
+		perun.getFacilitiesManager().createFacility(sess, facility);
+		Resource resource = new Resource();
+		resource.setName("TestForGetSubgroups");
+		resource.setDescription("Testovaci");
+		resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource);
 
-        List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, false);
-        assertNotNull(groupsList);
-        assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup1));
-        assertTrue("Expected this group is contained in list.",groupsList.remove(parentGroup));
-        assertTrue(groupsList.isEmpty());
-    }
+		List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, false);
+		assertNotNull(groupsList);
+		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroup1));
+		assertTrue("Expected this group is contained in list.",groupsList.remove(parentGroup));
+		assertTrue(groupsList.isEmpty());
+	}
 
-    @Test
-    public void getGroupToSynchronize() throws Exception {
-        System.out.println("GroupsManager.getGroupToSynchronize");
+	@Test
+	public void getGroupToSynchronize() throws Exception {
+		System.out.println("GroupsManager.getGroupToSynchronize");
 
-        vo = setUpVo();
-        setUpGroup(vo);
-        perun.getGroupsManager().createGroup(sess, vo, group2);
+		vo = setUpVo();
+		setUpGroup(vo);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
 
-        Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationEnabled"));
-        synchroAttr1.setValue("true");
-        perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
-        perun.getAttributesManager().setAttribute(sess, group2, synchroAttr1);
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationEnabled"));
+		synchroAttr1.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
+		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr1);
 
-        Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationInterval"));
-        synchroAttr2.setValue("5");
-        perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
-        perun.getAttributesManager().setAttribute(sess, group2, synchroAttr2);
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationInterval"));
+		synchroAttr2.setValue("5");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
+		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr2);
 
-        Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:groupExtSource"));
-        synchroAttr3.setValue(extSource.getName());
-        perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
-        perun.getAttributesManager().setAttribute(sess, group2, synchroAttr3);
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:groupExtSource"));
+		synchroAttr3.setValue(extSource.getName());
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
+		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr3);
 
-        List<Group> groups = groupsManagerBl.getGroupsToSynchronize(sess);
-        assertTrue("List of groups to synchronize contain group.", groups.contains(group));
-        assertTrue("List of groups to synchronize contain group2.", groups.contains(group2));
-    }
+		List<Group> groups = groupsManagerBl.getGroupsToSynchronize(sess);
+		assertTrue("List of groups to synchronize contain group.", groups.contains(group));
+		assertTrue("List of groups to synchronize contain group2.", groups.contains(group2));
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getGroupByIdWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupByIdWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getGroupByIdWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupByIdWhenGroupNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        group.setId(0);
-        groupsManager.getGroupById(sess, group.getId());
+			group.setId(0);
+			groupsManager.getGroupById(sess, group.getId());
 
-    }
+		}
 
-    @Test
-    public void getGroupByName() throws Exception {
-        System.out.println("GroupsManager.getGroupByName");
+	@Test
+	public void getGroupByName() throws Exception {
+		System.out.println("GroupsManager.getGroupByName");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group returnedGroup = groupsManager.getGroupByName(sess, vo, group.getName());
-        assertNotNull(returnedGroup);
-        assertEquals("Both groups should be the same",returnedGroup,group);
+		Group returnedGroup = groupsManager.getGroupByName(sess, vo, group.getName());
+		assertNotNull(returnedGroup);
+		assertEquals("Both groups should be the same",returnedGroup,group);
 
-    }
+	}
 
-    @Test (expected=VoNotExistsException.class)
-    public void getGroupByNameWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupByNameWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void getGroupByNameWhenVoNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupByNameWhenVoNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.getGroupByName(sess, new Vo(), group.getName());
+			groupsManager.getGroupByName(sess, new Vo(), group.getName());
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getGroupByNameWhenGroupNotExists() throws Exception {
+	@Test (expected=GroupNotExistsException.class)
+		public void getGroupByNameWhenGroupNotExists() throws Exception {
 
-        vo = setUpVo();
+			vo = setUpVo();
 
-        groupsManager.getGroupByName(sess, vo, "");
+			groupsManager.getGroupByName(sess, vo, "");
 
-    }
+		}
 
-    @Test
-    public void addMember() throws Exception {
-        System.out.println("GroupsManager.addMember");
+	@Test
+	public void addMember() throws Exception {
+		System.out.println("GroupsManager.addMember");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
+		Member member = setUpMember(vo);
 
-        groupsManager.addMember(sess, group, member);
+		groupsManager.addMember(sess, group, member);
 
-        List<Member> members = groupsManager.getGroupMembers(sess, group);
-        assertTrue("our member should be in group",members.contains(member));
+		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		assertTrue("our member should be in group",members.contains(member));
 
-    }
+	}
 
-    // FIXME - vymyslet lepší výjímku
+	// FIXME - vymyslet lepší výjímku
 
-    @Test (expected=InternalErrorException.class)
-    public void addMemberWhenMemberFromDifferentVo() throws Exception {
-        System.out.println("GroupsManager.addMemberWhenMemberFromDifferentVo");
+	@Test (expected=InternalErrorException.class)
+		public void addMemberWhenMemberFromDifferentVo() throws Exception {
+			System.out.println("GroupsManager.addMemberWhenMemberFromDifferentVo");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Vo vo = new Vo();
-        vo.setName("GroupManagerTestVo2");
-        vo.setShortName("GrpManTest2");
-        vo = perun.getVosManager().createVo(sess, vo);
+			Vo vo = new Vo();
+			vo.setName("GroupManagerTestVo2");
+			vo.setShortName("GrpManTest2");
+			vo = perun.getVosManager().createVo(sess, vo);
 
-        Member member = setUpMember(vo); // put member in different VO
+			Member member = setUpMember(vo); // put member in different VO
 
-        groupsManager.addMember(sess, group, member);
-        // shouldn't add member
+			groupsManager.addMember(sess, group, member);
+			// shouldn't add member
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void addMemberWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.addMemberWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void addMemberWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.addMemberWhenGroupNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
-        Member member = setUpMember(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
+			Member member = setUpMember(vo);
 
-        groupsManager.addMember(sess, new Group(), member);
-        // shouldn't find group
+			groupsManager.addMember(sess, new Group(), member);
+			// shouldn't find group
 
-    }
+		}
 
-    @Test (expected=MemberNotExistsException.class)
-    public void addMemberWhenMemberNotExists() throws Exception {
-        System.out.println("GroupsManager.addMemberWhenGroupNotExists");
+	@Test (expected=MemberNotExistsException.class)
+		public void addMemberWhenMemberNotExists() throws Exception {
+			System.out.println("GroupsManager.addMemberWhenGroupNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.addMember(sess, group, new Member());
-        // shouldn't find member
+			groupsManager.addMember(sess, group, new Member());
+			// shouldn't find member
 
-    }
+		}
 
-    @Test (expected=AlreadyMemberException.class)
-    public void addMemberWhenAlreadyMember() throws Exception {
-        System.out.println("GroupsManager.addMemberWhenAlreadyMember");
+	@Test (expected=AlreadyMemberException.class)
+		public void addMemberWhenAlreadyMember() throws Exception {
+			System.out.println("GroupsManager.addMemberWhenAlreadyMember");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Member member = setUpMember(vo);
+			Member member = setUpMember(vo);
 
-        groupsManager.addMember(sess, group, member);
-        groupsManager.addMember(sess, group, member);
-        // shouldn't be able to add same member twice
+			groupsManager.addMember(sess, group, member);
+			groupsManager.addMember(sess, group, member);
+			// shouldn't be able to add same member twice
 
-    }
+		}
 
-    @Test
-    public void removeMember() throws Exception {
-        System.out.println("GroupsManager.removeMember");
+	@Test
+	public void removeMember() throws Exception {
+		System.out.println("GroupsManager.removeMember");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
-        groupsManager.removeMember(sess, group, member);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		groupsManager.removeMember(sess, group, member);
 
-        List<Member> members = groupsManager.getGroupMembers(sess, group);
-        assertTrue(members.isEmpty());
+		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		assertTrue(members.isEmpty());
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void removeMemberWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.removeMemberWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void removeMemberWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.removeMemberWhenGroupNotExists");
 
-        vo = setUpVo();
-        Member member = setUpMember(vo);
-        groupsManager.removeMember(sess, new Group(), member);
+			vo = setUpVo();
+			Member member = setUpMember(vo);
+			groupsManager.removeMember(sess, new Group(), member);
 
-    }
+		}
 
-    @Test (expected=MemberNotExistsException.class)
-    public void removeMemberWhenMemberNotExists() throws Exception {
-        System.out.println("GroupsManager.removeMemberWhenMemberNotExists");
+	@Test (expected=MemberNotExistsException.class)
+		public void removeMemberWhenMemberNotExists() throws Exception {
+			System.out.println("GroupsManager.removeMemberWhenMemberNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.removeMember(sess, group, new Member());
+			groupsManager.removeMember(sess, group, new Member());
 
-    }
+		}
 
-    @Test (expected=NotGroupMemberException.class)
-    public void removeMemberWhenNotGroupMember() throws Exception {
-        System.out.println("GroupsManager.removeMemberWhenNotGroupMember");
+	@Test (expected=NotGroupMemberException.class)
+		public void removeMemberWhenNotGroupMember() throws Exception {
+			System.out.println("GroupsManager.removeMemberWhenNotGroupMember");
 
-        vo = setUpVo();
-        setUpGroup(vo);
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
-        groupsManager.removeMember(sess, group, member);
-        groupsManager.removeMember(sess, group, member);
-        // shouldn't be able to remove member twice
+			vo = setUpVo();
+			setUpGroup(vo);
+			Member member = setUpMember(vo);
+			groupsManager.addMember(sess, group, member);
+			groupsManager.removeMember(sess, group, member);
+			groupsManager.removeMember(sess, group, member);
+			// shouldn't be able to remove member twice
 
-    }
+		}
 
-    @Test
-    public void getGroupMembers() throws Exception {
-        System.out.println("GroupsManager.getGroupMembers");
+	@Test
+	public void getGroupMembers() throws Exception {
+		System.out.println("GroupsManager.getGroupMembers");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
 
-        List<Member> members = groupsManager.getGroupMembers(sess, group);
-        assertTrue(members.size() == 1);
-        assertTrue(members.contains(member));
+		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
 
-    }
+	}
 
-    @Test
-    public void getMemberGroups() throws Exception {
-        System.out.println("GroupsManager.getMemberGroups");
+	@Test
+	public void getMemberGroups() throws Exception {
+		System.out.println("GroupsManager.getMemberGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
+		Member member = setUpMember(vo);
 
-        List<Group> groups = groupsManager.getAllMemberGroups(sess, member);
-        assertEquals(1, groups.size()); //group "members"
+		List<Group> groups = groupsManager.getAllMemberGroups(sess, member);
+		assertEquals(1, groups.size()); //group "members"
 
-        groupsManager.addMember(sess, group, member);
+		groupsManager.addMember(sess, group, member);
 
-        groups = groupsManager.getAllMemberGroups(sess, member);
-        assertEquals(2, groups.size());
-        assertTrue(groups.contains(group));
+		groups = groupsManager.getAllMemberGroups(sess, member);
+		assertEquals(2, groups.size());
+		assertTrue(groups.contains(group));
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getGroupMembersWhenGroupNotExist() throws Exception {
-        System.out.println("GroupsManager.getGroupMembersWhenGroupNotExist");
+	@Test (expected=GroupNotExistsException.class)
+		public void getGroupMembersWhenGroupNotExist() throws Exception {
+			System.out.println("GroupsManager.getGroupMembersWhenGroupNotExist");
 
-        groupsManager.getGroupMembers(sess, new Group());
+			groupsManager.getGroupMembers(sess, new Group());
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getGroupMembersPageWhenGroupNotExist() throws Exception {
-        System.out.println("GroupsManager.getGroupMembersPageWhenGroupNotExist");
+	@Test (expected=GroupNotExistsException.class)
+		public void getGroupMembersPageWhenGroupNotExist() throws Exception {
+			System.out.println("GroupsManager.getGroupMembersPageWhenGroupNotExist");
 
-        groupsManager.getGroupMembers(sess, new Group());
+			groupsManager.getGroupMembers(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void getGroupMembersCount() throws Exception {
-        System.out.println("GroupsManager.getGroupMembersCount");
+	@Test
+	public void getGroupMembersCount() throws Exception {
+		System.out.println("GroupsManager.getGroupMembersCount");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        groupsManager.addMember(sess, group, member);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
 
-        int count = groupsManager.getGroupMembersCount(sess, group);
-        assertTrue(count == 1);
+		int count = groupsManager.getGroupMembersCount(sess, group);
+		assertTrue(count == 1);
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getGroupMembersCountWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupMembersCountWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getGroupMembersCountWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupMembersCountWhenGroupNotExists");
 
-        groupsManager.getGroupMembersCount(sess, new Group());
+			groupsManager.getGroupMembersCount(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void getAllGroups() throws Exception {
-        System.out.println("GroupsManager.getAllGroups");
+	@Test
+	public void getAllGroups() throws Exception {
+		System.out.println("GroupsManager.getAllGroups");
 
-        vo = setUpVo();
+		vo = setUpVo();
 
-        List<Group> groups = groupsManager.getAllGroups(sess, vo);
-        assertEquals(1, groups.size()); //Group "members"
+		List<Group> groups = groupsManager.getAllGroups(sess, vo);
+		assertEquals(1, groups.size()); //Group "members"
 
-        setUpGroup(vo);
+		setUpGroup(vo);
 
-        assertNotNull(groupsManager.createGroup(sess, vo, group2));
+		assertNotNull(groupsManager.createGroup(sess, vo, group2));
 
-        groups = groupsManager.getAllGroups(sess, vo);
-        assertEquals(3, groups.size());
-        assertTrue(groups.contains(group));
-        assertTrue(groups.contains(group2));
+		groups = groupsManager.getAllGroups(sess, vo);
+		assertEquals(3, groups.size());
+		assertTrue(groups.contains(group));
+		assertTrue(groups.contains(group2));
 
-    }
+	}
 
-    @Test (expected=VoNotExistsException.class)
-    public void getAllGroupsWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.getAllGroupsWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void getAllGroupsWhenVoNotExists() throws Exception {
+			System.out.println("GroupsManager.getAllGroupsWhenVoNotExists");
 
-        groupsManager.getAllGroups(sess, new Vo());
+			groupsManager.getAllGroups(sess, new Vo());
 
-    }
+		}
 
-    @Test
-    public void getParentGroup() throws Exception {
-        System.out.println("GroupsManager.getParentGroup");
+	@Test
+	public void getParentGroup() throws Exception {
+		System.out.println("GroupsManager.getParentGroup");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        assertNotNull(groupsManager.createGroup(sess, group, group21));
+		assertNotNull(groupsManager.createGroup(sess, group, group21));
 
-        Group parentGroup = groupsManager.getParentGroup(sess, group21);
+		Group parentGroup = groupsManager.getParentGroup(sess, group21);
 
-        assertEquals("created and returned group should be the same",group, parentGroup);
+		assertEquals("created and returned group should be the same",group, parentGroup);
 
-    }
+	}
 
-    @Test
-    public void getParentGroupWhenParentGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getParentGroupWhenParentGroupNotExists");
+	@Test
+	public void getParentGroupWhenParentGroupNotExists() throws Exception {
+		System.out.println("GroupsManager.getParentGroupWhenParentGroupNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group parentGroup = groupsManager.getParentGroup(sess, group);
-        // should find members group
-        Group memebrsGroup = groupsManager.getGroupByName(sess, vo, VosManagerEntry.MEMBERS_GROUP);
-        assertEquals("returned group should be members group of the vo",parentGroup,memebrsGroup);
-    }
+		Group parentGroup = groupsManager.getParentGroup(sess, group);
+		// should find members group
+		Group memebrsGroup = groupsManager.getGroupByName(sess, vo, VosManagerEntry.MEMBERS_GROUP);
+		assertEquals("returned group should be members group of the vo",parentGroup,memebrsGroup);
+	}
 
-    @Test
-    public void getSubGroups() throws Exception {
-        System.out.println("GroupsManager.getSubGroups");
+	@Test
+	public void getSubGroups() throws Exception {
+		System.out.println("GroupsManager.getSubGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group createdGroup21 = groupsManager.createGroup(sess, group, group21);
-        assertNotNull(createdGroup21);
+		Group createdGroup21 = groupsManager.createGroup(sess, group, group21);
+		assertNotNull(createdGroup21);
 
 
 
-        List<Group> groups = groupsManager.getSubGroups(sess, group);
+		List<Group> groups = groupsManager.getSubGroups(sess, group);
 
-        assertTrue(groups.size() == 1);
-        assertTrue(groups.contains(createdGroup21));
+		assertTrue(groups.size() == 1);
+		assertTrue(groups.contains(createdGroup21));
 
-    }
+	}
 
-    @Test
-    public void getAllSubGroups() throws Exception {
-        System.out.println("GroupsManager.getAllSubGroups");
+	@Test
+	public void getAllSubGroups() throws Exception {
+		System.out.println("GroupsManager.getAllSubGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group createdGroup21 = groupsManager.createGroup(sess, group, group21);
-        Group createdGroup2 = groupsManager.createGroup(sess, group, group2);
-        Group createdGroup3 = groupsManager.createGroup(sess, group21, group3);
-        Group createdGroup4 = groupsManager.createGroup(sess, group3, group4);
+		Group createdGroup21 = groupsManager.createGroup(sess, group, group21);
+		Group createdGroup2 = groupsManager.createGroup(sess, group, group2);
+		Group createdGroup3 = groupsManager.createGroup(sess, group21, group3);
+		Group createdGroup4 = groupsManager.createGroup(sess, group3, group4);
 
-        List<Group> groups = groupsManager.getAllSubGroups(sess, group);
+		List<Group> groups = groupsManager.getAllSubGroups(sess, group);
 
-        assertTrue(groups.size() == 4);
-        assertTrue(groups.contains(createdGroup21));
-        assertTrue(groups.contains(createdGroup2));
-        assertTrue(groups.contains(createdGroup3));
-        assertTrue(groups.contains(createdGroup4));
+		assertTrue(groups.size() == 4);
+		assertTrue(groups.contains(createdGroup21));
+		assertTrue(groups.contains(createdGroup2));
+		assertTrue(groups.contains(createdGroup3));
+		assertTrue(groups.contains(createdGroup4));
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getSubGroupsWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getSubGroupsWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getSubGroupsWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getSubGroupsWhenGroupNotExists");
 
-        groupsManager.getSubGroups(sess, new Group());
+			groupsManager.getSubGroups(sess, new Group());
 
-    }
+		}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getSubGroupsPageWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getSubGroupsPageWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getSubGroupsPageWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getSubGroupsPageWhenGroupNotExists");
 
-        groupsManager.getSubGroups(sess, new Group());
+			groupsManager.getSubGroups(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void addAdmin() throws Exception {
-        System.out.println("GroupsManager.addAdmin");
+	@Test
+	public void addAdmin() throws Exception {
+		System.out.println("GroupsManager.addAdmin");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.addAdmin(sess, group, user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.addAdmin(sess, group, user);
 
-        List<User> admins = groupsManager.getAdmins(sess, group);
-        assertTrue("group should have 1 admin",admins.size() == 1);
-        assertTrue("our user should be admin",admins.contains(user));
+		List<User> admins = groupsManager.getAdmins(sess, group);
+		assertTrue("group should have 1 admin",admins.size() == 1);
+		assertTrue("our user should be admin",admins.contains(user));
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void addAdminWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.addAdminWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void addAdminWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.addAdminWhenGroupNotExists");
 
-        vo = setUpVo();
+			vo = setUpVo();
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.addAdmin(sess, new Group(), user);
+			Member member = setUpMember(vo);
+			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+			groupsManager.addAdmin(sess, new Group(), user);
 
-    }
+		}
 
-    @Test (expected=UserNotExistsException.class)
-    public void addAdminWhenUserNotExists() throws Exception {
-        System.out.println("GroupsManager.addAdminWhenGroupNotExists");
+	@Test (expected=UserNotExistsException.class)
+		public void addAdminWhenUserNotExists() throws Exception {
+			System.out.println("GroupsManager.addAdminWhenGroupNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.addAdmin(sess, group, new User());
+			groupsManager.addAdmin(sess, group, new User());
 
-    }
+		}
 
-    @Test (expected=AlreadyAdminException.class)
-    public void addAdminWhenAlreadyAdmin() throws Exception {
-        System.out.println("GroupsManager.addAdminWhenAlreadyAdmin");
+	@Test (expected=AlreadyAdminException.class)
+		public void addAdminWhenAlreadyAdmin() throws Exception {
+			System.out.println("GroupsManager.addAdminWhenAlreadyAdmin");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+			Member member = setUpMember(vo);
+			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-        groupsManager.addAdmin(sess, group, user);
-        groupsManager.addAdmin(sess, group, user);
-        // shouldn't add admin twice !!
+			groupsManager.addAdmin(sess, group, user);
+			groupsManager.addAdmin(sess, group, user);
+			// shouldn't add admin twice !!
 
-    }
+		}
 
-    @Test
-    public void addAdminWithGroup() throws Exception {
-        System.out.println("GroupsManager.addAdminWithGroup");
+	@Test
+	public void addAdminWithGroup() throws Exception {
+		System.out.println("GroupsManager.addAdminWithGroup");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-        Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
 
 
-        groupsManager.addAdmin(sess, group, returnedGroup);
+		groupsManager.addAdmin(sess, group, returnedGroup);
 
-        List<Group> admins = groupsManager.getAdminGroups(sess, group);
-        assertTrue("group should have 1 admin",admins.size() == 1);
-        assertTrue("our user should be admin",admins.contains(authorizedGroup));
+		List<Group> admins = groupsManager.getAdminGroups(sess, group);
+		assertTrue("group should have 1 admin",admins.size() == 1);
+		assertTrue("our user should be admin",admins.contains(authorizedGroup));
 
-    }
+	}
 
-    @Test
-    public void removeAdmin() throws Exception {
-        System.out.println("GroupsManager.removeAdmins");
+	@Test
+	public void removeAdmin() throws Exception {
+		System.out.println("GroupsManager.removeAdmins");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.addAdmin(sess, group, user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.addAdmin(sess, group, user);
 
-        groupsManager.removeAdmin(sess, group, user);
-        List<User> admins = groupsManager.getAdmins(sess, group);
-        assertTrue("admin not deleted!",admins.isEmpty());
+		groupsManager.removeAdmin(sess, group, user);
+		List<User> admins = groupsManager.getAdmins(sess, group);
+		assertTrue("admin not deleted!",admins.isEmpty());
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void removeAdminWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.removeAdminsWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void removeAdminWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.removeAdminsWhenGroupNotExists");
 
-        vo = setUpVo();
+			vo = setUpVo();
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.removeAdmin(sess, new Group(), user);
+			Member member = setUpMember(vo);
+			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+			groupsManager.removeAdmin(sess, new Group(), user);
 
-    }
+		}
 
-    @Test (expected=UserNotExistsException.class)
-    public void removeAdminWhenUserNotExist() throws Exception {
-        System.out.println("GroupsManager.removeAdminsWhenMemberNotExists");
+	@Test (expected=UserNotExistsException.class)
+		public void removeAdminWhenUserNotExist() throws Exception {
+			System.out.println("GroupsManager.removeAdminsWhenMemberNotExists");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        groupsManager.removeAdmin(sess, group, new User());
+			groupsManager.removeAdmin(sess, group, new User());
 
-    }
+		}
 
-    @Test (expected=UserNotAdminException.class)
-    public void removeAdminWhenNotAdminException() throws Exception {
-        System.out.println("GroupsManager.removeAdminsWhenMemberNotAdmin");
+	@Test (expected=UserNotAdminException.class)
+		public void removeAdminWhenNotAdminException() throws Exception {
+			System.out.println("GroupsManager.removeAdminsWhenMemberNotAdmin");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+			vo = setUpVo();
+			setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.removeAdmin(sess, group, user);
+			Member member = setUpMember(vo);
+			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+			groupsManager.removeAdmin(sess, group, user);
 
-    }
+		}
 
-    @Test
-    public void removeAdminWithGroup() throws Exception {
-        System.out.println("GroupsManager.removeAdminWithGroup");
+	@Test
+	public void removeAdminWithGroup() throws Exception {
+		System.out.println("GroupsManager.removeAdminWithGroup");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-        Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
 
 
-        groupsManager.addAdmin(sess, group, returnedGroup);
+		groupsManager.addAdmin(sess, group, returnedGroup);
 
-        groupsManager.removeAdmin(sess, group, returnedGroup);
-        List<Group> admins = groupsManager.getAdminGroups(sess, group);
-        assertTrue("admin not deleted!",admins.isEmpty());
+		groupsManager.removeAdmin(sess, group, returnedGroup);
+		List<Group> admins = groupsManager.getAdminGroups(sess, group);
+		assertTrue("admin not deleted!",admins.isEmpty());
 
-    }
+	}
 
-    @Test
-    public void getAdmins() throws Exception {
-        System.out.println("GroupsManager.getAdmins");
+	@Test
+	public void getAdmins() throws Exception {
+		System.out.println("GroupsManager.getAdmins");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        // set up first user
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.addAdmin(sess, group, user);
+		// set up first user
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.addAdmin(sess, group, user);
 
-        // set up authorized group
-        Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-        Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
-        groupsManager.addAdmin(sess, group, returnedGroup);
+		// set up authorized group
+		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
+		Group returnedGroup = groupsManager.createGroup(sess, vo, authorizedGroup);
+		groupsManager.addAdmin(sess, group, returnedGroup);
 
-        // set up second user
-        Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
-        candidate.setFirstName("Josef");
-        candidate.setId(4);
-        candidate.setMiddleName("");
-        candidate.setLastName("Novak");
-        candidate.setTitleBefore("");
-        candidate.setTitleAfter("");
-        UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
-        candidate.setUserExtSource(userExtSource);
-        candidate.setAttributes(new HashMap<String,String>());
+		// set up second user
+		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName("Josef");
+		candidate.setId(4);
+		candidate.setMiddleName("");
+		candidate.setLastName("Novak");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
 
-        Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-        User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
-        groupsManager.addMember(sess, returnedGroup, member2);
+		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		groupsManager.addMember(sess, returnedGroup, member2);
 
-        // test
-        List<User> admins = groupsManager.getAdmins(sess, group);
-        assertTrue("group shoud have 2 admins",admins.size() == 2);
-        assertTrue("our member as direct user should be admin",admins.contains(user));
-        assertTrue("our member as member of admin group should be admin",admins.contains(user2));
-    }
+		// test
+		List<User> admins = groupsManager.getAdmins(sess, group);
+		assertTrue("group shoud have 2 admins",admins.size() == 2);
+		assertTrue("our member as direct user should be admin",admins.contains(user));
+		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
+	}
 
-    @Test
-    public void getDirectAdmins() throws Exception {
-        System.out.println("GroupsManager.getDirectAdmins");
+	@Test
+	public void getDirectAdmins() throws Exception {
+		System.out.println("GroupsManager.getDirectAdmins");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Member member = setUpMember(vo);
-        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-        groupsManager.addAdmin(sess, group, user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.addAdmin(sess, group, user);
 
-        List<User> admins = groupsManager.getDirectAdmins(sess, group);
-        assertTrue("group shoud have 1 admin",admins.size() == 1);
-        assertTrue("our member should be admin",admins.contains(user));
+		List<User> admins = groupsManager.getDirectAdmins(sess, group);
+		assertTrue("group shoud have 1 admin",admins.size() == 1);
+		assertTrue("our member should be admin",admins.contains(user));
 
-    }
+	}
 
-    @Test
-    public void getAdminGroups() throws Exception {
-        System.out.println("GroupsManager.getAdminGroups");
+	@Test
+	public void getAdminGroups() throws Exception {
+		System.out.println("GroupsManager.getAdminGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        // setting second group
-        Group authorizedGroup = groupsManager.createGroup(sess, vo, new Group("New group", "just for testing"));
+		// setting second group
+		Group authorizedGroup = groupsManager.createGroup(sess, vo, new Group("New group", "just for testing"));
 
-        groupsManager.addAdmin(sess, group, authorizedGroup);
+		groupsManager.addAdmin(sess, group, authorizedGroup);
 
-        assertTrue(groupsManager.getAdminGroups(sess, group).contains(authorizedGroup));
+		assertTrue(groupsManager.getAdminGroups(sess, group).contains(authorizedGroup));
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getAdminsWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getAdminsWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getAdminsWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getAdminsWhenGroupNotExists");
 
-        groupsManager.getAdmins(sess, new Group());
+			groupsManager.getAdmins(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void getGroups() throws Exception {
-        System.out.println("GroupsManager.getGroups");
+	@Test
+	public void getGroups() throws Exception {
+		System.out.println("GroupsManager.getGroups");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        List<Group> groups = groupsManager.getGroups(sess, vo);
-        assertEquals(2, groups.size());
-        assertTrue("our group should be in our VO",groups.contains(group));
+		List<Group> groups = groupsManager.getGroups(sess, vo);
+		assertEquals(2, groups.size());
+		assertTrue("our group should be in our VO",groups.contains(group));
 
-    }
+	}
 
-    @Test (expected=VoNotExistsException.class)
-    public void getGroupsWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupsWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void getGroupsWhenVoNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupsWhenVoNotExists");
 
-        groupsManager.getGroups(sess, new Vo());
+			groupsManager.getGroups(sess, new Vo());
 
-    }
+		}
 
-    @Test (expected=VoNotExistsException.class)
-    public void getGroupsPageWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupsPageWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void getGroupsPageWhenVoNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupsPageWhenVoNotExists");
 
-        groupsManager.getGroups(sess, new Vo());
+			groupsManager.getGroups(sess, new Vo());
 
-    }
+		}
 
-    @Test
-    public void getGroupsCount() throws Exception {
-        System.out.println("GroupsManager.getGroupsCount");
+	@Test
+	public void getGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getGroupsCount");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        int count = groupsManager.getGroupsCount(sess, vo);
-        assertEquals(2, count);
+		int count = groupsManager.getGroupsCount(sess, vo);
+		assertEquals(2, count);
 
-    }
+	}
 
-    @Test
-    public void getParentGroupMembersCount() throws Exception{
-        System.out.println("GroupsManager.getParentGroupMembersCount");
-        vo = setUpVo();
-        this.groupsManager.createGroup(sess, vo, group2);
-        this.groupsManager.createGroup(sess, group2, group);
+	@Test
+	public void getParentGroupMembersCount() throws Exception{
+		System.out.println("GroupsManager.getParentGroupMembersCount");
+		vo = setUpVo();
+		this.groupsManager.createGroup(sess, vo, group2);
+		this.groupsManager.createGroup(sess, group2, group);
 
-        Member member;
-        for (int i=0;i<5;i++)
-        {
-            Candidate candidate = setUpCandidate(i);
-            member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-            assertNotNull("No member created", member);
-            usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
-            groupsManager.addMember(sess, group, member);
-            groupsManager.addMember(sess,group2,member);
-        }
-        int count = groupsManager.getGroupMembersCount(sess, group2);
-        assertTrue(count == 5);
-        Candidate candidate = setUpCandidate(5);
-        member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-        assertNotNull("No member created", member);
-        usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
-        groupsManager.addMember(sess, group, member);
-        count = groupsManager.getGroupMembersCount(sess, group2);
-        assertTrue(count == 6);
-        count = groupsManager.getGroupMembersCount(sess, group);
-        assertTrue(count == 6);
+		Member member;
+		for (int i=0;i<5;i++)
+		{
+			Candidate candidate = setUpCandidate(i);
+			member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+			assertNotNull("No member created", member);
+			usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+			groupsManager.addMember(sess, group, member);
+			groupsManager.addMember(sess,group2,member);
+		}
+		int count = groupsManager.getGroupMembersCount(sess, group2);
+		assertTrue(count == 5);
+		Candidate candidate = setUpCandidate(5);
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		assertNotNull("No member created", member);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+		groupsManager.addMember(sess, group, member);
+		count = groupsManager.getGroupMembersCount(sess, group2);
+		assertTrue(count == 6);
+		count = groupsManager.getGroupMembersCount(sess, group);
+		assertTrue(count == 6);
 
-    }
+	}
 
-    @Test
-    public void getGroupCountInBiggerGroupStructure() throws Exception{
-        System.out.println("GroupsManager.getGroupCountInBiggerGroupStructure");
+	@Test
+	public void getGroupCountInBiggerGroupStructure() throws Exception{
+		System.out.println("GroupsManager.getGroupCountInBiggerGroupStructure");
 
-        vo = setUpVo();
-        this.groupsManager.createGroup(sess, vo, group);
-        this.groupsManager.createGroup(sess, group, group2);
-        this.groupsManager.createGroup(sess, group, group21);
-        this.groupsManager.createGroup(sess, group2, group3);
+		vo = setUpVo();
+		this.groupsManager.createGroup(sess, vo, group);
+		this.groupsManager.createGroup(sess, group, group2);
+		this.groupsManager.createGroup(sess, group, group21);
+		this.groupsManager.createGroup(sess, group2, group3);
 
-        List<Member> members = new ArrayList<Member>();
-        for(int i=0;i<4;i++)
-            members.add(setUpMemberWithDifferentParam(vo, i));
+		List<Member> members = new ArrayList<Member>();
+		for(int i=0;i<4;i++)
+			members.add(setUpMemberWithDifferentParam(vo, i));
 
-        this.groupsManager.addMember(sess, group, members.get(0));
-        this.groupsManager.addMember(sess, group2, members.get(1));
-        this.groupsManager.addMember(sess, group21, members.get(2));
-        this.groupsManager.addMember(sess, group3, members.get(3));
+		this.groupsManager.addMember(sess, group, members.get(0));
+		this.groupsManager.addMember(sess, group2, members.get(1));
+		this.groupsManager.addMember(sess, group21, members.get(2));
+		this.groupsManager.addMember(sess, group3, members.get(3));
 
-        assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group3, members.get(3));
-        assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group21, members.get(2));
-        assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group2, members.get(1));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group, members.get(0));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group3, members.get(3));
+		assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group21, members.get(2));
+		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group2, members.get(1));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group, members.get(0));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
 
-        this.groupsManager.addMember(sess, group, members.get(0));
-        this.groupsManager.addMember(sess, group2, members.get(1));
-        this.groupsManager.addMember(sess, group21, members.get(2));
-        this.groupsManager.addMember(sess, group3, members.get(3));
-        this.groupsManager.addMember(sess, group, members.get(3));
+		this.groupsManager.addMember(sess, group, members.get(0));
+		this.groupsManager.addMember(sess, group2, members.get(1));
+		this.groupsManager.addMember(sess, group21, members.get(2));
+		this.groupsManager.addMember(sess, group3, members.get(3));
+		this.groupsManager.addMember(sess, group, members.get(3));
 
-        assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group3, members.get(3));
-        assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group21, members.get(2));
-        assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group2, members.get(1));
-        assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
-        this.groupsManager.removeMember(sess, group, members.get(0));
-        assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-        assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group3, members.get(3));
+		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group21, members.get(2));
+		assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group2, members.get(1));
+		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		this.groupsManager.removeMember(sess, group, members.get(0));
+		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
 
-    }
+	}
 
-    @Test (expected=VoNotExistsException.class)
-    public void getGroupsCountWhenVoNotExists() throws Exception {
-        System.out.println("GroupsManager.getGroupsCountWhenVoNotExists");
+	@Test (expected=VoNotExistsException.class)
+		public void getGroupsCountWhenVoNotExists() throws Exception {
+			System.out.println("GroupsManager.getGroupsCountWhenVoNotExists");
 
-        groupsManager.getGroupsCount(sess, new Vo());
+			groupsManager.getGroupsCount(sess, new Vo());
 
-    }
+		}
 
-    @Test
-    public void getSubGroupsCount() throws Exception {
-        System.out.println("GroupsManager.getSubGroupsCount");
+	@Test
+	public void getSubGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getSubGroupsCount");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        assertNotNull(groupsManager.createGroup(sess, group, group21));
+		assertNotNull(groupsManager.createGroup(sess, group, group21));
 
-        int count = groupsManager.getSubGroupsCount(sess, group);
-        assertTrue("our group should have one sub-group",count == 1);
+		int count = groupsManager.getSubGroupsCount(sess, group);
+		assertTrue("our group should have one sub-group",count == 1);
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getSubGroupsCountWhenGroupNotExists() throws Exception {
-        System.out.println("GroupsManager.getSubGroupsCountWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getSubGroupsCountWhenGroupNotExists() throws Exception {
+			System.out.println("GroupsManager.getSubGroupsCountWhenGroupNotExists");
 
-        groupsManager.getSubGroupsCount(sess, new Group());
+			groupsManager.getSubGroupsCount(sess, new Group());
 
-    }
+		}
 
-    @Test
-    public void getVo() throws Exception {
-        System.out.println("GroupsManager.getVo");
+	@Test
+	public void getVo() throws Exception {
+		System.out.println("GroupsManager.getVo");
 
-        vo = setUpVo();
-        setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-        Vo returnedVo = groupsManager.getVo(sess, group);
-        assertNotNull("unable to get VO from DB",returnedVo);
-        assertEquals("both VOs should be the same",returnedVo,vo);
+		Vo returnedVo = groupsManager.getVo(sess, group);
+		assertNotNull("unable to get VO from DB",returnedVo);
+		assertEquals("both VOs should be the same",returnedVo,vo);
 
-    }
+	}
 
-    @Test (expected=GroupNotExistsException.class)
-    public void getVoWhenGroupNotExist() throws Exception {
-        System.out.println("GroupsManager.getVoWhenGroupNotExists");
+	@Test (expected=GroupNotExistsException.class)
+		public void getVoWhenGroupNotExist() throws Exception {
+			System.out.println("GroupsManager.getVoWhenGroupNotExists");
 
-        groupsManager.getVo(sess, new Group());
+			groupsManager.getVo(sess, new Group());
 
-    }
+		}
 
 
-    @Test ()
-    public void getMembersMembershipType() throws Exception{
-        System.out.println("GroupsManager.getMembersMembershipType");
-        vo = setUpVo();
-        Member member = this.setUpMember(vo);
-        this.groupsManager.createGroup(sess, vo, group);
-        this.groupsManager.createGroup(sess, group, group2);
-        this.groupsManager.addMember(sess, group2, member);
-        assertTrue(this.groupsManager.getGroupMembers(sess, group).size()==1);
-        assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
-        assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
-    }
+	@Test ()
+		public void getMembersMembershipType() throws Exception{
+			System.out.println("GroupsManager.getMembersMembershipType");
+			vo = setUpVo();
+			Member member = this.setUpMember(vo);
+			this.groupsManager.createGroup(sess, vo, group);
+			this.groupsManager.createGroup(sess, group, group2);
+			this.groupsManager.addMember(sess, group2, member);
+			assertTrue(this.groupsManager.getGroupMembers(sess, group).size()==1);
+			assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
+			assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
+		}
 
-    // PRIVATE METHODS -------------------------------------------------------------
+	// PRIVATE METHODS -------------------------------------------------------------
 
-    private Vo setUpVo() throws Exception {
+	private Vo setUpVo() throws Exception {
 
-        Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
-        Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
-        // create test VO in database
-        assertNotNull("unable to create testing Vo",returnedVo);
+		Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
+		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
+		// create test VO in database
+		assertNotNull("unable to create testing Vo",returnedVo);
 
-        //ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, "LDAPMETA");
-        // get real external source from DB
-        //perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
-        // add real ext source to our VO
+		//ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, "LDAPMETA");
+		// get real external source from DB
+		//perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
+		// add real ext source to our VO
 
-        return returnedVo;
+		return returnedVo;
 
-    }
+	}
 
-    private Member setUpMember(Vo vo) throws Exception {
+	private Member setUpMember(Vo vo) throws Exception {
 
-        // List<Candidate> candidates = perun.getVosManager().findCandidates(sess, vo, extLogin);
-        // find candidates from ext source based on extLogin
-        // assertTrue(candidates.size() > 0);
+		// List<Candidate> candidates = perun.getVosManager().findCandidates(sess, vo, extLogin);
+		// find candidates from ext source based on extLogin
+		// assertTrue(candidates.size() > 0);
 
-        Candidate candidate = setUpCandidate(0);
-        Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate); // candidates.get(0)
-        // set first candidate as member of test VO
-        assertNotNull("No member created", member);
-        usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
-        // save user for deletion after test
-        return member;
+		Candidate candidate = setUpCandidate(0);
+		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate); // candidates.get(0)
+		// set first candidate as member of test VO
+		assertNotNull("No member created", member);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+		// save user for deletion after test
+		return member;
 
-    }
+	}
 
-    private Candidate setUpCandidate(int i) {
+	private Candidate setUpCandidate(int i) {
 
-        String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
 
-        Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
-        candidate.setFirstName(userFirstName);
-        candidate.setId(0+i);
-        candidate.setMiddleName("");
-        candidate.setLastName(userLastName);
-        candidate.setTitleBefore("");
-        candidate.setTitleAfter("");
-        final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
-        candidate.setUserExtSource(userExtSource);
-        candidate.setAttributes(new HashMap<String,String>());
-        return candidate;
+		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0+i);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
+		return candidate;
 
-    }
+	}
 
-    private void setUpGroup(Vo vo) throws Exception {
+	private void setUpGroup(Vo vo) throws Exception {
 
-        Group returnedGroup = groupsManager.createGroup(sess, vo, group);
-        assertNotNull("unable to create a group",returnedGroup);
-        assertEquals("created group should be same as returned group",group,returnedGroup);
+		Group returnedGroup = groupsManager.createGroup(sess, vo, group);
+		assertNotNull("unable to create a group",returnedGroup);
+		assertEquals("created group should be same as returned group",group,returnedGroup);
 
-    }
+	}
 
-    private Member setUpMemberWithDifferentParam(Vo vo, int i) throws Exception {
+	private Member setUpMemberWithDifferentParam(Vo vo, int i) throws Exception {
 
-        // List<Candidate> candidates = perun.getVosManager().findCandidates(sess, vo, extLogin);
-        // find candidates from ext source based on extLogin
-        // assertTrue(candidates.size() > 0);
+		// List<Candidate> candidates = perun.getVosManager().findCandidates(sess, vo, extLogin);
+		// find candidates from ext source based on extLogin
+		// assertTrue(candidates.size() > 0);
 
-        Candidate candidate = setUpCandidate(i);
-        Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-        // set first candidate as member of test VO
-        assertNotNull("No member created", member);
-        usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
-        // save user for deletion after test
-        return member;
+		Candidate candidate = setUpCandidate(i);
+		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		// set first candidate as member of test VO
+		assertNotNull("No member created", member);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+		// save user for deletion after test
+		return member;
 
-    }
+	}
 
 }

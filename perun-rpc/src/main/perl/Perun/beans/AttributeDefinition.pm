@@ -6,36 +6,36 @@ use warnings;
 use Perun::Common;
 
 use overload
-    '""' => \&toString;
+'""' => \&toString;
 
 sub toString {
-    my $self = shift;
+	my $self = shift;
 
-    my $id = $self->getId;
-    my $friendlyName = $self->getFriendlyName;
-    my $namespace = $self->getNamespace;
-    my $description = $self->getDescription;
-    my $type = $self->getType;
+	my $id = $self->getId;
+	my $friendlyName = $self->getFriendlyName;
+	my $namespace = $self->getNamespace;
+	my $description = $self->getDescription;
+	my $type = $self->getType;
 
-    my $str = 'Attribute (';
-    $str .= "id: $id, " if (defined($id));
-    $str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
-    $str .= "namespace: $namespace, " if (defined($namespace));
-    $str .= "description: $description, " if (defined($description));
-    $str .= "type: $type, " if (defined($type));
-    $str .= ")";
+	my $str = 'Attribute (';
+	$str .= "id: $id, " if (defined($id));
+	$str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
+	$str .= "namespace: $namespace, " if (defined($namespace));
+	$str .= "description: $description, " if (defined($description));
+	$str .= "type: $type, " if (defined($type));
+	$str .= ")";
 
-    return $str;
+	return $str;
 }
 
 sub new
 {
-    bless({});
+	bless({});
 }
 
 sub fromHash
 {
-    return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
@@ -70,7 +70,7 @@ sub TO_JSON
 		$description = undef;
 	}
 
-    my $type;
+	my $type;
 	if (defined($self->{_type})) {
 		$type = "$self->{_type}";
 	} else {
@@ -83,106 +83,106 @@ sub TO_JSON
 
 sub getId
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-    my $self = shift;
-    $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-    return;
+	return;
 }
 
 sub getName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return ($self->{_namespace} . ':' . $self->{_friendlyName});
+	return ($self->{_namespace} . ':' . $self->{_friendlyName});
 }
 
 sub getFriendlyName
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_friendlyName};
+	return $self->{_friendlyName};
 }
 
 sub setFriendlyName
 {
-    my $self = shift;
-    $self->{_friendlyName} = shift;
+	my $self = shift;
+	$self->{_friendlyName} = shift;
 
-    return;
+	return;
 }
 
 sub getNamespace
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_namespace};
+	return $self->{_namespace};
 }
 
 sub setNamespace
 {
-    my $self = shift;
-    $self->{_namespace} = shift;
+	my $self = shift;
+	$self->{_namespace} = shift;
 
-    return;
+	return;
 }
 
 sub getDescription
 {
-    my $self = shift;
+	my $self = shift;
 
-    return $self->{_description};
+	return $self->{_description};
 }
 
 sub setDescription
 {
-    my $self = shift;
-    $self->{_description} = shift;
+	my $self = shift;
+	$self->{_description} = shift;
 
-    return;
+	return;
 }
 
 sub getType
 {
-    my $self = shift;
-    my $type = $self->{_type};
+	my $self = shift;
+	my $type = $self->{_type};
 
-    if ($type eq 'java.lang.Integer') {
-        $type = 'integer';
-    } elsif ($type eq 'java.lang.String') {
-        $type = 'string';
-    } elsif ($type eq 'java.util.ArrayList') {
-        $type = 'array';
-    } elsif ($type eq 'java.util.LinkedHashMap') {
-        $type = 'hash';
-    }
+	if ($type eq 'java.lang.Integer') {
+		$type = 'integer';
+	} elsif ($type eq 'java.lang.String') {
+		$type = 'string';
+	} elsif ($type eq 'java.util.ArrayList') {
+		$type = 'array';
+	} elsif ($type eq 'java.util.LinkedHashMap') {
+		$type = 'hash';
+	}
 
-    return $type;
+	return $type;
 }
 
 sub setType
 {
-    my $self = shift;
-    my $type = shift;
+	my $self = shift;
+	my $type = shift;
 
-    if ($type eq 'integer') {
-        $type = 'java.lang.Integer';
-    } elsif ($type eq 'string') {
-        $type = 'java.lang.String';
-    } elsif ($type eq 'array') {
-        $type = 'java.util.ArrayList';
-    } elsif ($type eq 'hash') {
-        $type = 'java.util.LinkedHashMap';
-    }
+	if ($type eq 'integer') {
+		$type = 'java.lang.Integer';
+	} elsif ($type eq 'string') {
+		$type = 'java.lang.String';
+	} elsif ($type eq 'array') {
+		$type = 'java.util.ArrayList';
+	} elsif ($type eq 'hash') {
+		$type = 'java.util.LinkedHashMap';
+	}
 
-    $self->{_type} = $type;
-    return;
+	$self->{_type} = $type;
+	return;
 }
 
 1;

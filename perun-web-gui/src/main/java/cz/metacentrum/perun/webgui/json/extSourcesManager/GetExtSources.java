@@ -45,8 +45,8 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// display checkboxes
 	private boolean checkable = true;
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
 
 	/**
 	 * Creates a new callback
@@ -90,7 +90,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("No external sources found in Perun.");
+		loaderImage.setEmptyResultMessage("No external sources found in Perun.");
 
 		// checkable
 		if(this.checkable) {
@@ -124,127 +124,127 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 		js.retrieveData(JSON_URL, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<ExtSource>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<ExtSource>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object ExtSource to be added as new row
-     */
-    public void addToTable(ExtSource object) {
-        list.add(object);
-        oracle.add(object.getName());
-        oracle.add(renameContent(object.getType()));
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object ExtSource to be added as new row
+	 */
+	public void addToTable(ExtSource object) {
+		list.add(object);
+		oracle.add(object.getName());
+		oracle.add(renameContent(object.getType()));
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object ExtSource to be removed as row
-     */
-    public void removeFromTable(ExtSource object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object ExtSource to be removed as row
+	 */
+	public void removeFromTable(ExtSource object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        loaderImage.loadingStart();
-        list.clear();
-        fullBackup.clear();
-        oracle.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		loaderImage.loadingStart();
+		list.clear();
+		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<ExtSource> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<ExtSource> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading external sources.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading external sources.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading external sources started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading external sources started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<ExtSource>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Loading external sources finished: "+ list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<ExtSource>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Loading external sources finished: "+ list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, ExtSource object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        oracle.add(renameContent(object.getType()));
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, ExtSource object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		oracle.add(renameContent(object.getType()));
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-       this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<ExtSource> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (ExtSource object : list) {
-            oracle.add(object.getName());
-            oracle.add(renameContent(object.getType()));
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<ExtSource> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (ExtSource object : list) {
+			oracle.add(object.getName());
+			oracle.add(renameContent(object.getType()));
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<ExtSource> getList() {
-        return this.list;
-    }
+	public ArrayList<ExtSource> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Return substring on position 40 and uppercase - used for ExtSourceType value
@@ -269,54 +269,54 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 		events = externalEvents;
 	}
 
-    @Override
-    public void filterTable(String filter) {
+	@Override
+	public void filterTable(String filter) {
 
-        // store list only for first time
-        if (fullBackup.isEmpty() || fullBackup == null) {
-            fullBackup.addAll(getList());
-        }
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(getList());
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(fullBackup);
-        } else {
-            for (ExtSource src : fullBackup){
-                // store ext source if name or type matches
-                if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
-                        renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(src);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (ExtSource src : fullBackup){
+				// store ext source if name or type matches
+				if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
+						renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(src);
+						}
+			}
+		}
 
-        if (list.isEmpty() && !filter.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No external source matching '"+filter+"' found.");
-        } else {
-            loaderImage.setEmptyResultMessage("No external sources found in Perun.");
-        }
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No external source matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("No external sources found in Perun.");
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    @Override
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    @Override
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 
-    public MultiSelectionModel<ExtSource> getSelectionModel() {
-        return this.selectionModel;
-    }
+	public MultiSelectionModel<ExtSource> getSelectionModel() {
+		return this.selectionModel;
+	}
 
 }

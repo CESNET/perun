@@ -22,26 +22,26 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_projectsBasePath extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-    public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-      String path = (String) attribute.getValue();
-      if (path == null) {
-        throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty.");
-      }
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String path = (String) attribute.getValue();
+		if (path == null) {
+			throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty.");
+		}
 
-      Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
-      Matcher match = pattern.matcher(path);
+		Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+		Matcher match = pattern.matcher(path);
 
-      if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, resource, "Bad format of attribute projectsBasePath (expected something like '/first/second').");
-      }
-    }
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, resource, "Bad format of attribute projectsBasePath (expected something like '/first/second').");
+		}
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-      AttributeDefinition attr = new AttributeDefinition();
-      attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-      attr.setFriendlyName("projectsBasePath");
-      attr.setType(String.class.getName());
-      attr.setDescription("Path to base directory of projects.");
-      return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("projectsBasePath");
+		attr.setType(String.class.getName());
+		attr.setDescription("Path to base directory of projects.");
+		return attr;
+	}
 }

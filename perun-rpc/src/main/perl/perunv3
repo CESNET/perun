@@ -6,9 +6,9 @@ cmd=$1
 shift
 
 if [ "X$cmd" != "X" -a -x $PERUNV3_TOOLS/$cmd ]; then
-  exec $PERUNV3_TOOLS/$cmd "$@"
+	exec $PERUNV3_TOOLS/$cmd "$@"
 else
-  echo === Perun v3 Tools ===
-  echo usage: perunv3 \<command\> \<options\>, available commands are:
-  ls $PERUNV3_TOOLS | grep -v "perunv3\|sqlnet.log" | sed 's/^/     /'
+	echo === Perun v3 Tools ===
+	echo usage: perunv3 \<command\> \<options\>, available commands are:
+	ls $PERUNV3_TOOLS | grep -v "perunv3\|sqlnet.log" | sed 's/^/     /'
 fi

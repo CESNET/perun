@@ -53,7 +53,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	private static final String DEFAULT_STYLENAME = "gwt-StackPanel";
 	private static final String DEFAULT_ITEM_STYLENAME = DEFAULT_STYLENAME
-			+ "Item";
+		+ "Item";
 
 	private Element body;
 	private int visibleStack = -1;

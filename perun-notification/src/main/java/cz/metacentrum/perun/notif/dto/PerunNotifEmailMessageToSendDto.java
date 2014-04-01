@@ -16,10 +16,10 @@ public class PerunNotifEmailMessageToSendDto {
 	//Subject of email
 	private String subject;
 
-    //Sender of email message
-    private String sender;
+	//Sender of email message
+	private String sender;
 
-    private final PerunNotifTypeOfReceiver typeOfReceiver = PerunNotifTypeOfReceiver.EMAIL_USER;
+	private final PerunNotifTypeOfReceiver typeOfReceiver = PerunNotifTypeOfReceiver.EMAIL_USER;
 
 	public String getMessage() {
 		return message;
@@ -45,11 +45,11 @@ public class PerunNotifEmailMessageToSendDto {
 		this.subject = subject;
 	}
 
-    public String getSender() {
-        return sender;
-    }
+	public String getSender() {
+		return sender;
+	}
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
 }

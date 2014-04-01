@@ -14,25 +14,25 @@ import java.util.Map;
  */
 public class PoolMessage {
 
-    /**
-     * Template id common for all PerunNotifPoolMessages from list
-     */
+	/**
+	 * Template id common for all PerunNotifPoolMessages from list
+	 */
 	private Integer templateId;
 
-    /**
-     * KeyAttributes which are the same for PerunNotifPoolMessages from list
-     */
+	/**
+	 * KeyAttributes which are the same for PerunNotifPoolMessages from list
+	 */
 	private Map<String, String> keyAttributes;
 
-    /**
-     * PerunNotifPoolMessages from db, which has common keyAttributes and templateIds
-     */
+	/**
+	 * PerunNotifPoolMessages from db, which has common keyAttributes and templateIds
+	 */
 	private List<PerunNotifPoolMessage> list;
 
-    /**
-     * Locale common for all messages, used for main language of result message
-     */
-    private Locale locale;
+	/**
+	 * Locale common for all messages, used for main language of result message
+	 */
+	private Locale locale;
 
 	public Integer getTemplateId() {
 		return templateId;
@@ -54,15 +54,15 @@ public class PoolMessage {
 		return list;
 	}
 
-    public Locale getLocale() {
-        return locale;
-    }
+	public Locale getLocale() {
+		return locale;
+	}
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 
-    public void addToList(PerunNotifPoolMessage message) {
+	public void addToList(PerunNotifPoolMessage message) {
 		if (list == null) {
 			list = new ArrayList<PerunNotifPoolMessage>();
 		}

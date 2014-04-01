@@ -21,120 +21,120 @@ public class PerunPrincipal extends JavaScriptObject {
 		return this.actor;
 	}-*/;
 
-	/**
-	 * Get external source name used to log into RPC
-	 *
-	 * @return external source name
-	 */
-	public final native String getExtSource() /*-{
-		return this.extSourceName;
-	}-*/;
+		/**
+		 * Get external source name used to log into RPC
+		 *
+		 * @return external source name
+		 */
+		public final native String getExtSource() /*-{
+			return this.extSourceName;
+		}-*/;
 
-	/**
-	 * Get user found in DB based on used login and ext source
-	 * Null for PerunAdministrator
-	 *
-	 * @return logged user
-	 */
-	public final native User getUser() /*-{
-		return this.user;
-	}-*/;
+		/**
+		 * Get user found in DB based on used login and ext source
+		 * Null for PerunAdministrator
+		 *
+		 * @return logged user
+		 */
+		public final native User getUser() /*-{
+			return this.user;
+		}-*/;
 
-	/**
-	 * Get external source type used to log into RPC
-	 *
-	 * @return external source type
-	 */
-	public final native String getExtSourceType()  /*-{
-		return this.extSourceType
-	}-*/;
+		/**
+		 * Get external source type used to log into RPC
+		 *
+		 * @return external source type
+		 */
+		public final native String getExtSourceType()  /*-{
+			return this.extSourceType
+		}-*/;
 
-	/**
-	 * Get LoA of user in external source used to log into RPC
-	 *
-	 * @return external source LoA
-	 */
-	public final native int getExtSourceLoa()  /*-{
-		if (!this.extSourceLoa) return 0;
-		return this.extSourceLoa
-	}-*/;
+		/**
+		 * Get LoA of user in external source used to log into RPC
+		 *
+		 * @return external source LoA
+		 */
+		public final native int getExtSourceLoa()  /*-{
+			if (!this.extSourceLoa) return 0;
+			return this.extSourceLoa
+		}-*/;
 
-	/**
-	 * Get additional informations provided by IDP in session
-	 *
-	 * @param shibAttrName - valid shibolleth attribute name:
-	 * mail - mail
-	 * o - organization
-	 * loa - level of assurance
-	 * ivenName - given name
-	 * cn - common name
-	 * displayName - display name
-	 * sn - sure name
-	 * eppn - another mail ?
-	 *
-	 * @return attribute value or empty string if not present
-	 */
-	public final native String getAdditionInformations(String shibAttrName) /*-{
-		if(typeof this.additionalInformations[shibAttrName] == "undefined") return "";
-		return this.additionalInformations[shibAttrName];
-	}-*/;
+		/**
+		 * Get additional informations provided by IDP in session
+		 *
+		 * @param shibAttrName - valid shibolleth attribute name:
+		 * mail - mail
+		 * o - organization
+		 * loa - level of assurance
+		 * ivenName - given name
+		 * cn - common name
+		 * displayName - display name
+		 * sn - sure name
+		 * eppn - another mail ?
+		 *
+		 * @return attribute value or empty string if not present
+		 */
+		public final native String getAdditionInformations(String shibAttrName) /*-{
+			if(typeof this.additionalInformations[shibAttrName] == "undefined") return "";
+			return this.additionalInformations[shibAttrName];
+		}-*/;
 
-	/**
-	 * Sets user into PerunPrincipal
-	 *
-	 * @param newUser new user
-	 */
-	public final native void setUser(User newUser) /*-{
-		this.user = newUser;
-	}-*/;
+		/**
+		 * Sets user into PerunPrincipal
+		 *
+		 * @param newUser new user
+		 */
+		public final native void setUser(User newUser) /*-{
+			this.user = newUser;
+		}-*/;
 
-	/**
-	 * Get users roles
-	 *
-	 * @return users roles
-	 */
-	public final native Roles getRoles() /*-{
-		return this.roles;
-	}-*/;
+		/**
+		 * Get users roles
+		 *
+		 * @return users roles
+		 */
+		public final native Roles getRoles() /*-{
+			return this.roles;
+		}-*/;
 
-	/**
-	 * Get initialization status. Must be true if login was successful
-	 *
-	 * @return initialization status
-	 */
-	public final native boolean isInitialized() /*-{
-		return this.authzInitialized;
-	}-*/;
+		/**
+		 * Get initialization status. Must be true if login was successful
+		 *
+		 * @return initialization status
+		 */
+		public final native boolean isInitialized() /*-{
+			return this.authzInitialized;
+		}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
-		if (!this.objecttype) {
+		/**
+		 * Returns Perun specific type of object
+		 *
+		 * @return type of object
+		 */
+		public final native String getObjectType() /*-{
+			if (!this.objecttype) {
 			return "JavaScriptObject"
-		}
-		return this.objecttype;
-	}-*/;
+			}
+			return this.objecttype;
+		}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;
-	}-*/;
+		/**
+		 * Sets Perun specific type of object
+		 *
+		 * @param type type of object
+		 */
+		public final native void setObjectType(String type) /*-{
+			this.objecttype = type;
+		}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
-		return this.status;
-	}-*/;
+		/**
+		 * Returns the status of this item in Perun system as String
+		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 *
+		 * @return string which defines item status
+		 */
+		public final native String getStatus() /*-{
+			return this.status;
+		}-*/;
 
 }

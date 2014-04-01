@@ -40,14 +40,14 @@ public class FillAttributes {
 
 	/**
 	 * Creates a new request
-     */
+	 */
 	public FillAttributes() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
-     * @param events externalEvents
-     */
+	 * @param events externalEvents
+	 */
 	public FillAttributes(final JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -136,19 +136,19 @@ public class FillAttributes {
 		// create attributes list
 		for (int i=0; i<attributes.size(); i++) {
 
-            JSONObject original = new JSONObject(attributes.get(i));
+			JSONObject original = new JSONObject(attributes.get(i));
 
-            // reconstruct object
-            JSONObject newAttr = new JSONObject();
-            newAttr.put("id", original.get("id"));
-            newAttr.put("friendlyName", original.get("friendlyName"));
-            newAttr.put("namespace", original.get("namespace"));
-            newAttr.put("description", original.get("description"));
-            newAttr.put("type", original.get("type"));
-            newAttr.put("value", original.get("value"));
-            newAttr.put("displayName", original.get("displayName"));
+			// reconstruct object
+			JSONObject newAttr = new JSONObject();
+			newAttr.put("id", original.get("id"));
+			newAttr.put("friendlyName", original.get("friendlyName"));
+			newAttr.put("namespace", original.get("namespace"));
+			newAttr.put("description", original.get("description"));
+			newAttr.put("type", original.get("type"));
+			newAttr.put("value", original.get("value"));
+			newAttr.put("displayName", original.get("displayName"));
 
-            array.set(i, newAttr); // array contains attributes
+			array.set(i, newAttr); // array contains attributes
 
 		}
 

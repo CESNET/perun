@@ -41,26 +41,26 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 	// Table field updater
 	private FieldUpdater<Service, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-    private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-    private ArrayList<Service> backupList = new ArrayList<Service>();
-    private boolean checkable = true;
-    private int id = 0;
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<Service> backupList = new ArrayList<Service>();
+	private boolean checkable = true;
+	private int id = 0;
 
 	/**
 	 * Creates a new ajax query
 	 */
 	public GetServicesByAttrDefinition(int attrDefId) {
-        this.id = attrDefId;
-    }
+		this.id = attrDefId;
+	}
 
 	/**
 	 * Creates a new ajax query with custom events
-     *
+	 *
 	 * @param events external events for this query
 	 */
 	public GetServicesByAttrDefinition(int attrDefId, JsonCallbackEvents events) {
-        this.id = attrDefId;
-        this.events = events;
+		this.id = attrDefId;
+		this.events = events;
 	}
 
 	/**
@@ -121,12 +121,12 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-        loaderImage.setEmptyResultMessage("Attribute is not required by any service.");
+		loaderImage.setEmptyResultMessage("Attribute is not required by any service.");
 
 		// checkbox column column
 		if (checkable) {
-            table.addCheckBoxColumn();
-        }
+			table.addCheckBoxColumn();
+		}
 
 		table.addIdColumn("Service Id", tableFieldUpdater, 110);
 
@@ -141,128 +141,128 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 	 */
 	public void retrieveData(){
 		JsonClient js = new JsonClient();
-        String params = "attributeDefinition="+id;
+		String params = "attributeDefinition="+id;
 		js.retrieveData(JSON_URL, params, this);
 	}
 
-    /**
-     * Sorts table by objects Name
-     */
-    public void sortTable() {
-        list = new TableSorter<Service>().sortByName(getList());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Sorts table by objects Name
+	 */
+	public void sortTable() {
+		list = new TableSorter<Service>().sortByName(getList());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Add object as new row to table
-     *
-     * @param object Service to be added as new row
-     */
-    public void addToTable(Service object) {
-        oracle.add(object.getName());
-        list.add(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Add object as new row to table
+	 *
+	 * @param object Service to be added as new row
+	 */
+	public void addToTable(Service object) {
+		oracle.add(object.getName());
+		list.add(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Removes object as row from table
-     *
-     * @param object Service to be removed as row
-     */
-    public void removeFromTable(Service object) {
-        list.remove(object);
-        selectionModel.getSelectedSet().remove(object);
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Removes object as row from table
+	 *
+	 * @param object Service to be removed as row
+	 */
+	public void removeFromTable(Service object) {
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clear all table content
-     */
-    public void clearTable(){
-        oracle.clear();
-        backupList.clear();
-        loaderImage.loadingStart();
-        list.clear();
-        selectionModel.clear();
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	/**
+	 * Clear all table content
+	 */
+	public void clearTable(){
+		oracle.clear();
+		backupList.clear();
+		loaderImage.loadingStart();
+		list.clear();
+		selectionModel.clear();
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    /**
-     * Clears list of selected items
-     */
-    public void clearTableSelectedSet(){
-        selectionModel.clear();
-    }
+	/**
+	 * Clears list of selected items
+	 */
+	public void clearTableSelectedSet(){
+		selectionModel.clear();
+	}
 
-    /**
-     * Return selected items from list
-     *
-     * @return return list of checked items
-     */
-    public ArrayList<Service> getTableSelectedList(){
-        return JsonUtils.setToList(selectionModel.getSelectedSet());
-    }
+	/**
+	 * Return selected items from list
+	 *
+	 * @return return list of checked items
+	 */
+	public ArrayList<Service> getTableSelectedList(){
+		return JsonUtils.setToList(selectionModel.getSelectedSet());
+	}
 
-    /**
-     * Called, when an error occurs
-     */
-    public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Error while loading services.");
-        loaderImage.loadingError(error);
-        events.onError(error);
-    }
+	/**
+	 * Called, when an error occurs
+	 */
+	public void onError(PerunError error) {
+		session.getUiElements().setLogErrorText("Error while loading services.");
+		loaderImage.loadingError(error);
+		events.onError(error);
+	}
 
-    /**
-     * Called, when loading starts
-     */
-    public void onLoadingStart() {
-        session.getUiElements().setLogText("Loading services started.");
-        events.onLoadingStart();
-    }
+	/**
+	 * Called, when loading starts
+	 */
+	public void onLoadingStart() {
+		session.getUiElements().setLogText("Loading services started.");
+		events.onLoadingStart();
+	}
 
-    /**
-     * Called, when operation finishes successfully.
-     */
-    public void onFinished(JavaScriptObject jso) {
-        setList(JsonUtils.<Service>jsoAsList(jso));
-        sortTable();
-        session.getUiElements().setLogText("Services loaded: " + list.size());
-        events.onFinished(jso);
-        loaderImage.loadingFinished();
-    }
+	/**
+	 * Called, when operation finishes successfully.
+	 */
+	public void onFinished(JavaScriptObject jso) {
+		setList(JsonUtils.<Service>jsoAsList(jso));
+		sortTable();
+		session.getUiElements().setLogText("Services loaded: " + list.size());
+		events.onFinished(jso);
+		loaderImage.loadingFinished();
+	}
 
-    public void insertToTable(int index, Service object) {
-        list.add(index, object);
-        oracle.add(object.getName());
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void insertToTable(int index, Service object) {
+		list.add(index, object);
+		oracle.add(object.getName());
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public void setEditable(boolean editable) {
-        // TODO Auto-generated method stub
-    }
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 
-    public void setCheckable(boolean checkable) {
-        this.checkable = checkable;
-    }
+	public void setCheckable(boolean checkable) {
+		this.checkable = checkable;
+	}
 
-    public void setList(ArrayList<Service> list) {
-        clearTable();
-        this.list.addAll(list);
-        for (Service s : list) {
-            oracle.add(s.getName());
-        }
-        dataProvider.flush();
-        dataProvider.refresh();
-    }
+	public void setList(ArrayList<Service> list) {
+		clearTable();
+		this.list.addAll(list);
+		for (Service s : list) {
+			oracle.add(s.getName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
 
-    public ArrayList<Service> getList() {
-        return this.list;
-    }
+	public ArrayList<Service> getList() {
+		return this.list;
+	}
 
 	/**
 	 * Sets external events for callback after it's creation
@@ -273,42 +273,42 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 		events = externalEvent;
 	}
 
-    @Override
-    public void filterTable(String filter) {
+	@Override
+	public void filterTable(String filter) {
 
-        // store list only for first time
-        if (backupList.isEmpty() || backupList == null) {
-            backupList.addAll(list);
-        }
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
 
-        // always clear selected items
-        selectionModel.clear();
-        list.clear();
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
 
-        if (filter.equalsIgnoreCase("")) {
-            list.addAll(backupList);
-        } else {
-            for (Service s : backupList){
-                // store facility by filter
-                if (s.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                    list.add(s);
-                }
-            }
-        }
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (Service s : backupList){
+				// store facility by filter
+				if (s.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(s);
+				}
+			}
+		}
 
-        dataProvider.flush();
-        dataProvider.refresh();
-        loaderImage.loadingFinished();
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
 
-    }
+	}
 
-    @Override
-    public UnaccentMultiWordSuggestOracle getOracle() {
-        return this.oracle;
-    }
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
 
-    @Override
-    public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-        this.oracle = oracle;
-    }
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 }

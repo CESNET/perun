@@ -58,8 +58,8 @@ public class AssignGroupTabItem implements TabItem {
 	private Resource resource;
 
 	/**
-     * @param resourceId ID of resource to have group assigned
-     */
+	 * @param resourceId ID of resource to have group assigned
+	 */
 	public AssignGroupTabItem(int resourceId){
 		this.resourceId = resourceId;
 		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
@@ -71,8 +71,8 @@ public class AssignGroupTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
-     * @param resource ID of resource
-     */
+	 * @param resource ID of resource
+	 */
 	public AssignGroupTabItem(Resource resource){
 		this.resource = resource;
 		this.resourceId = resource.getId();
@@ -93,14 +93,14 @@ public class AssignGroupTabItem implements TabItem {
 		TabMenu menu = new TabMenu();
 
 		final GetAllGroups voGroups = new GetAllGroups(resource.getVoId());
-        voGroups.setCoreGroupsCheckable(true);
-        final CellTable<Group> table = voGroups.getEmptyTable(new FieldUpdater<Group, String>() {
-            public void update(int index, Group object, String value) {
-                session.getTabManager().addTab(new GroupDetailTabItem(object));
-            }
-        });
+		voGroups.setCoreGroupsCheckable(true);
+		final CellTable<Group> table = voGroups.getEmptyTable(new FieldUpdater<Group, String>() {
+			public void update(int index, Group object, String value) {
+				session.getTabManager().addTab(new GroupDetailTabItem(object));
+			}
+		});
 
-        // remove already assigned groups from offering
+		// remove already assigned groups from offering
 		voGroups.setEvents(new JsonCallbackEvents() {
 			public void onFinished(JavaScriptObject jso){
 				final GetAssignedGroups alreadyAssigned = new GetAssignedGroups(resourceId, new JsonCallbackEvents() {
@@ -109,10 +109,10 @@ public class AssignGroupTabItem implements TabItem {
 						for (int i=0; i<groupsToRemove.length(); i++) {
 							voGroups.removeFromTable(groupsToRemove.get(i));
 						}
-                        // if single group, select
-                        if (voGroups.getList().size() == 1) {
-                            table.getSelectionModel().setSelected(voGroups.getList().get(0), true);
-                        }
+						// if single group, select
+						if (voGroups.getList().size() == 1) {
+							table.getSelectionModel().setSelected(voGroups.getList().get(0), true);
+						}
 					}
 				});
 				alreadyAssigned.retrieveData();
@@ -122,7 +122,7 @@ public class AssignGroupTabItem implements TabItem {
 		// checbox is selected by default
 		final CheckBox chb = new CheckBox();
 		chb.setText(WidgetTranslation.INSTANCE.configureGroupBeforeAssign());
-        chb.setTitle(WidgetTranslation.INSTANCE.configureGroupBeforeAssignTitle());
+		chb.setTitle(WidgetTranslation.INSTANCE.configureGroupBeforeAssignTitle());
 		chb.setValue(false);
 
 		final TabItem tab = this;
@@ -132,36 +132,36 @@ public class AssignGroupTabItem implements TabItem {
 		assignButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				ArrayList<Group> groupsToAssign = voGroups.getTableSelectedList();
-                if (UiElements.cantSaveEmptyListDialogBox(groupsToAssign)) {
-                    if (chb.getValue() == false) {
-                        AssignGroupsToResource request = new AssignGroupsToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
-                        request.assignGroupsToResource(groupsToAssign, resource);
-                    }
-                    if (chb.getValue() == true){
-                        session.getTabManager().addTabToCurrentTab(new ManageGroupsBeforeAssigning(resource, groupsToAssign), true);
-                    }
-                }
+				if (UiElements.cantSaveEmptyListDialogBox(groupsToAssign)) {
+					if (chb.getValue() == false) {
+						AssignGroupsToResource request = new AssignGroupsToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+						request.assignGroupsToResource(groupsToAssign, resource);
+					}
+					if (chb.getValue() == true){
+						session.getTabManager().addTabToCurrentTab(new ManageGroupsBeforeAssigning(resource, groupsToAssign), true);
+					}
+				}
 			}
 		});
 
 		menu.addWidget(assignButton);
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().closeTab(tab, false);
-            }
-        }));
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().closeTab(tab, false);
+			}
+		}));
 
-        menu.addFilterWidget(new ExtendedSuggestBox(voGroups.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                voGroups.filterTable(text);
-                // if single group, select
-                if (voGroups.getList().size() == 1) {
-                    table.getSelectionModel().setSelected(voGroups.getList().get(0), true);
-                }
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
+		menu.addFilterWidget(new ExtendedSuggestBox(voGroups.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				voGroups.filterTable(text);
+				// if single group, select
+				if (voGroups.getList().size() == 1) {
+					table.getSelectionModel().setSelected(voGroups.getList().get(0), true);
+				}
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
 
 		if (session.isPerunAdmin()) {
 			// TODO - now is for testing so perun admin only
@@ -170,10 +170,10 @@ public class AssignGroupTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-        assignButton.setEnabled(false);
-        JsonUtils.addTableManagedButton(voGroups, table, assignButton);
+		assignButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(voGroups, table, assignButton);
 
-        voGroups.retrieveData();
+		voGroups.retrieveData();
 
 		table.addStyleName("perun-table");
 		table.setWidth("100%");

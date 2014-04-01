@@ -32,194 +32,194 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 @Component("executorEngineWorker")
 @Scope(value = "prototype")
 public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
-    private final static Logger log = LoggerFactory.getLogger(ExecutorEngineWorkerImpl.class);
-    @Autowired
-    private TaskManager taskManager;
-    @Autowired
-    private TaskResultDao taskResultDao;
-    private Task task;
-    private Facility facility;
-    private ExecService execService;
-    private Destination destination;
-    @Autowired
-    private Properties propertiesBean;
-    private int engineId = -1;
+	private final static Logger log = LoggerFactory.getLogger(ExecutorEngineWorkerImpl.class);
+	@Autowired
+	private TaskManager taskManager;
+	@Autowired
+	private TaskResultDao taskResultDao;
+	private Task task;
+	private Facility facility;
+	private ExecService execService;
+	private Destination destination;
+	@Autowired
+	private Properties propertiesBean;
+	private int engineId = -1;
 
-    @Override
-    public void run() {
-        log.info("EXECUTING(worker:" + this.hashCode() + "): Task ID:" + task.getId() + ", Facility ID:" + task.getFacilityId() + ", ExecService ID:" + task.getExecServiceId() + ", ExecServiceType:"
-                + execService.getExecServiceType());
+	@Override
+	public void run() {
+		log.info("EXECUTING(worker:" + this.hashCode() + "): Task ID:" + task.getId() + ", Facility ID:" + task.getFacilityId() + ", ExecService ID:" + task.getExecServiceId() + ", ExecServiceType:"
+				+ execService.getExecServiceType());
 
-        String stdout = null;
-        String stderr = null;
-        int returnCode = -1;
-        if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
-            ProcessBuilder pb = new ProcessBuilder(execService.getScript(), "-f", String.valueOf(task.getFacilityId()));
-            pb.directory(new File("gen")); ///FIXME
+		String stdout = null;
+		String stderr = null;
+		int returnCode = -1;
+		if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
+			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), "-f", String.valueOf(task.getFacilityId()));
+			pb.directory(new File("gen")); ///FIXME
 
-            try {
-                Process process = pb.start();
+			try {
+				Process process = pb.start();
 
-                StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
-                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
+				StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
+				StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
 
-                errorGobbler.start();
-                outputGobbler.start();
+				errorGobbler.start();
+				outputGobbler.start();
 
-                returnCode = process.waitFor();
+				returnCode = process.waitFor();
 
-                while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
+				while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
 
-                stderr=errorGobbler.getSb();
-                stdout=outputGobbler.getSb();
+				stderr=errorGobbler.getSb();
+				stdout=outputGobbler.getSb();
 
-                // There is no point in writing into TaskResults. We switch TASK status at once.
-                // TODO: Put some logic in here :-)
+				// There is no point in writing into TaskResults. We switch TASK status at once.
+				// TODO: Put some logic in here :-)
 
-                task.setStatus(returnCode == 0 ? TaskStatus.DONE : TaskStatus.ERROR);
-                task.setEndTime(new Date(System.currentTimeMillis()));
-                if(task.getStatus().equals(TaskStatus.ERROR)) {
-                  log.info("GEN task failed. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
-                }
+				task.setStatus(returnCode == 0 ? TaskStatus.DONE : TaskStatus.ERROR);
+				task.setEndTime(new Date(System.currentTimeMillis()));
+				if(task.getStatus().equals(TaskStatus.ERROR)) {
+					log.info("GEN task failed. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
+				}
 
-            } catch (IOException e) {
-                log.error(e.toString(), e);
-                task.setStatus(TaskStatus.ERROR);
-                task.setEndTime(new Date(System.currentTimeMillis()));
-            } catch (Exception e) {
-                log.error(e.toString(), e);
-                task.setStatus(TaskStatus.ERROR);
-                task.setEndTime(new Date(System.currentTimeMillis()));
-            } finally {
-                  String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
-                  log.debug("GEN task ended. Ret code " + ret + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
-                taskManager.updateTask(task, getEngineId());
-            }
-        } else if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
+			} catch (IOException e) {
+				log.error(e.toString(), e);
+				task.setStatus(TaskStatus.ERROR);
+				task.setEndTime(new Date(System.currentTimeMillis()));
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+				task.setStatus(TaskStatus.ERROR);
+				task.setEndTime(new Date(System.currentTimeMillis()));
+			} finally {
+				String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
+				log.debug("GEN task ended. Ret code " + ret + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
+				taskManager.updateTask(task, getEngineId());
+			}
+		} else if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
 
-            ProcessBuilder pb = new ProcessBuilder(execService.getScript(), facility.getName() + '-' + facility.getType(), destination.getDestination(), destination.getType());
-            pb.directory(new File("send")); ///FIXME get from config file
+			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), facility.getName() + '-' + facility.getType(), destination.getDestination(), destination.getType());
+			pb.directory(new File("send")); ///FIXME get from config file
 
-            try {
-                Process process = pb.start();
+			try {
+				Process process = pb.start();
 
-                StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
-                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
+				StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
+				StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
 
-                errorGobbler.start();
-                outputGobbler.start();
+				errorGobbler.start();
+				outputGobbler.start();
 
-                returnCode = process.waitFor();
+				returnCode = process.waitFor();
 
-                while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
+				while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
 
-                stderr=errorGobbler.getSb();
-                stdout=outputGobbler.getSb();
+				stderr=errorGobbler.getSb();
+				stdout=outputGobbler.getSb();
 
-                TaskResult taskResult = new TaskResult();
-                taskResult.setTaskId(task.getId());
-                taskResult.setDestinationId(destination.getId());
-                taskResult.setErrorMessage(stderr);
-                //According to RT 30609, STDOUT should be only logged now.
-                log.debug(stdout.toString());
-                taskResult.setStandardMessage("See debug log.");
-                taskResult.setReturnCode(returnCode);
-                taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE : TaskResultStatus.ERROR);
-                taskResult.setTimestamp(new Date(System.currentTimeMillis()));
+				TaskResult taskResult = new TaskResult();
+				taskResult.setTaskId(task.getId());
+				taskResult.setDestinationId(destination.getId());
+				taskResult.setErrorMessage(stderr);
+				//According to RT 30609, STDOUT should be only logged now.
+				log.debug(stdout.toString());
+				taskResult.setStandardMessage("See debug log.");
+				taskResult.setReturnCode(returnCode);
+				taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE : TaskResultStatus.ERROR);
+				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
 
-                taskResultDao.insertNewTaskResult(taskResult, getEngineId());
+				taskResultDao.insertNewTaskResult(taskResult, getEngineId());
 
-                if(taskResult.getStatus().equals(TaskStatus.ERROR)) {
-                  log.info("SEND task failed. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
-                }
+				if(taskResult.getStatus().equals(TaskStatus.ERROR)) {
+					log.info("SEND task failed. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
+				}
 
-            } catch (Exception e) {
-                log.info("SEND task ended. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
-                log.error("ERROR with TASK ID: " + task.getId() + " , Exception:" + e.toString(), e);
-                // If we are unable to switch to the ERROR state, PropagationMaintainer would resolve
-                // the Tasks status correctly anyhow (count Destinations x count TaskResults)
-                TaskResult taskResult = new TaskResult();
-                taskResult.setTaskId(task.getId());
-                taskResult.setDestinationId(destination.getId());
-                taskResult.setStatus(TaskResultStatus.ERROR);
-                taskResult.setTimestamp(new Date(System.currentTimeMillis()));
-                try {
-                    taskResultDao.insertNewTaskResult(taskResult, getEngineId());
-                } catch (InternalErrorException e1) {
-                    log.error(e.toString(), e);
-                }
-            } finally {
-                  String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
-                  log.debug("SEND task ended. Ret code " + ret + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
-            }
+			} catch (Exception e) {
+				log.info("SEND task ended. Ret code " + returnCode + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
+				log.error("ERROR with TASK ID: " + task.getId() + " , Exception:" + e.toString(), e);
+				// If we are unable to switch to the ERROR state, PropagationMaintainer would resolve
+				// the Tasks status correctly anyhow (count Destinations x count TaskResults)
+				TaskResult taskResult = new TaskResult();
+				taskResult.setTaskId(task.getId());
+				taskResult.setDestinationId(destination.getId());
+				taskResult.setStatus(TaskResultStatus.ERROR);
+				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
+				try {
+					taskResultDao.insertNewTaskResult(taskResult, getEngineId());
+				} catch (InternalErrorException e1) {
+					log.error(e.toString(), e);
+				}
+			} finally {
+				String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
+				log.debug("SEND task ended. Ret code " + ret + ". STDOUT: {}  STDERR: {}. Task: " + task, stdout, stderr);
+			}
 
 
 
-        } else {
-            throw new IllegalArgumentException("Expected ExecService type is SEND or GENERATE.");
-        }
-    }
+		} else {
+			throw new IllegalArgumentException("Expected ExecService type is SEND or GENERATE.");
+		}
+	}
 
-    public TaskManager getTaskManager() {
-        return taskManager;
-    }
+	public TaskManager getTaskManager() {
+		return taskManager;
+	}
 
-    public void setTaskManager(TaskManager taskManager) {
-        this.taskManager = taskManager;
-    }
+	public void setTaskManager(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
 
-    public TaskResultDao getTaskResultDao() {
-        return taskResultDao;
-    }
+	public TaskResultDao getTaskResultDao() {
+		return taskResultDao;
+	}
 
-    public void setTaskResultDao(TaskResultDao taskResultDao) {
-        this.taskResultDao = taskResultDao;
-    }
+	public void setTaskResultDao(TaskResultDao taskResultDao) {
+		this.taskResultDao = taskResultDao;
+	}
 
-    public Task getTask() {
-        return task;
-    }
+	public Task getTask() {
+		return task;
+	}
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
+	public void setTask(Task task) {
+		this.task = task;
+	}
 
-    public Facility getFacility() {
-        return facility;
-    }
+	public Facility getFacility() {
+		return facility;
+	}
 
-    public void setFacility(Facility facility) {
-        this.facility = facility;
-    }
+	public void setFacility(Facility facility) {
+		this.facility = facility;
+	}
 
-    public ExecService getExecService() {
-        return execService;
-    }
+	public ExecService getExecService() {
+		return execService;
+	}
 
-    public void setExecService(ExecService execService) {
-        this.execService = execService;
-    }
+	public void setExecService(ExecService execService) {
+		this.execService = execService;
+	}
 
-    public Destination getDestination() {
-        return destination;
-    }
+	public Destination getDestination() {
+		return destination;
+	}
 
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
+	public void setDestination(Destination destination) {
+		this.destination = destination;
+	}
 
-    public Properties getPropertiesBean() {
-        return propertiesBean;
-    }
+	public Properties getPropertiesBean() {
+		return propertiesBean;
+	}
 
-    public void setPropertiesBean(Properties propertiesBean) {
-        this.propertiesBean = propertiesBean;
-    }
+	public void setPropertiesBean(Properties propertiesBean) {
+		this.propertiesBean = propertiesBean;
+	}
 
-    public int getEngineId() {
-        if (engineId == -1) {
-            this.engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
-        }
-        return engineId;
-    }
+	public int getEngineId() {
+		if (engineId == -1) {
+			this.engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
+		}
+		return engineId;
+	}
 }

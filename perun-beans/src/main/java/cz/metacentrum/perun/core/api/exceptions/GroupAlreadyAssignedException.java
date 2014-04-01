@@ -10,32 +10,32 @@ import cz.metacentrum.perun.core.api.exceptions.rt.GroupAlreadyAssignedRuntimeEx
  * @author Slavek Licehammer
  */
 public class GroupAlreadyAssignedException extends PerunException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
-    private Group group;
+	private Group group;
 
-    public GroupAlreadyAssignedException(GroupAlreadyAssignedRuntimeException rt) {
-        super(rt.getMessage(),rt);
-    }
+	public GroupAlreadyAssignedException(GroupAlreadyAssignedRuntimeException rt) {
+		super(rt.getMessage(),rt);
+	}
 
-    public GroupAlreadyAssignedException(String message) {
-        super(message);
-    }
+	public GroupAlreadyAssignedException(String message) {
+		super(message);
+	}
 
-    public GroupAlreadyAssignedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public GroupAlreadyAssignedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public GroupAlreadyAssignedException(Throwable cause) {
-        super(cause);
-    }
+	public GroupAlreadyAssignedException(Throwable cause) {
+		super(cause);
+	}
 
-    public GroupAlreadyAssignedException(Group group) {
-        super(group.toString());
-        this.group = group;
-    }
+	public GroupAlreadyAssignedException(Group group) {
+		super(group.toString());
+		this.group = group;
+	}
 
-    public Group getGroup() {
-        return group;
-    }
+	public Group getGroup() {
+		return group;
+	}
 }

@@ -105,7 +105,7 @@ public class AssignGroupToResources {
 		}
 
 		if(errorMsg.length()>0){
-            UiElements.generateAlert("Parameter error", errorMsg);
+			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
 		return result;
@@ -118,16 +118,16 @@ public class AssignGroupToResources {
 	 */
 	private JSONObject prepareJSONObject() {
 
-        JSONObject jsonQuery = new JSONObject();
+		JSONObject jsonQuery = new JSONObject();
 
-        JSONArray array = new JSONArray();
-        for (int i=0; i< resources.size(); i++) {
-            array.set(i, new JSONNumber(resources.get(i).getId()));
-        }
-        jsonQuery.put("resources", array);
+		JSONArray array = new JSONArray();
+		for (int i=0; i< resources.size(); i++) {
+			array.set(i, new JSONNumber(resources.get(i).getId()));
+		}
+		jsonQuery.put("resources", array);
 		jsonQuery.put("group", new JSONNumber(group.getId()));
 
-        return jsonQuery;
+		return jsonQuery;
 	}
 
 }

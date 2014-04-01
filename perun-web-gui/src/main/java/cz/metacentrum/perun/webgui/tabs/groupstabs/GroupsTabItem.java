@@ -56,41 +56,41 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Label titleWidget = new Label("Groups");
 
-    private int voId = 0;
+	private int voId = 0;
 	private VirtualOrganization vo = null;
 
 	/**
 	 * Creates a tab instance
-     *
-     * @param vo vo to show groups for (if null, you can select VO from list)
-     */
+	 *
+	 * @param vo vo to show groups for (if null, you can select VO from list)
+	 */
 	public GroupsTabItem(VirtualOrganization vo){
-        this.vo = vo;
-        if (vo != null) {
-            this.voId = vo.getId();
-        }
+		this.vo = vo;
+		if (vo != null) {
+			this.voId = vo.getId();
+		}
 	}
 
-    /**
-     * Creates a tab instance
-     *
-     * @param voId vo to show groups for (if 0, you can select VO from list)
-     */
-    public GroupsTabItem(int voId){
-        this.voId = voId;
-        if (voId != 0) {
-            JsonCallbackEvents events = new JsonCallbackEvents(){
-                public void onFinished(JavaScriptObject jso) {
-                    vo = jso.cast();
-                }
-            };
-            new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-        }
-    }
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param voId vo to show groups for (if 0, you can select VO from list)
+	 */
+	public GroupsTabItem(int voId){
+		this.voId = voId;
+		if (voId != 0) {
+			JsonCallbackEvents events = new JsonCallbackEvents(){
+				public void onFinished(JavaScriptObject jso) {
+					vo = jso.cast();
+				}
+			};
+			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		}
+	}
 
 	public boolean isPrepared(){
-        // if vo selected and loaded or no vo selected
-        return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
+		// if vo selected and loaded or no vo selected
+		return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
 	}
 
 	public Widget draw() {
@@ -101,83 +101,83 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		// Horizontal menu
 		TabMenu menu = new TabMenu();
 
-        //call
-        final GetAllGroups groups = new GetAllGroups(voId);
-        groups.setCheckable(false);
+		//call
+		final GetAllGroups groups = new GetAllGroups(voId);
+		groups.setCheckable(false);
 
-        // listbox
-        final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
-        menu.addWidget(new HTML("<strong>Selected VO: </strong>"));
-        menu.addWidget(vos);
-        menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
-            @Override
-            public void searchFor(String text) {
-                groups.filterTable(text);
-            }
-        }, ButtonTranslation.INSTANCE.filterGroup());
-        menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-        menu.addWidget(new HTML("<strong>Select VO to see groups that you can manage.</strong>"));
+		// listbox
+		final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
+		menu.addWidget(new HTML("<strong>Selected VO: </strong>"));
+		menu.addWidget(vos);
+		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				groups.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterGroup());
+		menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+		menu.addWidget(new HTML("<strong>Select VO to see groups that you can manage.</strong>"));
 
-        final TabItem tab = this;
+		final TabItem tab = this;
 
-        // groups table
-        CellTable<Group> table = groups.getEmptyTable(new FieldUpdater<Group, String>() {
-            public void update(int index, Group group, String value) {
-                session.getTabManager().addTab(new GroupDetailTabItem(group));
-                // close group selection tab when group is selected
-                session.getTabManager().closeTab(tab, false);
-            }
-        });
+		// groups table
+		CellTable<Group> table = groups.getEmptyTable(new FieldUpdater<Group, String>() {
+			public void update(int index, Group group, String value) {
+				session.getTabManager().addTab(new GroupDetailTabItem(group));
+				// close group selection tab when group is selected
+				session.getTabManager().closeTab(tab, false);
+			}
+		});
 
-        // listbox change => load vo's groups
-        vos.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent changeEvent) {
-                groups.setVoId(vos.getSelectedObject().getId());
-                groups.clearTable();
-                groups.retrieveData();
-            }
-        });
+		// listbox change => load vo's groups
+		vos.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+				groups.setVoId(vos.getSelectedObject().getId());
+				groups.clearTable();
+				groups.retrieveData();
+			}
+		});
 
-        // initial fill listbox and trigger groups loading
-        GetVos vosCall = new GetVos(new JsonCallbackEvents(){
-            public void onLoadingStart(){
-                vos.clear();
-                vos.addItem("Loading...");
-            }
-            public void onFinished(JavaScriptObject jso) {
-                vos.clear();
-                ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
-                returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
-                if (returnedVos == null || returnedVos.isEmpty()){
-                    vos.addItem("No VO available");
-                    return;
-                }
-                // put and set selected
-                for (int i = 0; i<returnedVos.size(); i++) {
-                    vos.addItem(returnedVos.get(i));
-                    if (voId == returnedVos.get(i).getId()) {
-                        vos.setSelected(returnedVos.get(i), true);
-                    }
-                }
-                // trigger loading of groups for selected VO
-                groups.setVoId(vos.getSelectedObject().getId());
-                groups.clearTable();
-                groups.retrieveData();
-            }
-            public void onError(PerunError error){
-                vos.clear();
-                vos.addItem("Error while loading");
-            };
-        });
-        vosCall.retrieveData();
+		// initial fill listbox and trigger groups loading
+		GetVos vosCall = new GetVos(new JsonCallbackEvents(){
+			public void onLoadingStart(){
+				vos.clear();
+				vos.addItem("Loading...");
+			}
+			public void onFinished(JavaScriptObject jso) {
+				vos.clear();
+				ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
+				returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
+				if (returnedVos == null || returnedVos.isEmpty()){
+					vos.addItem("No VO available");
+					return;
+				}
+				// put and set selected
+				for (int i = 0; i<returnedVos.size(); i++) {
+					vos.addItem(returnedVos.get(i));
+					if (voId == returnedVos.get(i).getId()) {
+						vos.setSelected(returnedVos.get(i), true);
+					}
+				}
+				// trigger loading of groups for selected VO
+				groups.setVoId(vos.getSelectedObject().getId());
+				groups.clearTable();
+				groups.retrieveData();
+			}
+			public void onError(PerunError error){
+				vos.clear();
+				vos.addItem("Error while loading");
+			};
+		});
+		vosCall.retrieveData();
 
 		// set width to 100%
 		table.setWidth("100%");
 
 		// add menu and table to the main panel
 		vp.add(menu);
-        vp.setCellHeight(menu, "30px");
+		vp.setCellHeight(menu, "30px");
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
@@ -230,7 +230,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN, true);
-        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Select group", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Select group", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {
@@ -255,7 +255,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	static public GroupsTabItem load(Map<String, String> parameters) {
-        int id = Integer.parseInt(parameters.get("vo"));
+		int id = Integer.parseInt(parameters.get("vo"));
 		return new GroupsTabItem(id);
 	}
 

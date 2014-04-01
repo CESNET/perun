@@ -11,21 +11,21 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
 
-    return $self;
+	return $self;
 }
 
 sub getMessages
 {
-    return Perun::Common::callManagerMethod('getMessages', '[]AuditMessage', @_);
+	return Perun::Common::callManagerMethod('getMessages', '[]AuditMessage', @_);
 }
 
 sub log
 {
-    return Perun::Common::callManagerMethod('log', '', @_);
+	return Perun::Common::callManagerMethod('log', '', @_);
 }
 
 1;

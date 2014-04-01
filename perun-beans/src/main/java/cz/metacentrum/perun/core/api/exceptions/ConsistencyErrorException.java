@@ -7,18 +7,18 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Slavek Licehammer
  */
 public class ConsistencyErrorException extends InternalErrorException {
-    static final long serialVersionUID = 0;
+	static final long serialVersionUID = 0;
 
 
-    public ConsistencyErrorException(String message) {
-        super(message);
-    }
+	public ConsistencyErrorException(String message) {
+		super(message);
+	}
 
-    public ConsistencyErrorException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ConsistencyErrorException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ConsistencyErrorException(Throwable cause) {
-        super(cause);
-    }
+	public ConsistencyErrorException(Throwable cause) {
+		super(cause);
+	}
 }
