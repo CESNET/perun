@@ -5,7 +5,7 @@ import com.google.gwt.core.client.JsArrayInteger;
 
 /**
  * Overlay type for Roles object
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class Roles extends JavaScriptObject {
@@ -14,7 +14,7 @@ public class Roles extends JavaScriptObject {
 
     /**
 	 * Get role name stored in object
-	 * 
+	 *
 	 * @return role name
 	 */
 	public final native boolean hasRole(String role) /*-{
@@ -71,32 +71,32 @@ public class Roles extends JavaScriptObject {
             }
         return entities;
     }-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			return "JavaScriptObject"
 		}
-		return this.objecttype;	
+		return this.objecttype;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;	
+		this.objecttype = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{

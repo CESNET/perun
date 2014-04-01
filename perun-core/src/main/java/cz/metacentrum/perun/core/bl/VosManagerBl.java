@@ -38,7 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  * @see PerunSession
  */
 public interface VosManagerBl {
-  
+
     /**
      * Get list of all Vos.
      *
@@ -110,7 +110,7 @@ public interface VosManagerBl {
      * @throws InternalErrorException
      */
     Vo getVoById(PerunSession perunSession, int id) throws InternalErrorException, VoNotExistsException;
-   
+
      /**
      * Finds users, who can join the Vo.
      *
@@ -133,7 +133,7 @@ public interface VosManagerBl {
      * @throws InternalErrorException
      */
     List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString) throws InternalErrorException;
-    
+
     /**
      * Add a user administrator to the VO.
      *
@@ -145,7 +145,7 @@ public interface VosManagerBl {
      */
     void addAdmin(PerunSession perunSession, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
 
-     
+
     /**
      * Add a group administrator to the VO.
      *
@@ -156,7 +156,7 @@ public interface VosManagerBl {
      * @throws AlreadyAdminException
      */
     void addAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-    
+
      /**
      * Removes a user administrator from the VO.
      *
@@ -178,7 +178,7 @@ public interface VosManagerBl {
      * @throws GroupNotAdminException
      */
     void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-    
+
     /**
      * Get list of Vo administrators.
      * If some group is administrator of the VO, all members are included in the list.
@@ -190,13 +190,13 @@ public interface VosManagerBl {
      */
     List<User> getAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
-    /** 
+    /**
      * Gets list of direct user administrators of the VO.
      * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
-     * 
+     *
      * @param perunSession
      * @param vo
-     * 
+     *
      * @throws InternalErrorException
      */
     List<User> getDirectAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
@@ -211,7 +211,7 @@ public interface VosManagerBl {
      */
     List<Group> getAdminGroups(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
-    
+
     /**
      * Get list of Vo administrators like RichUsers without attributes.
      *
@@ -222,7 +222,7 @@ public interface VosManagerBl {
      * @throws UserNotExistsException
      */
     List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
-    
+
     /**
      * Get list of Vo administrators like RichUsers with attributes.
      *
@@ -237,7 +237,7 @@ public interface VosManagerBl {
     /**
      * Get list of Vo administrators with specific attributes.
      * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
-     * 
+     *
      * @param perunSession
      * @param vo
      * @param specificAttributes
@@ -246,18 +246,18 @@ public interface VosManagerBl {
      * @throws InternalErrorException
      */
     List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
-    
+
     /**
      * !!! Not Complete yet, need to implement all perunBeans !!!
-     * 
+     *
      * Get perunBean and try to find all connected Vos
-     * 
+     *
      * @param sess
      * @param perunBean
      * @return list of vos connected with perunBeans
-     * @throws InternalErrorException 
+     * @throws InternalErrorException
      */
-    List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException;    
-    
+    List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException;
+
     void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
 }

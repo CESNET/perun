@@ -38,21 +38,21 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private Facility facility;
 	private int facilityId;
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility facility to get services and status from
@@ -61,7 +61,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -75,17 +75,17 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
             }
         }).retrieveData();
 	}
-	
+
 
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
 
 		// title
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Propagation status");
-		
+
 		// main content
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -113,8 +113,8 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
-		
+		sp.addStyleName("perun-tableScrollPanel");
+
 		TabMenu menu = new TabMenu();
 		menu.addWidget(refreshButton);
 
@@ -124,14 +124,14 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
                 callback.filterTable(text);
             }
         }, "Filter propagations by service name or type");
-		
+
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -172,7 +172,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Propagation status", getUrlWithParameters());
@@ -182,35 +182,35 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 			session.setActiveFacilityId(facilityId);
 		}
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "propagation";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
-	
+
 	static public FacilityStatusTabItem load(Facility facility) {
 		return new FacilityStatusTabItem(facility);
 	}
-	
+
 	static public FacilityStatusTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityStatusTabItem(fid);
 	}
-	
+
 }

@@ -28,7 +28,7 @@ GetOptions ("help|h" => sub { print help(); exit 0;},"userId|u=i" => \$userId,
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
 unless (defined($extSourceLogin)) { die "ERROR: extSourceLogin is required \n";}
-unless(defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required \n";} 
+unless(defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required \n";}
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;

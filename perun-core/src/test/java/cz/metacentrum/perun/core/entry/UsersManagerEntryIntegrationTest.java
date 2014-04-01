@@ -52,7 +52,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	String userFirstName = "";
 	String userLastName = "";
 	String extLogin = "";              // his login in external source
-	String extLogin2 = ""; 
+	String extLogin2 = "";
 	String extSourceName = "LDAPMETA";        // real ext source with his login
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
@@ -69,7 +69,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		setUpUser();
-		setUpUserExtSource();                
+		setUpUserExtSource();
                 vo = setUpVo();
                 setUpServiceUser1ForUser(vo);
                 setUpServiceUser2ForUser(vo);
@@ -102,17 +102,17 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals("both users should be the same",user,secondUser);
 
 	}
-        
+
         @Test
 	public void getAllRichUsersWithAllNonVirutalAttributes() throws Exception {
 		System.out.println("UsersManager.getAllUsersWithAllNonVirutalAttributes");
 
 		List<RichUser> richUsers = new ArrayList<RichUser>();
                 richUsers.addAll(perun.getUsersManagerBl().getAllRichUsersWithAllNonVirutalAttributes(sess));
-                
+
                 assertTrue(richUsers.size() > 0);
 	}
-        
+
 
 	@Test (expected=UserNotExistsException.class)
 	public void getUserByIdWhenUserNotExist() throws Exception {
@@ -133,20 +133,20 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.contains(user));
 
 	}
-        
+
         @Test
         public void getServiceUsers() throws Exception {
                 System.out.println("UsersManager.getServiceUsers");
-                
+
                 List<User> users = usersManager.getServiceUsers(sess);
                 assertTrue(users.contains(serviceUser1));
                 assertTrue(users.contains(serviceUser2));
         }
-        
+
         @Test
         public void getUsersByServiceUser1() throws Exception {
                 System.out.println("UsersManager.getUsersByServiceUser1");
-                
+
                 List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser1);
                 assertTrue(users.contains(user));
                 assertTrue(users.size() == 1);
@@ -155,119 +155,119 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
         @Test
         public void getUsersByServiceUser2() throws Exception {
                 System.out.println("UsersManager.getUsersByServiceUser2");
-                
+
                 List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser2);
                 assertTrue(users.contains(user));
                 assertTrue(users.size() == 1);
         }
-        
+
         @Test
         public void getServiceUsersByUser() throws Exception {
                 System.out.println("UsersManager.getServiceUsersByUser");
-                
+
                 List<User> users = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(users.contains(serviceUser1));
                 assertTrue(users.contains(serviceUser2));
                 assertTrue(users.size() == 2);
         }
-        
+
         @Test
         public void modifyOwnership() throws Exception {
                 System.out.println("UsersManager.modifyOwnership");
-                
+
                 usersManager.removeServiceUserOwner(sess, user, serviceUser1);
-                
+
                 List<User> users = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(users.contains(serviceUser2));
                 assertTrue(users.size() == 1);
-                
+
                 usersManager.removeServiceUserOwner(sess, user, serviceUser2);
                 users = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(users.isEmpty());
-                
+
                 usersManager.addServiceUserOwner(sess, user, serviceUser1);
                 users = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(users.contains(serviceUser1));
                 assertTrue(users.size() == 1);
-                
+
                 usersManager.addServiceUserOwner(sess, user, serviceUser2);
                 users = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(users.contains(serviceUser1));
                 assertTrue(users.contains(serviceUser2));
                 assertTrue(users.size() == 2);
         }
-        
+
         @Test (expected= RelationNotExistsException.class)
         public void removeNotExistingOwnership() throws Exception {
                 System.out.println("UsersManager.removeNotExistingOwnership");
-            
+
                 Member member = setUpMember(vo);
                 User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
-                
+
                 usersManager.removeServiceUserOwner(sess, userOfMember, serviceUser1);
         }
-        
+
         @Test (expected= RelationNotExistsException.class)
         public void removeOwnershipTwiceInRow() throws Exception {
                 System.out.println("UsersManager.removeOwnershipTwiceInRow");
-            
+
                 usersManager.removeServiceUserOwner(sess, user, serviceUser1);
                 usersManager.removeServiceUserOwner(sess, user, serviceUser1);
         }
-        
+
         @Test (expected= RelationExistsException.class)
         public void addExistingOwnership() throws Exception {
                 System.out.println("UsersManager.addExistingOwnership");
-            
+
                 usersManager.addServiceUserOwner(sess, user, serviceUser1);
-                
+
         }
-        
+
         @Test (expected= RelationExistsException.class)
         public void addOwnershipTwiceInRow() throws Exception {
                 System.out.println("UsersManager.addOwnershipTwiceInRow");
-            
+
                 Member member = setUpMember(vo);
                 User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
-                
+
                 usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
                 usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
         }
-        
+
         @Test
         public void disableExistingOwnership() throws Exception {
                 System.out.println("UsersManager.disableExistingOwnership");
-            
+
                 Member member = setUpMember(vo);
                 User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
                 assertTrue(!perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser1));
                 assertTrue(!perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser2));
-                
+
                 usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser1));
-                
+
                 usersManager.addServiceUserOwner(sess, userOfMember, serviceUser2);
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, userOfMember, serviceUser2));
-                
+
                 List<User> serviceUsers = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(serviceUsers.contains(serviceUser1));
                 assertTrue(serviceUsers.contains(serviceUser2));
                 assertTrue(serviceUsers.size() == 2);
-                
+
                 usersManager.removeServiceUserOwner(sess, user, serviceUser1);
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser1));
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser2));
                 serviceUsers = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(serviceUsers.contains(serviceUser2));
                 assertTrue(serviceUsers.size() == 1);
-                
+
                 usersManager.removeServiceUserOwner(sess, user, serviceUser2);
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser1));
                 assertTrue(perun.getUsersManagerBl().serviceUserOwnershipExists(sess, user, serviceUser2));
                 serviceUsers = usersManager.getServiceUsersByUser(sess, user);
                 assertTrue(serviceUsers.isEmpty());
         }
-        
+
 	@Test
 	public void updateUser() throws Exception {
 		System.out.println("UsersManager.updateUser");
@@ -373,7 +373,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// check if both user ext sources are the same.
 
 	}
-        
+
         //TODO: for this test is needed to add creating login in registrar database
         /*
         @Test (expected=AlreadyReservedLoginException.class)
@@ -384,8 +384,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
                 String login = "martin_svehla";
                 perun.getUsersManagerBl().checkReservedLogins(sess, namespace, login);
 	}
-        */      
-        
+        */
+
 	@Test (expected=UserExtSourceNotExistsException.class)
 	public void getUserExtSourceByExtLoginWhenExtLoginNotExists() throws Exception {
 		System.out.println("UsersManager.getUserExtSourceByExtLoginWhenExtLoginNotExists");
@@ -690,7 +690,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			attrDef.setType(String.class.getName());
 
 			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-		} 
+		}
 
 		attr = new Attribute(attrDef);
 		attr.setValue("UserAttribute");
@@ -718,26 +718,26 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersForDeletion.add(user);
 		// save user for deletion after testing
 	}
-        
+
         private void setUpServiceUser1ForUser(Vo vo) throws Exception {
                Candidate candidate = setUpCandidateForServiceUser1();
-               
+
                List<User> owners = new ArrayList<User>();
                owners.add(user);
-               
+
                Member serviceMember = perun.getMembersManagerBl().createServiceMemberSync(sess, vo, candidate, owners);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", serviceMember);
                 serviceUser1 = usersManager.getUserByMember(sess, serviceMember);
 		usersForDeletion.add(serviceUser1);
         }
-        
+
         private void setUpServiceUser2ForUser(Vo vo) throws Exception {
                Candidate candidate = setUpCandidateForServiceUser2();
-               
+
                List<User> owners = new ArrayList<User>();
                owners.add(user);
-               
+
                Member serviceMember = perun.getMembersManagerBl().createServiceMemberSync(sess, vo, candidate, owners);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", serviceMember);
@@ -817,7 +817,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		return candidate;
 
 	}
-        
+
         private Candidate setUpCandidateForServiceUser1() {
                 Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
 		candidate.setFirstName("(Service)");
@@ -831,7 +831,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setAttributes(new HashMap<String,String>());
 		return candidate;
         }
-        
+
         private Candidate setUpCandidateForServiceUser2() {
                 Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
 		candidate.setFirstName("(Service)");

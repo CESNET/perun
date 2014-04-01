@@ -9,11 +9,11 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
 /**
  * Object definition for mail notifications used
  * for registration process (messages to user and vo admins)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ApplicationMail {
-	
+
 	// locale const
     public static final Locale EN = new Locale("en");
     public static final Locale CS = new Locale("cs");
@@ -22,27 +22,27 @@ public class ApplicationMail {
      * Available mail types
      */
     public enum MailType {
-    	
+
     	/**
     	 * Notification for user when application is created
     	 */
     	APP_CREATED_USER,
-    	
+
     	/**
     	 * Notification to VO administrator when application is created
     	 */
     	APP_CREATED_VO_ADMIN,
-    	
+
     	/**
     	 * Notification to user for email address validation
     	 */
     	MAIL_VALIDATION,
-    	
+
     	/**
     	 * Notification to user when application is approved
     	 */
     	APP_APPROVED_USER,
-    	
+
     	/**
     	 * Notification to user when application is rejected
     	 */
@@ -52,9 +52,9 @@ public class ApplicationMail {
          * Notification to VO administrator if auto approved application ends with error and is not approved.
          */
         APP_ERROR_VO_ADMIN;
-    	
+
     }
-    
+
     /**
      * Object params
      */
@@ -68,9 +68,9 @@ public class ApplicationMail {
     	message.put(CS,new MailText(CS));
     	message.put(EN,new MailText(EN));
     }
-    
+
     public ApplicationMail(){};
-    
+
     public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send) {
     	this.id = id;
     	this.appType = appType;
@@ -78,12 +78,12 @@ public class ApplicationMail {
     	this.mailType = mailType;
     	this.send = send;
     }
-    
+
     public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message) {
     	this(id, appType, formId, mailType, send);
     	this.message = message;
     }
-    
+
     /**
 	 * @return the id
 	 */
@@ -160,11 +160,11 @@ public class ApplicationMail {
 	public Map<Locale, MailText> getMessage() {
 		return message;
 	}
-	
+
 	/**
-	 * Return message in specific language 
+	 * Return message in specific language
 	 * (empty message if not present)
-	 * 
+	 *
 	 * @param locale language
 	 * @return the message
 	 */
@@ -192,7 +192,7 @@ public class ApplicationMail {
     public String getBeanName() {
         return this.getClass().getSimpleName();
     }
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -237,7 +237,7 @@ public class ApplicationMail {
 
         public MailText() {
         }
-        
+
         public MailText(Locale locale) {
         	this.locale = locale;
         }
@@ -251,7 +251,7 @@ public class ApplicationMail {
         public Locale getLocale() {
             return locale;
         }
-        
+
         public void setLocale(Locale locale) {
             this.locale= locale ;
         }
@@ -280,7 +280,7 @@ public class ApplicationMail {
         			", text='" + getText() + '\'' +
         			']';
         }
-        
+
     }
 
 }

@@ -131,10 +131,10 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
                 param += "&allowedStatuses[]="+s.toString();
             }
         }
-		
+
 		JsonClient js = new JsonClient(120000);
 		js.retrieveData(JSON_URL, param, this);
-		
+
 	}
 
     public void searchFor(String searchString) {
@@ -201,7 +201,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		// Sorting
 		ListHandler<RichMember> columnSortHandler = new ListHandler<RichMember>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichMember> createCheckboxManager());
 
@@ -269,7 +269,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
         columnProvider.addLoginsColumn(authz);
 
 		return table;
-		
+
 	}
 
     /**

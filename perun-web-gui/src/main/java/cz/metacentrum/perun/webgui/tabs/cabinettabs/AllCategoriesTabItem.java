@@ -28,9 +28,9 @@ import java.util.Map;
 
 /**
  * Tab for viewing all categories in Perun system
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
@@ -54,7 +54,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 	 * Creates a tab instance
      */
 	public AllCategoriesTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -99,7 +99,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
         menu.addWidget(removeButton);
-		
+
 		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in category ranks");
 		saveButton.addClickHandler(new ClickHandler(){
             @Override
@@ -157,7 +157,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.bookshelfIcon(); 
+		return SmallIcons.INSTANCE.bookshelfIcon();
 	}
 
 	@Override
@@ -195,26 +195,26 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "categories";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public AllCategoriesTabItem load(Map<String, String> parameters)
 	{
 		return new AllCategoriesTabItem();

@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to create dependency between two exec services
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateDependency {
@@ -42,7 +42,7 @@ public class CreateDependency {
 
 	/**
 	 * Add dependency for exec service on another exec service
-	 * 
+	 *
 	 * @param execService add dependency for
 	 * @param dependsOn add dependency on
 	 */
@@ -85,7 +85,7 @@ public class CreateDependency {
 
 	/**
 	 * Test input
-	 * 
+	 *
 	 * @return true on correct input, false otherwise
 	 */
 	private boolean testArguments(){

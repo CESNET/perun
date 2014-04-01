@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Page with Publications management for users.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
@@ -42,17 +42,17 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading user's publications");
-	
+
 	// DATA
 	private int userId;
 	private User user;
@@ -65,7 +65,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
     private String lastYearTill= "";
     private int lastCategoryId = 0; // 0 = default "not selected"
     private Map<String, Object> lastIds = new HashMap<String, Object>();
-	
+
 	/**
 	 * Creates a tab instance for self role
      */
@@ -73,7 +73,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		user = session.getUser();
 		userId = user.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance with custom user
 	 *
@@ -83,7 +83,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		this.user = user;
 		userId = user.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance with custom user
 	 *
@@ -97,15 +97,15 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(user == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": Publications");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -114,12 +114,12 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		final Map<String, Object> ids = new HashMap<String, Object>();
 		ids.put("userId", user.getId());
 		ids.put("authors", 1);
-		
+
 		final FindPublicationsByGUIFilter callback = new FindPublicationsByGUIFilter(ids);
         final JsonCallbackEvents refreshTable = JsonCallbackEvents.refreshTableEvents(callback);
-		
+
 		// GET CORRECT TABLE
-		CellTable<Publication> table;     
+		CellTable<Publication> table;
 		table = callback.getTable(new FieldUpdater<Publication, String>() {
 			public void update(int index, Publication object, String value) {
 				session.getTabManager().addTab(new PublicationDetailTabItem(object, true));
@@ -130,13 +130,13 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		ScrollPanel sp = new ScrollPanel();
 		sp.add(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		
+
 		// ADD, REMOVE menu
 		TabMenu menu = new TabMenu();
 		// FILTER MENU
 		final TabMenu filterMenu = new TabMenu();
 		filterMenu.setVisible(false); // not visible at start
-		
+
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new Publication", new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTab(new AddPublicationsTabItem(user));
@@ -188,7 +188,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
         menu.addWidget(removeButton);
         removeButton.setEnabled(false);
         JsonUtils.addTableManagedButton(callback, table, removeButton);
-		
+
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
 		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
@@ -222,7 +222,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
                 filterCategory.addItem("Loading...");
             }
 		});
-		
+
 		final CustomButton showButton = new CustomButton("Show / Hide filter", "Show / Hide filtering options", SmallIcons.INSTANCE.filterIcon());
 		showButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
@@ -238,7 +238,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
         menu.addWidget(showButton);
-		
+
 		// refresh table button
 		menu.addWidget(new CustomButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -246,7 +246,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
                 callback.retrieveData();
             }
         }));
-		
+
 		// filter objects
 		final TextBox filterTitle = new TextBox();
 		filterTitle.setWidth("80px");
@@ -266,20 +266,20 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		filterTill.setMaxLength(4);
 		filterTill.setWidth("30px");
         filterTill.setText(lastYearTill);
-		
+
 		final ListBox codeBox = new ListBox();
 		codeBox.addItem("ISBN/ISSN:");
 		codeBox.addItem("DOI:");
         if (!lastIsbnOrDoi) {
             codeBox.setSelectedIndex(1);
         }
-		
+
 		// buttons
 		CustomButton applyFilter = new CustomButton("Apply", "Shows publications based on filter", SmallIcons.INSTANCE.filterAddIcon());
 		CustomButton clearFilter = new CustomButton("Clear","Shows all publications of User",SmallIcons.INSTANCE.filterDeleteIcon());
 
 		// clear filter action
-		
+
 		clearFilter.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 
@@ -308,12 +308,12 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 			}
 		});
-		
+
 		// apply filter action
-		
+
 		applyFilter.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				
+
 				// refresh ids
 				ids.clear();
 				ids.put("userId", user.getId());
@@ -382,7 +382,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 			}
 		});
-		
+
 		// add to filter menu
 		filterMenu.addWidget(new HTML("<strong>Title:</strong>"));
 		filterMenu.addWidget(filterTitle);
@@ -399,18 +399,18 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		filterMenu.addWidget(filterTill);
 		filterMenu.addWidget(applyFilter);
 		filterMenu.addWidget(clearFilter);
-		
+
 		firstTabPanel.add(menu);
 		firstTabPanel.add(filterMenu);
-		firstTabPanel.add(sp);  
+		firstTabPanel.add(sp);
 		firstTabPanel.setCellHeight(menu, "30px");
 		firstTabPanel.setCellHeight(sp, "100%");
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(sp, 350, this);
-				
+
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -423,7 +423,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.booksIcon(); 
+		return SmallIcons.INSTANCE.booksIcon();
 	}
 
 	@Override
@@ -457,31 +457,31 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
         session.getUiElements().getMenu().openMenu(MainMenu.USER);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Publications", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 		if (session.isSelf(userId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "userpubs";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?user=" + userId;
 	}
-	
+
 	static public UsersPublicationsTabItem load(Map<String, String> parameters) {
 		if(parameters.containsKey("user")){
 			return new UsersPublicationsTabItem(Integer.valueOf(parameters.get("user")));
 		}
 		return new UsersPublicationsTabItem();
 	}
-	
+
 }

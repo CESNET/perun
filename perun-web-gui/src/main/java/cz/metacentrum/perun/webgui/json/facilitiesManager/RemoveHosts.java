@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which deletes hosts from Cluster/Facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -40,7 +40,7 @@ public class RemoveHosts {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-	 * 
+	 *
 	 * @param clusterId ID of cluster to remove hosts from
 	 * @param events external events
 	 */
@@ -51,7 +51,7 @@ public class RemoveHosts {
 
 	/**
 	 * Deletes all hosts from list at once
-	 * 
+	 *
 	 * @param hosts list of hosts IDS
 	 */
 	public void deleteHosts(ArrayList<Integer> hosts) {
@@ -62,12 +62,12 @@ public class RemoveHosts {
 
 	/**
 	 * Removes host from cluster in DB - make RPC call
-	 * 
+	 *
 	 * @param hostId ID of host to be removed
 	 */
 	public void removeHost(final int hostId) {
 
-		this.hostId = hostId;	
+		this.hostId = hostId;
 
 		// test arguments
 		if(!this.testDeleting()){
@@ -100,11 +100,11 @@ public class RemoveHosts {
 		JsonPostClient request = new JsonPostClient(newEvents);
 		request.sendData(JSON_URL, jsonQuery);
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting() {
@@ -126,7 +126,7 @@ public class RemoveHosts {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -137,7 +137,7 @@ public class RemoveHosts {
 		ids.set(0, host);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("facility", cluster);
 		jsonQuery.put("hosts", ids);
 		return jsonQuery;

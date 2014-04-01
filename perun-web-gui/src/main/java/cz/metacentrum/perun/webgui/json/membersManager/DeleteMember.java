@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to delete member in VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -42,7 +42,7 @@ public class DeleteMember {
 
 	/**
 	 * Attempts to delete member in VO
-	 * 
+	 *
 	 * @param memberId ID of member which should be deleted
 	 */
 	public void deleteMember(final int memberId)
@@ -76,11 +76,11 @@ public class DeleteMember {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -102,7 +102,7 @@ public class DeleteMember {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -110,8 +110,8 @@ public class DeleteMember {
 		JSONNumber member = new JSONNumber(memberId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("member", member);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("member", member);
 		return jsonQuery;
 	}
 

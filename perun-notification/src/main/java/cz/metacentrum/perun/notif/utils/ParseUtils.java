@@ -28,11 +28,11 @@ public class ParseUtils {
 
 		return result;
 	}
-	
+
 	public static List<PerunBean> parseMessage(String message) {
-		
+
 		List<PerunBean> result = new ArrayList<PerunBean>();
-		
+
 		cz.metacentrum.perun.core.api.User user = new cz.metacentrum.perun.core.api.User();
 		user.setId(92979);
 		user.setTitleBefore("Bc.");
@@ -40,42 +40,42 @@ public class ParseUtils {
 		user.setLastName("Tunkl");
 		user.setTitleAfter("CSc.");
 		result.add(user);
-		
+
 		Group group = new Group();
 		group.setId(0);
 		group.setName("members");
 		group.setDescription("Group test");
 		result.add(group);
-		
+
 		Vo vo = new Vo();
 		vo.setId(165684);
 		vo.setName("AttributesManagerTestVo");
 		vo.setShortName("AMTVO");
 		result.add(vo);
-		
+
 		Facility facility = new Facility();
 		facility.setId(123736);
 		facility.setName("AttrTestFacility");
 		facility.setType("cluster");
 		result.add(facility);
-		
+
 		Resource resource = new Resource();
 		resource.setId(0);
 		resource.setName("ServicesManagerTestResource");
 		resource.setDescription("testovaci");
 		result.add(resource);
-		
+
 		Destination destination = new Destination();
 		destination.setId(0);
 		destination.setType("CLUSTER");
 		result.add(destination);
-		
+
 		Member member = new Member();
 		member.setId(6235);
 		member.setVoId(181);
 		member.setUserId(5032);
 		result.add(member);
-		
+
 		return result;
 	}
 }

@@ -32,7 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 /**
  * Default implementation of ICabinetApi interface. It delegates all requests to
  * appropriate services managers.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -121,7 +121,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<Publication> findPublicationsByFilter(Publication p) {
 		return publicationService.findPublicationsByFilter(p);
 	}
-	
+
 	public List<PublicationForGUI> findRichPublicationsByFilter(Publication p, Integer userId) {
 		return publicationService.findRichPublicationsByFilter(p, userId);
 	}
@@ -129,7 +129,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill) {
 		return publicationService.findRichPublicationsByGUIFilter(p, userId, yearSince, yearTill);
 	}
-	
+
 	public boolean thanksExists(Thanks t) {
 		return thanksService.thanksExists(t);
 	}
@@ -145,23 +145,23 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<PublicationForGUI> findRichPublicationsOfAuthor(Integer id) throws CabinetException {
 		return publicationService.findRichPublicationsByGUIFilter(null, id, 0, 0);
 	}
-	
+
 	public List<Thanks> findThanksByFilter(Thanks t) {
 		return thanksService.findThanksByFilter(t);
 	}
-	
+
 	public List<Thanks> findThanksByPublicationId(int id) {
 		return thanksService.findThanksByPublicationId(id);
 	}
-	
+
 	public List<ThanksForGUI> findRichThanksByPublicationId(int id) {
 		return thanksService.findRichThanksByPublicationId(id);
 	}
-	
+
 	public Thanks findThanksById(int id) {
 		return thanksService.findThanksById(id);
 	}
-	
+
 	public Category findCategoryById(Integer categoryId) {
 		return categoryService.findCategoryById(categoryId);
 	}
@@ -181,7 +181,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException {
 		return authorshipService.findAuthorsByAuthorshipId(sess, id);
 	}
-	
+
 	public List<Author> findAuthorsByPublicationId(Integer id) {
 		return authorService.findAuthorsByPublicationId(id);
 	}
@@ -205,7 +205,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public Publication findPublicationById(Integer publicationId) {
 		return publicationService.findPublicationById(publicationId);
 	}
-	
+
 	public PublicationForGUI findRichPublicationById(Integer publicationId) {
 		return publicationService.findRichPublicationById(publicationId);
 	}
@@ -225,7 +225,7 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<Publication> findAllPublications() {
 		return publicationService.findAllPublications();
 	}
-	
+
 	public List<PublicationForGUI> findAllRichPublications() throws CabinetException {
 		return publicationService.findAllRichPublications();
 	}
@@ -283,14 +283,14 @@ public class CabinetApiImpl implements ICabinetApi {
 	public List<PublicationSystem> findAllPublicationSystems() {
 		return publicationSystemService.findAllPublicationSystems();
 	}
-	
+
 	public int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException {
 		return publicationService.lockPublications(sess, lockState, pubs);
 	}
 
 	@Override
 	public void recalculateThanksAttribute(PerunSession sess) throws CabinetException {
-		
+
 		try {
 			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 				throw new CabinetException("You are not allowed to delete authorships you didn't created or which doesn't concern you.", ErrorCodes.NOT_AUTHORIZED);
@@ -298,12 +298,12 @@ public class CabinetApiImpl implements ICabinetApi {
 		} catch (PerunException pe) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}
-		
+
 		List<Author> list = authorService.findAllAuthors();
 		for (Author a : list) {
-			perunService.setThanksAttribute(a.getId());	
+			perunService.setThanksAttribute(a.getId());
 		}
-		
+
 	}
 
 }

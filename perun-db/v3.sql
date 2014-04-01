@@ -269,7 +269,7 @@ create table action_types (
 
 create table membership_types (
     id integer not null,
-    membership_type varchar2(10) not null, 
+    membership_type varchar2(10) not null,
     description varchar2(1024)
 );
 
@@ -295,7 +295,7 @@ create table attributes_authz (
    attr_id integer not null,
    role_id integer not null,
    action_type_id integer not null
-); 
+);
 
 create table authz (
     user_id integer,
@@ -309,7 +309,7 @@ create table authz (
     service_principal_id integer,
     created_by_uid integer,
     modified_by_uid integer,
-    authorized_group_id integer     
+    authorized_group_id integer
 );
 
 create table hosts (
@@ -546,7 +546,7 @@ create table application_mail_texts (
    modified_by_uid integer
 );
 
-create table application_reserved_logins ( 
+create table application_reserved_logins (
    login varchar2(256) not null,
    namespace varchar2(30) not null,
    app_id integer not null,
@@ -569,9 +569,9 @@ create table facility_service_destinations (
    modified_by_uid integer
 );
 
-create table entityless_attr_values ( 
-    subject varchar2(256) not null, 
-    attr_id integer not null, 
+create table entityless_attr_values (
+    subject varchar2(256) not null,
+    attr_id integer not null,
     attr_value varchar2(4000),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
@@ -655,7 +655,7 @@ create table groups_members (
 );
 
 create table groups_resources (
-    group_id integer not null, 
+    group_id integer not null,
     resource_id integer not null
     created_at  date default sysdate not null,
     created_by varchar2(1024) default user not null,
@@ -1025,11 +1025,11 @@ create sequence MEMBERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence OWNERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence PROCESSING_RULES_ID_SEQ
   start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle; 
+  noorder nocycle;
 create sequence RESOURCES_ID_SEQ maxvalue 1.0000E+28;
 create sequence ROUTING_RULES_ID_SEQ
   start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle; 
+  noorder nocycle;
 create sequence SERVICES_ID_SEQ maxvalue 1.0000E+28;
 create sequence SERVICE_DENIALS_ID_SEQ
   start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
@@ -1079,9 +1079,9 @@ create index idx_tasks_facility_id on tasks(facility_id);
 create index idx_tasks_exec_service_id on tasks(exec_service_id);
 create index idx_tasks_results_task_id on tasks_results(task_id);
 create index idx_authz_user_role_id on authz (user_id,role_id);
-create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id); 
+create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
 create index IDX_FK_CABTHANK_PUB on cabinet_thanks(publicationid);
-create index IDX_FK_USREX_USR on user_ext_sources(user_id); 
+create index IDX_FK_USREX_USR on user_ext_sources(user_id);
 create index IDX_FK_USREX_USERSRC on user_ext_sources(ext_sources_id);
 create index IDX_FK_MEM_USER on members(user_id);
 create index IDX_FK_MEM_VO on members(vo_id);
@@ -1150,7 +1150,7 @@ create index IDX_FK_CATPUB_SYS on cabinet_publications(publicationSystemid);
 create index IDX_FK_CABPUB_CAT on cabinet_publications(categoryid);
 create index IDX_FK_AUTHZ_ROLE on authz(role_id);
 create index IDX_FK_AUTHZ_USER on authz(user_id);
-create index IDX_FK_AUTHZ_AUTHZ_GROUP on authz(authorized_group_id); 
+create index IDX_FK_AUTHZ_AUTHZ_GROUP on authz(authorized_group_id);
 create index IDX_FK_AUTHZ_VO on authz(vo_id);
 create index IDX_FK_AUTHZ_FAC on authz(facility_id);
 create index IDX_FK_AUTHZ_MEM on authz(member_id);
@@ -1185,8 +1185,8 @@ create index IDX_FK_PN_TMPLRGX_RGX on pn_template_regex(regex_id);
 create index IDX_FK_PN_TMPLRGX_TMPL on pn_template_regex(template_id);
 create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
-create index IDX_FK_SERVU_U_UI on service_user_users(user_id); 
-create index IDX_FK_SERVU_U_SUI on service_user_users(service_user_id); 
+create index IDX_FK_SERVU_U_UI on service_user_users(user_id);
+create index IDX_FK_SERVU_U_SUI on service_user_users(service_user_id);
 create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
 create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
@@ -1241,7 +1241,7 @@ constraint EXSRV_TYPE_CHK check (type IN ('SEND','GENERATE'))
 alter table destinations add(
 constraint DEST_PK primary key (id),
 constraint DEST_U unique (destination,type)
-);     
+);
 alter table facility_service_destinations add (
 constraint DEST_SRV_FK foreign key (service_id) references services(id),
 constraint DEST_FAC_FK foreign key (facility_id) references facilities(id),
@@ -1260,7 +1260,7 @@ constraint ATTNAM_U unique (attr_name),
 constraint ATTFULLNAM_U unique (friendly_name,namespace),
 constraint ATTNAM_ATTNAM_FK foreign key (default_attr_id) references attr_names(id)
 );
-alter table facilities add (constraint FAC_PK primary key(id), 
+alter table facilities add (constraint FAC_PK primary key(id),
 constraint FAC_U unique (name,type)
 );
 alter table resources add (
@@ -1354,7 +1354,7 @@ constraint SRVREQATTR_ATTR_FK foreign key(attr_id) references attr_names(id)
 );
 alter table resource_services add(
 constraint RESRCSRV_PK primary key (service_id,resource_id),
-constraint RESRCSRV_SRV_FK foreign key (service_id) references services(id), 
+constraint RESRCSRV_SRV_FK foreign key (service_id) references services(id),
 constraint RESRCSRV_RSRC_FK foreign key (resource_id) references resources(id)
 );
 alter table routing_rules add (
@@ -1429,7 +1429,7 @@ constraint ROLES_NAME_U unique (name)
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
-constraint AUTHZ_AUTHZ_GROUP_FK foreign key (authorized_group_id) references groups(id), 
+constraint AUTHZ_AUTHZ_GROUP_FK foreign key (authorized_group_id) references groups(id),
 constraint AUTHZ_VO_FK foreign key (vo_id) references vos(id),
 constraint AUTHZ_FAC_FK foreign key (facility_id) references facilities(id),
 constraint AUTHZ_MEM_FK foreign key (member_id) references members(id),
@@ -1443,7 +1443,7 @@ constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_i
 
 alter table groups_resources add (
 constraint GRRES_GRP_RES_U unique (group_id,resource_id),
-constraint GRRES_GR_FK foreign key (group_id) references groups(id), 
+constraint GRRES_GR_FK foreign key (group_id) references groups(id),
 constraint GRRES_RES_FK foreign key (resource_id) references resources(id)
 );
 
@@ -1461,7 +1461,7 @@ constraint GRPMEM_MEMTYPE_FK foreign key (membership_type) references membership
 alter table application_form add (
 constraint APPLFORM_PK primary key (id),
 constraint APPLFORM_U unique (vo_id,group_id),
-constraint APPLFORM_VO_FK foreign key (vo_id) references vos(id) on delete cascade, 
+constraint APPLFORM_VO_FK foreign key (vo_id) references vos(id) on delete cascade,
 constraint APPLFORM_GROUP_FK foreign key (group_id) references groups(id) on delete cascade
 );
 
@@ -1513,7 +1513,7 @@ constraint APPMAILTXT_APPMAILS_FK foreign key (mail_id) references application_m
 alter table reserved_logins add (
 constraint RESERVLOGINS_PK primary key (login,namespace)
 );
- 
+
 alter table  pn_audit_message add (
 constraint PN_AUDMSG_PK primary key (id)
 );
@@ -1573,7 +1573,7 @@ constraint GRP_GRP_PGID_FK foreign key (parent_group_id) references groups(id)
 alter table action_types add (
 constraint ACTIONTYP_PK primary key (id),
 constraint ACTIONTYP_U unique (action_type),
-constraint ACTIONTYP_AT_CHK check (action_type in ('read','write')) 
+constraint ACTIONTYP_AT_CHK check (action_type in ('read','write'))
 );
 
 alter table attributes_authz add (
@@ -1598,11 +1598,11 @@ constraint TAGS_RES_RES_FK  foreign key (resource_id) references resources(id)
 alter table membership_types add (
 constraint MEMTYPE_PK primary key (id)
 );
- 
+
 alter table configurations add (
 constraint CONFIG_PK primary key (property),
 constraint CONFIG_PROP_CHK check (property in ('DATABASE VERSION'))
-); 
+);
 
 alter table mailchange add (
 constraint mailchange_pk primary key (id),

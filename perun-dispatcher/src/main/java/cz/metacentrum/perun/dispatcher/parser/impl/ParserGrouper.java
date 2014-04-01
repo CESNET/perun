@@ -17,10 +17,10 @@ import cz.metacentrum.perun.dispatcher.parser.Parser;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value="parserGrouper")
 public class ParserGrouper implements Parser {
@@ -30,10 +30,10 @@ public class ParserGrouper implements Parser {
 	@Autowired
 	private EventQueue eventQueue;
 	private boolean running = true;
-	
+
 	public ParserGrouper() {
 	}
-	
+
 	@Override
 	public void run() {/*
 		// BEGIN JUST A TEST DUMMY !!!
@@ -59,7 +59,7 @@ public class ParserGrouper implements Parser {
 					event.setData(headerData[1]);
 					eventQueue.add(event);
 					//Thread.yield();
-					Thread.sleep(1);				
+					Thread.sleep(1);
 				}
 			}
 		} catch (FileNotFoundException e) {

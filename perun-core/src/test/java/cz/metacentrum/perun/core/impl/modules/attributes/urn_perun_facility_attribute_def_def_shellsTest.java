@@ -56,19 +56,19 @@ public class urn_perun_facility_attribute_def_def_shellsTest {
         classInstance.checkAttributeValue(session, new Facility(), attribute);
 
     }
-    
+
     @Test(expected=WrongAttributeValueException.class)
     public void testCheckAttributeValueEmptyAttribute() throws Exception {
         System.out.println("testCheckAttributeValueEmptyAttribute()");
 
         classInstance.checkAttributeValue(session, new Facility(), attribute);
     }
-    
+
     @Test(expected=WrongAttributeValueException.class)
     public void testCheckAttributeValueNoShellsSet() throws Exception {
         System.out.println("testCheckAttributeValueNoShellsSet()");
 
         attribute.setValue(new ArrayList<String>());
         classInstance.checkAttributeValue(session, new Facility(), attribute);
-    }    
+    }
 }

@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Finds All publication systems in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTable<PublicationSystem> {
@@ -162,7 +162,7 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 
 		/*
 		 *  DO NOT SHOW USERNAMES AND PASWORDS
-		 *  
+		 *
 
 		// USERNAME COLUMN
 		Column<PublicationSystem, String> usernameColumn = JsonUtils.addColumn(

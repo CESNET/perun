@@ -38,7 +38,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
         private Candidate candidate2;
         private Vo vo;
 	String extLogin = "aaa";              // his login in external source
-	String extLogin2 = "bbb"; 
+	String extLogin2 = "bbb";
 	String extSourceName = "LDAPMETA";        // real ext source with his login
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	private SearcherBl searcherBl;
@@ -80,7 +80,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
                 assertTrue("user1 have to be found", users.contains(user1));
                 assertTrue("user2 have not to be found", !users.contains(user2));
 	}
-       
+
        @Test
 	public void getUsersForStringValue() throws Exception {
 		System.out.println("Searcher.getUsersForStringValue");
@@ -89,9 +89,9 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
                 List<User> users = new ArrayList<User>();
                 users = searcherBl.getUsers(sess, attributesWithSearchingValues);
                 assertTrue("user1 have not to be found", !users.contains(user1));
-                assertTrue("user2 have to be found", users.contains(user2));        
-	}  
-       
+                assertTrue("user2 have to be found", users.contains(user2));
+	}
+
         @Test
 	public void getUsersForListValue() throws Exception {
 		System.out.println("Searcher.getUsersForListValue");
@@ -102,7 +102,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
                 assertTrue("user2 have to be found", users.contains(user2));
                 assertTrue("user1 have to be found", users.contains(user1));
 	}
-        
+
         @Test
         public void getUsersForCoreAttribute() throws Exception {
                 System.out.println("Searcher.getUsersForCoreAttribute");
@@ -115,7 +115,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
                 System.out.println(attr.getType().toString());
                 System.out.println(users.toString());
         }
-                
+
         @Test
 	public void getUsersForMapValue() throws Exception {
 		System.out.println("Searcher.getUsersForMapValue");
@@ -133,7 +133,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
             Member member = perun.getMembersManagerBl().createMember(sess, vo, candidate1);
             user1 = perun.getUsersManagerBl().getUserByMember(sess, member);
 	}
-        
+
         private void setUpUser2() throws Exception {
             Member member = perun.getMembersManagerBl().createMember(sess, vo, candidate2);
             user2 = perun.getUsersManagerBl().getUserByMember(sess, member);
@@ -169,7 +169,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		return candidate;
 
 	}
-        
+
 	private Candidate setUpCandidate2(){
 
 		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
@@ -185,7 +185,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		return candidate;
 
         }
-        
+
        private Attribute setUpUserAttributeWithIntegerValue() throws Exception {
 
 		Attribute attr = new Attribute();
@@ -197,8 +197,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		// create new resource member attribute
                 return attr;
 
-	}        
-        
+	}
+
        private Attribute setUpUserAttributeWithStringValue() throws Exception {
 
 		Attribute attr = new Attribute();
@@ -226,7 +226,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
                 return attr;
 
 	}
-       
+
 	private Attribute setUpUserLargeAttributeWithMapValue() throws Exception {
 
 		Attribute attr = new Attribute();

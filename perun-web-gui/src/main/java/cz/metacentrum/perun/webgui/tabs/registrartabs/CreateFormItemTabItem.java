@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * View ApplicationFormItem
  * !! USE IN INNER TAB ONLY !!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateFormItemTabItem implements TabItem{
@@ -30,34 +30,34 @@ public class CreateFormItemTabItem implements TabItem{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Create new application form item");
 
-	/** 
+	/**
 	 * List with inputs
 	 */
 	private ArrayList<ApplicationFormItem> sourceList;
 
 	private JsonCallbackEvents events;
-	
+
 	/**
 	 * Input types
 	 */
 	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
-	
+
 	/**
 	 * Cropping length in select box after which item to add item
 	 */
-	static private final int CROP_LABEL_LENGTH = 25; 
-	
+	static private final int CROP_LABEL_LENGTH = 25;
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -67,13 +67,13 @@ public class CreateFormItemTabItem implements TabItem{
 		this.sourceList = sourceList;
 		this.events = events;
 	}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
@@ -82,7 +82,7 @@ public class CreateFormItemTabItem implements TabItem{
 		FlexTable layout = new FlexTable();
         layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
-		
+
 		// select widget short name
 		final ExtendedTextBox shortNameTextBox = new ExtendedTextBox();
 		shortNameTextBox.setWidth("200px");
@@ -100,14 +100,14 @@ public class CreateFormItemTabItem implements TabItem{
             }
         };
         shortNameTextBox.setValidator(validator);
-		
+
 		// select widget type
 		final ListBox typeListBox = new ListBox();
 		for(int i = 0; i < INPUT_TYPES.length; i++){
 			String type = INPUT_TYPES[i];
 			typeListBox.addItem(type, type);
 		}
-		
+
 		// insert after
 		final ListBox insertAfterListBox = new ListBox();
 		insertAfterListBox.addItem(" - insert to the beginning - ", 0 + "");
@@ -115,12 +115,12 @@ public class CreateFormItemTabItem implements TabItem{
 			ApplicationFormItem item = sourceList.get(i);
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, ""); // with default en locale
 			String label = gen.getFormItem().getShortname();
-			
+
 			// crop length
 			if(label.length() > CROP_LABEL_LENGTH){
 				label = label.substring(0, CROP_LABEL_LENGTH);
 			}
-			
+
 			// add to box
 			insertAfterListBox.addItem(label, (i + 1) + "");
 		}
@@ -166,15 +166,15 @@ public class CreateFormItemTabItem implements TabItem{
         vp.add(layout);
         vp.add(menu);
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
 	/**
 	 * Creates the item
-	 * 
+	 *
 	 * @param shortname
 	 * @param type
 	 * @param positionToAdd
@@ -182,13 +182,13 @@ public class CreateFormItemTabItem implements TabItem{
 	protected void createItem(String shortname, String type, int positionToAdd) {
 
 		ApplicationFormItem item = RegistrarFormItemGenerator.generateFormItem(shortname, type);
-		
+
 		// set also position
 		item.setOrdnum(positionToAdd);
 		sourceList.add(positionToAdd, item);
-		
+
 		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, events));
-		
+
 		events.onFinished(item);
 
 	}
@@ -202,7 +202,7 @@ public class CreateFormItemTabItem implements TabItem{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -225,22 +225,22 @@ public class CreateFormItemTabItem implements TabItem{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin() || session.isGroupAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

@@ -24,13 +24,13 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-  Pattern certPattern = Pattern.compile("^/");  
-    
+  Pattern certPattern = Pattern.compile("^/");
+
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
       if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null");
       Map<String, String> value = (Map) attribute.getValue();
       if(value.isEmpty()) throw new WrongAttributeValueException(attribute, "This attribute value can't be empty");
-      
+
       Set<String> valueKeys = value.keySet();
       for(String k: valueKeys) {
           Matcher certKeyMatcher = certPattern.matcher(k);
@@ -58,8 +58,8 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
     String preferredCertDNValue = null;
     if(userPreferredCertDN.getValue() != null) preferredCertDNValue = (String) userPreferredCertDN.getValue();
     Map<String, String> certDNs = null;
-    if(attribute.getValue() != null) certDNs = (Map<String, String>) attribute.getValue();  
-    
+    if(attribute.getValue() != null) certDNs = (Map<String, String>) attribute.getValue();
+
     if(certDNs == null || certDNs.isEmpty()) {
         try {
             session.getPerunBl().getAttributesManagerBl().removeAttribute(session, user, userPreferredCertDN);
@@ -100,7 +100,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
         }
     }
   }
-  
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which creates a new facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateFacility {
@@ -34,7 +34,7 @@ public class CreateFacility {
 
 	/**
 	 * Creates a new request with custom events
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public CreateFacility(JsonCallbackEvents events) {
@@ -43,7 +43,7 @@ public class CreateFacility {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating() {
@@ -65,7 +65,7 @@ public class CreateFacility {
 
 	/**
 	 * Attempts to create a new Facility, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param name Facility name
 	 */
 	public void createFacility(final String name) {

@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
 Removes selected attribute from the facility. Facility id or name and attribute id are required.
 --------------------------------------
 Available options:
- --facilityId   | -f facility id 
+ --facilityId   | -f facility id
  --facilityName | -F facility name
  --facilityType | -t facility type
  --attributeId  | -a attribute id
@@ -23,10 +23,10 @@ Available options:
 
 my ($facilityId, $facilityName, $facilityType, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId, 
+ "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
- "attributeId|a=i" => \$attributeId) || die help(); 
+ "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
@@ -43,5 +43,5 @@ unless($facilityId) {
 my $attributesAgent = $agent->getAttributesAgent;
 
 $attributesAgent->removeAttribute(facility => $facilityId, attribute => $attributeId);
-    
+
 printMessage("Attribute Id:$attributeId removed from the facility Id:$facilityId", $batch);

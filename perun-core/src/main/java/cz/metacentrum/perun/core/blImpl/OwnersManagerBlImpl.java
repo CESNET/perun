@@ -26,7 +26,7 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 
   /**
    * Constructor.
-   * 
+   *
    */
   public OwnersManagerBlImpl(OwnersManagerImplApi ownersManagerImpl) {
     this.ownersManagerImpl = ownersManagerImpl;

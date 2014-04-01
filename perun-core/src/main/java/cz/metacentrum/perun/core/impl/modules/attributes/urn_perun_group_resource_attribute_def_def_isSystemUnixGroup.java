@@ -29,7 +29,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
     private static final String A_GR_systemUnixGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGroupName";
     private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
 
-    
+
   public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
       return new Attribute(attributeDefinition);
   }
@@ -38,14 +38,14 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 
       Integer isSystemUnixGroup = (Integer) attribute.getValue();
       if(isSystemUnixGroup == null) return; //isSystemUnixGroup can be null. It is equivalent to 0.
-      
+
       if(isSystemUnixGroup != 0 && isSystemUnixGroup != 1) throw new WrongAttributeValueException(attribute, "Attribute isSystemUnixGroup should not other number than 0 or 1.");
-      
+
       Attribute sysUnixGroupName = new Attribute();
       Attribute sysUnixGID = new Attribute();
-      
+
       if(isSystemUnixGroup == 1) {
-          
+
           try {
               sysUnixGroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGroupName);
               sysUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);
@@ -53,13 +53,13 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
               //if any of these attributes not exist, its wrong
               throw new ConsistencyErrorException("Attributes sysUnixGroupName or sysUnixGID not exist.",ex);
           }
-          
+
           try {
               sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGroupName);
           } catch(WrongAttributeValueException ex) {
               throw new WrongReferenceAttributeValueException("Bad value in sysUnixGroupName attribute.",ex);
-          }  
-          
+          }
+
           try {
               sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGID);
           } catch(WrongAttributeValueException ex) {
@@ -67,7 +67,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
           }
       }
   }
-  
+
   @Override
   public List<String> getDependencies() {
       List<String> dependencies = new ArrayList<String>();

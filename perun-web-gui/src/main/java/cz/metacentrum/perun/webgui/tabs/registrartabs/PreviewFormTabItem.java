@@ -26,11 +26,11 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import java.util.ArrayList;
 
 /**
- * Display preview of VOs/Groups application form based on current 
+ * Display preview of VOs/Groups application form based on current
  * config state in GUI. Allows to set type and language on page and reload.
- * 
+ *
  * USE AS INNER TAB ONLY or DON'T add tab url between vos tabs
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
@@ -41,12 +41,12 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	private GeneralObject object;
 	private Label titleWidget = new Label("form preview");
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	private String appType = "INITIAL";
 	private String locale = "en";
 	private ArrayList<RegistrarFormItemGenerator> applFormGenerators = new ArrayList<RegistrarFormItemGenerator>();
 	private Button sendButton;
-	
+
 	/**
 	 * Create new instace of this tab
 	 *
@@ -62,16 +62,16 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	public boolean isPrepared() {
 		return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(object.getName())+": form preview");
-		
+
 		final TabItem tab = this;
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		TabMenu menu = new TabMenu();
 		final ScrollPanel sp = new ScrollPanel();
 
@@ -91,7 +91,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
         menu.addWidget(switchType);
-		
+
 		final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.flagCzechBritainIcon());
 		menu.addWidget(switchLocale);
         switchLocale.addClickHandler(new ClickHandler(){
@@ -108,81 +108,81 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 				prepareApplicationForm(sp);
 			}
 		});
-		
+
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
-		
+
 		prepareApplicationForm(sp);
-		
+
 		session.getUiElements().resizeSmallTabPanel(sp, 350, tab);
 		contentWidget.setWidget(vp);
 		return getWidget();
-		
+
 	}
-	
+
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
-	 * 
+	 *
 	 * @param sp scroll panel
 	 */
 	public void prepareApplicationForm(ScrollPanel sp){
-		
+
 		FlexTable ft = new FlexTable();
 		ft.setSize("100%", "100%");
 		ft.setCellPadding(10);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		
+
 		int i = 0;
 		for(final ApplicationFormItem item : formItems) {
-			
+
 			// skip items not from correct app type
 			ArrayList<String> itemApplicationTypes = JsonUtils.listFromJsArrayString(item.getApplicationTypes());
 			if (!itemApplicationTypes.contains(appType)) continue;
-			
+
 			// generate correct items
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, locale);
 			this.applFormGenerators.add(gen);
 			gen.addValidationTrigger(new FormValidator() {
-				
+
 				public void triggerValidation() {
-					validateFormValues(false);					
+					validateFormValues(false);
 				}
 			});
-			
-			
+
+
 			// if button, add onclick
 			if(item.getType().equals("SUBMIT_BUTTON")){
-				
+
 				this.sendButton = (Button) gen.getWidget();
 				sendButton.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						
+
 						// revalidate again, with force validation
 						if(!validateFormValues(true)){
 							return;
 						}
-						
+
 						// sending is disabled
 						Confirm c = new Confirm("Sending disabled", new Label("Sending form is disabled in preview mode, but form items value validation works."), true);
 						c.show();
-						
+
 					}
 				});
 			}
-			
+
 			// get localized texts
 			ItemTexts itemTexts = item.getItemTexts(locale);
-			
+
 			if(!gen.isVisible()){
 				continue;
 			}
-			
+
 			// WITH LABEL (input box ...)
 			if(gen.isLabelShown()){
-				
+
 				// 0 = label
 				if (item.isRequired() == true) {
 					// required
@@ -191,7 +191,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 					// optional
 					ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
 				}
-								
+
 				// 1 = widget
 				Widget w = gen.getWidget();
 				w.setTitle(itemTexts.getHelp());
@@ -212,9 +212,9 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
                 fcf.setStyleName(i, 2, "applicationFormCheck");
                 fcf.setStyleName(i, 3, "applicationFormHelp");
 				ft.setWidth("100%");
-				
+
 			// ELSE HTML COMMENT
-				
+
 			} else {
 				ft.setWidget(i, 0, gen.getWidget());
 				// colspan = 2
@@ -224,33 +224,33 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 			}
 			i++;
 		}
-		
+
 		sp.setWidget(ft);
-		
+
 	}
-	
+
 	/**
 	 * Validates the form values
 	 */
 	protected boolean validateFormValues(boolean forcedValidation) {
 
 		if(sendButton == null) return false;
-		
-		boolean valid = true; 
-		
+
+		boolean valid = true;
+
 		sendButton.setEnabled(true);
 		for(RegistrarFormItemGenerator gen : applFormGenerators){
 			if(gen.getInputChecker().isValidating() || !gen.getInputChecker().isValid(forcedValidation)){
 				sendButton.setEnabled(false);
 				valid = false;
-				
+
 				if(!forcedValidation){
 					return false;
 				}
 			}
 		}
 		return valid;
-		
+
 	}
 
 	public Widget getWidget() {
@@ -268,22 +268,22 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(id) || session.isGroupAdmin(id)) {
 			return true;
 		} else {
 			return false;
 		}
-		
+
 	}
-	
+
 	public final static String URL = "preview";
-	
+
 	public String getUrl() {
 		return URL;
 	}
@@ -291,7 +291,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + id;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 51;
@@ -299,7 +299,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 		result = prime * result + id;
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -313,5 +313,5 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		return true;
 	}
-	
+
 }

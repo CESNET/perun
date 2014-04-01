@@ -12,24 +12,24 @@ return qq{
 Prints list of Attributes required for Service. Service is required field.
 ----------------------------------------------------
 Available options:
- --serviceId   | -s  Service idetifier 
- --serviceName | -S  Service name 
+ --serviceId   | -s  Service idetifier
+ --serviceName | -S  Service name
  --orderById   | -i  order by numeric ID
- --orderByName | -n  order by name 
+ --orderByName | -n  order by name
  --batch       | -b  batch
  --help        | -h  prints this help
- 
+
 };
 }
 
 
 my ($serviceId, $serviceName, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help; exit 0;} ,
-            "batch|b" => \$batch, 
+            "batch|b" => \$batch,
             "serviceId|s=i" => \$serviceId,
             "serviceName|S=s" => \$serviceName,
             "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help; 
+            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help;
 
 my $agent = Perun::Agent->new();
 my $serviceAgent = $agent->getServicesAgent;

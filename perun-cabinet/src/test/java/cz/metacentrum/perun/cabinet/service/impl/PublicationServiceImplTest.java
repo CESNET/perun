@@ -16,20 +16,20 @@ import cz.metacentrum.perun.cabinet.service.ErrorCodes;
 import cz.metacentrum.perun.cabinet.service.IPublicationService;
 
 public class PublicationServiceImplTest extends BaseIntegrationTest {
-	
+
 	@Autowired
 	private IPublicationService publicationService;
-	
+
 	public void setPublicationService(IPublicationService publicationService) {
 		this.publicationService = publicationService;
 	}
-	
+
 	// ------------- TESTS --------------------------------------------
 
 	@Test
 	public void createPublicationTest() throws CabinetException {
 		System.out.println("createPublicationTest()");
-		
+
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
 		p.setCreatedBy(sess.getPerunPrincipal().getActor()); // Pepa id 10, userId 1
@@ -44,18 +44,18 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setLocked(false);
 		p.setDoi("DOI");
         p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-		
+
 		int id = publicationService.createPublication(sess, p);
-		
+
 		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());
 		assertTrue("Returned ID shouldn't be < 0.", id > 0);
-		
+
 	}
 
 	@Test
 	public void createInternalPublicationTest() throws CabinetException {
 		System.out.println("createInternalPublicationTest()");
-		
+
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
 		p.setCreatedBy(sess.getPerunPrincipal().getActor()); // Pepa id 10, userId 1
@@ -70,14 +70,14 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setLocked(false);
 		p.setDoi("DOI");
         p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-		
+
 		int id = publicationService.createPublication(sess, p);
 		assertTrue(id > 0);
-		
+
 		// must be reset, since test update object after creation
 		p.setExternalId(0);
 		p.setPublicationSystemId(0);
-		
+
 		// double-check existence (based on isbn)
 		try {
 			publicationService.createPublication(sess, p);
@@ -86,21 +86,21 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 				fail("Different exception was thrown when creating \"same\" internal publication: "+ex);
 			}
 		}
-		
+
 	}
-	
+
 	@Test
 	public void findPublicationsByFilterTest() throws Exception {
 		System.out.println("findPublicationsByFilterTest()");
-		
+
 		// search base on publicationOne ID
 		Publication pub = new Publication();
-		pub.setId(publicationOne.getId()); 
+		pub.setId(publicationOne.getId());
 		List<Publication> list = publicationService.findPublicationsByFilter(pub);
 		assertTrue("Returned publications can't be null or empty.", (list != null && !list.isEmpty()));
 		assertTrue("There should be exactly 1 publication returned.", list.size() == 1);
 		assertTrue("Returned publication shoud be same as publicationOne.", list.contains(publicationOne));
-		
+
 		// search base on publicationOne EXT_ID, PUBSYS_ID
 		pub = new Publication();
 		pub.setExternalId(publicationOne.getExternalId());
@@ -109,46 +109,46 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		assertTrue("Returned publications can't be null or empty.", (list != null && !list.isEmpty()));
 		assertTrue("There should be exactly 1 publication returned.", list.size() == 1);
 		assertTrue("Returned publication should be same as publicationOne.", list.contains(publicationOne));
-	
+
 	}
-	
+
 	@Test
 	public void getPublicationsCountTest() throws Exception {
 		System.out.println("getPublicationsCountTest()");
-		
+
 		int result = publicationService.getPublicationsCount();
 		assertTrue("There should be at least 2 testing publications!", result >= 2);
-		
-		
+
+
 	}
 
 	@Test
 	public void deletePublicationTest() throws CabinetException {
 		System.out.println("deletePublicationTest()");
-		
+
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		int id = publicationService.deletePublicationById(sess, publicationTwo.getId());
 		assertTrue("There should be exactly 1 row deleted.",id == 1);
-		
+
 		// shouldn't find it after deletion
 		Publication result = publicationService.findPublicationById(publicationTwo.getId());
 		assertTrue("PublicationTwo was not deleted!", result == null);
-		
+
 	}
-	
+
 	@Test
 	public void deletePublicationWhenNotExistsTest() throws CabinetException {
 		System.out.println("deletePublicationWhenNotExistsTest()");
-		
+
 		try {
-			publicationService.deletePublicationById(sess, 0);	
+			publicationService.deletePublicationById(sess, 0);
 		} catch (CabinetException ex) {
 			if (ex.getType() != ErrorCodes.PUBLICATION_NOT_EXISTS) {
 				// fail if different error
 				fail();
 			}
 		}
-		
+
 	}
 
 	@Test
@@ -166,24 +166,24 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		}
 
 	}
-	
+
 	@Test
 	public void updatePublicationTest() throws CabinetException {
 		System.out.println("updatePublicationTest()");
-		
+
 		publicationOne.setMain("NEW MAIN");
 		int result = publicationService.updatePublicationById(sess, publicationOne);
 		assertTrue("There should be exactly 1 publication updated.", result == 1);
-		
+
 		Publication pub = publicationService.findPublicationById(publicationOne.getId());
 		assertEquals("Returned publication should be updated.", pub, publicationOne);
 
 	}
-	
+
 	@Test
 	public void updatePublicationWhenNotExistsTest() throws CabinetException {
 		System.out.println("updatePublicationWhenNotExistsTest()");
-		
+
 		Publication pub = new Publication();
 		try {
 			publicationService.updatePublicationById(sess, pub);
@@ -193,25 +193,25 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 				// fail if different error
 			}
 		}
-		
+
 	}
-	
+
 	@Test (expected=CabinetException.class)
 	public void updatePublicationWhenCantUpdateTest() throws CabinetException {
 		System.out.println("updatePublicationWhenWhenCantUpdateTest()");
-		
+
 		// make pub2 same as pub 1
 		publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
 		publicationTwo.setExternalId(publicationOne.getExternalId());
-		
+
 		publicationService.updatePublicationById(sess, publicationTwo);
-		
+
 	}
-	
+
 	@Test
 	public void lockPublicationsTest() throws CabinetException {
 		System.out.println("lockPublicationsTest()");
-		
+
 		List<Publication> pubs = new ArrayList<Publication>();
 		pubs.add(publicationOne);
 		pubs.add(publicationTwo);
@@ -221,13 +221,13 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		assertTrue("PublicationOne was not locked/unlocked", result.getLocked() != lock);
 		Publication result2 = publicationService.findPublicationById(publicationTwo.getId());
 		assertTrue("PublicationTwo was not locked/unlocked", result2.getLocked() != lock);
-		
+
 	}
 
 	@Test
 	public void stripPublicationParams() throws CabinetException {
 		System.out.println("stripPublicationParams()");
-		
+
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
 		p.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -237,9 +237,9 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setYear(2010);
 		p.setRank(0.0);
 		p.setLocked(false);
-		
+
 		// set long params
-		
+
 		String title = RandomStringUtils.random(1100, true, false);
 		String main = RandomStringUtils.random(4020, true, false);
 		String isbn = RandomStringUtils.random(40, true, false);
@@ -250,18 +250,18 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 		p.setTitle(title);
 		p.setDoi(doi);
         p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-		
+
 		int id = publicationService.createPublication(sess, p);
-		
+
 		// if stripping works, must have been created
 		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());
 		assertTrue("Returned ID shouldn't be < 0.", id > 0);
-		
+
 		assertTrue("Doi shouldn't be longer than 256.", p.getDoi().length()<=256);
 		assertTrue("Isbn shouldn't be longer than 32.", p.getIsbn().length()<=32);
 		assertTrue("Title shouldn't be longer than 1024.", p.getTitle().length()<=1024);
 		assertTrue("Main shouldn't be longer than 4000.", p.getMain().length()<=4000);
-		
+
 	}
-	
+
 }

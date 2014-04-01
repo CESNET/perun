@@ -12,7 +12,7 @@
                       <dd>Configure your resources</dd>
                       <dd>Monitor status of the configuration propagation</dd>
                       <dd>Send the new configuration every times some change occures</dd>
-                    <dt>Perun-services</dt>    
+                    <dt>Perun-services</dt>
                       <dd>Perun-services are automatically activated tools which allow to keep situation stated at database the same as status of all resources controlled by system Perun. List of perun-services can be increased by adding of new services which can have special functionality according needing of administrators and users of system</dd>
                       <dd>Actually system can use following services:</dd>
                       <ul service is targets>
@@ -57,8 +57,8 @@
                           <li><b>pbsmon_users</b> service generates list of users who are permitted to use web tool mentioned with <i>pbsmon_json</i> service</li>
                           <li><b>pbs_publication_fairshare</b></li>
                           <li><b>users_export</b> special service generates list of users for external information system</li>
-                          </ul> 
-                      </ul>  
+                          </ul>
+                      </ul>
 
                 </dl>
             </div>

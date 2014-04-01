@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which creates a new Category
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateCategory {
@@ -44,7 +44,7 @@ public class CreateCategory {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -66,7 +66,7 @@ public class CreateCategory {
 
 	/**
 	 * Attempts to create a new Category, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param name Category name
 	 * @param rank Category ranking
 	 */
@@ -123,7 +123,7 @@ public class CreateCategory {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("category", category);
 		return jsonQuery;
-		
+
 	}
 
 }

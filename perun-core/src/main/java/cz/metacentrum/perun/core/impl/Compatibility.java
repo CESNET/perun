@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
- * This class provide support for compatibility issues. 
+ * This class provide support for compatibility issues.
  * For example for covering differences between oracle and postgree DB.
  */
 public class Compatibility {
 
-  private final static Logger log = LoggerFactory.getLogger(Compatibility.class);	
+  private final static Logger log = LoggerFactory.getLogger(Compatibility.class);
 
   public static boolean isMergeSupported() throws InternalErrorException {
     String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
@@ -22,12 +22,12 @@ public class Compatibility {
     String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
     return dbType.equals("oracle");
   }
-  
+
   public static boolean isPostgreSql() throws InternalErrorException {
     String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
     return dbType.equals("postgresql");
   }
-  
+
   public static String getSysdate() throws InternalErrorException {
     String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
     if (dbType.equals("oracle")) {

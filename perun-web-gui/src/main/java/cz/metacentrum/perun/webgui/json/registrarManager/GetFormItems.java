@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 /**
  * Returns the form elements in application form
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -38,34 +38,34 @@ public class GetFormItems implements JsonCallback {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// VO/GROUP id
 	private int id;
-	
+
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getFormItems";
-	
+
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// Type
 	private String type = "";
-	
+
 	// Loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
+
 	// Content
 	private SimplePanel contents = new SimplePanel();
-	
+
 	// list
 	private ArrayList<ApplicationFormItem> applFormItems = new ArrayList<ApplicationFormItem>();
-	
+
 	// whether is display "settings" or not
 	private boolean settings = false;
-	
+
 	private PerunEntity entity;
     private Group group = null;
-	
+
 	// RegistrarFormItemGenerators for getting values
 	private ArrayList<RegistrarFormItemGenerator> applFormGenerators = new ArrayList<RegistrarFormItemGenerator>();
 
@@ -112,7 +112,7 @@ public class GetFormItems implements JsonCallback {
 	}
 
 	/**
-	 * Creates a new getResources method instance	
+	 * Creates a new getResources method instance
 	 *
      * @param entity entity
 	 * @param id entity ID
@@ -129,29 +129,29 @@ public class GetFormItems implements JsonCallback {
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		
+
 		String param = "";
-		
+
 		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
 			param = "vo=" + this.id;
 		} else if (entity.equals(PerunEntity.GROUP)) {
 			param = "group=" + this.id;
 		}
-		
+
 		if(type.length() != 0){
 			param += "&type=" + type;
 		}
-		
+
 		JsonClient js = new JsonClient();
 		js.setHidden(true);
 		js.retrieveData(JSON_URL, param, this);
 	}
-	
+
 	/**
 	 * Returns contents
 	 */
 	public Widget getContents() {
-		return this.contents;		
+		return this.contents;
 	}
 
 	/**
@@ -183,11 +183,11 @@ public class GetFormItems implements JsonCallback {
 	 * Called when loading successfully finishes.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		
+
 		applFormItems.clear();
 		applFormItems.addAll(JsonUtils.<ApplicationFormItem>jsoAsList(jso));
 		applFormGenerators.clear();
-		
+
 		if (settings) {
 			prepareSettings(applFormItems);
 		} else {
@@ -201,18 +201,18 @@ public class GetFormItems implements JsonCallback {
 
 	/**
 	 * Prepares the widgets from the items as A FORM FOR SETTINGS
-	 * 
+	 *
 	 * @param items
 	 */
 	public void prepareSettings(final ArrayList<ApplicationFormItem> items) {
-		
+
 		// refresh table events
 		final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
 				prepareSettings(items);
 			}
 		};
-				
+
 		FlexTable ft = new FlexTable();
 		ft.setWidth("100%");
 		ft.setCellPadding(8);
@@ -229,20 +229,20 @@ public class GetFormItems implements JsonCallback {
 		fcf.setStyleName(0, 1, "header");
 		fcf.setStyleName(0, 2, "header");
 		fcf.setStyleName(0, 3, "header");
-		
+
 		String locale = "en";
-		
+
 		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default") || LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = "en";
 		} else {
 			locale = "cs";
 		}
-		
+
 		int i = 1;
         for(final ApplicationFormItem item : items){
-			
+
 			final int index = i - 1;
-			
+
 			// not yet set locale on config page
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, locale);
 
@@ -254,14 +254,14 @@ public class GetFormItems implements JsonCallback {
                 label += "*";
             }
 			ft.setHTML(i, 0, label);
-			
+
 			// 1 = type
 			ft.setHTML(i, 1, item.getType());
-			
+
 			// 2 = preview
 			Widget w = gen.getWidget();
 			ft.setWidget(i, 2, w);
-			
+
 			// 3 = EDIT
 			FlexTable editTable = new FlexTable();
 			editTable.setStyleName("noBorder");
@@ -274,10 +274,10 @@ public class GetFormItems implements JsonCallback {
                 ft.getFlexCellFormatter().setStyleName(i, 2, "log-changed");
                 ft.getFlexCellFormatter().setStyleName(i, 3, "log-changed");
             }
-			
+
 			// mark row for deletion
 			if (item.isForDelete()) {
-				
+
 				ft.getFlexCellFormatter().setStyleName(i, 0, "log-error");
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-error");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-error");
@@ -291,13 +291,13 @@ public class GetFormItems implements JsonCallback {
 						prepareSettings(items);
 					}
 				});
-				
+
 				FlexTable undelTable = new FlexTable();
 				undelTable.setStyleName("noBorder");
 				undelTable.setHTML(0, 0, "<strong><span style=\"color:red;\">MARKED FOR DELETION</span></strong>");
 				undelTable.setWidget(0, 1, undelete);
 				ft.setWidget(i, 3, undelTable);
-				
+
 			}
 
             // color for new items to be saved
@@ -310,11 +310,11 @@ public class GetFormItems implements JsonCallback {
 
 			// up
 			PushButton upButton = new PushButton(new Image(SmallIcons.INSTANCE.arrowUpIcon()), new ClickHandler() {
-				
+
 				public void onClick(ClickEvent event) {
 
 					if(index - 1 < 0) return;
-					
+
 					// move it
 					items.remove(index);
 					items.add(index - 1, item);
@@ -328,21 +328,21 @@ public class GetFormItems implements JsonCallback {
 			});
 			editTable.setWidget(0, 0, upButton);
             upButton.setTitle(ButtonTranslation.INSTANCE.moveFormItemUp());
-			
+
 			// down
 			PushButton downButton = new PushButton(new Image(SmallIcons.INSTANCE.arrowDownIcon()), new ClickHandler() {
-				
+
 				public void onClick(ClickEvent event) {
-					
+
 					if(index + 1 >= items.size()) return;
-					
+
 					// move it
 					items.remove(index);
 					items.add(index + 1, item);
 					item.setOrdnum(item.getOrdnum()+1);
 
                     item.setEdited(true);
-					
+
 					// refresh
 					prepareSettings(items);
 				}
@@ -358,11 +358,11 @@ public class GetFormItems implements JsonCallback {
                 }
 			});
 			editTable.setWidget(0, 2, editButton);
-						
+
 			// remove
 			CustomButton removeButton = new CustomButton(ButtonTranslation.INSTANCE.deleteButton(), ButtonTranslation.INSTANCE.deleteFormItem(), SmallIcons.INSTANCE.deleteIcon());
 			removeButton.addClickHandler(new ClickHandler() {
-				
+
 				public void onClick(ClickEvent event) {
 					HTML text = new HTML("<p>Deleting of form items is <strong>NOT RECOMMENDED!</strong><p>You will loose access to data users submitted in older applications within this form item!<p>Do you want to continue?");
 					Confirm c = new Confirm("Delete confirm", text, new ClickHandler(){
@@ -390,15 +390,15 @@ public class GetFormItems implements JsonCallback {
                 downButton.setEnabled(false);
                 removeButton.setEnabled(false);
             }
-			
-			// format 
+
+			// format
 			fcf.setHeight(i, 0, "28px");
 			fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			fcf.setVerticalAlignment(i, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 			fcf.setVerticalAlignment(i, 2, HasVerticalAlignment.ALIGN_MIDDLE);
-	
+
 			i++;
-			
+
 		}
 
         // set empty table widget
@@ -407,7 +407,7 @@ public class GetFormItems implements JsonCallback {
             ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
             ft.getFlexCellFormatter().setColSpan(1, 0, 4);
         }
-		
+
 		contents.setWidget(ft);
 
 	}
@@ -492,97 +492,97 @@ public class GetFormItems implements JsonCallback {
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
      * DEPRECATED: Use GetFormItemsWithPrefilledValues instead
-	 * 
+	 *
 	 * @param items
 	 */
     @Deprecated
 	public void prepareApplicationForm(final ArrayList<ApplicationFormItem> items) {
-		
+
 		FlexTable ft = new FlexTable();
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 		String locale = "en";
-		
+
 		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default")) {
 			locale = "en";
 		} else {
 			locale = "cs";
 		}
-		
+
 		int i = 0;
 		for(final ApplicationFormItem item : items) {
-			
+
 			String value = "";
 			if(item.getShortname().equals("affiliation") || item.getShortname().equals("mail") || item.getShortname().equals("displayName")){
 				 value = "from federation";
 			}
-			
+
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, value, locale);
 			this.applFormGenerators.add(gen);
-			
-			
+
+
 			if(!gen.isVisible()){
 				continue;
 			}
-			
-			
+
+
 			ItemTexts itemTexts = item.getItemTexts(locale);
-			
-			
+
+
 			// WITH LABEL (input box ...)
 			if(gen.isLabelShown()){
-				
+
 				// 0 = label
 				ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
-								
+
 				// 1 = widget
 				Widget w = gen.getWidget();
 				w.setTitle(itemTexts.getHelp());
 				ft.setWidget(i, 1, w);
-			
+
 			// ELSE HTML COMMENT
 			}else{
-				
+
 				ft.setWidget(i, 0, gen.getWidget());
-				
+
 				// colspan = 2
 				fcf.setColSpan(i, 0, 2);
 			}
-			
-			// format 
+
+			// format
 			fcf.setHeight(i, 0, "35px");
 			fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);
 			fcf.setVerticalAlignment(i, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-	
+
 			i++;
-			
+
 		}
-		
+
 		contents.setWidget(ft);
 	}
-	
+
 	/**
 	 * Generates the values from the form
 	 * @return
 	 */
 	public ArrayList<ApplicationFormItemData> getValues() {
 		ArrayList<ApplicationFormItemData> formItemDataList = new ArrayList<ApplicationFormItemData>();
-		
+
 		// goes through all the item generators and retrieves the value
 		for(RegistrarFormItemGenerator gen : applFormGenerators){
-			
+
 			String value = gen.getValue();
 			String prefilled = gen.getPrefilledValue();
 			JSONObject formItemJSON = new JSONObject(gen.getFormItem());
-			
+
 			// remove text (locale), saves data transfer & removes problem with parsing locale
 			formItemJSON.put("i18n", new JSONObject());
-			
+
 			// cast form item back
 			ApplicationFormItem formItem = formItemJSON.getJavaScriptObject().cast();
-			
+
 			// prepare package with data
 			ApplicationFormItemData data = ApplicationFormItemData.construct(formItem, formItem.getShortname(), value, prefilled, "");
-			
+
 			formItemDataList.add(data);
 		}
 		return formItemDataList;

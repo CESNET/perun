@@ -15,7 +15,7 @@ public interface PerunNotifPoolMessageManager {
 
 	/**
 	 * Saves all poolMessages to db
-	 * 
+	 *
 	 * @param poolMessages
 	 */
 	public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) throws InternalErrorException;
@@ -25,7 +25,7 @@ public interface PerunNotifPoolMessageManager {
 	 * @param templates
 	 * @param perunAuditMessage
 	 * @return
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public List<PerunNotifPoolMessage> createPerunNotifPoolMessagesForTemplates(Map<Integer, List<PerunNotifTemplate>> templates, PerunNotifAuditMessage perunAuditMessage) throws InternalErrorException;
 

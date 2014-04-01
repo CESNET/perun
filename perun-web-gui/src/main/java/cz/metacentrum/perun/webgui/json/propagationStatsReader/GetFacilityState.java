@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get facility propagation state for 1 or All facilities or Facilities related to some VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -53,7 +53,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 
 	/**
 	 * New instance of get facility state
-	 * 
+	 *
 	 * @param facilityId - can be 0 if we want all facilities
      * @param voId - if NOT ZERO, get all facilities related to this VO
 	 */
@@ -77,7 +77,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 
 	/**
 	 * Return table with owners - starts RPC call
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<FacilityState> getTable() {
@@ -183,18 +183,18 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 
 				if (row.getState().equalsIgnoreCase("NOT_DETERMINED")) {
 					return "";
-				} 
-				else if (row.getState().equalsIgnoreCase("OK")){ 
-					return "rowgreen"; 
 				}
-				else if (row.getState().equalsIgnoreCase("PROCESSING")){ 
-					return "rowyellow"; 
+				else if (row.getState().equalsIgnoreCase("OK")){
+					return "rowgreen";
 				}
-				else if (row.getState().equalsIgnoreCase("OPEN")){ 
-					return "roworange"; 
+				else if (row.getState().equalsIgnoreCase("PROCESSING")){
+					return "rowyellow";
 				}
-				else if (row.getState().equalsIgnoreCase("ERROR")){ 
-					return "rowred"; 
+				else if (row.getState().equalsIgnoreCase("OPEN")){
+					return "roworange";
+				}
+				else if (row.getState().equalsIgnoreCase("ERROR")){
+					return "rowred";
 				}
 				return "";
 
@@ -340,7 +340,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
 	}
-	
+
 	public void filterTable(String text){
 
 		// store list only for first time

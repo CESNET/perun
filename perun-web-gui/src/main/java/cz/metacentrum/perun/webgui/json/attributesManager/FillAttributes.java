@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * Ajax query which fills attributes for Resource and Member_Resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -54,7 +54,7 @@ public class FillAttributes {
 
 	/**
 	 * Attempts to fill some attributes on entity
-	 * 
+	 *
 	 * @param ids defines which type of attribute will be filled (member_resource, resource etc.)
 	 * @param attributes list of attributes to fill
 	 */
@@ -67,7 +67,7 @@ public class FillAttributes {
 		// test arguments
 		if(!this.testRemoving()){
 			return;
-		}	
+		}
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
@@ -95,7 +95,7 @@ public class FillAttributes {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -107,7 +107,7 @@ public class FillAttributes {
 			errorMsg += "Wrong attribute type value.\n";
 			result = false;
 		}
-		
+
 		// silent skip - used by save changes buttons on attributes pages
 		if (attributes == null || attributes.isEmpty()) {
 			result = false;
@@ -128,7 +128,7 @@ public class FillAttributes {
 	private JSONObject prepareJSONObject(){
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();     
+		JSONObject jsonQuery = new JSONObject();
 
 		// create attrs field
 		JSONArray array = new JSONArray();
@@ -165,11 +165,11 @@ public class FillAttributes {
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {
 		this.events = events;
 	}
-	
+
 }

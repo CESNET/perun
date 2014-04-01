@@ -38,28 +38,28 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
   Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<String, Pair<String, String>>();
-    
+
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
       Attribute attribute = new Attribute(attributeDefinition);
       HashMap<String, String> organizationsWithLoa = new LinkedHashMap<String, String>();
-      
+
       List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
       if(extSources == null || extSources.isEmpty()) return attribute; //If no userExtSources, so no Loa for any of them.
-      
+
       String version = attributeDefinition.getFriendlyNameParameter();
       if(version == null) throw new InternalErrorException("There is no parameter (cs or en) in attribute " + attributeDefinition);
-      
+
       UserExtSource userExtSourceForCreating = null;
       UserExtSource userExtSourceForModifiing = null;
-      
+
       //Initialize MapOfExtSource
       initializeMapOfExtSourceName();
-      
+
       for(UserExtSource uES: extSources) {
           String uEName = uES.getExtSource().getName();
           String uELoa = String.valueOf(uES.getLoa());
-          
+
           if(uES.getCreatedAt() != null) {
               Date testingDate = null;
               Date lastUsedDate = null;
@@ -85,7 +85,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
                   }
               }
           }
-          
+
           if(uES.getModifiedAt() != null) {
               Date testingDate = null;
               Date lastUsedDate = null;
@@ -111,11 +111,11 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
                   }
               }
           }
-          
+
           String uESimpleName = getSimpleNameOfExtSource(uEName, version.equals("cs"));
           organizationsWithLoa.put(uESimpleName, uELoa);
       }
-      
+
       //Set created,modified by userExtSources
       if(userExtSourceForCreating != null) {
         attribute.setValueCreatedAt(userExtSourceForCreating.getCreatedAt());
@@ -128,12 +128,12 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
       attribute.setValue(organizationsWithLoa);
       return attribute;
   }
-    
+
   /**
    * This method get simple name of some existing extSource (if is known), if isn't known return default extSourceName
    * if giveMeCzechLanguage is true = return czech Simple Name of ExtSource
    * if giveMeCzechLanguage is false = return english Simple Name of ExtSource
-   * 
+   *
    * @param extSourceName default extSourceName (example: https://www.vutbr.cz/SSO/saml2/idp)
    * @param giveMeCzechLanguage if true return czech, if false return english
    * @return simpleName of any ExtSource if is known (example: Brno University of Technology)
@@ -149,7 +149,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
           return extSourceName;
       }
   }
-  
+
   private void initializeMapOfExtSourceName() {
       mapOfExtSourcesNames.put("https://idp.upce.cz/idp/shibboleth", new Pair("Univerzita Pardubice", "University in Pardubice"));
       mapOfExtSourcesNames.put("https://idp.slu.cz/idp/shibboleth", new Pair("Univerzita v Opavě", "University in Opava"));
@@ -176,8 +176,8 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
       mapOfExtSourcesNames.put("https://idptoo.osu.cz/simplesaml/saml2/idp/metadata.php", new Pair("Ostravská Univerzita v Ostravě", "University of Ostrava"));
       mapOfExtSourcesNames.put("https://login.ics.muni.cz/idp/shibboleth", new Pair("MetaCentrum", "MetaCentrum"));
   }
-  
+
   public AttributeDefinition getAttributeDefinition() {
       return null;
-  }  
+  }
 }

@@ -1,6 +1,6 @@
-<!--#include virtual="header.shtml" -->  
+<!--#include virtual="header.shtml" -->
 <style>
-.alert 
+.alert
 {
 padding: 8px 35px 8px 14px;
   margin-bottom: 20px;
@@ -76,7 +76,7 @@ color: #000000;
 }
 
 </style>
-<div> 
+<div>
 <p class = "lean">
 <div class = "row-fluid">
 <div class = "span10">
@@ -85,7 +85,7 @@ color: #000000;
 <p> Despite of short history of Perun system, we have helped many important organizations to reach their plan to manage user accesses to their resources. Now more than 50 smaller or bigger organizations use our system. All organizations are able to operate with system without necessity of our further intervention. Moreover we provide support to these organization when new service is essential to be developed. </p>
 </div>
 </div>
-</div>	
+</div>
 <div class = "row">
 <div class = "span10">
 <h3>MetaCentrum and CERIT-SC</h3>
@@ -106,7 +106,7 @@ and CERIT-SC solve similar challenges.
 <div class = "span4">
 
 <div class = "alert alert-danger">
-<h4>Challenge</h4>	
+<h4>Challenge</h4>
 Manage heterogeneous facilities (clusters, storage elements, SMP machines) containing thousands CPUs with different owners and access rights across infrastructure.
 </div>
 
@@ -161,7 +161,7 @@ Simple, convenient administration of employees and users. Possibility to set rig
 <div class = "alert alert-danger">
 <h4>Challenge</h4>
 Many different types of software licenses across clusters with need to manage access to them.
-</div> 
+</div>
 </div>
 <div class = "span4">
 <div class = "alert alert-warning">
@@ -191,7 +191,7 @@ Easiness in maintaining lists of users and licenses is greatly enhanced.
 <p>
 When new staff member comes, all privileges must be set one by one. Usually it is very challenging not to forget any, especially in bigger projects.
 
-</p> 
+</p>
 </div>
 </div>
 <div class = "span4">
@@ -318,7 +318,7 @@ VO use defined part of facility. Facility could be used by more than one VO in u
 <div class = "span10">
 <h3>Cloud computing</h3>
 <p>
-Perun can manage any cloud platform in the domain of human resources due to his unique ability to push data of each Perun user into several cloud platforms, for example OpenStack or OpenNebula. 
+Perun can manage any cloud platform in the domain of human resources due to his unique ability to push data of each Perun user into several cloud platforms, for example OpenStack or OpenNebula.
 As far as human resources are concerned, Perun is able to manage account creation and account extension. Moreover is greatly customizable in creating, distributing and accepting or rejecting application forms.
 </p>
 </div>
@@ -354,7 +354,7 @@ Flexible identity management where certificates are safely stored in one place, 
 </div>
 
 
-           
+
  </p>
             </div>
 <!--#include virtual="footer.shtml" -->

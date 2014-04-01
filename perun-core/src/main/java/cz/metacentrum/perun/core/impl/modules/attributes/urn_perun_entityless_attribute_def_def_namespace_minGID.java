@@ -18,11 +18,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
  */
 public class  urn_perun_entityless_attribute_def_def_namespace_minGID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
-   
+
     public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
         Integer minGID = (Integer) attribute.getValue();
         if(minGID != null) {
-          if(minGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1."); 
+          if(minGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
           try {
             Attribute maxGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
           } catch (AttributeNotExistsException ex) {
@@ -43,5 +43,5 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minGID extends En
       attr.setType(Integer.class.getName());
       attr.setDescription("Minimal value of Group ID.");
       return attr;
-    }    
+    }
 }

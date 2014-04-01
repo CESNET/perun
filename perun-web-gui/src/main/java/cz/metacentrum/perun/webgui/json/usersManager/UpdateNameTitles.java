@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.User;
 
 /**
  * Update titles in users name.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateNameTitles {
@@ -44,12 +44,12 @@ public class UpdateNameTitles {
 	 * @param user User with updated details
 	 */
 	public void updateUserTitles(User user) {
-		
+
 		if (user == null) {
 			UiElements.generateAlert("Parameter error", "User to update can't be null");
 			return;
 		}
-		
+
 		// OBJECT
 		JSONObject oldUser = new JSONObject(user);
 		// RECONSTRUCT OBJECT
@@ -87,7 +87,7 @@ public class UpdateNameTitles {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-		
+
 	}
 
 }

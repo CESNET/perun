@@ -21,7 +21,7 @@
         	classpath:perun-notification-applicationcontext-scheduling.xml
         </param-value>
     </context-param>
-   
+
     <listener>
       <description>ServletContextListener</description>
       <listener-class>cz.metacentrum.perun.rpc.Main</listener-class>

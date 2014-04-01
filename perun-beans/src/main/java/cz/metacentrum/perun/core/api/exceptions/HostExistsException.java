@@ -4,11 +4,11 @@ import cz.metacentrum.perun.core.api.Host;
 
 /**
  * Checked version of HostExistsException.
- * 
+ *
  * This exception is to be thrown if host already exists in cluster.
- * 
- * 
- * @author Slavek Licehammer 
+ *
+ *
+ * @author Slavek Licehammer
  */
 public class HostExistsException extends EntityExistsException {
     static final long serialVersionUID = 0;

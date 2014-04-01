@@ -17,10 +17,10 @@ import cz.metacentrum.perun.dispatcher.parser.Parser;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value="parserPerunDB")
 public class ParserPerunDB implements Parser {
@@ -29,10 +29,10 @@ public class ParserPerunDB implements Parser {
 	@Autowired
 	private EventQueue eventQueue;
 	private boolean running = true;
-	
+
 	public ParserPerunDB() {
 	}
-	
+
 	@Override
 	public void run() {
 		/*

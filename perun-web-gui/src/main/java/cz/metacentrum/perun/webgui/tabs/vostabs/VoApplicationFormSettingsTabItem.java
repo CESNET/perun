@@ -37,7 +37,7 @@ import java.util.Map;
 
 /**
  * VO Applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl{
@@ -61,11 +61,11 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 	private VirtualOrganization vo;
 	//data
 	private int voId;
-	
+
 	// source list with items
 	protected ArrayList<ApplicationFormItem> sourceList;
 
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -75,7 +75,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -90,7 +90,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
@@ -128,7 +128,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 
         });
 		sourceList = itemsRequest.getList();
-		
+
 		// refresh table events
 		final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
@@ -159,11 +159,11 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 					}
 				}
 				// send request
-				request.updateFormItems(itemsRequest.getList());	
-				
+				request.updateFormItems(itemsRequest.getList());
+
 			}
 		});
-		
+
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -189,15 +189,15 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
         });
         if (!session.isVoAdmin(voId)) previewButton.setEnabled(false);
         menu.addWidget(previewButton);
-		
+
 		// AUTO APPROVAL + NOTIFICATIONS
-		
+
 		// auto-approval widget already defined
 		GetApplicationForm form = new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId);
 		form.setHidden(true);
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());
-		
+
 		emailButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new MailsTabItem(voId, 0));
@@ -205,22 +205,22 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		});
         if (!session.isVoAdmin(voId)) emailButton.setEnabled(false);
         menu.addWidget(emailButton);
-		
+
 		// load elements
 		itemsRequest.retrieveData();
-		
+
 		// wrap table to the scroll panel
 		ScrollPanel sp = new ScrollPanel(itemsRequest.getContents());
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 		session.getUiElements().resizePerunTable(sp, 100, this);
-		
+
 		// add scroll table to the main panel
 		vp.add(sp);
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -232,7 +232,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFormIcon(); 
+		return SmallIcons.INSTANCE.applicationFormIcon();
 	}
 
 	@Override
@@ -273,22 +273,22 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 
 	public boolean isAuthorized() {
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "appl-form";
-	
+
 	public String getUrl() {
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoApplicationFormSettingsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoApplicationFormSettingsTabItem(voId);

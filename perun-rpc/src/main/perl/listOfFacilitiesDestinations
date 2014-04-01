@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction printTable); 
+use Perun::Common qw(printMessage getSortingFunction printTable);
 use Perun::beans::Destination;
 
 sub help {
@@ -28,7 +28,7 @@ GetOptions("help|h" => sub { print help; exit 0; } ,
            "voId|v=i" => \$voId,
            "voShortName|V=s" => \$voShortName,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByDestination|n" =>  sub {$sortingFunction = getSortingFunction("getDestination", 1) }, 
+           "orderByDestination|n" =>  sub {$sortingFunction = getSortingFunction("getDestination", 1) },
            "batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();

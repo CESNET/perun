@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which copy application form from VO to VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CopyForm {
@@ -24,11 +24,11 @@ public class CopyForm {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	private int fromId;
 	private int toId;
     private PerunEntity entity;
-	
+
 	/**
 	 * Creates a new request
      *
@@ -85,7 +85,7 @@ public class CopyForm {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {

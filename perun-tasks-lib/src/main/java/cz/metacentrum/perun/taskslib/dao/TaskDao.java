@@ -10,41 +10,41 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 public interface TaskDao {
-	
+
 	Task getTask(ExecService execService, Facility facility);
-		
+
 	List<Task> listAllTasks();
-	
+
 	/**
 	 * Returns all tasks associated with selected facility
-	 * 
+	 *
 	 * @param facilityId
 	 * @return tasks for facility
 	 */
 	List<Task> listAllTasksForFacility(int facilityId);
-	
+
 	List<Task> listAllTasksInState(Task.TaskStatus state);
-	
+
 	List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen);
-	
+
 	List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen);
-	
+
 	List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen);
-		
+
 	void updateTask(Task task);
-	
+
 	boolean isThereSuchTask(ExecService execService, Facility facility);
-	
+
 	void removeTask(ExecService execService, Facility facility);
-	
+
 	void removeTask(int id);
-	
+
 	int countTasks();
 
     Task getTask(int execServiceId, int facilityId);

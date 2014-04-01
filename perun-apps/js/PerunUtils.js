@@ -20,7 +20,7 @@ function callPerun(manager, method, variable, args) {
                    jQuery.extend(variable,data);
                 }
             },
-                
+
             dataType: "jsonp",
             type : "get"
         });
@@ -45,8 +45,8 @@ function callPerunSync(manager, method, variable, args) {
                    jQuery.extend(variable,data);
                 }
             },
-                
-            dataType: "jsonp",                                                                                                                                                                                                                                 
+
+            dataType: "jsonp",
             type : "get"
         });
 };
@@ -65,7 +65,7 @@ function callPerunSyncPost(manager, method, variable, args) {
                 if (typeof data.errorId !== "undefined")
                 {
                    alert(data.errorText);
-                } 
+                }
             },
             dataType: "json",
             contentType: "application/json; charset=utf-8",
@@ -96,7 +96,7 @@ function callPerunAndFillText(manager, method, elementId, attribute, args) {
                    eval('$("#' + elementId + '")').text(eval("data." + attribute));
                 }
             },
-                
+
             dataType: "jsonp",
             type : "get"
         });

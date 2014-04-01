@@ -45,7 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
@@ -121,7 +121,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     try {
       int newId = Utils.getNewId(jdbc, "facilities_id_seq");
 
-      jdbc.update("insert into facilities(id,name,type,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " + 
+      jdbc.update("insert into facilities(id,name,type,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
            "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId,
            facility.getName(), facility.getType(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
       facility.setId(newId);
@@ -139,17 +139,17 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     try {
       // Delete authz entries for this facility
       AuthzResolverBlImpl.removeAllAuthzForFacility(sess, facility);
-      
+
       // Delete user-facility attributes - members are already deleted because all resources were removed
       jdbc.update("delete from user_facility_attr_values where facility_id=?", facility.getId());
-      
+
       // Finally remove facility
       int numAffected = jdbc.update("delete from facilities where id=?", facility.getId());
       if(numAffected != 1) throw new FacilityAlreadyRemovedException("Facility: " + facility);
       log.info("Facility {} deleted", facility);
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
-    }           
+    }
   }
 
   public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException {
@@ -181,7 +181,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       log.info("Facility owners deleted. Facility: {}", facility);
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
-    }           
+    }
   }
 
   public Facility getFacilityById(PerunSession sess, int id) throws InternalErrorException, FacilityNotExistsException {
@@ -222,7 +222,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
-  
+
   public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException {
     try {
       return jdbc.query("select distinct " + facilityMappingSelectQuery + " from facilities, destinations, facility_service_destinations " +
@@ -303,7 +303,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
         jdbc.update("insert into facility_owners(facility_id, owner_id,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
              "values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", facility.getId(), owner.getId(),
              sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-        log.info("Owner was assigned to facility. Owner:{} facility:{}", owner, facility); 
+        log.info("Owner was assigned to facility. Owner:{} facility:{}", owner, facility);
       }
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
@@ -333,13 +333,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
   public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
-      return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?", 
+      return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
           ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   @Override
   public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
@@ -362,11 +362,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
   public List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
     try {
-      return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " + 
+      return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
           "join facility_attr_values on facilities.id=facility_attr_values.facility_id " +
           "where facility_attr_values.attr_id=? and facility_attr_values.attr_value=?",
           FACILITY_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
-    } catch (EmptyResultDataAccessException e) {      
+    } catch (EmptyResultDataAccessException e) {
       return new ArrayList<Facility>();
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
@@ -396,30 +396,30 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
         Set<User> setOfAdmins = new HashSet<User>();
         // direct admins
         setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
-          "  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)", 
+          "  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
                 UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName()));
-        
+
         // admins through a group
         List<Group> listOfGroupAdmins = getAdminGroups(sess, facility);
         for(Group authorizedGroup : listOfGroupAdmins) {
             setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
                       "join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
           }
-          
+
           return new ArrayList(setOfAdmins);
-          
+
     } catch (EmptyResultDataAccessException e) {
       return new ArrayList<User>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
   }
-  
+
   @Override
   public List<User> getDirectAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
         return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
-          "  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)", 
+          "  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
                 UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
     } catch (EmptyResultDataAccessException e) {
       return new ArrayList<User>();
@@ -427,7 +427,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   @Override
   public List<Group> getAdminGroups(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
@@ -448,7 +448,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       int newId = Utils.getNewId(jdbc, "hosts_id_seq");
 
       jdbc.update("insert into hosts (id, hostname, facility_id, created_by, created_at, modified_by,modified_at,created_by_uid,modified_by_uid) " +
-           "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", 
+           "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
           newId, host.getHostname(), facility.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
       host.setId(newId);
@@ -477,7 +477,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException {
     try {
       return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
@@ -489,17 +489,17 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
-  public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException {  
+  public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException {
     try {
-      return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " + 
+      return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
                 "where hosts.hostname=?", FACILITY_MAPPER, hostname);
     } catch (EmptyResultDataAccessException e) {
       return new ArrayList<Facility>();
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
-  }  
-  
+  }
+
   public List<Host> getHosts(PerunSession sess, Facility facility) throws InternalErrorException {
     try {
       return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.facility_id=? order by id", HOST_MAPPER, facility.getId());
@@ -517,11 +517,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 	  try {
 		  return jdbc.query("select " + facilityMappingSelectQuery + " from facilities, authz where authz.user_id=? and " +
-		  		"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id", 
+		  		"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
 		  		FACILITY_MAPPER, user.getId(), Role.FACILITYADMIN.getRoleName());
 	  } catch (RuntimeException e) {
 		  throw new InternalErrorException(e);
@@ -541,7 +541,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   public void checkHostExists(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException {
     if(!hostExists(sess, host)) throw new HostNotExistsException("Host: " + host);
   }
-  
+
   public List<User> getAssignedUsers(PerunSession sess, Facility facility)throws InternalErrorException{
       try {
                   return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users "
@@ -554,7 +554,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		  throw new InternalErrorException(e);
 	  }
   }
-  
+
   public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)throws InternalErrorException{
       try {
                   return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users "
@@ -568,6 +568,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		  throw new InternalErrorException(e);
 	  }
   }
-  
-  
+
+
 }

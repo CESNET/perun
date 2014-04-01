@@ -21,41 +21,41 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Searcher Class for searching objects by Map of Attributes
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class SearcherImpl implements SearcherImplApi {
-    
-    private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);    
-    
+
+    private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);
+
     private static SimpleJdbcTemplate jdbc;
-    
+
     public SearcherImpl(DataSource perunPool) {
         jdbc = new SimpleJdbcTemplate(perunPool);
     }
-    
+
     public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
         StringBuilder query = new StringBuilder();
         query.append("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users ");
-        
+
         List<String> whereClauses = new ArrayList<String>();
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         int counter = 0;
-        
+
         for(Attribute key: attributesWithSearchingValues.keySet()) {
             counter++;
             String value = attributesWithSearchingValues.get(key);
             query.append("left join user_attr_values val" + counter + " ");
             query.append("on val" + counter + ".user_id=users.id and val" + counter + ".attr_id=" + key.getId() + " ");
             query.append("left join attr_names nam" + counter + " on val" + counter + ".attr_id=nam" + counter + ".id ");
-            if (value == null) { 
-                if(key.getType().equals(LinkedHashMap.class.getName())) {                    
+            if (value == null) {
+                if(key.getType().equals(LinkedHashMap.class.getName())) {
                     whereClauses.add("val" + counter + ".attr_value_text IS NULL ");
                 } else {
                     whereClauses.add("val" + counter + ".attr_value IS NULL ");
                 }
             } else if(value.isEmpty()) {
-                if(key.getType().equals(LinkedHashMap.class.getName())) {                    
+                if(key.getType().equals(LinkedHashMap.class.getName())) {
                     whereClauses.add("val" + counter + ".attr_value_text IS NOT NULL ");
                 } else {
                     whereClauses.add("val" + counter + ".attr_value IS NOT NULL ");
@@ -105,7 +105,7 @@ public class SearcherImpl implements SearcherImplApi {
                 }
             }
         }
-        
+
         //Add Where clauses at end of sql query
         boolean first = true;
         for(String whereClause: whereClauses) {
@@ -128,7 +128,7 @@ public class SearcherImpl implements SearcherImplApi {
             } else {
                 throw new InternalErrorException("Unsupported db type");
             }
-            
+
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<User>();
         } catch (RuntimeException e) {

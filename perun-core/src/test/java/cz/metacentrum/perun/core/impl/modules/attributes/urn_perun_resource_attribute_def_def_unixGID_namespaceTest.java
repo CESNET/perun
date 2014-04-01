@@ -49,12 +49,12 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespaceTest {
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         attribute = new Attribute();
     }
-    
+
     @Ignore
     @Test
     public void testFillAttributeValue() throws Exception {
         System.out.println("testFillAttributeValue()");
-        
+
 
     }
 }

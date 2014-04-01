@@ -8,16 +8,16 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.List;
 
-public enum AuditMessagesManagerMethod implements ManagerMethod {   
-    
+public enum AuditMessagesManagerMethod implements ManagerMethod {
+
 	/*#
 	 * Returns reasonable number of messages from audit's logs.
-	 * @return List<AuditMessage> Audit messages 
+	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
 	 * Returns messages from audit's logs.
 	 * @param count int Messages limit
-	 * @return List<AuditMessage> Audit messages 
+	 * @return List<AuditMessage> Audit messages
 	 */
     getMessages {
         @Override
@@ -27,10 +27,10 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
                 else return ac.getAuditMessagesManager().getMessages(ac.getSession());
         }
     },
-    
+
     /*#
      * Log an auditer message
-     * 
+     *
      * @param msg String Message to be logged
      */
     log {

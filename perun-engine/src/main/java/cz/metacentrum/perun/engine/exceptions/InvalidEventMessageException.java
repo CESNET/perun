@@ -2,7 +2,7 @@ package cz.metacentrum.perun.engine.exceptions;
 
 /**
  * Checked version of InvalidEventMessageException.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class InvalidEventMessageException extends EngineException {

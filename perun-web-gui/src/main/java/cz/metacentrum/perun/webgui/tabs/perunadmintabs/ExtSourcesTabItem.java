@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * ExtSourcesManager for Perun administrator
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -30,27 +30,27 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("External sources");
 
-	
+
 	/**
 	 * Creates a tab instance
      */
 	public ExtSourcesTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// create main panel for content
@@ -85,7 +85,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 
 		this.contentWidget.setWidget(mainPage);
-		
+
 		return getWidget();
 	}
 
@@ -98,7 +98,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.worldIcon(); 
+		return  SmallIcons.INSTANCE.worldIcon();
 	}
 
 
@@ -121,23 +121,23 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -145,17 +145,17 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "extsrc";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public ExtSourcesTabItem load(Map<String, String> parameters)
 	{
 		return new ExtSourcesTabItem();

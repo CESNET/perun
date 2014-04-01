@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
       Attribute attribute = new Attribute(attributeDefinition);
       List<String> krbPrincipalName = new ArrayList<String>();
       Attribute krbLogins;
-      
+
       try {
         krbLogins = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
       } catch(AttributeNotExistsException ex) {
@@ -36,18 +36,18 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
       } catch(WrongAttributeAssignmentException ex) {
           throw new InternalErrorException("kerberos Logins attribute bad assignment.", ex);
       }
-      
+
       if(krbLogins.getValue() != null) {
           krbPrincipalName.addAll((List<String>) krbLogins.getValue());
       }
-      
+
       List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
-      
+
       for(UserExtSource uES: userExtSources) {
           if(uES.getExtSource() != null) {
               String login = uES.getLogin();
               String type = uES.getExtSource().getType();
-              
+
               if(type != null && login != null) {
                   if(type.equals(ExtSourcesManager.EXTSOURCE_KERBEROS)) {
                       if(!krbPrincipalName.contains(login)) krbPrincipalName.add(login);
@@ -55,19 +55,19 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
               }
           }
       }
-      
+
       attribute = Utils.copyAttributeToViAttributeWithoutValue(krbLogins, attribute);
       attribute.setValue(krbPrincipalName);
       return attribute;
   }
-    
+
   @Override
   public List<String> getStrongDependencies() {
       List<String> strongDependencies = new ArrayList<String>();
       strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
       return strongDependencies;
   }
-    
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
@@ -75,5 +75,5 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
       attr.setType(ArrayList.class.getName());
       attr.setDescription("Logins in kerberos (including realm and kerberos UserExtSources)");
       return attr;
-  }  
+  }
 }

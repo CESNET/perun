@@ -10,11 +10,11 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Returns the count of the members in Group.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetGroupMembersCount implements JsonCallback {
-	
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// VO ID
@@ -23,8 +23,8 @@ public class GetGroupMembersCount implements JsonCallback {
 	private static final String JSON_URL = "groupsManager/getGroupMembersCount";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
-	
+
+
 	/**
 	 * Creates a new instance of the method
      *
@@ -33,7 +33,7 @@ public class GetGroupMembersCount implements JsonCallback {
 	public GetGroupMembersCount(int id) {
 		this.groupId = id;
 	}
-	
+
 	/**
 	 * Creates a new instance of the method
 	 *
@@ -45,7 +45,7 @@ public class GetGroupMembersCount implements JsonCallback {
 		this.events = events;
 	}
 
-		
+
 	/**
 	 * Retrieves members from RPC
 	 */
@@ -56,7 +56,7 @@ public class GetGroupMembersCount implements JsonCallback {
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-	
+
 	/**
 	 * Called when an error occurs.
 	 */
@@ -80,7 +80,7 @@ public class GetGroupMembersCount implements JsonCallback {
 		BasicOverlayType count = (BasicOverlayType) jso;
 		session.getUiElements().setLogText("Loading group members count finished: " + count.getInt());
 		this.events.onFinished(jso);
-	}	
-	
-	
+	}
+
+
 }

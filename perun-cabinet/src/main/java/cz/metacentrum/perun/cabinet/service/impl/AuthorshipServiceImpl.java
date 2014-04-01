@@ -33,12 +33,12 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
  * Class for handling Authorship entity in Cabinet.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AuthorshipServiceImpl implements IAuthorshipService {
-	
+
 	private static final double DEFAULT_RANK = 1.0;
 	private IAuthorshipDao authorshipDao;
 	private IPublicationService publicationService;
@@ -46,12 +46,12 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 	private IAuthorService authorService;
 	private IPerunService perunService;
 	private static Logger log = LoggerFactory.getLogger(AuthorshipServiceImpl.class);
-	
+
 	@Autowired
 	private PerunBl perun;
-	
+
 	// setters ===========================================
-	
+
 	public void setAuthorService(IAuthorService authorService) {
 		this.authorService = authorService;
 	}
@@ -67,14 +67,14 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 	public void setPublicationService(IPublicationService publicationService) {
 		this.publicationService = publicationService;
 	}
-	
+
 	public void setAuthorshipDao(IAuthorshipDao authorshipDao) {
 		this.authorshipDao = authorshipDao;
 	}
-	
+
 	// business methods ===================================
-	
-	
+
+
 	public int createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
 		if (authorshipExists(authorship)) throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
 		if (authorship.getCreatedDate() == null) {
@@ -97,13 +97,13 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 			log.error("Unable to log message authorship created to Auditer for");
 		}
 		perunService.updatePriorityCoeficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
-		
+
 		perunService.setThanksAttribute(authorship.getUserId());
-		
+
 		return id;
 	}
 
-	
+
 	public boolean authorshipExists(Authorship authorship) {
 		if (authorship == null) throw new NullPointerException("Authorship cannot be null");
 
@@ -120,14 +120,14 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 	}
 
 	public Double calculateNewRank(Integer userId) {
-		
+
 		List<Authorship> reports = findAuthorshipsByUserId(userId);
 		return calculateNewRank(reports);
-		
+
 	}
-	
+
 	public synchronized Double calculateNewRank(List<Authorship> authorships) {
-		
+
 		Double rank = DEFAULT_RANK;
 		for (Authorship r : authorships) {
 			Publication p = publicationService.findPublicationById(r.getPublicationId());
@@ -136,13 +136,13 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 			rank += c.getRank();
 		}
 		return rank;
-		
+
 	}
-	
+
 	public List<Authorship> findAuthorshipsByFilter(Authorship filter) {
 		return authorshipDao.findByFilter(filter);
 	}
-	
+
 	public Date getLastCreatedAuthorshipDate(Integer userId) {
 		Authorship report = authorshipDao.findLastestOfUser(userId);
 		return (report != null) ? report.getCreatedDate() : null;
@@ -150,32 +150,32 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 
 	public List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException {
 		List<Author> result = new ArrayList<Author>();
-		
+
 		Authorship report = authorshipDao.findById(id);
 		if (report == null) {
 			throw new CabinetException("Authorship with ID: "+id+" doesn't exists!", ErrorCodes.AUTHORSHIP_NOT_EXISTS);
 		}
-		
+
 		Authorship filter = new Authorship();
 		filter.setPublicationId(report.getPublicationId());
-		
+
 		List<Authorship> publicationReports = authorshipDao.findByFilter(filter, null);
-		
+
 		for (Authorship r : publicationReports) {
 			result.add(authorService.findAuthorByUserId(r.getUserId()));
 		}
 		return result;
 	}
-	
+
 	public List<Authorship> findAllAuthorships() {
 		return authorshipDao.findAll();
 	}
-	
-	
+
+
 	public int getAuthorshipsCount() {
 		return authorshipDao.getCount();
 	}
-	
+
 	public int getAuthorshipsCountForUser(Integer userId) {
 		return authorshipDao.getCountForUser(userId);
 	}
@@ -185,23 +185,23 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		if (! sortParam.getProperty().toString().matches("[a-z,A-Z,_,0-9]*")) throw new IllegalArgumentException("sortParam.property is not allowed: "+sortParam.getProperty());
 		return authorshipDao.findByFilter(report, sortParam);
 	}
-	
-	
+
+
 	public Authorship findAuthorshipById(Integer id) {
 		return authorshipDao.findById(id);
 	}
-	
-	
+
+
 	public List<Authorship> findAuthorshipsByPublicationId(Integer id) {
 		return authorshipDao.findByPublicationId(id);
 	}
-	
-	
+
+
 	public List<Authorship> findAuthorshipsByUserId(Integer id) {
 		return authorshipDao.findByUserId(id);
 	}
-	
-	
+
+
 	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException {
 
 		// check if such authorship exists
@@ -217,11 +217,11 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		for (Authorship a : list) {
 			if (a.getId() != report.getId()) {
 				throw new CabinetException("Can't update authorship ID="+report.getId()+", same authorship already exists under ID="+a.getId(), ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
-			} 
+			}
 		}
 		// update
 		int rows = authorshipDao.update(report);
-		
+
 		// if updated
 		if (rows > 0) {
 			if (report.getPublicationId() != r.getPublicationId()) {
@@ -250,10 +250,10 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 			log.debug("Authorship: [{}] updated to Authorship: [{}].", r, report);
 		}
 		return rows;
-		
+
 	}
-	
-	
+
+
 	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException {
 
 		Authorship a = findAuthorshipById(id);
@@ -276,7 +276,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		}
 		// delete
 		int rows = authorshipDao.deleteById(id);
-		
+
 		// if deleted
 		if (rows > 0) {
 			// update coefficient
@@ -288,13 +288,13 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 			} catch (InternalErrorException ex) {
 				log.error("Unable to log message authorship deleted to Auditer.");
 			}
-			
+
 			perunService.setThanksAttribute(a.getUserId());
-			
+
 		}
-	
+
 		return rows;
-	
+
 	}
 
 }

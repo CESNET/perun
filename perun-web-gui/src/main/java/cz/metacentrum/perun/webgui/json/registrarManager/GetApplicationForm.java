@@ -22,25 +22,25 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
  * Retrieves form for VO / GROUP to determine if it's auto approve or not.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetApplicationForm implements JsonCallback {
-	
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// VO / GROUP id
 	private int id;
 	private PerunEntity entity;
 	private boolean hidden = false;
-	
+
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getApplicationForm";
-	
+
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	private FlexTable content = new FlexTable();
 
 	/**
@@ -68,11 +68,11 @@ public class GetApplicationForm implements JsonCallback {
 
 	public void onFinished(JavaScriptObject jso) {
 
-		ApplicationForm form = jso.cast();		
+		ApplicationForm form = jso.cast();
 		createWidget(form);
 		session.getUiElements().setLogText("Loading application form settings for "+entity+" finished.");
 		events.onFinished(form);
-		
+
 	}
 
 	public void onError(PerunError error) {
@@ -87,24 +87,24 @@ public class GetApplicationForm implements JsonCallback {
 	}
 
 	public void retrieveData() {
-		
+
 		String param = "";
-		
+
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			param = "vo=" + this.id;	
+			param = "vo=" + this.id;
 		} else if (PerunEntity.GROUP.equals(entity)) {
 			param = "group=" + this.id;
 		}
-	
+
 		JsonClient js = new JsonClient();
 		js.setHidden(hidden);
 		js.retrieveData(JSON_URL, param, this);
-		
+
 	}
-	
+
 	/**
 	 * Create approval style change widget
-	 * 
+	 *
 	 * @param form
 	 */
 	private void createWidget(final ApplicationForm form) {
@@ -211,11 +211,11 @@ public class GetApplicationForm implements JsonCallback {
         }
 
 	}
-	
+
 	public Widget getApprovalWidget() {
-		
+
 		return this.content;
-		
+
 	}
 
 	public void setHidden(boolean hidden) {

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -16,7 +16,7 @@ Available options:
  --ownerType     | -t owner type (administrative, technical)
  --batch         | -b batch
  --help          | -h prints this help
- 
+
 };
 }
 
@@ -27,7 +27,7 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,
             "ownerName|O=s" => \$ownerName,
             "ownerContact|c=s" => \$ownerContact,
             "ownerType|t=s" => \$ownerType,
-           ) || die help(); 
+           ) || die help();
 
 # Check options
 unless($ownerName) { die "ERROR: ownerName is required \n";}

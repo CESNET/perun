@@ -11,7 +11,7 @@
 		</entries>
 	</connection-factory>
 
-	<!-- Yes, the only JMS Queue that is pre-configured. All other queues are 
+	<!-- Yes, the only JMS Queue that is pre-configured. All other queues are
 		being initiated ad-hoc. -->
 	<queue name="systemQueue">
 		<entry name="systemQueue" />

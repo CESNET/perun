@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which removes ext source from VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -42,7 +42,7 @@ public class RemoveExtSource {
 
 	/**
 	 * Attempts to remove external source from VO
-	 * 
+	 *
 	 * @param voId ID of VO, where we should remove ext source
 	 * @param extSourceId ID of external source to be removed
 	 */
@@ -82,11 +82,11 @@ public class RemoveExtSource {
 		JsonPostClient request = new JsonPostClient(newEvents);
 		request.sendData(JSON_URL, jsonQuery);
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving() {
@@ -113,13 +113,13 @@ public class RemoveExtSource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("source", new JSONNumber(extSourceId));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("source", new JSONNumber(extSourceId));
 		jsonQuery.put("vo", new JSONNumber(voId));
 		return jsonQuery;
 	}

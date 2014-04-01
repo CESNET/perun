@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -15,7 +15,7 @@ Available options:
  --groupDsc        | -d description
  --parentGroupId   | -p parent group id
  --parentGroupName | -P parent group name
- --voId            | -v vo id 
+ --voId            | -v vo id
  --voShortName     | -V vo short name
  --batch           | -b batch
  --help            | -h prints this help
@@ -27,7 +27,7 @@ my ($groupName, $groupDsc, $parentGroupId, $parentGroupName, $voId, $voShortName
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "groupName|G=s" => \$groupName,"groupDsc|d=s" => \$groupDsc,
  "parentGroupId|p=i" => \$parentGroupId,"parentGroupName|P=s" => \$parentGroupName,
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help(); 
+ "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($groupName)) { die "ERROR: groupName is required \n";}
@@ -41,7 +41,7 @@ if (!defined($voId)) {
   my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
   $voId = $vo->getId;
 }
-  
+
 if (defined($parentGroupName)) {
   my $parentGroup = $groupsAgent->getGroupByName(vo => $voId, name => $parentGroupName);
   $parentGroupId = $parentGroup->getId

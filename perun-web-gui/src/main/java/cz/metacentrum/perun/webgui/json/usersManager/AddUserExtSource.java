@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query which add new external identity to specified user
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -88,11 +88,11 @@ public class AddUserExtSource {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -115,7 +115,7 @@ public class AddUserExtSource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
@@ -145,8 +145,8 @@ public class AddUserExtSource {
         userExtSource.put("loa", new JSONNumber(loa));
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("user", user);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("user", user);
 		jsonQuery.put("userExtSource", userExtSource);
 		return jsonQuery;
 

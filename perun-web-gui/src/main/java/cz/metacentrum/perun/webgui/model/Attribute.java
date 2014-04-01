@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * OverlayType for Attribute object
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -17,12 +17,12 @@ import java.util.Map;
 public class Attribute extends JavaScriptObject {
 
 	public static int counter = 0;
-	
+
 	protected Attribute() {}
 
 	/**
 	 * Gets ID of attribute
-	 * 
+	 *
 	 * @return ID of attribute
 	 */
 	public final native int getId() /*-{
@@ -31,7 +31,7 @@ public class Attribute extends JavaScriptObject {
 
 	/**
 	 * Gets friendly name of attribute
-	 * 
+	 *
 	 * @return friendly name of attribute
 	 */
 	public final native String getFriendlyName() /*-{
@@ -40,16 +40,16 @@ public class Attribute extends JavaScriptObject {
 
 	/**
 	 * Gets namespace of attribute
-	 * 
+	 *
 	 * @return namespace of attribute
 	 */
 	public final native String getNamespace() /*-{
 		return this.namespace;
 	}-*/;
-	
+
 	/**
 	 * Get whole name of attribute (URN)
-	 * 
+	 *
 	 * @return whole name of attribute
 	 */
 	public final native String getName() /*-{
@@ -78,15 +78,15 @@ public class Attribute extends JavaScriptObject {
     public final native void setDisplayName(String displayName) /*-{
         this.displayName = displayName;
     }-*/;
-	
+
 	/**
 	 * Get base friendly name of attribute
-	 * 
+	 *
 	 * e.g.: urn:perun:user:attribute-def:def:login-namespace:meta
 	 * return "login-namespace"
-	 * 
+	 *
 	 * if no parameter present, return whole friendlyName
-	 * 
+	 *
 	 * @return base friendly name of attribute
 	 */
 	public final native String getBaseFriendlyName() /*-{
@@ -95,12 +95,12 @@ public class Attribute extends JavaScriptObject {
 
 	/**
 	 * Get friendly name parameter of attribute
-	 * 
+	 *
 	 * e.g.: urn:perun:user:attribute-def:def:login-namespace:meta
 	 * return "meta"
-	 * 
+	 *
 	 * If no parameter present, return ":";
-	 * 
+	 *
 	 * @return friendly name parameter of attribute
 	 */
 	public final native String getFriendlyNameParameter() /*-{
@@ -109,16 +109,16 @@ public class Attribute extends JavaScriptObject {
 
 	/**
 	 * Get attribute def. entity (user, member,...)
-	 * 
+	 *
 	 * @return entity of attrDef
 	 */
 	public final native String getEntity() /*-{
 		return this.entity;
 	}-*/;
-	
+
 	/**
 	 * Gets description of attribute
-	 * 
+	 *
 	 * @return description of attribute
 	 */
 	public final native String getDescription() /*-{
@@ -128,7 +128,7 @@ public class Attribute extends JavaScriptObject {
 	/**
 	 * Return definition type of attribute def.
 	 * CORE, DEF, OPT, VIRT or "null" if not present
-	 * 
+	 *
 	 * @return definition type
 	 */
 	public final native String getDefinition() /*-{
@@ -137,10 +137,10 @@ public class Attribute extends JavaScriptObject {
 		if (temp[4] == null ) { return "null"; }
 		return temp[4];
 	}-*/;
-	
+
 	/**
 	 * Gets type of attribute
-	 * 
+	 *
 	 * @return type of attribute
 	 */
 	public final native String getType() /*-{
@@ -167,21 +167,21 @@ public class Attribute extends JavaScriptObject {
 
     /**
 	 * Gets value of attribute
-	 * 
+	 *
 	 * @return value of attribute
 	 */
 	public final native String getValue() /*-{
-	    
+
 	    if (this.value == null) { return "null"; }
-	    
+
 	    return this.value.toString();
-		
+
 	}-*/;
 
 	/**
 	 * Sets a new value to attribute. String input is checked
 	 * before setting for respecting value type
-	 * 
+	 *
 	 * @param newValue new value to be set to attribute
 	 * @return true if success (correct value)
 	 */
@@ -196,7 +196,7 @@ public class Attribute extends JavaScriptObject {
 		if (this.type == "java.lang.Integer") {
 
 			// true on any number format, false otherwise
-			if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {   
+			if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
 				this.value = parseInt(newValue);
 				return true;
 			} else {
@@ -219,7 +219,7 @@ public class Attribute extends JavaScriptObject {
 					continue;                    // and continue
 				// normal ","
 				} else {
-					if (newValue[i] == ",") { 
+					if (newValue[i] == ",") {
 						input = input.trim();          // trim whitespace on sides
 						if (input == "") { continue; } // skip empty values
 						this.value[count] = input;     // save previous value
@@ -227,8 +227,8 @@ public class Attribute extends JavaScriptObject {
 						input = "";                    // clear input string
 						continue;                      // skip "," and continue
 					}
-					input = input + newValue[i]  	   // append letter	
-				}	
+					input = input + newValue[i]  	   // append letter
+				}
 			}
 			input = input.trim();               // at end - trim value
 			if (input == "") { return false; }  // at end - do not save empty strings
@@ -243,43 +243,43 @@ public class Attribute extends JavaScriptObject {
 		return true;
 
 	}-*/;
-	
-	
+
+
 /*	public final ArrayList<String> getValueAsList(){
 		JsArrayString array = (JsArrayString) getValueAsJso();
 		return JsonUtils.listFromJsArrayString(array);
 	}*/
-	
+
 	public native final JsArrayString getValueAsJsArray() /*-{
 		return this.value;
 	}-*/;
-	
+
 	public native final JavaScriptObject getValueAsJso() /*-{
-		return this.value;	
+		return this.value;
 	}-*/;
-	
+
 	public native final Object getValueAsObject() /*-{
-		return this.value;	
+		return this.value;
 	}-*/;
-	
+
 	public native final void setValueAsJso(JavaScriptObject valueAsJso) /*-{
-		this.value = valueAsJso;	
+		this.value = valueAsJso;
 	}-*/;
-	
+
 	public native final void setValueAsString(String str) /*-{
-		this.value = str;	
+		this.value = str;
 	}-*/;
-	
+
 	public native final void setValueAsNumber(int i) /*-{
-		this.value = i;	
+		this.value = i;
 	}-*/;
-	
+
 	public native final void setValueAsJsArray(JsArrayString arr) /*-{
-		this.value = arr;	
+		this.value = arr;
 	}-*/;
-	
+
 	public native final void setAttributeValid(boolean valid) /*-{
-		this.attributeValid = valid;	
+		this.attributeValid = valid;
 	}-*/;
 
 	public native final boolean isAttributeValid() /*-{
@@ -291,57 +291,57 @@ public class Attribute extends JavaScriptObject {
 	 * @return
 	 */
 	public native final String getGuiUniqueId() /*-{
-	
+
 		if(typeof $wnd.perunAttributeCounter == "undefined"){
 			$wnd.perunAttributeCounter = 0;
 		}
 
-	
+
 		if(typeof this.guiUniqueId == "undefined"){
 			this.guiUniqueId = "attr-" + $wnd.perunAttributeCounter;
 			$wnd.perunAttributeCounter++;
 		}
-		
+
 		return this.guiUniqueId;
 	}-*/;
-	
-	
+
+
 	public final Map<String, JSONValue> getValueAsMap()
 	{
 		return JsonUtils.parseJsonToMap(getValueAsJso());
 	}
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare

@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get hosts from facility (cluster)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCallbackOracle<Host> {
@@ -39,7 +39,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 	private ArrayList<Host> list = new ArrayList<Host>();
 	// Table field updater
 	private FieldUpdater<Host, String> tableFieldUpdater;
-	
+
 	// Selection model
 	final MultiSelectionModel<Host> selectionModel = new MultiSelectionModel<Host>(new GeneralKeyProvider<Host>());
 	// External events
@@ -53,7 +53,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 
 	/**
 	 * Creates a new instance of the request
-	 * 
+	 *
 	 * @param facilityId ID of facility to get hosts for
 	 */
 	public GetHosts(int facilityId) {
@@ -73,7 +73,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 
 	/**
 	 * Get the cell table with Hosts and custom onclick method
-	 * 
+	 *
 	 * @param fu custom field updater
 	 * @return CellTable with all host on facility
 	 */
@@ -84,20 +84,20 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 
 	/**
 	 * Gets table with all hosts on facility
-	 * 
+	 *
 	 * @return CellTable with all hosts on facility
 	 */
 	public CellTable<Host> getTable() {
 
 		// retrieve data
 		retrieveData();
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<Host>(list);
 
 		// Cell table
 		table = new PerunTable<Host>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
@@ -106,13 +106,13 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		// Sorting
 		ListHandler<Host> columnSortHandler = new ListHandler<Host>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Host> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		// columns
         if (checkable) {
             table.addCheckBoxColumn();
@@ -134,7 +134,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
         });
 
         table.addColumn(nameColumn, "Hostname");
-		
+
 		return table;
 
 	}

@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which deletes a Thanks
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteThanks {
@@ -42,7 +42,7 @@ public class DeleteThanks {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testDeleting()
@@ -64,11 +64,11 @@ public class DeleteThanks {
 
 	/**
 	 * Attempts to delete a Publication, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param pubId ID of publication to be deleted
 	 */
 	public void deleteThanks(final int thanksId) {
-		
+
 		this.thanksId = thanksId;
 
 		// test arguments
@@ -115,7 +115,7 @@ public class DeleteThanks {
 		thanks.put("id", new JSONNumber(thanksId));
 
 		return thanks;
-		
+
 	}
-	
+
 }

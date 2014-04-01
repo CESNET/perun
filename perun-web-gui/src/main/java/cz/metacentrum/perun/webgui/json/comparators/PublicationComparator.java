@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 /**
  * Special comparator for object RichMember
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class PublicationComparator implements Comparator<Publication>{
@@ -16,9 +16,9 @@ public class PublicationComparator implements Comparator<Publication>{
 	static public enum Column {
 		EXTERNAL_ID, PUBLICATION_SYSTEM_ID, AUTHORS, TITLE, YEAR, MAIN, ISBN, CREATED_DATE, CATEGORY, THANKS;
 	}
-	
+
 	private Column attr;
-	
+
 	/**
 	 * Creates a new Comparator with specified attribute to sort by
 	 * @param attr
@@ -26,11 +26,11 @@ public class PublicationComparator implements Comparator<Publication>{
 	public PublicationComparator(Column attr){
 		this.attr = attr;
 	}
-	
-	
+
+
 	/**
 	 * Compares the two objects
-	 * 
+	 *
 	 * @param o1 First object
 	 * @param o2 Second object
 	 */
@@ -57,9 +57,9 @@ public class PublicationComparator implements Comparator<Publication>{
 				return this.compareByCategory(o1, o2);
 			case THANKS:
 				return this.compareByThanks(o1, o2);
-				
+
 		}
-		
+
 		return 0;
 	}
 
@@ -106,9 +106,9 @@ public class PublicationComparator implements Comparator<Publication>{
 	private int compareByCategory(Publication o1, Publication o2) {
 		return o1.getCategoryName().compareToIgnoreCase(o2.getCategoryName());
 	}
-	
+
 	private int compareByThanks(Publication o1, Publication o2) {
-		
+
 		String result1 = "";
 		String result2 = "";
 		JsArray<Thanks> thks1 = o1.getThanks();
@@ -120,7 +120,7 @@ public class PublicationComparator implements Comparator<Publication>{
 			result2 += thks2.get(i).getOwnerName();
 		}
 		return result1.compareToIgnoreCase(result2);
-		
+
 	}
 
 }

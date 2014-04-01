@@ -32,14 +32,14 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
     Attribute attrFilesLimit = null;
     Integer filesQuota = null;
     Integer filesLimit = null;
-    
+
     //Get FilesLimit attribute
     try {
       attrFilesLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_filesLimit);
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(attribute + " from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
     }
-    
+
     //Get FilesQuota value
     if(attribute.getValue() != null) {
       filesQuota = (Integer) attribute.getValue();
@@ -47,14 +47,14 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
       try {
         attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesQuota);
       } catch (AttributeNotExistsException ex) {
-        throw new ConsistencyErrorException("Attribute with defaultFilesQuota from resource " + resource.getId() + " could not obtained.", ex);      
+        throw new ConsistencyErrorException("Attribute with defaultFilesQuota from resource " + resource.getId() + " could not obtained.", ex);
       }
       if(attribute != null && attribute.getValue() != null) {
         filesQuota = (Integer) attribute.getValue();
       }
-    }   
+    }
     if(filesQuota != null && filesQuota < 0) throw new WrongAttributeValueException(attribute, attribute + " cannot be less than 0.");
-    
+
     //Get FilesLimit value
     if(attrFilesLimit != null &&  attrFilesLimit.getValue() != null) {
       filesLimit = (Integer) attrFilesLimit.getValue();
@@ -62,14 +62,14 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
       try {
         attrFilesLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesLimit);
       } catch (AttributeNotExistsException ex) {
-        throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);     
+        throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);
       }
       if(attrFilesLimit != null || attrFilesLimit.getValue() != null) {
         filesLimit = (Integer) attrFilesLimit.getValue();
       }
-    }    
+    }
     if(filesLimit != null && filesLimit < 0) throw new ConsistencyErrorException(attrFilesLimit + " cannot be less than 0.");
-    
+
     //Compare filesQuota with filesLimit
     if(filesQuota == null || filesQuota == 0) {
       if(filesLimit != null && filesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrFilesLimit, "Try to set unlimited quota, but limit is still " + filesLimit);
@@ -85,7 +85,7 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
     dependecies.add(A_R_defaultFilesQuota);
     return dependecies;
   }
-  
+
   @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
@@ -94,5 +94,5 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
     attr.setType(Integer.class.getName());
     attr.setDescription("Soft quota for number of files.");
     return attr;
-  }    
+  }
 }

@@ -10,18 +10,18 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public interface RTMessagesManager {
-    
+
     /**
      * This method get needed information and by predefined service user send message to RT which try to create new ticket
      * For basic usage this method is for error msg from users of perun.
-     * 
+     *
      * @param sess
      * @param member member which send message to RT
      * @param queue in which queue will be message send
      * @param subject subject of message
      * @param text text of message
      * @return RTMessage with information about success or not
-     * @throws InternalErrorException 
+     * @throws InternalErrorException
      * @throws PrivilegeException if there are bad rights for this action
      * @throws MemberNotExistsException if the Member not exist in the system
      */
@@ -31,15 +31,15 @@ public interface RTMessagesManager {
     /**
      * This method get needed information and by predefined service user send message to RT which try to create new ticket
      * For basic usage this method is for error msg from users of perun.
-     * 
+     *
      * queue define concrete queue in RT
-     * 
+     *
      * @param sess
      * @param queue in which queue will be message send
      * @param subject subject of message
      * @param text text of message
      * @return RTMessage with information about success or not
-     * @throws InternalErrorException 
+     * @throws InternalErrorException
      * @throws PrivilegeException if there are bad rights for this action
      */
     RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException, PrivilegeException;
@@ -47,10 +47,10 @@ public interface RTMessagesManager {
     /**
      * This method get needed information and by predefined service user send message to RT which try to create new ticket
      * For basic usage this method is for error msg from users of perun.
-     * 
+     *
      * voId is there especially for searching voAttribute rtVoQueue
      * queue define concrete queue in RT
-     * 
+     *
      * @param sess (also to get user from it)
      * @param voId id of vo, where user is member
      * @param queue in which queue will be message send
@@ -65,16 +65,16 @@ public interface RTMessagesManager {
     /**
      * This method get needed information and by predefined service user send message to RT which try to create new ticket
      * For basic usage this method is for error msg from users of perun.
-     * 
+     *
      * voId is there especially for searching voAttribute rtVoQueue
-     * 
+     *
      * @param sess (also to get user from it)
      * @param voId id of vo, where user is member
      * @param subject subject of message
      * @param text text of message
      * @return RTMessage with information about success or not
-     * @throws InternalErrorException      
+     * @throws InternalErrorException
      * @throws PrivilegeException if there are bad rights for this action
      */
-     RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException, PrivilegeException;    
+     RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException, PrivilegeException;
 }

@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which copy application mails from VO to another VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CopyMails {
@@ -87,7 +87,7 @@ public class CopyMails {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {

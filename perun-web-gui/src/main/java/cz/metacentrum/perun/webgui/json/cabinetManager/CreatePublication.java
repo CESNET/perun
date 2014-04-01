@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.model.Publication;
 
 /**
  * Ajax query which creates a new Publication
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreatePublication {
@@ -47,7 +47,7 @@ public class CreatePublication {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -69,13 +69,13 @@ public class CreatePublication {
 
 	/**
 	 * Attempts to create a new Publication from EXTERNAL SOURCE, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param publication Publication
 	 */
 	public void createPublication(final Publication publication) {
-	
+
 		this.publication = publication;
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
@@ -121,7 +121,7 @@ public class CreatePublication {
      * @param main
      */
 	public void createPublication(final String title, final int category, final int year, final String ISBN, final String doi, final String main) {
-	
+
 		publication = new JSONObject().getJavaScriptObject().cast();
 		publication.setTitle(title);
 		publication.setCategoryId(category);
@@ -137,7 +137,7 @@ public class CreatePublication {
 		publication.setDoi(doi);
 		publication.setLocked(false);
         publication.setCreatedByUid(session.getActiveUser().getId());
-		
+
 		// local events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 
@@ -157,7 +157,7 @@ public class CreatePublication {
 			};
 
 		};
-		
+
 		JSONObject jquery = new JSONObject(publication);
 		jquery.put("createdDate", null);
 		JSONObject jsonQuery = new JSONObject();
@@ -168,17 +168,17 @@ public class CreatePublication {
 		request.sendData(JSON_URL, jsonQuery);
 
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
-		
+
 		// publication
 		JSONObject oldPub = new JSONObject(publication);
 		// reconstruct object
@@ -202,7 +202,7 @@ public class CreatePublication {
 		// dig-in authors
 		JsArray<Author> authors = publication.getAuthors();
 		JSONArray jsonAuthors = new JSONArray();
-		for (int i=0; i<authors.length(); i++){	
+		for (int i=0; i<authors.length(); i++){
 			JSONObject oldAuthor = new JSONObject(authors.get(i));
 			JSONObject jsonAuthor = new JSONObject();
 			jsonAuthor.put("firstName", oldAuthor.get("firstName"));
@@ -213,12 +213,12 @@ public class CreatePublication {
             jsonAuthors.set(i, jsonAuthor);
 		}
 		newPub.put("authors", jsonAuthors);
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("publication", newPub);
 		return jsonQuery;
-		
+
 	}
 
 }

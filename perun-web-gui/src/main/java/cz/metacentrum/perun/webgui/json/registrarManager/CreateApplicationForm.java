@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which creates a new application form in VO or Group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateApplicationForm {
@@ -24,10 +24,10 @@ public class CreateApplicationForm {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	private PerunEntity entity;
 	private int id;
-	
+
 	/**
 	 * Creates a new request
 	 *
@@ -56,7 +56,7 @@ public class CreateApplicationForm {
 	 */
 	public void createApplicationForm()
 	{
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
@@ -82,7 +82,7 @@ public class CreateApplicationForm {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -96,7 +96,7 @@ public class CreateApplicationForm {
 	 */
 	private JSONObject prepareJSONObject()
 	{
-		
+
 		// query
 		JSONObject query = new JSONObject();
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
@@ -105,7 +105,7 @@ public class CreateApplicationForm {
 			query.put("group", new JSONNumber(id));
 		}
 		return query;
-		
+
 	}
 
 }

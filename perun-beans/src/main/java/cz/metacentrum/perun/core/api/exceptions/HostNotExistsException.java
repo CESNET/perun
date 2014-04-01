@@ -5,10 +5,10 @@ import cz.metacentrum.perun.core.api.exceptions.rt.HostNotExistsRuntimeException
 
 /**
  * Checked version of HostNotExistsException.
- * 
+ *
  * This exception is to be thrown in case we
  * are unable to look up the host computer in the Perun system.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class HostNotExistsException extends EntityNotExistsException {

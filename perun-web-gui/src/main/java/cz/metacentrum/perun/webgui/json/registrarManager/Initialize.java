@@ -9,7 +9,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Initialize Registrar GUI - retrieves all VO attributes
- *  
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class Initialize implements JsonCallback {
@@ -22,12 +22,12 @@ public class Initialize implements JsonCallback {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private String vo = "";
 	private String group = "";
 	private boolean hidden = false;
-	
+
 	/**
 	 * Creates a new request
      *
@@ -65,26 +65,26 @@ public class Initialize implements JsonCallback {
 	public void onLoadingStart() {
 		events.onLoadingStart();
 	}
-	
+
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
 	}
 
 	public void retrieveData() {
-		
+
 		String params = "";
-		
+
 		if (vo != null && !vo.equals("")) {
-			params += "vo="+vo;	
+			params += "vo="+vo;
 		}
 		if (group != null && !group.equals("")) {
-			params += "&group="+group;			
+			params += "&group="+group;
 		}
 
 		JsonClient client = new JsonClient();
 		client.setHidden(hidden);
 		client.retrieveData(JSON_URL, params, this);
-		
+
 	}
 
 }

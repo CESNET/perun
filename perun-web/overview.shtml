@@ -1,6 +1,6 @@
 <!--#include virtual="header.shtml" -->
 
-            
+
             <div class="row-fluid">
               <p class="lead">
                   Perun is an application which consits of several interconnected components. Core part of the Perun is used for managing users, virtual organizations (projects), groups, facilities and resources. Additional components use information managed by core part of the Perun and adds additional functionality.
@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            
+
             <div class="row-fluid">
             <div class="span12">
               <h3>Components</h3>
@@ -48,7 +48,7 @@
               </ul>
             </div>
           </div>
-            
+
             <hr/>
 
             <h3>Selected screenshots from Perun GUI</h3>
@@ -66,4 +66,4 @@
 
 
 
-            <!--#include virtual="footer.shtml" --> 
+            <!--#include virtual="footer.shtml" -->

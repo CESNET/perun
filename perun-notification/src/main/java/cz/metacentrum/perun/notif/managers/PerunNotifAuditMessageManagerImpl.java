@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Manager for work with message received from auditer
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -20,21 +20,21 @@ public class PerunNotifAuditMessageManagerImpl implements PerunNotifAuditMessage
 
 	@Autowired
 	private PerunNotifAuditMessageDao perunNotifAuditMessageDao;
-	
+
 	public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String message,
 			PerunSession session) throws InternalErrorException {
-		
+
 		return perunNotifAuditMessageDao.save(message);
 	}
 
 	public void removePerunAuditerMessageById(long id) {
-		
+
 		perunNotifAuditMessageDao.remove(id);
 	}
 
 	@Override
 	public List<PerunNotifAuditMessage> getAll() {
-		
+
 		return perunNotifAuditMessageDao.getAll();
 	}
 }

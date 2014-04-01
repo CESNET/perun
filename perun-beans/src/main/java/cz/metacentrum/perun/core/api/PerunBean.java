@@ -26,7 +26,7 @@ public abstract class PerunBean {
     this.id = id;
   }
 
-  /** Returns bean name like VO, Member, Resource,... 
+  /** Returns bean name like VO, Member, Resource,...
    */
   public String getBeanName() {
     return this.getClass().getSimpleName();
@@ -52,9 +52,9 @@ public abstract class PerunBean {
   public String serializeToString() {
       return this.getClass().getSimpleName()+":[" +
       "id=<" + id + ">" +
-      ']'; 
+      ']';
   }
-  
+
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {

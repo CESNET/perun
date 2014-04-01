@@ -20,17 +20,17 @@ import java.util.regex.Pattern;
 public class BeansUtils {
 
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
-        public static final char LIST_DELIMITER = ',';  
-        public static final char KEY_VALUE_DELIMITER = ':'; 
+        public static final char LIST_DELIMITER = ',';
+        public static final char KEY_VALUE_DELIMITER = ':';
         public final static DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-  
+
     /**
      * This method take text and for every chars in "<>\" erase escaping
      * Escaping char is \.
      * Expecting: Before using this method, text must be escaped by using method createEscaping.
      *            So in text will never be string like "\\>", "\" or "\\\".
-     * 
-     * For every \ in text it put \\ and for every < it put \< and for every > it put \> 
+     *
+     * For every \ in text it put \\ and for every < it put \< and for every > it put \>
      *
      * @param text text from which will be erase escaping
      * @return nonescaped text
@@ -45,7 +45,7 @@ public class BeansUtils {
     /**
      * This method take text and for every chars in "<>\" create escaping
      * Escaping char is \.
-     * For every \\ in text it put \ and for every \< it put < and for every \> it put > 
+     * For every \\ in text it put \ and for every \< it put < and for every \> it put >
      *
      * @param text text from which will be erase escaping
      * @return escaped text
@@ -57,10 +57,10 @@ public class BeansUtils {
         text = text.replace("<", "\\<");
         return text;
     }
-    
+
     /**
      * This method get text and all nonescaped characters < and > replace by apostrophe
-     * 
+     *
      * @param text
      * @return text where nonescaped characters < and  > will be reaplace by apostrophe '
      */
@@ -74,11 +74,11 @@ public class BeansUtils {
             }
         }
         return stringBuilder.toString();
-    }  
-    
+    }
+
     /**
      * This method get text and all escaped \0 replace for text null
-     * 
+     *
      * @param text
      * @return text where \0 is replaced for null
      */
@@ -92,9 +92,9 @@ public class BeansUtils {
                 }
             }
         }
-        return stringBuilder.toString(); 
+        return stringBuilder.toString();
     }
-    
+
         /**
      * Return true, if char on position in text is escaped by '\' Return false,
      * if not.
@@ -114,12 +114,12 @@ public class BeansUtils {
         }
         return escaped;
     }
-    
+
     /**
      * Serialize map to string
-     * 
+     *
      * @param map
-     * @return string of escaped map 
+     * @return string of escaped map
      */
     public static String serializeMapToString(Map<String, String> map) {
         if(map == null) return "\\0";
@@ -131,14 +131,14 @@ public class BeansUtils {
         }
         return attrNew.toString();
     }
-    
+
 
     /**
      * Converts attribute value to string (for storing into DB)
-     * 
+     *
      * @param attribute value of the attribute
      * @return string representation of the value
-     * 
+     *
      * @throws InternalErrorException
      */
     public static String attributeValueToString(Attribute attribute) throws InternalErrorException {
@@ -176,7 +176,7 @@ public class BeansUtils {
             key = key.replace("\\", "\\\\");   //escape char '\'
             key = key.replace(Character.toString(LIST_DELIMITER), "\\" + LIST_DELIMITER); //escape LIST_DELIMITER
             key = key.replace(Character.toString(KEY_VALUE_DELIMITER), "\\" + KEY_VALUE_DELIMITER); //escape KEY_VALUE_DELIMITER
-          } 
+          }
 
           String value = entry.getValue();
           if(value == null) {
@@ -195,13 +195,13 @@ public class BeansUtils {
         return sb.toString();
       } else throw new InternalErrorException("Unknown java type of attribute's value.");
     }
-    
+
         /**
      * This method get map created by example : {<key1>=<value1>, <key2>=<value2>}
-     * Keys and values are escaped for "\", "<" and ">" 
+     * Keys and values are escaped for "\", "<" and ">"
      * Example of escaping key="key\\s\>" is "key\s>"
      * Return Map<String, String> attribute to value.
-     * 
+     *
      * @param text text from which will be parsed map
      * @return map<string, string> attributes
      */
@@ -245,14 +245,14 @@ public class BeansUtils {
         }
         return map;
     }
-    
+
     /**
      * Converts string representation of an attribute value to correct java object
-     * 
+     *
      * @param stringValue string representation of the attribute value
      * @param type type of the value ("Java.lang.String" for example)/
      * @return
-     * 
+     *
      * @throws InternalErrorException
      */
     public static Object stringToAttributeValue(String stringValue, String type) throws InternalErrorException {

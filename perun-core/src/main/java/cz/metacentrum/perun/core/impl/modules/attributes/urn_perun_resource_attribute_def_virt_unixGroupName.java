@@ -66,7 +66,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
       //check passed, we can use value from this physical attribute
       attribute.setValue(groupNameAttribute.getValue());
       return attribute;
-    } catch(WrongAttributeValueException ex) { 
+    } catch(WrongAttributeValueException ex) {
       //Physical attribute have wrong value, let's find a new one
       groupNameAttribute.setValue(null);
       groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, resource, groupNameAttribute);

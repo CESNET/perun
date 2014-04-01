@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Ajax query which adds admin to VO or Group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddAdmin {
@@ -46,7 +46,7 @@ public class AddAdmin {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding() {
@@ -316,7 +316,7 @@ public class AddAdmin {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

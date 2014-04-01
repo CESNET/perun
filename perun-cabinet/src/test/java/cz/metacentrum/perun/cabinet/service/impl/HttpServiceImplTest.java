@@ -11,21 +11,21 @@ import org.junit.Test;
 import cz.metacentrum.perun.cabinet.service.IHttpService;
 
 public class HttpServiceImplTest {
-	
+
 	@Test
 	public void testSimpleHttpClientServiceImpl() throws Exception {
 		System.out.println("simpleHttpClientServiceImpl()");
-		
+
 		IHttpService hs = new HttpServiceImpl();
 //		hs.setUri("https://is.muni.cz/auth/prezentator/index.pl");
 		//hs.setLogin("358470","apebze.chu"); //systemovy ucet :)
 		//hs.setLogin("231927","zun-poshli"); //neosobni ucet na jmeno Jiri Harazim
-		
+
 //		Map<String,String> params = new HashMap<String,String>();
 //		params.put("keyfile", TestTemplates.muRequest);
 //		params.put("typ", "xml");
 //		params.put("kodovani", "utf-8");
-//		
+//
 //		String result = hs.execute(params);
 //
 		HttpGet get = new HttpGet("http://www.seznam.cz");
@@ -34,5 +34,5 @@ public class HttpServiceImplTest {
 		System.out.println(response);
 		assertTrue(EntityUtils.toString(response.getEntity(),"utf-8").contains("Seznam"));
 	}
-	
+
 }

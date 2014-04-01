@@ -18,7 +18,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
 ">
     <import resource="classpath:perun-transaction-manager.xml"/>
-    
+
     <aop:config>
       <aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHierarchicalData(..))"/>
       <aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
@@ -59,7 +59,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
       <constructor-arg ref="authzResolverImpl" />
     </bean>
-    
+
     <bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setPerunBlImpl" scope="singleton">
       <constructor-arg ref="perun" />
     </bean>
@@ -149,7 +149,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="perunBl" ref="perun"/>
         <property name="searcherBl" ref="searcherBl"/>
     </bean>
-    
+
     <bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton">
         <property name="perunBl" ref="perun"/>
         <constructor-arg ref="vosManagerImpl" />
@@ -235,26 +235,26 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton">
         <constructor-arg ref="dataSource" />
     </bean>
-    <bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton"> 
+    <bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton">
         <constructor-arg ref="dataSource" />
     </bean>
-    <bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize"> 
+    <bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize">
         <constructor-arg ref="dataSource" />
     </bean>
     <bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton">
         <constructor-arg ref="dataSource" />
     </bean>
 
-    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize"> 
+    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize">
         <property name="perunPool" ref="dataSource"/>
     </bean>
-    
-    <bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton"> 
+
+    <bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton">
         <constructor-arg ref="perun" />
     </bean>
 
     <!-- this bean is only for test -->
-    <bean id="auditerConsumer" class="cz.metacentrum.perun.core.impl.AuditerConsumer" scope="prototype"> 
+    <bean id="auditerConsumer" class="cz.metacentrum.perun.core.impl.AuditerConsumer" scope="prototype">
         <constructor-arg type="java.lang.String" value="consumerForTest" />
         <constructor-arg ref="dataSource" />
     </bean>
@@ -273,5 +273,5 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     </bean>
 
     <import resource="classpath:perun-core-trace-log.xml"/>
-    
+
 </beans>

@@ -20,7 +20,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates a new service.
-	 * 
+	 *
 	 * @param service Service JSON object
 	 * @param owner int Owner ID
 	 * @return Service Created Service
@@ -36,10 +36,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
                     ac.getOwnerById(parms.readInt("owner")));
         }
     },
-    
+
     /*#
 	 * Deletes a service.
-	 * 
+	 *
 	 * @param service int Service ID
 	 */
     deleteService {
@@ -53,10 +53,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
 	 * Updates a service.
-	 * 
+	 *
 	 * @param service Service JSON object
 	 * @return Service Updated Service
 	 */
@@ -71,10 +71,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
 	 * Returns a service by its ID.
-	 * 
+	 *
 	 * @param id int Service ID
 	 * @return Service Found Service
 	 */
@@ -85,10 +85,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return ac.getServiceById(parms.readInt("id"));
         }
     },
-    
+
     /*#
 	 * Returns a service by its name.
-	 * 
+	 *
 	 * @param name String Service Name
 	 * @return Service Found Service
 	 */
@@ -100,10 +100,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
                     parms.readString("name"));
         }
     },
-    
+
     /*#
      * Returns all services.
-     * 
+     *
      * @return List<Service> All services
      */
     getServices {
@@ -113,33 +113,33 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return ac.getServicesManager().getServices(ac.getSession());
         }
     },
-    
+
     /*#
      * Get all services with given attribute.
-     * 
+     *
      * @return all services with given attribute
      */
     getServicesByAttributeDefinition {
-        
+
         @Override
         public List<Service> call(ApiCaller ac, Deserializer parms) throws PerunException {
             return ac.getServicesManager().getServicesByAttributeDefinition(ac.getSession(),
                     ac.getAttributeDefinitionById(parms.readInt("attributeDefinition")));
         }
     },
-    
+
     /*#
-     * Generates the list of attributes per each member associated with the resource. 
-     * 
+     * Generates the list of attributes per each member associated with the resource.
+     *
      * @param service int Service ID
      * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
      * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
-  <pre> 
-    Facility 
-      +---Attrs 
+  <pre>
+    Facility
+      +---Attrs
       +---ChildNodes
              +------Resource
-             |      +---Attrs 
+             |      +---Attrs
              |      +---ChildNodes
              |             +------Member
              |             |        +-------Attrs
@@ -148,7 +148,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
              |             +...
              |
              +------Resource
-             |      +---Attrs 
+             |      +---Attrs
              |      +---ChildNodes
              .             +------Member
              .             |        +-------Attrs
@@ -156,7 +156,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
                            |        +-------Attrs
                            +...
   </pre>
-     * 
+     *
      */
     getHierarchicalData {
 
@@ -167,16 +167,16 @@ public enum ServicesManagerMethod implements ManagerMethod {
                   ac.getFacilityById(parms.readInt("facility")));
       }
     },
-    
+
     /*#
      * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
-     * 
+     *
      * @param service int Service ID. You will get attributes required by this service
      * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources
      * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
-  <pre> 
-    Facility 
-      +---Attrs 
+  <pre>
+    Facility
+      +---Attrs
       +---ChildNodes
              +------()
              |      +---ChildNodes
@@ -190,11 +190,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
                     +---ChildNodes
                            +------User
                            |        +-------Attrs (do NOT return member, member-resource attributes)
-                           +------User 
+                           +------User
                            |        +-------Attrs (do NOT return member, member-resource attributes)
                            +...
   </pre>
-                   
+
      *
      */
     getFlatData {
@@ -206,19 +206,19 @@ public enum ServicesManagerMethod implements ManagerMethod {
                 ac.getFacilityById(parms.readInt("facility")));
       }
     },
-    
+
     /*#
      * Generates the list of attributes per each member associated with the resources and groups.
-     * 
+     *
      * @param service int Service ID. You will get attributes reuqired by this service
      * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources
-     * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources. 
+     * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
      *         Resource first chil is abstract structure which children are groups.
      *         Resource  second chi is abstract structure which children are members.
      *         Group first chil is abstract structure which children are groups.
      *         Group second chi is abstract structure which children are members.
-  <pre> 
-    Facility                          
+  <pre>
+    Facility
       +---Attrs                              ...................................................
       +---ChildNodes                         |                                                 .
              +------Resource                 |                                                 .
@@ -261,10 +261,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
              |              |
              |              +------()
              |                      +------Member
-             |                      |         +----Attrs   
+             |                      |         +----Attrs
              |                      |
              |                      +------Member
-             |                      |         +----Attrs   
+             |                      |         +----Attrs
              |                      +...
              |
              +------Resource
@@ -280,7 +280,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
              .
              .
   </pre>
-     * 
+     *
      */
     getDataWithGroups {
 
@@ -291,10 +291,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
                   ac.getFacilityById(parms.readInt("facility")));
       }
     },
-    
+
     /*#
      * Returns packages.
-     * 
+     *
      * @return List<ServicesPackage> Packages.
      */
     getServicesPackages {
@@ -304,10 +304,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return ac.getServicesManager().getServicesPackages(ac.getSession());
         }
     },
-    
+
     /*#
      * Gets package by ID.
-     * 
+     *
      * @param servicesPackageId int ServicesPackage ID.
      * @return ServicesPackage Found ServicesPackage
      */
@@ -318,10 +318,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return ac.getServicesPackageById(parms.readInt("servicesPackageId"));
         }
     },
-    
+
     /*#
      * Gets package by name.
-     * 
+     *
      * @param name String ServicesPackage name.
      * @return ServicesPackage Found ServicesPackage
      */
@@ -333,12 +333,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
                      parms.readString("name"));
         }
     },
-    
+
     /*#
      * Creates a new services package.
-     * 
+     *
      * @param servicesPackage ServicesPackage JSON object.
-     * @return ServicesPackage Created ServicesPackage 
+     * @return ServicesPackage Created ServicesPackage
      */
     createServicesPackage {
 
@@ -350,10 +350,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
                     parms.read("servicesPackage", ServicesPackage.class));
         }
     },
-    
+
     /*#
      * Deletes a services package.
-     * 
+     *
      * @param servicesPackage int ServicesPackage ID
      */
     deleteServicesPackage {
@@ -367,11 +367,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Updates a service package.
-     * 
-     * @param servicesPackage ServicesPackage JSON object. 
+     *
+     * @param servicesPackage ServicesPackage JSON object.
      */
     updateServicesPackage {
 
@@ -384,10 +384,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Adds a Service to a Services Package.
-     * 
+     *
      * @param servicesPackage int Services package ID to which the service supposed to be added
      * @param service int Service ID to be added to the services package
      */
@@ -403,10 +403,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Removes a Service from a Services Package.
-     * 
+     *
      * @param servicesPackage int Services package ID from which the service supposed to be removed
      * @param service int Service ID that will be removed from the services package
      */
@@ -422,10 +422,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Lists services stored in a package.
-     * 
+     *
      * @param servicesPackage int ServicesPackage ID
      * @return List<Service> List of services
      */
@@ -437,7 +437,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
                     ac.getServicesPackageById(parms.readInt("servicesPackage")));
         }
     },
-    
+
     /*#
      * Mark the attribute as required for the service. Required attribues are requisite for Service to run.
      * If you add attribute which has a default attribute then this default attribute will be automatically add too.
@@ -457,10 +457,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Batch version of addRequiredAttribute.
-     * 
+     *
      * @param service int Service ID
      * @param attributes int[] Attribute IDs
      */
@@ -483,9 +483,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
-     * Remove required attribute from service. 
+     * Remove required attribute from service.
      * @param service int Service ID
      * @param attribute int Attribute ID
      */
@@ -501,9 +501,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
-     * Remove required attributes from service. 
+     * Remove required attributes from service.
      * @param service int Service ID
      * @param attributes int[] Attribute IDs
      */
@@ -526,9 +526,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
-     * Remove all required attributes from service. 
+     * Remove all required attributes from service.
      * @param service int Service ID
      */
     removeAllRequiredAttributes {
@@ -542,10 +542,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Returns a destination by its ID.
-     * 
+     *
      * @param id int Destination ID
      * @return Destination Found Destination
      */
@@ -553,14 +553,14 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
       @Override
       public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
-        return ac.getServicesManager().getDestinationById(ac.getSession(),            
+        return ac.getServicesManager().getDestinationById(ac.getSession(),
                parms.readInt("id"));
       }
     },
-    
+
     /*#
      * Returns list of all destinations defined for the service and facility.
-     * 
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @return List<Destination> Found Destinations
@@ -569,21 +569,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
       @Override
       public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-        return ac.getServicesManager().getDestinations(ac.getSession(),            
+        return ac.getServicesManager().getDestinations(ac.getSession(),
             ac.getServiceById(parms.readInt("service")),
             ac.getFacilityById(parms.readInt("facility")));
       }
     },
-    
+
     /*#
      * Returns all rich destinations defined for a facility.
-     * 
+     *
      * @param facility int Facility ID
      * @return List<RichDestination> Found RichDestinations
      */
     /*#
      * Returns all rich destinations defined for a service.
-     * 
+     *
      * @param service int Service ID
      * @return List<RichDestination> Found RichDestinations
      */
@@ -594,29 +594,29 @@ public enum ServicesManagerMethod implements ManagerMethod {
             ac.getFacilityById(parms.readInt("facility")));
         }else{
          return ac.getServicesManager().getAllRichDestinations(ac.getSession(),
-             ac.getServiceById(parms.readInt("service")));   
+             ac.getServiceById(parms.readInt("service")));
         }
-      }  
+      }
     },
-    
+
     /*#
      * Returns list of all rich destinations defined for the service and facility.
-     * 
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @return List<RichDestination> Found RichDestination
      */
     getRichDestinations {
       public List<RichDestination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-        return ac.getServicesManager().getRichDestinations(ac.getSession(), 
-            ac.getFacilityById(parms.readInt("facility")),         
+        return ac.getServicesManager().getRichDestinations(ac.getSession(),
+            ac.getFacilityById(parms.readInt("facility")),
             ac.getServiceById(parms.readInt("service")));
-      }  
+      }
     },
-    
+
     /*#
      * Adds an destination for a facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
-     * 
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @param destination String Destination
@@ -637,7 +637,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
       @Override
       public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
         ac.stateChangingCheck();
-        
+
         if(parms.contains("services")) {
             return ac.getServicesManager().addDestination(ac.getSession(),
                 parms.readList("services", Service.class),
@@ -650,13 +650,13 @@ public enum ServicesManagerMethod implements ManagerMethod {
                 ac.getDestination(parms.readString("destination"), parms.readString("type")));
         }
 
-        
+
       }
     },
-    
+
     /*#
      * Adds destination for all services defined on the facility.
-     * 
+     *
      * @param facility int Facility ID
      * @param destination String Destination
      * @param type String Type
@@ -673,10 +673,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
             ac.getDestination(parms.readString("destination"), parms.readString("type")));
       }
     },
-    
+
     /*#
      * Defines service destination for all cluster hosts using theirs hostnames.
-     * 
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @return List<Destinations> Added destinations
@@ -692,12 +692,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
             ac.getFacilityById(parms.readInt("facility")));
       }
     },
-    
+
     /*#
      * Add services destinations for all services currently available on facility
      * (assigned to all facility's resources). Destinations names are taken from
      * all facility's host hostnames.
-     * 
+     *
      * @param service int Service ID
      * @param facility int Facility ID
      * @return List<Destinations> Added destinations
@@ -719,7 +719,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
      * @return List<Destinations> Added destinations
      */
     addDestinationsDefinedByHostsOnFacility {
-        
+
       @Override
       public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
         ac.stateChangingCheck();
@@ -736,7 +736,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
             return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
             ac.getFacilityById(parms.readInt("facility")));
         }
-        
+
       }
     },
 
@@ -761,7 +761,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
         return null;
       }
     },
-    
+
     /*#
      * Removes all destinations from a facility and service.
      * @param service int Service ID
@@ -780,7 +780,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
         return null;
       }
     },
-    
+
     /*#
      * Returns owner of a Service.
      * @param service int Service ID
@@ -796,10 +796,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
                   ac.getServiceById(parms.readInt("service")));
       }
     },
-    
+
     /*#
      * List all destinations for all facilities which are joined by resources to the VO.
-     * 
+     *
      * @param vo int VO ID
      * @return List<Destination> Found destinations
      */
@@ -809,12 +809,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
         return ac.getServicesManager().getFacilitiesDestinations(ac.getSession(),
                   ac.getVoById(parms.readInt("vo")));
-      }  
+      }
     },
-    
+
     /*#
      * List all services associated with the facility (via resource).
-     * 
+     *
      * @param facility int Facility ID
      * @return List<Service> Found services
      */

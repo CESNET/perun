@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
 return qq{
@@ -21,7 +21,7 @@ Available options:
  --voId         | -v  vo identifier
  --attributeId  | -a  attribute identifier
  --orderById    | -i  order by numeric Id
- --orderByName  | -n  order by Name 
+ --orderByName  | -n  order by Name
  --batch        | -b  batch
  --help         | -h  prints this help
 };
@@ -38,11 +38,11 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
            "hostId|h=i" => \$hostId,
            "attributeId|a=i" => \$attributeId,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check
-unless(defined $attributeId) { die "ERROR: attributeId is required\n";} 
+unless(defined $attributeId) { die "ERROR: attributeId is required\n";}
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();

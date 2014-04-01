@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 
 /**
  * Custom GWT cell, which is clickable and looks like an anchor.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlCell<T>
@@ -36,7 +36,7 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 
 			public SafeHtml render(T object) {
 				if (object != null) {
-					
+
 					GeneralObject go = object.cast();
 					String url = getUrl(go);
 					// TODO - better usage of methods in general object
@@ -44,12 +44,12 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 					generateCode(sb, url, go.getAttribute(attrName));
 					return sb.toSafeHtml();
 				}
-				
+
 				return SafeHtmlUtils.EMPTY_SAFE_HTML;
 			}
 
 			public void render(T object, SafeHtmlBuilder sb) {
-				if (object != null) {			
+				if (object != null) {
 					GeneralObject go = object.cast();
 					String url = getUrl(go);
 					generateCode(sb, url, go.getName());
@@ -58,8 +58,8 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 		});
 
 	}
-	
-	
+
+
 	/**
 	 * Generates the code to be included in the cell
 	 * @param sb
@@ -71,7 +71,7 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 		{
 			return;
 		}
-		
+
 		if(url.equals("")){
 			sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
 			sb.appendHtmlConstant(title);
@@ -82,11 +82,11 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 			sb.appendHtmlConstant("</div>");
 		}
 	}
-	
+
 	/**
 	 * Construct a new HyperlinkCell that will use a given
 	 * {@link SafeHtmlRenderer}.
-	 * 
+	 *
 	 * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
 	 */
 	public HyperlinkCell(SafeHtmlRenderer<T> renderer) {
@@ -116,16 +116,16 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 		}
 	}
 
-	
+
 	/**
 	 * Creates a URL from the object
 	 * @param go GeneralObject
 	 * @return URL to be used in link
 	 */
 	private static String getUrl(GeneralObject go){
-		
+
 		String url = "";
-		
+
 		if(go.getObjectType() == null){
 			return url;
 		}
@@ -136,8 +136,8 @@ public class HyperlinkCell<T extends JavaScriptObject> extends AbstractSafeHtmlC
 		}else if(go.getObjectType().equals("Facility")){
             //url = session.getTabManager().getLinkForTab(new FacilityDetailTabItem(session, go.getId()));
 		}
-		
-		
+
+
 		return url;
 	}
 

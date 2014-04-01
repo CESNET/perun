@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Dao for work with perunNotifAuditMessageDao in db
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -25,7 +25,7 @@ public interface PerunNotifAuditMessageDao {
 	 * @param id
 	 */
 	public void remove(long id);
-	
+
 	/**
 	 * Gets all perun messages from db, these messages were not processed
      * This can happen for example during restart of server

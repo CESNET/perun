@@ -17,7 +17,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 @Transactional
 public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServiceDenialDao {
-	
+
 	@Override
 	public void banExecServiceOnFacility(int execServiceId, int facilityId) throws InternalErrorException {
 		int newBanId = Utils.getNewId(this.getJdbcTemplate(), "service_denials_id_seq");
@@ -34,9 +34,9 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 	public List<ExecService> listDenialsForFacility(int facilityId) {
 		List<ExecService> deniedExecServices = getJdbcTemplate()
 		.query("" +
-				"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + 
+				"select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
 				" from exec_services left join service_denials on service_denials.exec_service_id = exec_services.id left join services on " +
-				" services.id=exec_services.service_id where service_denials.facility_id = ?", 
+				" services.id=exec_services.service_id where service_denials.facility_id = ?",
 				new Integer[] { facilityId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
 		if (deniedExecServices != null) {
 			return deniedExecServices;

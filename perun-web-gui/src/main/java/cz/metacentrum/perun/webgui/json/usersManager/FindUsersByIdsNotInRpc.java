@@ -12,23 +12,23 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Searching for users.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class FindUsersByIdsNotInRpc implements JsonCallback{
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// IDs divided by a comma
 	private String searchString;
 
 	private int idsCount = 0;
 	private int idsFound = 0;
-	
+
 	private JSONArray result = new JSONArray();
 
 	/**
@@ -50,51 +50,51 @@ public class FindUsersByIdsNotInRpc implements JsonCallback{
 		if(ids.length == 0){
 			return;
 		}
-		
+
 		idsCount = ids.length;
-		
+
 		onLoadingStart();
-		
+
 		for(String id : ids)
 		{
 			// trims the whitespace
 			id = id.trim();
-			
+
 			try{
 				int idint = Integer.parseInt(id);
-			
+
 				GetEntityById req = new GetEntityById(PerunEntity.USER, idint, new JsonCallbackEvents(){
-					
+
 					public void onFinished(JavaScriptObject jso){
 						idsFound++;
-						
+
 						// add to result
 						int i = result.size();
 						result.set(i, new JSONObject(jso));
-						
+
 						isFinished();
 					}
-					
+
 					public void onError(PerunError err){
 						idsFound++;
-						
+
 						isFinished();
 					}
-					
+
 				});
 				req.retrieveData();
-				
+
 			}catch(Exception e){
 			}
 		}
 	}
-	
+
 	protected void isFinished()
 	{
 		if(idsFound != idsCount){
 			return;
 		}
-		
+
 		onFinished(result.getJavaScriptObject());
 	}
 
@@ -119,10 +119,10 @@ public class FindUsersByIdsNotInRpc implements JsonCallback{
 	 * Called, when operation finishes successfully.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		session.getUiElements().setLogText("Found users");	
+		session.getUiElements().setLogText("Found users");
 		events.onFinished(jso);
 	}
 
 
-	
+
 }

@@ -61,7 +61,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
         logger.debug("Getting all poolMessages from db.");
 		Map<Integer, List<PoolMessage>> result = this.getJdbcTemplate().query("SELECT * FROM pn_pool_message ORDER BY key_attributes ASC, template_id ASC, created ASC ", new PerunNotifPoolMessage.PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR());
         logger.debug("Pool messages retrieved from db: {}", result);
-		
+
 		return result;
 	}
 

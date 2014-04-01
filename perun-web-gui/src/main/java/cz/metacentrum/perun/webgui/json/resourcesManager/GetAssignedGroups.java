@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get assigned groups for specified resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
@@ -60,9 +60,9 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
     // oracle
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(":");
     private ArrayList<Group> fullBackup = new ArrayList<Group>();
-	
+
 	/**
-	 * Creates a new callback instance	
+	 * Creates a new callback instance
 	 *
 	 * @param id resource ID
 	 */
@@ -71,7 +71,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	}
 
 	/**
-	 * Creates a new callback instance	
+	 * Creates a new callback instance
 	 *
 	 * @param id resource ID
 	 * @param events Custom events
@@ -83,18 +83,18 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 
 	/**
 	 * Returns table with assigned groups with custom onClick
-	 * 
-	 * @param fu Field updater 
+	 *
+	 * @param fu Field updater
 	 * @return table widget
 	 */
 	public CellTable<Group> getTable(FieldUpdater<Group, String> fu) {
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
 	/**
 	 * Returns table with assigned groups
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Group> getTable() {
@@ -108,7 +108,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 		// Cell table
 		table = new PerunTable<Group>(list);
 		table.setHyperlinksAllowed(false);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 

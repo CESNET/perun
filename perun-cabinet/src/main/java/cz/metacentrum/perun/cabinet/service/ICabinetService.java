@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 /**
  * Interface which provides Cabinet with ability to search through
  * external PS based on user's identity and PS namespace.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
 public interface ICabinetService {
@@ -17,12 +17,12 @@ public interface ICabinetService {
 	/**
 	 * Search for user's publications based on his identity in Perun.
 	 * External PS is chosen by passed namespace. All params are required.
-	 * 
+	 *
 	 * @param userId User's ID in Perun
 	 * @param yearSince Since which year should publications be (filter results)
 	 * @param yearTill Until which year should publications be (filter results)
 	 * @return List of user's publications in selected external PS
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException;
 
@@ -31,7 +31,7 @@ public interface ICabinetService {
 	 * The authorId is an internal id in given PublicationSystem, i.e. UCO in MU
 	 * pub.sys. Note that the authorId can be obtained from user's UserExtSource
 	 * in Perun and the PS through IPublicationSystemService. All params are required.
-	 * 
+	 *
 	 * @param authorId User's identification in external PS
 	 * @param yearSince Since which year should publications be (filter results)
 	 * @param yearTill Until which year should publications be (filter results)

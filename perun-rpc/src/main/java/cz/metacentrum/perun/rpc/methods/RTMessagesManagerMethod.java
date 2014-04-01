@@ -7,38 +7,38 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum RTMessagesManagerMethod implements ManagerMethod {
-	
-	/*# 
+
+	/*#
 	 * Sends a message to RT.
 	 * Member ID is sent.
-	 * 
+	 *
 	 * @param memberId int Member whose e-mail address will be user
 	 * @param queue String RT queue
 	 * @param subject String Message subject
 	 * @param text String Message text
 	 * @return RTMessage Confirmation with e-mail address the ticket was created for
 	 */
-	/*# 
+	/*#
 	 * Sends a message to RT.
 	 * VO ID is sent.
-	 * 
+	 *
 	 * @param voId int VO ID
 	 * @param queue String RT queue
 	 * @param subject String Message subject
 	 * @param text String Message text
 	 * @return RTMessage Confirmation with e-mail address the ticket was created for
 	 */
-	/*# 
+	/*#
 	 * Sends a message to RT.
 	 * VO ID is sent.
 	 * Queue is not sent.
-	 * 
+	 *
 	 * @param voId int VO ID
 	 * @param subject String Message subject
 	 * @param text String Message text
 	 * @return RTMessage Confirmation with e-mail address the ticket was created for
 	 */
-	/*# 
+	/*#
 	 * Sends a message to RT.
 	 * Only text information is sent.
 	 * @param queue String RT queue
@@ -50,22 +50,22 @@ public enum RTMessagesManagerMethod implements ManagerMethod {
     @Override
     public RTMessage call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("memberId")) {
-        return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(), 
-              ac.getMemberById(parms.readInt("memberId")), parms.readString("queue"), 
+        return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(),
+              ac.getMemberById(parms.readInt("memberId")), parms.readString("queue"),
               parms.readString("subject"), parms.readString("text"));
       } else if(parms.contains("voId")) {
           if(parms.contains("queue")) {
-            return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(), 
-                parms.readInt("voId"), parms.readString("queue"), 
+            return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(),
+                parms.readInt("voId"), parms.readString("queue"),
                 parms.readString("subject"), parms.readString("text"));
           } else {
-            return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(), 
+            return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(),
                 parms.readInt("voId"), parms.readString("subject"), parms.readString("text"));
           }
       } else {
-        return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(), 
-             parms.readString("queue"), 
-             parms.readString("subject"), parms.readString("text")); 
+        return ac.getRTMessagesManager().sendMessageToRT(ac.getSession(),
+             parms.readString("queue"),
+             parms.readString("subject"), parms.readString("text"));
       }
     }
   };

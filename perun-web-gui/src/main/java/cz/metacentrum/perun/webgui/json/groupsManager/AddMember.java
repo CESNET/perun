@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 
 /**
  * Ajax query to add member to group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddMember {
@@ -38,7 +38,7 @@ public class AddMember {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public AddMember(final JsonCallbackEvents events) {
@@ -47,7 +47,7 @@ public class AddMember {
 
 	/**
 	 * Attempts to add member to group
-	 * 
+	 *
 	 * @param groupId ID of group
 	 * @param memberId ID of VO member to be member of group
 	 */
@@ -126,7 +126,7 @@ public class AddMember {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding() {
@@ -157,13 +157,13 @@ public class AddMember {
 	 */
 	private JSONObject prepareJSONObject() {
 
-		JSONNumber group = new JSONNumber(groupId); 
+		JSONNumber group = new JSONNumber(groupId);
 		JSONNumber member = new JSONNumber(memberId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("group", group);          
-		jsonQuery.put("member", member);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("group", group);
+		jsonQuery.put("member", member);
 		return jsonQuery;
 	}
 

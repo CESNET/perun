@@ -59,12 +59,12 @@ import cz.metacentrum.perun.taskslib.service.GeneralServiceManager;
 @Transactional
 */
 public class TaskResultDaoTest {
-    
+
     @Test
     public void testDummy() {
-        
+
     }
-    
+
 /*
     private final static Logger log = LoggerFactory.getLogger(TaskResultDaoTest.class);
     private int virtualEngineID = 1;

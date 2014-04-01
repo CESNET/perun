@@ -9,7 +9,7 @@ import com.google.gwt.user.client.ui.Image;
 
 /**
  * Custom button widget used in TabMenu
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <2566627@mail.muni.cz>
  */
@@ -19,7 +19,7 @@ public class CustomButton extends Button {
 	 * Button text
 	 */
 	private String text;
-	
+
 	/**
 	 * Button image
 	 */
@@ -42,7 +42,7 @@ public class CustomButton extends Button {
 	public CustomButton() {
 		super();
 	}
-	
+
 	/**
 	 * Creates a new button
 	 * @param text
@@ -55,7 +55,7 @@ public class CustomButton extends Button {
 		this.setText(text);
 
 	}
-	
+
 	/**
 	 * Creates a new button
 	 * @param text
@@ -64,7 +64,7 @@ public class CustomButton extends Button {
 	public CustomButton(String text, ImageResource imgres){
 		this(text, new Image(imgres));
 	}
-	
+
 	/**
 	 * Creates a new button
 	 * @param text
@@ -75,7 +75,7 @@ public class CustomButton extends Button {
 		this(text, new Image(imgres));
 		this.setTitle(title);
 	}
-	
+
 	/**
 	 * Creates a new button
 	 * @param text
@@ -86,7 +86,7 @@ public class CustomButton extends Button {
 		this(text, image);
 		super.addClickHandler(clickHandler);
 	}
-	
+
 	/**
 	 * Creates a new button
 	 * @param text
@@ -108,7 +108,7 @@ public class CustomButton extends Button {
         this(text, new Image(imgres), clickHandler);
         this.setTitle(title);
     }
-	
+
 	/**
 	 * Adds the image to the button
 	 */
@@ -146,7 +146,7 @@ public class CustomButton extends Button {
 	 */
 	@Override
 	public void setText(String text) {
-		
+
 		DOM.setInnerHTML(getElement(), ""); // cleans the HTML
 
         if (!text.equals("")) {

@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Tab with service details and complete management
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -38,18 +38,18 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading service");
-	
-	
+
+
 	// data
 	private Service service;
 
@@ -59,7 +59,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	 * Small tab panel
 	 */
 	private TabPanelForTabItems tabPanel;
-	
+
 	/**
 	 * Tab with service details and complete management
 	 *
@@ -70,7 +70,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 		this.serviceId = service.getId();
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
-	
+
 	/**
 	 * Tab with service details and complete management
 	 *
@@ -89,9 +89,9 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return !(service == null);
 	}
-	
+
 	public Widget draw(){
-		
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()));
 
         // main widget panel
@@ -139,9 +139,9 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
         vp.setCellHeight(dp, "30px");
 
 		// TAB PANEL
-		
+
 		tabPanel.clear();
-		
+
 		tabPanel.add(new ServiceRequiredAttributesTabItem(service), "Required attributes");
 		tabPanel.add(new ServiceExecServicesTabItem(service), "Exec services");
 		tabPanel.add(new ServiceDestinationsTabItem(service), "Destinations");
@@ -153,13 +153,13 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
                 tabPanel.finishAdding();
             }
         });
-		
+
 		vp.add(tabPanel);
         vp.setCellHeight(tabPanel, "100%");
 
 		// add tabs to the main panel
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -172,7 +172,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 
@@ -202,7 +202,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL);
@@ -210,8 +210,8 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -219,17 +219,17 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
 	}
-	
+
 	static public ServiceDetailTabItem load(Map<String, String> parameters)
 	{
 		int id = Integer.parseInt(parameters.get("id"));

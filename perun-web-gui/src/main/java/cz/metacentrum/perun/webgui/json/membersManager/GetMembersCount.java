@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoMembersTabItem;
 
 /**
  * Returns the count of the members in VO.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetMembersCount implements JsonCallback {
@@ -43,7 +43,7 @@ public class GetMembersCount implements JsonCallback {
 	 */
 	public GetMembersCount(int id, PerunStatus status) {
 		this.voId = id;
-		this.status= status; 
+		this.status= status;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class GetMembersCount implements JsonCallback {
 	 */
 	public GetMembersCount(int id, PerunStatus status, JsonCallbackEvents events) {
 		this.voId = id;
-		this.status= status; 
+		this.status= status;
 		this.events = events;
 	}
 
@@ -99,7 +99,7 @@ public class GetMembersCount implements JsonCallback {
 		this.membersCountLabel.setText(String.valueOf(count.getInt()));
         this.hyp.setText(String.valueOf(count.getInt()));
 		this.events.onFinished(jso);
-	}	
+	}
 
 	/**
 	 * Returns the members count label

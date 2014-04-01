@@ -63,7 +63,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
             //skip GEN tasks
             if(task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) continue;
             log.info("Gonna check results for Task ID:" + task.getId());
-            
+
             List<TaskResult> taskResults = taskResultDao.getTaskResultsByTask(task.getId());
 
             List<Destination> destinations = null;
@@ -86,7 +86,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
               log.error("Facility for the task no longer exists. Removing task", ex);
               taskManager.removeTask(task.getId(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
             }
-          
+
             /**
              * Do we have the same number of Destinations as we have TaskResults?
              */
@@ -270,7 +270,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
                     } catch (InternalErrorException e) {
                         log.error(e.toString(), e);
-                    } 
+                    }
                   } else {
                     //delete this tasks (SEND and GEN) because service is no longer assigned to facility
                     List<ExecService> execServicesGenAndSend = Rpc.GeneralServiceManager.listExecServices(engineManager.getRpcCaller(), task.getExecService().getService().getId());
@@ -314,7 +314,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
         for(Task task : taskManager.listAllTasksInState(TaskStatus.DONE, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
             //skip GEN tasks
             if(task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) continue;
-            
+
             Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 24 * 2);
             if(task.getEndTime().before(twoDaysAgo)) {
               //reschedule the task
@@ -323,7 +323,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
                 log.info("TASK [" + task + "] wasn't propagated for more then 2 days. Going to schedule it for propagation now.");
               } catch (InternalErrorException e) {
                 log.error("Rescheduling of task which wasn't propagated for more than 2 days failed. {}, Exception: {}", task, e);
-              } 
+              }
             }
 
         }
@@ -344,7 +344,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
     public void setAllGenerateDependenciesToNone(List<ExecService> dependencies, int facilityId) {
         // And we set all its GENERATE dependencies as "dirty" by switching them to NONE state.
         //TODO: Optimize this for cycle out with a 1 clever SQL query ???
-        //^ setAllGenerateDependenciesToNone(ExecService execService, Facility facility) ??? 
+        //^ setAllGenerateDependenciesToNone(ExecService execService, Facility facility) ???
         //TODO:ADD TEST CASE!!!
         for (ExecService dependencyToBeSetDirty : dependencies) {
             if (dependencyToBeSetDirty.getExecServiceType().equals(ExecServiceType.GENERATE)) {

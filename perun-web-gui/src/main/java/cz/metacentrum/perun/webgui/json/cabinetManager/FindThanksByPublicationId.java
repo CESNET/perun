@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get thanks ba publication ID.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -47,7 +47,7 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
 	private int publicationId = 0;
-	
+
 	/**
 	 * Creates a new request
 	 *
@@ -69,37 +69,37 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	}
 
 	public CellTable<Thanks> getTable() {
-		
+
 		retrieveData();
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<Thanks>(list);
 
 		// Cell table
 		table = new PerunTable<Thanks>(list);
 		table.removeRowCountChangeHandler();
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Thanks> columnSortHandler = new ListHandler<Thanks>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Thanks> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("Publication has no acknowledgements.");
-		
+
 		// checkbox column column
 		if (checkable == true){
 			table.addCheckBoxColumn();
 		}
-		
+
 		table.addIdColumn("Akc Id", tableFieldUpdater);
-		
+
 		// Owner ID column
 		Column<Thanks, String> ownerColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Thanks, String>() {
@@ -107,9 +107,9 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 						return thanks.getOwnerName();
 					}
 				}, tableFieldUpdater);
-		
+
 		table.addColumn(ownerColumn, "Acknowledgement");
-		
+
 		// createdBy column
 		Column<Thanks, String> createdByColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Thanks, String>() {
@@ -117,11 +117,11 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 						return String.valueOf(thanks.getCreatedBy());
 					}
 				}, tableFieldUpdater);
-		
+
 		table.addColumn(createdByColumn, "Created by");
-		
+
 		return table;
-		
+
 	}
 
     /**
@@ -240,5 +240,5 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, "id="+publicationId, this);
 	}
-	
+
 }

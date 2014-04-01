@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -15,7 +15,7 @@ Available options:
  --newStatus  | -s new status
  --batch      | -b batch
  --help       | -h prints this help
- 
+
 };
 }
 
@@ -24,7 +24,7 @@ my ($memberId,$status);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
  "batch|b" => \$batch,
  "newStatus|s=s" => \$status,
- "memberId|m=i" => \$memberId) || die help(); 
+ "memberId|m=i" => \$memberId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}

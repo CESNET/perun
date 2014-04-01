@@ -106,7 +106,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -117,7 +117,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
 	public CellTable<User> getTable() {
@@ -127,23 +127,23 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<User>(list);
-		
+
 		// Cell table
 		table = new PerunTable<User>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<User> columnSortHandler = new ListHandler<User>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// Table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<User> createCheckboxManager());
 
 		// Set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		// Checkbox column column
 		table.addCheckBoxColumn();
 
@@ -154,17 +154,17 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 						return String.valueOf(object.getId());
 					}
 				}, this.tableFieldUpdater);
-		
+
 
 		userIdColumn.setSortable(true);
 		columnSortHandler.setComparator(userIdColumn, new GeneralComparator<User>(GeneralComparator.Column.ID));
-		
+
 		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
-		
+
 		if(JsonUtils.isExtendedInfoVisible()){
 			table.addColumn(userIdColumn,  "User ID");
 		}
-		
+
 		// Create name column.
 		Column<User, String> nameColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<User, String>() {
@@ -184,7 +184,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 		table.addColumn(nameColumn, "Name");
 
 		return table;
-		
+
 	}
 
     /**
@@ -301,7 +301,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {

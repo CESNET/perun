@@ -25,7 +25,7 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
  *         TODO: Remove "" where not necessary...
  */
@@ -38,7 +38,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 
   public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
   		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time ";
-  
+
   public static final RowMapper<Task> TASK_ROWMAPPER = new RowMapper<Task>() {
 
     public Task mapRow(ResultSet rs, int i) throws SQLException {
@@ -72,9 +72,9 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
       } else {
         throw new IllegalArgumentException("Task status unknown :-(");
       }
-      
+
       task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
-      
+
       task.setExecService(ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER.mapRow(rs, i));
 
       return task;
@@ -147,7 +147,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
           "select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
           ", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
           "left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where facilities.id = ?",
-          TASK_ROWMAPPER, facilityId);    
+          TASK_ROWMAPPER, facilityId);
     } catch (EmptyResultDataAccessException ex) {
       return null;
     }

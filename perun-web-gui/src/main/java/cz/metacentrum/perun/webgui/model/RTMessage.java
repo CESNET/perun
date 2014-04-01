@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Overlay type for RTMessage object from Perun
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class RTMessage extends JavaScriptObject {
@@ -20,32 +20,32 @@ public class RTMessage extends JavaScriptObject {
 		return this.ticketNumber;
 	}-*/;
 
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
@@ -59,6 +59,6 @@ public class RTMessage extends JavaScriptObject {
 	 */
 	public final boolean equals(RTMessage o)
 	{
-		return o.getTicketNumber() == this.getTicketNumber();		
+		return o.getTicketNumber() == this.getTicketNumber();
 	}
 }

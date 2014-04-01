@@ -15,7 +15,7 @@ import org.junit.Test;
 import cz.metacentrum.perun.core.api.Attribute;
 
 public class AttributesManagerImplIntegrationTest {
-        
+
         private Map<Attribute, String> attrMap = new HashMap<Attribute,String>();
 
         @Before
@@ -31,7 +31,7 @@ public class AttributesManagerImplIntegrationTest {
           attrMap.put(getHashAttribute("a:x", "b", ":", "::"), "a\\:x:b,\\::\\:\\:,");
         }
 
-        
+
         @Test
         public void stringToAttributeValue() throws Exception {
           System.out.println("AttributesManagerImpl.stringToAttributeValue");
@@ -49,7 +49,7 @@ public class AttributesManagerImplIntegrationTest {
             assertEquals(entry.getValue(), DBValue);
           }
         }
-        
+
         public Attribute getArrayAttribute(String ... value) {
           Attribute attribute = new Attribute();
           attribute.setFriendlyName("test");

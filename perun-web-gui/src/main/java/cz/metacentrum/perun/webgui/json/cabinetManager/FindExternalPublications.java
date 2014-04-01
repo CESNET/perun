@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 /**
  * Finds publications in external source
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -61,7 +61,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	private int yearSince = 0;
 
 	private int yearTill = Integer.MAX_VALUE;
-	
+
 	private String namespace = "";
 
 	private boolean checkable = true;
@@ -124,7 +124,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		retrieveData();
 		return this.getEmptyTable();
 	}
-	
+
 	/**
 	 * Returns table with publications
 	 * @return table
@@ -138,7 +138,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		table = new PerunTable<Publication>(list);
 		table.removeRowCountChangeHandler();
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
@@ -157,7 +157,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
-		
+
 		/*
 		// CATEGORY COLUMN
 		ArrayList<String> categories = new ArrayList<String>();
@@ -166,13 +166,13 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		categories.add("Příspěvek do ročenky");
 		categories.add("Výjimečné výsledky");
 		categories.add("Jiné");
-		
+
 		Column<Publication, String> categoryColumn = new Column<Publication, String>(new SelectionCell(categories)){
 			@Override
 			public String getValue(Publication object) {
 				// category ID as string, 0 if not set
 				int id = object.getCategoryId();
-				if (id == 0) { 
+				if (id == 0) {
 					// set default == 21/Bodované v RIVu to object
 					object.setCategoryId(21);
 				}
@@ -193,7 +193,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		};
 		categoryColumn.setFieldUpdater(new FieldUpdater<Publication, String>() {
 			public void update(int index, Publication object, String value) {
-				
+
 				int id = 0;
 				if (value.equalsIgnoreCase("Bodované v RIVu")) {
 					id = 21;
@@ -208,7 +208,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 				}
 				object.setCategoryId(id);
 				selectionModel.setSelected(object, true);
-				
+
 			}
 		});
 		table.addColumn(categoryColumn, "Category");
@@ -234,7 +234,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		titleColumn.setSortable(true);
 		columnSortHandler.setComparator(titleColumn, new PublicationComparator(PublicationComparator.Column.TITLE));
 		table.addColumn(titleColumn, "Title");
-		
+
 		// AUTHORS COLUMN
 		TextColumn<Publication> authorColumn = new TextColumn<Publication>() {
 			public String getValue(Publication object) {
@@ -244,7 +244,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		authorColumn.setSortable(true);
 		columnSortHandler.setComparator(authorColumn, new PublicationComparator(PublicationComparator.Column.AUTHORS));
 		table.addColumn(authorColumn, "Authors");
-		
+
 		// YEAR COLUMN
 		TextColumn<Publication> yearColumn = new TextColumn<Publication>() {
 			public String getValue(Publication object) {
@@ -283,7 +283,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 		table.addColumn(citaceColumn, "Cite");
 
 		return table;
-		
+
 	}
 
 
@@ -294,7 +294,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	{
 		JsonClient js = new JsonClient(60000); // 1 minute to retrieve data from external source
 		js.retrieveData(JSON_URL, "user=" + this.userId + "&yearSince=" + yearSince + "&yearTill=" + yearTill+ "&pubSysNamespace="+namespace, this);
-		return;	
+		return;
 	}
 
     /**
@@ -415,26 +415,26 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	public void setUser(int userId) {
 		this.userId = userId;
 	}
-	
+
 	/**
 	 * Set year since
 	 */
 	public void setYearSince(int year) {
 		this.yearSince = year;
 	}
-	
+
 	/**
 	 * Set year till
 	 */
 	public void setYearTill(int year) {
 		this.yearTill = year;
 	}
-	
+
 	/**
 	 * Set pub sys namespace
 	 */
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
 	}
-	
+
 }

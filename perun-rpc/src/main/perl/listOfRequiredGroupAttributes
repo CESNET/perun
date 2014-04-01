@@ -16,18 +16,18 @@ Available options:
  --groupName   | -G group name
  --voId        | -v vo id
  --voShortName | -V vo short name
- --resourceId  | -r id of resource to get services from 
+ --resourceId  | -r id of resource to get services from
  --orderById   | -i order by attribute id
  --orderByName | -n order by attribute friendly name
  --batch       | -b batch
  --help        | -h help
- 
+
 };
 }
- 
+
 my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, $resourceId);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch, 
+GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
     "groupId|g=i" => \$groupId,
     "groupName|G=s" => \$groupName,
     "voId|v=i" => \$voId,

@@ -18,7 +18,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_smb_groupshare extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-   
+
     public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
         /*Attribute attr = new Attribute(attribute);
         attr.setValue(0);
@@ -26,7 +26,7 @@ public class urn_perun_resource_attribute_def_def_smb_groupshare extends Resourc
         return new Attribute();
     }
 
-    
+
     public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
          /*Integer value = (Integer) attribute.getValue();
         if(value == null) {

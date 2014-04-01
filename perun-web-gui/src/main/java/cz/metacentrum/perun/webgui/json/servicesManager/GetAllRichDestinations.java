@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all rich destinations for selected facility or service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {
@@ -86,7 +86,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	}
 
 	/**
-	 * Returns empty table 
+	 * Returns empty table
 	 * @return table widget
 	 */
 	public CellTable<Destination> getEmptyTable(){
@@ -192,7 +192,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		if (showFac) {
 			table.addColumn(facilityColumn, "Facility");
 		}
-		
+
 		table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
 
@@ -346,7 +346,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		if (service != null) {
 			param = "service="+service.getId();
 		} else if (facility != null) {
-			param = "facility="+facility.getId();	
+			param = "facility="+facility.getId();
 		}
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
@@ -354,7 +354,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 
 	/**
 	 * Sets different external events after creating this query
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {
@@ -364,7 +364,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	/**
 	 * Sets service object for this callback
 	 * (clears facility object)
-	 * 
+	 *
 	 * @param service service to get destinations for
 	 */
 	public void setService(Service service) {
@@ -375,7 +375,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	/**
 	 * Sets facility object for this callback
 	 * (clears service object)
-	 * 
+	 *
 	 * @param facility facility to get destinations for
 	 */
 	public void setFacility(Facility facility) {
@@ -416,11 +416,11 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 				if (service == null) {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getService().getName().toLowerCase().startsWith(text.toLowerCase())) {
 						list.add(dst);
-					}	
+					}
 				} else {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getFacility().getName().toLowerCase().startsWith(text.toLowerCase())) {
 						list.add(dst);
-					}	
+					}
 				}
 			}
 
@@ -439,7 +439,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();
-		
+
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

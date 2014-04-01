@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Finds All authors in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTable<Author> {
@@ -180,7 +180,7 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 			}
 		});
 		table.addColumn(loginColumn, "Logins");
-		
+
 		// createdBy COLUMN
 		Column<Author, String> createdByColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Author, String>() {
@@ -206,7 +206,7 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, "id="+pubId, this);
-		return;	
+		return;
 	}
 
     /**

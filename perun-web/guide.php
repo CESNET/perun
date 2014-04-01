@@ -5,7 +5,7 @@ include ("conf.php");
 header('Content-Type: text/html; charset=utf-8');
 
 $applicationURLAttr = "urn:perun:vo:attribute-def:def:applicationURL";
-// REQUEST URL & PARAMETERS 
+// REQUEST URL & PARAMETERS
 define("VO_URL", RPC_URL . "vosManager/getVos");
 
 // CLIENT
@@ -17,7 +17,7 @@ if($vos === false){
     print "Error while getting data.";
     exit;
 }
-// REQUEST URL & PARAMETERS 
+// REQUEST URL & PARAMETERS
 define("VO_ATTRS_URL", RPC_URL . "attributesManager/getAttribute");
 
 // PRINTING DATA
@@ -38,7 +38,7 @@ print '
 ';
 function toASCII( $str )
 {
-    return strtr(utf8_decode($str), 
+    return strtr(utf8_decode($str),
         utf8_decode(
         'ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'),
         'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
@@ -58,7 +58,7 @@ foreach ($vos as $vo) {
   $client -> addParameter('vo', $vo->id);
   $client -> addParameter('attributeName', $applicationURLAttr);
   $attrs[$vo->shortName] = $client -> retrieveData();
-  
+
   if (!empty($attrs[$vo->shortName]->value)) {
     print "<tr><td>" . $vo->name . " </td><td><a href=\"" . $attrs[$vo->shortName]->value . "\"><button class=\"btn\" type=\"button\"><i class=\"icon-chevron-right\"></i>&nbsp;Registration</button></a></td></tr>\n";
   }

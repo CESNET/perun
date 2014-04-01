@@ -10,7 +10,7 @@ public enum VosManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of all VOs.
-	 * 
+	 *
 	 * @return List<VirtualOrganization> Found VOs
 	 */
   getVos {
@@ -20,7 +20,7 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().getVos(ac.getSession());
     }
   },
-  
+
   getAllVos {
 
     @Override
@@ -28,15 +28,15 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().getAllVos(ac.getSession());
     }
   },
-  
+
   /*#
 	 * Deletes a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 */
 /*#
 	 * Deletes a VO (force).
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param force int Force must be 1
 	 */
@@ -46,7 +46,7 @@ public enum VosManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       ac.stateChangingCheck();
 
-      if(parms.contains("force")) { 
+      if(parms.contains("force")) {
         ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), true);
       } else {
         ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")));
@@ -54,10 +54,10 @@ public enum VosManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Creates a VO.
-   * 
+   *
    * @param vo VirtualOrganization JSON VO class
    * @return VirtualOrganization Newly created VO
    */
@@ -70,10 +70,10 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().createVo(ac.getSession(), parms.read("vo", Vo.class));
     }
   },
-  
+
   /*#
    * Updates a VO.
-   * 
+   *
    * @param vo VirtualOrganization JSON VO class
    * @return VirtualOrganization Updated VO
    */
@@ -86,10 +86,10 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().updateVo(ac.getSession(), parms.read("vo", Vo.class));
     }
   },
-  
+
   /*#
    * Returns a VO by a short name.
-   * 
+   *
    * @param shortName String VO shortName
    * @return VirtualOrganization Found VO
    */
@@ -101,10 +101,10 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().getVoByShortName(ac.getSession(), parms.readString("shortName"));
     }
   },
-  
+
   /*#
    * Returns a VO by ID.
-   * 
+   *
    * @param id int VO ID
    * @return VirtualOrganization Found VO
    */
@@ -116,17 +116,17 @@ public enum VosManagerMethod implements ManagerMethod {
       return ac.getVosManager().getVoById(ac.getSession(), parms.readInt("id"));
     }
   },
-  
+
   /*#
    * Finds candidates for a VO.
-   * 
+   *
    * @param vo int VO ID
    * @param searchString String String to search by
    * @return List<Candidate> List of candidates
    */
   /*#
    * Finds candidates for a VO. Maximum results specified.
-   * 
+   *
    * @param vo int VO ID
    * @param searchString String String to search by
    * @param maxNumOfResults int Maximum results
@@ -148,15 +148,15 @@ public enum VosManagerMethod implements ManagerMethod {
       }
     }
   },
-  
+
   /*#
    * Adds an admin to a VO.
-   * 
+   *
    * @param vo int VO ID
    * @param user int User ID
   /*#
   *  Adds a group admin to a VO.
-  * 
+  *
   *  @param vo int VO ID
   *  @param authorizedGroup int Group ID
   */
@@ -177,15 +177,15 @@ public enum VosManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
    * Removes an admin from a VO.
-   * 
+   *
    * @param vo int VO ID
    * @param user int User ID
   /*#
   *  Removes a group admin from VO.
-  * 
+  *
   *  @param vo int VO ID
   *  @param group int Group ID
   */
@@ -206,10 +206,10 @@ public enum VosManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
  	 * Returns administrators of a VO.
- 	 * 
+ 	 *
  	 * @param vo int VO ID
  	 * @return List<User> VO admins
  	 */
@@ -222,10 +222,10 @@ public enum VosManagerMethod implements ManagerMethod {
           ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
    /*#
  	 * Returns direct administrators of a VO.
- 	 * 
+ 	 *
  	 * @param vo int VO ID
  	 * @return List<User> VO admins
  	 */
@@ -238,10 +238,10 @@ public enum VosManagerMethod implements ManagerMethod {
           ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
    /*#
  	 * Returns group administrators of a VO.
- 	 * 
+ 	 *
  	 * @param vo int VO ID
  	 * @return List<User> VO admins
  	 */
@@ -254,10 +254,10 @@ public enum VosManagerMethod implements ManagerMethod {
           ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
   /*#
 	 * Returns administrators of a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @return List<RichUser> VO admins
 	 */
@@ -273,7 +273,7 @@ public enum VosManagerMethod implements ManagerMethod {
   },
   /*#
  	 * Returns administrators of a VO with additional information.
- 	 * 
+ 	 *
  	 * @param vo int VO ID
  	 * @return List<RichUser> VO admins
  	 */
@@ -286,9 +286,9 @@ public enum VosManagerMethod implements ManagerMethod {
           ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
   getRichAdminsWithSpecificAttributes {
-    
+
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 

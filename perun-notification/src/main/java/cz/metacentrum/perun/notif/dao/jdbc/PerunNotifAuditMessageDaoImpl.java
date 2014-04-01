@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Jdbc implementation of perunNotifAuditMessageDao
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -21,25 +21,25 @@ import java.util.List;
 public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements PerunNotifAuditMessageDao {
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifAuditMessageDao.class);
-	
+
 	public PerunNotifAuditMessage save(String message) throws InternalErrorException{
-	
+
 		logger.debug("Saving perunNotifAuditMessage to db: message = {}", message);
-		
+
 		int newPerunNotifAuditMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_audit_message_id_seq");
 		this.getJdbcTemplate().update("INSERT INTO pn_audit_message(id, message) values (?,?)", newPerunNotifAuditMessageId, message);
-		
+
 		logger.debug("PerunNotifAuditMessage saved to db: id = {} message = {}", newPerunNotifAuditMessageId, message);
 		return new PerunNotifAuditMessage(newPerunNotifAuditMessageId, message);
 	}
 
 	public void remove(long id) {
-		
+
 		logger.debug("Removing perunNotifAuditMessage with id = {}", id);
 		this.getJdbcTemplate().update("delete from pn_audit_message where id=?", id);
         logger.debug("PerunNotifAuditMessage with id: {} removed.", id);
 	}
-	
+
 	public List<PerunNotifAuditMessage> getAll() {
 
         logger.debug("Listing all perunNotifAuditMessages.");

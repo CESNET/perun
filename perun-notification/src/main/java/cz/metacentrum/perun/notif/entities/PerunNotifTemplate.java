@@ -33,7 +33,7 @@ public class PerunNotifTemplate {
      * Name of template
      */
     private String name;
-	
+
 	/**
 	 * Regexes to recognize affiliation to this template, if notifyTrigger waits for
 	 * all regexes to execute notify, the regexes are taken from here.
@@ -48,7 +48,7 @@ public class PerunNotifTemplate {
      * Relation saved in pn_template_receiver
      */
 	private Set<PerunNotifReceiver> receivers;
-	
+
 	/**
 	 * Holds primary properties which are parsed from message
 	 * These properties are same for every auditerMessage which we collect
@@ -71,7 +71,7 @@ public class PerunNotifTemplate {
      *
      */
     private List<PerunNotifTemplateMessage> perunNotifTemplateMessages;
-	
+
 	/**
 	 * Defines millis of oldest message waiting to be sent. If message is older
      * messages is always sent. Can be disabled, based on notifyTrigger
@@ -79,7 +79,7 @@ public class PerunNotifTemplate {
      * Column oldest_message_time
 	 */
 	private Long oldestMessageTime;
-	
+
 	/**
 	 * Time to the youngest message, if message is younger we expect another message soon and we wait
      * so we can aggregate
@@ -87,7 +87,7 @@ public class PerunNotifTemplate {
      * Column youngest_message_time
 	 */
 	private Long youngestMessageTime;
-	
+
     /**
      * Defines method which returns locale which will be used to localize message
      *
@@ -109,7 +109,7 @@ public class PerunNotifTemplate {
         receivers = new HashSet<PerunNotifReceiver>();
         matchingRegexs = new HashSet<PerunNotifRegex>();
     }
-	
+
 	public int getId() {
 		return id;
 	}
@@ -125,7 +125,7 @@ public class PerunNotifTemplate {
 	public void setMatchingRegexs(Set<PerunNotifRegex> matchingRegexs) {
 		this.matchingRegexs = matchingRegexs;
 	}
-	
+
 	public Set<PerunNotifReceiver> getReceivers() {
 		return receivers;
 	}
@@ -244,14 +244,14 @@ public class PerunNotifTemplate {
 			template.setOldestMessageTime(rs.getLong("oldest_message_time"));
             template.setLocale(rs.getString("locale"));
             template.setSender(rs.getString("sender"));
-			
+
 			return template;
 		}
 	};
-	
+
 	private static final String MAP_DELIMITER = ";";
 	private static final String LIST_DELIMITER = "/";
-	
+
 	private static Map<String, List<String>> parseMapWithList(String row) {
 
 		if (row == null) {
@@ -294,12 +294,12 @@ public class PerunNotifTemplate {
     }
 
 	public String getSerializedPrimaryProperties() {
-		
+
 		return serializePropertiesMap(primaryProperties);
 	}
-	
+
 	private String serializePropertiesMap(Map<String, List<String>> map) {
-		
+
 		StringBuilder builder = new StringBuilder();
 		for (Iterator<String> keyIterator = map.keySet().iterator(); keyIterator.hasNext(); ) {
 			String key = keyIterator.next();
@@ -316,7 +316,7 @@ public class PerunNotifTemplate {
 				builder.append(MAP_DELIMITER);
 			}
 		}
-		
+
 		return builder.toString();
 	}
 

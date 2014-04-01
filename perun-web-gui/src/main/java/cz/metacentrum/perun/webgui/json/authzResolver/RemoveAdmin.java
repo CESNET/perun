@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Ajax query which removes admin from VO / Group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveAdmin {
@@ -296,7 +296,7 @@ public class RemoveAdmin {
 
     /**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving() {
@@ -322,7 +322,7 @@ public class RemoveAdmin {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

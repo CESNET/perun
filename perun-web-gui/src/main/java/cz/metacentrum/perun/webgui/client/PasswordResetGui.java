@@ -18,9 +18,9 @@ import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
 
 /**
  * The main Password Reset GUI class. It's GWT Entry point.
- * 
+ *
  * Loads whole GUI, makes login to RPC by calling GetPerunPrincipal
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PasswordResetGui implements EntryPoint {
@@ -42,14 +42,14 @@ public class PasswordResetGui implements EntryPoint {
 
 		// perun web session
 		session = PerunWebSession.getInstance();
-		
+
 		// basic settings
 		session.setUiElements(new UiElements(null));
 
 		// Get web page's BODY
 		RootLayoutPanel body = RootLayoutPanel.get();
 		body.setStyleName("mainPanel");
-		
+
 		// check RPC url
 		if(session.getRpcUrl().isEmpty()){
 			VerticalPanel bodyContents = new VerticalPanel();
@@ -57,14 +57,14 @@ public class PasswordResetGui implements EntryPoint {
 			bodyContents.add(new HTML(new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>RPC SERVER NOT FOUND !</h2>"));
 			bodyContents.setCellHorizontalAlignment(bodyContents.getWidget(0), HasHorizontalAlignment.ALIGN_CENTER);
 			bodyContents.setCellVerticalAlignment(bodyContents.getWidget(0), HasVerticalAlignment.ALIGN_BOTTOM);
-			body.add(bodyContents);			
+			body.add(bodyContents);
 			return;
 		}
-		
+
 		// WEB PAGE SPLITTER
 		DockLayoutPanel bodySplitter = new DockLayoutPanel(Unit.PX);
 		body.add(bodySplitter);
-		
+
 		// left menu
 		//leftMenu = new PasswordResetLeftMenu();
 		// bodySplitter.addWest(leftMenu, 240);
@@ -73,12 +73,12 @@ public class PasswordResetGui implements EntryPoint {
 		contentPanel.setSize("100%", "100%");
 		//contentPanel.add(leftMenu.getContent());
 		bodySplitter.add(contentPanel);
-				
+
 		loadPerunPrincipal();
-		
+
 
 	}
-	
+
 	/**
 	 * Performs a login into the RPC, loads user and his roles into session and enables GUI.
 	 */
@@ -86,7 +86,7 @@ public class PasswordResetGui implements EntryPoint {
 
 		// show loading box
 		final PopupPanel loadingBox = session.getUiElements().perunLoadingBox();
-		loadingBox.show();		
+		loadingBox.show();
 
 		// events after getting PerunPrincipal from RPC
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
@@ -166,15 +166,15 @@ public class PasswordResetGui implements EntryPoint {
 					if (error.getName().contains("UserNotExistsException")) {
 						loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
 					} else {
-						loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());						
+						loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
 					}
 				}
 				loadingFailedBox.show();
-				
+
 				leftMenu.addItem("Password reset", SmallIcons.INSTANCE.keyIcon(), null);
-				
+
 			}
-		};	
+		};
 		GetPerunPrincipal loggedUserRequest = new GetPerunPrincipal(events);
 		loggedUserRequest.retrieveData();
 	}

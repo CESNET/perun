@@ -6,13 +6,13 @@ import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
  * Dto holds data for one email message.
  */
 public class PerunNotifEmailMessageToSendDto {
-	
+
 	//Contains message send by email
 	private String message;
-	
+
 	//Email address of receiver
 	private String receiver;
-	
+
 	//Subject of email
 	private String subject;
 

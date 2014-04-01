@@ -23,7 +23,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
  * Set of tests for class urn_perun_resource_attribute_def_def_shells
- * 
+ *
  * @author Lukas Pravda  <luky.pravda@gmail.com>
  * @date 19.5.2011 14:41:23
  */
@@ -84,27 +84,27 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
 
         Attribute attributeToCheck = new Attribute();
         attributeToCheck.setValue(new ArrayList<String>() {{add("\n");}});
-        
+
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-        
-        classInstance.checkAttributeValue(session, new Resource(), attributeToCheck);
-        fail("Shell attribute with inappropriate format was approved.");
-    }
-    
-    @Test(expected=WrongAttributeValueException.class)
-    public void testCheckAttributeValueWrongShellFormatShellIsDirectory() throws Exception {
-        System.out.println("testCheckAttributeValueWrongShellFormatShellIsDirectory()");
-        
-        Attribute attributeToCheck = new Attribute();
-        attributeToCheck.setValue(new ArrayList<String>() {{add("/bin/bash/");}});
-        
-        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-        
+
         classInstance.checkAttributeValue(session, new Resource(), attributeToCheck);
         fail("Shell attribute with inappropriate format was approved.");
     }
 
-    
+    @Test(expected=WrongAttributeValueException.class)
+    public void testCheckAttributeValueWrongShellFormatShellIsDirectory() throws Exception {
+        System.out.println("testCheckAttributeValueWrongShellFormatShellIsDirectory()");
+
+        Attribute attributeToCheck = new Attribute();
+        attributeToCheck.setValue(new ArrayList<String>() {{add("/bin/bash/");}});
+
+        when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+
+        classInstance.checkAttributeValue(session, new Resource(), attributeToCheck);
+        fail("Shell attribute with inappropriate format was approved.");
+    }
+
+
     /**
      * Test of checkAttributeValue method, of class urn_perun_resource_attribute_def_def_shells.
      * with empty attribute.
@@ -118,7 +118,7 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
         classInstance.checkAttributeValue(session, new Resource(), attributeToCheck);
         fail("Attribute without value has not thrown WrongAttributeValueException.");
     }
-    
+
     /**
      * Test of checkAttributeValue method, of class urn_perun_resource_attribute_def_def_shells.
      * attempting to set shell which is not available at that particular resource.

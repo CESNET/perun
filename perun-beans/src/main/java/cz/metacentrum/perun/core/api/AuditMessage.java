@@ -13,7 +13,7 @@ public class AuditMessage {
     protected String actor;
     protected String createdAt;
     protected Integer createdByUid;
-    
+
     public AuditMessage() {
     }
 
@@ -71,7 +71,7 @@ public class AuditMessage {
     public void setCreatedByUid(Integer createdByUid) {
         this.createdByUid = createdByUid;
     }
-    
+
     /**
      * Compares messages.
      * @see Comparable#compareTo(Object)
@@ -93,7 +93,7 @@ public class AuditMessage {
     }
 
     /**
-     * Compares Strings and handles null values. 
+     * Compares Strings and handles null values.
      * @param s1 string or null
      * @param s2 string or null
      * @return compare of the two strings
@@ -115,7 +115,7 @@ public class AuditMessage {
         ret.append("']");
 
         return ret.toString();
-        
+
     }
 
 	@Override

@@ -48,7 +48,7 @@ public class JsonDeserializer extends Deserializer {
 
     @JsonIgnoreProperties({"beanName"})
     private interface PerunBeanMixIn {}
-    
+
     @JsonIgnoreProperties({"beanName"})
     private interface ExecServiceMixIn {}
 
@@ -57,13 +57,13 @@ public class JsonDeserializer extends Deserializer {
 
     @JsonIgnoreProperties({"name"})
     private interface PerunExceptionMixIn {}
-    
+
     @JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
     private interface DestinationMixIn {}
 
     @JsonIgnoreProperties({"shortName", "beanName"})
     private interface GroupMixIn {}
-    
+
     private interface MemberMixIn {
       @JsonIgnore
       public void setStatus(String status);
@@ -83,7 +83,7 @@ public class JsonDeserializer extends Deserializer {
         mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
         mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
     }
-    
+
     private JsonNode root;
 
     /**
@@ -125,7 +125,7 @@ public class JsonDeserializer extends Deserializer {
         } else {
           node = root.get(name);
         }
-        
+
         if (node.isNull()) {
             return null;
         }
@@ -135,7 +135,7 @@ public class JsonDeserializer extends Deserializer {
 
         return node.getValueAsText();
     }
-    
+
     @Override
     public String readString() throws RpcException {
       return readString(null);
@@ -152,11 +152,11 @@ public class JsonDeserializer extends Deserializer {
         } else {
           node = root.get(name);
         }
-        
+
         if (node == null) {
           throw new RpcException(RpcException.Type.MISSING_VALUE, name);
         }
-        
+
         if (!node.isInt()) {
             if (!node.isTextual()) {
                 throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
@@ -171,12 +171,12 @@ public class JsonDeserializer extends Deserializer {
 
         return node.getIntValue();
     }
-    
+
     @Override
     public int readInt() throws RpcException {
       return readInt(null);
     }
-    
+
 
     @Override
     public int[] readArrayOfInts(String name) throws RpcException {
@@ -189,7 +189,7 @@ public class JsonDeserializer extends Deserializer {
         } else {
           node = root.get(name);
         }
-        
+
         if (node.isNull()) {
             return null;
         }
@@ -213,11 +213,11 @@ public class JsonDeserializer extends Deserializer {
     public int[] readArrayOfInts() throws RpcException {
       return readArrayOfInts(null);
     }
-    
+
     @Override
     public <T> T read(String name, Class<T> valueType) throws RpcException {
         JsonNode node;
-        
+
         if (name == null) {
           // The object is not under root, but directly in the response
           node = root;
@@ -243,7 +243,7 @@ public class JsonDeserializer extends Deserializer {
             throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
         }
     }
-    
+
     @Override
     public <T> T read(Class<T> valueType) throws RpcException {
       return read(null, valueType);
@@ -252,7 +252,7 @@ public class JsonDeserializer extends Deserializer {
     @Override
     public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
         JsonNode node;
-        
+
         if (name == null) {
           // The object is not under root, but directly in the response
           node = root;
@@ -281,7 +281,7 @@ public class JsonDeserializer extends Deserializer {
             throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
         }
     }
-    
+
     @Override
     public <T> List<T> readList(Class<T> valueType) throws RpcException {
         return readList(null, valueType);

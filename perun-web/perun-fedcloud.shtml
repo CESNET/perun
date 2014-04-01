@@ -1,4 +1,4 @@
-<!--#include virtual="header.shtml" -->   
+<!--#include virtual="header.shtml" -->
 
             <div>
                 <h2>Using Perun in Fedcloud</h2>
@@ -19,7 +19,7 @@ The problem is that the CMF doesn't have direct access to VOMS therefore the <st
 <h3>1) Management using Perun</h3>
 <p class="lead">
 The manager creates and deletes users in Perun, then Perun will push those changes to VOMS and to CMF. This solution can <strong>solve the problem</strong> mentioned in the first section. <br />
-Perun can notify CMF when the user is no longer a member of the VO (e.g. when his membership expires) or some other change in membership or member metadata occurs. CMF can respond to such notification according to internal policies (for example stop VMs owned by the expired user).<br /> 
+Perun can notify CMF when the user is no longer a member of the VO (e.g. when his membership expires) or some other change in membership or member metadata occurs. CMF can respond to such notification according to internal policies (for example stop VMs owned by the expired user).<br />
 Moreover both managers and users can utilize <strong>additional Perun features</strong> like identity management, rights delegation, enrollment management and so on.
 </p>
 </div>

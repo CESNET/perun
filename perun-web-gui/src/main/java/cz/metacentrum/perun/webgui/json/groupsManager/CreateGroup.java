@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Create a new group query.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateGroup {
@@ -51,15 +51,15 @@ public class CreateGroup {
 	 * @param description Group description
 	 */
 	public void createGroupInVo(int voId, final String name, String description) {
-		
+
 		this.groupName = name;
 		this.groupDescription = description;
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
 		}
-		
+
 		// GROUP OBJECT
 		JSONObject group = new JSONObject();
 		group.put("name", new JSONString(name));
@@ -80,15 +80,15 @@ public class CreateGroup {
 	 * @param description New group description
 	 */
 	public void createGroupInGroup(final int groupId, final String name, String description) {
-		
+
 		this.groupName = name;
 		this.groupDescription = description;
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
 		}
-		
+
 		// GROUP OBJECT
 		JSONObject group = new JSONObject();
 		group.put("name", new JSONString(name));
@@ -135,10 +135,10 @@ public class CreateGroup {
 		jspc.sendData(JSON_URL, jsonQuery);
 
 	}
-	
+
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean testCreating()

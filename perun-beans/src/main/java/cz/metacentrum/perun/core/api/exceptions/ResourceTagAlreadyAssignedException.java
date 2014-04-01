@@ -27,7 +27,7 @@ public class ResourceTagAlreadyAssignedException extends EntityAlreadyAssignedEx
         super(resourceTag.toString());
         this.resourceTag = resourceTag;
     }
-    
+
     public ResourceTagAlreadyAssignedException(String message, ResourceTag resourceTag) {
         super(message);
         this.resourceTag = resourceTag;

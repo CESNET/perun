@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Tab for importing publications from external systems into Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {
@@ -59,7 +59,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	private int defaultCategoryId = 0; // default category ID
     private int categoryId = 0;
 
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -68,7 +68,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		this.user = session.getUser();
 		this.userId = session.getUser().getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -101,42 +101,42 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		tab = this; // save this tab for reloading
 		this.contentWidget.clear(); // clear content if previously used
 		helpWidget.clear(); // clear help
-		
+
 		if (state == State.START) {
-			
+
 			previousState = State.START; // to help determine what was
-			
+
 			loadStartScreen();
-			
+
 			titleWidget.setText("Add publication");
-			
+
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Please select either \"Create\" or \"Import\" for new publication.</strong>" +
 					"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
-					"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));			
-			
+					"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));
+
 		} else if (state == State.CREATE) {
-			
+
 			previousState = State.CREATE; // to help determine what was
-			
+
 			loadCreateScreen();
-			
+
 			titleWidget.setText("Create publication");
-			
+
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Enter publication title and full citation.</strong></li>" +
 					"<li>If known, <strong>enter publication's ISBN / ISSN / DOI</strong>" +
 					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>" +
 					"<li>Please use <strong>\"Check\" button</strong> to see, if same publication already exists in Perun. If so, you don't have to create new, just add yourself as author of publication.</li>" +
 					"<li>When satisfied, <strong>click on \"Create\" button</strong> to submit your publication.</li>" +
-					"<li>You will be then able to review publication details.</li><ol>"));			
-	
+					"<li>You will be then able to review publication details.</li><ol>"));
+
 		} else if (state == State.IMPORT) {
 
 			previousState = State.IMPORT; // to help determine what was
-			
+
 			loadImportScreen();
-			
+
 			titleWidget.setText("Import publications");
-			
+
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Select ext. publication system for searching</strong>. Currently we can import publications reported in IS MU and OBD ZČU.</li>" +
 					"<li><strong>Select year range</strong> to search and click on \"Search in\" button." +
 					"<p> - Search in IS MU is based on your's UČO." +
@@ -144,13 +144,13 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>"+
 					"<li><strong>Select publications to import</strong> and <strong>click on \"Import\" button.</strong></li>" +
 					"<li>You will be then able to review publication details." +
-					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));			
+					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));
 
-			
+
 		} else if (state == State.REVIEW){
 
 			loadReviewScreen();
-			
+
 			// help widget
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Click on publication title</strong> to edit it's details." +
 					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p>" +
@@ -158,14 +158,14 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					"<li><strong>Select category</strong> where publication belongs and click on \"Save changes\" button. If not sure, keep it as it is (\"Ke kontrole\").</li>" +
 					"<li><strong>Add acknowledgment</strong> mentioned in your publication. Typically \"MetaCentrum\" or \"CERIT-SC\".</li>" +
 					"<li><strong>Add authors</strong> of your publication. Authors can be only users of PERUN. If not added, they can't have benefits from reporting publication.</li>" +
-					"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));			
+					"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));
 
 		}
 
 		return getWidget();
 
 	}
-	
+
 	/**
 	 * Draw tab content for START state - selection of create / import
 	 */
@@ -174,7 +174,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		HorizontalPanel vp = new HorizontalPanel();
 		vp.setHeight("500px");
 		vp.setWidth("100%");
-		
+
 		// IMPORT LAYOUT
 		DecoratorPanel dp = new DecoratorPanel();
 		FlexTable importLayout = new FlexTable();
@@ -198,7 +198,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
         createLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Create publication</span>");
         createLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Use when you want to add custom publication or report publication created by other user.</span>");
         createLayout.setWidget(2, 0, createButton);
-		
+
 		// ADD CONTENT
 		vp.add(dp);
 		dp.setWidth("400px");
@@ -210,36 +210,36 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		vp.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
 		vp.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 		vp.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
-		
+
 		// CLICK HANDLERS
-		
+
 		importButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				state = State.IMPORT;
 				session.getTabManager().reloadTab(tab);
 			}
 		});
-		
+
 		createButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				state = State.CREATE;
 				session.getTabManager().reloadTab(tab);
 			}
 		});
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 	}
-	
+
 	/**
 	 * Draw tab content for CREATE state.
 	 */
 	private void loadCreateScreen() {
-		
+
 		// MAIN PANEL
 		final VerticalPanel mainPanel = new VerticalPanel();
 		mainPanel.setSize("100%", "100%");
-		
+
 		// MAIN MENU
 
         FlexTable header = new FlexTable();
@@ -262,7 +262,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
         column++;
 
         headerTitle.setText("Create publication");
-		
+
 		// Widgets
 		final CustomButton backButton = TabMenu.getPredefinedButton(ButtonType.BACK, "Go back to start page - !! ALL UNSAVED CHANGES WILL BE LOST !!", new ClickHandler(){
 			public void onClick(ClickEvent event) {
@@ -275,7 +275,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		header.setWidget(0, column, backButton);
         column++;
-		
+
 		final ExtendedTextBox title = new ExtendedTextBox();
 		title.getTextBox().setMaxLength(1024);
 		final TextBox isbn = new TextBox();
@@ -375,7 +375,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		table.removeColumn(5);
 		table.removeColumn(4);
 		table.removeColumn(3);
-		
+
 		// check layout
 		final FlexTable checkLayout = new FlexTable();
         checkLayout.setSize("100%", "100%");
@@ -524,11 +524,11 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		mainPanel.add(layout);
         mainPanel.setCellHeight(layout, "100%");
-		
+
 		this.contentWidget.setWidget(mainPanel);
-		
+
 	}
-	
+
 	/**
 	 * Draw tab content for IMPORT state.
 	 */
@@ -615,7 +615,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 							if (addAsAuthor.getValue() && !pub.getLocked()) {
 								// create authorship only if wanted and not locked
 								CreateAuthorship request = new CreateAuthorship();
-								request.createAuthorship(pub.getId(), userId);								
+								request.createAuthorship(pub.getId(), userId);
 							}
 						}
 						@Override
@@ -637,7 +637,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 				Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
 					public boolean execute() {
-						if (counter == 0) {  
+						if (counter == 0) {
 							state = State.REVIEW;
 							session.getTabManager().reloadTab(tab); // reload this tab with imported publications
 							return false;
@@ -653,10 +653,10 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		searchButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
-				if ( userId == 0 ){ 
-					Window.alert("User ID = 0 is not valid. Please select User tu search for his/hers publications."); 
-					return; 
-				}		
+				if ( userId == 0 ){
+					Window.alert("User ID = 0 is not valid. Please select User tu search for his/hers publications.");
+					return;
+				}
 				find.setUser(userId);
 				find.setYearSince(Integer.parseInt(yearSince.getValue(yearSince.getSelectedIndex())));
 				find.setYearTill(Integer.parseInt(yearTill.getValue(yearTill.getSelectedIndex())));
@@ -674,7 +674,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		yearTill.setSelectedIndex(yearTill.getItemCount()-1);
 
 		// PUT WIDGETS IN MENU
-		
+
 		CustomButton backButton = TabMenu.getPredefinedButton(ButtonType.BACK, "Go back to start page - !! ALL UNSAVED CHANGES WILL BE LOST !!", new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				importedPublications.clear();
@@ -707,18 +707,18 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		this.contentWidget.setWidget(mainPanel);
-		
+
 	}
-	
+
 	/**
 	 * Drwa tab content for REVIEW state
 	 */
 	private void loadReviewScreen() {
-		
+
 		// REVIEW STATE TAB
-			
+
 		// MAIN PANEL
 		VerticalPanel configMainPanel = new VerticalPanel();
 		configMainPanel.setSize("100%", "100%");
@@ -743,7 +743,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			}
 		});
 		menu.addWidget(backButton);
-		
+
 		// finish button
 		final CustomButton finishButton = TabMenu.getPredefinedButton(ButtonType.FINISH, "Finish adding and close tab - !! ALL UNSAVED CHANGES WILL BE LOST !!", new ClickHandler(){
 			public void onClick(ClickEvent event) {
@@ -759,7 +759,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		final Image errorIcon = new Image(LargeIcons.INSTANCE.errorIcon());
 		final HTML errorText = new HTML("<h4 style=\"font-size: 12pt; color:red\">Some publications were not imported! Please review imported publication(s) first. Click on publication title to see it's details.</h4>");
 		final HTML successText = new HTML("<h4 style=\"font-size: 12pt; color:red\">Please review created publication(s). Click on publication title to see it's details.</h4>");
-		
+
 		if (importedPublications.isEmpty()) {
 			scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:red\">No publication(s) created! Please go back and retry!</p>"));
 		} else {
@@ -775,16 +775,16 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		for (final Publication pub : importedPublications) {
 
 			// PUT PUB DETAIL TABLE IN CONTENT
-			
+
 			final FlexTable pubTable = new FlexTable();
 			pubTable.setSize("100%", "100%");
 
 			final HTML splitter = new HTML("<hr size=\"2px\" width=\"100%\" />");
 
 			// PUBLICATION HEADER
-			
+
 			final TabMenu pubHeader = new TabMenu();
-			
+
 			// main
 			final TextArea cite = new TextArea();
 			cite.setSize("500px", "50px");
@@ -793,7 +793,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			cite.getElement().setAttribute("maxlength", "4000");
 			// category
 			final ListBoxWithObjects<Category> categoryBox = new ListBoxWithObjects<Category>();
-			
+
 			// finish button
 			final CustomButton finishPublicationButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "", new ClickHandler(){
 				public void onClick(ClickEvent event) {
@@ -839,7 +839,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 									successText.setVisible(false);
 									finishButton.setVisible(true); // enable finish if all pubs removed
 									scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
-								}	
+								}
 							}
 							// FIXME - testing
 							/*
@@ -849,7 +849,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 							}
 							*/
 						});
-						request.updatePublication(pub);		
+						request.updatePublication(pub);
 
 					}
 				}
@@ -857,11 +857,11 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
             pubHeader.addWidget(finishPublicationButton);
 			finishPublicationButton.setTitle("Finish editing publication (remove from view)");
 			finishPublicationButton.setVisible(false);
-			
+
 			if (pub.getLocked()==true) {
 				finishPublicationButton.setText("Remove from view");
 			}
-			
+
 			// put into header
 			pubHeader.addWidget(finishPublicationButton);
 			pubHeader.addWidget(new Image(LargeIcons.INSTANCE.bookIcon()));
@@ -884,14 +884,14 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 				finishPublicationButton.setVisible(true);
 			} else {
 				// hide when was imported more publication
-				pubTable.setVisible(false); 
+				pubTable.setVisible(false);
 			}
-			
+
 			// PUT HEADER AND TABLE TO SCROLLABLE CONTENT
 			scrollContent.add(pubHeader);
 			scrollContent.add(pubTable);
 			scrollContent.add(splitter);
-			
+
 			// CITE
 
 			TabMenu citePanel = new TabMenu();
@@ -899,7 +899,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			citePanel.addWidget(new HTML("<h4>Full cite</h4>"));
 
 			citePanel.addWidget(cite);
-			
+
 			if (pub.getLocked()==true) {
 				// disable cite modification if locked
 				cite.setEnabled(false);
@@ -925,10 +925,10 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 				}
 				categoryPanel.addWidget(categoryBox);
 			}
-			
-			// THANKS 
 
-			
+			// THANKS
+
+
 			VerticalPanel thanksPanel = new VerticalPanel();
 			thanksPanel.setSize("100%", "100%");
 			final TabMenu thanksMenu = new TabMenu();
@@ -993,7 +993,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			sp.addStyleName("perun-tableScrollPanel");
 			thanksPanel.add(sp);
 
-			
+
 			// AUTHORS
 
 
@@ -1081,9 +1081,9 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			authSp.add(authTable);
 			authSp.addStyleName("perun-tableScrollPanel");
 			authorsPanel.add(authSp);
-			
+
 			// PUT ALL SUBENTRIES INTO TABLE
-			
+
 			if (pub.getLocked() == true) {
 				pubTable.setHTML(0, 0, "<p style=\"font-size: 10pt; font-weight:bold; text-align:center; color:red\">Same publication is already in Perun and it's locked. To perform changes notify administrator (meta@cesnet.cz).");
 			} else {
@@ -1096,18 +1096,18 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		}
 
-		// PUT CONTENT TO TAB		
+		// PUT CONTENT TO TAB
 		configMainPanel.add(menu);
 		configMainPanel.add(new HTML("<hr size=\"2px\" width=\"100%\" />"));
 		configMainPanel.add(scrollPanel);
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(scrollPanel, 350, this);
-		
+
 		this.contentWidget.setWidget(configMainPanel);
-		
+
 	}
-	
+
 
 	public Widget getWidget() {
 		return this.contentWidget;
@@ -1118,7 +1118,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -1155,7 +1155,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	public boolean isAuthorized() {
 
 		if (session.isSelf(userId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -1173,7 +1173,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 	}
 
 	static public AddPublicationsTabItem load(Map<String, String> parameters) {
-		
+
 		if (parameters.containsKey("user")) {
 			int userId = Integer.parseInt(parameters.get("user"));
 			if (userId != 0) {

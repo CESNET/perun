@@ -33,7 +33,7 @@ import java.util.*;
 
 /**
  * Ajax query to get all required attributes for any entity and specified service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -136,7 +136,7 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns the table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu custom field updater
 	 * @return table widget
 	 */
@@ -147,7 +147,7 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable() {
@@ -160,7 +160,7 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -245,23 +245,23 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
         valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
 			public void update(int index, Attribute object, Attribute value) {
 				object = value;
-				selectionModel.setSelected(object, object.isAttributeValid());  
+				selectionModel.setSelected(object, object.isAttributeValid());
 			}
 		});
 
 		// Sorting name column
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn,new Comparator<Attribute>(){
-			
+
 			public int compare(Attribute o1, Attribute o2) {
 
 				Collator customCollator = Collator.getInstance();
-				
+
 				String key1 = o1.getDisplayName();
 				String key2 = o2.getDisplayName();
 
 				return customCollator.compare(key1, key2);
-				
+
 			}
 		});
 
@@ -398,17 +398,17 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
     }
 
 	/**
-	 * Sets entities and their ids to this callback 
-	 * 
+	 * Sets entities and their ids to this callback
+	 *
 	 * @param ids map of IDS
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Returns map of entities and their ids currently "in use" for this callback
-	 * 
+	 *
 	 * @return map of IDS
 	 */
 	public Map<String, Integer> getIds() {

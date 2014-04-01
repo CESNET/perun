@@ -2,7 +2,7 @@ package cz.metacentrum.perun.engine.exceptions;
 
 /**
  * Checked version of DispatcherNotConfiguredException.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class DispatcherNotConfiguredException extends EngineException {

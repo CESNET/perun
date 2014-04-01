@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * Return Tab with Rich Task Results loaded by RichTask
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -32,21 +32,21 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading Task");
-	
+
 	// data
 	private Task task;
 	private int taskId;
-	
+
 	/**
 	 * Creates a tab instance
      * @param task RichTask
@@ -55,7 +55,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		this.task = task;
 		this.taskId = task.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -65,38 +65,38 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		this.taskId = taskId;
 		new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
-				task = jso.cast();	
+				task = jso.cast();
 			}
 		}).retrieveData();
 	}
-	
 
-	public boolean isPrepared(){		
+
+	public boolean isPrepared(){
 		return !(task == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText("Tasks results: "+task.getExecService().getService().getName()+" "+task.getExecService().getType());
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
 		CellTable<TaskResult> table = callback.getTable();
-		
+
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
-		
+
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
-		
+
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -108,7 +108,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon(); 
+		return SmallIcons.INSTANCE.databaseServerIcon();
 	}
 
 
@@ -143,7 +143,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getExecService().getService().getName(), getUrlWithParameters());
@@ -151,32 +151,32 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 			if (task.getFacility() != null) {
                 session.setActiveFacility(task.getFacility());
             }
-		}	
+		}
 	}
-	
+
 	public boolean isAuthorized() {
 		if (session.isFacilityAdmin(task.getFacility().getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "taskresults";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId();
 	}
-	
+
 	static public TaskResultsTabItem load(Task task) {
 		return new TaskResultsTabItem(task);
 	}
-	
+
 	static public TaskResultsTabItem load(Map<String, String> parameters) {
 		int tid = Integer.parseInt(parameters.get("id"));
 		return new TaskResultsTabItem(tid);

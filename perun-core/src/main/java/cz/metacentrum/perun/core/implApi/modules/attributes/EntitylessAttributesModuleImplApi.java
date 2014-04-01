@@ -11,7 +11,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
  * This interface serves as a template for checking entityless attributes.
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplApi {
@@ -44,10 +44,10 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
      * @throws WrongAttributeAssignmentException
      */
     Attribute fillAttribute(PerunSessionImpl perunSession, String key, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
-    
+
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param key the key for entityless attribute
      * @param attribute the attribute

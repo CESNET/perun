@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
 public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
-    
+
   private static final String A_GR_systemUnixGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGroupName";
   private static final String A_GR_systemIsUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
 
@@ -36,10 +36,10 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 
   public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
       Integer gid = (Integer) attribute.getValue();
-      
+
       //Gid should not be null if is system unix group or if less than 1
       Attribute isSystemGroup = new Attribute();
-      
+
       if(gid == null) {
           try {
               isSystemGroup = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
@@ -53,39 +53,39 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
       } else if(gid < 1) {
           throw new WrongAttributeValueException(attribute,"GID number less than 1 is not allowed value.");
       }
-     
-      
+
+
       //Get facility for the resource
       Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-      
+
       //List of pairs (group and resource) which has the attribute with the value
       List<Pair<Group,Resource>> listGroupPairsResource = sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
-      
+
        //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same facility, if yes then throw exception but only if these groups have not the same GroupName too.
       for(Pair<Group,Resource> p : listGroupPairsResource) {
           if(!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
               Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
-              
+
               Attribute group1GroupName = new Attribute();
               Attribute group2GroupName = new Attribute();
-              
+
               try {
                   group1GroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGroupName);
               } catch (AttributeNotExistsException ex) {
                   throw new ConsistencyErrorException("Attribute " + A_GR_systemUnixGroupName + " not exists for group " + group,ex);
               }
-              
+
               try {
                   group2GroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGroupName);
               } catch (AttributeNotExistsException ex) {
                   throw new ConsistencyErrorException("Attribute " + A_GR_systemUnixGroupName + " not exists for group " + p.getLeft(),ex);
               }
-              
+
               if(facilityForTest.equals(facility) && !(group1GroupName.getValue().equals(group2GroupName.getValue()))) throw new WrongAttributeValueException(attribute, "Gid " + gid + "is allready used by another group-resource.  " + p.getLeft() + " " + p.getRight());
           }
       }
   }
-  
+
   @Override
   public List<String> getDependencies() {
       List<String> dependecies = new ArrayList<String>();

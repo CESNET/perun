@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * Assign services to new resource
  *
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -74,7 +74,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		this.facilityId = facility.getId();
 		this.resourceId = resource.getId();
 	}
-	
+
 	/**
 	 * Create new instance
 	 *
@@ -99,11 +99,11 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 	public boolean isPrepared(){
 		return (facility != null && resource != null);
 	}
-	
+
 	public Widget draw() {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign and configure services");
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
@@ -152,7 +152,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 				vp.setCellHeight(vp.getWidget(2), "100%");
 			}
 		};
-		
+
 		// callbacks
 		final GetServices services = new GetServices(fillEvents);
 		final GetAssignedServices assignedServices = new GetAssignedServices(resource.getId(), fillEvents);
@@ -161,8 +161,8 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		// switching event between services
 		servicesListbox.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
-				// remove attributes management if there was 
-				if (vp.getWidgetCount() > 2)  { vp.remove(2); vp.remove(1); } 
+				// remove attributes management if there was
+				if (vp.getWidgetCount() > 2)  { vp.remove(2); vp.remove(1); }
 				// add attributes management
 				vp.add(new HTML("<hr>"));
 				vp.add(new ResourceSettingsTabItem(resource, servicesListbox.getSelectedObject()).draw());
@@ -229,7 +229,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -263,13 +263,13 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 
 	public void open()
 	{
-		
+
 	}
 
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

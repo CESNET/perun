@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  * Request, which enable or disable application emails
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class SetSendingEnabled {
@@ -26,7 +26,7 @@ public class SetSendingEnabled {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private ArrayList<ApplicationMail> appMails;
 	private boolean enabled = true;
@@ -52,7 +52,7 @@ public class SetSendingEnabled {
      * @param enabled
 	 */
 	public void setEnabled(ArrayList<ApplicationMail> appMails, boolean enabled) {
-		
+
 		this.appMails = appMails;
 		this.enabled = enabled;
 
@@ -81,7 +81,7 @@ public class SetSendingEnabled {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -94,10 +94,10 @@ public class SetSendingEnabled {
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
+
 		JSONArray mails = new JSONArray();
 		int i = 0;
-		
+
 		for (ApplicationMail appMail : appMails) {
 
 			JSONObject mail = new JSONObject();
@@ -125,10 +125,10 @@ public class SetSendingEnabled {
 			// put in list
 			mails.set(i, mail);
 			i++;
-			
+
 		}
-		
-		
+
+
 		JSONObject request = new JSONObject();
 		request.put("mails", mails);
 		if (enabled == true) {
@@ -136,9 +136,9 @@ public class SetSendingEnabled {
 		} else {
 			request.put("enabled", new JSONNumber(0));
 		}
-		
+
 		return request;
-		
+
 	}
 
 }

@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which creates a new Authorship (adds user as author of publication in perun).
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateAuthorship {
@@ -44,7 +44,7 @@ public class CreateAuthorship {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -60,7 +60,7 @@ public class CreateAuthorship {
 			errorMsg += "Wrong parameter 'User ID'.\n";
 			result = false;
 		}
-		
+
 		if(errorMsg.length()>0){
 			Window.alert(errorMsg);
 		}
@@ -70,7 +70,7 @@ public class CreateAuthorship {
 
 	/**
 	 * Attempts to create a new Authorship, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param pubId ID of publication
 	 * @param userId ID of user
 	 */
@@ -126,12 +126,12 @@ public class CreateAuthorship {
 		authorship.put("createdBy", new JSONString(session.getPerunPrincipal().getActor()));
 		authorship.put("createdDate", null);
         authorship.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("authorship", authorship);
 		return jsonQuery;
-		
+
 	}
 
 }

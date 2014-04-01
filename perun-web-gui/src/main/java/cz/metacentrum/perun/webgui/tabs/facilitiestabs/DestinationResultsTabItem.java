@@ -109,7 +109,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
         }
     }
 
-	public boolean isPrepared(){		
+	public boolean isPrepared(){
 		if (facilityId != 0 && voId != 0) {
             return (vo != null && facility != null);
         }
@@ -121,11 +121,11 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
         }
         return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText("Tasks results: "+destination);
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
@@ -197,18 +197,18 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 
         final GetTaskResultsByDestinations callback = new GetTaskResultsByDestinations(dest);
 		CellTable<TaskResult> table = callback.getTable();
-		
+
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
-		
+
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -220,7 +220,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon(); 
+		return SmallIcons.INSTANCE.databaseServerIcon();
 	}
 
 
@@ -255,7 +255,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
         if (vo != null) {
             session.getUiElements().getBreadcrumbs().setLocation(MainMenu.VO_ADMIN, "Facilities states", VosTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"propags?vo="+voId, "Results: "+destination, getUrlWithParameters());
@@ -266,22 +266,22 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
             session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "All facilities states", FacilitiesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"propags", "Results: "+destination, getUrlWithParameters());
         }
     }
-	
+
 	public boolean isAuthorized() {
 		if (session.isFacilityAdmin(facilityId) || session.isVoAdmin(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "dest-result";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?dest="+destination+"&fid="+facilityId+"&vid="+voId+"&pa="+admin;
 	}

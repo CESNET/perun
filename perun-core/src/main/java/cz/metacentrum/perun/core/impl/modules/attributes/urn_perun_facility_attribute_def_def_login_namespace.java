@@ -30,7 +30,7 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
      * Checks if the corresponding attribute uf:login-namespace:[namespace] exists.
      */
     public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-      String userFacilityLoginNamespaceAttributeName = 
+      String userFacilityLoginNamespaceAttributeName =
         AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
 
       try {

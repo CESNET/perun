@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Types of emails for application
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class EditMailTabItem implements TabItem, TabItemWithUrl {
@@ -50,10 +50,10 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Application e-mails");
-	
+
 	private ApplicationMail appMail;
 	private int appMailId;
-	
+
 	/**
 	 * DATA FOR SENDING
 	 */
@@ -63,7 +63,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 	private CustomButton saveButton;
     private TabLayoutPanel tabPanel = new TabLayoutPanel(35, Unit.PX);
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -73,7 +73,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		this.appMail = appMail;
 		this.appMailId = appMail.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -87,14 +87,14 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return (appMail != null);
 	}
 
 	/**
 	 * Returns message texarea
-	 * 
+	 *
 	 * @param locale
 	 * @return
 	 */
@@ -143,7 +143,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
         vp.add(ft);
         vp.add(new HTML("&nbsp;"));
-		
+
 		// fill values
 		MailText message = appMail.getMessage(locale);
 		if(message != null){
@@ -153,10 +153,10 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
         return vp;
 	}
-	
+
 	/**
-	 * Returns flex table with basic information 
-	 * 
+	 * Returns flex table with basic information
+	 *
 	 * @return
 	 */
 	private Widget basicInformationTab() {
@@ -205,7 +205,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
         row++;
         ft.setHTML(row, 1, "If checked, notification will be sent. Un-check it to temporary disable sending.");
         ftf.setStyleName(row, 1, "inputFormInlineComment");
-		
+
 		return vp;
 
 	}
@@ -291,14 +291,14 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
     }
 
 	public Widget draw() {
-		
+
 		this.titleWidget.setText("Edit notification");
-		
+
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
 		languages.add("cs");
 		languages.add("en");
-		
+
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("500px");
@@ -309,16 +309,16 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
         tabPanel.addStyleName("smallTabPanelWithBorder");
         tabPanel.setHeight("350px");
 
-		// basic settings 
+		// basic settings
 		tabPanel.add(basicInformationTab(), "Basic settings");
-		
+
 		// for each locale add tab
 		for(String locale : languages){
 			tabPanel.add(messageTab(locale), "Lang: "+locale);
 		}
 
         tabPanel.add(availableTagsTab(), "Available tags");
-		
+
 		// add menu
 		final TabItem tab = this;
 		TabMenu tabMenu = new TabMenu();
@@ -351,7 +351,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().closeTab(tab, false);
             }
         }));
-		
+
 		// add tab panel to main panel
 		vp.add(tabPanel);
 		vp.setCellWidth(tabPanel, "500px");
@@ -362,7 +362,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
         vp.setCellHorizontalAlignment(tabMenu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -375,7 +375,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.emailAddIcon(); 
+		return SmallIcons.INSTANCE.emailAddIcon();
 	}
 
 	@Override
@@ -407,31 +407,31 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 	public void open()
 	{
-		
+
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin() || session.isGroupAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "app-mail-edit";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?appMail=" + appMailId;
 	}
-	
+
 	static public EditMailTabItem load(Map<String, String> parameters)
 	{
 		int appMailId = Integer.parseInt(parameters.get("appMail"));

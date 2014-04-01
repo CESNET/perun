@@ -13,10 +13,10 @@ import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
 import cz.metacentrum.perun.engine.service.EngineManager;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 public class EngineStarter {
     private final static Logger log = LoggerFactory.getLogger(EngineStarter.class);

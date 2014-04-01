@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get all resources assigned to selected facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -43,7 +43,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param facilityId ID of service to get facilities for
 	 */
 	public GetAssignedResources(int facilityId) {
@@ -63,7 +63,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @param fu custom onClick
 	 * @return table widget
 	 */
@@ -75,7 +75,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Resource> getTable() {
@@ -85,7 +85,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 	/**
 	 * Returns empty table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Resource> getEmptyTable() {

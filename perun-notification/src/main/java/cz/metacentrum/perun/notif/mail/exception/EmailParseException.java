@@ -10,7 +10,7 @@ public class EmailParseException extends EmailException {
 
     /**
      * Constructor for EmailParseException.
-     * 
+     *
      * @param msg
      *            the detail message
      */
@@ -20,7 +20,7 @@ public class EmailParseException extends EmailException {
 
     /**
      * Constructor for EmailParseException.
-     * 
+     *
      * @param msg
      *            the detail message
      * @param cause
@@ -32,7 +32,7 @@ public class EmailParseException extends EmailException {
 
     /**
      * Constructor for EmailParseException.
-     * 
+     *
      * @param cause
      *            the root cause from the mail API in use
      */

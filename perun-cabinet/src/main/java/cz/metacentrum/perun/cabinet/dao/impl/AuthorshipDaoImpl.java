@@ -12,7 +12,7 @@ import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.service.SortParam;
 
 /**
- * Class of DAO layer for handling Authorship entity. 
+ * Class of DAO layer for handling Authorship entity.
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
@@ -25,11 +25,11 @@ public class AuthorshipDaoImpl implements IAuthorshipDao {
 	private AuthorshipMapper authorshipMapper;
 
 	// setters ----------------------
-	
+
 	public void setAuthorshipMapper(AuthorshipMapper authorshipMapper) {
 		this.authorshipMapper = authorshipMapper;
 	}
-	
+
 	// methods ----------------------
 
 	public int create(Authorship a) {
@@ -125,19 +125,19 @@ public class AuthorshipDaoImpl implements IAuthorshipDao {
 	public int deleteById(Integer id) {
 		return authorshipMapper.deleteByPrimaryKey(id);
 	}
-	
+
 	public List<Integer> findUniqueAuthorsIds() {
 		return authorshipMapper.selectUniqueAuthorsIds();
 	}
-	
+
 	public Author findAuthorByUserId(Integer userId) {
 		return authorshipMapper.findAuthorByUserId(userId);
 	}
-	
+
 	public List<Author> findAuthorsByPublicationId(Integer publicationId) {
 		return authorshipMapper.findAuthorsByPublicationId(publicationId);
 	}
-	
+
 	public List<Author> findAllAuthors() {
 		return authorshipMapper.findAllAuthors();
 	}

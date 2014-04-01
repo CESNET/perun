@@ -19,13 +19,13 @@ Available options:
  --orderByName  | -n order by attribute friendly name
  --batch        | -b batch
  --help         | -h help
- 
+
 };
 }
- 
+
 my ($facilityId,$facilityName, $facilityType, $sortingFunction, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch, 
-  "facilityId|f=i" => \$facilityId, 
+GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
+  "facilityId|f=i" => \$facilityId,
   "facilityName|F=s" => \$facilityName,
   "facilityType|t=s" => \$facilityType,
   "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },

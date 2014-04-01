@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Provides page with resource management and details
  * used by VO ADMINISTRATORS
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -41,24 +41,24 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading resource");
-	
+
 	// data
 	private RichResource resource;
 	private int resourceId;
 	private TabPanelForTabItems tabPanel;
 
     private int facilityId = 0; // if non zero, tab was opened from facility admin section
-	
+
 	/**
 	 * Creates a tab instance
      * @param resource resource to get details for
@@ -70,7 +70,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		this.tabPanel = new TabPanelForTabItems(this);
         this.facilityId = facilityId;
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param resourceId resource to get details for
@@ -85,15 +85,15 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		this.tabPanel = new TabPanelForTabItems(this);
         this.facilityId = fid;
 	}
-	
+
 	public boolean isPrepared(){
-		return !(resource == null);		
+		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
-				
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()));
-		
+
 		// main widget panel
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -182,7 +182,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
         dp.add(menu);
 		vp.add(dp);
         vp.setCellHeight(dp, "30px");
-		
+
 		// TAB PANEL WITH INNER TABS
 		tabPanel.clear();
 
@@ -244,7 +244,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
         if (facilityId == 0) {
             // opened from VO section
@@ -259,36 +259,36 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
         }
 
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(resource.getVoId()) || session.isVoObserver(resource.getVoId()) || session.isFacilityAdmin(resource.getFacilityId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId + "&fid=" + facilityId;
 	}
-	
+
 	static public ResourceDetailTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
         int fid = Integer.parseInt(parameters.get("fid"));
         return new ResourceDetailTabItem(id, fid);
 	}
-	
+
 	static public ResourceDetailTabItem load(RichResource resource, int fid) {
 		return new ResourceDetailTabItem(resource, fid);
 	}
-	
+
 }

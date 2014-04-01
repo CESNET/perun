@@ -59,7 +59,7 @@ public class urn_perun_resource_attribute_def_def_smb_share_name extends Resourc
             }
         }*/
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

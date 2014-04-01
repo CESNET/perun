@@ -1,11 +1,11 @@
-<!--#include virtual="header.shtml" -->   
+<!--#include virtual="header.shtml" -->
 
             <div>
                 <h2>Use cases</h2>
                 <p class="lean">
                   On this page we are providing very basic use cases. Perun is highly configurable, so it is not impossible to support special use cases, like managing an access to the cloud infrastructure, configuration of the licence servers used by applications like Matlab, Gaussian, ...
                 </p>
-                
+
                 <h3>1. User management in the project</h3>
                 <ul>
                   <li>Do you need to manage members of the project?</li>
@@ -37,7 +37,7 @@
                 </p>
                 <h3>5. User's identities consolidation</h3>
                 <p class="lean">
-                  If your users have several digital identities (institutional account, Google account, Facebook account, digital certificate, eduroam account, ...) and usually every new service presents new digital idenity (login/password), so it is very hard for the user to manage such identities. User can register all his/her main identities in Perun (user registers only the login/DN, <b>NOT</b> the passwords/private keys). Perun than can publish corresponding user's identity to the end services, so the services won't need another new identity from the users. 
+                  If your users have several digital identities (institutional account, Google account, Facebook account, digital certificate, eduroam account, ...) and usually every new service presents new digital idenity (login/password), so it is very hard for the user to manage such identities. User can register all his/her main identities in Perun (user registers only the login/DN, <b>NOT</b> the passwords/private keys). Perun than can publish corresponding user's identity to the end services, so the services won't need another new identity from the users.
                   </p>
               </div>
             <!--#include virtual="footer.shtml" -->

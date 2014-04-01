@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.model.Thanks;
 
 /**
  * Ajax query which creates a new Thanks
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateThanks {
@@ -51,7 +51,7 @@ public class CreateThanks {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating() {
@@ -63,7 +63,7 @@ public class CreateThanks {
 			errorMsg += "Wrong parameter <strong>Publication ID</strong>.<br />";
 			result = false;
 		}
-		
+
 		if(ownerId == 0){
 			errorMsg += "Wrong parameter <strong>Owner</strong>.";
 			result = false;
@@ -82,9 +82,9 @@ public class CreateThanks {
 	 * @param ownerId owner to thank to
 	 */
 	public void createThanks(final int ownerId) {
-		
+
 		this.ownerId = ownerId;
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
@@ -118,15 +118,15 @@ public class CreateThanks {
 		request.sendData(JSON_URL, jsonQuery);
 
 	}
-	
+
 	/**
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
+
 		JSONObject jsonQuery = new JSONObject();
-		
+
 		JSONObject thanks = new JSONObject();
 		thanks.put("id", null);
 		thanks.put("ownerId", new JSONNumber(ownerId));
@@ -135,9 +135,9 @@ public class CreateThanks {
         thanks.put("createdByUid", new JSONNumber(session.getActiveUser().getId()));
 
 		jsonQuery.put("thanks", thanks);
-		
+
 		return jsonQuery;
-		
+
 	}
 
 }

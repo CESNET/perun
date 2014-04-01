@@ -5,10 +5,10 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ClusterNotExistsRuntimeExcept
 
 /**
  * Checked version of ClusterNotExistsException.
- * 
+ *
  * This exception is to be thrown in case we
  * are unable to look up the cluster in the Perun system.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class ClusterNotExistsException extends EntityNotExistsException {

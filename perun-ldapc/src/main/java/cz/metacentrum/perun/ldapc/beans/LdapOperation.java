@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public enum LdapOperation {
   ADD_ATTRIBUTE (1),    //just created object, where some information (e.g. attribute)  is missing
-  REPLACE_ATTRIBUTE (2),  //security issue 
+  REPLACE_ATTRIBUTE (2),  //security issue
   REMOVE_ATTRIBUTE (3);
 
   private static final Map<Integer,LdapOperation> lookup = new HashMap<Integer,LdapOperation>();
@@ -30,7 +30,7 @@ public enum LdapOperation {
     return code;
   }
 
-  public static LdapOperation getLdapOperation(int code) { 
-    return lookup.get(code); 
+  public static LdapOperation getLdapOperation(int code) {
+    return lookup.get(code);
   }
 }

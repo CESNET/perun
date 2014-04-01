@@ -41,7 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.File;
-import java.io.FileWriter; 
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,10 +51,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class AuditParserTest {
-    
+
         private static final String NS_FACILITY_ATTR_DEF= "urn:perun:facility:attribute-def:def";
         private static final String NS_GROUP_RESOURCE_ATTR_DEF = "urn:perun:group_resource:attribute-def:def";
-    
+
         private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManagerEntry";
 	private AuditMessage createdAuditMessage = new AuditMessage();
@@ -89,10 +89,10 @@ public class AuditParserTest {
         private RichFacility richFacility;
         private ResourceTag resourceTag1 = new ResourceTag(5, "cosi" , 2);
         private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
-        
+
         private ExecService exService1 = new ExecService();
         private ExecService exService2 = new ExecService();
-        
+
         @Before
         public void setUp() throws Exception {
             member.setMembershipType(MembershipType.DIRECT);
@@ -123,7 +123,7 @@ public class AuditParserTest {
             owners.add(owner1);
             owners.add(owner2);
             richFacility = new RichFacility(facility, owners);
-            candidate.setAdditionalUserExtSources(userExtSources);        
+            candidate.setAdditionalUserExtSources(userExtSources);
             exService1.setId(10);
             exService1.setService(service);
             exService1.setExecServiceType(ExecService.ExecServiceType.GENERATE);
@@ -131,11 +131,11 @@ public class AuditParserTest {
             exService2.setService(null);
             exService2.setExecServiceType(null);
         }
-    
+
         @Test
         public void testParseLogOnExamples() throws Exception {
             System.out.println(CLASS_NAME + ":testParseLogOnExamples()");
-            
+
             String log = "Hosts ["
                 + "Host:[id=<982>, hostname=<konos37.fav.zcu.cz>], "
                 + "Host:[id=<981>, hostname=<konos36.fav.zcu.cz>], "
@@ -207,16 +207,16 @@ public class AuditParserTest {
                 + "rLwA+iL1DZr6jWGINA2ROsOwwSYqTRF7AQ==\n"
                 + "-----END CERTIFICATE-----\n"
                 + "}>], Attribute:[id=<441>, friendlyName=<userCertDNs>, namespace=<urn:perun:user:attribute-def:def>, type=<java.util.LinkedHashMap>, value=<{/C=CZ/O=Masarykova univerzita/CN=Ji\\\\xC5\\\\x99\\\\xC3\\\\xAD Nov\\\\xC3\\\\xA1\\\\xC4\\\\x8Dek/unstructuredName=151132=/C=NL/O=TERENA/CN=TERENA Personal CA}>]]>, memberAttributes=<[Attribute:[id=<32>, friendlyName=<id>, namespace=<urn:perun:member:attribute-def:core>, type=<java.lang.Integer>, value=<11523>], Attribute:[id=<860>, friendlyName=<membershipExpiration>, namespace=<urn:perun:member:attribute-def:def>, type=<java.lang.String>, value=<2012-01-31 23:59:59.0>], Attribute:[id=<880>, friendlyName=<status>, namespace=<urn:perun:member:attribute-def:core>, type=<java.lang.String>, value=<DISABLED>], Attribute:[id=<60>, friendlyName=<mail>, namespace=<urn:perun:member:attribute-def:def>, type=<java.lang.String>, value=<novej@ncbr.chemi.muni.cz>], Attribute:[id=<122>, friendlyName=<phone>, namespace=<urn:perun:member:attribute-def:def>, type=<java.lang.String>, value=<+420-549 492 674>], Attribute:[id=<123>, friendlyName=<organization>, namespace=<urn:perun:member:attribute-def:def>, type=<java.lang.String>, value=<Masarykova univerzita>]]>] removed.";
-            
+
         String log4 = "Attribute:[id=<146>, friendlyName=<login-namespace:einfra>, namespace=<urn:perun:user:attribute-def:def>, type=<java.lang.String>, value=<tejral>]";
-               
+
         String log5 = "Member:[id=<3899>, userId=<3199>, voId=<21>, status=<VALID>] Cokoliv:[]";
- 
-        //Long start = System.currentTimeMillis();  
+
+        //Long start = System.currentTimeMillis();
         List<PerunBean> list = AuditParser.parseLog(log);
         //Long end = System.currentTimeMillis()-start;
         //System.out.println("Trvani 1 v case = " + end.toString());
-        //start = System.currentTimeMillis(); 
+        //start = System.currentTimeMillis();
         List<PerunBean> list2 = AuditParser.parseLog(log2);
         //end = System.currentTimeMillis()-start;
         //System.out.println("Trvani 2 v case = " + end.toString());
@@ -227,30 +227,30 @@ public class AuditParserTest {
         //start = System.currentTimeMillis();
         List<PerunBean> list4 = AuditParser.parseLog(log4);
         //end = System.currentTimeMillis()-start;
-        assertEquals(17, list.size());    
+        assertEquals(17, list.size());
         assertEquals(1, list2.size());
         assertEquals(2, list3.size());
         assertEquals(1, list4.size());
- 
+
         List<PerunBean> list5 = AuditParser.parseLog(log5);
         }
-        
+
         @Test
         public void sameObjectBeforeAndAfterSerializing() throws Exception {
             System.out.println(CLASS_NAME + ":sameObjectBeforeAndAfterSerializing");
-            
+
             //FOR USER
             User user = new User(8, null, textMismatch, null, textMismatch, null, true);
             List<PerunBean> userInList = AuditParser.parseLog(user.serializeToString());
             assertEquals(user.toString(), ((User) userInList.get(0)).toString());
             assertEquals(user.getFirstName(), ((User) userInList.get(0)).getFirstName());
-            
+
             //FOR EXTSOURCE
             ExtSource extSource = new ExtSource(11, null, textMismatch);
             List<PerunBean> extSourceInList = AuditParser.parseLog(extSource.serializeToString());
             assertEquals(extSource.toString(), ((ExtSource) extSourceInList.get(0)).toString());
             assertEquals(extSource.getName(), ((ExtSource) extSourceInList.get(0)).getName());
-            
+
             //FOR USEREXTSOURCE
             UserExtSource userExtSource1 = new UserExtSource(15, extSource, null , 8, 15);
             UserExtSource userExtSource2 = new UserExtSource(15, null, textMismatch, 8, 15);
@@ -260,25 +260,25 @@ public class AuditParserTest {
             assertEquals(userExtSource2.toString(), ((UserExtSource) userExtSource2InList.get(0)).toString());
             assertEquals(userExtSource1.getLogin(), ((UserExtSource) userExtSource1InList.get(0)).getLogin());
             assertEquals(userExtSource2.getExtSource(), ((UserExtSource) userExtSource2InList.get(0)).getExtSource());
-            
+
             //FOR VO (VO MUST HAVE ALL ATTRIBUTE NOT NULL)
             Vo vo = new Vo(18, textMismatch, textMismatch);
             List<PerunBean> voInList = AuditParser.parseLog(vo.serializeToString());
             assertEquals(vo.toString(), ((Vo) voInList.get(0)).toString());
             assertEquals(vo.getName(), ((Vo) voInList.get(0)).getName());
-            
+
             //FOR FACILITY
             Facility facility = new Facility(15, null, textMismatch);
             List<PerunBean> facilityInList = AuditParser.parseLog(facility.serializeToString());
             assertEquals(facility.toString(), ((Facility) facilityInList.get(0)).toString());
             assertEquals(facility.getName(), ((Facility) facility).getName());
-            
+
             //FOR RESOURCE
             Resource resource = new Resource(15, textMismatch, null, 10, 10);
             List<PerunBean> resourceInList = AuditParser.parseLog(resource.serializeToString());
             assertEquals(resource.toString(), ((Resource) resourceInList.get(0)).toString());
             assertEquals(resource.getDescription(), ((Resource) resourceInList.get(0)).getDescription());
-            
+
             //FOR GROUP
             Group group = new Group(textMismatch, null);
             group.setId(15);
@@ -288,11 +288,11 @@ public class AuditParserTest {
             group2.setParentGroupId(null);
             List<PerunBean> groupInList = AuditParser.parseLog(group.serializeToString());
             List<PerunBean> groupInList2 = AuditParser.parseLog(group2.serializeToString());
-            assertEquals(group.toString(), ((Group) groupInList.get(0)).toString());       
+            assertEquals(group.toString(), ((Group) groupInList.get(0)).toString());
             assertEquals(group.getDescription(), ((Group) groupInList.get(0)).getDescription());
-            assertEquals(group2.toString(), ((Group) groupInList2.get(0)).toString());       
+            assertEquals(group2.toString(), ((Group) groupInList2.get(0)).toString());
             assertEquals(group2.getParentGroupId(), ((Group) groupInList2.get(0)).getParentGroupId());
-            
+
             //FOR RESOURCE TAG
             List<PerunBean> resourceTagInList1 = AuditParser.parseLog(resourceTag1.serializeToString());
             List<PerunBean> resourceTagInList2 = AuditParser.parseLog(resourceTag2.serializeToString());
@@ -300,37 +300,37 @@ public class AuditParserTest {
             assertEquals(resourceTag1.getTagName(), ((ResourceTag) resourceTagInList1.get(0)).getTagName());
             assertEquals(resourceTag2.toString(), ((ResourceTag) resourceTagInList2.get(0)).toString());
             assertEquals(resourceTag2.getTagName(), ((ResourceTag) resourceTagInList2.get(0)).getTagName());
-            
+
             //FOR MEMBER
             Member member = new Member(6, 8, 8, null);
             List<PerunBean> memberInList = AuditParser.parseLog(member.serializeToString());
             assertEquals(member.toString(), ((Member) memberInList.get(0)).toString());
             assertEquals(member.getStatus(), ((Member) memberInList.get(0)).getStatus());
-            
+
             //FOR DESTINATION
             Destination destination = new Destination(7, null, textMismatch);
             List<PerunBean> destinationInList = AuditParser.parseLog(destination.serializeToString());
             assertEquals(destination.toString(), ((Destination) destinationInList.get(0)).toString());
             assertEquals(destination.getDestination(), ((Destination) destinationInList.get(0)).getDestination());
-            
+
             //FOR HOST
             Host host = new Host(5, null);
             List<PerunBean> hostInList = AuditParser.parseLog(host.serializeToString());
             assertEquals(host.toString(), ((Host) hostInList.get(0)).toString());
             assertEquals(host.getHostname(), ((Host) hostInList.get(0)).getHostname());
-            
+
             //FOR OWNER
             Owner owner = new Owner(5, null, textMismatch, OwnerType.administrative);
             List<PerunBean> ownerInList = AuditParser.parseLog(owner.serializeToString());
             assertEquals(owner.toString(), ((Owner) ownerInList.get(0)).toString());
             assertEquals(owner.getName(), ((Owner) ownerInList.get(0)).getName());
-            
+
             //FOR SERVICE
             Service service = new Service(8, null);
             List<PerunBean> serviceInList = AuditParser.parseLog(service.serializeToString());
             assertEquals(service.toString(), ((Service) serviceInList.get(0)).toString());
             assertEquals(service.getName(), ((Service) serviceInList.get(0)).getName());
-            
+
             //FOR ATTRIBUTE DEFINITION
             AttributeDefinition attributeDefinition1 = new AttributeDefinition(getAttributeDefinition1());
             AttributeDefinition attributeDefinition2 = new AttributeDefinition(getAttributeDefinition2());
@@ -343,7 +343,7 @@ public class AuditParserTest {
             List<PerunBean> attributeDefinition1InList = AuditParser.parseLog(attributeDefinition1.serializeToString());
             assertEquals(attributeDefinition1.toString(), ((AttributeDefinition) attributeDefinition1InList.get(0)).toString());
             assertEquals(attributeDefinition1.getNamespace(), ((AttributeDefinition) attributeDefinition1InList.get(0)).getNamespace());
-            
+
             //FOR ATTRIBUTE
             Attribute attribute1 = new Attribute(getAttributeDefinition1());
             Attribute attribute2 = new Attribute(getAttributeDefinition2());
@@ -376,7 +376,7 @@ public class AuditParserTest {
             assertEquals(attribute4.getValue(), ((Attribute) attribute4InList.get(0)).getValue());
             assertEquals(attribute5.getValue(), ((Attribute) attribute5InList.get(0)).getValue());
             assertEquals(attribute6.getValue(), ((Attribute) attribute6InList.get(0)).getValue());
-            
+
             //FOR CANDIDATE
             Map<String, String> attributesMap1 = new HashMap<String, String>();
             attributesMap1.put("test1", null);
@@ -396,7 +396,7 @@ public class AuditParserTest {
             assertEquals(candidate2.toString(), ((Candidate) candidate2InList.get(0)).toString());
             assertEquals(candidate1.getAttributes(), ((Candidate) candidate1InList.get(0)).getAttributes());
             assertEquals(candidate2.getAttributes(), ((Candidate) candidate2InList.get(0)).getAttributes());
-            
+
             //FOR RICHMEMBER
             RichMember richMember1 = new RichMember(null, member, null);
             //List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
@@ -415,9 +415,9 @@ public class AuditParserTest {
             listOfAttributes.add(attribute6);
             RichMember richMember3 = new RichMember(null, member, null, listOfAttributes, listOfAttributes);
             List<PerunBean> richMember1InList = AuditParser.parseLog(richMember1.serializeToString());
-            
+
             //TODO: What about null pointers between userExtSources? Not Supported yet
-            
+
             //List<PerunBean> richMember2InList = AuditParser.parseLog(richMember2.serializeToString());
             List<PerunBean> richMember3InList = AuditParser.parseLog(richMember3.serializeToString());
             assertEquals(richMember1.toString(), ((RichMember) richMember1InList.get(0)).toString());
@@ -425,17 +425,17 @@ public class AuditParserTest {
             assertEquals(richMember3.toString(), ((RichMember) richMember3InList.get(0)).toString());
             assertEquals(richMember1.getUser(), ((RichMember) richMember1InList.get(0)).getUser());
             assertEquals(richMember1.getUserExtSources(), ((RichMember) richMember1InList.get(0)).getUserExtSources());
-                        
+
             //FOR RICHUSER
             RichUser richUser1 = new RichUser(user, null, null);
             RichUser richUser2 = new RichUser(user, null, listOfAttributes);
             List<PerunBean> richUserInList = AuditParser.parseLog(richUser.serializeToString());
             List<PerunBean> richUser1InList = AuditParser.parseLog(richUser1.serializeToString());
             List<PerunBean> richUser2InList = AuditParser.parseLog(richUser2.serializeToString());
-            assertEquals(richUser.toString(), ((RichUser) richUserInList.get(0)).toString()); 
-            assertEquals(richUser1.toString(), ((RichUser) richUser1InList.get(0)).toString()); 
-            assertEquals(richUser2.toString(), ((RichUser) richUser2InList.get(0)).toString()); 
-            
+            assertEquals(richUser.toString(), ((RichUser) richUserInList.get(0)).toString());
+            assertEquals(richUser1.toString(), ((RichUser) richUser1InList.get(0)).toString());
+            assertEquals(richUser2.toString(), ((RichUser) richUser2InList.get(0)).toString());
+
             //FOR RICHFACILITY
             RichFacility richFacility1 = new RichFacility(facility, null);
             List<Owner> owners = new ArrayList<Owner>();
@@ -445,9 +445,9 @@ public class AuditParserTest {
             RichFacility richFacility2 = new RichFacility(facility, owners);
             List<PerunBean> richFacility1InList = AuditParser.parseLog(richFacility1.serializeToString());
             List<PerunBean> richFacility2InList = AuditParser.parseLog(richFacility2.serializeToString());
-            assertEquals(richFacility1.toString(), ((RichFacility) richFacility1InList.get(0)).toString()); 
-            assertEquals(richFacility2.toString(), ((RichFacility) richFacility2InList.get(0)).toString()); 
-            
+            assertEquals(richFacility1.toString(), ((RichFacility) richFacility1InList.get(0)).toString());
+            assertEquals(richFacility2.toString(), ((RichFacility) richFacility2InList.get(0)).toString());
+
             //FOR RICHRESOURCE
             RichResource richResource = new RichResource(resource);
             richResource.setFacility(null);
@@ -456,13 +456,13 @@ public class AuditParserTest {
             List<PerunBean> richResourceInList = AuditParser.parseLog(richResource.serializeToString());
             assertEquals(richResource.toString(), ((RichResource) richResourceInList.get(0)).toString());
             assertEquals(richResource.getFacility(), ((RichResource) richResourceInList.get(0)).getFacility());
-            
+
             //FOR RICHDESTINATION
             RichDestination richDestination = new RichDestination(destination, null, null);
             List<PerunBean> richDestinationInList = AuditParser.parseLog(richDestination.serializeToString());
             assertEquals(richDestination.toString(), ((RichDestination) richDestinationInList.get(0)).toString());
             assertEquals(richDestination.getFacility(), ((RichDestination) richDestinationInList.get(0)).getFacility());
-            
+
             //FOR AUTHORSHIP
             Authorship authorship1 = new Authorship();
             authorship1.setId(1);
@@ -482,14 +482,14 @@ public class AuditParserTest {
             List<PerunBean> authorship2InList = AuditParser.parseLog(authorship2.serializeToString());
             assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());
             assertEquals(authorship2.toString(), ((Authorship) authorship2InList.get(0)).toString());
-            
+
             //FOR EXECSERVICE
             List<PerunBean> execService1InList = AuditParser.parseLog(exService1.serializeToString());
             List<PerunBean> execService2InList = AuditParser.parseLog(exService2.serializeToString());
             assertEquals(exService1.toString(), ((ExecService) execService1InList.get(0)).toString());
             assertEquals(exService2.toString(), ((ExecService) execService2InList.get(0)).toString());
         }
-        
+
         @Test
         public void serializeToStringEqualsToString() throws Exception {
             System.out.println(CLASS_NAME + ":serializeToStringEqualsToString()");
@@ -521,21 +521,21 @@ public class AuditParserTest {
             assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
             assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
             assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
-        }   
-        
+        }
+
         @Test
         public void testParseLogCreatedBeans() throws Exception {
-            System.out.println(CLASS_NAME + ":testParseLogCreatedBeans()");    
+            System.out.println(CLASS_NAME + ":testParseLogCreatedBeans()");
             richMember.setMembershipType(MembershipType.INDIRECT);
             String bigLog = user.serializeToString() + extSource.serializeToString() + userExtSource1.serializeToString() +
-                            vo.serializeToString() + facility.serializeToString() + 
-                            resource.serializeToString() + group.serializeToString() + member.serializeToString() + 
+                            vo.serializeToString() + facility.serializeToString() +
+                            resource.serializeToString() + group.serializeToString() + member.serializeToString() +
                             candidate.serializeToString() + destination.serializeToString() + host.serializeToString() +
                             owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
                             attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
                             richResource.serializeToString() + richUser.serializeToString() + richFacility.serializeToString() +
                             resourceTag1.serializeToString() + exService1.serializeToString();
-            
+
             List<PerunBean> perunBeans = new ArrayList<PerunBean>();
             perunBeans = AuditParser.parseLog(bigLog);
             assertEquals(22, perunBeans.size());
@@ -562,7 +562,7 @@ public class AuditParserTest {
             assertTrue(perunBeans.contains(resourceTag1));
             assertTrue(perunBeans.contains(exService1));
         }
-          
+
                 private AttributeDefinition getAttributeDefinition1() {
                 AttributeDefinition attr = new AttributeDefinition();
                 attr.setNamespace(NS_GROUP_RESOURCE_ATTR_DEF);

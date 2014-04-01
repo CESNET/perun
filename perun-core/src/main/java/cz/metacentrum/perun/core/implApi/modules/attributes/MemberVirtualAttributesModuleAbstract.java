@@ -17,10 +17,10 @@ import java.util.List;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- * 
+ *
  */
 public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi{
-    
+
 
     public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException {
         return new Attribute(attribute);
@@ -29,11 +29,11 @@ public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttrib
     public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
         return false;
     }
-  
+
     public void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException {
-        
+
     }
-    
+
     @Override
     public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
         return new ArrayList<String>();

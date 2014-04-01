@@ -281,13 +281,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 
     /*#
    * Deletes a user.
-   * 
+   *
    * @param user int User ID
    */
   /*#
    * Deletes a user (force).
    * Also removes associeted members.
-   * 
+   *
    * @param user int User ID
    * @param force int Parameter force must == 1
    */
@@ -508,10 +508,10 @@ public enum UsersManagerMethod implements ManagerMethod {
      * @param searchString String String to search by
      * @return List<User> Found users
      */
-  /*# 
+  /*#
    * Returns list of users who matches the parameters.
    * All parameters must be present, even if empty.
-   * 
+   *
    * @param titleBefore String Title before name
    * @param firstName String First name
    * @param middleName String Middle name
@@ -653,7 +653,7 @@ public enum UsersManagerMethod implements ManagerMethod {
      */
   /*#
    * Get all resources which have the user access on.
-   * 
+   *
    * @param user int User ID
    * @return List<Resource> Allowed resources
    */
@@ -745,7 +745,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   /*#
    * Changes user password in defined login-namespace.
    * You must send the old password, which will be checked
-   * 
+   *
    * @param user int User ID
    * @param loginNamespace String Namespace
    * @param oldPassword String Old password which will be checked.
@@ -790,7 +790,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     },
     /*#
      * Reserves a random password.
-     * 
+     *
      * @param user int User ID
      * @param namespace String Namespace
      */
@@ -807,7 +807,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     },
     /*#
      * Reserves a password.
-     * 
+     *
      * @param login String Login
      * @param namespace String Namespace
      * @param password String password

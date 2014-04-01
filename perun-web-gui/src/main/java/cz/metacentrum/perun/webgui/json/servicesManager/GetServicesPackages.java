@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all services packages
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetServicesPackages implements JsonCallback, JsonCallbackTable<ServicesPackage>, JsonCallbackOracle<ServicesPackage> {
@@ -66,7 +66,7 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 
 	/**
 	 * Returns table of services with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return table widget
 	 */
@@ -77,7 +77,7 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 
 	/**
 	 * Returns empty table of ServicePackages with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return empty table widget
 	 */
@@ -334,7 +334,7 @@ public class GetServicesPackages implements JsonCallback, JsonCallbackTable<Serv
 
 	/**
 	 * Sets external events for callback after it's creation
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {

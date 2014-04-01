@@ -6,12 +6,12 @@ import java.util.Date;
 /**
  * Class represents Thanks = expression of acknowledgment
  * from authors to facility owners.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class Thanks implements Serializable {
-    
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -57,7 +57,7 @@ public class Thanks implements Serializable {
     private Date createdDate;
 
     public Thanks() { }
-    
+
     public Thanks(Integer id, Integer publicationId, Integer ownerId,
 			String createdBy, Date createdDate) {
 		super();
@@ -238,10 +238,10 @@ public class Thanks implements Serializable {
 			return false;
 		return true;
 	}
-    
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName()+":[id="+ id + ", pubId="+ publicationId +", ownerId="+ ownerId +", createdBy="+ createdBy +", createdDate="+ createdDate +", createdByUid="+ createdByUid +"]";
 	}
-	
+
 }

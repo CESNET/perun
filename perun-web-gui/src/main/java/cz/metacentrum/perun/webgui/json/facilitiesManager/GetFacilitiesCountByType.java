@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Returns the count of the facilities of a specified type
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetFacilitiesCountByType implements JsonCallback
@@ -25,11 +25,11 @@ public class GetFacilitiesCountByType implements JsonCallback
 
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// Label with number
 	private Label facilitiesCountLabel = new Label();
-	
-	
+
+
 	/**
      * Creates a new instance of the method
 	 *
@@ -38,7 +38,7 @@ public class GetFacilitiesCountByType implements JsonCallback
 	public GetFacilitiesCountByType(String type) {
 		this.type = type;
 	}
-	
+
 	/**
 	 * Creates a new instance of the method
 	 *
@@ -50,7 +50,7 @@ public class GetFacilitiesCountByType implements JsonCallback
 		this.events = events;
 	}
 
-		
+
 	/**
 	 * Retrieves members from RPC
 	 */
@@ -61,7 +61,7 @@ public class GetFacilitiesCountByType implements JsonCallback
 		js.retrieveData(JSON_URL, param, this);
 	}
 
-	
+
 	/**
 	 * Called when an error occurs.
 	 */
@@ -86,8 +86,8 @@ public class GetFacilitiesCountByType implements JsonCallback
 		session.getUiElements().setLogText("Loading facilities count of type " + type + " finished: " + count.getInt());
 		this.facilitiesCountLabel.setText(String.valueOf(count.getInt()));
 		this.events.onFinished(jso);
-	}	
-	
+	}
+
 	/**
 	 * Returns the count label
 	 * @return
@@ -96,5 +96,5 @@ public class GetFacilitiesCountByType implements JsonCallback
 	{
 		return this.facilitiesCountLabel;
 	}
-	
+
 }

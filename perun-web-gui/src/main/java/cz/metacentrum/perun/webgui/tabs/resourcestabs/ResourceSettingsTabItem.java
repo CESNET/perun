@@ -360,20 +360,20 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
             }
         });
         if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) fillDefaultButton.setEnabled(false);
-		
+
 		/* TODO - not implemented
-		
+
 		Button checkValuesButton = new CustomButton("Check values", SmallIcons.INSTANCE.scriptGearIcon());
 		menu.addWidget(checkValuesButton);
 		checkValuesButton.setTitle("Checks inserted values against current Perun state - nothing is saved unless you click on 'Save changes'");
-		
-		
+
+
 		checkValuesButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				Window.alert("not yet implemented");
 			}
 		});
-		
+
 		*/
 
         table.addStyleName("perun-table");

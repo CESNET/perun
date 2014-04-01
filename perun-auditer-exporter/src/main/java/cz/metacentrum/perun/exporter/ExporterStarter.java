@@ -27,22 +27,22 @@ import cz.metacentrum.perun.core.impl.AuditerConsumer;
  *
  * Author: Michal Prochazka <michalp@ics.muni.cz>
  */
-public class ExporterStarter 
+public class ExporterStarter
 {
   private DataSource dataSource;
   private AbstractApplicationContext springCtx;
-  
+
   private boolean running;
   private OutputType outputType;
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
   public ExporterStarter(OutputType outputType) {
-    springCtx = new ClassPathXmlApplicationContext("/exporter-applicationcontext.xml"); 
+    springCtx = new ClassPathXmlApplicationContext("/exporter-applicationcontext.xml");
     this.dataSource = springCtx.getBean("dataSource", org.apache.tomcat.dbcp.dbcp.BasicDataSource.class);
-    
+
     this.outputType = outputType;
   }
-  
+
   public static void main( String[] args )
   {
     // create Options object
@@ -58,31 +58,31 @@ public class ExporterStarter
     CommandLine cmd;
     try {
       cmd = parser.parse(options, args);
-      
+
       String exporterId = cmd.getOptionValue("id");
       if (exporterId == null) {
         System.err.println("Exporter ID must be specified.");
         System.exit(1);
       }
-      
-      OutputType outputType = cmd.hasOption("stdout") ? OutputType.STDOUT : 
+
+      OutputType outputType = cmd.hasOption("stdout") ? OutputType.STDOUT :
                    cmd.hasOption("tcp") ? OutputType.TCP :
                    cmd.hasOption("udp") ? OutputType.UDP :
                    OutputType.STDOUT;
-      
+
       ExporterStarter exporter = new ExporterStarter(outputType);
-      exporter.run(exporterId);  
+      exporter.run(exporterId);
     } catch (ParseException e) {
       help(options);
       System.exit(1);
     }
   }
-  
+
   public static void help(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp( "Perun Auditer Exporter", options );
   }
-  
+
   protected void output(String message) {
     switch (this.outputType) {
     case STDOUT:
@@ -95,7 +95,7 @@ public class ExporterStarter
         break;
     }
   }
-  
+
   public void run(String exporterId) {
     //Get instance of auditerConsumer and set runnig to true
     AuditerConsumer auditerConsumer;
@@ -105,7 +105,7 @@ public class ExporterStarter
     } catch (Exception e) {
       throw new RuntimeException("Cannot initialize AuditerConsumer.", e);
     }
-    
+
     try {
       //If running is true, then this proccess will be continously
       while (running) {
@@ -122,7 +122,7 @@ public class ExporterStarter
                 sleepTime+=sleepTime;
             }
         } while (messages == null);
-        
+
         // New messages have arrived
         Iterator<String> messagesIter = messages.iterator();
         while(messagesIter.hasNext()) {
@@ -150,7 +150,7 @@ public class ExporterStarter
         throw new RuntimeException(e);
     }
   }
-  
+
   public enum OutputType {
     STDOUT, TCP, UDP;
   }

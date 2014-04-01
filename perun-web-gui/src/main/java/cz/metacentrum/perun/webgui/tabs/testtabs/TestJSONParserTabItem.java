@@ -49,18 +49,18 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 	public TestJSONParserTabItem(){ }
 
 	public boolean isPrepared(){
-		return true;	
+		return true;
 	}
-	
+
 	public Widget draw() {
 
 		Button sendMessageButton = new Button("Parse response");
-		
+
 		final FlexTable ft = new FlexTable();
 		ft.setCellSpacing(15);
 
 		int row = 0;
-		
+
 		ft.setText(row, 0, "Server response:");
 		ft.setWidget(row, 1, returnedValue);
 		row++;
@@ -72,8 +72,8 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 		ft.setWidget(row, 0, sendMessageButton);
 
         row++;
-		
-		
+
+
 		sendMessageButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -111,9 +111,9 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		this.contentWidget.setWidget(ft);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -144,8 +144,8 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
-		
+
+
 		return true;
 	}
 
@@ -154,24 +154,24 @@ public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open(){ }
-	
+
 	public boolean isAuthorized() {
 		return session.isPerunAdmin();
 	}
-	
+
 	public final static String URL = "json";
-		
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
-		return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();	
+		return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public TestJSONParserTabItem load(Map<String, String> parameters) {
 		return new TestJSONParserTabItem();
 	}
-	
+
 }

@@ -45,8 +45,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-registrar-lib-applicationcontext.xml", "classpath:perun-beans.xml" })
 public class RegistrarBaseIntegrationTest {
-	
-	
+
+
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
 	@Autowired MailManager mailManager;
@@ -59,22 +59,22 @@ public class RegistrarBaseIntegrationTest {
 		if (vo == null || session == null) {
 
 	        session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-	        
+
 	        // create test VO
 	        vo = new Vo(0,"registrarTestVO","regTestVO");
 	        vo = perun.getVosManagerBl().createVo(session, vo);
-			
+
 		} else {
 			return;
 		}
-		
+
 	}
-	
+
 	@After
 	public void cleanTest() throws Exception {
-		
+
 		//perun.getVosManagerBl().deleteVo(session, vo, true);
-		
+
 	}
     /*
 
@@ -126,11 +126,11 @@ public class RegistrarBaseIntegrationTest {
 	@Transactional
     public void createAppMail() throws PerunException {
 		System.out.println("createAppMail()");
-		
+
 		// get form for VO (if not exists, it's created)
 		//Vo vo = perun.getVosManager().getVoByShortName(session, "meta");
     	ApplicationForm form = registrarManager.getFormForVo(vo);
-		
+
     	ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
     	MailText t = mail.getMessage(new Locale("cs"));
     	t.setText("Český text mailu.");
@@ -146,19 +146,19 @@ public class RegistrarBaseIntegrationTest {
     	assertTrue("Mails are empty", (mails != null && !mails.isEmpty()));
     	assertTrue("Our mail was not returned", mails.contains(mail));
     	//System.out.println(mails);
-    	
+
 	}
-	
+
     @Test
     @Transactional
     public void createVOformIntegrationTest() throws PerunException, PrivilegeException, InternalErrorException {
     	System.out.println("createVOformIntegrationTest()");
-    	
+
     	// get form for VO (if not exists, it's created)
     	ApplicationForm applicationForm = registrarManager.getFormForVo(vo);
 
     	// put in standard options
-    	
+
         ApplicationFormItem i0 = new ApplicationFormItem();
         i0.setShortname("pokecI");
         i0.setType(ApplicationFormItem.Type.HTML_COMMENT);
@@ -358,10 +358,10 @@ public class RegistrarBaseIntegrationTest {
 
         // test returned app form
         assertEquals("Application form not same as expected", applicationForm, registrarManager.getFormForVo(vo));
-        
+
         // test form items
         List<ApplicationFormItem> items = registrarManager.getFormItems(session, applicationForm);
-        
+
         assertTrue("Item i0 was not returned from form", items.contains(i0));
         assertTrue("Item i0b was not returned from form", items.contains(i0b));
         assertTrue("Item i1 was not returned from form", items.contains(i1));
@@ -435,10 +435,10 @@ public class RegistrarBaseIntegrationTest {
     @Transactional
     public void customTest() throws Exception {
     	System.out.println("customTest()");
-    	
+
     	Vo vo = perun.getVosManager().getVoByShortName(session, "meta");
     	ApplicationForm applicationForm = registrarManager.getFormForVo(vo);
-    	
+
     	ApplicationFormItem i7 = new ApplicationFormItem();
         i7.setShortname("testovaci");
         i7.setPerunDestinationAttribute("urn:perun:test:attribute-def:def:test");
@@ -449,20 +449,20 @@ public class RegistrarBaseIntegrationTest {
         i7.getTexts(EN).setLabel("Testing");
         i7.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
         i7 = registrarManager.addFormItem(session, applicationForm, i7);
-    	
+
         System.out.println(registrarManager.getFormItemById(i7.getId()));
-        
+
         i7.setShortname("nic");
         i7.setOrdnum(2);
         i7.setRegex("empty");
         // delete all texts
         i7.getI18n().clear();
         registrarManager.updateFormItems(session, vo, Arrays.asList(i7));
-        
+
         System.out.println(registrarManager.getFormItemById(i7.getId()));
-        
+
     	// System.out.println(registrarManager.getApplicationDataById(session, 18));
-    	
+
     }
     */
 
@@ -471,9 +471,9 @@ public class RegistrarBaseIntegrationTest {
     public void approveExtensionApplication() {
 		System.out.println("approveExtensionApplication()");
     	// extension is not yet supported
-    	registrarManager.approveApplication(25, session);    	
-    	
+    	registrarManager.approveApplication(25, session);
+
     }
     */
-    
+
 }

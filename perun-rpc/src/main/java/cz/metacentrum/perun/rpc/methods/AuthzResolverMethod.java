@@ -10,7 +10,7 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum AuthzResolverMethod implements ManagerMethod {
-	
+
 	/*#
 	 * Returns principal role names.
 	 * @return List<String> Roles
@@ -60,7 +60,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
           } else return 0;
         }
     },
-    
+
     /*#
      * Returns 1 whether user is a Perun admin.
      * @return int 1 = true, 0 = false
@@ -84,7 +84,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
         return cz.metacentrum.perun.core.api.AuthzResolver.getLoggedUser(ac.getSession());
       }
     },
-    
+
     /*#
      * Returns current PerunPrincipal object.
      * @return PerunPrincipal PerunPrincipal

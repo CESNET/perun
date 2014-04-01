@@ -61,15 +61,15 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
                 Process process = pb.start();
 
                 StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
-                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());               
-                
+                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
+
                 errorGobbler.start();
                 outputGobbler.start();
-                
+
                 returnCode = process.waitFor();
-                
+
                 while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
-                
+
                 stderr=errorGobbler.getSb();
                 stdout=outputGobbler.getSb();
 
@@ -104,15 +104,15 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
                 Process process = pb.start();
 
                 StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
-                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());               
-                
+                StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
+
                 errorGobbler.start();
                 outputGobbler.start();
-                
+
                 returnCode = process.waitFor();
-                
+
                 while(errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
-                
+
                 stderr=errorGobbler.getSb();
                 stdout=outputGobbler.getSb();
 

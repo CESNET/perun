@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Manager for sending email messages, allows sending emails in batch
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -14,7 +14,7 @@ public interface PerunNotifEmailManager {
 
 	/**
 	 * Sends all messages in one batch
-	 * 
+	 *
 	 * @param list
 	 * @return
 	 */

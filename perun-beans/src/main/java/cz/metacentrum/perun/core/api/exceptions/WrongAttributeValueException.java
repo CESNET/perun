@@ -45,7 +45,7 @@ public class WrongAttributeValueException extends AttributeValueException {
         this.attributeHolder = attributeHolder;
         this.attributeHolderSecondary = attributeHolderSecondary;
     }
-    
+
     public WrongAttributeValueException(Attribute attribute, Object attributeHolder, String message){
         super(attribute.toString() + "Set for: " + attributeHolder.toString() + " - " + message);
         this.attribute = attribute;

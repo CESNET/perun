@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
@@ -12,7 +12,7 @@ return qq{
 Sets the facility attribute. Facility id or name and attribute value and attribute id or name are required.
 ---------------------------------------------------------------
 Available options:
- --facilityId      | -f facility id 
+ --facilityId      | -f facility id
  --facilityName    | -F facility name
  --facilityType    | -t facility type
  --attributeId     | -a attribute id
@@ -28,10 +28,10 @@ my ($facilityId, $facilityName, $facilityType, $attributeId, $attributeName, @at
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName, 
- "facilityType|t=s" => \$facilityType, 
- "attributeId|a=i" => \$attributeId, 
- "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help(); 
+ "facilityName|F=s" => \$facilityName,
+ "facilityType|t=s" => \$facilityType,
+ "attributeId|a=i" => \$attributeId,
+ "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}

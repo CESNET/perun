@@ -13,7 +13,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes only member data appropriated by member id.
-	 * 
+	 *
 	 * @param member int Member ID
 	 */
   deleteMember {
@@ -25,33 +25,33 @@ public enum MembersManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Creates a new member from candidate which is prepared for creating serviceUser.
-   *  
-   * In list serviceUserOwners can't be serviceUser, only normal users are allowed. 
+   *
+   * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
    * <strong>This method runs asynchronously</strong>
-   * 
+   *
    * @param vo int VO ID
    * @param candidate Candidate prepared future serviceUser
    * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
    */
   createServiceMember {
-    @Override    
+    @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
       ac.stateChangingCheck();
-      
-      return ac.getMembersManager().createServiceMember(ac.getSession(), 
-              ac.getVoById(parms.readInt("vo")), 
-              parms.read("candidate", Candidate.class), 
+
+      return ac.getMembersManager().createServiceMember(ac.getSession(),
+              ac.getVoById(parms.readInt("vo")),
+              parms.read("candidate", Candidate.class),
               parms.readList("serviceUserOwners", User.class));
     }
   },
-  
+
   /*#
-   * Creates a new member and sets all member's attributes from the candidate. 
+   * Creates a new member and sets all member's attributes from the candidate.
    * Also stores the associated user if doesn't exist. This method is used by the registrar.
-   * 
+   *
    * @param vo int VO ID
    * @param extSourceName String Name of the extSource
    * @param extSourceType String Type of the extSource
@@ -61,7 +61,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    */
   /*#
    * Creates a new member from user.
-   * 
+   *
    * @param vo int VO ID
    * @param user int User ID
    * @return Member Created member
@@ -69,11 +69,11 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
    * <strong>This method runs asynchronously</strong>
-   * 
+   *
    * @param vo int VO ID
    * @param candidate Canidate Canidate JSON object
    * @return Member Created member
-   */  
+   */
   createMember {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -100,10 +100,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Find member of a VO by his login in an external source.
-   * 
+   *
    * @param vo int VO ID
    * @param userExtSource UserExtSource UserExtSource JSON object
-   * @return Member Found member  
+   * @return Member Found member
    */
   getMemberByUserExtSource {
     @Override
@@ -116,7 +116,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Returns a member by their ID.
-   * 
+   *
    * @param id int Member ID
    * @return Member Found member
    */
@@ -129,7 +129,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Returns a member by VO and User.
-   * 
+   *
    * @param vo int VO ID
    * @param user int User ID
    * @return Member Found member
@@ -142,11 +142,11 @@ public enum MembersManagerMethod implements ManagerMethod {
           ac.getUserById(parms.readInt("user")));
     }
   },
-  
-  
+
+
   /*#
    * Returns members for a user.
-   * 
+   *
    * @param user int User ID
    * @return List<Member> Found members
    */
@@ -159,13 +159,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
   /*#
    * Returns all members of a VO.
-   * 
+   *
    * @param vo int VO ID
    * @return List<Member> VO members
    */
   /*#
    * Returns all members of a VO.
-   * 
+   *
    * @param vo int VO ID
    * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
    * @return List<Member> VO members
@@ -183,13 +183,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
   /*#
    * Returns all members of a VO with additional information.
-   * 
+   *
    * @param vo int VO ID
    * @return List<RichMember> VO members
    */
   /*#
    * Returns all members of a VO with additional information.
-   * 
+   *
    * @param vo int VO ID
    * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
    * @return List<RichMember> VO members
@@ -208,9 +208,9 @@ public enum MembersManagerMethod implements ManagerMethod {
       }
     }
   },
-  
+
   getCompleteRichMembers {
-  
+
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -239,7 +239,7 @@ public enum MembersManagerMethod implements ManagerMethod {
                 return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
                         ac.getVoById(parms.readInt("vo")), null);
               }
-          }       
+          }
       } else {
           if (parms.contains("allowedStatuses[]")) {
               if (parms.contains("attrsNames[]")) {
@@ -274,10 +274,10 @@ public enum MembersManagerMethod implements ManagerMethod {
           }
       }
     }
-  },  
+  },
 
   getRichMembersWithAttributesByNames {
-  
+
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if(parms.contains("vo")) {
@@ -319,7 +319,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
   /*#
    * Returns a rich member by their member ID.
-   * 
+   *
    * @param id int Member ID
    * @return RichMember Found member
    */
@@ -333,10 +333,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 
     }
   },
-  
+
   /*#
    * Returns a rich member without attributes by id of member.
-   * 
+   *
    * @param id int id of Member
    * @return RichMember Found member
    */
@@ -349,17 +349,17 @@ public enum MembersManagerMethod implements ManagerMethod {
 
     }
   },
-  
+
   /*#
    * Returns VO members count.
-   * 
+   *
    * @param vo int VO ID
    * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
    * @return int Members count
    */
   /*#
    * Returns VO members count.
-   * 
+   *
    * @param vo int VO ID
    * @return int Members count
    */
@@ -377,7 +377,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
   /*#
    * Deletes all VO members.
-   * 
+   *
    * @param vo int VO ID
    */
   deleteAllMembers {
@@ -389,10 +389,10 @@ public enum MembersManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Searches for members by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @return List<Member> Found members
    */
@@ -405,7 +405,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Searches for members in a VO by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @param vo int VO ID to search in
    * @return List<Member> Found members
@@ -419,7 +419,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Searches for members in a Group by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @param group int Group ID to search in
    * @return List<Member> Found members
@@ -427,13 +427,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   findMembersInGroup {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().findMembersInGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));   
+      return ac.getMembersManager().findMembersInGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
     }
   },
-  
+
   /*#
    * Searches for members in a parent group of supplied group by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @param group int Group ID, in whose parent group to search in
    * @return List<Member> Found members
@@ -441,13 +441,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   findMembersInParentGroup {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().findMembersInParentGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));   
+      return ac.getMembersManager().findMembersInParentGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
     }
   },
-  
+
   /*#
    * Searches for rich members in a Group by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @param group int Group ID to search in
    * @return List<RichMember> Found members
@@ -455,13 +455,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   findRichMembersInGroup {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().findRichMembersWithAttributesInGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));   
+      return ac.getMembersManager().findRichMembersWithAttributesInGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
     }
   },
-  
+
   /*#
    * Searches for rich members in a parent group of supplied group by their name.
-   * 
+   *
    * @param searchString String String to search by
    * @param group int Group ID, in whose parent group to search in
    * @return List<RichMember> Found members
@@ -469,13 +469,13 @@ public enum MembersManagerMethod implements ManagerMethod {
   findRichMembersInParentGroup {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().findRichMembersWithAttributesInParentGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));   
+      return ac.getMembersManager().findRichMembersWithAttributesInParentGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
     }
   },
-  
+
   /*#
    * Searches for members in a VO.
-   * 
+   *
    * @param searchString String String to search by
    * @param vo int VO ID
    * @return List<Members> Found members
@@ -489,7 +489,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Searches for members in a VO.
-   * 
+   *
    * @param searchString String String to search by
    * @param vo int VO ID
    * @return List<RichMembers> Found members
@@ -503,7 +503,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Searches for members in a VO, listing with additional attributes.
-   * 
+   *
    * @param searchString String String to search by
    * @param vo int VO ID
    * @return List<RichMembers> Found members
@@ -514,7 +514,7 @@ public enum MembersManagerMethod implements ManagerMethod {
       return ac.getMembersManager().findRichMembersWithAttributesInVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"));
     }
   },
-  
+
   findCompleteRichMembers {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -524,12 +524,12 @@ public enum MembersManagerMethod implements ManagerMethod {
                         ac.getVoById(parms.readInt("vo")),
                         parms.readList("attrsNames", String.class),
                         parms.readList("allowedStatuses", String.class),
-                        parms.readString("searchString"));  
+                        parms.readString("searchString"));
             } else {
                return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
                         ac.getVoById(parms.readInt("vo")),
                         parms.readList("attrsNames", String.class),
-                        parms.readString("searchString")); 
+                        parms.readString("searchString"));
             }
        } else {
             if(parms.contains("allowedStatuses[]")) {
@@ -538,7 +538,7 @@ public enum MembersManagerMethod implements ManagerMethod {
                         parms.readList("attrsNames", String.class),
                         parms.readList("allowedStatuses", String.class),
                         parms.readString("searchString"),
-                        parms.readInt("lookingInParentGroup") == 1); 
+                        parms.readInt("lookingInParentGroup") == 1);
             } else {
                 return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
                         ac.getGroupById(parms.readInt("group")),
@@ -552,7 +552,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Sets a status of a member.
-   * 
+   *
    * @param member int Member ID
    * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
    * @return Member Member object
@@ -560,7 +560,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   setStatus {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.stateChangingCheck();	
+      ac.stateChangingCheck();
 
       Status status = Status.valueOf(parms.readString("status"));
       return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status);
@@ -570,18 +570,18 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Validate all atributes for member and set member's status to VALID.
    * This metod runs asynchronously.
-   * 
+   *
    * It immideatelly return member with <b>ORIGINAL</b> status and
    * after asynchronous validation sucessfuly finishes it swich member's
    * status to VALID. If validation ends with error, memeber keeps his status.
-   * 
+   *
    * @param member int Member ID
    * @return Member Member object
    */
   validateMemberAsync {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.stateChangingCheck();	
+      ac.stateChangingCheck();
 
       return ac.getMembersManager().validateMemberAsync(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
@@ -590,7 +590,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    *  Checks if the user can apply membership to the VO.
    *  It's based on extendMembershipRules on the doNotAllowLoa key.
-   *  
+   *
    *  @param vo int VO ID
    *  @param loa String LOA
    *  @param user User User JSON object
@@ -599,7 +599,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   canBeMember {
 	  @Override
 	  public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-		  ac.stateChangingCheck();	
+		  ac.stateChangingCheck();
 
 		  if (ac.getMembersManager().canBeMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("user", User.class) , parms.readString("loa"))) {
 			  return 1;
@@ -608,11 +608,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 		  }
 	  }
   },
-  
+
   canBeMemberWithReason {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.stateChangingCheck();  
+      ac.stateChangingCheck();
 
       if (ac.getMembersManager().canBeMemberWithReason(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("user", User.class) , parms.readString("loa"))) {
         return 1;
@@ -625,7 +625,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   canExtendMembership {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.stateChangingCheck();  
+      ac.stateChangingCheck();
 
       if (ac.getMembersManager().canExtendMembership(ac.getSession(), ac.getMemberById(parms.readInt("member")))) {
         return 1;

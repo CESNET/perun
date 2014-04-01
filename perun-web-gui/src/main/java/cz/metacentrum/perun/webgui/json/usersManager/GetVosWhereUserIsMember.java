@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 /**
  * The usersManager/getVosWhereUserIsMember method.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -50,7 +50,7 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
-	
+
 
 	/**
 	 * Creates a new instance of the request
@@ -145,7 +145,7 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Return selected Vos from Table
-	 * 
+	 *
 	 * @return ArrayList<Vo> selected items
 	 */
 	public ArrayList<VirtualOrganization> getTableSelectedList() {
@@ -153,7 +153,7 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 	}
 
 	/**
-	 * Clears list of selected items  
+	 * Clears list of selected items
 	 */
 	public void clearTableSelectedSet(){
 		selectionModel.clear();
@@ -202,7 +202,7 @@ public class GetVosWhereUserIsMember implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Add object as new row to table
-	 * 
+	 *
 	 * @param object VO to be added as new row
 	 */
 	public void addToTable(VirtualOrganization object) {

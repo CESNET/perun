@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * Ajax query which removes attributes from any entity
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -54,7 +54,7 @@ public class RemoveAttributes {
 
 	/**
 	 * Attempts to remove some attributes from entity
-	 * 
+	 *
 	 * @param ids defines which type of attribute will be removed (member, user, member_resource, etc.)
 	 * @param attributes list of attributes to remove
 	 */
@@ -67,7 +67,7 @@ public class RemoveAttributes {
 		// test arguments
 		if(!this.testRemoving()){
 			return;
-		}	
+		}
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
@@ -95,7 +95,7 @@ public class RemoveAttributes {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -107,7 +107,7 @@ public class RemoveAttributes {
 			errorMsg += "Wrong attribute type value.\n";
 			result = false;
 		}
-		
+
 		// silent skip - used by save changes buttons on attributes pages
 		if (attributes == null || attributes.isEmpty()) {
 			result = false;
@@ -128,7 +128,7 @@ public class RemoveAttributes {
 	private JSONObject prepareJSONObject(){
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();     
+		JSONObject jsonQuery = new JSONObject();
 
 		// create attrs field
 		JSONArray array = new JSONArray();
@@ -136,7 +136,7 @@ public class RemoveAttributes {
 		// create attributes list
 		for (int i=0; i<attributes.size(); i++) {
 
-			array.set(i, new JSONNumber(attributes.get(i).getId())); // array contains attribute ids 
+			array.set(i, new JSONNumber(attributes.get(i).getId())); // array contains attribute ids
 
 		}
 
@@ -153,11 +153,11 @@ public class RemoveAttributes {
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {
 		this.events = events;
 	}
-	
+
 }

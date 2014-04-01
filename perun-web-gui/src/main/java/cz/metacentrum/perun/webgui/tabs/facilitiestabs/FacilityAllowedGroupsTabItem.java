@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Tab with list of allowed VOs and Groups on facility
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -44,17 +44,17 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private int facilityId;
 	private Facility facility;
@@ -62,7 +62,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
     private int lastSelectedServiceId = 0;
     private boolean vosCallDone = false;
     private boolean callDone = false;
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility facility to get allowed Vos from
@@ -71,7 +71,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -85,13 +85,13 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// set title
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Allowed Groups");
 
@@ -240,7 +240,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		vp.add(sp);
 
@@ -248,7 +248,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
 		this.contentWidget.setWidget(vp);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -260,7 +260,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.buildingIcon(); 
+		return SmallIcons.INSTANCE.buildingIcon();
 	}
 
 	@Override
@@ -288,7 +288,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Allowed groups", getUrlWithParameters());
@@ -302,31 +302,31 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "allowed-vos";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
-	
+
 	static public FacilityAllowedGroupsTabItem load(Facility facility) {
 		return new FacilityAllowedGroupsTabItem(facility);
 	}
-	
+
 	static public FacilityAllowedGroupsTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityAllowedGroupsTabItem(fid);
 	}
-	
+
 }

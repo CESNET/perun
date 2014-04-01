@@ -37,21 +37,21 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   public final static String PERUN_USERS = "perunUsers";
 
   protected final static String memberMappingSelectQuery = "members.id as members_id, members.user_id as members_user_id, members.vo_id as members_vo_id, members.status as members_status, " +
-  		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " + 
+  		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
                 "members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
-  
+
   private SimpleJdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   protected static final RowMapper<Member> MEMBER_MAPPER = new RowMapper<Member>() {
     public Member mapRow(ResultSet rs, int i) throws SQLException {
-      Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")), 
-              rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"), 
-              rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"), 
+      Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),
+              rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
+              rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
               rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
               try{
               member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
-              }catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/} 
+              }catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/}
       return member;
     }
   };
@@ -69,14 +69,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     try {
       // Set the new Member id
       int newId = Utils.getNewId(jdbc, "members_id_seq");
-      
+
       jdbc.update("insert into members (id, vo_id, user_id, status, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) "
-          + "values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", 
-          newId, vo.getId(), 
+          + "values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+          newId, vo.getId(),
           user.getId(), Status.INVALID.getCode(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
       member = new Member(newId, user.getId(), vo.getId(), Status.INVALID);
-      
+
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
@@ -87,7 +87,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   public Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException {
     try {
       return jdbc.queryForObject("select " + memberMappingSelectQuery + " from" +
-          " members where members.user_id=? and members.vo_id=?", 
+          " members where members.user_id=? and members.vo_id=?",
           MEMBER_MAPPER, userId, vo.getId());
 
     } catch (EmptyResultDataAccessException ex) {
@@ -96,7 +96,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       throw new InternalErrorException(err);
     }
   }
-  
+
   public List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException {
     try {
       return jdbc.query("select " + memberMappingSelectQuery + " from" +
@@ -174,13 +174,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) throws InternalErrorException {
     // If usersIds is empty, we can immediatelly return empty results
     if (usersIds.size() == 0) {
       return new ArrayList<Member>();
     }
-    
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("ids", usersIds);
     parameters.addValue("vo", vo.getId());
@@ -188,7 +188,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     try {
       return this.namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery +
       		" from members join users on members.user_id=users.id where members.user_id in ( :ids ) and members.vo_id=:vo " +
-      		"order by users.last_name, users.first_name", 
+      		"order by users.last_name, users.first_name",
           parameters, MEMBER_MAPPER);
     } catch(EmptyResultDataAccessException ex) {
       return new ArrayList<Member>();
@@ -196,13 +196,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-   
+
   public List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) throws InternalErrorException {
     // If usersIds is empty, we can immediatelly return empty results
     if (users.size() == 0) {
       return new ArrayList<Member>();
     }
-    
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     Set<Integer> usersIds = new HashSet<Integer>();
     for (User user: users) {
@@ -212,7 +212,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     parameters.addValue("vo", vo.getId());
 
     try {
-      return this.namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery + " from members where members.user_id in ( :ids ) and members.vo_id=:vo", 
+      return this.namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery + " from members where members.user_id in ( :ids ) and members.vo_id=:vo",
           parameters, MEMBER_MAPPER);
     } catch(EmptyResultDataAccessException ex) {
       return new ArrayList<Member>();
@@ -220,7 +220,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException {
     try {
       return jdbc.queryForInt("select count(*) from members where vo_id=?", vo.getId());
@@ -228,7 +228,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
     try {
         if (Compatibility.isPostgreSql()) {

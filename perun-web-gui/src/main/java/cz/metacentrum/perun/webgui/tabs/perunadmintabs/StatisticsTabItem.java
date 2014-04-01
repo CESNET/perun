@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Statistics page
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -52,14 +52,14 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 	private Label titleWidget = new Label("Statistics");
 
 	//array with types of facilities
-	static private String[] FACILITIES_TYPES = {"host", "vhost", "cluster", "vcluster", "general"}; 
+	static private String[] FACILITIES_TYPES = {"host", "vhost", "cluster", "vcluster", "general"};
 
 
 	/**
 	 * Creates a tab instance
      */
 	public StatisticsTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -73,9 +73,9 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 		vp.setSpacing(5);
 		scroll.setWidget(vp);
 		scroll.setStyleName("perun-tableScrollPanel");
-		
+
 		session.getUiElements().resizePerunTable(scroll, 350, this);
-		
+
 		final DisclosurePanel vosStatistics = new DisclosurePanel();
 		vosStatistics.setWidth("100%");
 		//vosStatistics.setOpen(true);
@@ -84,9 +84,9 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 		vosHeader.setWidget(0, 1, new HTML("<h3>Virtual Organizations</h3>"));
 		vosHeader.setTitle("Click to show/hide VOs statistics");
 		vosStatistics.setHeader(vosHeader);
-		
+
 		vp.add(vosStatistics);
-				
+
 		// the general statistics table
 		final FlexTable statisticsTable = new FlexTable();
 		statisticsTable.addStyleName("statisticsTable");
@@ -118,26 +118,26 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					// call the request for number of members
 					GetMembersCount countMembers = new GetMembersCount(vo.getId(), null);
 					countMembers.retrieveData();
-					
+
 					GetMembersCount countValidMembers = new GetMembersCount(vo.getId(), PerunStatus.VALID);
 					countValidMembers.retrieveData();
-					
+
 					GetMembersCount countInvalidMembers = new GetMembersCount(vo.getId(), PerunStatus.INVALID);
 					countInvalidMembers.retrieveData();
-					
+
 					GetMembersCount countSuspendedMembers = new GetMembersCount(vo.getId(), PerunStatus.SUSPENDED);
 					countSuspendedMembers.retrieveData();
 
 					GetMembersCount countExpiredMembers = new GetMembersCount(vo.getId(), PerunStatus.EXPIRED);
 					countExpiredMembers.retrieveData();
-					
+
 					GetMembersCount countDisabledMembers = new GetMembersCount(vo.getId(), PerunStatus.DISABLED);
 					countDisabledMembers.retrieveData();
-					
+
 					// call the request for number of resources
 					GetResourcesCount countResources = new GetResourcesCount(vo.getId());
 					countResources.retrieveData();
-					
+
 					GetGroupsCount countGroups= new GetGroupsCount(vo.getId());
 					countGroups.retrieveData();
 
@@ -151,7 +151,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					vosTable.setWidget(i + 1, 6, countDisabledMembers.getMembersCountHyperlink());
 					vosTable.setWidget(i + 1, 7, countGroups.getGroupsCountHyperlink());
 					vosTable.setWidget(i + 1, 8, countResources.getResourcesCountHyperlink());
-					
+
 				}
 
 			}
@@ -159,7 +159,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 
 		// requests
 		final GetVos vos = new GetVos(vosEvents);
-		
+
 		vosHeader.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (vosStatistics.getContent() == null) {
@@ -167,11 +167,11 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					// retrieve data
 					vosStatistics.setContent(vosTable);
 					vos.retrieveData();
-			
+
 				}
 			}
 		});
-			
+
 		final DisclosurePanel facStatistics = new DisclosurePanel();
 		facStatistics.setWidth("100%");
 		//vosStatistics.setOpen(true);
@@ -180,9 +180,9 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 		facHeader.setWidget(0, 1, new HTML("<h3>Facilities</h3>"));
 		facHeader.setTitle("Click to show/hide Facilities statistics");
 		facStatistics.setHeader(facHeader);
-		
+
 		vp.add(facStatistics);
-		
+
 		// FACILITIES BY TYPE
 		final FlexTable facilitiesByTypeTable = new FlexTable();
 		facilitiesByTypeTable.addStyleName("statisticsTable");
@@ -203,11 +203,11 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 						facilitiesByTypeTable.setText(i+1, 0, type);
 						facilitiesByTypeTable.setWidget(i+1, 1, count.getFacilitiesCountLabel());
 					}
-					
+
 				}
 			}
 		});
-		
+
 
 
 		this.contentWidget.setWidget(scroll);
@@ -224,7 +224,7 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.statisticsIcon(); 
+		return SmallIcons.INSTANCE.statisticsIcon();
 	}
 
 
@@ -264,8 +264,8 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -273,17 +273,17 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "stats";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public StatisticsTabItem load(Map<String, String> parameters)
 	{
 		return new StatisticsTabItem();

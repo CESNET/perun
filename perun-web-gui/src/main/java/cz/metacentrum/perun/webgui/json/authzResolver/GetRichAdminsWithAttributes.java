@@ -133,7 +133,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -144,7 +144,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
 	public CellTable<User> getTable() {
@@ -157,7 +157,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 
 		// Cell table
 		table = new PerunTable<User>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
@@ -172,7 +172,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 		// Sorting
 		ListHandler<User> columnSortHandler = new ListHandler<User>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// Table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<User> createCheckboxManager());
 
@@ -191,13 +191,13 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 						return String.valueOf(object.getId());
 					}
 				}, this.tableFieldUpdater);
-		
+
 
 		userIdColumn.setSortable(true);
 		columnSortHandler.setComparator(userIdColumn, new GeneralComparator<User>(GeneralComparator.Column.ID));
-		
+
 		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
-		
+
 		if(JsonUtils.isExtendedInfoVisible()){
 			table.addColumn(userIdColumn,  "User ID");
 		}
@@ -257,7 +257,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
         table.addColumn(loginsColumn, "Logins");
 
 		return table;
-		
+
 	}
 
     /**
@@ -374,7 +374,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {

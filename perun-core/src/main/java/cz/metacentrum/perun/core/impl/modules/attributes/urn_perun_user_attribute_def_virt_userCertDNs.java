@@ -36,12 +36,12 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
   private Pattern userAttributeSet = Pattern.compile("Attribute:\\[(.*)\\] set for User:\\[(.*)\\]");
   private Pattern userCertDNs = Pattern.compile("friendlyName=<userCertDNs>");
   private Pattern userAttributeRemoved = Pattern.compile("AttributeDefinition:\\[(.*)\\] removed for User:\\[(.*)\\]");
-    
+
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
       Attribute attribute = new Attribute(attributeDefinition);
       Map<String, String> userCertDNs = new LinkedHashMap<String, String>();
-      
+
       Attribute attrUserCertDNs = null;
       try {
           attrUserCertDNs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
@@ -50,19 +50,19 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
       } catch(WrongAttributeAssignmentException ex) {
           throw new InternalErrorException("userCertDNs attribute bad assignment.", ex);
       }
-      
+
       if(attrUserCertDNs.getValue() != null) {
-         userCertDNs.putAll((LinkedHashMap<String,String>) attrUserCertDNs.getValue()); 
+         userCertDNs.putAll((LinkedHashMap<String,String>) attrUserCertDNs.getValue());
       }
-      
+
       List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
-      
+
       for(UserExtSource uES: userExtSources) {
           if(uES.getExtSource() != null) {
               String login = uES.getLogin();
               String type = uES.getExtSource().getType();
               String name = uES.getExtSource().getName();
-              
+
               if(type != null && login != null && name != null) {
                   if(type.equals(ExtSourcesManager.EXTSOURCE_X509)) {
                       if(!userCertDNs.containsKey(login)) userCertDNs.put(login, name);
@@ -70,7 +70,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
               }
           }
       }
-      
+
       attribute.setValue(userCertDNs);
       return attribute;
   }
@@ -79,17 +79,17 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
   public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
       List<String> resolvingMessages = new ArrayList<String>();
       if(message == null) return resolvingMessages;
-      
+
       User user = null;
       Attribute attrVirtUserCertDNs = null;
-  
+
       Matcher extSourceTypeX509Matcher = extSourceTypeX509.matcher(message);
       Matcher addUserExtSourceMatcher = addUserExtSource.matcher(message);
       Matcher removeUserExtSourceMatcher = removeUserExtSource.matcher(message);
       Matcher userAttributeSetMatcher = userAttributeSet.matcher(message);
       Matcher userAttributeRemovedMatcher = userAttributeRemoved.matcher(message);
       Matcher userCertDNsMatcher = userCertDNs.matcher(message);
-      
+
       if(extSourceTypeX509Matcher.find()) {
             if(addUserExtSourceMatcher.find() || removeUserExtSourceMatcher.find()) {
                 user = getUserFromMessage(message);
@@ -117,17 +117,17 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
             }
         }
       }
-      
+
       return resolvingMessages;
   }
-    
+
   @Override
   public List<String> getStrongDependencies() {
       List<String> strongDependencies = new ArrayList<String>();
       strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
       return strongDependencies;
   }
-    
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
@@ -135,26 +135,26 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
       attr.setType(LinkedHashMap.class.getName());
       attr.setDescription("Hash map for all users certificates DN included userExtsources type of X509.");
       return attr;
-  }  
-  
+  }
+
   /**
    * Get User from message if exists or if there is only one. In other case return null instead.
-   * 
+   *
    * @param message
    * @return user or null
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   private User getUserFromMessage(String message) throws InternalErrorException {
       User user = null;
       List<PerunBean> perunBeans = AuditParser.parseLog(message);
-      
+
       for(PerunBean pb: perunBeans) {
           if(pb instanceof User) {
               if(user != null) {
                   return null;
               } else {
                   user = (User) pb;
-              } 
+              }
           }
       }
       return user;

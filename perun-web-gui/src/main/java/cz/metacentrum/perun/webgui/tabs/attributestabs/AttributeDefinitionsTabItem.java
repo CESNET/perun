@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Tab for managing attribute definitions in Perun.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -59,7 +59,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 	 * Creates a tab instance
      */
 	public AttributeDefinitionsTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -68,7 +68,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 
 		// create main panel for content
 		VerticalPanel mainPage = new VerticalPanel();
-		mainPage.setWidth("100%");		
+		mainPage.setWidth("100%");
 
 		// create new instance for jsonCall
 		final GetAttributesDefinition attrDef = new GetAttributesDefinition();
@@ -177,7 +177,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.attributesDisplayIcon(); 
+		return SmallIcons.INSTANCE.attributesDisplayIcon();
 	}
 
 	@Override
@@ -212,20 +212,20 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 		return session.isPerunAdmin();
 	}
-	
+
 	public final static String URL = "attr-def";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return AttributesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public AttributeDefinitionsTabItem load(Map<String, String> parameters) {
 		return new AttributeDefinitionsTabItem();
 	}
-	
+
 }

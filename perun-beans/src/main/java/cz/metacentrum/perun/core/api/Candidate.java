@@ -31,8 +31,8 @@ public class Candidate extends User {
       this.userExtSource = userExtSource;
       this.attributes = attributes;
     }
-    
-    public Candidate(UserExtSource userExtSource, Map<String, String> attributes, List<UserExtSource> additionalUserExtSources) {        
+
+    public Candidate(UserExtSource userExtSource, Map<String, String> attributes, List<UserExtSource> additionalUserExtSources) {
       this(userExtSource, attributes);
       this.additionalUserExtSources = additionalUserExtSources;
     }
@@ -53,7 +53,7 @@ public class Candidate extends User {
     public void setAttributes(Map<String, String> attributes) {
       this.attributes = attributes;
     }
-    
+
     public List<UserExtSource> getAdditionalUserExtSources() {
       if (additionalUserExtSources == null) return null;
       return Collections.unmodifiableList(additionalUserExtSources);
@@ -62,8 +62,8 @@ public class Candidate extends User {
     public void setAdditionalUserExtSources(List<UserExtSource> additionalUserExtSources) {
       this.additionalUserExtSources = additionalUserExtSources;
     }
-    
-    
+
+
     // FIXME Temporary method, in the future the candidate shoudl have only this function. userExtSource and additionalUserExtSources will be merged into one userExtSources
     // Beaware that this property is IGNORED in RPC serializers/deserializers
     public List<UserExtSource> getUserExtSources() {
@@ -121,9 +121,9 @@ public class Candidate extends User {
     public String serializeToString() {
       String attrNew = BeansUtils.serializeMapToString(attributes);
       List<String> userESNew = new ArrayList<String>();
-      List<UserExtSource> userESOld = getAdditionalUserExtSources(); 
+      List<UserExtSource> userESOld = getAdditionalUserExtSources();
       String sUserESNew;
-      
+
       if(getAdditionalUserExtSources() == null) sUserESNew = "\\0";
       else {
           for(UserExtSource u: userESOld) {
@@ -131,14 +131,14 @@ public class Candidate extends User {
           }
           sUserESNew = userESNew.toString();
       }
-      
+
       return this.getClass().getSimpleName() + ":[" +
         "userExtSource=<" + (getUserExtSource() == null ? "\\0" : getUserExtSource().serializeToString()) + ">" +
         ", attributes=<" + attrNew + ">" +
         ", additionalUserExtSources=<" + sUserESNew + ">" +
         ']';
     }
-    
+
     @Override
     public String toString() {
       Map<String, String> attrNew = null;

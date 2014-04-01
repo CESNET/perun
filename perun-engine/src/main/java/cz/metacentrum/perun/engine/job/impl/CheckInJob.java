@@ -8,9 +8,9 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.service.EngineManager;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 //Service, no need to be concurrent...
 @org.springframework.stereotype.Service(value = "checkInJob")

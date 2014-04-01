@@ -6,9 +6,9 @@ import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Service;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public class TaskResult {
 

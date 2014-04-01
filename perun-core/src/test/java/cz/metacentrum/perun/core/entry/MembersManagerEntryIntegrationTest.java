@@ -163,7 +163,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
   }
 
-  @Test 
+  @Test
   public void getMemberByUser() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUser()");
 
@@ -227,7 +227,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
   }
 
-  @Test 
+  @Test
   public void getMembersCount() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCount()");
 
@@ -256,7 +256,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
   }
 
-  @Test 
+  @Test
   public void getMembers() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembers()");
 
@@ -343,34 +343,34 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-        
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-        
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     // Set to 1.1. next year
     Calendar requiredCalendar = Calendar.getInstance();
-    requiredCalendar.set(Calendar.MONTH, 0); 
+    requiredCalendar.set(Calendar.MONTH, 0);
     requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
     requiredCalendar.add(Calendar.YEAR, 1);
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void extendMembershipBy10Days() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipBy10Days()");
@@ -378,31 +378,31 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+10d");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-        
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     Calendar requiredCalendar = Calendar.getInstance();
     requiredCalendar.add(Calendar.DAY_OF_MONTH, 10); // Add 10 days to today
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void extendMembershipInGracePeriod() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipInGracePeriod()");
@@ -412,38 +412,38 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     calendar.add(Calendar.DAY_OF_MONTH, 1);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
     int month = calendar.get(Calendar.MONTH)+1;
-    
+
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     // Set perid to day after today
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, day + "." + month + ".");
     extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "1m");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-        
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     Calendar requiredCalendar = Calendar.getInstance();
     requiredCalendar.add(Calendar.DAY_OF_MONTH, 1);
     requiredCalendar.add(Calendar.YEAR, 1);
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void extendMembershipOutsideGracePeriod() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipOutsideGracePeriod()");
@@ -453,38 +453,38 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     calendar.add(Calendar.MONTH, 3);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
     int month = calendar.get(Calendar.MONTH)+1;
-    
-    
+
+
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     // Set perid to day after today
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, day + "." + month + ".");
     extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "1m");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-        
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     Calendar requiredCalendar = Calendar.getInstance();
-    requiredCalendar.add(Calendar.MONTH, 3); 
-    
+    requiredCalendar.add(Calendar.MONTH, 3);
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void extendMembershipForMemberWithSufficientLoa() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithSufficientLoa()");
@@ -493,42 +493,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
     extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0,1");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     // Set LOA 2 for member
     ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
     ues = new UserExtSource(es, "abc");
     ues.setLoa(2);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
     usersManagerEntry.addUserExtSource(sess, user, ues);
-    
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     // Set to 1.1. next year
     Calendar requiredCalendar = Calendar.getInstance();
     requiredCalendar.set(Calendar.MONTH, 0);
     requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
     requiredCalendar.add(Calendar.YEAR, 1);
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void extendMembershipForMemberWithInsufficientLoa() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithInsufficientLoa()");
@@ -537,39 +537,39 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
     extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0,1");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     Attribute membershipExpirationAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
     Calendar nowCalendar = Calendar.getInstance();
     membershipExpirationAttribute.setValue(BeansUtils.DATE_FORMATTER.format(nowCalendar.getTime()));
     attributesManagerEntry.setAttribute(sess, createdMember, membershipExpirationAttribute);
-    
+
     // Set LOA 1 for member
     ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
     ues = new UserExtSource(es, "abc");
     ues.setLoa(1);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
     usersManagerEntry.addUserExtSource(sess, user, ues);
-    
+
     // Try to extend membership
     try {
       membersManagerEntry.extendMembership(sess, createdMember);
     } catch (ExtendMembershipException e) {
       assertTrue(e.getReason().equals(ExtendMembershipException.Reason.INSUFFICIENTLOA));
     }
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
-    assertEquals("membership attribute value must contains same value as before extension.", 
+    assertEquals("membership attribute value must contains same value as before extension.",
         BeansUtils.DATE_FORMATTER.format(nowCalendar.getTime()), membershipAttribute.getValue()); // Attribute cannot contain any value
   }
-  
+
   @Test
   public void extendMembershipForDefinedLoaAllowed() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaAllowed()");
@@ -579,47 +579,47 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
     extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
     extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     // Set LOA 1 for member
     ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
     ues = new UserExtSource(es, "abc");
     ues.setLoa(1);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
     usersManagerEntry.addUserExtSource(sess, user, ues);
-    
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
-    
+
     // Try to extend membership once again
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     Date extendedDate = BeansUtils.DATE_FORMATTER.parse((String) membershipAttribute.getValue());
     Calendar extendedCalendar = Calendar.getInstance();
     extendedCalendar.setTime(extendedDate);
-    
+
     Calendar requiredCalendar = Calendar.getInstance();
     requiredCalendar.add(Calendar.MONTH, 1);
-    
+
     assertNotNull("membership attribute must be set", membershipAttribute);
     assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
     assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
     assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
     assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
   }
-  
+
   @Test
   public void canExtendMembershipForDefinedLoaNotAllowed() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaNotAllowed()");
@@ -629,32 +629,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
     extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
     extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     // Set LOA 1 for member
     ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
     ues = new UserExtSource(es, "abc");
     ues.setLoa(0);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
     usersManagerEntry.addUserExtSource(sess, user, ues);
-    
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttributeFirst = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     assertNotNull("membership attribute must be set", membershipAttributeFirst);
     assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
-    
+
     // Try to extend membership
     assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
   }
-  
+
   @Test
   // It extend membership and try to extend it again, it must decline another expiration
   public void canExtendMembershipInGracePeriod() throws Exception {
@@ -665,28 +665,28 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
     extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
     extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     // Set LOA 1 for member
     ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
     ues = new UserExtSource(es, "abc");
     ues.setLoa(1);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
     usersManagerEntry.addUserExtSource(sess, user, ues);
-    
+
     // Try to extend membership
     membersManagerEntry.extendMembership(sess, createdMember);
-    
+
     Attribute membershipAttributeFirst = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-    
+
     assertNotNull("membership attribute must be set", membershipAttributeFirst);
     assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
-    
+
     // Try to extend membership
     assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
   }
@@ -697,40 +697,40 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaNotAllowed()");
 
     String loa = "1";
-    
+
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
-    
+
     // Try to extend membership
     assertFalse(membersManagerEntry.canBeMember(sess, createdVo, user, loa));
   }
-  
+
   @Test
   // It checks if user with sufficient LoA will be allowed in to the VO
   public void canBeMemberLoaAllowed() throws Exception {
     System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaAllowed()");
 
     String loa = "1";
-    
+
     // Set membershipExpirationRules attribute
     HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
     extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
-    
+
     Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
     extendMembershipRulesAttribute.setValue(extendMembershipRules);
-    
+
     attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
-    
+
     User user = usersManagerEntry.getUserByMember(sess, createdMember);
-    
+
     // Try to extend membership
     String allowedLoa = "2";
     assertTrue(membersManagerEntry.canBeMember(sess, createdVo, user, allowedLoa));

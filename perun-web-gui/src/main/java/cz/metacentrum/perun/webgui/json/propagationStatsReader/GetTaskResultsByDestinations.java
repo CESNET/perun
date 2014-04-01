@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to ger RichTaskResults by Destinations
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackTable<TaskResult> {
@@ -233,14 +233,14 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 
 				if (row.getStatus().equalsIgnoreCase("DONE")) {
 					return "rowgreen";
-				} 
-				else if (row.getStatus().equalsIgnoreCase("DENIED")){ 
-					return "rowyellow"; 
 				}
-				else if (row.getStatus().equalsIgnoreCase("FATAL_ERROR")){ 
-					return "rowred"; 
+				else if (row.getStatus().equalsIgnoreCase("DENIED")){
+					return "rowyellow";
 				}
-				else if (row.getStatus().equalsIgnoreCase("ERROR")){ 
+				else if (row.getStatus().equalsIgnoreCase("FATAL_ERROR")){
+					return "rowred";
+				}
+				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
 				return "";

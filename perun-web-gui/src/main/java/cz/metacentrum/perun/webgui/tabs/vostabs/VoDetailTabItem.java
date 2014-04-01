@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * View VO details
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -38,25 +38,25 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 	 * VO
 	 */
 	private VirtualOrganization vo;
-	
+
 	/**
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading vo");
-	
+
 	private int voId;
     private TabPanelForTabItems tabPanel;
-	
+
 	/**
 	 * Creates a new view VO class
 	 *
@@ -67,7 +67,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		this.voId = vo.getId();
         tabPanel = new TabPanelForTabItems(this);
 	}
-	
+
 	/**
 	 * Creates a new view VO class
 	 *
@@ -83,11 +83,11 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
-	
+
 	public Widget draw() {
 
         this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()));
@@ -195,7 +195,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.buildingIcon(); 
+		return SmallIcons.INSTANCE.buildingIcon();
 	}
 
 	@Override
@@ -223,7 +223,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "", "");
@@ -236,23 +236,23 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 
     public boolean isAuthorized() {
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoDetailTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoDetailTabItem(voId);

@@ -48,7 +48,7 @@ import java.util.Map;
 
 /**
  * View user details
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class UserDetailTabItem implements TabItem, TabItemWithUrl {
@@ -57,24 +57,24 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	 * User id to display info for
 	 */
 	private User user;
-	
+
 	/**
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading user");
-	
+
 	private int lastTabId = 0;
-	
+
 	private TabLayoutPanel tabPanel;
 
 	private int userId;
@@ -90,7 +90,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		this.user = user;
 		this.userId = user.getId();
 	}
-	
+
 	/**
 	 * Creates a new view user class
 	 *
@@ -105,16 +105,16 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 		}).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(user == null);
 	}
-	
-	
+
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": Full details");
-		
+
 		// main widget panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
@@ -125,10 +125,10 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		final TabItem tab = this;
 		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 			public void onSelection(SelectionEvent<Integer> event) {
-				UiElements.runResizeCommands(tab);				
+				UiElements.runResizeCommands(tab);
 			}
 		});
-		
+
 		final SimplePanel sp0 = new SimplePanel(); // information overview
 		final SimplePanel sp1 = new SimplePanel(); // VOs / Groups / active accounts
 		final SimplePanel sp2 = new SimplePanel(); // Resources
@@ -155,13 +155,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
         }
 
         sp0.setWidget(loadInformationOverview());
-		
+
 		final TabItem publications = new UsersPublicationsTabItem(user);
-		
+
 		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-			
+
 		public void onSelection(SelectionEvent<Integer> event) {
-				UiElements.runResizeCommands(tab);				
+				UiElements.runResizeCommands(tab);
 				setLastTabId(event.getSelectedItem());
 				if (0 == event.getSelectedItem()) {
 					if (sp0.getWidget() == null) {
@@ -198,42 +198,42 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 };
 			}
 		});
-		
+
 		// TODO remove after replacement to TabPanelForTabItems
 		UiElements.addResizeCommand(new Command() {
-			
+
 			public void execute() {
 				UiElements.runResizeCommands(publications);
 			}
 		}, this);
-		
+
 
 		tabPanel.selectTab(getLastTabId(), true);  // select and trigger onSelect event
-		
+
 		session.getUiElements().resizePerunTable(tabPanel, 100, this);
 
 		// add tabs to the main panel
 		vp.add(tabPanel);
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
-	
+
 	// FIXME and TODO - all private methods should be separate TabItems !!! Connect them with user menu etc. ?
-	
+
 	private Widget loadInformationOverview(){
-		
+
 		// content
 		ScrollPanel scroll = new ScrollPanel();
 		VerticalPanel extendedInfoVp = new VerticalPanel();
 		extendedInfoVp.setStyleName("perun-table");
 		scroll.setWidget(extendedInfoVp);
 		scroll.setStyleName("perun-tableScrollPanel");
-		
+
 		session.getUiElements().resizeSmallTabPanel(scroll, 350, this);
-		
+
 		extendedInfoVp.setWidth("100%");
-		
+
 		// detail header
 		Widget userHeader = new HTML("<h2>" + "User details" + "</h2>");
 		extendedInfoVp.add(userHeader);
@@ -252,7 +252,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
             }
         });
-		
+
 		// detail content
 	    FlexTable layout = new FlexTable();
 	    layout.setCellSpacing(6);
@@ -268,27 +268,27 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	    } else {
 	    	layout.setHTML(0, 6, "Person");
 	    }
-	    
+
 	    // wrap the content in a DecoratorPanel
 	    DecoratorPanel decPanel = new DecoratorPanel();
 	    decPanel.setWidget(layout);
 	    extendedInfoVp.add(decPanel);
-		
+
 	    // user attributes
-	    
+
 		final GetAttributesV2 attributes = new GetAttributesV2();
 		attributes.getUserAttributes(user.getId());
-		
+
 		CellTable<Attribute> tableAttributes = attributes.getTable();
 		tableAttributes.addStyleName("perun-table");
 		tableAttributes.setWidth("100%");
-		
+
 		Widget attributesHeader = new HTML("<h2>" + "User attributes" + "</h2>");
 		extendedInfoVp.add(attributesHeader);
 		extendedInfoVp.setCellHeight(attributesHeader, "30px");
-		
+
 		TabMenu menu = new TabMenu();
-		
+
 		final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for user");
         saveAttrButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -340,10 +340,10 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
             }
         });
         menu.addWidget(removeAttrButton);
-		
+
 		extendedInfoVp.add(menu);
 		extendedInfoVp.add(tableAttributes);
-		
+
 		// VOS
 		GetVosWhereUserIsMember vos = new GetVosWhereUserIsMember(user.getId());
 		vos.setCheckable(false);
@@ -358,22 +358,22 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		// format the table
 		simpeVosTable.addStyleName("perun-table");
 		simpeVosTable.setWidth("100%");
-		
+
 		// simple table
 		Widget vosHeader = new HTML("<h2>" + "Virtual organizations" + "</h2>");
 		extendedInfoVp.add(vosHeader);
 		extendedInfoVp.setCellHeight(vosHeader, "30px");
 		extendedInfoVp.add(simpeVosTable);
-		
+
 		return scroll;
-		
+
 	}
-	
+
 	private Widget loadExternalIdentities() {
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		TabMenu menu = new TabMenu();
 
 		final GetUserExtSources extSources = new GetUserExtSources(user.getId());
@@ -385,7 +385,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				session.getTabManager().reloadTab(tab);
 			}
 		};
-		
+
 		// buttons
 		CustomButton addUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add new external identity to user", new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -436,9 +436,9 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
         JsonUtils.addTableManagedButton(extSources, table, removeUserExtSourceButton);
 
 		return vp;
-		
+
 	}
-	
+
 	private Widget loadResources(){
 
         cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources resources = new cz.metacentrum.perun.webgui.json.usersManager.GetAssignedRichResources(user.getId(), PerunEntity.USER);
@@ -455,31 +455,31 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 		vp.add(sp);
 		session.getUiElements().resizeSmallTabPanel(sp, 320, this);
 		vp.setCellHeight(sp, "100%");
-		
+
 		return vp;
-		
+
 	}
-	
+
 	private Widget loadVosGroupsAccounts() {
-		
+
 		// whole content
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		// menu
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		// final VO name widget
 		final Hyperlink voLabel = new Hyperlink();
-		
+
 		final ListBoxWithObjects<VirtualOrganization> listbox = new ListBoxWithObjects<VirtualOrganization>();
 		menu.addWidget(new HTML("<strong>Select&nbsp;user's&nbsp;VO:</strong>"));
 		menu.addWidget(listbox);
@@ -518,27 +518,27 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
             }
 
         };
-		
+
 		GetVosWhereUserIsMember vosCall = new GetVosWhereUserIsMember(user.getId(), events);
-		vosCall.retrieveData();	
-		
+		vosCall.retrieveData();
+
 		// change handler
 		listbox.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
 				loadMemberSubContent(subContent, voLabel, listbox);
 			}
 		});
-		
+
 		return vp;
-		
+
 	}
-	
+
 	private void loadMemberSubContent(final SimplePanel subContent, final Hyperlink voLabel, final ListBoxWithObjects<VirtualOrganization> listbox){
-		
+
 		subContent.setWidget(new AjaxLoaderImage());
-		
+
 		final GetMemberByUser gmbu = new GetMemberByUser(listbox.getSelectedObject().getId(), user.getId());
-		
+
 		JsonCallbackEvents loadEvent = new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
@@ -549,27 +549,27 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				entryPanel.setStyleName("perun-table");
 				entryPanel.setSize("100%", "100%");
 				subContent.setWidget(entryPanel);
-				
+
 				voLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + listbox.getSelectedObject().getName() + "</h2>"));
 				voLabel.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoDetailTabItem(listbox.getSelectedObject())));
-				
+
 				// detail header
 				Widget memberHeader = new HTML("<h2>" + "Member details" + "</h2>");
 				entryPanel.add(memberHeader);
 				entryPanel.setCellHeight(memberHeader, "30px");
-				
+
 				// detail content
 			    FlexTable layout = new FlexTable();
 			    layout.setCellSpacing(6);
 			    // Add some standard form options
 			    layout.setHTML(0, 0, "<strong>Member&nbsp;ID:</strong>");
 			    layout.setHTML(0, 1, String.valueOf(member.getId()));
-				
+
 				ImageResource ir = null;
-				
+
 				// member status
 				if(member.getStatus().equalsIgnoreCase("VALID")){
-					ir = SmallIcons.INSTANCE.acceptIcon();		
+					ir = SmallIcons.INSTANCE.acceptIcon();
 				} else if (member.getStatus().equalsIgnoreCase("INVALID")){
 					ir = SmallIcons.INSTANCE.flagRedIcon();
 				} else if (member.getStatus().equalsIgnoreCase("SUSPENDED")){
@@ -577,13 +577,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				} else if (member.getStatus().equalsIgnoreCase("EXPIRED")){
 					ir = SmallIcons.INSTANCE.flagYellowIcon();
 				} else if (member.getStatus().equalsIgnoreCase("DISABLED")){
-					ir = SmallIcons.INSTANCE.binClosedIcon();	
+					ir = SmallIcons.INSTANCE.binClosedIcon();
 				}
-				
+
 				HTML status = new HTML("<a>" + member.getStatus() + " " + new Image(ir) + "</a>");
 				layout.setHTML(1, 0, "<strong>Member status: </strong>");
 				layout.setWidget(1, 1, status);
-				
+
 				// member status - on click action
 				status.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
@@ -596,14 +596,14 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 						lb.addItem("DISABLED", "DISABLED");
 						widget.setHTML(0, 0, "<strong>Status: </strong>");
 						widget.setWidget(0, 1, lb);
-						
+
 						// pick which one is already set
 						for (int i=0; i<lb.getItemCount(); i++) {
 							if (lb.getItemText(i).equalsIgnoreCase(member.getStatus())) {
 								lb.setSelectedIndex(i);
 							}
 						}
-						
+
 						Confirm conf = new Confirm("Change member's status", widget, true);
 						conf.setCancelButtonText("Cancel");
 						conf.setOkButtonText("Change status");
@@ -670,28 +670,28 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			    decPanel.setWidget(layout);
 			    entryPanel.add(decPanel);
 				entryPanel.setCellHeight(decPanel, "50px");
-			    
+
 			    // tables
-			    
+
 				// detail header
 				Widget groupHeader = new HTML("<h2>" + "Member groups" + "</h2>");
 				entryPanel.add(groupHeader);
 				entryPanel.setCellHeight(groupHeader, "30px");
-				
+
 				final GetMemberGroups groups = new GetMemberGroups(member.getId());
 				groups.setCheckable(false);
 				groups.setEditable(false);
-				
+
 				CellTable<Group> table = groups.getTable();
 				table.addStyleName("perun-table");
 				table.setWidth("100%");
 				entryPanel.add(table);
-				
+
 				// detail header
 				Widget attrHeader = new HTML("<h2>" + "Member / Member-resource attributes" + "</h2>");
 				entryPanel.add(attrHeader);
 				entryPanel.setCellHeight(attrHeader, "30px");
-				
+
 				final GetAttributesV2 attributes = new GetAttributesV2();
 				attributes.getMemberAttributes(member.getId());
 
@@ -707,7 +707,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                         }
                     }
                 });
-				
+
 				TabMenu menu = new TabMenu();
 
                 final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes for member");
@@ -728,11 +728,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 
                         }
-						
+
 					}
 				});
                 menu.addWidget(saveAttrButton);
-				
+
 				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for member", new ClickHandler() {
                     public void onClick(ClickEvent event) {
 
@@ -768,12 +768,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 menu.addWidget(resList);
 
 				entryPanel.add(menu);
-				
+
 				CellTable<Attribute> attrTable = attributes.getTable();
 				attrTable.addStyleName("perun-table");
 				attrTable.setWidth("100%");
 				entryPanel.add(attrTable);
-				
+
 			}
 			@Override
 			public void onError(PerunError error) {
@@ -781,13 +781,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 
 		};
-		
+
 		// set events & load data
 		gmbu.setEvents(loadEvent);
 		gmbu.retrieveData();
-		
+
 	}
-	
+
 	private Widget loadCertificatesLoginsPasswords()
 	{
 		// set content
@@ -877,34 +877,34 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
         list.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
         // TODO - remove SHONGO
         attributes.getListOfAttributes(ids, list);
-		
+
 		return attributesTable;
 	}
-	
+
 	private Widget loadFacilities() {
-		
+
 		// whole content
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		// menu
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		final ListBoxWithObjects<Facility> listbox = new ListBoxWithObjects<Facility>();
 		menu.addWidget(new HTML("<strong>Select&nbsp;user's&nbsp;Facility:</strong>"));
 		menu.addWidget(listbox);
-		
+
 		// sub content
 		final SimplePanel subContent = new SimplePanel();
 		subContent.setSize("100%", "100%");
 		vp.add(subContent);
 		vp.setCellHeight(subContent, "100%");
-		
+
 		final Hyperlink facilityLabel = new Hyperlink();
 		menu.addWidget(facilityLabel);
-		
+
 		JsonCallbackEvents events = new JsonCallbackEvents(){
 			@Override
             public void onFinished(JavaScriptObject jso) {
@@ -914,7 +914,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				for (int i=0; i<list.size(); i++){
 					listbox.addItem(list.get(i));
 				}
-				if (!listbox.isEmpty()){				
+				if (!listbox.isEmpty()){
 					loadFacilitySubContent(subContent, facilityLabel, listbox);
 				}
 			}
@@ -929,7 +929,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
                 listbox.addItem("Error while loading");
             }
         };
-		
+
 		GetAssignedFacilities facCall = new GetAssignedFacilities(PerunEntity.USER, user.getId(), events);
 		facCall.retrieveData();
 
@@ -939,23 +939,23 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				loadFacilitySubContent(subContent, facilityLabel, listbox);
 			}
 		});
-		
+
 		return vp;
-		
+
 	}
 
 	private void loadFacilitySubContent(final SimplePanel subContent, final Hyperlink facilityLabel, final ListBoxWithObjects<Facility> listbox){
-		
+
 		final VerticalPanel entryPanel = new VerticalPanel();
 		entryPanel.setSize("100%", "100%");
 		subContent.setWidget(entryPanel);
-		
+
 		facilityLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + listbox.getSelectedObject().getName() + "</h2>"));
 		facilityLabel.setTargetHistoryToken(session.getTabManager().getLinkForTab(new FacilityDetailTabItem(listbox.getSelectedObject())));
-		
+
 		final GetAttributesV2 attributes = new GetAttributesV2();
 		attributes.getUserFacilityAttributes(listbox.getSelectedObject().getId(), user.getId());
-		
+
 		TabMenu menu = new TabMenu();
 
         final CustomButton saveAttrButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in attributes");
@@ -979,7 +979,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
             }
         });
         menu.addWidget(saveAttrButton);
-		
+
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes", new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -1020,14 +1020,14 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		entryPanel.add(sp); 
-		
+		entryPanel.add(sp);
+
 		// better format
 		entryPanel.add(new SimplePanel());
 		entryPanel.setCellHeight(entryPanel.getWidget(entryPanel.getWidgetCount()-1), "100%");
-		
+
 		session.getUiElements().resizeSmallTabPanel(sp, 320, this);
-		
+
 	}
 
     public VerticalPanel loadServiceIdentities(){
@@ -1201,7 +1201,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
         return vp;
 
     }
-	
+
 	public Widget getWidget() {
 		return this.contentWidget;
 	}
@@ -1211,12 +1211,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon(); 
+		return SmallIcons.INSTANCE.userGrayIcon();
 	}
 
 	/**
 	 * Returns ID of last selected subtab in this page
-	 * 
+	 *
 	 * @return ID of subtab
 	 */
 	private int getLastTabId(){
@@ -1225,13 +1225,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Sets ID of subtab as last selected
-	 * 
+	 *
 	 * @param id
 	 */
 	private void setLastTabId(int id){
 		this.lastTabId = id;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -1257,33 +1257,33 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", PerunAdminTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"users", user.getFullNameWithTitles(), getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
 	}
-	
+
 	static public UserDetailTabItem load(Map<String, String> parameters) {
 		int uid = Integer.parseInt(parameters.get("id"));
 		return new UserDetailTabItem(uid);

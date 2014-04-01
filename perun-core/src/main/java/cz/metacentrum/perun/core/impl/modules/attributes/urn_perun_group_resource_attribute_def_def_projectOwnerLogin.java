@@ -26,29 +26,29 @@ import java.util.regex.Pattern;
 
 /**
  * Module for project owner login
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 25.2.2014
  */
 public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
-    
+
     public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
       String ownerLogin = (String) attribute.getValue();
       if (ownerLogin == null) return;
-      
+
       Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
       Matcher match = pattern.matcher(ownerLogin);
 
       if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");    
+        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
       }
-      
+
       //Get Facility from resource
       Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
       //Get all users
       List<User> users = sess.getPerunBl().getUsersManagerBl().getUsers(sess);
-      
+
       //Check if exists any user with this login
       for(User u: users) {
         Attribute userLogin = null;
@@ -59,7 +59,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
         }
         if (ownerLogin.equals(userLogin.getValue())) return;
       }
-      
+
       throw new WrongAttributeValueException(attribute, group, resource, "There is no user with this login:'" + ownerLogin);
     }
 
@@ -69,7 +69,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
       strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
       return strongDependencies;
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);

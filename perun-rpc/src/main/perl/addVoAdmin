@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -16,14 +16,14 @@ Available options:
  --userId      | -u user id
  --batch       | -b batch
  --help        | -h prints this help
- 
+
 };
 }
 
 my ($voId, $userId, $voShortName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "userId|u=i" => \$userId) || die help(); 
+ "userId|u=i" => \$userId) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
@@ -36,7 +36,7 @@ if (!defined($voId)) {
   my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
   $voId = $vo->getId;
 }
-  
+
 $vosAgent->addAdmin(vo => $voId, user => $userId);
 
 printMessage("User Id:$userId successfully added as a Vo Id:$voId administrator", $batch);

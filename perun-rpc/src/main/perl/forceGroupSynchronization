@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -17,14 +17,14 @@ Available options:
  --voShortName | -V vo short name
  --batch       | -b batch
  --help        | -h prints this help
- 
+
 };
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName, 
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help(); 
+ "groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
+ "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -39,11 +39,11 @@ if (!defined($groupId)) {
     my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
     $voId = $vo->getId;
   }
-  
+
   my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
   $groupId = $group->getId;
 }
-  
+
 $groupsAgent->forceGroupSynchronization(group => $groupId);
 
 printMessage("Group id:$groupId has been successfully enqueued for synchronization", $batch);

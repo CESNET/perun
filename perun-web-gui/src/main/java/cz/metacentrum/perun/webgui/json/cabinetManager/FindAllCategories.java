@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 /**
  * Finds All categories in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindAllCategories implements JsonCallback, JsonCallbackTable<Category> {
@@ -125,7 +125,7 @@ public class FindAllCategories implements JsonCallback, JsonCallbackTable<Catego
 
 		// Rank COLUMN
 		Column<Category, String> rankColumn = JsonUtils.addColumn(
-				new TextInputCellWithTabIndex(), 
+				new TextInputCellWithTabIndex(),
 				new JsonUtils.GetValue<Category, String>() {
 					public String getValue(Category category) {
 						return String.valueOf(category.getRank());
@@ -136,15 +136,15 @@ public class FindAllCategories implements JsonCallback, JsonCallbackTable<Catego
 						try {
 							double value = Double.parseDouble(newText);
 							object.setRank(value);
-							selectionModel.setSelected(object, true);							
+							selectionModel.setSelected(object, true);
 						} catch (NumberFormatException ex) {
 							selectionModel.setSelected(object, false);
 							session.getUiElements().setLogErrorText("Rank mismatch for category: "+object.getName()+" and value: "+newText);
-						}					
+						}
 					}
 				});
-		
-		
+
+
 		// Sorting value column
 		rankColumn.setSortable(true);
 		columnSortHandler.setComparator(rankColumn,

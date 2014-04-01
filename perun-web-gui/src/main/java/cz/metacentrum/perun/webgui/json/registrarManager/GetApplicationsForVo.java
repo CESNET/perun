@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of VO applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
@@ -55,12 +55,12 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	// Table field updater
 	private FieldUpdater<Application, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
+
 	private String state = "";
-	
+
 	private ArrayList<Application> backupList = new ArrayList<Application>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-	
+
 	private boolean checkable = true;
 
 	/**
@@ -85,12 +85,12 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<Application> getTable(FieldUpdater<Application, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -125,7 +125,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("App ID", tableFieldUpdater, 85);
 
@@ -195,7 +195,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
         });
         table.addColumn(stateColumn, "State");
         table.setColumnWidth(stateColumn, "80px");
-		
+
 		Column<Application, String> extSourceColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {
 					@Override
@@ -211,7 +211,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 				},
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
-						
+
 						if (object.getUser() != null) {
 							return object.getUser().getFullNameWithTitles();
 						}
@@ -238,7 +238,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 			}
 		});
 		table.addColumn(extSourceColumn, "Submitted by");
-		
+
 		Column<Application, String> loaColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {
 					@Override
@@ -266,7 +266,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 		});
 		table.addColumn(loaColumn, "LoA");
 		table.setColumnWidth(loaColumn, "40px");
-		
+
 		// GROUP COLUMN
 		Column<Application, String> groupColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Application, String>() {
@@ -326,7 +326,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
         });
 
         return table;
-		
+
 	}
 
 	/**
@@ -334,7 +334,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	 */
 	public void retrieveData() {
 		String param = "vo=" + this.voId;
-		
+
 		if(state.length() != 0){
 
             for (String s : state.split(",")) {
@@ -342,7 +342,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
             }
 
 		}
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -541,5 +541,5 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
-	
+
 }

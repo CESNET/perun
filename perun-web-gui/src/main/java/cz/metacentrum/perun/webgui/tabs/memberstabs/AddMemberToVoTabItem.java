@@ -320,7 +320,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
                 alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + u.getFullName());
             }
         }
-          
+
     }
 
     public Widget getWidget() {

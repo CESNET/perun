@@ -27,7 +27,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
     private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
     private Auditer auditer;
-    private PerunBl perunBl;    
+    private PerunBl perunBl;
 
     public void setAuditer(Auditer auditer) {
         this.auditer = auditer;
@@ -49,7 +49,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
         return perunBl.getAuditer().getMessages(count);
     }
-    
+
     public void log(PerunSession sess, String message) throws InternalErrorException {
         perunBl.getAuditer().log(sess, message);
     }

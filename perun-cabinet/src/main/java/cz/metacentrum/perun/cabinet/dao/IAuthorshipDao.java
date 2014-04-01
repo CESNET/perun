@@ -36,13 +36,13 @@ public interface IAuthorshipDao {
 	int update(Authorship report);
 
 	int deleteById(Integer id);
-	
+
 	List<Integer> findUniqueAuthorsIds();
-	
+
 	Author findAuthorByUserId(Integer id);
-	
+
 	List<Author> findAuthorsByPublicationId(Integer id);
-	
+
 	List<Author> findAllAuthors();
 
 }

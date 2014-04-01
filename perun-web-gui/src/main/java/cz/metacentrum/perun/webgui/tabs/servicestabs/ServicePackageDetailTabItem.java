@@ -79,7 +79,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
         this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(servicesPackage.getName()) + ": assigned services");
@@ -114,7 +114,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 		// add styling to table with services
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");	
+		sp.addStyleName("perun-tableScrollPanel");
 
         VerticalPanel vp1 = new VerticalPanel();
         vp1.setSize("100%", "100%");
@@ -255,7 +255,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 
@@ -294,8 +294,8 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -303,17 +303,17 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "packdetail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + servicePackageId;
 	}
-	
+
 	static public ServicePackageDetailTabItem load(Map<String, String> parameters)
 	{
         int id = Integer.valueOf(parameters.get("id"));

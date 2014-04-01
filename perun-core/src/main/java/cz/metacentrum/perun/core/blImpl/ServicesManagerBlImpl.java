@@ -96,7 +96,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
   public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, ServiceNotExistsException {
     return getServicesManagerImpl().getServiceById(sess, id);
   }
-  
+
   public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, ServiceNotExistsException {
     return getServicesManagerImpl().getServiceByName(sess, name);
   }
@@ -104,7 +104,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
   public List<Service> getServices(PerunSession sess) throws InternalErrorException {
     return getServicesManagerImpl().getServices(sess);
   }
-  
+
   public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
     return getServicesManagerImpl().getServicesByAttributeDefinition(sess, attributeDefinition);
   }
@@ -123,7 +123,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
       resourceServiceAttributes.addChildElement(getData(sess, service, resource, member));
     }
 
-    return resourceServiceAttributes; 
+    return resourceServiceAttributes;
 
   }
 
@@ -137,7 +137,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
       resourceServiceAttributes.addChildElement(getData(sess, service, facility, resource, member));
     }
 
-    return resourceServiceAttributes; 
+    return resourceServiceAttributes;
 
   }
 
@@ -164,7 +164,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     resourceServiceAttributes.addChildElement(groupsAbstractSA);
     resourceServiceAttributes.addChildElement(membersAbstractSA);
 
-    return resourceServiceAttributes; 
+    return resourceServiceAttributes;
   }
 
   private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes) throws InternalErrorException {
@@ -216,7 +216,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     } catch (WrongAttributeAssignmentException ex) {
       throw new InternalErrorException(ex);
     }
-    
+
     return memberServiceAttributes;
   }
 
@@ -228,7 +228,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     resources.retainAll(getAssignedResources(sess, service));
     for(Resource resource: resources) {
       ServiceAttributes resourceServiceAttributes = getData(sess, service, facility, resource);
-      serviceAttributes.addChildElement(resourceServiceAttributes); 
+      serviceAttributes.addChildElement(resourceServiceAttributes);
     }
     return serviceAttributes;
   }
@@ -258,7 +258,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     serviceAttributes.addChildElement(allResourcesServiceAttributes);
     serviceAttributes.addChildElement(allUsersServiceAttributes);
 
-    return serviceAttributes; 
+    return serviceAttributes;
 
 
   }
@@ -271,7 +271,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     resources.retainAll(getAssignedResources(sess, service));
     for(Resource resource: resources) {
       ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
-      serviceAttributes.addChildElement(resourceServiceAttributes); 
+      serviceAttributes.addChildElement(resourceServiceAttributes);
     }
     return serviceAttributes;
   }
@@ -333,7 +333,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
   }
 
   public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeAlreadyAssignedException {
-    //check if attribute isn't already added 
+    //check if attribute isn't already added
     List<AttributeDefinition> requiredAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributesDefinition(sess, service);
     if(requiredAttributes.contains(attribute)) throw new AttributeAlreadyAssignedException(attribute);
 
@@ -363,7 +363,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
   public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
     if(!getServicesManagerImpl().destinationExists(sess, destination)) {
-      try { 
+      try {
         //Try to get the destination without id
         destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
       } catch(DestinationNotExistsException ex) {
@@ -380,10 +380,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
     return destination;
   }
-  
+
   public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
     if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
-      try { 
+      try {
         //Try to get the destination without id
         destination = getServicesManagerImpl().getDestination(perunSession, destination.getDestination(), destination.getType());
       } catch(DestinationNotExistsException ex) {
@@ -394,20 +394,20 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
         }
       }
     }
-    
+
     for(Service s: services) {
       if(!getServicesManagerImpl().destinationExists(perunSession, s, facility, destination)) {
           getServicesManagerImpl().addDestination(perunSession, s, facility, destination);
           getPerunBl().getAuditer().log(perunSession, "{} added to {} and {}.", destination, s, facility);
       }
     }
-    
-    return destination; 
+
+    return destination;
   }
-  
+
   private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
-    if(!getServicesManagerImpl().destinationExists(sess, destination)) {  
-      try { 
+    if(!getServicesManagerImpl().destinationExists(sess, destination)) {
+      try {
         //Try to get the destination without id
         destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
       } catch(DestinationNotExistsException ex) {
@@ -416,7 +416,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
         } catch(DestinationExistsException e) {
           //This is ok, destination already exists so take it from DB
           try {
-            destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());  
+            destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
           } catch (DestinationNotExistsException exep) {
               throw new ConsistencyErrorException("Destination seems to exists and not exists in the same time. There is some other problem." + exep);
           }
@@ -433,7 +433,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
   public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyRemovedException {
     if(!getServicesManagerImpl().destinationExists(sess, destination)) {
-      try { 
+      try {
         //Try to get the destination without id
         destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
       } catch(DestinationNotExistsException ex) {
@@ -458,15 +458,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
   public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException{
     return getServicesManagerImpl().getAllRichDestinations(perunSession, facility);
   }
-  
+
   public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException{
     return getServicesManagerImpl().getAllRichDestinations(perunSession, service);
   }
-  
+
   public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException{
     return getServicesManagerImpl().getRichDestinations(perunSession, facility, service);
   }
- 
+
   public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
     getServicesManagerImpl().removeAllDestinations(sess, service, facility);
     //TODO remove destination from destination taable if is not used anymore
@@ -563,28 +563,28 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
     return destinations;
   }
-  
+
   public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException {
       // Get all hosts
       List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
       List<Destination> destinations = new ArrayList<Destination>();
-      
+
       for (Host host: hosts) {
         if (host.getHostname() != null && !host.getHostname().isEmpty()) {
           Destination destination = new Destination();
           destination.setDestination(host.getHostname());
           destination.setType(Destination.DESTINATIONHOSTTYPE);
           destinations.add(this.addDestination(perunSession, service, facility, destination));
-        }  
+        }
       }
-      
+
       return destinations;
   }
-  
+
   public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException {
       List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
       List<Destination> destinations = new ArrayList<Destination>();
-      
+
       for (Service service: services) {
         for (Host host: hosts) {
           if (host.getHostname() != null && !host.getHostname().isEmpty()) {
@@ -592,19 +592,19 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
             destination.setDestination(host.getHostname());
             destination.setType(Destination.DESTINATIONHOSTTYPE);
             destinations.add(this.addDestinationEvenIfAlreadyExists(perunSession, service, facility, destination));
-          }  
+          }
         }
       }
       return destinations;
   }
-  
+
   public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
       //First generate services
       List<Service> services = getPerunBl().getServicesManagerBl().getAssignedServices(perunSession, facility);
       return this.addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
   }
-  
-  
+
+
   public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
     List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
     return destinations;

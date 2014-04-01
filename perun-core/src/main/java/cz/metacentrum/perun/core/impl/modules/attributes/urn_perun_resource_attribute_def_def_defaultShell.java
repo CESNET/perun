@@ -28,7 +28,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 
     @Override
     /**
-     * Fills the default shell at specified resource. If the facility contains 
+     * Fills the default shell at specified resource. If the facility contains
      * no shells, the exception is thrown otherwise some shell is picked.
      */
     public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
@@ -44,7 +44,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
             return atr;
         } else {
             List<String> shells = (List<String>) resourceAttr.getValue();
-            
+
             if (!shells.isEmpty()) {
                 atr.setValue(shells.get(0));
                 return atr;

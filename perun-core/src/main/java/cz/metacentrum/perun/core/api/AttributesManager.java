@@ -2536,17 +2536,17 @@ public interface AttributesManager {
   /**
    * Unset the group_resource attributes. If an attribute is core attribute, then the attribute isn't unseted (it's skipped without notification).
    * If workWithGroupAttributes is true, unset also group attributes.
-   * 
+   *
    * Remove only attributes which are in list of attributes.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param group group to set on
    * @param resource resource to set on
    * @param attributes attributes which will be used to removing
    * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
@@ -2555,32 +2555,32 @@ public interface AttributesManager {
    * @throws GroupResourceMismatchException if group and resource has not the same vo
    * @throws WrongAttributeAssignmentException if attribute is not group-resource or group attribute
    * @throws WrongAttributeValueException if the attribute value is illegal
-   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value 
+   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value
    */
   void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-  
+
   /**
    * Unset all attributes for the group and resource.
    * If workWithGroupAttributes is true, remove also all group attributes.
-   * 
+   *
    * PRIVILEGE: Remove attributes only when principal has access to write on them.
-   * 
+   *
    * @param sess perun session
    * @param group group to set on
    * @param resource resource to set on
    * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
-   * 
+   *
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
    * @throws PrivilegeException if privileges are not given
    * @throws GroupNotExistsException if group not exists in perun
    * @throws ResourceNotExistsException if resource not exists in perun
    * @throws GroupResourceMismatchException if group and resource has not the same vo
    * @throws WrongAttributeValueException if the attribute value is illegal
-   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value 
+   * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value
    * @throws WrongAttributeAssignmentException if attribute is not group-resource or group attribute
    */
   void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
-  
+
   /**
    * Unset particular entityless attribute with subject equals key.
    *

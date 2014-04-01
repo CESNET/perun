@@ -68,7 +68,7 @@ public class VosManagerEntry implements VosManager {
                 for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOADMIN, Vo.class)) {
                     vos.add((Vo) vo);
                 }
-                
+
                 // Get Vos where user is VO Observer
                 for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOOBSERVER, Vo.class)) {
                     vos.add((Vo) vo);
@@ -332,7 +332,7 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && 
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
                 !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getRichAdmins");
         }
@@ -345,7 +345,7 @@ public class VosManagerEntry implements VosManager {
         vosManagerBl.checkVoExists(sess, vo);
 
         //  Authorization - Vo admin required
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && 
+        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
                 !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
             throw new PrivilegeException(sess, "getRichAdminsWithAttributes");
         }

@@ -23,13 +23,13 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all facilities where selected service is assigned
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Facility> {
-	
+
 	// params
 	static private final String JSON_URL = "facilitiesManager/getAssignedFacilities";
 	private int typeId = 0;
@@ -41,11 +41,11 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 	private ArrayList<Facility> list = new ArrayList<Facility>();
 	private FieldUpdater<Facility, String> tableFieldUpdater;
 	final MultiSelectionModel<Facility> selectionModel = new MultiSelectionModel<Facility>(new GeneralKeyProvider<Facility>());
-	
-	
+
+
 	// type which get assigned facilites for
 	private PerunEntity type;
-	
+
 	/**
 	 * Creates a new callback
 	 *
@@ -56,7 +56,7 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 		this.type = type;
 		this.typeId = id;
 	}
-	
+
 	/**
 	 * Creates a new callback
 	 *
@@ -72,7 +72,7 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @param fu custom onClick
 	 * @return table widget
 	 */
@@ -81,43 +81,43 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 		this.retrieveData();
 		return this.getEmptyTable();
 	}
-	
+
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Facility> getTable() {
 		this.retrieveData();
 		return this.getEmptyTable();
 	}
-	
+
 	/**
 	 * Returns empty table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Facility> getEmptyTable() {
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<Facility>(list);
 
 		// Cell table
 		table = new PerunTable<Facility>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Facility> columnSortHandler = new ListHandler<Facility>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Facility> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		// columns
 		table.addCheckBoxColumn();
 		table.addIdColumn("Facility ID", tableFieldUpdater);
@@ -129,19 +129,19 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 					public String getValue(Facility object) {
 						return object.getType();
 					}
-				}, this.tableFieldUpdater);		
-		
+				}, this.tableFieldUpdater);
+
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn, new Comparator<Facility>() {
 			public int compare(Facility o1, Facility o2) {
 				return o1.getType().compareToIgnoreCase(o2.getType());
 			}
 		});
-		
+
 		table.addColumn(typeColumn, "Type");
-		
+
 		return table;
-		
+
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 	 */
 	public void retrieveData() {
 		JsonClient cl = new JsonClient();
-		
+
 		String request = "=" + typeId;
 
 		switch(type){

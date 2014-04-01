@@ -13,15 +13,15 @@ $(document).ready(function(){
 
      if (ex == "OK") {
 	$("#message").addClass('alert-success');
-	$("#message").html("Your identities have been successfully joined. You can continue to <a href='" + target + "'>here</a>."); 
+	$("#message").html("Your identities have been successfully joined. You can continue to <a href='" + target + "'>here</a>.");
      } else if (ex == "UserExtSourceExistsException") {
         $("#message").addClass('alert-info');
-        $("#message").html("<strong>Info:</strong> Your identities have been already joined. You can continue to <a href='" + target + "'>here</a>."); 
+        $("#message").html("<strong>Info:</strong> Your identities have been already joined. You can continue to <a href='" + target + "'>here</a>.");
      } else  {
         if (exId != "null") {
-          $("#message").html("<strong>Error occured</strong>: " + ex + " (ErrorId: " + exId + "). Report to perun@cesnet.cz."); 
+          $("#message").html("<strong>Error occured</strong>: " + ex + " (ErrorId: " + exId + "). Report to perun@cesnet.cz.");
         } else {
-          $("#message").html("<strong>Error occured</strong>: " + ex + ". Report to perun@cesnet.cz."); 
+          $("#message").html("<strong>Error occured</strong>: " + ex + ". Report to perun@cesnet.cz.");
         }
         $("#message").addClass('alert-error');
       }
@@ -35,7 +35,7 @@ $(document).ready(function(){
       var orgs = [];
       orgs["https://idp.upce.cz/idp/shibboleth"] = "University in Pardubice";
       orgs["https://idp.slu.cz/idp/shibboleth"] = "University in Opava";
-      orgs["https://login.feld.cvut.cz/idp/shibboleth"] = "Faculty of Electrical Engineering, Czech Technical University In Prague";            
+      orgs["https://login.feld.cvut.cz/idp/shibboleth"] = "Faculty of Electrical Engineering, Czech Technical University In Prague";
       orgs["https://www.vutbr.cz/SSO/saml2/idp"] = "Brno University of Technology";
       orgs["https://shibboleth.nkp.cz/idp/shibboleth"] = "The National Library of the Czech Republic";
       orgs["https://idp2.civ.cvut.cz/idp/shibboleth"] = "Czech Technical University In Prague";

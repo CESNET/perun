@@ -9,24 +9,24 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 *
 * Most attributes are named accordingly to the GLUE specification:
 * http://www.ogf.org/documents/GFD.147.pdf
-* 
+*
 * @author  Michal Prochazka
 * @author  Michal Karm Babacek
 */
 public class Host extends Auditable {
-	
+
 	private String hostname;
 
 	public Host() {
           super();
 	}
-	
+
 	public Host(int id, String hostname) {
 		super(id);
 		this.hostname = hostname;
-                
+
 	}
-        
+
         public Host(int id, String hostname, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
                 super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
                 this.hostname = hostname;
@@ -39,7 +39,7 @@ public class Host extends Auditable {
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
 	}
-        
+
         @Override
         public String serializeToString() {
                 return this.getClass().getSimpleName() +":[" +

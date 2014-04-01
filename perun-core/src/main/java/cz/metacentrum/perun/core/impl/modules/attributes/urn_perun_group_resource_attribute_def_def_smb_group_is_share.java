@@ -28,7 +28,7 @@ public class urn_perun_group_resource_attribute_def_def_smb_group_is_share exten
             throw new WrongAttributeValueException("0 and 1 are only allowed values");
         }*/
     }
-    
+
     public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
        /*Attribute ret = new Attribute(attribute);
        ret.setValue(0);

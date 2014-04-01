@@ -17,25 +17,25 @@ public class IllegalArgumentException extends InternalErrorException {
 
     public IllegalArgumentException(InternalErrorRuntimeException rt) {
         super(rt.getMessage(),rt);
-       
+
         log.error("Illegal Argument Exception:", this);
     }
 
     public IllegalArgumentException(String message) {
         super(message);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 
     public IllegalArgumentException(String message, Throwable cause) {
         super(message, cause);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 
     public IllegalArgumentException(Throwable cause) {
         super(cause);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
 public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
-    
+
     private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
     private static final String A_GR_systemIsUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
 
@@ -32,9 +32,9 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 
       String groupName = (String) attribute.getValue();
       Attribute isSystemGroup = new Attribute();
-      
+
       if(groupName==null) {
-          
+
           try {
               isSystemGroup = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
           } catch(AttributeNotExistsException ex) {
@@ -47,42 +47,42 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
       } else if(groupName.matches("^[-_a-zA-Z0-9]*$")!=true) {
         throw new WrongAttributeValueException(attribute,"String with other chars than numbers, letters or symbols _ and - is not allowed value.");
       }
-         
+
       //Get facility for the resource
-      Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);    
-      
+      Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+
       //List of pairs (group and resource) which has the attribute with the value
       List<Pair<Group,Resource>> listGroupPairsResource =sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
-      
+
       //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same facility, if yes then throw exception but only if these groups have not the same GID too.
       for(Pair<Group,Resource> p : listGroupPairsResource) {
           if(!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
               Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
-              
+
               Attribute group1GID = new Attribute();
               Attribute group2GID = new Attribute();
-              
+
               try {
                   group1GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);
               } catch (AttributeNotExistsException ex) {
                   throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + group + " and resource " + resource,ex);
               }
-              
+
               try {
-                  
+
                  group2GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGID);
               } catch (AttributeNotExistsException ex) {
                   throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + p.getLeft() + " and resource " + p.getRight() ,ex);
               }
-             
+
               if(facilityForTest.equals(facility) && (group1GID.getValue() != null ? (! group1GID.getValue().equals(group2GID.getValue())) : group2GID != null)) {
                   throw new WrongAttributeValueException(attribute, "Group name " + groupName + "is allready used by another group-resource and these have not the same GID and GroupName.  " + p.getLeft() + " " + p.getRight());
               }
           }
       }
-      
+
   }
-  
+
   @Override
   public List<String> getDependencies() {
       List<String> dependecies = new ArrayList<String>();

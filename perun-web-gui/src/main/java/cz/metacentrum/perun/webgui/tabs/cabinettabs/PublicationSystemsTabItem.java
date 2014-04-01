@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * Tab for viewing all external publication systems stored in Perun.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
@@ -29,21 +29,21 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Content widget - should be simple panel
 	 */
-	private SimplePanel contentWidget = new SimplePanel();	
+	private SimplePanel contentWidget = new SimplePanel();
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Publication systems");
-	
+
 	/**
 	 * Creates a tab instance
      */
 	public PublicationSystemsTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// main panel
@@ -60,13 +60,13 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 		sp.add(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
-		vp.add(sp);   
+		vp.add(sp);
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
-			
+
 		this.contentWidget.setWidget(vp);
-				
+
 		return getWidget();
 	}
 
@@ -79,7 +79,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.booksIcon(); 
+		return SmallIcons.INSTANCE.booksIcon();
 	}
 
 	@Override
@@ -105,32 +105,32 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "systems";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public PublicationSystemsTabItem load(Map<String, String> parameters) {
 		return new PublicationSystemsTabItem();
 	}

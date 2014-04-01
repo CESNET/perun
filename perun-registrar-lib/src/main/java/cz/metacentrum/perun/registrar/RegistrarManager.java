@@ -25,34 +25,34 @@ public interface RegistrarManager {
 
     /**
      * Retrieves all necessary data about VO under registrar session
-     * 
+     *
      * @param voShortName VO's shortname to get info about
      * @param groupName Groups name to get info about
      * @return List of VO attributes
      * @throws PerunException
      */
     public List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
-	
+
     /**
      * Create application form for vo
-     * 
+     *
      * @param sess for authz
      * @param vo VO to create application form for
      * @throws InternalErrorException
      * @throws PrivilegeException
      */
     void createApplicationFormInVo(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException;
-    
+
     /**
      * Create application form for Group
-     * 
+     *
      * @param sess for authz
      * @param group Group to create application form for
      * @throws InternalErrorException
      * @throws PrivilegeException
      */
     void createApplicationFormInGroup(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException;
-    
+
     /**
      * Gets an application form for a given VO. There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
      * just the form items are marked whether the should be present in one, the other, or both types of application.
@@ -72,7 +72,7 @@ public interface RegistrarManager {
      * @throws PerunException
      */
     ApplicationForm getFormForGroup(Group group) throws PerunException;
-    
+
     /**
      * Adds a new item to a form.
      *
@@ -87,7 +87,7 @@ public interface RegistrarManager {
 
     /**
      * Updates whole FormItem object including ItemTexts and associated AppTypes
-     * 
+     *
      * @param sess Session for authorization
      * @param form ApplicationForm to update items for
      * @param items items to update (by their IDs)
@@ -96,7 +96,7 @@ public interface RegistrarManager {
      * @throws InternalErrorException
      */
     int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException, InternalErrorException;
-    
+
     /**
      * Updates the form attributes, not the form items.
      *  - update automatic approval style
@@ -201,7 +201,7 @@ public interface RegistrarManager {
     /**
      * Gets all applications in a given state for a given VO.
      * If state is null, returns all applications for a given VO.
-     * 
+     *
      * @param sess who is asking
      * @param vo VO to get applications for
      * @param state application state to filter by
@@ -213,7 +213,7 @@ public interface RegistrarManager {
     /**
      * Gets all applications in a given state for a given Group
      * If state is null, returns all applications for a given Group.
-     * 
+     *
      * @param sess who is asking
      * @param group Group to get applications for
      * @param state application state to filter by
@@ -222,7 +222,7 @@ public interface RegistrarManager {
      */
     List<Application> getApplicationsForGroup(PerunSession sess, Group group, List<String> state) throws PerunException;
 
-    
+
     /**
      * Validates an email. THis method should receive all URL parameters from a URL sent by an email to validate
      * the email address that was provided by a user. The parameters describe the user, application, email and contain
@@ -237,19 +237,19 @@ public interface RegistrarManager {
     /**
      * Forcefully marks application as verified
      * (only when application was in NEW state)
-     * 
+     *
      * FIXME: for testing purpose now
-     * 
+     *
      * @param sess Session to verify user
      * @param appId app to verify
-     * @throws PrivilegeException if not authorized 
+     * @throws PrivilegeException if not authorized
      * @throws InternalErrorException other reasons
      */
     Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException;
-    
+
     /**
      * Manually approves an application. Expected to be called as a result of direct VO administrator action in the web UI.
-     * 
+     *
      * @param session who approves the application
      * @param appId application id
      */
@@ -265,16 +265,16 @@ public interface RegistrarManager {
 
     /**
      * Manually rejects an application. Expected to be called as a result of direct VO administrator action in the web UI.
-     * 
+     *
      * @param session who rejects the application
      * @param appId application id
      * @param reason optional reason of rejection displayed to user
      */
     Application rejectApplication(PerunSession session, int appId, String reason) throws PerunException;
-    
+
     /**
      * Returns data submitted by user in given application (by id)
-     * 
+     *
      * @param sess PerunSession
      * @param appId application to get user's data for
      * @return data submitted by user in given application
@@ -309,15 +309,15 @@ public interface RegistrarManager {
 
     /**
      * Returns full form item including texts and appTypes
-     * 
+     *
      * @param id ID of form item to return
      * @return form item
      */
     ApplicationFormItem getFormItemById(int id);
-    
+
     /**
      * Returns application object by it's ID
-     * 
+     *
      * @param sess session to authorize VO admin
      * @param id ID of application to return
      * @return application
@@ -326,7 +326,7 @@ public interface RegistrarManager {
 
     /**
      * Copy all form items from selected VO into another.
-     * 
+     *
      * @param sess
      * @param fromVo VO to get form items from
      * @param toVo VO to set new form items
@@ -343,10 +343,10 @@ public interface RegistrarManager {
      * @throws PerunException
      */
     void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
-    
+
     /**
      * Getter for mail manager used for notifications
-     * 
+     *
      * @return mail manager
      */
     MailManager getMailManager();
@@ -363,5 +363,5 @@ public interface RegistrarManager {
      * @throws PerunException
      */
     List<User> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException;
-    
+
 }

@@ -10,7 +10,7 @@ public class EmailAuthenticationException extends EmailException {
 
     /**
      * Constructor for EmailAuthenticationException.
-     * 
+     *
      * @param msg
      *            message
      */
@@ -20,7 +20,7 @@ public class EmailAuthenticationException extends EmailException {
 
     /**
      * Constructor for EmailAuthenticationException.
-     * 
+     *
      * @param msg
      *            the detail message
      * @param cause
@@ -32,7 +32,7 @@ public class EmailAuthenticationException extends EmailException {
 
     /**
      * Constructor for EmailAuthenticationException.
-     * 
+     *
      * @param cause
      *            the root cause from the mail API in use
      */

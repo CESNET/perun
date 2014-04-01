@@ -13,17 +13,17 @@ public class ParsedMethod {
 	public enum MethodType {
 		METHOD, STRING_PARAM, CLASS, INTEGER_PARAM
 	}
-	
+
 	private String methodName;
-	
+
 	private MethodType methodType;
-	
+
 	private List<ParsedMethod> params = new ArrayList<ParsedMethod>();
-	
+
 	private ParsedMethod nextMethod;
 
 	private int lastPosition;
-	
+
 	public String getMethodName() {
 		return methodName;
 	}
@@ -55,7 +55,7 @@ public class ParsedMethod {
 	public void setParams(List<ParsedMethod> params) {
 		this.params = params;
 	}
-	
+
 	public void addParam(ParsedMethod method) {
 		params.add(method);
 	}

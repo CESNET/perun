@@ -39,7 +39,7 @@ import java.util.Map;
 
 /**
  * Displays a group members
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -66,7 +66,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	ScrollPanel tableWrapper = new ScrollPanel();
 
     String searchString = "";
-	
+
 	/**
 	 * Group
 	 */
@@ -82,7 +82,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		this.group = group;
 		this.groupId = group.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -103,7 +103,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public Widget draw() {
-		
+
 		// SET TAB NAME
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": members");
 
@@ -141,9 +141,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
             });
             if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
             tabMenu.addWidget(addButton);
-	
+
 			// REMOVE
-	
+
 			// remove button
 			removeButton.addClickHandler(new ClickHandler() {
 				@Override
@@ -220,21 +220,21 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
                 members.filterTable(searchString);
             }
         });
-		
+
 		tabMenu.addWidget(disabled);
-		
+
 		vp.add(tabMenu);
         vp.setCellHeight(tabMenu, "30px");
 		vp.add(pageWidget);
-		
+
 		/* WHEN TAB RELOADS, CHECK THE STATE */
 		listAllAction(members, removeButton, disabled);
-		
+
 		this.contentWidget.setWidget(vp);
 		return getWidget();
-	
+
 	}
-	
+
 	/**
 	 * LIST ALL
 	 */
@@ -258,15 +258,15 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		tableWrapper.setWidget(table);
-		tableWrapper.addStyleName("perun-tableScrollPanel");		
+		tableWrapper.addStyleName("perun-tableScrollPanel");
 
 		session.getUiElements().resizePerunTable(tableWrapper, 350, this);
 
 		// add the table to the main panel
 		setPageWidget(tableWrapper);
-		
+
 	}
-	
+
 	private void setPageWidget(Widget w) {
 		this.pageWidget.setWidget(w);
 
@@ -281,7 +281,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon(); 
+		return SmallIcons.INSTANCE.userGreenIcon();
 	}
 
 	@Override
@@ -326,23 +326,23 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "members";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
-	
+
 	static public GroupMembersTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new GroupMembersTabItem(gid);

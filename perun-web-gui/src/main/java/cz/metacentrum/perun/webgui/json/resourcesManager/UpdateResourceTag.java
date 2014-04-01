@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
 
 /**
  * Ajax query for updating resource tag of VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateResourceTag {
@@ -41,7 +41,7 @@ public class UpdateResourceTag {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting()
@@ -63,7 +63,7 @@ public class UpdateResourceTag {
 
 	/**
 	 * Attempts to update resource tag, it first tests the values and then submits them
-	 * 
+	 *
 	 * @param tag Resource tag to be updated
 	 */
 	public void updateResourceTag(final ResourceTag tag) {

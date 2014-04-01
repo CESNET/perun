@@ -60,7 +60,7 @@ public class urn_perun_group_resource_attribute_def_def_smb_share_name extends R
        /*return new Attribute(attribute);*/
         return new Attribute();
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);

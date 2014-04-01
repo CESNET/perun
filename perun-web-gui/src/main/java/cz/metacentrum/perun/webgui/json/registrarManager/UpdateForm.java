@@ -10,7 +10,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which updates vo application form - to switch automatic and manual approval
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateForm {
@@ -23,7 +23,7 @@ public class UpdateForm {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private ApplicationForm form;
 
@@ -47,7 +47,7 @@ public class UpdateForm {
 	 * @param form
 	 */
 	public void updateForm(ApplicationForm form) {
-		
+
 		this.form = form;
 
 		// test arguments
@@ -75,7 +75,7 @@ public class UpdateForm {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -88,14 +88,14 @@ public class UpdateForm {
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
+
 		// query
 		JSONObject query = new JSONObject(form);
 		JSONObject result = new JSONObject();
 		result.put("form", query);
-		
+
 		return result;
-		
+
 	}
 
 }

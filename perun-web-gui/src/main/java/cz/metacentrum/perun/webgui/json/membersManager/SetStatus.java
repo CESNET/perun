@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax request to set status for member
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class SetStatus implements JsonStatusSetCallback {
@@ -74,7 +74,7 @@ public class SetStatus implements JsonStatusSetCallback {
 
 	/**
 	 * Attempts to set new status for selected member
-	 * 
+	 *
 	 * @param status new status (VALID,INVALID,SUSPENDED,EXPIRED,DISABLED)
 	 */
 	public void setStatus(String status)
@@ -120,7 +120,7 @@ public class SetStatus implements JsonStatusSetCallback {
 		jsonQuery.put("status", new JSONString(status));
 		return jsonQuery;
 	}
-	
+
 	/**
 	 * Sets the json events
 	 */

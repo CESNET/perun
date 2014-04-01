@@ -101,7 +101,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 
 	/**
 	 * Returns the table with member-Groups
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -112,7 +112,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 
 	/**
 	 * Returns the table with member-Groups
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
 	public CellTable<Group> getTable() {
@@ -122,17 +122,17 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<Group>(list);
-		
+
 		// Cell table
 		table = new PerunTable<Group>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Group> columnSortHandler = new ListHandler<Group>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// Table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Group> createCheckboxManager());
 
@@ -146,7 +146,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
         } else if (entity.equals(PerunEntity.FACILITY)) {
             loaderImage.setEmptyResultMessage("Facility has no groups of managers.");
         }
-		
+
 		// Checkbox column column
 		table.addCheckBoxColumn();
 
@@ -157,13 +157,13 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 						return String.valueOf(object.getId());
 					}
 				}, this.tableFieldUpdater);
-		
+
 
 		groupIdColumn.setSortable(true);
 		columnSortHandler.setComparator(groupIdColumn, new GeneralComparator<Group>(GeneralComparator.Column.ID));
-		
+
 		table.setColumnWidth(groupIdColumn, 110.0, Unit.PX);
-		
+
 		if(JsonUtils.isExtendedInfoVisible()){
 			table.addColumn(groupIdColumn,  "Group ID");
 		}
@@ -172,7 +172,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
         table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
-		
+
 	}
 
     /**
@@ -289,7 +289,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {

@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 
 /**
  * HostNotExistsRuntimeException
- * 
+ *
  * This exception is to be thrown in case we
  * are unable to look up the host computer in the Perun system.
  *

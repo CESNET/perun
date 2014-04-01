@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Tab with required attributes management for selected service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -99,7 +99,7 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 
 		// menu
 		TabMenu menu = new TabMenu();
-		
+
 		// custom event
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
 
@@ -145,7 +145,7 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		// create scroll panel for table
 		reqAttrTable.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(reqAttrTable);
-		sp.addStyleName("perun-tableScrollPanel");	
+		sp.addStyleName("perun-tableScrollPanel");
 		sp.setWidth("100%");
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
@@ -170,7 +170,7 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 	@Override
@@ -206,26 +206,26 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "req-attrs";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
 	}
-	
+
 	static public ServiceRequiredAttributesTabItem load(Map<String, String> parameters)
 	{
 		int id = Integer.parseInt(parameters.get("id"));

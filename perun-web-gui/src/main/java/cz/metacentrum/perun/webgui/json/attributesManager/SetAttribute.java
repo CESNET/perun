@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * Ajax query which sets attribute with a new value
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -54,7 +54,7 @@ public class SetAttribute {
 
 	/**
 	 * Attempts to set new value for some attribute
-	 * 
+	 *
 	 * @param ids defines which type of attribute will be set (member, user, member_resource, etc.)
 	 * @param attribute attribute object with a new value
 	 */
@@ -90,11 +90,11 @@ public class SetAttribute {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testSetting() {
@@ -106,7 +106,7 @@ public class SetAttribute {
 			errorMsg += "Wrong attribute type value.\n";
 			result = false;
 		}
-		
+
 		// skip attribute with empty or null value
 		if (attribute.getValue() == null || attribute.getValue().equalsIgnoreCase("")){
 			errorMsg += "Can't save attribute with null or empty value.\n";
@@ -123,7 +123,7 @@ public class SetAttribute {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -139,7 +139,7 @@ public class SetAttribute {
 		JSONValue description = attr.get("description");
 		JSONValue value = attr.get("value");
 
-		// create new Attribute jsonObject 
+		// create new Attribute jsonObject
 		JSONObject newAttr = new JSONObject();
 		newAttr.put("value", value);
 		newAttr.put("id", id);
@@ -150,7 +150,7 @@ public class SetAttribute {
         newAttr.put("displayName", attr.get("displayName"));
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 
 		for (Map.Entry<String, Integer> attrIds : this.ids.entrySet()) {
 			jsonQuery.put(attrIds.getKey(),new JSONNumber(attrIds.getValue()));

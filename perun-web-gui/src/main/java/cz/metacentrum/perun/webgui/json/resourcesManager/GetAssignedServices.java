@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get assigned services for specified resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Service>, JsonCallbackOracle<Service> {
@@ -70,7 +70,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 	/**
 	 * Returns table with assigned services on resource with custom onClick
-	 * 
+	 *
 	 * @param fu custom onClick action
 	 * @return table widget
 	 */
@@ -81,7 +81,7 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 	/**
 	 * Returns table with assigned services on resource
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Service> getTable(){
@@ -93,30 +93,30 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
 
 		// Cell table
 		table = new PerunTable<Service>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Service> columnSortHandler = new ListHandler<Service>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Service> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("Resource has no services assigned.");
-		
+
 		// checkbox column column
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
-		
+
 		table.addIdColumn("Service Id", tableFieldUpdater, 110);
-		
+
 		table.addNameColumn(tableFieldUpdater);
-		
+
 		return table;
 
 	}

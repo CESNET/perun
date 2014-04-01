@@ -17,7 +17,7 @@ import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
 public class PerunAuthenticatorImpl extends Authenticator {
-  private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class); 
+  private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
 
   @GuardedBy("itself")
   private ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<String, PasswordAuthentication>();
@@ -36,7 +36,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
   private PerunAuthenticatorImpl() {
     super();
   }
-  
+
   /**
    * {@inheritDoc}
    * @see Authenticator#getPasswordAuthentication()
@@ -50,7 +50,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 
   /**
    * Register passwordAuthentication for specific URL. If there is some passwordAuthentication already registered for the url it is replaced by the new one.
-   * 
+   *
    * @param url
    * @param passwordAuthentication
    * @return true if there is no passwordAuthentication already registered for the URL, false otherwise
@@ -62,7 +62,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 
   /**
    * Unregister passwordAuthentication for specific URL.
-   * 
+   *
    * @param url
    * @return true if there was passwordAuthentication registered for the URL
    */

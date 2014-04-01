@@ -48,12 +48,12 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
         if (!this.initialized.compareAndSet(false, true)) return;
         this.extSourcesManagerImpl.initialize(sess);
     }
-    
+
     public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {
       getPerunBl().getAuditer().log(sess, "{} created.", extSource);
       return getExtSourcesManagerImpl().createExtSource(sess, extSource);
     }
-    
+
     public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
       getExtSourcesManagerImpl().deleteExtSource(sess, extSource);
       getPerunBl().getAuditer().log(sess, "{} deleted.", extSource);
@@ -71,7 +71,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
       return getExtSourcesManagerImpl().getVoExtSources(sess, vo);
     }
 
-    public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {         
+    public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
       return getExtSourcesManagerImpl().getExtSources(sess);
     }
     public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
@@ -95,7 +95,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
         }
       }
     }
-    
+
     public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
       getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
       getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, vo);
@@ -108,7 +108,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
       // Get all users, who are associated with this extSource
       usersIds = getExtSourcesManagerImpl().getAssociatedUsersIdsWithExtSource(sess, source);
       List<User> users = getPerunBl().getUsersManagerBl().getUsersByIds(sess, usersIds);
-      
+
       for (User user: users) {
         // From user's userExtSources get the login
         String userLogin = "";
@@ -135,7 +135,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
       return invalidUsers;
     }
-    
+
     /**
      * Gets the extSourcesManagerImpl for this instance.
      *
@@ -161,7 +161,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
     public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException  {
       // New Canddate
       Candidate candidate = new Candidate();
-      
+
       // Prepare userExtSource object
       UserExtSource userExtSource = new UserExtSource();
       userExtSource.setExtSource(source);
@@ -169,7 +169,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
       // Set the userExtSource
       candidate.setUserExtSource(userExtSource);
-      
+
       // Get the subject from the extSource
       Map<String, String> subject = null;
       try {
@@ -177,20 +177,20 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
       } catch (SubjectNotExistsException e) {
         throw new CandidateNotExistsException(login);
       }
-      
+
       if (subject == null) {
         throw new InternalErrorException("Candidate with login [" + login + "] not exists");
       }
-      
+
       candidate.setFirstName(subject.get("firstName"));
       candidate.setLastName(subject.get("lastName"));
       candidate.setMiddleName(subject.get("middleName"));
       candidate.setTitleAfter(subject.get("titleAfter"));
       candidate.setTitleBefore(subject.get("titleBefore"));
-      
+
       // Additional userExtSources
       List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
-      
+
       // Filter attributes
       Map<String, String> attributes = new HashMap<String, String>();
       for (String attrName: subject.keySet()) {
@@ -214,13 +214,13 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
         		  throw new InternalErrorException("Candidate with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.");
         	  }
           }
-          
+
           ExtSource additionalExtSource;
 
-          if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() || 
+          if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() ||
               additionalExtSourceType == null || additionalExtSourceType.isEmpty() ||
               additionalExtLogin == null || additionalExtLogin.isEmpty()) {
-            log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw); 
+            log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
           } else {
             try {
               // Try to get extSource, with full extSource object (containg ID)
@@ -242,13 +242,13 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
           }
         }
       }
-      
+
       candidate.setAdditionalUserExtSources(additionalUserExtSources);
       candidate.setAttributes(attributes);
-      
+
       return candidate;
     }
-    
+
     public void loadExtSourcesDefinitions(PerunSession sess) {
       getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
     }

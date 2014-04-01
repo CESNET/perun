@@ -6,14 +6,14 @@ import com.google.gwt.resources.client.ImageResource;
 
 /**
  * Interface for small icon resources.
- * 
+ *
  * Example:
  * SmallIcons icons = GWT.create(SmallIcons.class);
  * Image img = new Image(icons.acceptIcon());
- * 
+ *
  * DO NOT EDIT CONTENTS OF THIS FILE MANUALLY!
  * Instead, generate it with gen.php file.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public interface SmallIcons extends ClientBundle{
@@ -1878,7 +1878,7 @@ public interface SmallIcons extends ClientBundle{
     //ImageResource dishIcon();
 
     @Source("icons/16x16/disk.png")
-    ImageResource diskIcon(); 
+    ImageResource diskIcon();
 
     //@Source("icons/16x16/disk_multiple.png")
     //ImageResource diskMultipleIcon();
@@ -2962,7 +2962,7 @@ public interface SmallIcons extends ClientBundle{
 
     @Source("icons/16x16/flag_czech_republic.png")
     ImageResource flagCzechRepublicIcon();
-    
+
     @Source("icons/16x16/flag_cze_gb.png")
     ImageResource flagCzechBritainIcon();
 
@@ -5167,7 +5167,7 @@ public interface SmallIcons extends ClientBundle{
 
     //@Source("icons/16x16/personals.png")
     //ImageResource personalsIcon();
-    
+
     @Source("icons/16x16/perun.png")
     ImageResource perunIcon();
 
@@ -5263,10 +5263,10 @@ public interface SmallIcons extends ClientBundle{
 
     //@Source("icons/16x16/pinRed.png")
     //ImageResource pinRedIcon();
-    
+
     //@Source("icons/16x16/pinGrey.png")
     //ImageResource pinGrayIcon();
-    
+
     //@Source("icons/16x16/pint.png")
     //ImageResource pintIcon();
 

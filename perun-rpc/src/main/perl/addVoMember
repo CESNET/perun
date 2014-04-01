@@ -6,7 +6,7 @@ use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
 use Term::ReadKey;
-use Perun::Common qw(printMessage tableToPrint); 
+use Perun::Common qw(printMessage tableToPrint);
 
 sub help {
 return qq{
@@ -19,7 +19,7 @@ Available options:
  --searchString | -p string to search in assigned external sources
  --batch        | -b batch
  --help         | -h prints this help
- 
+
 };
 }
 
@@ -27,7 +27,7 @@ our $batch;
 my ($voId, $voShortName, $searchString);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "searchString|p=s" => \$searchString) || die help(); 
+ "searchString|p=s" => \$searchString) || die help();
 
 # There can be PERUN_BATCH env set, so check it
 $batch = $batch || $ENV{'PERUN_BATCH'};
@@ -45,7 +45,7 @@ if (!defined($voId)) {
   my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
   $voId = $vo->getId;
 }
-  
+
 my @candidates = $vosAgent->findCandidates('vo' => $voId, 'searchString' => $searchString);
 
 if (scalar(@candidates) <= 0) { print STDERR "No new candidates matching the searchString found or the candidate is already Vo member\n"; exit 1; }
@@ -66,10 +66,10 @@ if (!$batch) {
     my $candidateName = $tmpCandidate->getFirstName;
     $candidateName .= " " . $tmpCandidate->getMiddleName if ($tmpCandidate->getMiddleName);
     $candidateName .= " " . $tmpCandidate->getLastName;
-		
+
 		my $userExtSourceLogins = $tmpCandidate->getUserExtSource->getLogin;
 		my $userExtSourceNames = $tmpCandidate->getUserExtSource->getExtSource->getName;
-		
+
 		foreach my $aues (@{$tmpCandidate->getAdditionalUserExtSources}) {
 			$userExtSourceLogins .= "\n" . $aues->getLogin;
 			my $auesExtSource = $aues->getExtSource;
@@ -79,16 +79,16 @@ if (!$batch) {
     $table->addRow($i, $candidateName, $userExtSourceLogins, $userExtSourceNames);
   }
   print tableToPrint($table, $batch);
-  
+
   print "\nEnter the candidate number (empty string to exit): ";
   my $candidateNumber = <>;
   chomp($candidateNumber);
 	# Exit if empty string was provided
   unless($candidateNumber !~ /^\s*$/) { exit 0 };
 
-  if (($candidateNumber !~ /^\d*$/) || ($candidateNumber <= 0 || $candidateNumber > $i)) { 
+  if (($candidateNumber !~ /^\d*$/) || ($candidateNumber <= 0 || $candidateNumber > $i)) {
       die "Candidate number must be in the range 1-$i\n";
-  } else { 
+  } else {
       # Get the selected candidate
       $candidate=$candidates[$candidateNumber-1];
   }

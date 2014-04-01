@@ -6,23 +6,23 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 public interface TaskResultDao {
 
     /**
      * List TaskResults
-     * 
+     *
      * @return all TaskResults
      */
     List<TaskResult> getTaskResults();
 
     /**
      * List TaskResults tied to a certain task
-     * 
+     *
      * @param taskId
      * @return
      */
@@ -30,7 +30,7 @@ public interface TaskResultDao {
 
     /**
      * Get TaskResult by its ID
-     * 
+     *
      * @param taskResultId
      * @return
      */
@@ -38,7 +38,7 @@ public interface TaskResultDao {
 
     /**
      * Clear all results tied to a particular Task
-     * 
+     *
      * @param taskId
      * @return number of deleted TaskResults
      */
@@ -46,7 +46,7 @@ public interface TaskResultDao {
 
     /**
      * Clear all results
-     * 
+     *
      * @return number of deleted TaskResults
      */
     int clearAll();
@@ -62,10 +62,10 @@ public interface TaskResultDao {
     int clearAll(int engineID);
 
     List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
-    
+
     /**
      * Returns list of tasks results for defined destinations (string representation).
-     * 
+     *
      * @param destinationsNames
      * @return list of tasks results
      * @throws InternalErrorException

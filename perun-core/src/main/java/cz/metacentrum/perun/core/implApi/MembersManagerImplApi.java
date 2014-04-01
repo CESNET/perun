@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
    /**
      *  Deletes only member data  appropriated by member id.
      *
-     * @param perunSession                   
+     * @param perunSession
      * @param member
      * @throws InternalErrorException
      * @throws MemberAlreadyRemovedException if there are 0 rows affected by removing from DB
@@ -38,7 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * Creates member entry in the database.
      * Created member is in invalid state.
      *
-     * @param perunSession              
+     * @param perunSession
      * @param vo	Vo
      * @param user User
      * @return created member with id filled
@@ -48,14 +48,14 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
     /**
      * Get member's VO id
-     * 
+     *
      * @param perunSession
      * @param member
      * @return VO id
      * @throws InternalErrorException
      */
     public int getMemberVoId(PerunSession perunSession, Member member) throws InternalErrorException;
-    
+
     /**
      * Find member of this Vo by his login in external source
      *
@@ -71,7 +71,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
     /**
      * Returns member by his id.
      *
-     * @param perunSession  
+     * @param perunSession
      * @param id
      * @return member
      * @throws InternalErrorException
@@ -82,7 +82,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
     /**
      * Returns member by his user id and vo.
      *
-     * @param perunSession  
+     * @param perunSession
      * @param vo
      * @param userId
      * @return member
@@ -103,24 +103,24 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * @throws UserNotExistsException
      */
     List<Member> getMembersByUser(PerunSession perunSession, User user) throws InternalErrorException;
-    
+
     /**
      * Check if member exists in underlaying data source.
-     * 
+     *
      * @param perunSession
      * @param member
      * @return true if member exists in underlaying data source, false otherwise
-     * 
+     *
      * @throws InternalErrorException
      */
     boolean memberExists(PerunSession perunSession, Member member) throws InternalErrorException;
 
     /**
      * Check if member exists in underlaying data source.
-     * 
+     *
      * @param perunSession
      * @param member
-     * 
+     *
      * @throws InternalErrorException
      * @throws MemberNotExistsException
      */
@@ -128,18 +128,18 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
     /**
      *  Set status of the member to specified status.
-     * 
+     *
      * @param sess
      * @param member
      * @param status new status
-     * 
+     *
      * @throws InternalErrorException
      */
     void setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException;
-    
+
     /**
      * Convert list of users' ids into the list of members.
-     * 
+     *
      * @param sess
      * @param usersIds
      * @param vo
@@ -147,10 +147,10 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * @throws InternalErrorException
      */
     List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) throws InternalErrorException;
-    
+
     /**
      * Convert list of users into the list of members.
-     * 
+     *
      * @param sess
      * @param users
      * @param vo
@@ -158,20 +158,20 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
      * @throws InternalErrorException
      */
     List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) throws InternalErrorException;
-    
+
     /**
      * Returns all members from the VO (with every status).
-     * 
+     *
      * @param sess
      * @param vo
      * @return number of members
      * @throws InternalErrorException
      */
     int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException;
-    
+
     /**
      * Returns number of Vo members with defined status.
-     * 
+     *
      * @param sess
      * @param vo
      * @param status

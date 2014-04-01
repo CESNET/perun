@@ -11,9 +11,9 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
  * ProcessingRuleDao
- * 
+ *
  * @author Michal Karm Babacek
- * 
+ *
  */
 public interface ProcessingRuleDao {
 

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * GroupsManager/getSubGroups Method
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
@@ -58,7 +58,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	public GetSubGroups(int id) {
 		this.parentId = id;
 	}
-	
+
 	/**
 	 * Creates a new instance of GroupsManager/getSubGroups method with custom field updater
 	 *
@@ -86,37 +86,37 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns the table with subgroups.
 	 * @return
 	 */
 	public CellTable<Group> getTable() {
-		
+
 		// retrieve data
 		retrieveData();
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<Group>(list);
 
 		// Cell table
 		table = new PerunTable<Group>(list);
         table.setHyperlinksAllowed(false);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Group> columnSortHandler = new ListHandler<Group>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Group> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("Group has no sub-groups.");
-		
+
 		// checkbox column column
 		table.addCheckBoxColumn();
 		table.addIdColumn("Group ID", tableFieldUpdater);
@@ -124,7 +124,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
-		
+
 	}
 
     /**
@@ -288,5 +288,5 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
-	
+
 }

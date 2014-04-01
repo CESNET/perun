@@ -52,13 +52,13 @@ public class MemberGroupsTabItem implements TabItem {
 		this.memberId = member.getId();
         this.groupId = groupId;
 	}
-	
+
 	public boolean isPrepared(){
 		return !(member == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": groups");
 
         // main widget panel
@@ -135,7 +135,7 @@ public class MemberGroupsTabItem implements TabItem {
         vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 
 	}
@@ -149,7 +149,7 @@ public class MemberGroupsTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon(); 
+		return SmallIcons.INSTANCE.userGreenIcon();
 	}
 
 	@Override
@@ -177,13 +177,13 @@ public class MemberGroupsTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() { }
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(member.getVoId()) || session.isVoObserver(member.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

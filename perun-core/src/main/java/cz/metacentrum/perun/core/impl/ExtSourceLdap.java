@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cz.metacentrum.perun.core.impl;
 
@@ -39,7 +39,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
   private final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
 
   private DirContext dirContext = null;
-  
+
   protected DirContext getContext() throws InternalErrorException {
     if (dirContext == null) {
       initContext();
@@ -115,7 +115,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
       }
       List<String> retAttrs = new ArrayList<String>();
       retAttrs.add(attrName);
-      
+
       String[] retAttrsArray = retAttrs.toArray(new String[retAttrs.size()]);
       Attributes attrs = getContext().getAttributes(ldapGroupName, retAttrsArray);
 
@@ -124,7 +124,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
       if (attrs.get(attrName) != null) {
     	  // Get the attribute which holds group subjects
     	  ldapAttribute = attrs.get(attrName);
-      } 
+      }
 
       if (ldapAttribute != null) {
     	  // Get the DNs of the subjects
@@ -134,7 +134,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
     		  log.trace("LDAP Exteranl Source: found group subject [{}].", ldapSubjectDN);
     	  }
       }
-      
+
       List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 
       // Now query LDAP again and search for each subject
@@ -154,7 +154,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
         log.error("LDAP exception during closing result, while running query '{}'", ldapGroupName);
         throw new InternalErrorException(e);
       }
-    }  
+    }
   }
 
   protected void initContext() throws InternalErrorException {
@@ -176,7 +176,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
     }
     if (getAttributes().containsKey("password")) {
       env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
-    }      
+    }
 
     try {
       // ldapMapping contains entries like: firstName={givenName},lastName={sn},email={mail}
@@ -215,9 +215,9 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
         value = value.replace(ldapAttributeNameRaw, getLdapAttributeValue(attributes, ldapAttributeName));
         log.trace("ExtSourceLDAP: Retrived value {} of attribute {} for {} and storing into the key {}.", new Object[]{value, ldapAttributeName, ldapAttributeNameRaw, key});
       }
-      
+
       map.put(key, value);
-    } 
+    }
 
     return map;
   }
@@ -238,7 +238,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
     } else {
       ldapAttrName = ldapAttrNameRaw;
     }
-    
+
     // Check if the ldapAttrName contains specification of the value index
     int attributeValueIndex = -1;
     if (ldapAttrNameRaw.contains("[")) {
@@ -261,7 +261,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
           // We want only value on concrete index, so skip the other ones
           continue;
         }
-        
+
         String tmpAttrValue = "";
         try {
           if (((String) attr.get()).startsWith(": ")) {
@@ -301,8 +301,8 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
   }
 
   /**
-   * Query LDAP using query in defined base. Results can be limited to the maxResults. 
-   * 
+   * Query LDAP using query in defined base. Results can be limited to the maxResults.
+   *
    * @param query
    * @param base
    * @param maxResults
@@ -363,7 +363,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
         log.error("LDAP exception during closing result, while running query '{}'", query);
         throw new InternalErrorException(e);
       }
-    }  
+    }
   }
 
   public void close() throws InternalErrorException {

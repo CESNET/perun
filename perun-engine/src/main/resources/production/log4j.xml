@@ -9,7 +9,7 @@
                 value="%p - %C{1}.%M(%L) | %m%n"/>
         </layout>
     </appender>
-    
+
    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="File" value="${perun.log}/perun-engine.log"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
@@ -18,7 +18,7 @@
                 value="%d{DATE} %5p %c{2} %M - %m%n"/>
         </layout>
     </appender>
-    
+
     <appender name="FILE_JMS" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="File" value="${perun.log}/perun-engine-jms.log"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>

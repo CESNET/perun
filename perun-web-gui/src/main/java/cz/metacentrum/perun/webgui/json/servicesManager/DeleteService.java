@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which deletes service from Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteService {
@@ -40,7 +40,7 @@ public class DeleteService {
 
 	/**
 	 * Attempts to delete a service, tests values first
-	 * 
+	 *
 	 * @param serviceId id of service to be deleted
 	 */
 	public void deleteService(final int serviceId)
@@ -74,11 +74,11 @@ public class DeleteService {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting() {
@@ -100,7 +100,7 @@ public class DeleteService {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -108,7 +108,7 @@ public class DeleteService {
 		JSONNumber service = new JSONNumber(serviceId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("service", service);
 		return jsonQuery;
 	}

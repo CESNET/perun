@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Ajax query to get all required attributes for any entity on specified resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetResourceRequiredAttributes implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -93,7 +93,7 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 
 	/**
 	 * Returns table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu Field updater
 	 * @return table widget
 	 */
@@ -104,7 +104,7 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable() {
@@ -119,7 +119,7 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -189,7 +189,7 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 				}, new FieldUpdater<Attribute, String>() {
 					public void update(int index, Attribute object, String newText) {
 						if (object.setValue(newText)) {
-							selectionModel.setSelected(object, true);  
+							selectionModel.setSelected(object, true);
 						} else {
 							selectionModel.setSelected(object, false);
 							UiElements.cantSaveAttributeValueDialogBox(object);
@@ -428,7 +428,7 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 
 	/**
 	 * Returns shorten string for ValueTypeColum
-	 * 
+	 *
 	 * @return String shorten string
 	 */
 	private String renameContent(String oldString) {
@@ -441,17 +441,17 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 	}
 
 	/**
-	 * Sets entities and their ids to this callback 
-	 * 
+	 * Sets entities and their ids to this callback
+	 *
 	 * @param ids map of IDS of entities
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Returns map of entities and their ids currently "in use" for this callback
-	 * 
+	 *
 	 * @return map of IDS
 	 */
 	public Map<String, Integer> getIds() {

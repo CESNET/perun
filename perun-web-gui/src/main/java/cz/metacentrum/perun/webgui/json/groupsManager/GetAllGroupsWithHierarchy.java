@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * Ajax query to get all groups in hierarchical structure
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -61,10 +61,10 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	// Whether to check child groups when parent checked.
 	private boolean checkChildGroups = true;
 	private Set<Group> previousSelectedSet = new HashSet<Group>();
-	
+
 	private boolean coreGroupsCheckable = false;
 
-	
+
 
 	/**
 	 * Creates a new callback
@@ -77,7 +77,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param id ID of VO for which we want groups for
 	 * @param events external events
 	 */
@@ -88,7 +88,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Returns table with groups in hierarchical structure and with custom field updater
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return table widget
 	 */
@@ -126,7 +126,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 		// Checkbox column. This table will uses a checkbox column for
 		// selection.
-		
+
 		Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
 				new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
 			@Override
@@ -136,7 +136,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 				return object;
 			}
 		};
-		
+
 		// Create ID column.
 		Column<Group, String> idColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Group, String>() {
@@ -151,13 +151,13 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 			public Group getValue(Group object) {
 				return object;
 			}
-		}; 
+		};
 		nameColumn.setFieldUpdater(new FieldUpdater<Group, Group>() {
 			public void update(int index, Group object, Group value) {
 				tableFieldUpdater.update(index, object, value.getName());
 			}
 		});
-				
+
 
 		// Create description column.
 		Column<Group, String> descriptionColumn = JsonUtils.addColumn(
@@ -189,9 +189,9 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	{
 		groupsToHighlight = new HashSet<Group>();
 
-		// the previous now contains only that groups, which were selected before and not now 
+		// the previous now contains only that groups, which were selected before and not now
 		this.previousSelectedSet.removeAll(this.selectionModel.getSelectedSet());
-		
+
 		// add parents first
 		recursiveAddGroupsToHighlight(this.selectionModel.getSelectedSet(), this.previousSelectedSet);
 
@@ -217,7 +217,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Search for the ancestors of the groups in the list of Groups in the query instance.
-	 * 
+	 *
 	 * @param groups all groups to search for
 	 * @param groupsToExclude groups excluded from search
 	 */
@@ -233,7 +233,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 			if(groupsToExclude.contains(group.getParentGroup()))
 			{
 				this.selectionModel.setSelected(group, false);
-				
+
 				// force the group children to uncheck
 				groupsToExclude.add(group);
 				continue;
@@ -275,14 +275,14 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Return selected groups rom list
-	 *  
+	 *
 	 * @return list of checked groups
 	 */
 	public ArrayList<Group> getTableSelectedList(){
 
 		ArrayList<Group> list = new ArrayList<Group>();
 		for (Group group : this.selectionModel.getSelectedSet()) {
-			list.add(group);		
+			list.add(group);
 		}
 		return list;
 	}
@@ -293,7 +293,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	public void clearTableSelectedSet(){
 		this.selectionModel.clear();
 	}
-	
+
 	/**
 	 * Returns parent selected set ("blue groups").
 	 * @return
@@ -301,14 +301,14 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	public Set<Group> getParentSelectedSet()
 	{
 		Set<Group> parentSelectedSet = new HashSet<Group>();
-		
+
 		for(Group g : selectionModel.getSelectedSet()){
 			if(!selectionModel.getSelectedSet().contains(g.getParentGroup()))
 			{
 				parentSelectedSet.add(g);
 			}
 		}
-		
+
 		return parentSelectedSet;
 	}
 
@@ -324,7 +324,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Updates the table with returned objects
-	 * 
+	 *
 	 * @param jso JS Array with objects returned from RPC
 	 */
 	private void rawUpdateGroupTable(JavaScriptObject jso)
@@ -336,7 +336,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	/**
 	 * Loads recursively the groups
 	 * Tries to parse the JSO as an array, if not succeeded, add the object.
-	 * 
+	 *
 	 * @param jso returned objects (array) from RPC
 	 * @param parentGroup parent group
 	 * @param previousGroup previouse group
@@ -386,19 +386,19 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Add object as new row to table
-	 * 
+	 *
 	 * @param grp object to be added as new row
 	 */
-	public void addToTable(Group grp) {		
+	public void addToTable(Group grp) {
 		list.add(grp);
 	}
 
 	// TODO: put these methods into common class ??
 	/**
 	 * Add object as new row to table at specified position
-	 * 
+	 *
 	 * @param grp group object to be added as new row
-	 * @param index index in list where to insert 
+	 * @param index index in list where to insert
 	 */
 	public void insertToTable(Group grp, int index) {
 		// cover errors
@@ -409,7 +409,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 		}
 		ArrayList<Group> helpList = new ArrayList<Group>();
 		// empty list, add as first
-		if (list.isEmpty()) { list.add(grp); } 
+		if (list.isEmpty()) { list.add(grp); }
 		else {
 			// add before index
 			for (int i=0; i<index; i++) {
@@ -426,7 +426,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 			list.addAll(helpList);
 		}
 	}
-	
+
 	/**
 	 * Retrieves groups: administrators, members
 	 */
@@ -440,7 +440,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 				insertToTable(grp, 0);
 			}
 		};
-		
+
 		GetGroupByName members = new GetGroupByName("members" , voId, externalEvents);
 		members.retrieveData();
 		//GetGroupByName admins = new GetGroupByName("administrators" ,voId, externalEvents);
@@ -449,10 +449,10 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Removes object as row from table
-	 * 
+	 *
 	 * @param grp object to be removed as row
 	 */
-	public void removeFromTable(Group grp) {		
+	public void removeFromTable(Group grp) {
 		for (int i=0; i<list.size(); i++) {
 			if (list.get(i).getId() == grp.getId()) {
 				list.remove(i);
@@ -479,17 +479,17 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Called when loading successfully finishes.
-	 * 
+	 *
 	 * @param jso javascript objects (array) returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		
+
 		// adds members and admins
 		retrieveAdminsAndMembers();
-		
+
 		// updates table
 		rawUpdateGroupTable(jso);
-		
+
 		session.getUiElements().setLogText("Loading groups in selected VO finished.");
 		loaderImage.loadingFinished();
 		this.events.onFinished(jso);
@@ -497,7 +497,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 
 	/**
 	 * Sets custom events
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {
@@ -517,7 +517,7 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	public ArrayList<Group> getList() {
 		return list;
 	}
-	
+
 	/**
 	 * Sets whether core groups can be checked
 	 * @param checkable
@@ -526,5 +526,5 @@ public class GetAllGroupsWithHierarchy implements JsonCallback {
 	{
 		this.coreGroupsCheckable = checkable;
 	}
-	
+
 }

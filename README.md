@@ -2,16 +2,16 @@
 
 User and Resource Management System
 
-Perun covers management of the whole ecosystem around the users' identities, groups, resources and services. Perun is well 
-suited for managing users whithin organizations and projects, managing access rights to the services. It provides 
-functionality to manage all entities (e.g. users, groups, virtual organizations, resources, services) and theirs 
+Perun covers management of the whole ecosystem around the users' identities, groups, resources and services. Perun is well
+suited for managing users whithin organizations and projects, managing access rights to the services. It provides
+functionality to manage all entities (e.g. users, groups, virtual organizations, resources, services) and theirs
 relationships.
 
-As the concept of virtual organization is well established in computational grids, Perun use them as a core unit for user 
-management. This concept can be successfully used outside the grid environment due to its nature of defining membership 
+As the concept of virtual organization is well established in computational grids, Perun use them as a core unit for user
+management. This concept can be successfully used outside the grid environment due to its nature of defining membership
 restrictions and delegation responsibilities among the members.
 
-Resources are managed separately from the virtual organizations, therefore resource owners can provide theirs resources to the 
+Resources are managed separately from the virtual organizations, therefore resource owners can provide theirs resources to the
 several virtual organizations by defining rules under which members of virtual organization can utilize the resources.
 
 MORE AT: http://perun.cesnet.cz
@@ -37,5 +37,5 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE. 
+POSSIBILITY OF SUCH DAMAGE.
 

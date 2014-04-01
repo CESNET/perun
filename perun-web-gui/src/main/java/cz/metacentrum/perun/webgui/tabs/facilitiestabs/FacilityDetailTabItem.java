@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Displays a facility
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -67,7 +67,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		this.facilityId = facility.getId();
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility
@@ -76,9 +76,9 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	public FacilityDetailTabItem(Facility facility, int tabPositionToOpen){
 		this(facility);
 		tabPanel.setLastTabId(tabPositionToOpen);
-		
+
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param facilityId
@@ -92,7 +92,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
         }).retrieveData();
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
-	
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
@@ -100,7 +100,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
         this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + ")");
-		
+
 		// main widget panel
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
@@ -172,7 +172,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
         vp.setCellHeight(dp, "30px");
 
 		// TAB PANEL
-		
+
 		tabPanel.clear();
         tabPanel.add(new FacilityResourcesTabItem(facility), "Resources");
         tabPanel.add(new FacilityAllowedGroupsTabItem(facility), "Allowed Groups");
@@ -191,7 +191,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
                 tabPanel.finishAdding();
             }
         });
-		
+
 		vp.add(tabPanel);
 
 		this.contentWidget.setWidget(vp);
@@ -208,7 +208,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon(); 
+		return SmallIcons.INSTANCE.databaseServerIcon();
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -258,21 +258,21 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
-	
+
 	static public FacilityDetailTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityDetailTabItem(fid);
 	}
-	
+
 	static public FacilityDetailTabItem load(Facility fac) {
 		return new FacilityDetailTabItem(fac);
 	}

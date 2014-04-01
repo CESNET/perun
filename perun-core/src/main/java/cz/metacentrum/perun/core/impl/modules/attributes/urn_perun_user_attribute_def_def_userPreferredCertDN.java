@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 /**
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {  
-    
+public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
       Attribute userCertDNs = null;
       try {
@@ -55,7 +55,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
     } catch (AttributeNotExistsException ex) {
         throw new ConsistencyErrorException(ex);
     }
-    Map<String, String> certDNsValue = null;     
+    Map<String, String> certDNsValue = null;
     if(userCertDNs.getValue() != null) {
         certDNsValue = (Map<String, String>) userCertDNs.getValue();
         Set<String> keys = certDNsValue.keySet();
@@ -66,7 +66,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
                 return attr;
             }
         }
-    } 
+    }
     return new Attribute(attribute);
   }
 
@@ -76,7 +76,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
         dependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
         return dependencies;
     }
-  
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -85,7 +85,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
       attr.setDescription("One preferredUser Certificate DN without certificate Authority.");
       return attr;
   }
-  
+
   //TODO what dependencies of this attribute???
 
     @Override
@@ -102,8 +102,8 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
       Map<String, String> certDNsValue = null;
       if(userCertDNs.getValue() != null) {
         certDNsValue = (Map<String, String>) userCertDNs.getValue();
-      }  
-        
+      }
+
       if(certDNsValue != null && !certDNsValue.isEmpty()) {
         throw new WrongReferenceAttributeValueException(attribute, "Can't remove preferredCert if there is any existing certDNs for the user.");
       }

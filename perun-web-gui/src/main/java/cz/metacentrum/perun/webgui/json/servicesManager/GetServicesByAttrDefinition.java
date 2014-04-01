@@ -65,7 +65,7 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Returns table of services with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return table widget
 	 */
@@ -76,7 +76,7 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Returns empty table of services with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return empty table widget
 	 */
@@ -266,7 +266,7 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Sets external events for callback after it's creation
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {

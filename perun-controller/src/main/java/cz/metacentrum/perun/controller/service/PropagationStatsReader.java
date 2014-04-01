@@ -14,10 +14,10 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 public interface PropagationStatsReader {
 
@@ -29,19 +29,19 @@ public interface PropagationStatsReader {
 
     /**
      * Returns all tasks associated with selected facility
-     * 
+     *
      * @param session
      * @param facilityId
-     * 
+     *
      * @return all tasks for facility
-     * 
+     *
      * @throws ServiceNotExistsException
      * @throws PrivilegeException
      * @throws InternalErrorException
      * @throws FacilityNotExistsException
      */
     List<Task> listAllTasksForFacility(PerunSession session, int facilityId) throws ServiceNotExistsException, PrivilegeException, InternalErrorException, FacilityNotExistsException;
-    
+
     List<Task> listAllTasksInState(PerunSession perunSession, TaskStatus state) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
     List<Task> listTasksScheduledBetweenDates(PerunSession perunSession, Date olderThen, Date youngerThen) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
@@ -61,28 +61,28 @@ public interface PropagationStatsReader {
     List<TaskResult> getTaskResultsByTask(int taskId);
 
     List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException;
-    
+
     TaskResult getTaskResultById(int taskResultId);
-    
+
     /**
      * Return propagation status of facility
-     * 
+     *
      * @param session
      * @param facility
      * @return propagation status of facility
-     * 
-     * @throws FacilityNotExistsException 
-     * @throws PrivilegeException 
-     * @throws InternalErrorException 
+     *
+     * @throws FacilityNotExistsException
+     * @throws PrivilegeException
+     * @throws InternalErrorException
      */
     FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
-    
+
     /**
      * Return propagation status of all facilities in Perun
-     * 
+     *
      * @param session PerunSession
      * @return all facilities propagation statuses
-     * @throws PrivilegeException 
+     * @throws PrivilegeException
      * @throws InternalErrorException
      * @throws UserNotExistsException
      * @throws FacilityNotExistsException
@@ -103,7 +103,7 @@ public interface PropagationStatsReader {
     List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, UserNotExistsException;
 
     // TODO - add more methods
-    
+
     /**
      * Returns task results for defined destinations (string representation).
      * @param session

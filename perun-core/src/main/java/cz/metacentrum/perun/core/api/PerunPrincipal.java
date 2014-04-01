@@ -17,10 +17,10 @@ public class PerunPrincipal {
   private String extSourceName;
   private String extSourceType;
   private int extSourceLoa = 0; // 0 by default
-  private User user; 
+  private User user;
   // Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
   private volatile AuthzRoles authzRoles = new AuthzRoles();
-  // Map contains additional attributes, e.g. from authentication system  
+  // Map contains additional attributes, e.g. from authentication system
   private Map<String, String> additionalInformations = new HashMap<String, String>();
   // Specifies if the principal has initialized authZResolver
   private volatile boolean authzInitialized = false;
@@ -34,7 +34,7 @@ public class PerunPrincipal {
     if (actor == null) throw new InternalErrorRuntimeException(new NullPointerException("actor is null"));
     if (extSourceName == null) throw new InternalErrorRuntimeException(new NullPointerException("extSourceName is null"));
     if (extSourceType == null) throw new InternalErrorRuntimeException(new NullPointerException("extSourceType is null"));
-    
+
     this.actor = actor;
     this.extSourceName = extSourceName;
     this.extSourceType = extSourceType;
@@ -44,12 +44,12 @@ public class PerunPrincipal {
     this(actor, extSourceName, extSourceType);
     this.user = user;
   }
-  
+
   public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa) {
     this(actor, extSourceName, extSourceType);
     this.extSourceLoa = extSourceLoa;
   }
-  
+
   public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa, Map<String, String> additionalInformations) {
     this(actor, extSourceName, extSourceType, extSourceLoa);
     this.additionalInformations = additionalInformations;
@@ -69,7 +69,7 @@ public class PerunPrincipal {
         "actor='" + actor + "' " +
         "user='" + (user != null ? user : "null") + "' " +
         "extSourceName='" + extSourceName + "' " +
-        "authzRoles='" + authzRoles +  "' " + 
+        "authzRoles='" + authzRoles +  "' " +
         "authzInitialized='" + authzInitialized + "' " +
         ']';
   }
@@ -80,7 +80,7 @@ public class PerunPrincipal {
 
   public void setExtSourceName(String extSourceName) {
     this.extSourceName = extSourceName;
-  } 
+  }
 
   public boolean isAuthzInitialized() {
     return authzInitialized;
@@ -109,12 +109,12 @@ public class PerunPrincipal {
     //return (AuthzRoles) Collections.unmodifiableMap(authzRoles);
     return this.authzRoles;
   }
-  
+
   public void setRoles(AuthzRoles authzRoles) {
     this.authzRoles = authzRoles;
   }
 
-  
+
   public Map<String, String> getAdditionalInformations() {
     return additionalInformations;
   }

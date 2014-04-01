@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  * Section definition in the left menu
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -34,12 +34,12 @@ public class MainMenuSection {
         sectionPanel.addStyleName("mainMenuItems");
         sectionPanel.setWidth("100%");
 	}
-	
+
 	public MainMenuSection(String title, TabItemWithUrl tabItem, Image image){
 		this(title, tabItem);
 		this.image = image;
 	}
-	
+
 	public MainMenuSection(String title, TabItemWithUrl tabItem, ImageResource imageResource){
 		this(title, tabItem, new Image(imageResource));
 	}
@@ -121,26 +121,26 @@ public class MainMenuSection {
         }
 
     }
-	
+
 	public Widget getWidget()
 	{
 		return this.sectionPanel;
 	}
-	
+
 	public String getHeader()
 	{
 		Widget header = new HTML("<span class=\"menu-label\">" + title + "</span>");
 		header.addStyleName("stackPanelHeaderLink");
 		//header.setWidth("185px");
-		
+
 		// appends image
 		if(image != null){
 			Element i = image.getElement();
 			i.addClassName("stackPanelHeaderImage");
 			header.getElement().appendChild(i);
 		}
-		
-		return header.getElement().getString();		
+
+		return header.getElement().getString();
 	}
 
 	public ArrayList<MainMenuItem> getItems() {
@@ -154,7 +154,7 @@ public class MainMenuSection {
 	public void setTabItem(TabItemWithUrl tabItem) {
 		this.tabItem = tabItem;
 	}
-	
+
 	public void clear() {
         sectionPanel.removeAllRows();
         rowCounter = 0;
@@ -168,5 +168,5 @@ public class MainMenuSection {
     public void setDisplayAdvanced(boolean advanced) {
         this.displayAdvanced = advanced;
     }
-	
+
 }

@@ -2,7 +2,7 @@
 PERUNTMP="`mktemp -d`"
 PERUNBIN="${PERUNTMP}/perunv3/bin"
 PERUNLIB="${PERUNTMP}/perunv3/lib"
-mkdir $PERUNTMP/perunv3 
+mkdir $PERUNTMP/perunv3
 mkdir $PERUNBIN
 mkdir $PERUNLIB
 cp `find . -maxdepth 1 -type f` $PERUNBIN

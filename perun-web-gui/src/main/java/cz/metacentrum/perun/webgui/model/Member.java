@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Overlay type for Member object from Perun
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -13,15 +13,15 @@ public class Member extends JavaScriptObject {
 	protected Member() { }
 
 	// JSNI methods to get Member data
-	
+
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public final native int getVoId() /*-{
 		return this.voId;
 	}-*/;
-	
+
 	public final native int getUserId() /*-{
 		return this.userId;
 	}-*/;
@@ -38,38 +38,38 @@ public class Member extends JavaScriptObject {
             return this.membershipType;
         }
     }-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -77,7 +77,7 @@ public class Member extends JavaScriptObject {
 	 */
 	public final boolean equals(Member o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
-	
+
 }

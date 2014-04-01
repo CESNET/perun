@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Creating resource definition
  *
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -41,21 +41,21 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Create new Resource");
-	
+
 	//data
 	private Facility facility;
 	private int facilityId;
-	
+
 	/**
      * @param facility facility which should have resource added
      */
@@ -63,7 +63,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
      * @param facilityId facility which should have resource added
      */
@@ -79,18 +79,18 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + "): create resource");
 
         VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
-		
+
 		// form inputs
 		final ExtendedTextBox nameTextBox = new ExtendedTextBox();
 		final TextBox descriptionTextBox = new TextBox();
-		
+
 		final ListBoxWithObjects<VirtualOrganization> vosDropDown = new ListBoxWithObjects<VirtualOrganization>();
 
         // send button
@@ -204,7 +204,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
         this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -217,7 +217,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -245,18 +245,18 @@ public class CreateFacilityResourceTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 }

@@ -14,20 +14,20 @@ import java.util.List;
  * @author Michal Stava
  */
 public interface AuditMessagesManagerBl {
-    
+
      /**
     * Returns countOfMessages messages from audit's logs.
     *
-    * @param perunSession 
+    * @param perunSession
     * @param count Count of returned messages.
     * @return list of audit's messages
     * @throws InternalErrorException
     */
     List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException;
-    
+
     /**
      * Log auditer message
-     * 
+     *
      * @param sess
      * @param message
      * @throws InternalErrorException

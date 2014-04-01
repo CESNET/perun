@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which adds application email
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class AddApplicationMail {
@@ -25,7 +25,7 @@ public class AddApplicationMail {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private ApplicationMail appMail;
 	private int id;
@@ -58,7 +58,7 @@ public class AddApplicationMail {
 	 * @param id
 	 */
 	public void addMail(ApplicationMail appMail, int id) {
-		
+
 		this.appMail = appMail;
 		this.id = id;
 
@@ -100,16 +100,16 @@ public class AddApplicationMail {
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
+
 		JSONObject request = new JSONObject();
 		request.put("mail", new JSONObject(appMail));
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			request.put("vo", new JSONNumber(id));			
+			request.put("vo", new JSONNumber(id));
 		} else if (PerunEntity.GROUP.equals(entity)) {
 			request.put("group", new JSONNumber(id));
 		}
 		return request;
-		
+
 	}
 
 }

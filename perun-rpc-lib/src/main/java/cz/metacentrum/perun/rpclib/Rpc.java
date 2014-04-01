@@ -80,13 +80,13 @@ public class Rpc {
       }
     }
   }
-  
+
   // AuditMessagesManager
   public static class AuditMessagesManager {
     public static List<PerunBean> parseLog(RpcCaller rpcCaller, String log) throws InternalErrorException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("log", log);
-      
+
       try {
         return rpcCaller.call("auditMessagesManager", "parseLog", params).readList(PerunBean.class);
       } catch (InternalErrorException e) {
@@ -132,11 +132,11 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static void deleteFacility(RpcCaller rpcCaller, Facility facility) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String,Object>();
       params.put("facility", facility.getId());
-      
+
       try {
         rpcCaller.call("facilitiesManager", "deleteFacility", params);
       } catch (PrivilegeException e) {
@@ -150,12 +150,12 @@ public class Rpc {
       } catch (PerunException e) {
         throw new ConsistencyErrorException(e);
       }
-    } 
+    }
 
     public static List<Resource> getAssignedResources(RpcCaller rpcCaller, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String,Object>();
       params.put("facility", facility.getId());
-      
+
       try {
         return rpcCaller.call("facilitiesManager", "getAssignedResources", params).readList(Resource.class);
       } catch (PrivilegeException e) {
@@ -167,39 +167,39 @@ public class Rpc {
       } catch (PerunException e) {
         throw new ConsistencyErrorException(e);
       }
-    } 
+    }
 
     public static Host getHostById(RpcCaller rpcCaller, int id) throws InternalErrorException, PrivilegeException, HostNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("id", id);
-      
+
       try {
         return rpcCaller.call("facilitiesManager", "getHostById", params).read(Host.class);
       } catch (HostNotExistsException e) {
         throw e;
       } catch (PrivilegeException e) {
-        throw e; 
+        throw e;
       } catch (InternalErrorException e) {
-        throw e; 
+        throw e;
       } catch (PerunException e) {
-        throw new ConsistencyErrorException(e); 
+        throw new ConsistencyErrorException(e);
       }
     }
 
     public static Facility getFacilityForHost(RpcCaller rpcCaller, Host host) throws InternalErrorException, PrivilegeException, HostNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("host", host.getId());
-      
+
       try {
         return rpcCaller.call("facilitiesManager", "getFacilityForHost", params).read(Facility.class);
       } catch (HostNotExistsException e) {
         throw e;
       } catch (PrivilegeException e) {
-        throw e; 
+        throw e;
       } catch (InternalErrorException e) {
-        throw e; 
+        throw e;
       } catch (PerunException e) {
-        throw new ConsistencyErrorException(e); 
+        throw new ConsistencyErrorException(e);
       }
     }
   }
@@ -222,40 +222,40 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static List<Group> getMemberGroups(RpcCaller rpcCaller, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("member", member.getId());
-      
+
       try {
         return rpcCaller.call("groupsManager", "getMemberGroups", params).readList(Group.class);
       } catch (MemberNotExistsException e) {
         throw e;
       } catch (PrivilegeException e) {
-        throw e; 
+        throw e;
       } catch (InternalErrorException e) {
-        throw e; 
+        throw e;
       } catch (PerunException e) {
-        throw new ConsistencyErrorException(e); 
+        throw new ConsistencyErrorException(e);
       }
     }
-  
+
     public static List<Group> getAllMemberGroups(RpcCaller rpcCaller, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("member", member.getId());
-      
+
       try {
         return rpcCaller.call("groupsManager", "getAllMemberGroups", params).readList(Group.class);
       } catch (MemberNotExistsException e) {
         throw e;
       } catch (PrivilegeException e) {
-        throw e; 
+        throw e;
       } catch (InternalErrorException e) {
-        throw e; 
+        throw e;
       } catch (PerunException e) {
-        throw new ConsistencyErrorException(e); 
+        throw new ConsistencyErrorException(e);
       }
-    }    
+    }
   }
 
   // ResourcesManager
@@ -350,7 +350,7 @@ public class Rpc {
   public static class ServicesManager {
     public static Destination addDestination(RpcCaller rpcCaller, Service service, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException,
     ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
-      
+
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("service", service.getId());
       params.put("facility", facility.getId());
@@ -415,7 +415,7 @@ public class Rpc {
 
     public static List<Destination> getDestinations(RpcCaller rpcCaller, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException,
         FacilityNotExistsException {
-      
+
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("service", service.getId());
       params.put("facility", facility.getId());
@@ -466,7 +466,7 @@ public class Rpc {
 
     public static void removeAllDestinations(RpcCaller rpcCaller, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException,
         FacilityNotExistsException {
-      
+
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("service", service.getId());
       params.put("facility", facility.getId());
@@ -603,7 +603,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static Attribute getAttribute(RpcCaller rpcCaller, Vo vo, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("vo", vo.getId());
@@ -625,7 +625,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static Attribute getAttribute(RpcCaller rpcCaller, User user, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("user", user.getId());
@@ -647,7 +647,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static List<Attribute> getAttributes(RpcCaller rpcCaller, Member member) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("member", member.getId());
@@ -665,7 +665,7 @@ public class Rpc {
       }
     }
 
-    public static List<Attribute> getLogins(RpcCaller rpcCaller, User user) 
+    public static List<Attribute> getLogins(RpcCaller rpcCaller, User user)
         throws PrivilegeException, InternalErrorException, UserNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("user", user.getId());
@@ -683,7 +683,7 @@ public class Rpc {
       }
     }
 
-    public static List<AttributeDefinition> getRequiredAttributesDefinition(RpcCaller rpcCaller, Service service) 
+    public static List<AttributeDefinition> getRequiredAttributesDefinition(RpcCaller rpcCaller, Service service)
         throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("service", service.getId());
@@ -700,13 +700,13 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static void setAttribute(RpcCaller rpcCaller, Member member, Attribute attribute) 
+
+    public static void setAttribute(RpcCaller rpcCaller, Member member, Attribute attribute)
         throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("member", member.getId());
       params.put("attribute", attribute);
-      
+
       try {
         rpcCaller.call("attributesManager", "setAttribute", params);
       } catch (WrongReferenceAttributeValueException e) {
@@ -727,13 +727,13 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static void setAttribute(RpcCaller rpcCaller, User user, Attribute attribute) 
+
+    public static void setAttribute(RpcCaller rpcCaller, User user, Attribute attribute)
         throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("user", user.getId());
       params.put("attribute", attribute);
-      
+
       try {
         rpcCaller.call("attributesManager", "setAttribute", params);
       } catch (WrongReferenceAttributeValueException e) {
@@ -796,7 +796,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static RichMember getRichMemberWithAttributes(RpcCaller rpcCaller, Member member) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("id", member.getId());
@@ -846,7 +846,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static Owner createOwner(RpcCaller rpcCaller, Owner owner) throws PrivilegeException, InternalErrorException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("owner", owner);
@@ -907,7 +907,7 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
+
     public static User getUserByMember(RpcCaller rpcCaller, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("member", member.getId());
@@ -945,7 +945,7 @@ public class Rpc {
     public static List<User> findUsersByName(RpcCaller rpcCaller, String titleBefore, String firstName, String middleName, String lastName, String titleAfter)
         throws InternalErrorException, UserNotExistsException,
         PrivilegeException {
-      Map<String, Object> params = new HashMap<String, Object>();     
+      Map<String, Object> params = new HashMap<String, Object>();
       params.put("titleBefore", titleBefore);
       params.put("firstName", firstName);
       params.put("middleName", middleName);
@@ -964,12 +964,12 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static User getUserByUserExtSource(RpcCaller rpcCaller, UserExtSource userExtSource) 
+
+    public static User getUserByUserExtSource(RpcCaller rpcCaller, UserExtSource userExtSource)
         throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("userExtSource", userExtSource);
-      
+
       try {
         return rpcCaller.call("usersManager", "getUserByUserExtSource", params).read(User.class);
       } catch (UserNotExistsException e) {
@@ -984,13 +984,13 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static UserExtSource getUserExtSourceByExtLogin(RpcCaller rpcCaller, ExtSource source, String extLogin) throws InternalErrorException, 
+
+    public static UserExtSource getUserExtSourceByExtLogin(RpcCaller rpcCaller, ExtSource source, String extLogin) throws InternalErrorException,
     PrivilegeException, ExtSourceNotExistsException, UserExtSourceNotExistsException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("extSource", source);
       params.put("extSourceLogin", extLogin);
-      
+
       try {
         return rpcCaller.call("usersManager", "getUserExtSourceByExtLogin", params).read(UserExtSource.class);
       } catch (ExtSourceNotExistsException e) {
@@ -1005,13 +1005,13 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static User getUserByExtSourceNameAndExtLogin(RpcCaller rpcCaller, String extSourceName, String extLogin) 
+
+    public static User getUserByExtSourceNameAndExtLogin(RpcCaller rpcCaller, String extSourceName, String extLogin)
         throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, InternalErrorException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("extSourceName", extSourceName);
       params.put("extLogin", extLogin);
-      
+
       try {
         return rpcCaller.call("usersManager", "getUserByExtSourceNameAndExtLogin", params).read(User.class);
       } catch (ExtSourceNotExistsException e) {
@@ -1028,12 +1028,12 @@ public class Rpc {
         throw new ConsistencyErrorException(e);
       }
     }
-    
-    public static User updateUser(RpcCaller rpcCaller, User user) 
+
+    public static User updateUser(RpcCaller rpcCaller, User user)
         throws InternalErrorException, UserNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("user", user);
-      
+
       try {
         return rpcCaller.call("usersManager", "updateUser", params).read(User.class);
       } catch (UserNotExistsException e) {
@@ -1050,7 +1050,7 @@ public class Rpc {
     public static List<Resource> getAllowedResources(RpcCaller rpcCaller, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("user", user.getId());
-      
+
       try {
         return rpcCaller.call("usersManager", "getAllowedResources", params).readList(Resource.class);
       } catch (UserNotExistsException e) {
@@ -1065,13 +1065,13 @@ public class Rpc {
     }
   }
 
-  // ExtSourcesManager 
+  // ExtSourcesManager
   public static class ExtSourcesManager {
-    public static ExtSource getExtSourceByName(RpcCaller rpcCaller, String name) 
+    public static ExtSource getExtSourceByName(RpcCaller rpcCaller, String name)
         throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("name", name);
-      
+
       try {
         return rpcCaller.call("extSourcesManager", "getExtSourceByName", params).read(ExtSource.class);
       } catch (ExtSourceNotExistsException e) {
@@ -1085,7 +1085,7 @@ public class Rpc {
       }
     }
   }
-  
+
   // GeneralServiceManager
   public static class GeneralServiceManager {
     public static ExecService getExecService(RpcCaller rpcCaller, int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {

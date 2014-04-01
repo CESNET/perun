@@ -20,9 +20,9 @@ public class RichMember extends Member implements Comparable<RichMember> {
 
   public RichMember(){
   }
-  
+
   public RichMember(User user, Member member, List<UserExtSource> userExtSources) {
-    super(member.getId(), member.getUserId(), member.getVoId(), member.getStatus(), member.getCreatedAt(), 
+    super(member.getId(), member.getUserId(), member.getVoId(), member.getStatus(), member.getCreatedAt(),
         member.getCreatedBy(), member.getModifiedAt(), member.getModifiedBy(),
         member.getCreatedByUid(), member.getModifiedByUid());
     setMembershipType(member.getMembershipType());
@@ -31,13 +31,13 @@ public class RichMember extends Member implements Comparable<RichMember> {
     this.userAttributes = null;
     this.memberAttributes = null;
   }
-  
+
   public RichMember(User user, Member member, List<UserExtSource> userExtSources, List<Attribute> userAttributes, List<Attribute> memberAttributes) {
     this(user, member, userExtSources);
     this.userAttributes = userAttributes;
     this.memberAttributes = memberAttributes;
   }
-  
+
   public User getUser() {
     return user;
   }
@@ -54,7 +54,7 @@ public class RichMember extends Member implements Comparable<RichMember> {
   public List<Attribute> getMemberAttributes() {
     return memberAttributes;
   }
-  
+
   public void setUserAttributes(List<Attribute> userAttributes) {
     this.userAttributes = userAttributes;
   }
@@ -66,11 +66,11 @@ public class RichMember extends Member implements Comparable<RichMember> {
   public void setUserExtSources(List<UserExtSource> userExtSources) {
     this.userExtSources = userExtSources;
   }
-  
+
   public void setUser(User user) {
     this.user = user;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -130,7 +130,7 @@ public class RichMember extends Member implements Comparable<RichMember> {
 
   @Override
   public String serializeToString() {
-    List<UserExtSource> userESOld = getUserExtSources();  
+    List<UserExtSource> userESOld = getUserExtSources();
     List<Attribute> memberAttrOld = getMemberAttributes();
     List<Attribute> userAttrOld = getUserAttributes();
     List<String> userESNew = new ArrayList<String>();
@@ -139,7 +139,7 @@ public class RichMember extends Member implements Comparable<RichMember> {
     String sUserESNew;
     String sMemberAttrNew;
     String sUserAttrNew;
-    
+
     if(getUserExtSources() == null) sUserESNew = "\\0";
     else {
         for(UserExtSource u: userESOld) {
@@ -173,7 +173,7 @@ public class RichMember extends Member implements Comparable<RichMember> {
     ", memberAttributes=<" + sMemberAttrNew + ">" +
     ']';
   }
-  
+
   @Override
   public String toString() {
     return "RichMember:[id='" + getId() + "', userId='" + getUserId() + "', voId='" + getVoId() + "', status='" + getStatus() + "', type='" + getMembershipType() +  "', user='" + user + "', userExtSources='" + userExtSources +

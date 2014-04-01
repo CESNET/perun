@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Remove owner from facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -34,7 +34,7 @@ public class RemoveOwner {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public RemoveOwner(final JsonCallbackEvents events) {
@@ -43,7 +43,7 @@ public class RemoveOwner {
 
 	/**
 	 * Attempts to remove admin from facility
-	 * 
+	 *
 	 * @param facilityId id of facility
 	 * @param ownerId ID of user which should be removed as admin
 	 */
@@ -81,11 +81,11 @@ public class RemoveOwner {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -93,7 +93,7 @@ public class RemoveOwner {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(facilityId == 0){ 
+		if(facilityId == 0){
 			errorMsg += "Wrong 'facilityId' parameter.\n";
 			result = false;
 		}
@@ -117,13 +117,13 @@ public class RemoveOwner {
 	private JSONObject prepareJSONObject()
 	{
 
-		JSONNumber facility = new JSONNumber(facilityId); 
+		JSONNumber facility = new JSONNumber(facilityId);
 		JSONNumber user = new JSONNumber(ownerId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("facility", facility);          
-		jsonQuery.put("owner", user);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("facility", facility);
+		jsonQuery.put("owner", user);
 		return jsonQuery;
 	}
 

@@ -41,7 +41,7 @@ import java.util.Map;
 
 /**
  * VO admins
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -51,17 +51,17 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading vo managers");
-	
+
 	// data
 	private VirtualOrganization vo;
 	private int voId;
@@ -91,16 +91,16 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
 
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": managers");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -155,7 +155,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(sp);
 
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -285,7 +285,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.administratorIcon(); 
+		return SmallIcons.INSTANCE.administratorIcon();
 	}
 
 	@Override
@@ -313,7 +313,7 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Managers", getUrlWithParameters());
@@ -323,28 +323,28 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 		}
 		session.setActiveVoId(voId);
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "managers";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoManagersTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoManagersTabItem(voId);

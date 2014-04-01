@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 /**
  * The usersManager/getVosWhereUserIsAdmin method.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<VirtualOrganization> {
@@ -142,7 +142,7 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 
 	/**
 	 * Return selected Vos from Table
-	 * 
+	 *
 	 * @return ArrayList<Vo> selected items
 	 */
 	public ArrayList<VirtualOrganization> getTableSelectedList() {
@@ -150,7 +150,7 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	}
 
 	/**
-	 * Clears list of selected items  
+	 * Clears list of selected items
 	 */
 	public void clearTableSelectedSet(){
 		selectionModel.clear();
@@ -158,7 +158,7 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 
 	/**
 	 * Add object as new row to table
-	 * 
+	 *
 	 * @param object VO to be added as new row
 	 */
 	public void addToTable(VirtualOrganization object) {

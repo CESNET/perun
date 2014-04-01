@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Custom cell widget for images.
  * Allows definition of events to handle.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CustomImageResourceCell extends AbstractCell<ImageResource>{
@@ -30,7 +30,7 @@ public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 		if (consumedEvents != null && consumedEvents.length > 0) {
 			Set<String> set = new HashSet<String>();
 			for (int i=0; i<consumedEvents.length; i++) {
-				set.add(consumedEvents[i]);				
+				set.add(consumedEvents[i]);
 			}
 			this.consumedEvents = Collections.unmodifiableSet(set);
 		}
@@ -42,7 +42,7 @@ public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 			sb.append(renderer.render(value));
 		}
 	}
-	
+
 	public Set<String> getConsumedEvents() {
 	    return consumedEvents;
 	}
@@ -51,7 +51,7 @@ public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 	public boolean isEditing(com.google.gwt.cell.client.Cell.Context context, Element parent, ImageResource value) {
 		return false;
 	}
-	
+
 	@Override
 	public boolean handlesSelection() {
 		return false;
@@ -61,5 +61,5 @@ public class CustomImageResourceCell extends AbstractCell<ImageResource>{
 	public boolean dependsOnSelection() {
 		return false;
 	}
-	
+
 }

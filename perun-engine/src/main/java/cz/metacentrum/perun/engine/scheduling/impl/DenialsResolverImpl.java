@@ -11,9 +11,9 @@ import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "denialsResolver")
 public class DenialsResolverImpl implements DenialsResolver {

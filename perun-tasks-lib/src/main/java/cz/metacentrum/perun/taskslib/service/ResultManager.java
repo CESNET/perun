@@ -6,10 +6,10 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 public interface ResultManager {
 
@@ -34,10 +34,10 @@ public interface ResultManager {
     int clearAll(int engineID);
 
     List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
-    
+
     /**
-     * Returns TaskResults for defined destinations (string representation). 
-     * 
+     * Returns TaskResults for defined destinations (string representation).
+     *
      * @param destinationsNames
      * @return list of task results
      * @throws InternalErrorException

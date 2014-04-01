@@ -20,7 +20,7 @@
 		</property>
 
 	</bean>
-	
+
 	<bean id="doNotificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="doNotificationJobDetail" />
 		<!-- start every day at 2:00 AM -->
@@ -41,5 +41,5 @@
 	<bean id="doNotificationJobDetail" parent="parentJobDetail">
 		<property name="targetMethod" value="doNotification" />
 	</bean>
-	
+
 </beans>

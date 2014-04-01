@@ -22,12 +22,12 @@ import java.util.Map;
 
 /**
  * Custom cell for Perun attributes
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PerunAttributeTableWidget extends Composite {
-	
+
 	/**
 	 * Save event
 	 * @author Vaclav Mach <374430@mail.muni.cz>
@@ -35,28 +35,28 @@ public class PerunAttributeTableWidget extends Composite {
 	public interface SaveEvent {
 	   void save(ArrayList<Attribute> attrs);
 	}
-	
+
 	/**
 	 * Attrs list
 	 */
 	private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 	private Map<Integer, Object> originalAttributes = new HashMap<Integer, Object>();
-	
+
 	/**
 	 * Main Widget
 	 */
 	final private FlexTable ft = new FlexTable();
-	
+
 	/**
 	 * Save event
 	 */
 	private SaveEvent saveEvent;
-		
+
 	/**
-	 * Whether description shown 
+	 * Whether description shown
 	 */
 	private boolean descriptionShown = false;
-	
+
 	/**
 	 * IDS used for default Save action
 	 */
@@ -80,7 +80,7 @@ public class PerunAttributeTableWidget extends Composite {
 		this.initWidget(ft);
 		this.ids = ids;
 	}
-	
+
 	/**
 	 * Creates a new tabel with save event
 	 * @param saveEvent
@@ -89,7 +89,7 @@ public class PerunAttributeTableWidget extends Composite {
 		this(ids);
 		this.saveEvent = saveEvent;
 	}
-	
+
 	/**
 	 * Creates a new tabel with save event
 	 * @param saveEvent
@@ -101,27 +101,27 @@ public class PerunAttributeTableWidget extends Composite {
 		this.descriptionShown = descriptionShown;
 		this.add(attributes);
 	}
-	
+
 	/**
 	 * Whether to show description
-	 * 
+	 *
 	 * @param descriptionShown
 	 */
 	public void setDescriptionShown(boolean descriptionShown){
 		this.descriptionShown = descriptionShown;
 	}
-	   
+
 	/**
 	 * Adds attributes
 	 */
 	public void add(ArrayList<Attribute> attributes){
 		this.attributes.addAll(attributes);
 		for (Attribute a : attributes) {
-			this.originalAttributes.put(a.getId(), a.getValue());			
+			this.originalAttributes.put(a.getId(), a.getValue());
 		}
 		build();
 	}
-	
+
 	/**
 	 * Add single attribute without rebuild
 	 */
@@ -129,7 +129,7 @@ public class PerunAttributeTableWidget extends Composite {
 		this.attributes.add(attribute);
 		this.originalAttributes.put(attribute.getId(), attribute.getValue());
 	}
-	
+
 	/**
 	 * Removes all attributes
 	 */
@@ -138,7 +138,7 @@ public class PerunAttributeTableWidget extends Composite {
 		this.attributes.clear();
 		build();
 	}
-	
+
 	/**
 	 * Removes an attribute
 	 */
@@ -147,7 +147,7 @@ public class PerunAttributeTableWidget extends Composite {
 		this.attributes.remove(attr);
 		build();
 	}
-	
+
 	public FlexTable getWidget(){
 		return this.ft;
 	}
@@ -184,7 +184,7 @@ public class PerunAttributeTableWidget extends Composite {
 	 * Builds the table
 	 */
 	public void build() {
-		
+
 		ft.clear(true);
 		if (!dark) {
             ft.setStyleName("inputFormFlexTable");
@@ -195,39 +195,39 @@ public class PerunAttributeTableWidget extends Composite {
 		int nameCol = 0;
 		int valCol = 1;
 		int descCol = -1;
-		
-		
+
+
 		if(descriptionShown) {
 			nameCol = 0;
 			descCol = 2;
 			valCol = 1;
 		}
-		
+
 		int row = 0;
-		
+
 		final Map<Attribute, PerunAttributeValueCell> valueCells = new HashMap<Attribute, PerunAttributeValueCell>();
-		
+
 		// save button
 		saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes");
 		saveButton.addClickHandler(new ClickHandler() {
-			
+
 			public void onClick(ClickEvent event) {
-				
+
 				// saving
 				ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
-				
+
 				// for each find
 				for(Map.Entry<Attribute, PerunAttributeValueCell> entry : valueCells.entrySet()) {
 					Attribute attrOld = entry.getKey();
 					PerunAttributeValueCell valueCell = entry.getValue();
-					
+
 					// save the value
 					Attribute attr = valueCell.getValue(attrOld);
 					newAttributes.add(attr);
 				}
 
 				save(newAttributes);
-				
+
 			}
 		});
 
@@ -237,11 +237,11 @@ public class PerunAttributeTableWidget extends Composite {
         }
 
 		for (Attribute attr : attributes) {
-			
+
 			PerunAttributeNameCell nameCell = new PerunAttributeNameCell();
 			PerunAttributeValueCell valueCell = new PerunAttributeValueCell();
-		
-			// name 
+
+			// name
 			SafeHtml nameCellHtml = nameCell.getRenderer().render(attr);
 			ft.setHTML(row, nameCol, nameCellHtml.asString()+"<strong>:</strong>");
 			ft.getFlexCellFormatter().setStyleName(row, nameCol, "itemName");
@@ -250,36 +250,36 @@ public class PerunAttributeTableWidget extends Composite {
 			SafeHtml valueCellHtml = valueCell.getRenderer().render(attr);
 			ft.setHTML(row, valCol, valueCellHtml);
 			valueCells.put(attr, valueCell);
-			
+
 			// description
 			if(descriptionShown){
 				PerunAttributeDescriptionCell descCell = new PerunAttributeDescriptionCell();
 				SafeHtml descCellHtml = descCell.getRenderer().render(attr);
 				ft.setHTML(row, descCol, descCellHtml);
 			}
-			
+
 			row++;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Saves the attributes
 	 * If attribute with value null, asks if remove it
 	 * Called recursively
-	 * 
+	 *
 	 * @param attrs
 	 */
 	private void save(final ArrayList<Attribute> attrs) {
-		
+
 		// call the method
 		if(saveEvent == null) {
 			// ids must be set
 			if (ids == null || ids.isEmpty()) return;
-			
+
 			final ArrayList<Attribute> toSet = new ArrayList<Attribute>();
 			final ArrayList<Attribute> toRemove = new ArrayList<Attribute>();
-			
+
 			for (Attribute a : attrs) {
 				Object oldValue = originalAttributes.get(a.getId());
 				if (a.getValue().equals(oldValue)) {
@@ -290,14 +290,14 @@ public class PerunAttributeTableWidget extends Composite {
 					toSet.add(a);
 				}
 			}
-			
+
 			if (!toSet.isEmpty()) {
 				SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// for all attributes to be saved/removed
 						for (Attribute a : toSet) {
-							originalAttributes.put(a.getId(), a.getValueAsObject()); 
+							originalAttributes.put(a.getId(), a.getValueAsObject());
 						}
 					}
 				}));
@@ -309,7 +309,7 @@ public class PerunAttributeTableWidget extends Composite {
 					public void onFinished(JavaScriptObject jso) {
 						// for all attributes to be saved/removed
 						for (Attribute a : toRemove) {
-							originalAttributes.put(a.getId(), a.getValueAsObject()); 
+							originalAttributes.put(a.getId(), a.getValueAsObject());
 						}
 					}
 				}));
@@ -319,13 +319,13 @@ public class PerunAttributeTableWidget extends Composite {
             if (toSet.isEmpty() && toRemove.isEmpty()) {
                 UiElements.generateAlert("No changes", "No changes to save.");
             }
-			
+
 			return;
-			
+
 		}
-		
+
 		saveEvent.save(attrs);
-		
+
 	}
-	
+
 }

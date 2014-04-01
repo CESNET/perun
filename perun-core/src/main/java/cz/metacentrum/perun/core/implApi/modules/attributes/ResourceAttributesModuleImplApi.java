@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This interface serves as a template for checking and filling in resource's
  * attributes.
- *  
+ *
  * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi {
@@ -51,7 +51,7 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param resource resource
      * @param attribute the attribute

@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all exec services specified exec service depend on
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , JsonCallbackTable<ExecService>
@@ -52,7 +52,7 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 
 	/**
 	 * Creates instance of this callback for specified ExecService
-	 * 
+	 *
 	 * @param exesServiceId execService to get dependencies for
 	 */
 	public ListExecServicesThisExecServiceDependsOn(int exesServiceId){
@@ -72,7 +72,7 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 
 	/**
 	 * Returns the table with exec services
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -83,38 +83,38 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 
 	/**
 	 * Returns the table with exec services
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
-	public CellTable<ExecService> getTable() {	
+	public CellTable<ExecService> getTable() {
 
 		// retrieves data
 		retrieveData();
-				
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<ExecService>(list);
 
 		// Cell table
 		table = new PerunTable<ExecService>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<ExecService> columnSortHandler = new ListHandler<ExecService>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<ExecService> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("Exec services doesn't depend on other Exec services.");
-		
+
 		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
-		
+
 		//add id column
 		table.addIdColumn("ExecService ID", tableFieldUpdater);
 
@@ -214,7 +214,7 @@ public class ListExecServicesThisExecServiceDependsOn implements JsonCallback , 
 	/**
 	 * Retrieve data from RPC server (starts this callback)
 	 */
-	public void retrieveData(){	
+	public void retrieveData(){
 		String param = "dependantExecService="+execServiceId;
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);

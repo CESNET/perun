@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 /**
  * Service class which provides Cabinet with ability to search through
  * external PS based on user's identity and PS namespace.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -29,11 +29,11 @@ public class CabinetServiceImpl implements ICabinetService {
 	private IPerunService perunService;
 	private IPublicationSystemService publicationSystemService;
 	private IHttpService httpService;
-	
+
 	private Logger log = LoggerFactory.getLogger(getClass());
-	
-	// setter ---------------------------------------- 
-	
+
+	// setter ----------------------------------------
+
 	public void setPerunService(IPerunService perunService) {
 		this.perunService = perunService;
 	}
@@ -49,7 +49,7 @@ public class CabinetServiceImpl implements ICabinetService {
 	// methods --------------------------------------
 
 	public List<Publication> findPublicationsInPubSys(String authorId, int yearSince, int yearTill, PublicationSystem ps) throws CabinetException {
-		
+
 		if (StringUtils.isBlank(authorId))
 			throw new CabinetException("AuthorId cannot be empty while searching for publications");
 		if (ps == null)
@@ -64,29 +64,29 @@ public class CabinetServiceImpl implements ICabinetService {
 		} catch (Exception e) {
 			throw new CabinetException(e);
 		}
-		
+
 		HttpUriRequest request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
 		HttpResponse response = httpService.execute(request);
 
 		List<Publication> publications = prezentator.parseHttpResponse(response);
-		
+
 		for (Publication p : publications) {
 			// set pub system for founded publications
 			p.setPublicationSystemId(ps.getId());
 		}
-		
+
 		return publications;
-		
+
 	}
-	
+
 	public List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException{
-		
+
 		// get PubSys
 		PublicationSystem filter = new PublicationSystem();
 		filter.setLoginNamespace(pubSysNamespace);
 		List<PublicationSystem> ps = publicationSystemService.findPublicationSystemsByFilter(filter);
-		// check	
-		if (ps.isEmpty() || ps.get(0) == null) { 			
+		// check
+		if (ps.isEmpty() || ps.get(0) == null) {
 			throw new CabinetException("Publication system with namespace: "+pubSysNamespace+" doesn't exists.", ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS);
 		}
 		// get user
@@ -95,10 +95,10 @@ public class CabinetServiceImpl implements ICabinetService {
 		if (user == null) {
 			throw new CabinetException("User with ID: "+userId+" doesn't exists.", ErrorCodes.PERUN_EXCEPTION);
 		}
-		
+
 		// result list
 		List<Publication> result = new ArrayList<Publication>();
-		
+
 		// PROCESS MU PUB SYS
 		if (ps.get(0).getLoginNamespace().equalsIgnoreCase("mu")) {
 			// get UCO

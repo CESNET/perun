@@ -12,16 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "perunHornetQServer")
 public class PerunHornetQServer {
-	
+
 	private final static Logger log = LoggerFactory.getLogger(PerunHornetQServer.class);
-	
+
 	@Autowired
 	private Properties propertiesBean;
 	private FileConfiguration configuration = null;
@@ -46,7 +46,7 @@ public class PerunHornetQServer {
 			jmsServerManager.setContext(null);
 			jmsServerManager.start();
 			serverRunning = true;
-			
+
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}

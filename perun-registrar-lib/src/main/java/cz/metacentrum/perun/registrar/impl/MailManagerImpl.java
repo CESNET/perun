@@ -43,9 +43,9 @@ import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 
 public class MailManagerImpl implements MailManager {
-	
+
 	final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
-	
+
 	private static final String MAILS_SELECT_BY_FORM_ID = "select id,app_type,form_id,mail_type,send from application_mails where form_id=?";
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
 	private static final String MAIL_TEXTS_SELECT_BY_MAIL_ID= "select locale,subject,text from application_mail_texts where mail_id=?";
@@ -71,30 +71,30 @@ public class MailManagerImpl implements MailManager {
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
 	private UsersManager usersManager;
-	
+
 	// Spring setters
-	
+
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc =  new SimpleJdbcTemplate(dataSource);
 	}
-	
+
 	public void setMailSender(MailSender mailSender) {
 	    this.mailSender = mailSender;
 	}
-	
+
 	/**
 	 * Init method, instantiate PerunSession
-	 * 
+	 *
 	 * @throws PerunException
 	 */
 	protected void initialize() throws PerunException {
-		
+
 		// gets session for a system principal "perunRegistrar"
 	    final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
 	        ExtSourcesManager.EXTSOURCE_INTERNAL,
 	        ExtSourcesManager.EXTSOURCE_INTERNAL);
 	    registrarSession = perun.getPerunSession(pp);
-	    
+
 	    this.attrManager = perun.getAttributesManager();
 	    this.membersManager = perun.getMembersManager();
 	    this.usersManager = perun.getUsersManager();
@@ -103,54 +103,54 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException {
-		
+
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
-				throw new PrivilegeException(sess, "addMail");				
+				throw new PrivilegeException(sess, "addMail");
 			}
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
-				throw new PrivilegeException(sess, "addMail");				
+				throw new PrivilegeException(sess, "addMail");
 			}
 		}
 
         int id = Utils.getNewId(jdbc, "APPLICATION_MAILS_ID_SEQ");
 		mail.setId(id);
-		
+
 		jdbc.update("insert into application_mails(id, form_id, app_type, mail_type, send) values (?,?,?,?,?)",
 				mail.getId(), form.getId(), mail.getAppType().toString(), mail.getMailType().toString(), mail.getSend() ? "1" : "0");
 
 		for (Locale loc : mail.getMessage().keySet()) {
-			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)", 
+			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
 					mail.getId(), loc.toString(), mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
 		}
-		
+
 		log.info("[MAIL MANAGER] Mail notification definition created: {}", mail);
-		
+
 		return id;
-		
+
 	}
 
 	@Override
 	public void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws PerunException {
-		
+
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
-				throw new PrivilegeException(sess, "deleteMail");				
+				throw new PrivilegeException(sess, "deleteMail");
 			}
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
-				throw new PrivilegeException(sess, "deleteMail");				
+				throw new PrivilegeException(sess, "deleteMail");
 			}
 		}
-		
+
 		int result = jdbc.update("delete from application_mails where id=?", id);
 		if (result == 0) throw new InternalErrorException("Mail notification with id="+id+" doesn't exists!");
-		if (result == 1) log.info("[MAIL MANAGER] Mail notification with id={} deleted", id); 
+		if (result == 1) log.info("[MAIL MANAGER] Mail notification with id={} deleted", id);
 		if (result > 1) throw new ConsistencyErrorException("There is more than one mail notification with id="+id);
-		
+
 	}
-	
+
 	@Override
 	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException {
 
@@ -168,7 +168,7 @@ public class MailManagerImpl implements MailManager {
 							rs.getBoolean("send"));
 				}
 			}, id);
-			// set 
+			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
 				throw new InternalErrorException("Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
@@ -196,43 +196,43 @@ public class MailManagerImpl implements MailManager {
 			mail.getMessage().put(text.getLocale(), text);
 		}
 		return mail;
-		
+
 	}
 
 	@Override
 	@Transactional(rollbackFor=Exception.class)
 	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
-		
+
 		// update sending (enabled / disabled)
 		jdbc.update("update application_mails set send=? where id=?", mail.getSend(), mail.getId());
-		
+
 		// update texts (easy way = delete and new insert)
 		jdbc.update("delete from application_mail_texts where mail_id=?", mail.getId());
-		
+
 		for (Locale loc : mail.getMessage().keySet()) {
 			MailText text = mail.getMessage(loc);
 			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
-					mail.getId(), loc.toString(), text.getSubject(), text.getText());			
+					mail.getId(), loc.toString(), text.getSubject(), text.getText());
 		}
 
 	}
-	
+
 	@Override
 	public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException {
-		
+
 		// TODO authz
 		if (mails == null) { throw new InternalErrorException("Mails definitions to update can't be null"); }
-		
+
 		for (ApplicationMail mail : mails) {
 			// update sending (enabled / disabled)
 			jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 		}
-		
+
 	}
 
 	@Override
 	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException {
-		
+
 		List<ApplicationMail> mails = new ArrayList<ApplicationMail>();
 		mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, new RowMapper<ApplicationMail>() {
 			@Override
@@ -257,7 +257,7 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 		return mails;
-		
+
 	}
 
     @Override
@@ -302,7 +302,7 @@ public class MailManagerImpl implements MailManager {
 	public void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions) {
 
 		try {
-			
+
 			// get form
 			ApplicationForm form;
 			if (app.getGroup() != null) {
@@ -334,26 +334,26 @@ public class MailManagerImpl implements MailManager {
 			if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
 				mailSubject = mt.getSubject();
 			}
-			
+
 			// different behavior based on mail type
 			MailType type = mail.getMailType();
-			
+
 			if (MailType.APP_CREATED_USER.equals(type)) {
-				
+
 				SimpleMailMessage message = new SimpleMailMessage();
 				// set FROM
                 setFromMailAddress(message, app);
 				// set TO
 				setUsersMailAsTo(message, app, data);
-						
+
 				// substitute common strings
 				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
 				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-				
+
 				// set subject and text
 				message.setSubject(mailSubject);
 				message.setText(mailText);
-				
+
 				try {
 					// send mail
 					mailSender.send(message);
@@ -361,9 +361,9 @@ public class MailManagerImpl implements MailManager {
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
 				}
-				
+
 			} else if (MailType.APP_CREATED_VO_ADMIN.equals(type)) {
-				
+
 				SimpleMailMessage message = new SimpleMailMessage();
 
                 // set FROM
@@ -401,7 +401,7 @@ public class MailManagerImpl implements MailManager {
 				// substitute common strings
 				mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
 				mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
-				
+
 				// set subject and text
 				message.setSubject(mailSubject2);
 				message.setText(mailText2);
@@ -420,22 +420,22 @@ public class MailManagerImpl implements MailManager {
 				}
 
 			} else if (MailType.MAIL_VALIDATION.equals(type)) {
-				
+
 				SimpleMailMessage message = new SimpleMailMessage();
 				// set FROM
                 setFromMailAddress(message, app);
 
 				// set TO
 				message.setTo(""); // empty = not sent
-				
+
 				// substitute common strings
 				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
 				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-				
+
 				// set subject and text
 				message.setSubject(mailSubject);
 				message.setText(mailText);
-				
+
 				// send to all emails, which needs to be validated
 				for (ApplicationFormItemData d : data) {
 					ApplicationFormItem item = d.getFormItem();
@@ -446,11 +446,11 @@ public class MailManagerImpl implements MailManager {
 
 							// set TO
 							message.setTo(value);
-						    
+
 							// get validation link params
 							String i = Integer.toString(d.getId(), Character.MAX_RADIX);
 						    String m = getMessageAuthenticationCode(i);
-						    
+
 						    // get base url for validation
 						    String url = getPropertyFromConfiguration("registrarGuiFed");
                             String urlNon = getPropertyFromConfiguration("registrarGuiNon");
@@ -463,13 +463,13 @@ public class MailManagerImpl implements MailManager {
                             if (urlKrb != null && !urlKrb.isEmpty()) urlKrb = urlKrb + "?vo=" + app.getVo().getShortName();
 
                             if (app.getGroup() != null) {
-								// append group name for 
+								// append group name for
 								url += "&group="+app.getGroup().getName();
                                 urlNon += "&group="+app.getGroup().getName();
                                 urlKrb += "&group="+app.getGroup().getName();
                                 urlCert += "&group="+app.getGroup().getName();
 							}
-							
+
 						    // construct whole url
 						    StringBuilder url2 = new StringBuilder(url);
                             StringBuilder urlNon2 = new StringBuilder(urlNon);
@@ -518,7 +518,7 @@ public class MailManagerImpl implements MailManager {
                                 urlKrb2.append("i=").append(i).append("&m=").append(m);
                                 log.info("[MAIL MANAGER] Unable to encode as UTF-8, send unencoded: {}",url2.toString());
 						    }
-						    
+
 						    // replace validation link
 						    message.setText(message.getText().replace("{validationLink}", url2.toString()));
                             message.setText(message.getText().replace("{validationLinkNon}", urlNon2.toString()));
@@ -531,7 +531,7 @@ public class MailManagerImpl implements MailManager {
 							} catch (MailException ex) {
 								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
 							}
-							
+
 						} else {
 							log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed. Not valid value of VALIDATED_MAIL field: {}", value);
 						}
@@ -539,22 +539,22 @@ public class MailManagerImpl implements MailManager {
 				}
 
 			} else if (type.equals(MailType.APP_APPROVED_USER)) {
-				
+
 				SimpleMailMessage message = new SimpleMailMessage();
 				// set FROM
                 setFromMailAddress(message, app);
 
 				// set TO
 				setUsersMailAsTo(message, app, data);
-				
+
 				// substitute common strings
 				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
 				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-				
+
 				// set subject and text
 				message.setSubject(mailSubject);
 				message.setText(mailText);
-				
+
 				try {
 					// send mail
 					mailSender.send(message);
@@ -562,24 +562,24 @@ public class MailManagerImpl implements MailManager {
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
 				}
-				
+
 			} else if (type.equals(MailType.APP_REJECTED_USER)) {
-				
+
 				SimpleMailMessage message = new SimpleMailMessage();
 				// set FROM
                 setFromMailAddress(message, app);
 
                 // set TO
 				setUsersMailAsTo(message, app, data);
-				
+
 				// substitute common strings
 				mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
 				mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-				
+
 				// set subject and text
 				message.setSubject(mailSubject);
 				message.setText(mailText);
-				
+
 				try {
 					// send mail
 					mailSender.send(message);
@@ -587,7 +587,7 @@ public class MailManagerImpl implements MailManager {
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
-				
+
 			} else if (MailType.APP_ERROR_VO_ADMIN.equals(type)) {
 
                 SimpleMailMessage message = new SimpleMailMessage();
@@ -655,12 +655,12 @@ public class MailManagerImpl implements MailManager {
 		}
 
 	}
-	
+
 	/**
 	 * Retrieve mail definition from db by params.
 	 * Mail contains all texts.
 	 * If mail not exists, or no texts exists null is returned.
-	 * 
+	 *
 	 * @param formId relation to VO form
 	 * @param appType application type
 	 * @param mailType mail type
@@ -681,7 +681,7 @@ public class MailManagerImpl implements MailManager {
 							rs.getBoolean("send"));
 				}
 			}, formId, appType.toString(), mailType.toString());
-			// set 
+			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
 				return mail;
@@ -709,20 +709,20 @@ public class MailManagerImpl implements MailManager {
 			mail.getMessage().put(text.getLocale(), text);
 		}
 		return mail;
-		
+
 	}
-	
+
 	/**
 	 * Return preferred Locale from application
 	 * (return EN if not found)
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
 	private String getLanguageFromAppData(Application app, List<ApplicationFormItemData> data) {
-		
+
 		String language = "en";
-		
+
 		// if user present - get preferred language
 		if (app.getUser() != null) {
 			try {
@@ -735,11 +735,11 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception thrown when getting preferred language for User={}: {}", app.getUser(), ex);
 			}
 		}
-		
+
 		// if preferred language specified on application - rewrite
 		for (ApplicationFormItemData item : data) {
 			if (item.getFormItem() != null) {
-				if (item.getFormItem().getPerunDestinationAttribute() != null && 
+				if (item.getFormItem().getPerunDestinationAttribute() != null &&
 					item.getFormItem().getPerunDestinationAttribute().equals(URN_USER_PREFERRED_LANGUAGE)) {
 						if (item.getValue() == null || item.getValue().isEmpty()) {
 							return language; // return default
@@ -751,18 +751,18 @@ public class MailManagerImpl implements MailManager {
 		}
 		// return default
 		return language;
-		
+
 	}
-	
+
 	/**
 	 * Set users mail as TO param for mail message.
-	 * 
+	 *
 	 * Default value is empty (mail won't be sent).
-	 * 
+	 *
 	 * Mail is taken from first founded form item of type VALIDATED_MAIL.
-	 * If none found and user exists, it's taken from 
+	 * If none found and user exists, it's taken from
 	 * user's attribute: preferredMail
-	 * 
+	 *
 	 * @param message message to set TO param
 	 * @param app application
 	 * @param data application data
@@ -815,7 +815,7 @@ public class MailManagerImpl implements MailManager {
 				User u = usersManager.getUserById(registrarSession, app.getUser().getId());
 				Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
 				if (a != null && a.getValue() != null) {
-					message.setTo(BeansUtils.attributeValueToString(a));					
+					message.setTo(BeansUtils.attributeValueToString(a));
 				}
 			}
 
@@ -909,11 +909,11 @@ public class MailManagerImpl implements MailManager {
         return result;
 
     }
-	
+
 	/**
 	 * Substitute common strings in mail text by data provided by
 	 * application, application data and perun itself.
-	 * 
+	 *
 	 * Substituted strings are:
 	 * {voName} - full vo name
 	 * {displayName} - users display name returned from federation
@@ -929,13 +929,13 @@ public class MailManagerImpl implements MailManager {
 	 * {appDetailUrlCert} - link for VO admin to approve / reject application
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
-	 * 
+	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
-	 * {errors} - include errors which occured when processing registrar actions 
+	 * {errors} - include errors which occured when processing registrar actions
 	 * (e.g. login reservation errors passed to mail for VO admin)
-	 * 
+	 *
 	 * (if possible links are for: Kerberos, Federation and Certificate authz)
-	 * 
+	 *
 	 * @param app Application to substitute strings for (get VO etc.)
 	 * @param data ApplicationData needed for sustitution (displayName etc.)
 	 * @param mailText String to substitute parts of
@@ -949,12 +949,12 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains("{appId}")) {
 			mailText = mailText.replace("{appId}", app.getId()+"");
 		}
-		
+
 		// replace actor (app created by)
 		if (mailText.contains("{actor}")) {
 			mailText = mailText.replace("{actor}", app.getCreatedBy()+"");
 		}
-		
+
 		// replace ext source (app created by)
 		if (mailText.contains("{extSource}")) {
 			mailText = mailText.replace("{extSource}", app.getExtSourceName()+"");
@@ -964,7 +964,7 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains("{voName}")) {
 			mailText = mailText.replace("{voName}", app.getVo().getName());
 		}
-		
+
 		// replace groupName
 		if (mailText.contains("{groupName}")) {
 			if (app.getGroup() != null) {
@@ -973,7 +973,7 @@ public class MailManagerImpl implements MailManager {
 				mailText = mailText.replace("{groupName}", "");
 			}
 		}
-		
+
 		// replace perun application GUI link with list of applications
 		if (mailText.contains("{appGuiUrl}")) {
             String text = getPropertyFromConfiguration("registrarGuiFed");
@@ -1021,16 +1021,16 @@ public class MailManagerImpl implements MailManager {
 		// replace appDetail for vo admin
 		if (mailText.contains("{appDetailUrlKerb}")) {
 			String text = getPropertyFromConfiguration("perunGuiKerberos");
-			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+app.getId();			
+			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+app.getId();
 			mailText = mailText.replace("{appDetailUrlKerb}", text);
 		}
 		// replace appDetail for vo admin
 		if (mailText.contains("{appDetailUrlCert}")) {
 			String text = getPropertyFromConfiguration("perunGuiCert");
-			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+app.getId();			
+			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+app.getId();
 			mailText = mailText.replace("{appDetailUrlCert}", text);
 		}
-		
+
 		// replace perun gui link
 		if (mailText.contains("{perunGuiUrlFed}")) {
 			String text = getPropertyFromConfiguration("perunGuiFederation");
@@ -1055,7 +1055,7 @@ public class MailManagerImpl implements MailManager {
 				mailText = mailText.replace("{customMessage}", "");
 			}
 		}
-		
+
 		// replace displayName
 		if (mailText.contains("{displayName}")) {
 			String nameText = ""; // backup
@@ -1116,7 +1116,7 @@ public class MailManagerImpl implements MailManager {
 			}
 			mailText = mailText.replace("{errors}", errorText);
 		}
-		
+
 		// replace logins
 		if (mailText.contains("{login-")) {
 
@@ -1180,7 +1180,7 @@ public class MailManagerImpl implements MailManager {
             }
 
 		}
-		
+
 		// membership expiration
 		if (mailText.contains("{membershipExpiration}")) {
 			String expiration = "";
@@ -1200,7 +1200,7 @@ public class MailManagerImpl implements MailManager {
 			// replace by date or empty
 			mailText = mailText.replace("{membershipExpiration}", expiration);
 		}
-		
+
 		// mail footer
 		if (mailText.contains("{mailFooter}")) {
 			String footer = "";
@@ -1217,7 +1217,7 @@ public class MailManagerImpl implements MailManager {
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", footer);
 		}
-		
+
 		return mailText;
 	}
 
@@ -1234,16 +1234,16 @@ public class MailManagerImpl implements MailManager {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Gets particular property from registrar.properties file.
-	 * 
+	 *
 	 * @param propertyName name of the property
 	 * @return value of the property
 	 */
     @Override
 	public String getPropertyFromConfiguration(String propertyName) {
-		
+
 		if (propertyName == null) {
 			return "";
 		}
@@ -1264,5 +1264,5 @@ public class MailManagerImpl implements MailManager {
 		return "";
 
 	}
-	
+
 }

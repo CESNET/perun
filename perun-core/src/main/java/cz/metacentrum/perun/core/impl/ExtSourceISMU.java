@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cz.metacentrum.perun.core.impl;
 
@@ -49,7 +49,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
     throw new ExtSourceUnsupportedOperationException();
   }
 
-  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {   
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
     // Get the url query for the group subjects
     String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -57,7 +57,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
   }
 
   protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
-    
+
     // Get the URL, if query was provided it has precedence over url attribute defined in extSource
     String url = null;
     if (query != null && !query.isEmpty()) {
@@ -67,7 +67,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
     } else {
       throw new InternalErrorException("url attribute or query is required");
     }
-    
+
     log.debug("Searching in external source url:'{}'", url);
 
     // If there is a search string, replace all occurences of the * with the searchstring
@@ -91,14 +91,14 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
       // Prepare the basic auth, if the username and password was specified
       if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
         String val = (new StringBuffer(getAttributes().get("user")).append(":").append(getAttributes().get("password"))).toString();
-        
+
         Base64 encoder = new Base64();
         String base64Encoded = new String(encoder.encode(val.getBytes()));
         // Java bug : http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459815
         base64Encoded = base64Encoded.trim();
         String authorizationString = "Basic " + base64Encoded;
         http.setRequestProperty("Authorization", authorizationString);
-      } 
+      }
 
       http.setAllowUserInteraction(false);
       http.setRequestMethod("GET");
@@ -135,7 +135,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
         map.putAll(Utils.parseCommonName(name));
 
         // Add additional userExtSource for MU IdP
-        map.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING + "1", 
+        map.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING + "1",
             "https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login + "@muni.cz");
 
         subjects.add(map);
@@ -145,7 +145,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceApi {
     }
     catch (HttpException e) {
       throw new InternalErrorException(e);
-    } 
+    }
     catch (IOException e) {
       throw new InternalErrorException(e);
     }

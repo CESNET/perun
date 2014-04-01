@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which copy attributes from one facility to another
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CopyAttributes {
@@ -43,7 +43,7 @@ public class CopyAttributes {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -70,7 +70,7 @@ public class CopyAttributes {
 
 	/**
 	 * Attempts to copy attributes from one facility to another
-	 * 
+	 *
 	 * @param sourceFacility ID of source facility to get attributes from
 	 * @param destinationFacility ID of destination facility to copy attributes to
 	 */

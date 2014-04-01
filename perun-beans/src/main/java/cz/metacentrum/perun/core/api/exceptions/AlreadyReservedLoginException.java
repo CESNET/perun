@@ -33,7 +33,7 @@ public class AlreadyReservedLoginException extends PerunException {
     public String getLogin() {
         return login;
     }
-    
+
     public String getNamespace() {
         return namespace;
     }

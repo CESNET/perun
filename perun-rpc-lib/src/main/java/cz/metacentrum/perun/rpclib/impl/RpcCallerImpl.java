@@ -31,7 +31,7 @@ public class RpcCallerImpl implements RpcCaller {
   private String perunUrl;
   private PerunPrincipal perunPrincipal;
 
-  private final static Logger log = LoggerFactory.getLogger(RpcCallerImpl.class); 
+  private final static Logger log = LoggerFactory.getLogger(RpcCallerImpl.class);
 
   public RpcCallerImpl(PerunPrincipal perunPrincipal) throws InternalErrorException {
     // Set default Authenticator
@@ -41,7 +41,7 @@ public class RpcCallerImpl implements RpcCaller {
     log.debug("Loaded Perun URL [{}]", perunUrl);
 
     this.perunPrincipal = perunPrincipal;
-    
+
     // Set system wide cookie manager
     CookieManager cookieManager = new CookieManager();
     CookieHandler.setDefault(cookieManager);
@@ -108,7 +108,7 @@ public class RpcCallerImpl implements RpcCaller {
     // Error occured, read the Exception if it is in response
     String errorId = errDes.readString("errorId");
     if (errorId != null ) {
-      
+
       String exceptionName = errDes.readString("name");
       if (!exceptionName.equals(RpcException.class.getSimpleName())) {
         String errorClass = errDes.readString("name");
@@ -195,7 +195,7 @@ public class RpcCallerImpl implements RpcCaller {
   protected void processIOException(Throwable e) throws RpcException {
     this.processIOException(null, e);
   }
-  
+
   protected void processIOException(HttpURLConnection conn, Throwable e) throws RpcException {
     // Process known IOExceptions
     if (e instanceof ProtocolException) {

@@ -23,9 +23,9 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 /**
  * Provides page with add hosts to cluster form
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class AddHostsTabItem implements TabItem {
 
@@ -60,7 +60,7 @@ public class AddHostsTabItem implements TabItem {
             }
         }).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility
@@ -73,11 +73,11 @@ public class AddHostsTabItem implements TabItem {
 	public boolean isPrepared() {
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": add hosts");
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
@@ -161,7 +161,7 @@ public class AddHostsTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class AddHostsTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facilityId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

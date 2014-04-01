@@ -18,37 +18,37 @@ sub fromHash
 sub TO_JSON
 {
 	my $self = shift;
-	
+
 	my $id;
 	if (defined($self->{_id})) {
 		$id = $self->{_id}*1;
 	} else {
 		$id = 0;
 	}
-	
+
 	my $login;
 	if (defined($self->{_login})) {
 		$login = "$self->{_login}";
 	} else {
 		$login = undef;
 	}
-	
+
 	my $loa;
   if (defined($self->{_loa})) {
     $loa = $self->{_loa}*1;
   } else {
     $loa = 0;
   }
-	
+
 	my $extSource = $self->{_extSource};
-	
+
 	return {id => $id, login => $login, loa => $loa, extSource => $extSource};
 }
 
 sub getId
 {
     my $self = shift;
-    
+
     return $self->{_id};
 }
 
@@ -56,14 +56,14 @@ sub setId
 {
     my $self = shift;
     $self->{_id} = shift;
-    
+
     return;
 }
 
 sub getLoa
 {
     my $self = shift;
-    
+
     return $self->{_loa};
 }
 
@@ -71,14 +71,14 @@ sub setLoa
 {
     my $self = shift;
     $self->{_loa} = shift;
-    
+
     return;
 }
 
 sub getLogin
 {
     my $self = shift;
-    
+
     return $self->{_login};
 }
 
@@ -86,14 +86,14 @@ sub setLogin
 {
     my $self = shift;
     $self->{_login} = shift;
-    
+
     return;
 }
 
 sub getExtSource
 {
 	my $self = shift;
-    
+
     if ( ref($self->{_extSource}) eq 'HASH' ) {
     	return Perun::beans::ExtSource->fromHash($self->{_extSource});
     } else {
@@ -105,7 +105,7 @@ sub setExtSource
 {
     my $self = shift;
     $self->{_extSource} = shift;
-    
+
     return;
 }
 

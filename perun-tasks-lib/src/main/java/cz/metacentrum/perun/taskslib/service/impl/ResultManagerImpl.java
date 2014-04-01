@@ -13,10 +13,10 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 @Transactional
 @Service(value = "resultManager")

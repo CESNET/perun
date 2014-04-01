@@ -34,9 +34,9 @@ import java.util.Map;
 /**
  * Provides page with groups on resources managements (assign / remove)
  * Used by VO administrators
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> * 
+ * @author Vaclav Mach <374430@mail.muni.cz> *
  */
 public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 
@@ -44,21 +44,21 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Manage assigned groups");
-	
+
 	// data
 	private int resourceId;
 	private Resource resource;
-	
+
 	/**
 	 * Creates a tab instance
      * @param resourceId ID of resource to get groups management for
@@ -71,7 +71,7 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param resource resource to get groups management for
@@ -80,13 +80,13 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		this.resource = resource;
 		this.resourceId = resource.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": manage assigned groups");
 
 		VerticalPanel vp = new VerticalPanel();
@@ -159,12 +159,12 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -205,39 +205,39 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		session.setActiveVoId(resource.getVoId());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(resource.getVoId()) || session.isVoObserver(resource.getVoId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "manage-groups";
-	
+
 	public String getUrl() {
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId;
 	}
-	
+
 	static public ResourceAssignedGroupsTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ResourceAssignedGroupsTabItem(id);
 	}
-	
+
 	static public ResourceAssignedGroupsTabItem load(Resource resource) {
 		return new ResourceAssignedGroupsTabItem(resource);
 	}
-	
+
 }

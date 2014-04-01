@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which sets attribute rights
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class SetAttributeRights {
@@ -45,7 +45,7 @@ public class SetAttributeRights {
 
 	/**
 	 * Attempts to set new value for some attributes
-	 * 
+	 *
 	 * @param rights List of attribute rights to set
 	 */
 	public void setAttributeRights(final ArrayList<AttributeRights> rights) {
@@ -83,7 +83,7 @@ public class SetAttributeRights {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testSetting() {
@@ -115,10 +115,10 @@ public class SetAttributeRights {
         return query;
 
 	}
-	
+
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {

@@ -13,52 +13,52 @@ public abstract class PerunRuntimeException extends RuntimeException {
 
     public PerunRuntimeException() {
         super();
-        
+
         if (!(this instanceof InternalErrorRuntimeException)) {
           log.warn("Runtime Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Runtime Exception detail:", this); 
+            log.debug("Runtime Exception detail:", this);
           }
-        }  
+        }
     }
 
     public PerunRuntimeException(String err) {
         super(err);
-        
+
         if (!(this instanceof InternalErrorRuntimeException)) {
           log.warn("Runtime Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Runtime Exception detail:", this); 
+            log.debug("Runtime Exception detail:", this);
           }
-        }  
+        }
     }
 
     public PerunRuntimeException(Throwable cause) {
         super(cause!=null?cause.getMessage():null, cause);
-        
+
         if (!(this instanceof InternalErrorRuntimeException)) {
           log.warn("Runtime Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Runtime Exception detail:", this); 
+            log.debug("Runtime Exception detail:", this);
           }
-        }  
+        }
     }
 
     public PerunRuntimeException(String err, Throwable cause) {
         super(err, cause);
-        
+
         if (!(this instanceof InternalErrorRuntimeException)) {
           log.warn("Runtime Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Runtime Exception detail:", this); 
+            log.debug("Runtime Exception detail:", this);
           }
-        }  
+        }
     }
 
     public String getErrorId() {
         return errorId;
     }
-    
+
     public String getType() {
       return this.getClass().getSimpleName();
     }

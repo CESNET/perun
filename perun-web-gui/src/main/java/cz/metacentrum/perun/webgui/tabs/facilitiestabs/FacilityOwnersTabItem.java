@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Tab with list of owners of facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
@@ -40,21 +40,21 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private int facilityId;
 	private Facility facility;
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility facility to get allowed Vos from
@@ -63,7 +63,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -77,13 +77,13 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// TITLE
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Owners");
 
@@ -93,10 +93,10 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 		// MENU
 		TabMenu menu = new TabMenu();
-		
+
 		// CALLBACK
 		final GetFacilityOwners jsonCallback = new GetFacilityOwners(facility);
-		
+
 		// AUTHZ
 		vp.add(menu);
 	    vp.setCellHeight(menu, "30px");
@@ -108,7 +108,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new AddFacilityOwnerTabItem(facility), true);
 			}
 		});
-		
+
 		// remove button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedOwners());
 		removeButton.addClickHandler(new ClickHandler(){
@@ -141,12 +141,12 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
                 jsonCallback.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterOwners());
-		
+
 		// TABLE
 		CellTable<Owner> table = jsonCallback.getTable();
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		vp.add(sp);
 
@@ -157,7 +157,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 		this.contentWidget.setWidget(vp);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -197,7 +197,7 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(facility, "Owners", getUrlWithParameters());
@@ -210,33 +210,33 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "owners";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
-	
+
 	static public FacilityOwnersTabItem load(Facility facility)
 	{
 		return new FacilityOwnersTabItem(facility);
 	}
-	
+
 	static public FacilityOwnersTabItem load(Map<String, String> parameters)
 	{
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityOwnersTabItem(fid);
 	}
-	
+
 }

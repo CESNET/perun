@@ -13,10 +13,10 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoResourcesTabItem;
 
 /**
  * Returns the count of the resources in VO.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class GetResourcesCount implements JsonCallback { 
+public class GetResourcesCount implements JsonCallback {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -85,7 +85,7 @@ public class GetResourcesCount implements JsonCallback {
 		resourcesCountLabel.setText(String.valueOf(count.getInt()));
         hyp.setText(String.valueOf(count.getInt()));
 		events.onFinished(jso);
-	}	
+	}
 
 	/**
 	 * Returns the members count label

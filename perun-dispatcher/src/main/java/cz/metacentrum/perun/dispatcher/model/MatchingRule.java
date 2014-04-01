@@ -3,15 +3,15 @@ package cz.metacentrum.perun.dispatcher.model;
 import java.util.List;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 public class MatchingRule {
 
 	private final List<String> rules;
-	
+
 	public MatchingRule(List<String> rules) {
 		this.rules = rules;
 	}
@@ -44,5 +44,5 @@ public class MatchingRule {
 	public List<String> getRules() {
 		return rules;
 	}
-	
+
 }

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 /**
  * The list of VOs query. You can get VOs by "getVos" method.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -148,7 +148,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 
 	/**
 	 * Return selected Vos from Table
-	 * 
+	 *
 	 * @return ArrayList<Vo> selected items
 	 */
 	public ArrayList<VirtualOrganization> getTableSelectedList() {
@@ -156,14 +156,14 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	}
 
 	/**
-	 *  clears list of selected items  
+	 *  clears list of selected items
 	 */
 	public void clearTableSelectedSet(){
 		selectionModel.clear();
 	}
 
 	/**
-	 * Sorts table by objects ID 
+	 * Sorts table by objects ID
 	 */
 	public void sortTable() {
 		list = new TableSorter<VirtualOrganization>().sortByName(getList());
@@ -173,7 +173,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 
 	/**
 	 * Add object as new row to table
-	 * 
+	 *
 	 * @param object VO to be added as new row
 	 */
 	public void addToTable(VirtualOrganization object) {

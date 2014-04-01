@@ -14,21 +14,21 @@ public class RichFacility extends Facility {
 
   public RichFacility(){
   }
-  
+
   public RichFacility(Facility facility, List<Owner> facilityOwners) {
     super(facility.getId(), facility.getName(), facility.getType(), facility.getCreatedAt(), facility.getCreatedBy(),
             facility.getModifiedAt(), facility.getModifiedBy(), facility.getCreatedByUid(), facility.getModifiedByUid());
     this.facilityOwners = facilityOwners;
   }
-  
+
   public List<Owner> getFacilityOwners() {
     return facilityOwners;
   }
-  
+
   public void setFacilityOwners(List<Owner> facilityOwners) {
     this.facilityOwners = facilityOwners;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -65,10 +65,10 @@ public class RichFacility extends Facility {
 
   @Override
   public String serializeToString() {
-    List<Owner> facilityOwnersOld = getFacilityOwners();  
+    List<Owner> facilityOwnersOld = getFacilityOwners();
     List<String> facilityOwnersNew = new ArrayList<String>();
     String sFacilityOwnersNew;
-    
+
     if(getFacilityOwners() == null) sFacilityOwnersNew = "\\0";
     else {
         for(Owner o: facilityOwnersOld) {
@@ -84,7 +84,7 @@ public class RichFacility extends Facility {
     ", facilityOwners=<" + sFacilityOwnersNew + ">" +
     ']';
   }
-  
+
   @Override
   public String toString() {
     return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + this.getName() + "', type='" + this.getType() + "', facilityOwners='" + facilityOwners + "']";

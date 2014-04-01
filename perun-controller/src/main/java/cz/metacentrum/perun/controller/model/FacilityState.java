@@ -8,12 +8,12 @@ import java.util.Map;
 
 /**
  * Model class used to interpret facility propagation state in GUI
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
 public class FacilityState implements Comparable<FacilityState> {
-	
+
 	public static enum FacilityPropagationState {
 		OK, ERROR, PROCESSING, NOT_DETERMINED
 	};
@@ -21,7 +21,7 @@ public class FacilityState implements Comparable<FacilityState> {
 	private Facility facility;
 	private FacilityPropagationState state;
     private Map<String, FacilityPropagationState> results = new HashMap<String, FacilityPropagationState>();
-	
+
 	public Facility getFacility() {
 		return facility;
 	}
@@ -51,7 +51,7 @@ public class FacilityState implements Comparable<FacilityState> {
 				+ ((facility == null) ? 0 : facility.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -68,7 +68,7 @@ public class FacilityState implements Comparable<FacilityState> {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "FacilityState [facility=" + facility + ", state=" + state + "]";
@@ -79,5 +79,5 @@ public class FacilityState implements Comparable<FacilityState> {
         if (facility == null || this.facility == null || this.facility.getName() == null) throw new NullPointerException("Facility or facility name");
         return this.facility.getName().compareTo(facility.getFacility().getName());
     }
-	
+
 }

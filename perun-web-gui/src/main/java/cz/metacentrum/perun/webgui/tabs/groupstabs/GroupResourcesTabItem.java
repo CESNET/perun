@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Groups resources tab
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
@@ -222,7 +222,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

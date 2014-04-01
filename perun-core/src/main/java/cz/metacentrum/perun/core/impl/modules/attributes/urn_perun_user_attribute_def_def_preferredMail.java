@@ -27,16 +27,16 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 
   private static Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+]+(\\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
   private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
-  
+
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     String attributeValue = null;
-        
+
     if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "User preferred mail can't be set to null.");
     else attributeValue = (String) attribute.getValue();
-        
+
     Matcher emailMatcher = emailPattern.matcher(attributeValue);
-    if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");  
-    
+    if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
+
     /* User preferredMail now can be anything
     //user prefferedMail can be only one of memberMails if any
     List<Member> membersOfUser = sess.getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -50,7 +50,7 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
         } catch (WrongAttributeAssignmentException ex) {
             throw new InternalErrorException(ex);
         }
-        
+
         if(attribute.getValue().equals(memberMail.getValue())) return;
         if(memberMail != null) {
             if(possiblePrefferedMailValues.length() != 0) possiblePrefferedMailValues.append(", ");
@@ -67,7 +67,7 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
     //If this is removing and userPrefferedMail is going to be null, try to get one of the member mail and set it to user Preffered Mail
     if(attribute.getValue() == null) {
         List<Member> membersOfUser = session.getPerunBl().getMembersManagerBl().getMembersByUser(session, user);
-        
+
         String anyNotNullMemberMail = null;
         Attribute memberMail = null;
         for(Member m: membersOfUser) {
@@ -83,7 +83,7 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
                 break;
             }
         }
-        
+
         //if there is no notNull memberMail so this email can't be set
         if(anyNotNullMemberMail == null) return;
         else {
@@ -97,8 +97,8 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
             }
         }
     }
-  }*/ 
-  
+  }*/
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

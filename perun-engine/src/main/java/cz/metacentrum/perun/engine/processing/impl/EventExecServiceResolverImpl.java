@@ -45,9 +45,9 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventExecServiceResolver")
 public class EventExecServiceResolverImpl implements EventExecServiceResolver {
@@ -104,9 +104,9 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 
             // Data should provide information regarding the target ExecService (Processing rule).
             String eventData = matcher.group(4);
-            
+
             log.debug("Event data to be parsed:" + eventData);
-            
+
             //GET All Beans (only PerunBeans) from message
             List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
             listOfBeans = AuditParser.parseLog(eventData);

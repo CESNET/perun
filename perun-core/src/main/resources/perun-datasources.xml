@@ -11,7 +11,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <!-- later location overwrite previous -->
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="${perun.jdbc}, file:${perun.conf.custom}/jdbc.properties"/>
 
-    <!-- DataSource implementation -->    
+    <!-- DataSource implementation -->
     <bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="url" value="${jdbc.url}"/>
@@ -26,5 +26,5 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="logAbandoned" value="true" />
         <property name="removeAbandonedTimeout" value="300" />
         <property name="testOnBorrow" value="true" />
-    </bean>    
+    </bean>
 </beans>

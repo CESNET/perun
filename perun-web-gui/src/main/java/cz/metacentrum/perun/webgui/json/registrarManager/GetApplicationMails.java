@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of VO applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -51,8 +51,8 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 	// Table field updater
 	private FieldUpdater<ApplicationMail, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
-	
+
+
 	private PerunEntity entity;
 	private boolean checkable = true;
 
@@ -82,11 +82,11 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<ApplicationMail> getTable(FieldUpdater<ApplicationMail, String> fu) {
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -126,7 +126,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("E-mail ID", tableFieldUpdater, 90);
 
@@ -145,7 +145,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 			}
 		});
 		table.addColumn(mailTypeColumn, "E-mail type");
-		
+
 		// APPLICATION TYPE COLUMN
 		Column<ApplicationMail, String> appTypeColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<ApplicationMail, String>() {
@@ -161,7 +161,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 			}
 		});
 		table.addColumn(appTypeColumn, "Application type");
-		
+
 		// ENABLED COLUMN
 		Column<ApplicationMail, Boolean> enabledColumn = new Column<ApplicationMail, Boolean>(
 				new WhetherEnabledCell()) {
@@ -174,7 +174,7 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 		enabledColumn.setSortable(true);
 		columnSortHandler.setComparator(enabledColumn, new Comparator<ApplicationMail>(){
 			public int compare(ApplicationMail arg0,ApplicationMail arg1) {
-				
+
 				if(arg0.isSend() == arg1.isSend()) return 0;
 				if(arg0.isSend() == true) return -1;
 				return 1;
@@ -183,16 +183,16 @@ public class GetApplicationMails implements JsonCallback, JsonCallbackTable<Appl
 		table.addColumn(enabledColumn, "Sending enabled");
 
 		return table;
-		
+
 	}
 
 	/**
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		
+
 		String param = "";
-		
+
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
 			param = "vo="+ this.id;
 		} else if (PerunEntity.GROUP.equals(entity)) {

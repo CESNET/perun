@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
-* 
+*
 *
 * @author Slavek Licehammer
 */
@@ -39,21 +39,21 @@ public class AuditerConsumer {
       return auditMessage.getFullMessage();
     }
   };
-  
+
   private static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
     public String mapRow(ResultSet rs, int i) throws SQLException {
       AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER.mapRow(rs, i);
       return auditMessage.getMsg();
     }
   };
-  
+
   private static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = new RowMapper<String>() {
     public String mapRow(ResultSet rs, int i) throws SQLException {
       AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
       return auditMessage.getMsg();
     }
   };
-  
+
   private static final RowMapper<Pair<String,Integer>> AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID = new RowMapper<Pair<String, Integer>>() {
     public Pair<String, Integer> mapRow(ResultSet rs, int i) throws SQLException {
       AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
@@ -67,7 +67,7 @@ public class AuditerConsumer {
     try {
       this.lastProcessedId = jdbc.queryForInt("select last_processed_id from auditer_consumers where name=?", consumerName);
     } catch(EmptyResultDataAccessException ex) {
-      //listenerName doesn't have record in auditer_consumers 
+      //listenerName doesn't have record in auditer_consumers
       try {
         // New listener, set the lastProcessedId to the latest one
         lastProcessedId = jdbc.queryForInt("select max(id) from auditer_log");
@@ -97,7 +97,7 @@ public class AuditerConsumer {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<String> getFullMessages() throws InternalErrorException {
     try {
       int maxId = jdbc.queryForInt("select max(id) from auditer_log");
@@ -112,7 +112,7 @@ public class AuditerConsumer {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<String> getMessagesForParser() throws InternalErrorException {
     try {
       int maxId = jdbc.queryForInt("select max(id) from auditer_log");
@@ -125,9 +125,9 @@ public class AuditerConsumer {
       return new ArrayList<String>();
     } catch(Exception ex) {
       throw new InternalErrorException(ex);
-    }    
+    }
   }
-  
+
   public List<Pair<String, Integer>> getMessagesForParserLikePairWithId() throws InternalErrorException {
     try {
       int maxId = jdbc.queryForInt("select max(id) from auditer_log");
@@ -140,6 +140,6 @@ public class AuditerConsumer {
       return new ArrayList<Pair<String, Integer>>();
     } catch(Exception ex) {
       throw new InternalErrorException(ex);
-    }    
+    }
   }
 }

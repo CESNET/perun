@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 /**
  * Raise when member must be in parent group and he's not there.
  *
- * @author Slavek Licehammer 
+ * @author Slavek Licehammer
  */
 public class NotMemberOfParentGroupException extends RelationExistsException {
 

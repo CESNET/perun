@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 /**
  * UsersManager/getAllowedResources method.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetAllowedResources implements JsonCallback, JsonCallbackTable<Resource> {
@@ -44,7 +44,7 @@ public class GetAllowedResources implements JsonCallback, JsonCallbackTable<Reso
 	private ArrayList<Resource> list = new ArrayList<Resource>();
 	// Table field updater
 	private FieldUpdater<Resource, String> tableFieldUpdater;
-	
+
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
 
@@ -68,12 +68,12 @@ public class GetAllowedResources implements JsonCallback, JsonCallbackTable<Reso
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<Resource> getTable(FieldUpdater<Resource, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 

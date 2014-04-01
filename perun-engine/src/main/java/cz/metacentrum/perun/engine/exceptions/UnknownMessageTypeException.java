@@ -2,7 +2,7 @@ package cz.metacentrum.perun.engine.exceptions;
 
 /**
  * Checked version of UnknownMessageTypeException.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class UnknownMessageTypeException extends EngineException {

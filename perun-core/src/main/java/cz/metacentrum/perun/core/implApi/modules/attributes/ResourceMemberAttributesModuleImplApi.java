@@ -39,14 +39,14 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
 
     /**
      * This method MAY fill Member's attributes at a specified resource.
-     * 
+     *
      * @param perunSession Perun session
      * @param resource Resource
      * @param member Member
      * @param attribute Attribute to be filled in
-     * 
+     *
      * @return Attribute which MAY be filled in.
-     * 
+     *
      * @throws InternalErrorException if an exception is raised in particular
      *         implementation, the exception is wrapped in InternalErrorException
      * @throws WrongAttributeAssignmentException
@@ -55,7 +55,7 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param resource the resource
      * @param member the member

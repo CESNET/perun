@@ -17,7 +17,7 @@ import java.util.Set;
  * Table pn_object
  *
  * @author tomas.tunkl
- * 
+ *
  */
 public class PerunNotifObject {
 
@@ -49,7 +49,7 @@ public class PerunNotifObject {
      * Column properties
 	 */
 	private Set<String> properties;
-	
+
     public PerunNotifObject() {
         properties = new HashSet<String>();
     }
@@ -87,11 +87,11 @@ public class PerunNotifObject {
     }
 
     public void addProperty(String value) {
-		
+
 		if (properties == null) {
 			properties = new HashSet<String>();
 		}
-		
+
 		properties.add(value);
 	}
 
@@ -152,7 +152,7 @@ public class PerunNotifObject {
      * @return
      */
 	public String getSerializedProperties() {
-		
+
 		StringBuilder builder = new StringBuilder();
 		for (Iterator<String> iter = properties.iterator(); iter.hasNext(); ) {
 			String temp = iter.next();
@@ -161,17 +161,17 @@ public class PerunNotifObject {
 				builder.append(SET_DELIMITER);
 			}
 		}
-		
+
 		return builder.toString();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		
+
 		if ( this == obj ) return true;
-		
+
 		if ( !(obj instanceof PerunNotifObject) ) return false;
-		
+
 		PerunNotifObject perunObject = (PerunNotifObject) obj;
 
 		return perunObject.getId().equals(this.getId());

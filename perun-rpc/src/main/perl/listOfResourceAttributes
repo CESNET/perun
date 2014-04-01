@@ -14,7 +14,7 @@ Prints list of Attributes defined for Resource. Resource is required field.
 Available options:
 --resourceId  | -r  Resource idetifier
 --orderById   | -i  order by numeric ID
---orderByName | -n  order by name 
+--orderByName | -n  order by name
 --batch       | -b  batch
 --help        | -h  prints this help
 };
@@ -22,10 +22,10 @@ Available options:
 
 my ($resourceId, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help; exit 0;} ,
-            "batch|b" => \$batch, 
+            "batch|b" => \$batch,
             "resourceId|r=i" => \$resourceId,
             "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help; 
+            "orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1); } ) || die help;
 
 
 #options check

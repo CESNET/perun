@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all owners
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCallbackOracle<Owner> {
@@ -63,7 +63,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 
 	/**
 	 * Return table with owners - starts RPC call
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Owner> getTable() {
@@ -75,28 +75,28 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 
 		// Cell table
 		table = new PerunTable<Owner>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Owner> columnSortHandler = new ListHandler<Owner>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Owner> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("No owners defined in Perun.");
-		
+
 		// checkbox column column
         if (checkable) {
             table.addCheckBoxColumn();
         }
 
 		table.addIdColumn("Owner Id");
-		
+
 		table.addNameColumn(null);
 
 		// CONTACT COLUMN
@@ -114,7 +114,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 				return o1.getContact().compareToIgnoreCase(o2.getContact());
 			}
 		});
-		
+
 		// OWNER TYPE COLUMN
 		TextColumn<Owner> typeColumn = new TextColumn<Owner>() {
 			public String getValue(Owner owner) {
@@ -130,7 +130,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 				return Owner.getTranslatedType(o1.getType()).compareToIgnoreCase(Owner.getTranslatedType(o2.getType()));
 			}
 		});
-		
+
 		return table;
 
 	}
@@ -284,7 +284,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 	 *  - administrative
 	 *  - technical
 	 *  - empty string to disable filter
-	 *  
+	 *
 	 * @param type
 	 */
 	public void setFilterByType(String type) {

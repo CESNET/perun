@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Create user's password (reserve in external system + validate)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -53,7 +53,7 @@ public class CreatePassword {
 
 	/**
 	 * Changes password for the user
-	 * 
+	 *
 	 * @param userId user to set password for
      * @param login used for validation only
 	 * @param namespace defined login in namespace
@@ -165,7 +165,7 @@ public class CreatePassword {
 
     /**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -203,14 +203,14 @@ public class CreatePassword {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
-		
+
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("user", new JSONNumber(userId));
 		jsonQuery.put("namespace", new JSONString(namespace));
 		jsonQuery.put("password", new JSONString(pass));

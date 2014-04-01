@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Provides page with tags resources managements (assign / remove)
  * Used by VO administrators
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
@@ -77,13 +77,13 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		this.resource = resource;
 		this.resourceId = resource.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": manage assigned tags");
 
 		VerticalPanel vp = new VerticalPanel();
@@ -154,12 +154,12 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -200,40 +200,40 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		session.setActiveVoId(resource.getVoId());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(resource.getVoId()) || session.isVoObserver(resource.getVoId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "manage-tags";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId;
 	}
-	
+
 	static public ResourceTagsTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ResourceTagsTabItem(id);
 	}
-	
+
 	static public ResourceTagsTabItem load(Resource resource) {
 		return new ResourceTagsTabItem(resource);
 	}
-	
+
 }

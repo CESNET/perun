@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Inner tab item for shell change
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -39,7 +39,7 @@ public class ShellChangeTabItem implements TabItem{
 
     private Label titleWidget = new Label("Select preferred shell");
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	private Resource resource;
 	private Attribute a;
 	private int userId;
@@ -61,13 +61,13 @@ public class ShellChangeTabItem implements TabItem{
 	}
 
 	public boolean isPrepared(){
-		return (userId != 0 && resource != null);		
+		return (userId != 0 && resource != null);
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
-		
+
 		final FlexTable ft = new FlexTable();
         ft.setWidth("350px");
 		ft.setStyleName("inputFormFlexTable");
@@ -132,7 +132,7 @@ public class ShellChangeTabItem implements TabItem{
 
         selectShellButton.setEnabled(false);
         selectShellButton.addClickHandler(new ClickHandler() {
-			
+
 			public void onClick(ClickEvent event) {
 				// OK click button
 				// set new value
@@ -200,7 +200,7 @@ public class ShellChangeTabItem implements TabItem{
 
 		contentWidget.setWidget(vp);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -231,9 +231,9 @@ public class ShellChangeTabItem implements TabItem{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		ShellChangeTabItem oth = (ShellChangeTabItem) obj;
-		
+
 		if (oth.userId != this.userId)
 			return false;
 
@@ -245,9 +245,9 @@ public class ShellChangeTabItem implements TabItem{
 	}
 
 	public void open() {}
-	
+
 	public boolean isAuthorized() {
 		return session.isSelf(userId);
 	}
-	
+
 }

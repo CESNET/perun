@@ -14,8 +14,8 @@ public enum MembershipType {
     INDIRECT(2),
     INCLUDED(3),
     EXCLUDED(4);
-    
-    
+
+
   private static final Map<Integer,MembershipType> lookup = new HashMap<Integer,MembershipType>();
   int code;
 
@@ -32,9 +32,9 @@ public enum MembershipType {
     return code;
   }
 
-  public static MembershipType getMembershipType(int code) { 
-    return lookup.get(code); 
+  public static MembershipType getMembershipType(int code) {
+    return lookup.get(code);
   }
-    
-    
+
+
 }

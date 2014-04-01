@@ -24,7 +24,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtual
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
 public class urn_perun_group_resource_attribute_def_virt_unixGID extends ResourceGroupVirtualAttributesModuleAbstract implements ResourceGroupVirtualAttributesModuleImplApi {
- 
+
   @Override
   public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
@@ -43,7 +43,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
       throw new WrongReferenceAttributeValueException(attribute, ex.getAttribute(), ex);
     }
   }
-  
+
   @Override
   public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -66,7 +66,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
       //check passed, we can use value from this physical attribute
       attribute.setValue(gidAttribute.getValue());
       return attribute;
-    } catch(WrongAttributeValueException ex) { 
+    } catch(WrongAttributeValueException ex) {
       //Physical attribute have wrong value, let's find a new one
       gidAttribute.setValue(null);
       gidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, group, gidAttribute);
@@ -138,7 +138,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
     dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
     return dependecies;
   }
-  
+
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);

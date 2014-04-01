@@ -21,14 +21,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates a subgroup of a group.
-	 * 
+	 *
 	 * @param parentGroup int Parent Group ID
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
 	 */
 	/*#
 	 * Creates a new group in a VO.
-	 * 
+	 *
 	 * @param vo int Parent VO ID
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
@@ -52,15 +52,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
       }
     }
   },
-  
+
     /*#
 	 * Deletes a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 */
   /*#
  	 * Deletes a group (force).
- 	 * 
+ 	 *
  	 * @param group int Group ID
  	 * @param force int Force must be 1
  	 */
@@ -83,7 +83,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
   /*#
 	 * Updates a group.
-	 * 
+	 *
 	 * @param group Group JSON Group class
 	 * @return Group Updated group
 	 */
@@ -97,10 +97,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           parms.read("group", Group.class));
     }
   },
-  
+
   /*#
  	 * Returns a group by ID.
- 	 * 
+ 	 *
  	 * @param id int Group ID
  	 * @return Group Found group
  	 */
@@ -111,10 +111,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupById(parms.readInt("id"));
     }
   },
-  
+
   /*#
 	 * Returns a group by VO and Group name.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param name String Group name
 	 * @return Group Found group
@@ -128,10 +128,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           parms.readString("name"));
     }
   },
-  
+
   /*#
 	 * Adds a member to a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param member int Member ID
 	 */
@@ -147,10 +147,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
 	 * Removes a member from a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param member int Member ID
 	 */
@@ -166,10 +166,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
 	 * Returns members of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<Member> Group members
 	 */
@@ -182,11 +182,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
     }
   },
-  
+
   /*#
 	 * Returns members of a group.
 	 * RichMember contains User object.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<RichMember> Group members
 	 */
@@ -196,13 +196,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getGroupsManager().getGroupRichMembers(ac.getSession(),
           ac.getGroupById(parms.readInt("group")));
-    } 
+    }
   },
-  
+
   /*#
 	 * Returns members of a group.
 	 * RichMember contains User object and attributes.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<RichMember> Group members
 	 */
@@ -214,10 +214,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
  	 * Returns count of group members.
- 	 * 
+ 	 *
  	 * @param group int Group ID
  	 * @return int Members count
  	 */
@@ -229,10 +229,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns all groups in a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @return List<Group> Groups
 	 */
@@ -242,11 +242,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
   /*#
 	 * Returns all groups in a VO by a hierarchy.
 	 * Example: [Group => [Group => [Group => []], Group => []]]
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @return List<Object> Groups with subgroups
 	 */
@@ -265,10 +265,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return convertedGroups;
     }
   },
-  
+
   /*#
 	 * Returns a parent group of a group.
-	 * 
+	 *
 	 * @param group int Child group ID
 	 * @return Group Parent group
 	 */
@@ -278,10 +278,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupsManager().getParentGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns subgroups of a group.
-	 * 
+	 *
 	 * @param parentGroup int Group id
 	 * @return List<Group> Child groups
 	 */
@@ -291,16 +291,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupsManager().getSubGroups(ac.getSession(), ac.getGroupById(parms.readInt("parentGroup")));
     }
   },
-  
+
   /*#
 	 * Adds an admin to a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param user int User ID
 	 */
   /*#
          * Adds an group admin to a group.
-         * 
+         *
          * @param group int Group ID
          * @param authorizedGroup int Group ID
          */
@@ -320,16 +320,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
 	 * Removes an admin of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param user int User ID
 	 */
   /*#
          * Removes a group admin of a group.
-         * 
+         *
          * @param group int Group ID
          * @param authorizedGroup int Group ID
    */
@@ -349,10 +349,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
 	 * Returns administrators of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<User> Group admins
 	 */
@@ -364,10 +364,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
    /*#
 	 * Returns direct administrators of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<User> Group admins
 	 */
@@ -379,10 +379,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns group administrators of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return List<Group> admins
 	 */
@@ -394,7 +394,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   getRichAdmins {
 
     @Override
@@ -403,7 +403,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   getRichAdminsWithAttributes {
 
     @Override
@@ -412,9 +412,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   getRichAdminsWithSpecificAttributes {
-    
+
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -423,14 +423,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
           parms.readList("specificAttributes", String.class));
     }
   },
-  
+
   /*#
 	 * Returns direct descendant groups of a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @return List<Group> Children groups
 	 */
-  getGroups { 
+  getGroups {
 
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -439,10 +439,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
     }
   },
-  
+
   /*#
 	 * Returns groups count in a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @return int Groups count
 	 */
@@ -453,10 +453,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupsManager().getGroupsCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
   },
-  
+
   /*#
 	 * Returns subgroups count of a group.
-	 * 
+	 *
 	 * @param parentGroup int Parent group ID
 	 * @return int Subgroups count
 	 */
@@ -467,10 +467,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return ac.getGroupsManager().getSubGroupsCount(ac.getSession(), ac.getGroupById(parms.readInt("parentGroup")));
     }
   },
-  
+
   /*#
 	 * Delete all groups in a VO.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 */
   deleteAllGroups {
@@ -484,10 +484,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
 	 * Forces group synchronization.
-	 * 
+	 *
 	 * @param group int Group ID
 	 */
   forceGroupSynchronization {
@@ -500,10 +500,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
 	 * Returns parent VO of a group.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @return VirtualOrganization Parent VO
 	 */
@@ -516,10 +516,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns members of a parent group.
-	 * 
+	 *
 	 * @param group int Child group ID
 	 * @return List<Member> Parent group members
 	 */
@@ -532,11 +532,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns members of a parent group.
 	 * RichMember contains User object.
-	 * 
+	 *
 	 * @param group int Child group ID
 	 * @return List<RichMember> Parent group members
 	 */
@@ -549,11 +549,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getGroupById(parms.readInt("group")));
     }
   },
-  
+
   /*#
 	 * Returns members of a parent group.
 	 * RichMember contains User object and attributes.
-	 * 
+	 *
 	 * @param group int Child group ID
 	 * @return List<RichMember> Parent group members
 	 */
@@ -569,11 +569,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
   /*#
 	 * Returns groups for a member.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @return List<Group> Groups of the member
 	 */
-  getMemberGroups { 
+  getMemberGroups {
 
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -582,8 +582,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
           ac.getMemberById(parms.readInt("member")));
     }
   },
-  
-  getAllMemberGroups { 
+
+  getAllMemberGroups {
 
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {

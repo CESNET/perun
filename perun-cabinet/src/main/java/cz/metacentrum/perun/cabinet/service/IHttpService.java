@@ -5,11 +5,11 @@ import org.apache.http.client.methods.HttpUriRequest;
 
 /**
  * Interface for executing HTTP request to external PS to retrieve users publications
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
 public interface IHttpService {
-	
+
 	/**
 	 * Executes a HTTP request (i.e. HttpGet or HttpPost) and returns obtained httpResponse.
 	 *

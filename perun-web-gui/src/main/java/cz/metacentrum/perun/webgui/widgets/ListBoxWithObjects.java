@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 /**
  * An extension to the ListBox, which allows to store real objects in it
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -23,7 +23,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 
 	/**
 	 * Returns the name of the value for each type of object
-	 * 
+	 *
 	 * @param value object to be stored in list
 	 * @return string value that represents name of object
 	 */
@@ -34,7 +34,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 	if (!value.beanName) {
 
 	// OLD WAY
-	
+
 	// execService
 
 	if (!value.name) {
@@ -48,13 +48,13 @@ public class ListBoxWithObjects<T> extends ListBox {
 					return "(" + value.id + ") " + value.description;
 				}
 			}
-	 	}	
+	 	}
 	}
 
 	// facility ?
 	if (value.name){
-		if (!value.user) { 
-			if (!value.lastName) { 
+		if (!value.user) {
+			if (!value.lastName) {
 				if (value.type) {
 					return value.name + " (" + value.type + ")";
 				}
@@ -75,9 +75,9 @@ public class ListBoxWithObjects<T> extends ListBox {
 	return value.name;
 
 	} else {
-	
+
 	// NEW WAY
-	  
+
 	 if (value.beanName == "RichMember") {
 	 	return value.user.lastName + " " +value.user.firstName;
 	 } else if (value.beanName == "User") {
@@ -101,19 +101,19 @@ public class ListBoxWithObjects<T> extends ListBox {
      } else {
 	 	return value.name;
 	 }
-	
+
 	}
 
 	}-*/;
 
 	/**
 	 * Adds an item to the ListBox (at the end of the list)
-	 * 
+	 *
 	 * @param value object to be stored
 	 */
 	public void addItem(T value){
 		this.objects.add(value);
-		this.addItem(this.getValueName(value));		
+		this.addItem(this.getValueName(value));
 	}
 
 	/**
@@ -130,15 +130,15 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 *
 	 * @param index Index of the element in list
 	 * @return object at same position in listbox
-	 */	
+	 */
 	public T getObjectAt(int index)
 	{
 		return this.objects.get(index);
 	}
 
 	/**
-	 * Inserts new item into the ListBox 
-	 * 
+	 * Inserts new item into the ListBox
+	 *
 	 * @param value object to be stored
 	 * @param index desired index between others objects
 	 */
@@ -149,8 +149,8 @@ public class ListBoxWithObjects<T> extends ListBox {
 	}
 
 	/**
-	 * Remove the item at the index 
-	 * 
+	 * Remove the item at the index
+	 *
 	 * @param index index of item to be removed
 	 */
 	public void removeItem(int index)
@@ -161,7 +161,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 
 	/**
 	 * Sets the value at the index
-	 * 
+	 *
 	 * @param index position in listbox
 	 * @param value new object name to be stored at same index
 	 */
@@ -174,7 +174,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 
 	/**
 	 * Return true if list of objects in listBox is empty
-	 * 
+	 *
 	 * @return boolean true - empty / false - not empty
 	 */
 	public boolean isEmpty() {
@@ -230,7 +230,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 
 	/**
 	 * Returns all objects in the listbox (usefull for "all" option)
-	 * 
+	 *
 	 * @return ArrayList<T> list of object in the listbox
 	 */
 	public ArrayList<T> getAllObjects() {
@@ -240,14 +240,14 @@ public class ListBoxWithObjects<T> extends ListBox {
 	/**
 	 * Returns object at selected index. If "Not selected" or "All" options are
 	 * present in listBox, corrections for index are made so right object is always returned.
-	 * 
-	 * If selected index corresponds with "Not selected" null is returned. 
-	 * If "All" option is selected, object at zero position is returned (all objects can be 
+	 *
+	 * If selected index corresponds with "Not selected" null is returned.
+	 * If "All" option is selected, object at zero position is returned (all objects can be
 	 * retrieved by getAllObjects()).
-	 * 
+	 *
 	 * @return object at currently selected index
-	 * 
-	 */		
+	 *
+	 */
 	public T getSelectedObject()
 	{
 		int index = this.getSelectedIndex();
@@ -276,7 +276,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 		if (notSelected == true) { index--; }
 		this.objects.remove(index);
 	}
-	
+
 	/**
 	 * Sets selected object
 	 * @param object
@@ -306,7 +306,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 
 	/**
 	 * Adds all items to this listBox
-	 * 
+	 *
 	 * @param objects
 	 */
 	public void addAllItems(Iterable<T> objects) {

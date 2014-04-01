@@ -38,7 +38,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
           throw new ConsistencyErrorException(ex);
         }
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
@@ -46,5 +46,5 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
       attr.setType(String.class.getName());
       attr.setDescription("Shell password.");
       return attr;
-  } 
+  }
 }

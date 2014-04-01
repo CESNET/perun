@@ -21,9 +21,9 @@ public interface IThanksDao {
 	int deleteThanksById(Integer id);
 
 	List<Thanks> findThanksByPublicationId(Integer id);
-	
+
 	List<ThanksForGUI> findRichThanksByPublicationId(Integer id);
-	
+
 	List<ThanksForGUI> findAllRichThanksByUserId(Integer id);
 
 }

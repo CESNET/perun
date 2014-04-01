@@ -12,35 +12,35 @@ import java.util.Set;
 
 public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
   private static final long serialVersionUID = 1L;
-  
+
   public AuthzRoles() {
     super();
   }
-  
+
 	public AuthzRoles(Role role) {
 		super();
 	  this.put(role, null);
 	}
-	
+
 	public AuthzRoles(Role role, PerunBean perunBean) {
     super();
     Map<String, Set<Integer>> perunBeans = new HashMap<String, Set<Integer>>();
     perunBeans.put(perunBean.getBeanName(), new HashSet<Integer>(perunBean.getId()));
     this.put(role, perunBeans);
   }
-	
+
 	public AuthzRoles(Role role, String beanName, int id) {
     super();
 	  Map<String, Set<Integer>> perunBeans = new HashMap<String, Set<Integer>>();
     perunBeans.put(beanName, new HashSet<Integer>(id));
     this.put(role, perunBeans);
   }
-	
+
 	public AuthzRoles(Role role, HashMap<String, Set<Integer>> perunBeans) {
     super();
 	  this.put(role, perunBeans);
   }
-	
+
 	public AuthzRoles(Role role, List<PerunBean> perunBeans) {
     super();
     Map<String, Set<Integer>> complementaryObjects = new HashMap<String, Set<Integer>>();
@@ -54,55 +54,55 @@ public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
     }
     this.put(role, complementaryObjects);
   }
-	
+
 	public void putAuthzRoles(Role role, Map<String, Set<Integer>> perunBeans) {
     this.putComplementaryObjects(role, perunBeans);
   }
-	
+
 	public void putAuthzRole(Role role) {
     this.putComplementaryObject(role, null);
   }
-	
+
 	public void putAuthzRole(Role role, PerunBean perunBean) {
 	  Map<String, Set<Integer>> complementaryObjects = new HashMap<String, Set<Integer>>();
 	  complementaryObjects.put(perunBean.getBeanName(), new HashSet<Integer>());
     complementaryObjects.get(perunBean.getBeanName()).add(perunBean.getId());
-	  
+
     this.putComplementaryObjects(role, complementaryObjects);
   }
-	
+
 	public void putAuthzRole(Role role, Class perunBeanClass, int perunBeanId) {
 	  Map<String, Set<Integer>> complementaryObjects = new HashMap<String, Set<Integer>>();
     complementaryObjects.put(perunBeanClass.getSimpleName(), new HashSet<Integer>());
     complementaryObjects.get(perunBeanClass.getSimpleName()).add(perunBeanId);
-    
+
     this.putComplementaryObjects(role, complementaryObjects);
 	}
-	
+
 	public boolean hasRole(Role role, PerunBean perunBean) {
-	  return this.get(role).containsKey(perunBean.getBeanName()) 
+	  return this.get(role).containsKey(perunBean.getBeanName())
 	      && this.get(role).get(perunBean.getBeanName()).contains(perunBean.getId());
 	}
-	
+
 	public boolean hasRole(Role role, String perunBeanName, int id) {
-    return this.get(role).containsKey(perunBeanName) 
+    return this.get(role).containsKey(perunBeanName)
         && this.get(role).get(perunBeanName).contains(id);
   }
-	
+
 	public boolean hasRole(Role role) {
     return this.containsKey(role);
   }
-	
+
 	public List<String> getRolesNames() {
 	  List<String> roles = new ArrayList<String>();
 
 	  for (Role role: this.keySet()) {
       roles.add(role.getRoleName());
     }
-	  
+
 	  return roles;
 	}
-	
+
 	protected void putComplementaryObject(Role role, PerunBean perunBean) {
 	  if (this.containsKey(role)) {
       if (perunBean != null) {
@@ -123,7 +123,7 @@ public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
 	      }
 	  }
 	}
-	
+
 	protected void putComplementaryObjects(Role role, Map<String, Set<Integer>> perunBeans) {
     if (this.containsKey(role) && (this.get(role) != null)) {
       if (perunBeans != null) {

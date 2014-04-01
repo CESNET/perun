@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -17,7 +17,7 @@ Available options:
  --facilityType | -t facility type
  --batch        | -b batch
  --help         | -h prints this help
- 
+
 };
 }
 
@@ -27,13 +27,13 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,
 'hosts|H=i@{1,}' => \@hosts,
 "facilityId|f=i" => \$facilityId,
 "facilityType|t=s" => \$facilityType,
-"facilityName|F=s" => \$facilityName) || die help(); 
+"facilityName|F=s" => \$facilityName) || die help();
 
 # Check options
 unless (@hosts) { die "ERROR: hosts are required \n";}
 unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType is required\n";}
 
-#Bug in Getopt::Long causes that when you read array of integer, 
+#Bug in Getopt::Long causes that when you read array of integer,
 #only first one is integer, others are integers values but in variable with string type.
 #Example: you read: 1 2 3    you get: [1, '2', '3']
 #

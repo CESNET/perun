@@ -23,11 +23,11 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 
   @Autowired
   private Properties propertiesBean;
-  
+
   /** The default protocol: 'smtp' */
   public static final String DEFAULT_PROTOCOL = "smtp";
   private String protocol = DEFAULT_PROTOCOL;
-  
+
   private Session session;
   private String mailSmtpAuth;
   private String username;
@@ -37,7 +37,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
   private String emailFrom;
   private String fromText;
   private boolean sendMessages;
-  private boolean startTls; 
+  private boolean startTls;
 
   private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailManager.class);
 
@@ -66,7 +66,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
     this.emailFrom = (String)  propertiesBean.get("notif.emailFrom");
     this.sendMessages = ((String)  propertiesBean.get("notif.sendMessages")).equals("true") ? true : false;
     this.startTls = ((String)  propertiesBean.get("notif.starttls")).equals("true") ? true : false;
-    
+
     createSession();
   }
 
@@ -149,7 +149,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 
   /**
    * Actually send the given array of MimeMessages via JavaMail.
-   * 
+   *
    * @param mimeMessages
    *            MimeMessage objects to send
    * @throws EmailAuthenticationException
@@ -214,7 +214,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
    * Obtain a Transport object from the given JavaMail Session, using the configured protocol.
    * <p>
    * Can be overridden in subclasses, e.g. to return a mock Transport object.
-   * 
+   *
    * @see javax.mail.Session#getTransport(String)
    * @see #getProtocol()
    */

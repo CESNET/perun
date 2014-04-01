@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  *  Tab for listing facility resources
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
@@ -66,7 +66,7 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -84,9 +84,9 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// set title
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Resources");
 
@@ -220,28 +220,28 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "resources";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
-	
+
 	static public FacilityResourcesTabItem load(Facility facility) {
 		return new FacilityResourcesTabItem(facility);
 	}
-	
+
 	static public FacilityResourcesTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityResourcesTabItem(fid);

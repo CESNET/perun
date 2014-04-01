@@ -134,12 +134,12 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
 		JsonClient js = new JsonClient(120000);
 		js.retrieveData(JSON_URL, param, this);
-		
+
 	}
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -150,13 +150,13 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
 	public CellTable<RichMember> getTable() {
-		
+
 		retrieveData();
-	
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<RichMember>(list);
 
@@ -169,7 +169,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 		// Sorting
 		ListHandler<RichMember> columnSortHandler = new ListHandler<RichMember>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichMember> createCheckboxManager());
 
@@ -241,7 +241,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
         columnProvider.addLoginsColumn(authz);
 
 		return table;
-		
+
 	}
 
     /**

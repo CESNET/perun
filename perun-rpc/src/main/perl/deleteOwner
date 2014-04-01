@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -14,13 +14,13 @@ Available options:
  --ownerId  | -o owner id
  --batch    | -b batch
  --help     | -h prints this help
- 
+
 };
 }
 
 my ($ownerId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "ownerId|o=i" => \$ownerId) || die help(); 
+ "ownerId|o=i" => \$ownerId) || die help();
 
 # Check options
 unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}

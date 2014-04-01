@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
 return qq{
@@ -22,7 +22,7 @@ Available options:
 my ($batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check

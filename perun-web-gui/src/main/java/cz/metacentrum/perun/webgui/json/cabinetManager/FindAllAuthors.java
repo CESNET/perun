@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Finds All authors in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {

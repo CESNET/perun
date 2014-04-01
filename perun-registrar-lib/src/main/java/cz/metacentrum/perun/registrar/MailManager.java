@@ -14,11 +14,11 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 
 public interface MailManager {
-	
+
 	/**
-	 * Add new mail notification. 
+	 * Add new mail notification.
 	 * Relation to application form (vo) is inside ApplicationMail object
-	 * 
+	 *
 	 * @param sess PerunSession for authz
 	 * @param form for authz
 	 * @param mail ApplicationMail to be stored
@@ -26,10 +26,10 @@ public interface MailManager {
 	 * @throws PerunException
 	 */
 	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException;
-	
+
 	/**
 	 * Delete mail notification from DB based on ID property.
-	 * 
+	 *
 	 * @param sess PerunSession for authz
 	 * @param form for authz
 	 * @param id ID of ApplicationMail to delete from DB
@@ -40,7 +40,7 @@ public interface MailManager {
 	/**
 	 * Update notification parameters (including message texts)
 	 * based on provided ID param in ApplicationMail object.
-	 * 
+	 *
 	 * @param sess PerunSession for authz
 	 * @param mail ApplicationMail to update to
 	 * @throws PerunException
@@ -49,17 +49,17 @@ public interface MailManager {
 
 	/**
 	 * Enable or disable sending for list of mail definitions
-	 * 
+	 *
 	 * @param sess for Authz
 	 * @param mails mail definitions to update
 	 * @param enabled true = enable sending / false = disable sending
 	 * @throws PerunException
 	 */
 	public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
-	
+
 	/**
 	 * Return mail definition including texts by ID.
-	 * 
+	 *
 	 * @param id of mail definition to get
 	 * @param sess for authz
 	 * @return mail
@@ -67,10 +67,10 @@ public interface MailManager {
 	 * @throws PrivilegeException if not VO admin
 	 */
 	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException;
-	
+
 	/**
 	 * Return all mail notifications related to specific app form (vo/group)
-	 * 
+	 *
 	 * @param sess PerunSession for authz
 	 * @param form for which VO / group we want mails for
 	 * @return list of mail notifications related to app form (vo/group)
@@ -101,10 +101,10 @@ public interface MailManager {
 	/**
 	 * Send mail notification for specific application and mail type.
 	 * VO (form) and AppType is taken form Application object.
-	 * 
+	 *
 	 * Consumes all exceptions since sending mail is not mandatory,
 	 * exceptions are loged into perun-registrar.log
-	 * 
+	 *
 	 * @param app application to send notification for
 	 * @param mailType MailType action which caused sending
 	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
@@ -115,7 +115,7 @@ public interface MailManager {
 
 	/**
 	 * Creates a MAC with a hard-compiled secret key encoded to printable characters.
-	 * 
+	 *
 	 * @param input any string
 	 * @return message authentication code suitable to be passed in URLs
 	 */
@@ -128,5 +128,5 @@ public interface MailManager {
      * @return property value or empty string on any error or when not found
      */
     public String getPropertyFromConfiguration(String input);
-	
+
 }

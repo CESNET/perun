@@ -32,13 +32,13 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
     /**
      * Checks if the corresponding attribute um:membershipExpiration is null or
      * matches with regular expression yyyy-MM-dd HH:mm:ss.S where HH(0-23)
-     */    
+     */
     public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-        
+
         String membershipExpTime = (String) attribute.getValue();
-        
+
         if(membershipExpTime == null) return; // NULL is ok
-            
+
         SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
         Date testDate = null;
 
@@ -54,12 +54,12 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 
             throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd hh:mm:ss.S expected.");
         }
-        
+
     }
 
     @Override
     /**
-     * Fill membership expiration time. 
+     * Fill membership expiration time.
      * If membership starts from Janury to September, time will be the last day of starting year,
      * if membership start from October, to December, time will be the last day of next year.
      */
@@ -68,7 +68,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
         Calendar now = Calendar.getInstance();
         int currentMonth = now.get(Calendar.MONTH);
         int currentYear = now.get(Calendar.YEAR);
-        
+
         if(currentMonth>8) currentYear++;
         ret.setValue(currentYear + "-12-31 23:59:59.9");*/
         return new Attribute(attribute);
@@ -100,5 +100,5 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
       attr.setDescription("When the membership expires");
       return attr;
     }
-    
+
 }

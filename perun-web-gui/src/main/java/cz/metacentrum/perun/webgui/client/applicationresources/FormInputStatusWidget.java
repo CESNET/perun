@@ -13,34 +13,34 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 public class FormInputStatusWidget extends Composite{
 
 	public enum Status { OK, ERROR, LOADING };
-	
+
 	private Status status;
-	
+
 	private String message;
-	
+
 	private FlexTable ft = new FlexTable();
-	
-	
+
+
 	public FormInputStatusWidget(String message){
 		this(message, Status.OK);
 	}
-	
+
 	public FormInputStatusWidget(String message, Status status){
 		this.status = status;
 		this.message = message;
 		this.initWidget(ft);
 		build();
-		
+
 	}
-		
+
 	private void build() {
-		
+
 		ft.clear();
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
-		
+
 		Image img;
 		String classname = "";
-		
+
 		if(status == Status.OK){
 			img = new Image(SmallIcons.INSTANCE.acceptIcon());
 			classname = "input-status-ok";
@@ -51,18 +51,18 @@ public class FormInputStatusWidget extends Composite{
 			img = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
 			classname = "input-status-loading";
 		}
-		
+
 		Label label = new Label(message);
 		label.addStyleName(classname);
         label.getElement().setId(classname);
-		
+
 		ft.setWidget(0, 0, img);
 		ft.setWidget(0, 1, label);
-		
+
 		ftf.setWidth(0, 0, "25px");
 		ftf.setHeight(0, 0, "25px");
 		ftf.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 		ftf.setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-	}	
+	}
 }
 

@@ -37,7 +37,7 @@ import java.util.Map;
 
 /**
  * Group Application form settings
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl {
@@ -61,7 +61,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 	private Group group;
 	//data
 	private int groupId;
-	
+
 	// source list with items
 	protected ArrayList<ApplicationFormItem> sourceList;
 
@@ -74,7 +74,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		this.group = group;
 		this.groupId = group.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -89,7 +89,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
         };
         new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(group == null);
 	}
@@ -128,7 +128,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		// HORIZONTAL MENU
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		// refresh table events
 		final JsonCallbackEvents refreshEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
@@ -157,13 +157,13 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 					}
 				}
 				// send request
-				request.updateFormItems(itemsRequest.getList());	
-				
+				request.updateFormItems(itemsRequest.getList());
+
 			}
 		});
         if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) save.setEnabled(false);
         menu.addWidget(save);
-		
+
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -189,9 +189,9 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
         });
         if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) previewButton.setEnabled(false);
         menu.addWidget(previewButton);
-		
+
 		// AUTO APPROVAL + NOTIFICATIONS
-		
+
 		// auto-approval widget already defined
 		GetApplicationForm form = new GetApplicationForm(PerunEntity.GROUP, groupId);
 		form.setHidden(true);
@@ -205,22 +205,22 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
         });
         if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) emailButton.setEnabled(false);
         menu.addWidget(emailButton);
-		
+
 		// load elements
 		itemsRequest.retrieveData();
-		
+
 		// wrap table to the scroll panel
 		ScrollPanel sp = new ScrollPanel(itemsRequest.getContents());
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 		session.getUiElements().resizePerunTable(sp, 100, this);
-		
+
 		// add scroll table to the main panel
 		vp.add(sp);
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -232,7 +232,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFormIcon(); 
+		return SmallIcons.INSTANCE.applicationFormIcon();
 	}
 
 	@Override
@@ -272,26 +272,26 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "appl-form";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?group=" + groupId;
 	}
-	
+
 	static public GroupApplicationFormSettingsTabItem load(Map<String, String> parameters) {
 		int groupId = Integer.parseInt(parameters.get("group"));
 		return new GroupApplicationFormSettingsTabItem(groupId);

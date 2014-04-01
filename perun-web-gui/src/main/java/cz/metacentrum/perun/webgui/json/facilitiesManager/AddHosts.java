@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to add hosts to Cluster
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddHosts {
@@ -49,12 +49,12 @@ public class AddHosts {
 
 	/**
 	 * Adds hosts to cluster - makes RPC call
-	 * 
+	 *
 	 * @param hosts array of hostnames
 	 */
 	public void addHosts(String[] hosts) {
 
-		this.hostNames = hosts;	
+		this.hostNames = hosts;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -87,11 +87,11 @@ public class AddHosts {
 		JsonPostClient request = new JsonPostClient(newEvents);
 		request.sendData(JSON_URL, jsonQuery);
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding() {
@@ -118,7 +118,7 @@ public class AddHosts {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -132,7 +132,7 @@ public class AddHosts {
 		}
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("facility", facility);
 		jsonQuery.put("hostnames", hostnames);
 		return jsonQuery;

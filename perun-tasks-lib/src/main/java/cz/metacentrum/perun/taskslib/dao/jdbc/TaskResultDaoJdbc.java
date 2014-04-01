@@ -24,11 +24,11 @@ import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   private static final Logger log = LoggerFactory.getLogger(TaskResultDaoJdbc.class);
   private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
-  
+
   public final static String taskResultMappingSelectQuery = " tasks_results.id as tasks_results_id, tasks_results.task_id as tasks_results_task_id," +
   		" tasks_results.destination_id as tasks_results_destination_id, tasks_results.status as tasks_results_status, tasks_results.err_message as tasks_results_err_message," +
   		" tasks_results.std_message as tasks_results_std_message, tasks_results.return_code as tasks_results_return_code, tasks_results.timestamp as tasks_results_timestamp ";
-  
+
   public static final RowMapper<TaskResult> TASKRESULT_ROWMAPPER = new RowMapper<TaskResult>() {
 
     public TaskResult mapRow(ResultSet rs, int i) throws SQLException {
@@ -41,11 +41,11 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
       taskResult.setTaskId(rs.getInt("tasks_results_task_id"));
       taskResult.setReturnCode(rs.getInt("tasks_results_return_code"));
       taskResult.setStandardMessage(rs.getString("tasks_results_std_message"));
-      
+
       if (rs.getTimestamp("tasks_results_timestamp") != null) {
         taskResult.setTimestamp(rs.getTimestamp("tasks_results_timestamp"));
       }
-      
+
       if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.DONE.toString())) {
         taskResult.setStatus(TaskResultStatus.DONE);
       } else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.ERROR.toString())) {
@@ -57,7 +57,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
       } else {
         throw new IllegalArgumentException("Unknown TaskResult state.");
       }
-      
+
       taskResult.setDestination(ServicesManagerImpl.DESTINATION_MAPPER.mapRow(rs, i));
       taskResult.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
 
@@ -72,7 +72,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
     }
     return this.namedParameterJdbcTemplate;
   }
-  
+
   @Override
   public int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException {
     int newTaskResultId = Utils.getNewId(this.getJdbcTemplate(), "tasks_results_id_seq");
@@ -96,14 +96,14 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
             "return_code, " +
             "timestamp, " +
             "engine_id) values (?,?,?,?,?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?)",
-            newTaskResultId, 
-            taskResult.getTaskId(), 
-            taskResult.getDestinationId(), 
-            taskResult.getStatus().toString(), 
-            errorMessage, 
-            standardMessage, 
-            taskResult.getReturnCode(), 
-            TaskDaoJdbc.formatter.format(taskResult.getTimestamp()), 
+            newTaskResultId,
+            taskResult.getTaskId(),
+            taskResult.getDestinationId(),
+            taskResult.getStatus().toString(),
+            errorMessage,
+            standardMessage,
+            taskResult.getReturnCode(),
+            TaskDaoJdbc.formatter.format(taskResult.getTimestamp()),
             engineID);
     return newTaskResultId;
   }
@@ -112,7 +112,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   public List<TaskResult> getTaskResults(int engineID) {
     List<TaskResult> taskResults = this.getJdbcTemplate().query(
         "select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-        ServicesManagerImpl.serviceMappingSelectQuery + 
+        ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
         " left join tasks on tasks.id = tasks_results.task_id left join exec_services on exec_services.id = tasks.exec_service_id" +
         " left join services on services.id = exec_services.service_id where tasks_results.engine_id = ?", new Integer[] { engineID },
@@ -128,7 +128,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   public List<TaskResult> getTaskResults() {
     List<TaskResult> taskResults = this.getJdbcTemplate().query(
         "select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-            ServicesManagerImpl.serviceMappingSelectQuery + 
+            ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
         " left join tasks on tasks.id = tasks_results.task_id " +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +
@@ -145,7 +145,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   public TaskResult getTaskResultById(int taskResultId, int engineID) {
     return this.getJdbcTemplate().queryForObject(
         "select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-            ServicesManagerImpl.serviceMappingSelectQuery + 
+            ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
         " left join tasks on tasks.id = tasks_results.task_id" +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +
@@ -157,7 +157,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   @Override
   public TaskResult getTaskResultById(int taskResultId) {
     return this.getJdbcTemplate().queryForObject("select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-        ServicesManagerImpl.serviceMappingSelectQuery + 
+        ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
         " left join tasks on tasks.id = tasks_results.task_id" +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +
@@ -189,7 +189,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
     List<TaskResult> taskResults = this.getJdbcTemplate().query(
         "select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-            ServicesManagerImpl.serviceMappingSelectQuery + 
+            ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
         " left join tasks on tasks.id = tasks_results.task_id " +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +
@@ -207,7 +207,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   public List<TaskResult> getTaskResultsByTask(int taskId) {
     List<TaskResult> taskResults = this.getJdbcTemplate().query(
         "select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-            ServicesManagerImpl.serviceMappingSelectQuery + 
+            ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
         " left join tasks on tasks.id = tasks_results.task_id " +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +
@@ -220,13 +220,13 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
   }
 
   public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException {
-    
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("destinations", destinationsNames);
 
     try {
       return getNamedParameterJdbcTemplate().query("select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-          ServicesManagerImpl.serviceMappingSelectQuery + 
+          ServicesManagerImpl.serviceMappingSelectQuery +
         " from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
         " left join tasks on tasks.id = tasks_results.task_id " +
         " left join exec_services on exec_services.id = tasks.exec_service_id" +

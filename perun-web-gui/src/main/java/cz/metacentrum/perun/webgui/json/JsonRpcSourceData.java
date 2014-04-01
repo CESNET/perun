@@ -11,7 +11,7 @@ import com.google.gwt.view.client.RowCountChangeEvent;
 /**
  * Virtual source data provider.
  * Provides the functionality of RPC for SimplePager.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class JsonRpcSourceData implements HasRows {
@@ -20,13 +20,13 @@ public class JsonRpcSourceData implements HasRows {
 	 * Default page size
 	 */
 	static private int defaultPageSize = 15;
-	
+
 
 	/**
 	 * Number of all items
 	 */
 	private int rowCount;
-	
+
 	/**
 	 * Currently visible range (number, number) - not (page, number).
 	 */
@@ -41,7 +41,7 @@ public class JsonRpcSourceData implements HasRows {
 	 * The callback for data retrieving
 	 */
 	private JsonCallbackWithPages jsonCallback;
-	
+
 	private int previousCallbackId = -1;
 
 
@@ -104,7 +104,7 @@ public class JsonRpcSourceData implements HasRows {
 
 	/**
 	 * Sets the row count
-	 * 
+	 *
 	 * @param count the row count
 	 */
 	public void setRowCount(int count) {
@@ -113,7 +113,7 @@ public class JsonRpcSourceData implements HasRows {
 
 	/**
 	 * Sets the row count
-	 * 
+	 *
 	 * @param count the row count
 	 * @param isExact whether the value is exact
 	 */
@@ -127,7 +127,7 @@ public class JsonRpcSourceData implements HasRows {
 
 	/**
 	 * Sets the visible range
-	 * 
+	 *
 	 * @param start Number of a row, not page
 	 * @param length
 	 */
@@ -137,7 +137,7 @@ public class JsonRpcSourceData implements HasRows {
 
 	/**
 	 * Sets the visible range
-	 * 
+	 *
 	 * @param range Range object
 	 */
 	public void setVisibleRange(Range range) {
@@ -148,24 +148,24 @@ public class JsonRpcSourceData implements HasRows {
 				return;
 			}
 		}
-		
+
 		// clears the callback
 		JsonClient.removeRunningRequest(this.previousCallbackId);
-		
+
 		// sets the new range
 		this.visibleRange = range;
 
 		// the page
 		int page = range.getStart() / range.getLength();
-		
+
 		//  reloads new data
 		jsonCallback.clearTable();
 		this.previousCallbackId = jsonCallback.retrieveData(range.getLength(), page);
-		
+
 		// triggers the change
 		RangeChangeEvent.fire(this, getVisibleRange());
 	}
-	
+
 	/**
 	 * Returns the global default page size
 	 * @return
@@ -173,7 +173,7 @@ public class JsonRpcSourceData implements HasRows {
 	static public int getDefaultPageSize(){
 		return defaultPageSize;
 	}
-	
+
 	/**
 	 * Sets the global default page size.
 	 * @param pageSize New page size

@@ -12,7 +12,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 /**
  * Same widget as TextInputCell, only with tab index
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class TextInputCellWithTabIndex extends
@@ -39,7 +39,7 @@ public class TextInputCellWithTabIndex extends
 
 		/**
 		 * Construct a ViewData instance containing a given value.
-		 * 
+		 *
 		 * @param value
 		 *            a String value
 		 */
@@ -64,7 +64,7 @@ public class TextInputCellWithTabIndex extends
 
 		/**
 		 * Return the current value of the input element.
-		 * 
+		 *
 		 * @return the current value String
 		 * @see #setCurrentValue(String)
 		 */
@@ -74,7 +74,7 @@ public class TextInputCellWithTabIndex extends
 
 		/**
 		 * Return the last value sent to the {@link ValueUpdater}.
-		 * 
+		 *
 		 * @return the last value String
 		 * @see #setLastValue(String)
 		 */
@@ -92,7 +92,7 @@ public class TextInputCellWithTabIndex extends
 
 		/**
 		 * Set the current value.
-		 * 
+		 *
 		 * @param curValue
 		 *            the current value
 		 * @see #getCurrentValue()
@@ -103,7 +103,7 @@ public class TextInputCellWithTabIndex extends
 
 		/**
 		 * Set the last value.
-		 * 
+		 *
 		 * @param lastValue
 		 *            the last value
 		 * @see #getLastValue()
@@ -155,7 +155,7 @@ public class TextInputCellWithTabIndex extends
 
 	private static Template template;
 
-	
+
 
 	@Override
 	public void onBrowserEvent(Context context, Element parent, String value,

@@ -32,12 +32,12 @@ public class User extends Auditable implements Comparable<User> {
         this.titleBefore = titleBefore;
         this.titleAfter = titleAfter;
     }
-    
+
     public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter, boolean serviceUser) {
         this(id, firstName, lastName, middleName, titleBefore, titleAfter);
         this.serviceUser = serviceUser;
     }
-    
+
     public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
             String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
        super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
@@ -47,13 +47,13 @@ public class User extends Auditable implements Comparable<User> {
        this.titleAfter = titleAfter;
        this.titleBefore = titleBefore;
     }
-    
+
     public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
             String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, Integer createdByUid, Integer modifiedByUid) {
        this(id, firstName, lastName, middleName, titleBefore, titleAfter, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
        this.serviceUser = serviceUser;
     }
-    
+
 
     public String getFirstName() {
         return firstName;
@@ -130,11 +130,11 @@ public class User extends Auditable implements Comparable<User> {
     public void setTitleAfter(String titleAfter) {
         this.titleAfter = titleAfter;
     }
-    
+
     public boolean isServiceUser() {
         return serviceUser;
     }
-    
+
     public void setServiceUser(boolean serviceUser) {
         this.serviceUser = serviceUser;
     }
@@ -160,7 +160,7 @@ public class User extends Auditable implements Comparable<User> {
     }
 
     /**
-     * Compares Strings and handles null values. 
+     * Compares Strings and handles null values.
      * @param s1 string or null
      * @param s2 string or null
      * @return compare of the two strings
@@ -183,7 +183,7 @@ public class User extends Auditable implements Comparable<User> {
             ", serviceAccount=<" + isServiceUser() + ">" +
             ']';
     }
-    
+
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
@@ -205,7 +205,7 @@ public class User extends Auditable implements Comparable<User> {
         ret.append("']");
 
         return ret.toString();
-        
+
     }
 
 	@Override
@@ -223,7 +223,7 @@ public class User extends Auditable implements Comparable<User> {
 				+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
 		result = prime * result
 				+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
-                result = prime * result 
+                result = prime * result
                                 + ((serviceUser ? 1 : 2));
 		return result;
 	}

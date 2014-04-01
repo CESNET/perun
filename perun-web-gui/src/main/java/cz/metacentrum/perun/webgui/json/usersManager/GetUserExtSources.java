@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all user's external identities (userExtSources)
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -71,7 +71,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 
 	/**
 	 * Return table with checkboxes containing user external sources
-	 * 
+	 *
 	 * @return table containing user ext sources
 	 */
 	public CellTable<UserExtSource> getTable() {
@@ -117,7 +117,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 				return String.valueOf(extSource.getLogin());
 			}
 		};
-		
+
 		// LOA column
 		TextColumn<UserExtSource> loaColumn = new TextColumn<UserExtSource>() {
 			@Override
@@ -133,7 +133,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		// sort login column
 		loginColumn.setSortable(true);
 		columnSortHandler.setComparator(loginColumn, new Comparator<UserExtSource>() {
-			
+
 			public int compare(UserExtSource o1, UserExtSource o2) {
 				return o1.getLogin().compareTo(o2.getLogin());
 			}
@@ -142,7 +142,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		// sort login column
 		loaColumn.setSortable(true);
 		columnSortHandler.setComparator(loaColumn, new Comparator<UserExtSource>() {
-			
+
 			public int compare(UserExtSource o1, UserExtSource o2) {
 				return o1.getLoa() - o2.getLoa();
 			}
@@ -158,7 +158,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 
 	/**
 	 * Returns selected items from table as list
-	 * 
+	 *
 	 * @return list of selected ues
 	 */
 	public ArrayList<UserExtSource> getTableSelectedList() {
@@ -175,7 +175,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 	/**
 	 * Retrieves data from RPC
 	 */
-	public void retrieveData() {	
+	public void retrieveData() {
 		final String param = "user=" + this.userId;
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
@@ -226,7 +226,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 
 	/**
 	 * Called if successfully finished.
-	 * 
+	 *
 	 * @param jso javascript objects (array) returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {

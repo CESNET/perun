@@ -11,18 +11,18 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class RichDestination extends Destination implements Comparable<Destination> {
   private Service service;
   private Facility facility;
-  
+
   public RichDestination(){
   }
-  
+
   public RichDestination(Destination destination, Facility facility, Service service) {
-    super(destination.getId(), destination.getDestination(), destination.getType(), destination.getCreatedAt(), 
+    super(destination.getId(), destination.getDestination(), destination.getType(), destination.getCreatedAt(),
             destination.getCreatedBy(), destination.getModifiedAt(), destination.getModifiedBy(),
             destination.getCreatedByUid(), destination.getModifiedByUid());
     this.service = service;
     this.facility = facility;
   }
-  
+
   /*public RichDestination(User user, Member member, List<UserExtSource> userExtSources, List<Attribute> userAttributes, List<Attribute> memberAttributes) {
     this(user, member, userExtSources);
     this.userAttributes = userAttributes;
@@ -44,8 +44,8 @@ public class RichDestination extends Destination implements Comparable<Destinati
     public void setService(Service service) {
         this.service = service;
     }
-  
-  
+
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -83,7 +83,7 @@ public class RichDestination extends Destination implements Comparable<Destinati
     }
     return true;
   }
-  
+
   @Override
   public String serializeToString() {
         return this.getClass().getSimpleName() +":[" +
@@ -94,8 +94,8 @@ public class RichDestination extends Destination implements Comparable<Destinati
                 ", service=<" + (getService() == null ? "\\0" : getService().serializeToString()) + ">" +
                 ']';
   }
-  
-  @Override    
+
+  @Override
   public String toString() {
         return getClass().getSimpleName() + ":["
                 + "id='" + getId()

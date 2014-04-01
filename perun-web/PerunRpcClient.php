@@ -6,18 +6,18 @@ class PerunRpcClient{
 
     // request parameters
     private $postVars;
-    
+
     // URL of the RPC
     private $requestUrl = "";
-    
+
     // curl request
     private $curl;
-    
+
     // settings
     const USERPWD = "perunv3-registrar:";
     const EXT_SRC_IDP = "cz.metacentrum.perun.core.impl.ExtSourceIdp";
-    
-    
+
+
     /**
      * Creates a new request instance, with specified URL.
      * Eg. $requestUrl = "https://perun.metacentrum.cz/perun-rpc-krb/json/"
@@ -46,10 +46,10 @@ class PerunRpcClient{
         // Initialize CURL
         $this -> curl = curl_init();
         curl_setopt($this -> curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this -> curl, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);                                                                        
+        curl_setopt($this -> curl, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
         curl_setopt($this -> curl, CURLOPT_USERPWD, self :: USERPWD);
     }
-    
+
     /**
      * Adds a parameter to the request
      */
@@ -72,7 +72,7 @@ class PerunRpcClient{
 
         $response = curl_exec($this -> curl);
         curl_close($this -> curl);
-    
+
         // IF REQUEST FAILS
         if($response === false){
             return false;
@@ -80,12 +80,12 @@ class PerunRpcClient{
 
         // DECODING RESPONSE
         $json = json_decode($response);
-        
+
         // ERROR WHILE DECODING RESPONSE
         if($json === null){
             return false;
         }
-    
+
         return $json;
     }
 

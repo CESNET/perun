@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Provides tab with destination management for selected Facility
  * FACILITY ADMIN
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -42,21 +42,21 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private Facility facility;
 	private int facilityId;
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility
@@ -65,7 +65,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -79,47 +79,47 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// set title
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Destinations");
-		
+
 		// main content
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		// menu
 		final TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		//callback
 		final GetAllRichDestinations callback = new GetAllRichDestinations(facility, null);
 		final CellTable<Destination> table = callback.getTable(); // do not make callback yet
-		
+
 		// refresh table events
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
-		
+
 		// style table
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		// buttons
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(facility));
             }
         }));
-		
+
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
         menu.addWidget(removeButton);
         removeButton.addClickHandler(new ClickHandler(){
@@ -153,11 +153,11 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
                 callback.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterDestination());
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -169,7 +169,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverGoIcon(); 
+		return SmallIcons.INSTANCE.serverGoIcon();
 	}
 
 
@@ -199,7 +199,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
@@ -210,11 +210,11 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 			session.setActiveFacilityId(facilityId);
 		}
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -222,26 +222,26 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "destinations";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
-	
+
 	static public FacilityDestinationsTabItem load(Facility facility)
 	{
 		return new FacilityDestinationsTabItem(facility);
 	}
-	
+
 	static public FacilityDestinationsTabItem load(Map<String, String> parameters)
 	{
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityDestinationsTabItem(fid);
 	}
-	
+
 }

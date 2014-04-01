@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
 Removes selected owner from the facility. Facility id or name and owner id are required.
 --------------------------------------
 Available options:
- --facilityId   | -f facility id 
+ --facilityId   | -f facility id
  --facilityName | -F facility name
  --facilityType | -t facility type
  --ownerId      | -o owner id
@@ -23,10 +23,10 @@ Available options:
 
 my ($facilityId, $facilityName, $facilityType, $ownerId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "facilityId|f=i" => \$facilityId, 
+ "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
  "facilityType|t=s" => \$facilityType,
- "ownerId|o=i" => \$ownerId) || die help(); 
+ "ownerId|o=i" => \$ownerId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or name+type is required \n";}

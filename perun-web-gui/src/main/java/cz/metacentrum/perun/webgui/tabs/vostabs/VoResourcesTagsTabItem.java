@@ -81,16 +81,16 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
 
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": resources tags");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -175,7 +175,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(menu);
@@ -191,7 +191,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
         session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -232,7 +232,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources tags", getUrlWithParameters());
@@ -243,28 +243,28 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		session.setActiveVoId(voId);
 	}
 
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "tags";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoResourcesTagsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoResourcesTagsTabItem(voId);

@@ -47,7 +47,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param group the group
      * @param attribute the attribute

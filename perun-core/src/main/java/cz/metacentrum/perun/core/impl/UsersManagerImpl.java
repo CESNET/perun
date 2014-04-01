@@ -710,7 +710,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
     try {
       return 1 == jdbc.queryForInt("select 1 from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName());

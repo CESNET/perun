@@ -5,14 +5,14 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Interface of a class, which is called when Ajax operation finishes.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public interface JsonCallback {
 
 	/**
 	 * Called, when the call successfully finishes.
-	 * 
+	 *
 	 * @param jso The object, which is returned.
 	 */
 	void onFinished(JavaScriptObject jso);

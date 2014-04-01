@@ -8,10 +8,10 @@ import cz.metacentrum.perun.engine.model.Command;
 import cz.metacentrum.perun.engine.processing.CommandProcessor;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "commandProcessor")
 public class CommandProcessorImpl implements CommandProcessor {

@@ -10,7 +10,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to delete selected group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteGroup {
@@ -38,7 +38,7 @@ public class DeleteGroup {
 
 	/**
 	 * Delete a group from VO in DB
-	 * 
+	 *
 	 * @param groupId ID of group to be deleted
 	 */
 	public void deleteGroup(final int groupId) {

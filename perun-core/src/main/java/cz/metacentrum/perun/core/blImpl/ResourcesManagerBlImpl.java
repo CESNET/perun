@@ -47,7 +47,7 @@ import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 
 /**
- * 
+ *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class ResourcesManagerBlImpl implements ResourcesManagerBl {
@@ -106,7 +106,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     } catch(AttributeValueException ex) {
       throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed withou problem.", ex);
     }
-    
+
     //Remove all resources tags
     this.removeAllResourcesTagFromResource(sess, resource);
 
@@ -265,7 +265,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     }
 
   }
-  
+
   public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
     for(Group g: groups) {
         this.assignGroupToResource(perunSession, g, resource);
@@ -277,7 +277,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         this.assignGroupToResource(perunSession, group, r);
     }
   }
-  
+
   public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
     Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
@@ -293,9 +293,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     }
 
     // Remove group
-    getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);    
+    getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
     getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
-    
+
     // Remove group-resource attributes
     try {
       getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
@@ -306,7 +306,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     }
-    
+
     //check attributes and set new correct values if necessary
     List<Member> groupsMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
     Facility facility = getFacility(sess, resource);
@@ -324,14 +324,14 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         for(Attribute attribute : userFacilityAttributes) {
           try {
             getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, facility, user, attribute);
-          } catch(WrongAttributeAssignmentException ex) { 
+          } catch(WrongAttributeAssignmentException ex) {
             throw new ConsistencyErrorException(ex);
           } catch(WrongAttributeValueException ex) {
             attribute.setValue(null);
             brokenUserFacilityAttributes.add(attribute);
           } catch(WrongReferenceAttributeValueException ex) {
             //TODO jeste o tom popremyslet
-            //TODO this may fix it 
+            //TODO this may fix it
             attribute.setValue(null);
             brokenUserFacilityAttributes.add(attribute);
           }
@@ -345,17 +345,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
           throw new ConsistencyErrorException(ex);
         } catch(WrongAttributeValueException ex) {
           //TODO jeste o tom popremyslet
-          //That's unresolveable problem 
+          //That's unresolveable problem
           throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
         } catch(WrongReferenceAttributeValueException ex) {
           //TODO jeste o tom popremyslet
-          //That's unresolveable problem 
+          //That's unresolveable problem
           throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
         }
       }
     }
   }
-  
+
   public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
     for(Group g: groups) {
         this.removeGroupFromResource(perunSession, g, resource);
@@ -367,7 +367,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         this.removeGroupFromResource(perunSession, group, r);
     }
   }
-  
+
   public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException {
     return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
 
@@ -423,7 +423,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
   public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
     for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
-      try {  
+      try {
         this.assignService(sess, resource, service);
       } catch (ServiceNotExistsException e) {
         throw new ConsistencyErrorException("Service from the package doesn't exist", e);
@@ -490,7 +490,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedResources(sess, member);
   }
-  
+
   public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedResources(sess, member, service);
   }
@@ -498,25 +498,25 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedRichResources(sess, member);
   }
-  
+
   public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
     return getResourcesManagerImpl().getAssignedRichResources(sess, member, service);
   }
-  
+
   public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException {
     return getResourcesManagerImpl().createResourceTag(perunSession, resourceTag, vo);
   }
-  
+
   public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
     return getResourcesManagerImpl().updateResourceTag(perunSession, resourceTag);
   }
-  
+
   public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, ResourceTagAlreadyAssignedException {
     List<Resource> tagResources = this.getAllResourcesByResourceTag(perunSession, resourceTag);
     if(!tagResources.isEmpty()) throw new ResourceTagAlreadyAssignedException("The resourceTag is alreadyUsed for some resources.", resourceTag);
     getResourcesManagerImpl().deleteResourceTag(perunSession, resourceTag);
   }
-  
+
   public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException, ResourceTagAlreadyAssignedException {
     List<ResourceTag> resourcesTagForVo = this.getAllResourcesTagsForVo(perunSession, vo);
     for(ResourceTag rt: resourcesTagForVo) {
@@ -525,31 +525,31 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     }
     getResourcesManagerImpl().deleteAllResourcesTagsForVo(perunSession, vo);
   }
-  
+
   public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, ResourceTagAlreadyAssignedException {
     List<ResourceTag> allResourceTags = this.getAllResourcesTagsForResource(perunSession, resource);
     if(allResourceTags.contains(resourceTag)) throw new ResourceTagAlreadyAssignedException(resourceTag);
     getResourcesManagerImpl().assignResourceTagToResource(perunSession, resourceTag, resource);
   }
-  
+
   public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, ResourceTagNotAssignedException {
     List<ResourceTag> allResourceTags = this.getAllResourcesTagsForResource(perunSession, resource);
     if(!allResourceTags.contains(resourceTag)) throw new ResourceTagNotAssignedException(resourceTag);
-    getResourcesManagerImpl().removeResourceTagFromResource(perunSession, resourceTag, resource);  
+    getResourcesManagerImpl().removeResourceTagFromResource(perunSession, resourceTag, resource);
   }
-  
+
   public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
-    getResourcesManagerImpl().removeAllResourcesTagFromResource(perunSession, resource);    
-  }  
-  
+    getResourcesManagerImpl().removeAllResourcesTagFromResource(perunSession, resource);
+  }
+
   public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
     return getResourcesManagerImpl().getAllResourcesByResourceTag(perunSession, resourceTag);
   }
-  
+
   public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException {
     return getResourcesManagerImpl().getAllResourcesTagsForVo(perunSession, vo);
   }
-  
+
   public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
     return getResourcesManagerImpl().getAllResourcesTagsForResource(perunSession, resource);
   }
@@ -557,16 +557,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException {
     getResourcesManagerImpl().checkResourceExists(sess, resource);
   }
-  
+
   public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws InternalErrorException, ResourceTagNotExistsException {
     getResourcesManagerImpl().checkResourceTagExists(sess, resourceTag);
   }
-  
+
    public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException {
     getPerunBl().getAuditer().log(sess, "{} updated.", resource);
     return getResourcesManagerImpl().updateResource(sess, resource);
   }
-   
+
   public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException {
         List<Attribute> sourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceResource);
         List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationResource);
@@ -594,7 +594,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         } catch (WrongAttributeValueException ex) {
             throw new ConsistencyErrorException("Copying of attributes failed.", ex);
         }
-        
+
     }
 
   public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {

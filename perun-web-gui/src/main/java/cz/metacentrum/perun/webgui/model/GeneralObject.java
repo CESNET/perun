@@ -5,7 +5,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 /**
  * General object for retrieving type, ID and others
  * common properties from all kind of objects in Perun.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GeneralObject extends JavaScriptObject {
@@ -13,7 +13,7 @@ public class GeneralObject extends JavaScriptObject {
 	protected GeneralObject() { }
 
 	// JSNI methods to get Object data
-	
+
 	/**
 	 * Returns object id
 	 * @return
@@ -23,7 +23,7 @@ public class GeneralObject extends JavaScriptObject {
 	}-*/;
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
@@ -33,33 +33,33 @@ public class GeneralObject extends JavaScriptObject {
 			}
 			return this.beanName;
 		}
-		return this.objecttype;	
+		return this.objecttype;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;	
+		this.objecttype = type;
 		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Sets the status
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @param status String which defines item status
 	 */
 	public final native String setStatus(String status) /*-{
@@ -112,15 +112,15 @@ public class GeneralObject extends JavaScriptObject {
         }
 
 	}-*/;
-	
+
 	public final native String getDescription() /*-{
 		return this.description;
 	}-*/;
-	
+
 	public final native String getAttribute(String attrName) /*-{
 		return this[attrName] + "";
 	}-*/;
-	
+
 	public final native void setChecked(boolean value) /*-{
 		this.checked = value;
 	}-*/;
@@ -131,7 +131,7 @@ public class GeneralObject extends JavaScriptObject {
 		}
 		return this.checked;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -139,7 +139,7 @@ public class GeneralObject extends JavaScriptObject {
 	 */
 	public final boolean equals(GeneralObject o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
-	
+
 }

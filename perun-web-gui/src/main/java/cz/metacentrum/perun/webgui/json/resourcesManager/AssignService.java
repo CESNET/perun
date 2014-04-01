@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which Assigns service to resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -43,7 +43,7 @@ public class AssignService {
 
 	/**
 	 * Attempts to assign service to resource
-	 * 
+	 *
 	 * @param serviceId ID of service which should be assigned
 	 * @param resourceId ID of resource where should be assigned
 	 */
@@ -79,11 +79,11 @@ public class AssignService {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAssigning()
@@ -110,15 +110,15 @@ public class AssignService {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("service", new JSONNumber(serviceId));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("service", new JSONNumber(serviceId));
 		jsonQuery.put("resource", new JSONNumber(resourceId));
 		return jsonQuery;
 	}

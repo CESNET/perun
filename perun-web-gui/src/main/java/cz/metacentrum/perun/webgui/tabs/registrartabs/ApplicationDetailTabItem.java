@@ -28,7 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import java.util.Map;
 
 /**
- * Application detail to review user submitted data 
+ * Application detail to review user submitted data
  * before ACCEPT / REJECT by VO admin
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>

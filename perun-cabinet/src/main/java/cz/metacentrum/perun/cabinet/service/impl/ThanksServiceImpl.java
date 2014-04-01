@@ -20,32 +20,32 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 
 /**
  * Class for handling Thanks entity in Cabinet.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ThanksServiceImpl implements IThanksService {
-	
+
 	private IThanksDao thanksDao;
 	private IAuthorService authorService;
 	private IPerunService perunService;
-    
+
     // setters -------------------------
-    
+
 	public void setThanksDao(IThanksDao thanksDao) {
 		this.thanksDao = thanksDao;
 	}
-	
+
 	public void setAuthorService(IAuthorService authorService) {
 		this.authorService = authorService;
 	}
-	
+
 	public void setPerunService(IPerunService perunService) {
 		this.perunService = perunService;
 	}
-	
+
 	// methods -------------------------
-	
+
 	public int createThanks(PerunSession sess, Thanks t) throws CabinetException {
 		if (t.getCreatedDate() == null) {
 			t.setCreatedDate(new Date());
@@ -60,13 +60,13 @@ public class ThanksServiceImpl implements IThanksService {
 		List<Author> authors = new ArrayList<Author>();
 		authors = authorService.findAuthorsByPublicationId(t.getPublicationId());
 		for (Author a : authors) {
-			perunService.setThanksAttribute(a.getId());			
+			perunService.setThanksAttribute(a.getId());
 		}
-		
+
 		return id;
-		
+
 	}
-	
+
 	public boolean thanksExists(Thanks t) {
 		if (t.getId() != null) {
 			return thanksDao.findThanksById(t.getId()) != null;
@@ -80,14 +80,14 @@ public class ThanksServiceImpl implements IThanksService {
 		return false;
 	}
 
-	
+
 	public List<Thanks> findThanksByFilter(Thanks t) {
 		return thanksDao.findThanksByFilter(t);
 	}
 
-	
+
 	public int deleteThanksById(PerunSession sess, Integer id) throws CabinetException {
-		
+
 		Thanks t = findThanksById(id);
 		// authorization TODO - better place ??
 		// To delete thanks user must me either PERUNADMIN
@@ -101,20 +101,20 @@ public class ThanksServiceImpl implements IThanksService {
 		} catch (PerunException pe) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}
-		
+
 		// recalculate thanks for all publication's authors
 		List<Author> authors = authorService.findAuthorsByPublicationId(t.getPublicationId());
 		for (Author a : authors) {
-			perunService.setThanksAttribute(a.getId());			
+			perunService.setThanksAttribute(a.getId());
 		}
 
 		return thanksDao.deleteThanksById(id);
 	}
-	
+
 	public List<Thanks> findThanksByPublicationId(int id){
 		return thanksDao.findThanksByPublicationId(id);
 	}
-	
+
 	public Thanks findThanksById(int id){
 		return thanksDao.findThanksById(id);
 	}
@@ -122,9 +122,9 @@ public class ThanksServiceImpl implements IThanksService {
 	public List<ThanksForGUI> findRichThanksByPublicationId(int id) {
 		return thanksDao.findRichThanksByPublicationId(id);
 	}
-	
+
 	public List<ThanksForGUI> findAllRichThanksByUserId(Integer id) {
 		return thanksDao.findAllRichThanksByUserId(id);
 	}
-	
+
 }

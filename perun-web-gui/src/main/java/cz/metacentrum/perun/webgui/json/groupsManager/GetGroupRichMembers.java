@@ -31,11 +31,11 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get group rich members
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<RichMember> {
-	
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// grou ID
@@ -68,7 +68,7 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 
 	/**
 	 * Creates a new instance of the method
-	 * 
+	 *
 	 * @param id Group id
 	 * @param events external events
 	 */
@@ -79,7 +79,7 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 
 	/**
 	 * Returns the table with rich members of group
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return table widget
 	 */
@@ -90,37 +90,37 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 
 	/**
 	 * Returns the table with rich members of group
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<RichMember> getTable()
-	{				
+	{
 		// retrieves data
 		retrieveData();
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<RichMember>(list);
-		
+
 		// Cell table
 		table = new PerunTable<RichMember>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<RichMember> columnSortHandler = new ListHandler<RichMember>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// Table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichMember> createCheckboxManager());
 
 		// Set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		// Checkbox column column
 		table.addCheckBoxColumn();
-		
-		// Status column 
+
+		// Status column
 		Column<RichMember, String> statusColumn = new Column<RichMember, String>(
 				new PerunStatusCell()) {
 			@Override
@@ -175,7 +175,7 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 
 		table.addColumn(statusColumn, "Status");
 		table.setColumnWidth(statusColumn, 20, Unit.PX);
-		
+
 		// Create member ID column.
 		Column<RichMember, String> memberIdColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<RichMember, String>() {
@@ -183,7 +183,7 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 						return String.valueOf(object.getId());
 					}
 				}, this.tableFieldUpdater);
-		
+
 		// Create User ID column.
 		Column<RichMember, String> userIdColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<RichMember, String>() {
@@ -191,17 +191,17 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 						return String.valueOf(object.getUser().getId());
 					}
 				}, this.tableFieldUpdater);
-		
+
 		columnSortHandler.setComparator(memberIdColumn, new RichMemberComparator(RichMemberComparator.Column.MEMBER_ID));
 		memberIdColumn.setSortable(true);
-		
-		
+
+
 		userIdColumn.setSortable(true);
 		columnSortHandler.setComparator(userIdColumn,  new RichMemberComparator(RichMemberComparator.Column.USER_ID));
-		
+
 		table.setColumnWidth(memberIdColumn, 110.0, Unit.PX);
 		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
-		
+
 		// headers
 		if(JsonUtils.isExtendedInfoVisible()){
 			table.addColumn(memberIdColumn, "Member ID");

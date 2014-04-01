@@ -8,7 +8,7 @@ import cz.metacentrum.perun.cabinet.dao.mybatis.CategoryMapper;
 import cz.metacentrum.perun.cabinet.model.Category;
 
 /**
- * Class of DAO layer for handling Category entity. 
+ * Class of DAO layer for handling Category entity.
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>

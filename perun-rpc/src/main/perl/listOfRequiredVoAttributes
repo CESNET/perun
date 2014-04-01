@@ -13,19 +13,19 @@ Lists all required VO attributes. VO id or VO short name is required option.
 -----------------------------------------------------------------------
 Available options:
  --voId         | -v VO id
- --voShortName  | -V  VO short name 
+ --voShortName  | -V  VO short name
  --orderById    | -i order by attribute id
  --orderByName  | -n order by attribute friendly name
  --batch        | -b batch
  --help         | -h help
- 
+
 };
 }
- 
+
 my ($voId, $voShortName, $sortingFunction, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch, 
+GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
   "voId|v=i" => \$voId,
-  "voShortName|V=s" => \$voShortName, 
+  "voShortName|V=s" => \$voShortName,
   "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
   "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 

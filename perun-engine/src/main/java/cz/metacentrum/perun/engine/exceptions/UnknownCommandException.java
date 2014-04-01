@@ -2,7 +2,7 @@ package cz.metacentrum.perun.engine.exceptions;
 
 /**
  * Checked version of UnknownCommandException.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public class UnknownCommandException extends EngineException {

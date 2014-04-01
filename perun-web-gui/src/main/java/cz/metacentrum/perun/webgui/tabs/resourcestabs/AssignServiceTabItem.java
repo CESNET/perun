@@ -30,7 +30,7 @@ import java.util.ArrayList;
 /**
  * Provides page with assign service to resource form
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -40,21 +40,21 @@ public class AssignServiceTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Assign service to resource");
-	
+
 	//data
 	private int resourceId;
 	private Resource resource;
-	
+
 	/**
      * @param resourceId ID of resource to have group assigned
      */
@@ -66,7 +66,7 @@ public class AssignServiceTabItem implements TabItem {
             }
         }).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param resource resource
@@ -75,21 +75,21 @@ public class AssignServiceTabItem implements TabItem {
 		this.resource = resource;
 		this.resourceId = resource.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign service");
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
 		// menu
 		TabMenu menu = new TabMenu();
-		
+
 		final GetServices services = new GetServices();
 
         final CellTable<Service> table = services.getEmptyTable(new FieldUpdater<Service, String>() {
@@ -117,10 +117,10 @@ public class AssignServiceTabItem implements TabItem {
 			}
 		};
 		services.setEvents(localEvents);
-		
-		
+
+
 		final TabItem tab = this;
-				
+
 		// button
 		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSelectedServicesToResource());
 		assignButton.addClickHandler(new ClickHandler() {
@@ -160,7 +160,7 @@ public class AssignServiceTabItem implements TabItem {
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
         services.retrieveData();
 
         assignButton.setEnabled(false);
@@ -170,12 +170,12 @@ public class AssignServiceTabItem implements TabItem {
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -188,9 +188,9 @@ public class AssignServiceTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 59;
@@ -216,7 +216,7 @@ public class AssignServiceTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 	}
@@ -224,11 +224,11 @@ public class AssignServiceTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(resource.getFacilityId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 }

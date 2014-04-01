@@ -7,16 +7,16 @@ import java.sql.Date;
 
 /**
  * Overlay type for Task object from Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class Task extends JavaScriptObject {
-	
+
 	protected Task() {}
-	
+
 	/**
 	 * Get ID of Task
-	 * 
+	 *
 	 * @return ID of Task
 	 */
 	public final native int getId() /*-{
@@ -43,7 +43,7 @@ public class Task extends JavaScriptObject {
             return "Never";
         }
     }
-	
+
 	public final native double getEndTimeNative() /*-{
 		if (!(this.endTime)) { return 0; }
 		return this.endTime;
@@ -52,7 +52,7 @@ public class Task extends JavaScriptObject {
 	public final native ExecService getExecService() /*-{
 		return this.execService;
 	}-*/;
-	
+
 	public final native Facility getFacility() /*-{
 		return this.facility;
 	}-*/;
@@ -77,38 +77,38 @@ public class Task extends JavaScriptObject {
 	public final native int getDelay() /*-{
 		return this.delay;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			return "JavaScriptObject"
 		}
-		return this.objecttype;	
+		return this.objecttype;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;	
+		this.objecttype = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -116,7 +116,7 @@ public class Task extends JavaScriptObject {
 	 */
 	public final boolean equals(Task o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 
 }

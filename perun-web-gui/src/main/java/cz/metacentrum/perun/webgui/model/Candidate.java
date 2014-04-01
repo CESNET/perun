@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * OverlayType for Candidate object
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -17,7 +17,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get user ext source of candidate
-	 * 
+	 *
 	 * @return user ext source of candidate
 	 */
 	public final native UserExtSource getUserExtSource() /*-{
@@ -26,7 +26,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get attributes of candidate from ext source
-	 * 
+	 *
 	 * @return attributes of candidate from ext source
 	 */
 	public final native Map<String, String> getAttributes() /*-{
@@ -35,7 +35,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get additionalUserExtSources of candidate from ext source
-	 * 
+	 *
 	 * @return additionalUserExt sources for candidate from ext source
 	 */
 	public final native ArrayList<UserExtSource> getAdditionalUserExtSources() /*-{
@@ -43,8 +43,8 @@ public class Candidate extends JavaScriptObject {
 	}-*/;
 
 	/**
-	 * Get ID of candidate 
-	 * 
+	 * Get ID of candidate
+	 *
 	 * @return ID of candidate
 	 */
 	public final native String getId() /*-{
@@ -53,7 +53,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get first name of candidate
-	 * 
+	 *
 	 * @return first name of candidate
 	 */
 	public final native String getFirstName() /*-{
@@ -62,25 +62,25 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get last name of candidate
-	 * 
+	 *
 	 * @return last name of candidate
 	 */
 	public final native String getLastName() /*-{
 		return this.lastName;
-    }-*/;	
+    }-*/;
 
 	/**
 	 * Get middle name of candidate
-	 * 
+	 *
 	 * @return middle name of candidate
 	 */
 	public final native String getMiddleName() /*-{
 		return this.middleName;
-    }-*/;	
+    }-*/;
 
 	/**
 	 * Get title before name of candidate
-	 * 
+	 *
 	 * @return title before name of candidate
 	 */
 	public final native String getTitleBefore() /*-{
@@ -89,7 +89,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get title after name of candidate
-	 * 
+	 *
 	 * @return title after name of candidate
 	 */
 	public final native String getTitleAfter() /*-{
@@ -98,7 +98,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get full name of candidate
-	 * 
+	 *
 	 * @return last+first name of candidate
 	 */
 	public final native String getFullName() /*-{
@@ -107,7 +107,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get display name of candidate
-	 * 
+	 *
 	 * @return complete view of names and titles of candidate
 	 */
 	public final native String getDisplayName() /*-{
@@ -138,7 +138,7 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get email of candidate
-	 * 
+	 *
 	 * @return email of candidate
 	 */
 	public final native String getEmail() /*-{
@@ -152,45 +152,45 @@ public class Candidate extends JavaScriptObject {
 
 	/**
 	 * Get attributes of candidate from external source
-	 * 
+	 *
 	 * @return attributes of candidate from external source
 	 */
 	public final native String getAttribute(String name) /*-{
 		return this.attributes[name];
 	}-*/;
-	
-	
+
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -198,6 +198,6 @@ public class Candidate extends JavaScriptObject {
 	 */
 	public final boolean equals(Candidate o)
 	{
-		return o.getId().equals(this.getId());		
+		return o.getId().equals(this.getId());
 	}
 }

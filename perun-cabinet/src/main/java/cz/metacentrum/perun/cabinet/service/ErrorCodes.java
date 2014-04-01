@@ -2,12 +2,12 @@ package cz.metacentrum.perun.cabinet.service;
 
 /**
  * Enum with standard ErrorCodes for CabinetException
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public enum ErrorCodes {
-	
+
 	MEMBER_NOT_FOUND,
 	USER_NOT_EXISTS,
 	NOT_SAME_PERSON,
@@ -17,8 +17,8 @@ public enum ErrorCodes {
 	AUTHOR_ALREADY_EXISTS,
 	IO_EXCEPTION,
 	CODE_NOT_SET,
-	PERUN_EXCEPTION, 
-	PUBLICATION_ALREADY_EXISTS, 
+	PERUN_EXCEPTION,
+	PUBLICATION_ALREADY_EXISTS,
 	PUBLICATION_NOT_EXISTS,
 	AUTHORSHIP_ALREADY_EXISTS,
 	AUTHORSHIP_NOT_EXISTS,
@@ -27,5 +27,5 @@ public enum ErrorCodes {
 	THANKS_ALREADY_EXISTS,
     PUBLICATION_SYSTEM_NOT_EXISTS,
     NO_IDENTITY_FOR_PUBLICATION_SYSTEM;
-	
+
 }

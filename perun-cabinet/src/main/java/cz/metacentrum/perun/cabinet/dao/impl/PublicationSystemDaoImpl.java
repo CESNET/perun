@@ -8,7 +8,7 @@ import cz.metacentrum.perun.cabinet.dao.mybatis.PublicationSystemMapper;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 
 /**
- * Class of DAO layer for handling PublicationSystem entity. 
+ * Class of DAO layer for handling PublicationSystem entity.
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
@@ -16,15 +16,15 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 public class PublicationSystemDaoImpl implements IPublicationSystemDao {
 
 	private PublicationSystemMapper publicationSystemMapper;
-	
+
 	// setters ----------------------
-	
+
 	public void setPublicationSystemMapper(PublicationSystemMapper publicationSystemMapper) {
 		this.publicationSystemMapper = publicationSystemMapper;
 	}
-	
+
 	// methods ----------------------
-	
+
 	public List<PublicationSystem> findPublicationSystemsByFilter(PublicationSystem filter) {
 		return publicationSystemMapper.findPublicationSystemsByFilter(filter);
 	}
@@ -36,7 +36,7 @@ public class PublicationSystemDaoImpl implements IPublicationSystemDao {
 	public List<PublicationSystem> findAllPublicationSystems() {
 		return publicationSystemMapper.selectByExample(new PublicationSystemExample());
 	}
-	
+
 	public int createPublicationSystem(PublicationSystem ps) {
 		return publicationSystemMapper.insert(ps);
 	}
@@ -48,5 +48,5 @@ public class PublicationSystemDaoImpl implements IPublicationSystemDao {
 	public int deletePublicationSystem(PublicationSystem ps) {
 		return publicationSystemMapper.deleteByPrimaryKey(ps.getId());
 	}
-	
+
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which creates a new destination for service and facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddDestination {
@@ -56,7 +56,7 @@ public class AddDestination {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating() {
@@ -108,7 +108,7 @@ public class AddDestination {
 	/**
 	 * Attempts to add new Destination to services and facility, it first tests the values and then
 	 * submits them.
-	 * 
+	 *
 	 * @param destination destination string
 	 * @param type type of destination
      * @param services services to add destination to
@@ -146,18 +146,18 @@ public class AddDestination {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("destination", new JSONString(destination));
 		jsonQuery.put("type", new JSONString(type));
         jsonQuery.put("facility", new JSONNumber(facility.getId()));

@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * Types of emails for application
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
@@ -66,10 +66,10 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	private Group group;
 
 	private ApplicationForm form;
-	
+
 	private PerunEntity entity = PerunEntity.VIRTUAL_ORGANIZATION;
 	int entityId = 0;
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -87,7 +87,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			this.groupId = group.getId();
 		}
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -102,7 +102,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			}
 		};
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-		
+
 		JsonCallbackEvents events2 = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				form = jso.cast();
@@ -120,28 +120,28 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 		} else {
 			new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId, events2).retrieveData();
 		}
-		
+
 	}
-	
+
 	public boolean isPrepared(){
-		
+
 		if (groupId == 0) {
-			return (vo != null && form != null);			
+			return (vo != null && form != null);
 		} else {
 			return (vo != null && form != null && group != null);
 		}
-		
+
 	}
 
 	public Widget draw() {
-		
+
 		final GetApplicationMails mailsRequest;
-		
+
 		String title = "";
 		if (group != null) {
 			title = group.getName();
 			entity = PerunEntity.GROUP;
-			entityId = group.getId(); 
+			entityId = group.getId();
 			mailsRequest = new GetApplicationMails(entity, group.getId());
 		} else {
 			title = vo.getName();
@@ -149,7 +149,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			mailsRequest = new GetApplicationMails(entity, vo.getId());
 		}
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(title)+": "+"application notifications");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -165,7 +165,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
                 session.getTabManager().addTabToCurrentTab(new CreateMailTabItem(vo, group, form));
             }
         }));
-		
+
 		// remove button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMail());
 		menu.addWidget(removeButton);
@@ -190,7 +190,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
                 });
 			}
 		});
-		
+
 		// enable button
         CustomButton enableButton = TabMenu.getPredefinedButton(ButtonType.ENABLE, ButtonTranslation.INSTANCE.enableMail(), new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -202,7 +202,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
             }
         });
 		menu.addWidget(enableButton);
-		
+
 		// disable button
         CustomButton disableButton = TabMenu.getPredefinedButton(ButtonType.DISABLE, ButtonTranslation.INSTANCE.disableMail(), new ClickHandler() {
 
@@ -215,7 +215,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
             }
         });
         menu.addWidget(disableButton);
-		
+
 		// for VO only
 		if (group == null) {
 			menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.mailFooterButton(), ButtonTranslation.INSTANCE.editMailFooter(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler(){
@@ -262,11 +262,11 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
         session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
-		
+
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -278,7 +278,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.emailIcon(); 
+		return SmallIcons.INSTANCE.emailIcon();
 	}
 
 	@Override
@@ -310,7 +310,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
 	public void open()
 	{
-		
+
 		if (groupId == 0) {
 			session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
             session.getUiElements().getBreadcrumbs().setLocation(vo, "Application notifications", getUrlWithParameters());
@@ -328,32 +328,32 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			return;
 		}
 		session.setActiveGroupId(groupId);
-		
+
 	}
 
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "app-mails";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + voId + "&group=" + groupId;
 	}
-	
+
 	static public MailsTabItem load(Map<String, String> parameters)
 	{
 		int voId = Integer.parseInt(parameters.get("vo"));

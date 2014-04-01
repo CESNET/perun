@@ -16,10 +16,10 @@ Available options:
  --orderById   | -i order by user external source id
  --batch       | -b batch
  --help        | -h help
- 
+
 };
 }
- 
+
 my ($userId, $sortingFunction, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
   "userId|u=i" => \$userId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') } ) || die help();

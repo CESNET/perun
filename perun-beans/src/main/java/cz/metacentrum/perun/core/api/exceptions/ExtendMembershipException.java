@@ -12,31 +12,31 @@ public class ExtendMembershipException extends PerunException {
     static final long serialVersionUID = 0;
     private final static Logger log = LoggerFactory.getLogger(ExtendMembershipException.class);
     private Reason reason;
-    
+
     public ExtendMembershipException(Reason reason, String message) {
         super(message);
-        
+
         this.reason = reason;
-        
+
         log.error("Internal Error Exception:", this);
     }
 
     public ExtendMembershipException(String message, Throwable cause) {
         super(message, cause);
-        
+
         log.error("Internal Error Exception:", this);
     }
 
     public ExtendMembershipException(Throwable cause) {
         super(cause);
-        
+
         log.error("Internal Error Exception:", this);
     }
-    
+
     public Reason getReason() {
       return this.reason;
     }
-    
+
     public enum Reason {
       NOUSERLOA, // User do not have LoA defined, byt VO has rules for membership expiration per LoA
       INSUFFICIENTLOA, // User has LoA which is not allowed in the VO

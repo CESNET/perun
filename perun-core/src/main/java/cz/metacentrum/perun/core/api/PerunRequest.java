@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 /**
  * Class containing information about PerunRequest.
- * 
+ *
  * @author michalp
  */
 public class PerunRequest {

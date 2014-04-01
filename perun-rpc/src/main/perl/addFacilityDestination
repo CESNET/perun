@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -19,18 +19,18 @@ Available options:
  --type         | -t destination type (host/email/url)
  --batch        | -b batch
  --help         | -h prints this help
- 
+
 };
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $destination, $typ, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, 
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
 "facilityName|F=s" => \$facilityName,
-"facilityType|p=s" => \$facilityType, 
-"serviceId|s=i" => \$serviceId, 
+"facilityType|p=s" => \$facilityType,
+"serviceId|s=i" => \$serviceId,
 "destination|D=s" => \$destination,
-"type|t=s" => \$typ) || die help(); 
+"type|t=s" => \$typ) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}

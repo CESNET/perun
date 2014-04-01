@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * Interface for work with templates. Which represents one email
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -22,25 +22,25 @@ public interface PerunNotifTemplateManager {
 
 	/**
 	 * Creates new perunNotifPoolMessage for regex id and perunMessage
-	 * 
+	 *
 	 * @param regexIds
 	 * @param perunAuditMessage
 	 * @return
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public List<PerunNotifPoolMessage> getPerunNotifPoolMessagesForRegexIds(
 			Set<Integer> regexIds, PerunNotifAuditMessage perunAuditMessage, PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * Processes perunNotifPoolMessagesProcessDto which holds one message for user with more auditerMessages
-	 * 
+	 *
 	 *
      * @param templateId
      * @param notifMessages
      * @return returns set of ids which were processed and should be deleted
 	 */
 	public Set<Integer> processPoolMessages(Integer templateId, List<PoolMessage> notifMessages);
-	
+
 	/**
 	 * Gets perunNotifTemplate by id
 	 * @param id

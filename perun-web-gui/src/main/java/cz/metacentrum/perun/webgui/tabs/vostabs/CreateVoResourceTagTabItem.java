@@ -51,11 +51,11 @@ public class CreateVoResourceTagTabItem implements TabItem {
 	public CreateVoResourceTagTabItem(int voId){
         this.voId = voId;
     }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
@@ -110,7 +110,7 @@ public class CreateVoResourceTagTabItem implements TabItem {
                 session.getTabManager().closeTab(tab, false);
             }
         });
-	
+
 		// Add some standard form options
 		layout.setHTML(0, 0, "Tag name:");
 		layout.setWidget(0, 1, nameTextBox);
@@ -127,7 +127,7 @@ public class CreateVoResourceTagTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -140,7 +140,7 @@ public class CreateVoResourceTagTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -163,21 +163,21 @@ public class CreateVoResourceTagTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

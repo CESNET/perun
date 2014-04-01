@@ -6,12 +6,12 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 /**
  * Custom GWT cell, which is clickable and looks like an anchor.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CustomClickableTextCell extends ClickableTextCell
 {
-	private String style;   
+	private String style;
 
 	/**
 	 * Creates a new Clickable text cell
@@ -30,18 +30,18 @@ public class CustomClickableTextCell extends ClickableTextCell
 		if (value != null) {
 			sb.appendHtmlConstant("<div class=\"" + style + "\">");
 			// sb.append(value);
-			sb.appendEscapedLines(value.asString()); // for linebreaks (\n => </br>) in values 
+			sb.appendEscapedLines(value.asString()); // for linebreaks (\n => </br>) in values
 			sb.appendHtmlConstant("</div>");
 		}
 	}
-	
+
 	/**
 	 * Adds a class to the style
 	 * @param style
 	 */
 	public void addStyleName(String style)
 	{
-		this.style += " " + style; 
+		this.style += " " + style;
 	}
 
 

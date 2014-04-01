@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 
 /**
- * OwnersManager 
+ * OwnersManager
  *
  * @author Slavek Licehammer
  */
@@ -17,12 +17,12 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 
     /**
      * Create owner in the underlaying data source
-     * 
+     *
      * @param perunSession
      * @param owner
-     * 
+     *
      * @return owner with id set
-     * 
+     *
      * @throws InternalErrorException
      * @throws PrivilegeException
      */
@@ -30,10 +30,10 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 
     /**
      * Delete owner from underlaying data source.
-     * 
+     *
      * @param perunSession
      * @param owner
-     * 
+     *
      * @throws OwnerNotExistsException
      * @throws InternalErrorException
      * @throws PrivilegeException
@@ -44,11 +44,11 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 
     /**
      * Delete owner from underlaying data source.
-     * 
+     *
      * @param perunSession
      * @param owner
      * @param forceDelete
-     * 
+     *
      * @throws OwnerNotExistsException
      * @throws InternalErrorException
      * @throws PrivilegeException
@@ -56,27 +56,27 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
      * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
      */
     void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
-    
+
     /**
      * Find owner by id.
-     * 
+     *
      * @param perunSession
      * @param id
-     * 
+     *
      * @return Owner with specified id
-     * 
+     *
      * @throws OwnerNotExistsException
      * @throws InternalErrorException
      * @throws PrivilegeException
      */
     Owner getOwnerById(PerunSession perunSession, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException;
-    
+
     /**
      * Return all owners.
-     * 
+     *
      * @param perunSession
      * @return list of owners
-     * 
+     *
      * @throws InternalErrorException
      * @throws PrivilegeException
      */

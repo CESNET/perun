@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Request, which updates VO.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateVo {
@@ -47,7 +47,7 @@ public class UpdateVo {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean testCreating()
@@ -75,7 +75,7 @@ public class UpdateVo {
 
 	/**
 	 * Attempts to create a new VO, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param vo Virtual organization to update
 	 */
 	public void updateVo(final VirtualOrganization vo) {
@@ -107,7 +107,7 @@ public class UpdateVo {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**

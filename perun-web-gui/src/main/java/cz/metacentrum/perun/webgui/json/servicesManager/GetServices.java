@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get all services
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -63,7 +63,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
 
 	/**
 	 * Returns table of services with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return table widget
 	 */
@@ -74,7 +74,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
 
 	/**
 	 * Returns empty table of services with custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return empty table widget
 	 */
@@ -263,7 +263,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
 
 	/**
 	 * Sets external events for callback after it's creation
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {

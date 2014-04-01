@@ -22,9 +22,9 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get required attributes for specified service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * 
+ *
  */
 public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackTable<AttributeDefinition> {
 
@@ -65,7 +65,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 
 	/**
 	 * Returns table widget with required attributes for service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<AttributeDefinition> getTable() {
@@ -147,7 +147,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		    }
 		});
 		 */
-		
+
 		friendlyNameColumn.setSortable(true);
 		columnSortHandler.setComparator(friendlyNameColumn, new Comparator<AttributeDefinition>() {
 			public int compare(AttributeDefinition o1, AttributeDefinition o2) {
@@ -320,7 +320,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 
 	/**
 	 * Change showed string in table to new one based on it's own rules
-	 * 
+	 *
 	 * @param oldString original text
 	 * @return String new string (substring which starts on position 10)
 	 */

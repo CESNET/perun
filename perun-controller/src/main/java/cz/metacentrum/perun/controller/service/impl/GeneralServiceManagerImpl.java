@@ -171,7 +171,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
     public List<ExecService> listExecServicesThisExecServiceDependsOn(PerunSession perunSession, ExecService dependantExecService, ExecServiceType execServiceType) throws InternalErrorException {
         return execServiceDependencyDao.listExecServicesThisExecServiceDependsOn(dependantExecService.getId(), execServiceType);
     }
-    
+
     public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException {
         List<ExecService> listOfExecServices = listExecServices(sess, service.getId());
         for(ExecService es: listOfExecServices) {
@@ -209,10 +209,10 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
     public Service getService(PerunSession perunSession, int serviceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
         return servicesManager.getServiceById(perunSession, serviceId);
     }
-    
+
     @Override
     public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
-    
+
     	// result list
     	List<ServiceForGUI> result = new ArrayList<ServiceForGUI>();
     	// get assigned services
@@ -248,9 +248,9 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
     		newService.setAllowedOnFacility(allowed);
     		result.add(newService);
     	}
-    	
+
     	return result;
-    	
+
     }
 
     public ExecServiceDao getExecServiceDao() {

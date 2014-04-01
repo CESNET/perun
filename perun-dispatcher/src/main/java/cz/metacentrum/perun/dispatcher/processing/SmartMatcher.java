@@ -6,9 +6,9 @@ import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
 import cz.metacentrum.perun.dispatcher.model.Event;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public interface SmartMatcher {
 
@@ -17,6 +17,6 @@ public interface SmartMatcher {
 	void loadAllRulesFromDB();
 
 	void reloadRulesFromDBForEngine(Integer clientID);
-	
+
 	Set<Integer> getClientsWeHaveRulesFor();
 }

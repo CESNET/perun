@@ -6,9 +6,9 @@ import java.util.Date;
 import cz.metacentrum.perun.core.api.Facility;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public class Task implements Serializable {
 

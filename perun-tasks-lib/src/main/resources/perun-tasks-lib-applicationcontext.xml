@@ -14,27 +14,27 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <aop:aspectj-autoproxy/>
 
     <!-- Scans for @Repository, @Service and @Component -->
-    <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>  
-    
+    <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+
     <!-- DAOs -->
     <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
-      <property name="dataSource" ref="dataSource"/> 
+      <property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
     <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
-      <property name="dataSource" ref="dataSource"/> 
-    </bean>  
-    
+      <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <bean id="execServiceDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDaoJdbc">
-      <property name="dataSource" ref="dataSource"/> 
+      <property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
     <bean id="execServiceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDenialDaoJdbc">
-      <property name="dataSource" ref="dataSource"/> 
+      <property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
     <bean id="execServiceDependencyDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDependencyDaoJdbc">
-      <property name="dataSource" ref="dataSource"/> 
+      <property name="dataSource" ref="dataSource"/>
     </bean>
 
 </beans>

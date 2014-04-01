@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 public class DispatcherQueue {
 
@@ -26,7 +26,7 @@ public class DispatcherQueue {
 	private MessageProducer producer;
 	private int clientID;
 	private String queueName;
-	
+
 	public DispatcherQueue(int clientID, String queueName, Session session) {
 		this.clientID = clientID;
 		this.queueName = queueName;
@@ -42,7 +42,7 @@ public class DispatcherQueue {
 			if(log.isDebugEnabled()) {
 				log.debug("Session created: " + session);
 			}
-			
+
 		} catch (JMSException e) {
 			log.error(e.toString(),e);
 		} catch (Exception e) {

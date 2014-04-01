@@ -66,7 +66,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		this.group = group;
 		this.groupId = group.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param groupId
@@ -80,15 +80,15 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
-	
-	
+
+
 	public boolean isPrepared(){
 		return !(group == null);
 	}
-	
+
 
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": subgroups");
 
 		// main panel
@@ -240,24 +240,24 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "subgps";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
-	
+
 	static public SubgroupsTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new SubgroupsTabItem(gid);

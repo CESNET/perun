@@ -25,23 +25,23 @@ import java.util.regex.Pattern;
 
 /**
  * Module for project name
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 25.2.2014
  */
 public class urn_perun_group_resource_attribute_def_def_projectName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
-    
+
     public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
       String name = (String) attribute.getValue();
       if (name == null) return;
-      
+
       Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
       Matcher match = pattern.matcher(name);
 
       if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectName (expected something like 'project_name-24').");    
+        throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectName (expected something like 'project_name-24').");
       }
-      
+
       //Prepare this resource projectsBasePath
       Attribute thisResourceProjectsBasePath = null;
       try {
@@ -49,7 +49,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
       } catch (AttributeNotExistsException ex) {
           throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
       }
-      
+
       //Prepare value of this resource projectsBasePath
       String thisResourceProjectBasePathValue = null;
       if(thisResourceProjectsBasePath.getValue() != null) {
@@ -57,13 +57,13 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
       } else {
           throw new WrongReferenceAttributeValueException(attribute, thisResourceProjectsBasePath, group, resource, resource, null, "Resource must have set projectsBasePath if attribute projectName for it's group need to be set.");
       }
-      
+
       //Get All Resources with the same project_base_path
       Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
       List<Resource> resources = sess.getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
       resources.remove(resource);
-      
-      //Remove all resources which has other 
+
+      //Remove all resources which has other
       Iterator<Resource> iterator = resources.iterator();
       while(iterator.hasNext()) {
           Resource r = iterator.next();
@@ -73,7 +73,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
           } catch (AttributeNotExistsException ex) {
               throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
           }
-          
+
           if(otherResourceProjectsBasePath.getValue() != null) {
               String otherResourceProjectsBasePathValue = (String) otherResourceProjectsBasePath.getValue();
               if(!thisResourceProjectBasePathValue.equals(otherResourceProjectsBasePathValue)) iterator.remove();
@@ -82,11 +82,11 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
               iterator.remove();
           }
       }
-      
+
       //For all resources with the same project_base_path look for groups with the same projectName
       for(Resource r: resources) {
           List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, r);
-          //Our group may aslo be part of assigned Group, need to be removed 
+          //Our group may aslo be part of assigned Group, need to be removed
           groups.remove(group);
           for(Group g: groups) {
               Attribute groupProjectName = null;
@@ -95,18 +95,18 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
               } catch (AttributeNotExistsException ex) {
                   throw new ConsistencyErrorException("Attribute projectName not exists!", ex);
               }
-              
+
               String groupProjectNameValue = null;
               if(groupProjectName.getValue() != null) {
                   groupProjectNameValue = (String) groupProjectName.getValue();
               }
-              
+
               //If the name is somewhere same, exception must be thrown
               if(name.equals(groupProjectNameValue)) {
                   throw new WrongReferenceAttributeValueException(attribute, groupProjectName, group, resource, g, r, "Group " + group + " and " + g + " have the same projectName in the same projectsBasePath.");
               }
           }
-      }      
+      }
     }
 
     @Override
@@ -115,9 +115,9 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
         dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
         return dependencies;
     }
-    
-    
-    
+
+
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);

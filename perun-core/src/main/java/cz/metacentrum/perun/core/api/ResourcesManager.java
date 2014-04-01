@@ -28,9 +28,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 
 /**
  * Manages resources.
- * 
+ *
  * @author  Slavek Licehammer
- * @author 
+ * @author
  */
 public interface ResourcesManager {
 
@@ -39,11 +39,11 @@ public interface ResourcesManager {
    *
    * @param perunSession
    * @param id
-   * 
+   *
    * @return Resource with specified id
-   * 
+   *
    * @throws ResourceNotExistsException
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    * @throws PrivilegeException
    */
   Resource getResourceById(PerunSession perunSession, int id) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
@@ -64,7 +64,7 @@ public interface ResourcesManager {
 
   /**
    * Return resource by its name.
-   * 
+   *
    * @param sess
    * @param name
    * @param vo
@@ -75,10 +75,10 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    */
   Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, VoNotExistsException, FacilityNotExistsException;
-  
+
   /**
    * Inserts resource into DB.
-   * 
+   *
    * @param resource resource to create
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -90,7 +90,7 @@ public interface ResourcesManager {
    *
    * @param perunSession
    * @param resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -100,13 +100,13 @@ public interface ResourcesManager {
    * @throws FacilityNotExistsException if facility of this resource not exists
    */
   void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
-  
+
   /**
    *  Deletes all resources for the VO.
-   *  
+   *
    * @param perunSession
    * @param vo
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -118,11 +118,11 @@ public interface ResourcesManager {
 
   /**
    * Get facility which belongs to the concrete resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @return facility belonging to the resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -131,25 +131,25 @@ public interface ResourcesManager {
 
   /**
    * Set Facility to resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @param facility
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
-   * @throws FacilityNotExistsException 
+   * @throws FacilityNotExistsException
    */
   void setFacility(PerunSession perunSession, Resource resource, Facility facility) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, FacilityNotExistsException;
 
   /**
    * Get Vo which is tied to specified resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @return vo tied to specified resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -158,11 +158,11 @@ public interface ResourcesManager {
 
   /**
    * Returns all members assigned to the resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @return list of members assigned to the resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -171,7 +171,7 @@ public interface ResourcesManager {
 
   /**
    * Returns all users who is assigned with the resource.
-   * 
+   *
    * @param sess
    * @param resource
    * @return list of users
@@ -180,7 +180,7 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    */
   List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
-  
+
   /**
    * Assign group to a resource. Check if attributes for each member form group are valid. Fill members' attributes with missing value.
    *
@@ -200,42 +200,42 @@ public interface ResourcesManager {
 
   /**
    * Assign groups to a resource. Check if attributes for each member from all groups are valid. Fill members' attributes with missing values.
-   * 
+   *
    * @param perunSession
    * @param groups list of resources
    * @param resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws GroupNotExistsException
    * @throws ResourceNotExistsException
    * @throws WrongAttributeValueException
    * @throws WrongReferenceAttributeValueException
-   * @throws GroupAlreadyAssignedException 
+   * @throws GroupAlreadyAssignedException
    */
   void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
-  
+
   /**
    * Assign group to the resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
-   * 
+   *
    * @param perunSession
    * @param group the group
    * @param resources list of resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws GroupNotExistsException
    * @throws ResourceNotExistsException
    * @throws WrongAttributeValueException
    * @throws WrongReferenceAttributeValueException
-   * @throws GroupAlreadyAssignedException 
+   * @throws GroupAlreadyAssignedException
    */
   void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException;
-  
+
   /**
    * Remove group from a resource.
    * After removing, check attributes and fix them if it is needed.
-   * 
+   *
    * @param perunSession
    * @param group
    * @param resource
@@ -251,45 +251,45 @@ public interface ResourcesManager {
   /**
    * Remove groups from a resource.
    * After removing, check attributes and fix them if it is needed.
-   * 
+   *
    * @param perunSession
    * @param groups list of groups
    * @param resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws GroupNotExistsException
    * @throws ResourceNotExistsException
    * @throws GroupNotDefinedOnResourceException
-   * @throws GroupAlreadyRemovedFromResourceException 
+   * @throws GroupAlreadyRemovedFromResourceException
    */
-  void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException; 
- 
+  void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+
   /**
    * Remove group from the resources.
    * After removing, check attributes and fix them if it is needed.
-   * 
+   *
    * @param perunSession
    * @param groups list of groups
    * @param resources list of resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws GroupNotExistsException
    * @throws ResourceNotExistsException
    * @throws GroupNotDefinedOnResourceException
-   * @throws GroupAlreadyRemovedFromResourceException 
+   * @throws GroupAlreadyRemovedFromResourceException
    */
-  void removeGroupFromResources(PerunSession perunSession, Group groups, List<Resource> resources) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;   
-  
+  void removeGroupFromResources(PerunSession perunSession, Group groups, List<Resource> resources) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+
   /**
    * List all groups associated with the resource.
-   * 
+   *
    * @param perunSession
    * @param resource
-   * 
+   *
    * @return list of assigned group
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -298,48 +298,48 @@ public interface ResourcesManager {
 
   /**
    * List all resources associated with the group.
-   * 
+   *
    * @param perunSession
    * @param group
-   * 
+   *
    * @return list of assigned resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws GroupNotExistsException
    * @throws PrivilegeException
    */
   List<Resource> getAssignedResources(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
-  
+
   /**
    * List all rich resources associated with the group with facility property filled.
-   * 
+   *
    * @param perunSession
    * @param group
-   * 
+   *
    * @return list of assigned rich resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws GroupNotExistsException
    * @throws PrivilegeException
    */
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
-  
+
   /**
    * List all services associated with the resource.
-   * 
+   *
    * @param perunSession
    * @param resource
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
    * @return list of assigned resources
    */
   List<Service> getAssignedServices(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
-  
+
   /**
    * Assign service to resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @param service
@@ -355,7 +355,7 @@ public interface ResourcesManager {
 
   /**
    * Assign all services from services package to resouce.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @param servicesPackage
@@ -370,11 +370,11 @@ public interface ResourcesManager {
 
   /**
    * Remove service from resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @param service
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -385,18 +385,18 @@ public interface ResourcesManager {
 
   /**
    * Remove from resource all services from services package.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @param servicesPackage
-   * 
+   *
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
    * @throws ServicesPackageNotExistsException
    */
   void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException;
-  
+
   /**
    * Get all VO resources.
    *
@@ -422,7 +422,7 @@ public interface ResourcesManager {
    * @return list of rich resources
    */
   List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
-  
+
   /**
    * Get all VO resources count.
    *
@@ -439,11 +439,11 @@ public interface ResourcesManager {
 
   /**
    * Get all resources which have the member access on.
-   * 
+   *
    * @param sess
    * @param member
    * @return list of resources which have the member acess on
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws MemberNotExistsException
@@ -452,11 +452,11 @@ public interface ResourcesManager {
 
   /**
    * Get all resources where the member is assigned.
-   * 
+   *
    * @param sess
    * @param member
-   * @return 
-   * 
+   * @return
+   *
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws PrivilegeException
@@ -465,26 +465,26 @@ public interface ResourcesManager {
 
   /**
    * Get all resources where the member and the service are assigned.
-   * 
+   *
    * @param sess
    * @param member
    * @param service
    * @return list of resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws ServiceNotExistsException
    * @throws PrivilegeException
    */
   List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ServiceNotExistsException;
-  
+
   /**
    * Get all rich resources where the member is assigned with facility property filled.
-   * 
+   *
    * @param sess
    * @param member
    * @return list of rich resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws PrivilegeException
@@ -493,12 +493,12 @@ public interface ResourcesManager {
 
   /**
    * Get all rich resources where the service and the member are assigned with facility property filled.
-   * 
+   *
    * @param sess
    * @param member
-   * @param service 
+   * @param service
    * @return list of rich resources
-   * 
+   *
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws ServiceNotExistsException
@@ -517,49 +517,49 @@ public interface ResourcesManager {
    * @throws InternalErrorException
    */
   Resource updateResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException;
-  
+
   /**
-   * Create new Resource tag for the vo. 
-   * 
+   * Create new Resource tag for the vo.
+   *
    * @param perunSession
    * @param resourceTag
    * @param vo
    * @return new created resourceTag
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    * @throws PrivilegeException
-   * @throws VoNotExistsException 
+   * @throws VoNotExistsException
    */
   ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
-  
+
   /**
    * Update existing Resource tag.
-   * 
+   *
    * @param perunSession
    * @param resourceTag
    * @return updated ResourceTag
    * @throws InternalErrorException
    * @throws PrivilegeException
-   * @throws ResourceTagNotExistsException 
+   * @throws ResourceTagNotExistsException
    * @throws VoNotExistsException
    */
   ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, ResourceTagNotExistsException, VoNotExistsException;
-  
+
   /**
    * Delete existing Resource tag.
-   * 
+   *
    * @param perunSession
    * @param resourceTag
    * @throws InternalErrorException
    * @throws PrivilegeException
-   * @throws ResourceTagNotExistsException 
+   * @throws ResourceTagNotExistsException
    * @throws VoNotExistsException
    * @throws ResourceTagAlreadyAssignedException
    */
   void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, ResourceTagAlreadyAssignedException, ResourceTagNotExistsException, VoNotExistsException;
-  
+
   /**
    * Delete all ResourcesTags for specific VO.
-   * 
+   *
    * @param perunSession
    * @param vo
    * @throws InternalErrorException
@@ -568,10 +568,10 @@ public interface ResourcesManager {
    * @throws VoNotExistsException ¨
    */
   void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException,ResourceTagAlreadyAssignedException, PrivilegeException, VoNotExistsException;
-  
+
   /**
    * Assign existing ResourceTag on existing Resource.
-   * 
+   *
    * @param perunSession
    * @param resourceTag
    * @param resource
@@ -579,13 +579,13 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    * @throws ResourceTagNotExistsException
    * @throws ResourceNotExistsException
-   * @throws ResourceTagAlreadyAssignedException 
+   * @throws ResourceTagAlreadyAssignedException
    */
   void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException;
-  
+
   /**
    * Remove specific ResourceTag from existing Resource.
-   * 
+   *
    * @param perunSession
    * @param resourceTag
    * @param resource
@@ -593,13 +593,13 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    * @throws ResourceTagNotExistsException
    * @throws ResourceNotExistsException
-   * @throws ResourceTagNotAssignedException 
+   * @throws ResourceTagNotAssignedException
    */
   void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException;
-  
+
   /**
    * Remove all Resource tags for specific resource.
-   * 
+   *
    * @param perunSession
    * @param resource
    * @throws InternalErrorException
@@ -608,10 +608,10 @@ public interface ResourcesManager {
    * @throws VoNotExistsException
    */
   void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, VoNotExistsException, ResourceNotExistsException;
-  
+
   /**
    * Get all resources in specific Vo (specific by resourceTag.getVoId) for existing resourceTag
-   * 
+   *
    * @param perunSession
    * @param resourceTag
    * @return list of Resources
@@ -621,10 +621,10 @@ public interface ResourcesManager {
    * @throws ResourceTagNotExistsException ¨
    */
   List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, VoNotExistsException, ResourceTagNotExistsException;
-  
+
   /**
    * Get all resourcesTags for existing Vo.
-   * 
+   *
    * @param perunSession
    * @param vo
    * @return list of all resourcesTags for existing Vo
@@ -633,20 +633,20 @@ public interface ResourcesManager {
    * @throws VoNotExistsException ¨
    */
   List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
-  
+
   /**
    * Get all resourcesTags for existing Resource
-   * 
+   *
    * @param perunSession
    * @param resource
    * @return list of ResourcesTags
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
-   * @throws PrivilegeException 
+   * @throws PrivilegeException
    */
-  List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;  
+  List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
-   
+
  /**
   * Copy all attributes of the source resource to the destination resource.
   * The attributes, that are in the destination resource and aren't in the source resource, are retained.
@@ -666,9 +666,9 @@ public interface ResourcesManager {
    * Copy all services of the source resource to the destination resource.
    * The services, that are in the destination resource and aren't in the source resource, are retained.
    * The common services are replaced with the services from source resource.
-   * 
-   * @param sourceResource 
-   * @param destinationResource 
+   *
+   * @param sourceResource
+   * @param destinationResource
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -681,9 +681,9 @@ public interface ResourcesManager {
    * Copy all groups of the source resource to the destination resource.
    * The groups, that are in the destination resource and aren't in the source resource, are retained.
    * The common groups are replaced with the groups from source resource.
-   * 
-   * @param sourceResource 
-   * @param destinationResource 
+   *
+   * @param sourceResource
+   * @param destinationResource
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException

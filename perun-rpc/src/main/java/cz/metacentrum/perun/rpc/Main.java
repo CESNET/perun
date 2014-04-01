@@ -7,7 +7,7 @@ public class Main implements ServletContextListener {
 
   @Override
   public void contextDestroyed(ServletContextEvent arg0) {
-        
+
   }
 
   @Override

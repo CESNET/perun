@@ -35,10 +35,10 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "engineManager")
 public class EngineManagerImpl implements EngineManager {
@@ -150,13 +150,13 @@ public class EngineManagerImpl implements EngineManager {
         for (Task task : taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
             if(task.getStatus().equals(TaskStatus.DONE)) {
                 ExecService execService = task.getExecService();
-                
+
                 if(execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
                   task.setStatus(TaskStatus.NONE);
                   task.setEndTime(new Date(System.currentTimeMillis()));
                   taskManager.updateTask(task, Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
                 }
-            } else { 
+            } else {
                 if (!task.getStatus().equals(TaskStatus.ERROR) && !task.getStatus().equals(TaskStatus.NONE)) {
                     task.setStatus(TaskStatus.ERROR);
                     task.setEndTime(new Date(System.currentTimeMillis()));

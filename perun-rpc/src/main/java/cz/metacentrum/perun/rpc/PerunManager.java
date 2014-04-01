@@ -17,13 +17,13 @@ public enum PerunManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return RTMessagesManagerMethod.valueOf(methodName);
-    }  
+    }
   },
   searcher {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return SearcherMethod.valueOf(methodName);
-    }  
+    }
   },
   membersManager {
 
@@ -126,7 +126,7 @@ public enum PerunManager {
 		  return NotificationManagerMethod.valueOf(methodName);
 	  }
   };
-   
+
   protected abstract ManagerMethod getMethod(String methodName) throws IllegalArgumentException;
 
   public Object call(String methodName, ApiCaller ac, Deserializer parms) throws PerunException {

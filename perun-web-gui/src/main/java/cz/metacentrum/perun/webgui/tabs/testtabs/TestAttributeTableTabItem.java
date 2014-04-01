@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Inner tab item for shell change
  * User in: SelfResourcesSettingsTabItem
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -37,7 +37,7 @@ public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl{
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -50,33 +50,33 @@ public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl{
 	public TestAttributeTableTabItem(){}
 
 	public boolean isPrepared(){
-		return true;	
+		return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		PerunAttributeTableWidget.SaveEvent saveEvent = new PerunAttributeTableWidget.SaveEvent() {
-			
+
 			public void save(ArrayList<Attribute> attrs) {
-				
+
 				for(Attribute attr : attrs){
-					
+
 					session.getUiElements().setLogText("New value OK: " + attr.getValue().toString());
-					
+
 				}
-				
+
 			}
 		};
-		
+
 		PerunAttributeTableWidget table = new PerunAttributeTableWidget(null, saveEvent, false, listOfAttributes());
-		
+
 		this.contentWidget.setWidget(table);
-		
+
 		return getWidget();
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Prepares a list of attributes
 	 * @return
@@ -120,8 +120,8 @@ public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
-		
+
+
 		return true;
 	}
 
@@ -131,34 +131,34 @@ public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl{
 
 	public void open()
 	{
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 
 		return session.isPerunAdmin();
-		
+
 
 	}
-	
-	
+
+
 	public final static String URL = "attr-table";
-		
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
-		return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();	
+		return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
-	
+
+
 	static public TestAttributeTableTabItem load(Map<String, String> parameters)
 	{
 		return new TestAttributeTableTabItem();
 	}
 
-	
+
 }

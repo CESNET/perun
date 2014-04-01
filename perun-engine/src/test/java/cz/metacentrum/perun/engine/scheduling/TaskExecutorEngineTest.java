@@ -46,7 +46,7 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * @author Michal Karm Babacek
- * 
+ *
  *         Unfortunately, this test can not be transactional due to multi-threaded environment, hence it can not be rolled back. We have to clean up after ourselves...
  */
 @TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManagerPerunEngine")
@@ -651,7 +651,7 @@ public class TaskExecutorEngineTest extends BaseTest {
         }
         Thread.sleep(5000);
     }
-    
+
     @Test
     public void testGenerateError() throws OwnerNotExistsException, ServiceExistsException, InternalErrorException, PrivilegeException, InterruptedException {
         // Setup

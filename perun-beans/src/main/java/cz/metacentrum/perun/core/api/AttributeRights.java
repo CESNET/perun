@@ -15,12 +15,12 @@ public class AttributeRights {
      * ID of the attribute.
      */
     private int attributeId;
-    
+
     /**
      * Role, that specifies the users, who have the rights upon the attribute.
      */
     private Role role;
-    
+
     /**
      * List of all rights the role has upon the attribute.
      */

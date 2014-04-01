@@ -23,14 +23,14 @@ import java.util.Map;
 
 /**
  * Custom cell for Perun attributes
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute> {
 
     static private int cellsCount = 0;
-	
+
 	static public final String ADD_ICON = new Image(SmallIcons.INSTANCE.addIcon()).getElement().getString();
 	static public final String REMOVE_ICON = new Image(SmallIcons.INSTANCE.deleteIcon()).getElement().getString();
 
@@ -38,7 +38,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 												   + "<td><input onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" style=\"width:250px\" type=\"text\" class=\"list-item-value gwt-TextBox\" value=\"%s\" /></td>"
 												   + "<td class=\"PerunAttributeRemoveButton\"><button title=\""+ WidgetTranslation.INSTANCE.removeValue()+"\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); parent.change();\">" + REMOVE_ICON + "</button></td>"
 												   + "</tr>";
-	
+
 	static public final String MAP_ITEM_TABLE_ROW = "<tr %s>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-key gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
 	"<td>=</td>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-value gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"$(this).parents('.perunAttributeCell').focus();\" /></td>" +
 	"<td class=\"PerunAttributeRemoveButton\"><button title=\""+ WidgetTranslation.INSTANCE.removeValue()+"\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); parent.change(); \">" + REMOVE_ICON + "</button></td>" + "</tr>";
@@ -57,13 +57,13 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	/**
 	 * Construct a new PerunAttributeValueCell that will use a given
 	 * {@link SafeHtmlRenderer}.
-	 * 
+	 *
 	 * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
 	 */
 	public PerunAttributeValueCell(SafeHtmlRenderer<Attribute> renderer) {
 		super(renderer, "click", "change", "keydown", "blur", "focus");
 	}
-	
+
 	/**
 	 * Creates a new PerunAttributeValueCell with default renderer
 	 */
@@ -78,19 +78,19 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 					render(object, sb);
 					return sb.toSafeHtml();
 				}
-				
+
 				return SafeHtmlUtils.EMPTY_SAFE_HTML;
 			}
 
 			public void render(Attribute object, SafeHtmlBuilder sb) {
-				if (object != null) {			
+				if (object != null) {
 					String w = getWidget(object);
 					generateCode(sb, w, getUniqueCellId(object));
 				}
 			}
 		});
 	}
-	
+
 	/**
 	 * Renders the object
 	 */
@@ -100,7 +100,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	      sb.append(value);
 	    }
 	}
-	
+
 	/**
 	 * Allow editing of content
 	 */
@@ -108,58 +108,58 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	public boolean isEditing(com.google.gwt.cell.client.Cell.Context context, Element parent, Attribute value) {
 		return editing;
 	}
-	
+
 	@Override
 	public boolean dependsOnSelection() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean handlesSelection() {
 		return false;
 	}
-	
+
 	/**
 	 * Returns unique cell ID based on the attribute
 	 * @param attr
 	 * @return
 	 */
 	static private String getUniqueCellId(Attribute attr) {
-		
+
 		return "perunAttributeValueCell-" + attr.getGuiUniqueId();
-		
+
 	}
-	
+
 	/**
 	 * Generates the code to be included in the cell
-	 * 
+	 *
 	 * @param sb
 	 * @param widget
 	 * @param cellId unique cell id
 	 */
 	protected static void generateCode(SafeHtmlBuilder sb, String widget, String cellId) {
-		
+
 		if(widget == null || sb == null) {
 			return;
 		}
-		
+
 		sb.appendHtmlConstant("<div class=\"perunAttributeCell\" id=\"" + cellId + "\">");
 		sb.append(SafeHtmlUtils.fromTrustedString(widget));
 		sb.appendHtmlConstant("</div>");
-		
+
 	}
-	
+
 	/**
 	 * Called when a browser event occurs
 	 */
 	@Override
 	public void onBrowserEvent(Context context, Element parent, Attribute value, NativeEvent event, ValueUpdater<Attribute> valueUpdater) {
-		
+
 		if ("change".equals(event.getType())){
 			editing = false;
 			valueChanged(value, valueUpdater);
 		}
-		
+
 		// keydown event must be used for LIST and MAP elements
 		if ("keydown".equals(event.getType())) {
 			editing = true;
@@ -172,7 +172,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
                 editing = false;
 			}
 		}
-		
+
 		// blur and focus for STRING and INTEGER elements
 		if ("blur".equals(event.getType())) {
 			editing = false;
@@ -182,7 +182,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		}
 
 	}
-	
+
 	/**
 	 * Called a browser event occurs, saves the value
 	 */
@@ -191,15 +191,15 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		editing = false;
 		valueChanged(value, valueUpdater);
 	}
-	
+
 	/**
 	 * Setting the value and calling the updater
-	 * 
+	 *
 	 * @param value
 	 * @param valueUpdater
 	 */
 	private void valueChanged(Attribute value, ValueUpdater<Attribute> valueUpdater) {
-		
+
 		// if value OK
 		if(setNewValue(value)) {
 			value.setAttributeValid(true);
@@ -209,16 +209,16 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 			return;
 		}
 		valueUpdater.update(value); // update value if correct
-		
+
 	}
- 
+
 	/**
 	 * Sets the new value from cells
 	 * @param attr
 	 * @return True if success
 	 */
     private boolean setNewValue(Attribute attr) {
-    	
+
     	if(attr.getType().equals("java.util.LinkedHashMap")) {
     		return generateValueFromMap(attr, getUniqueCellId(attr));
 		}
@@ -228,11 +228,11 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
     	if(attr.getType().equals("java.util.ArrayList")) {
     		return generateValueFromList(attr, getUniqueCellId(attr));
 		}
-		    	
+
     	return generateValueFromString(attr, getUniqueCellId(attr));
-    	
-    }	
-    
+
+    }
+
     /**
 	 * Gets the attribute with the new value
 	 * @param attr
@@ -244,11 +244,11 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
     		attr.setValueAsJso(null);
     	}
     	return attr;
-    }	
-    
+    }
+
 	/**
 	 * Gets the value from TextBox and saves it to the object
-	 * 
+	 *
 	 * @param attr
 	 * @param uniqueId
 	 * @return true if success
@@ -266,21 +266,21 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		return true;
 
 	}-*/;
-	
+
 	/**
 	 * Gets the value from Number TextBox and saves it to the object
-	 * 
+	 *
 	 * @param attr
 	 * @param uniqueId
  	 * @return true if success
 	 */
 	private final native boolean generateValueFromNumber(Attribute attr, String uniqueId) /*-{
-	
+
 		// gets the value
 		var newValue = $wnd.jQuery("#" + uniqueId + " .numberbox-value").val().trim();
-	
+
 		// true on any number format, false otherwise
-		if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {   
+		if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
 			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
 			attr.value = parseInt(newValue);
 			return true;
@@ -300,7 +300,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 	/**
 	 * Gets the value from the list of TextBoxes and saves it to the object
-	 * 
+	 *
 	 * @param attr
 	 * @param uniqueId
 	 * @return true if success
@@ -324,37 +324,37 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		return true;
 
 	}-*/;
-	
-	
+
+
 	/**
 	 * Gets the value from the list of TextBoxes and saves it to the object
-	 * 
+	 *
 	 * @param attr
 	 * @param uniqueId
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromMap(Attribute attr, String uniqueId) /*-{
-		
+
 		attr.value = {};
-		
+
 		var i = 0;
-		
+
 		$wnd.jQuery("#" + uniqueId + " .map-entry").each(function(){
-			
+
 			var key = $wnd.jQuery(this).find(".map-entry-key").val().trim();
 			var tempval = $wnd.jQuery(this).find(".map-entry-value").val().trim();
-			
+
 			// necessary for CERTIFICATE VALUES
 			var val = tempval.replace(/\\n/g,'\n');
-			
+
 			if (key != "") {
 				if (key != "Enter new key first!") {
 					attr.value[key] = val;
 				}
 			}
-			
+
 			i++;
-			
+
 		});
         // if empty
         if (i == 0) {
@@ -371,27 +371,27 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 	 * @return HTML contents
 	 */
 	private static String getWidget(Attribute attr){
-		
+
 		if(attr.getType() == null){
 			return "type = null";
 		}
-		
+
 		if(attr.getType().equals("java.util.LinkedHashMap")){
 			return generateMap(attr.getValueAsMap(), attr.isWritable());
-		
+
 		}else if(attr.getType().equals("java.lang.Integer")){
 			return generateNumberBox(attr.getValue(), attr.isWritable());
 		}
 		else if(attr.getType().equals("java.util.ArrayList")){
 			return generateList(attr.getValueAsJsArray(), attr.isWritable());
 		}
-		
+
 		return generateTextBox(attr.getValue(), attr.isWritable());
 	}
-	
+
 	/**
 	 * TextBox
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -408,10 +408,10 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
         }
 
 	}
-	
+
 	/**
 	 * TextBox for number
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -428,25 +428,25 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
         }
 
 	}
-	
-	
+
+
 	/**
 	 * List of textboxes
-	 * 
+	 *
 	 * @param list
 	 * @return
 	 */
 	private static String generateList(JsArrayString list, boolean writable){
-		
+
 		String output = "<table class=\"PerunAttributeTableBorder\" >";
-		
+
 		if (list != null) { // check for emptiness
 
 			for(int i = 0; i < list.length(); i++)
 			{
 				String val = list.get(i);
 				if(val == null){
-					val = "";				
+					val = "";
 				}
 
                 if (writable) {
@@ -457,7 +457,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
 
 			}
-			
+
 		}
 
 		// source for others
@@ -475,17 +475,17 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 		output += "</table>";
 		return output;
 	}
-	
+
 	/**
 	 * List of mapped textboxes
-	 * 
+	 *
 	 * @param map
 	 * @return
 	 */
 	private static String generateMap(Map<String, JSONValue> map, boolean writable){
 
 		String output = "<table class=\"PerunAttributeTableBorder\" >";
-		
+
 		// source for others
         if (writable) {
             output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, " style=\"display:none;\" class=\"attribute-map-item-source\"", "Enter new key first!", "Then enter new value.");
@@ -503,7 +503,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 			}
 			// convert them back to actually display them as \n without JSON default toString() malforming
 			str = sb.toSafeHtml().asString().replace("<br>", "\\n");
-			
+
 			// add slash to " in key
 			key = SafeHtmlUtils.htmlEscape(key);
 
@@ -524,7 +524,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<cz.metacentrum
 
         output += "</tr>";
 		output += "</table>";
-		
+
 		return output;
 
 	}

@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotExistsRuntimeExce
 
 /**
  * Attribute not exists in underlaying data source.
- * 
+ *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class AttributeNotExistsException extends EntityNotExistsException {

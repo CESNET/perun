@@ -27,9 +27,9 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Synchronizer, general tool for synchronization tasks.
- * 
+ *
  * @author Michal Prochazka <michalp@ics.muni.cz>
- * 
+ *
  */
 public class Synchronizer {
 
@@ -108,9 +108,9 @@ public class Synchronizer {
 	  } catch (InternalErrorException e) {
 		  log.error("Synchronizer: checkMembersState", e);
 	  } catch (AttributeNotExistsException e) {
-		  log.warn("Synchronizer: checkMembersState, member doesn't have membershipExpiration attribute set.");    
+		  log.warn("Synchronizer: checkMembersState, member doesn't have membershipExpiration attribute set.");
 	  } catch (WrongAttributeAssignmentException e) {
-		  log.error("Synchronizer: checkMembersState", e);    
+		  log.error("Synchronizer: checkMembersState", e);
 	  } catch (ParseException e) {
 		  log.error("Synchronizer: checkMembersState", e);
 	  }

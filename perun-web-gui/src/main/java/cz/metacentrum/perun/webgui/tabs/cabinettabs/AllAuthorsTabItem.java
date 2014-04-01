@@ -18,9 +18,9 @@ import java.util.Map;
 
 /**
  * Tab for viewing all authors in Perun system
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
@@ -29,28 +29,28 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Authors");
-	
+
 	/**
 	 * Creates a tab instance
      */
 	public AllAuthorsTabItem(){
 	}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
 
-	
+
 	public Widget draw() {
 
 		VerticalPanel vp = new VerticalPanel();
@@ -65,19 +65,19 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 				}
 			}
 		});
-		
+
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel();
 		sp.add(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
-		vp.add(sp);   
+		vp.add(sp);
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
-				
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -90,7 +90,7 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userRedIcon(); 
+		return SmallIcons.INSTANCE.userRedIcon();
 	}
 
 
@@ -113,7 +113,7 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 
 		return true;
 	}
@@ -121,16 +121,16 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -138,20 +138,20 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "authors";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public AllAuthorsTabItem load(Map<String, String> parameters)
 	{
 		return new AllAuthorsTabItem();
 	}
-	
+
 }

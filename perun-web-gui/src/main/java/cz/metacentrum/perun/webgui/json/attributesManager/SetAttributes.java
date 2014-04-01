@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * Ajax query which sets attributes with a new value
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -55,7 +55,7 @@ public class SetAttributes {
 
 	/**
 	 * Attempts to set new value for some attributes
-	 * 
+	 *
 	 * @param ids defines which type of attribute will be set (member, user, member_resource, etc.)
 	 * @param attributes list of attributes with a new value
 	 */
@@ -68,7 +68,7 @@ public class SetAttributes {
 		// test arguments
 		if(!this.testSetting()){
 			return;
-		}	
+		}
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
@@ -96,7 +96,7 @@ public class SetAttributes {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testSetting()
@@ -108,7 +108,7 @@ public class SetAttributes {
 			errorMsg += "Wrong attribute type value.\n";
 			result = false;
 		}
-		
+
 		// silent skip - used by save changes buttons on attributes pages
 		if (attributes == null || attributes.isEmpty()) {
 			result = false;
@@ -129,7 +129,7 @@ public class SetAttributes {
 	private JSONObject prepareJSONObject(){
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();     
+		JSONObject jsonQuery = new JSONObject();
 
 		// create attrs field
 		JSONArray array = new JSONArray();
@@ -141,7 +141,7 @@ public class SetAttributes {
 			if (attributes.get(i).getValue() == null || attributes.get(i).getValue().equalsIgnoreCase("")){
 				continue;
 			}
-			
+
 			// create Json object from attribute
 			JSONObject attr = new JSONObject(attributes.get(i));
 
@@ -154,7 +154,7 @@ public class SetAttributes {
 			JSONValue value = attr.get("value");
             JSONValue displayName = attr.get("displayName");
 
-			// create new Attribute jsonObject 
+			// create new Attribute jsonObject
 			JSONObject newAttr = new JSONObject();
 			newAttr.put("value", value);
 			newAttr.put("id", id);
@@ -178,10 +178,10 @@ public class SetAttributes {
 		return jsonQuery;
 
 	}
-	
+
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {

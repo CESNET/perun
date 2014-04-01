@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to Force service propagation on selected Facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ForceServicePropagation {
@@ -42,7 +42,7 @@ public class ForceServicePropagation {
 
 	/**
 	 * Starts Force service propagation for specified service and facility
-	 * 
+	 *
 	 * @param facilityId ID of facility to propagate service to
 	 * @param serviceId ID of service to be propagated
 	 */
@@ -86,7 +86,7 @@ public class ForceServicePropagation {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return boolean true if correct / false otherwise
 	 */
 	private boolean testArguments()

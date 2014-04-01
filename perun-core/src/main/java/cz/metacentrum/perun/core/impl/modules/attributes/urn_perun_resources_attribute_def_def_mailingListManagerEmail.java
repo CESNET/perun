@@ -19,17 +19,17 @@ import java.util.ArrayList;
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
 public class urn_perun_resources_attribute_def_def_mailingListManagerEmail {
-    
+
     public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException{
         if (attribute.getValue() == null) {
             throw new WrongAttributeValueException(attribute, "Attribute value is null.");
         }
-        
+
         perunSession.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(perunSession, (String)attribute.getValue());
-        
-        
+
+
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 @SuppressWarnings("serial")
 /**
  * Checked RPC exception.
- * 
+ *
  * @author Jan Klos <ddd@mail.muni.cz>
  * @since 0.1
  */
@@ -88,7 +88,7 @@ public class RpcException extends InternalErrorException {
     public RpcException(String type, String errorInfo) {
       this(RpcException.Type.valueOf(type), errorInfo, null);
     }
-    
+
     /**
      * @return type of the error.
      */

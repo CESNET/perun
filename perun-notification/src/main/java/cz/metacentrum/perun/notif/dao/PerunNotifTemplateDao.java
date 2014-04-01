@@ -23,7 +23,7 @@ public interface PerunNotifTemplateDao {
 	/**
 	 * Updates only data of template
 	 * @param template
-	 * @return 
+	 * @return
 	 */
 	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) throws InternalErrorException;
 

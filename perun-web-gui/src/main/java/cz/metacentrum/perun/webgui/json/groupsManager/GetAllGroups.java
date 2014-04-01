@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get all groups in VO
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -72,7 +72,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param id ID of VO for which we want groups for
 	 * @param events external events
 	 */
@@ -83,7 +83,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 	/**
 	 * Returns table with groups in hierarchical structure and with custom field updater
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return table widget
 	 */
@@ -115,16 +115,16 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 
 		// Cell table
 		table = new PerunTable<Group>(list);
-		
+
 		table.setHyperlinksAllowed(false);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Group> columnSortHandler = new ListHandler<Group>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Group> createCheckboxManager());
 
@@ -145,13 +145,13 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 				return object;
 			}
 		};
-		
+
 
 		// updates the columns size
 		table.setColumnWidth(checkBoxColumn, 40.0, Unit.PX);
 
 		// Add the columns
-		
+
 		// Checkbox column header
 		CheckboxCell cb = new CheckboxCell();
 		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
@@ -159,12 +159,12 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 				return false;//return true to see a checked checkbox.
 			}
 		};
-		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {	
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
 			public void update(Boolean value) {
 				// sets selected to all, if value = true, unselect otherwise
 				for(Group obj : list){
 					if (!obj.isCoreGroup()) {
-						selectionModel.setSelected(obj, value);	
+						selectionModel.setSelected(obj, value);
 					}
 				}
 			}
@@ -183,11 +183,11 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 			public String getStyleNames(Group row, int rowIndex) {
 				if (row.isCoreGroup()) {
 					return "bold";
-				} 
+				}
 				return "";
 			}
 		});
-		
+
 		return table;
 	}
 
@@ -320,7 +320,7 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
 	}
-	
+
 	public void filterTable(String text){
 
 		// store list only for first time
@@ -368,11 +368,11 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
-	
+
 	public void setCoreGroupsCheckable(boolean checkable) {
 		coreGroupsCheckable = checkable;
 	}
-	
+
 	public void setEvents(JsonCallbackEvents events) {
 		this.events = events;
 	}
@@ -384,5 +384,5 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
     public MultiSelectionModel<Group> getSelectionModel() {
         return this.selectionModel;
     }
-	
+
 }

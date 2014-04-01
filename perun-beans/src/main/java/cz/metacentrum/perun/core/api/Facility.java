@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Class represents facility.
- * 
+ *
  * @author  Michal Prochazka
  */
 public class Facility extends Auditable implements Comparable<Facility> {
@@ -27,7 +27,7 @@ public class Facility extends Auditable implements Comparable<Facility> {
     this(id, name);
     this.type = type;
   }
-  
+
   public Facility(int id, String name, String type, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.name = name;
@@ -68,7 +68,7 @@ public class Facility extends Auditable implements Comparable<Facility> {
     ", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
     ']';
   }
-  
+
   @Override
   public String toString() {
     return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + name + "', type='" + type + "']";
@@ -101,7 +101,7 @@ public class Facility extends Auditable implements Comparable<Facility> {
       return false;
     return true;
   }
-  
+
   @Override
   public int compareTo(Facility facility) {
     if (facility == null || this.name == null) throw new InternalErrorRuntimeException(new NullPointerException("Facility facility or name"));

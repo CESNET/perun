@@ -26,9 +26,9 @@ import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "systemQueueProcessor")
 public class SystemQueueProcessor {
@@ -94,7 +94,7 @@ public class SystemQueueProcessor {
 			// If unable to connect to the server...
 			log.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host[" + propertiesBean.getProperty("dispatcher.ip.address") + "] on port["
 					+ propertiesBean.getProperty("dispatcher.port") + "] ? \nSee: dispatcher-config.properties. We gonna wait 5 sec and try again...", e);
-			
+
 			throw new RuntimeException(e);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -161,7 +161,7 @@ public class SystemQueueProcessor {
 			if (dispatcherQueue != null) {
 
 				smartMatcher.reloadRulesFromDBForEngine(clientID);
-				
+
 				// No, we have to create the whole JMS queue and load matching
 				// rules...
 			} else {

@@ -20,46 +20,46 @@ public class ResourceTag extends JavaScriptObject {
 	public final native String getName() /*-{
 		return this.tagName;
 	}-*/;
-	
+
 	public final native void setName(String newName) /*-{
 		this.tagName = newName;
 	}-*/;
-	
+
 	public final native int getVoId() /*-{
 		return this.voId;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -67,6 +67,6 @@ public class ResourceTag extends JavaScriptObject {
 	 */
 	public final boolean equals(ResourceTag o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 }

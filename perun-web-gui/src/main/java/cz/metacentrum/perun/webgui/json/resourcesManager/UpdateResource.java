@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.Resource;
 
 /**
  * Update resource details
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateResource {
@@ -45,12 +45,12 @@ public class UpdateResource {
 	 * @param res Resource with updated details
 	 */
 	public void updateResource(Resource res) {
-		
+
 		if (res == null) {
 			Window.alert("Resource can't be null");
 			return;
 		}
-		
+
 		// GROUP OBJECT
 		JSONObject oldResource = new JSONObject(res);
 		// RECONSTRUCT OBJECT
@@ -65,7 +65,7 @@ public class UpdateResource {
 		newResource.put("createdBy", oldResource.get("createdBy"));
 		newResource.put("modifiedAt", oldResource.get("modifiedAt"));
 		newResource.put("modifiedBy", oldResource.get("modifiedBy"));
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("resource", newResource);
@@ -91,7 +91,7 @@ public class UpdateResource {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-		
+
 	}
 
 }

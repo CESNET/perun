@@ -36,46 +36,46 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
         owner = perun.getOwnersManager().createOwner(sess, owner);
 
 		List<Owner> owners = perunService.findAllOwners(sess);
-		
+
 		assertNotNull(owners);
 		assertTrue(owners.size() > 0);
         assertTrue(owners.contains(owner));
 
 	}
-	
+
 	@Test
 	public void findUserByNameIntegrationTest() throws Exception {
 		System.out.println("findLoginNamespacesByUserIntegrationTest()");
-		
+
 		List<User> users = perun.getUsersManager().findUsersByName(sess, "", "", "", "cabinetTestUser", "");
 		assertNotNull(users);
-		
+
 	}
-	
+
 	@Test
 	public void findAuthorById() throws Exception {
 		System.out.println("findAuthorById()");
-		
+
 		Author auth = authorService.findAuthorByUserId(USER_ID);
 		assertNotNull(auth);
 
 	}
-	
+
 	@Test
 	public void getAuthorsCount() throws Exception {
 		System.out.println("getAuthorsCount()");
-		
+
 		int count = perunService.getUsersCount(sess);
 		assertTrue("Authors count should be > 0", count > 0);
-		
+
 	}
-		
+
 	// setters -------------------------------------------
-	
+
 	public void setPerunService(IPerunService perunService) {
 		this.perunService = perunService;
 	}
-	
+
 	public void setAuthorService(IAuthorService authorService) {
 		this.authorService = authorService;
 	}

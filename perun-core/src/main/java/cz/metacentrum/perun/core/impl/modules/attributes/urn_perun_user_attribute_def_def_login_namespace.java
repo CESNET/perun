@@ -21,7 +21,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 
 /**
  * Class for checking login's uniqueness in the namespace
- * 
+ *
  * @author Michal Prochazka  &lt;michalp@ics.muni.cz&gt;
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  * @date 3.6.2011 11:02:22
@@ -29,25 +29,25 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 public class urn_perun_user_attribute_def_def_login_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
   private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
-  
+
   /**
    * Checks if the user's login is unique in the namespace
    * organization
    */
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
-      
+
       String userLogin = (String) attribute.getValue();
       if (userLogin == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
-      if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected."); 
-      
+      if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
+
       // Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
-      List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);      
+      List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
       usersWithSameLogin.remove(user); //remove self
       if (!usersWithSameLogin.isEmpty()) {
         if(usersWithSameLogin.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated Login detected." +  attribute + " " + usersWithSameLogin);
         throw new WrongAttributeValueException(attribute, "This login " + attribute.getValue() + " is already occupied.");
       }
-      
+
       try {
           sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin);
       } catch (AlreadyReservedLoginException ex) {
@@ -62,7 +62,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
     public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
       return new Attribute(attribute);
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

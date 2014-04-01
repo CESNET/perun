@@ -6,7 +6,7 @@ use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction printTable);
 use Text::ASCIITable;
-use Switch; 
+use Switch;
 
 sub help {
 return qq{
@@ -23,7 +23,7 @@ Available options:
 my (@destinations);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-   'destinations|d=s@{1,}' => \@destinations) || die help(); 
+   'destinations|d=s@{1,}' => \@destinations) || die help();
 
 # Check options
 unless (@destinations) { die "ERROR: at least one destination must be specified\n";}

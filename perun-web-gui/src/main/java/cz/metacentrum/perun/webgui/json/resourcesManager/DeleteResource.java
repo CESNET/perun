@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query for deleting resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -42,7 +42,7 @@ public class DeleteResource {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting()
@@ -64,7 +64,7 @@ public class DeleteResource {
 
 	/**
 	 * Attempts to delete resource, it first tests the values and then submits them
-	 * 
+	 *
 	 * @param resourceId ID of resource to be deleted
 	 */
 	public void deleteResource(final int resourceId) {

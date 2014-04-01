@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 use Perun::beans::Destination;
 
 sub help {
@@ -30,12 +30,12 @@ GetOptions("help|h" => sub { print help; exit 0; } ,
            "facilityType|t=s" => \$facilityType,
            "serviceId|s=i" => \$serviceId,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check
-unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType are required\n";} 
-unless(defined $serviceId) { die "ERROR: serviceId required\n";} 
+unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType are required\n";}
+unless(defined $serviceId) { die "ERROR: serviceId required\n";}
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();

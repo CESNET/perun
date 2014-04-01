@@ -9,7 +9,7 @@
 			<param key="host" value="${perun.dispatcher.hornetq.remoting.netty.host:}" />
 			<param key="port" value="${perun.dispatcher.hornetq.remoting.netty.port:}" />
 		</connector>
-	</connectors>	
+	</connectors>
 
 	<acceptors>
 		<acceptor name="netty-acceptor">

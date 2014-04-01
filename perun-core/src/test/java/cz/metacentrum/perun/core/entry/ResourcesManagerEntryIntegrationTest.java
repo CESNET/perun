@@ -97,7 +97,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		System.out.println("ResourcesManager.createResourceWhenFacilityNotExists");
 
 		vo = setUpVo();
-                
+
 		Resource resource = new Resource();
 		resource.setName("ResourcesManagerTestResource2");
 		resource.setDescription("Testovaci2");
@@ -554,7 +554,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertTrue("there should have been only 1 assigned resource",resources.size() == 1);
 		assertTrue("our resource should be in our resource list",resources.contains(resource));
 	}
-        
+
         @Test
 	public void getAssignedRichResourcesForMember() throws Exception {
 		System.out.println("ResourcesManager.getAssignedRichResourcesForMember");
@@ -574,12 +574,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
                 resourcesManager.assignGroupToResource(sess, group, sndResource);
                 // but only one of them assign to the service
                 resourcesManager.assignService(sess, resource, service);
-                
+
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
 		assertTrue("there should have been only 1 assigned rich resource",resources.size() == 1);
 		assertTrue("our rich resource should be in our resource list",resources.contains(richResource));
 	}
-        
+
 	@Test
 	public void assignService() throws Exception {
 		System.out.println("ResourcesManager.assignService");
@@ -916,7 +916,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
         assertTrue("Resource with tag is not returned by same tag", resources.contains(resource));
 
     }
-    
+
     @Test
     public void copyAttributes() throws Exception {
         System.out.println("ResourcesManager.copyAttributes");
@@ -955,48 +955,48 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
         assertTrue(destinationAttributes.contains(secondAttribute));
         assertTrue(destinationAttributes.contains(thirdAttribute));
     }
-    
+
     @Test
     public void copyServices() throws Exception {
         System.out.println("ResourcesManager.copyServices");
-        
+
         vo = setUpVo();
         facility = setUpFacility();
         resource = setUpResource();
         service = setUpService();
         resourcesManager.assignService(sess, resource, service);
-        
+
         // set up second resource
         Resource newResource = new Resource();
         newResource.setName("SecondResource");
         newResource.setDescription("pro kopirovani");
         Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
-        
+
         resourcesManager.copyServices(sess, resource, secondResource);
-        
+
         //test
         assertTrue(resourcesManager.getAssignedServices(sess, secondResource).contains(service));
     }
-    
+
     @Test
     public void copyGroups() throws Exception {
         System.out.println("ResourcesManager.copyGroups");
-        
+
         vo = setUpVo();
         facility = setUpFacility();
         resource = setUpResource();
         member = setUpMember(vo);
         group = setUpGroup(vo, member);
         resourcesManager.assignGroupToResource(sess, group, resource);
-        
+
         // set up second resource
         Resource newResource = new Resource();
         newResource.setName("SecondResource");
         newResource.setDescription("pro kopirovani");
         Resource secondResource = resourcesManager.createResource(sess, newResource, vo, facility);
-        
+
         resourcesManager.copyGroups(sess, resource, secondResource);
-        
+
         //test
         assertTrue(resourcesManager.getAssignedGroups(sess, secondResource).contains(group));
     }
@@ -1138,7 +1138,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
                 attribute.setValue("Testing value");
                 return attribute;
         }
-        
+
         private Attribute setUpAttribute2() throws Exception {
                 AttributeDefinition attrDef = new AttributeDefinition();
                 attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
@@ -1150,7 +1150,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
                 attribute.setValue("Testing value for second attribute");
                 return attribute;
         }
-        
+
         private Attribute setUpAttribute3() throws Exception {
                 AttributeDefinition attrDef = new AttributeDefinition();
                 attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

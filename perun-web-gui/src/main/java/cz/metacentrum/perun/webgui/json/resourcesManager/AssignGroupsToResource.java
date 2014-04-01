@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which Assigns group to resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AssignGroupsToResource {
@@ -47,7 +47,7 @@ public class AssignGroupsToResource {
 
 	/**
 	 * Attempts to assign groups to resource
-	 * 
+	 *
 	 * @param groups groups which should be assigned
 	 * @param resource resource where should be assigned
 	 */
@@ -82,11 +82,11 @@ public class AssignGroupsToResource {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAssigning() {
@@ -113,7 +113,7 @@ public class AssignGroupsToResource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

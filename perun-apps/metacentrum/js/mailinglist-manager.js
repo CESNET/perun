@@ -51,7 +51,7 @@ $(document).ready(function(){
       table.addColumn("actionUrl", "Operation");
       table.add(resources);
       var tableHtml = table.draw();
-      $("#mailinglists-table").html(tableHtml);    
+      $("#mailinglists-table").html(tableHtml);
 
 });
 

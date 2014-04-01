@@ -13,7 +13,7 @@ class StreamGobbler extends Thread {
     private InputStream is;
     private StringBuilder sb;
     private final static Logger log = LoggerFactory.getLogger(StreamGobbler.class);
-    
+
     StreamGobbler(InputStream is) {
         super("StreamGobbler");
         this.sb = new StringBuilder();
@@ -22,8 +22,8 @@ class StreamGobbler extends Thread {
 
     public String getSb() {
         return sb.toString();
-    }   
-    
+    }
+
     public void run() {
         BufferedReader br = null;
         try {
@@ -33,9 +33,9 @@ class StreamGobbler extends Thread {
             while ( (line = br.readLine()) != null) {
                 this.sb.append(line);
                 this.sb.append("\n");
-            }   
+            }
          } catch (IOException e) {
-             e.printStackTrace();  
+             e.printStackTrace();
          } finally {
             try {
                 if (br != null) {

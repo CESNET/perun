@@ -6,7 +6,7 @@ import cz.metacentrum.perun.webgui.client.localization.ObjectTranslation;
 
 /**
  * Overlay type for registrar: Application
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -15,8 +15,8 @@ public class Application extends JavaScriptObject {
 	protected Application() {}
 
 	/**
-	 * Creates the new application 
-	 * 
+	 * Creates the new application
+	 *
 	 * @param type
 	 * @param fedInfo
 	 * @param actor
@@ -28,7 +28,7 @@ public class Application extends JavaScriptObject {
 	{
 
 		Application app = new JSONObject().getJavaScriptObject().cast();
-		
+
 		// reconstruct vo to be safe when loading it by attrs in registrar
 		VirtualOrganization newVo = new JSONObject().getJavaScriptObject().cast();
 		newVo.setId(vo.getId());
@@ -46,9 +46,9 @@ public class Application extends JavaScriptObject {
 		app.setExtSourceLoa(extSourceLoa);
 		return app;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Get ID
 	 * @return id
@@ -56,7 +56,7 @@ public class Application extends JavaScriptObject {
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	/**
 	 * Get vo
 	 * @return vo
@@ -64,7 +64,7 @@ public class Application extends JavaScriptObject {
 	public final native VirtualOrganization getVo() /*-{
 		return this.vo;
 	}-*/;
-	
+
 	/**
 	 * Set vo
 	 * @param vo
@@ -72,7 +72,7 @@ public class Application extends JavaScriptObject {
 	public final native void setVo(VirtualOrganization vo) /*-{
 		this.vo = vo;
 	}-*/;
-	
+
 	/**
 	 * Get Group
 	 * @return group
@@ -80,7 +80,7 @@ public class Application extends JavaScriptObject {
 	public final native Group getGroup() /*-{
 		return this.group;
 	}-*/;
-	
+
 	/**
 	 * Set Group
 	 * @param grp group
@@ -96,7 +96,7 @@ public class Application extends JavaScriptObject {
 	public final native String getType() /*-{
 		return this.type;
 	}-*/;
-	
+
 	/**
 	 * Set type
 	 */
@@ -111,7 +111,7 @@ public class Application extends JavaScriptObject {
 	public final native String getState() /*-{
 		return this.state;
 	}-*/;
-	
+
 	/**
 	 * Set state
 	 */
@@ -156,14 +156,14 @@ public class Application extends JavaScriptObject {
 	public final native String getFedInfo() /*-{
 		return this.fedInfo;
 	}-*/;
-	
+
 	/**
 	 * Set fedInfo
 	 */
 	public final native void setFedInfo(String fedInfo) /*-{
 		this.fedInfo = fedInfo;
 	}-*/;
-	
+
 	/**
 	 * Get extSourceName
 	 * @return extSourceName
@@ -171,14 +171,14 @@ public class Application extends JavaScriptObject {
 	public final native String getExtSourceName() /*-{
 		return this.extSourceName;
 	}-*/;
-	
+
 	/**
 	 * Set extSourceName
 	 */
 	public final native void setExtSourceName(String extSourceName) /*-{
 		this.extSourceName = extSourceName;
 	}-*/;
-	
+
 	/**
 	 * Get extSourceType
 	 * @return extSourceType
@@ -186,14 +186,14 @@ public class Application extends JavaScriptObject {
 	public final native String getExtSourceType() /*-{
 		return this.extSourceType;
 	}-*/;
-	
+
 	/**
 	 * Set extSourceType
 	 */
 	public final native void setExtSourceType(String extSourceType) /*-{
 		this.extSourceType = extSourceType;
 	}-*/;
-	
+
 	/**
 	 * Get user
 	 * @return user
@@ -201,7 +201,7 @@ public class Application extends JavaScriptObject {
 	public final native User getUser() /*-{
 		return this.user;
 	}-*/;
-	
+
 	/**
 	 * Set user
 	 * @param user
@@ -209,7 +209,7 @@ public class Application extends JavaScriptObject {
 	public final native void setUser(User user) /*-{
 		this.user = user;
 	}-*/;
-	
+
 	/**
 	 * Get ext source loa
 	 * @return loa
@@ -217,7 +217,7 @@ public class Application extends JavaScriptObject {
 	public final native int getExtSourceLoa() /*-{
 		return this.extSourceLoa;
 	}-*/;
-	
+
 	/**
 	 * Set ext source loa
 	 * @param loa
@@ -233,38 +233,38 @@ public class Application extends JavaScriptObject {
     public final native String getModifiedBy() /*-{
 		return this.modifiedBy;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -272,7 +272,7 @@ public class Application extends JavaScriptObject {
 	 */
 	public final boolean equals(Application o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 
     /**

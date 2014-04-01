@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which adds ext source to VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -34,7 +34,7 @@ public class AddExtSource {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public AddExtSource(final JsonCallbackEvents events) {
@@ -43,7 +43,7 @@ public class AddExtSource {
 
 	/**
 	 * Attempts to add external source to VO in DB - make RPC call
-	 * 
+	 *
 	 * @param voId ID of VO, where should be ext source added
 	 * @param extSourceId ID of external source to be added
 	 */
@@ -83,16 +83,16 @@ public class AddExtSource {
 		// create request
 		JsonPostClient request = new JsonPostClient(newEvents);
 		request.sendData(JSON_URL, jsonQuery);
-		
-	}	
+
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding() {
-		
+
 		boolean result = true;
 		String errorMsg = "";
 
@@ -115,14 +115,14 @@ public class AddExtSource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("source", new JSONNumber(extSourceId));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("source", new JSONNumber(extSourceId));
 		jsonQuery.put("vo", new JSONNumber(voId));
 		return jsonQuery;
 	}

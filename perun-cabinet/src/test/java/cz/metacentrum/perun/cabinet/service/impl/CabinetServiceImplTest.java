@@ -15,7 +15,7 @@ import cz.metacentrum.perun.cabinet.service.ErrorCodes;
 import cz.metacentrum.perun.cabinet.service.ICabinetService;
 
 public class CabinetServiceImplTest extends BaseIntegrationTest {
-	
+
 	private ICabinetService cabinetService;
 
 	@Autowired
@@ -42,13 +42,13 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 			}
 		}
 		assertTrue("There should be some publications returned", pubs != null && !pubs.isEmpty());
-		
+
 	}
-	
+
 	@Test
     public void findPublicationsInPubSysZCUTest() throws Exception {
 		System.out.println("findPublicationsInPubSysZCUTest()");
-		
+
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {
 
@@ -63,7 +63,7 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 			}
 		}
 		assertTrue("There should be some publications returned", pubs != null && !pubs.isEmpty());
-		
+
 	}
-	
+
 }

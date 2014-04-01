@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to validates member asynchronously (should be called when member is created from GUI)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -43,9 +43,9 @@ public class ValidateMemberAsync {
 
 	/**
 	 * Attempts to create member in VO from candidate
-	 * 
+	 *
 	 * @param member
-	 * 
+	 *
 	 */
 	public void validateMemberAsync(final Member member)
 	{
@@ -78,11 +78,11 @@ public class ValidateMemberAsync {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -110,10 +110,10 @@ public class ValidateMemberAsync {
 	private JSONObject prepareJSONObject() {
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();    
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("member", new JSONNumber(member.getId()));
 		return jsonQuery;
-		
+
 	}
 
 }

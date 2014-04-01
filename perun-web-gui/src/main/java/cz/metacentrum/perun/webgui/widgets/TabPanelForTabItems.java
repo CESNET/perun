@@ -15,7 +15,7 @@ import java.util.ArrayList;
 /**
  * TabPanel extension for including TabItems
  * Automatically handles drawing and resizing
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class TabPanelForTabItems extends TabLayoutPanel {
@@ -24,7 +24,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 * Default tab size
 	 */
 	static private double DEFAULT_SIZE_PX = 33;   // when changed, update CSS property ".smallTabPanel .gwt-TabLayoutPanelTabs"
-	
+
 	/**
 	 * Tab items
 	 */
@@ -34,18 +34,18 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 * Simple panels which contains the tabs
 	 */
 	private ArrayList<SimplePanel> innerTabsSimplePanels = new ArrayList<SimplePanel>();
-	
+
 	/**
 	 * Last selected item (used when refresing)
 	 */
 	private int lastTabId = 0;
-	
+
 	/**
 	 * Whether adding finished
 	 */
 	private boolean addingFinished = false;
     private PerunWebSession session = PerunWebSession.getInstance();
-		
+
 
 	/**
 	 * Creates a new "smallTabPanel" for including TabItems.
@@ -58,7 +58,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	{
 		this(parentTab, DEFAULT_SIZE_PX, Unit.PX);
 	}
-	
+
 	/**
 	 * Creates a new "smallTabPanel" for including TabItems.
 	 * Automatically handles drawing and resizing
@@ -76,27 +76,27 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 		// styles, resizing
 		this.addStyleName("smallTabPanel");
         session.getUiElements().resizeSmallTabPanel(this, 100, parentTab);
-		
-		// selection handler draws the tab 
+
+		// selection handler draws the tab
 		this.addSelectionHandler(new SelectionHandler<Integer>() {
 			public void onSelection(SelectionEvent<Integer> event) {
-				
+
 				// adding finished?
 				if(!addingFinished)
 				{
 					return;
 				}
-				
+
 				int i = event.getSelectedItem();
 				runOnSelectEvent(i);
 			}
 		});
-		
+
 		// if parent resized, must resize active widget
 		UiElements.addResizeCommand(new Command() {
-			
+
 			public void execute() {
-				
+
 				// adding finished?
 				if(!addingFinished)
 				{
@@ -104,29 +104,29 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 				}
 
 				int i = getLastTabId();
-				
+
 				// check size
 				if(innerTabs.size() < (i + 1))
 				{
 					return;
 				}
-				
+
 				// retrieves the tab item
 				TabItem tab = innerTabs.get(i);
-				
+
 				// check null
 				if(tab == null){
 					return;
 				}
-				
+
 				UiElements.runResizeCommands(tab);
 			}
 		}, parentTab);
-		
-		
+
+
 	}
-	
-	
+
+
 	/**
 	 * Adds a new tab to the panel
 	 *
@@ -141,7 +141,7 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 		super.add(sp, caption);
         sp.addStyleName("smallTabPanel");
 	}
-	
+
 	/**
 	 * Clears the tab panel keeping last ID
 	 */
@@ -152,11 +152,11 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 		innerTabs.clear();
 		innerTabsSimplePanels.clear();
 	}
-	
-	
+
+
 	/**
-	 * Sets the last selected tab 
-	 * 
+	 * Sets the last selected tab
+	 *
 	 * @param i
 	 * @param force
 	 */
@@ -167,21 +167,21 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 			lastTabId = i;
 		}
 	}
-	
-	
+
+
 	/**
-	 * Sets the last selected tab, FORCED 
-	 * 
+	 * Sets the last selected tab, FORCED
+	 *
 	 * @param i
 	 */
 	public void setLastTabId(int i)
 	{
 		setLastTabId(i, true);
 	}
-	
+
 	/**
 	 * Returns the last selected tab
-	 * 
+	 *
 	 * @return
 	 */
 	private int getLastTabId()
@@ -194,17 +194,17 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	 */
 	public void finishAdding() {
 		addingFinished = true;
-		
+
 		this.selectTab(this.getLastTabId(), false);  // select the last tab, DO NOT CALL THE event
-		
+
 		// call on select
 		runOnSelectEvent(this.getLastTabId());
 	}
-	
-	
+
+
 	/**
 	 * When selected tab, draw and resize it
-	 * 
+	 *
 	 * @param i
 	 */
 	protected void runOnSelectEvent(int i)
@@ -215,22 +215,22 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 
 		// selected tab
 		setLastTabId(i, false);
-		
+
 		// check size
 		if((innerTabs.size() < (i + 1)) || (innerTabsSimplePanels.size() < (i + 1)))
 		{
 			return;
 		}
-		
+
 		// if widget not drawn - draw
 		SimplePanel sp = innerTabsSimplePanels.get(i);
 		TabItem tab = innerTabs.get(i);
-		
+
 		// check null
 		if(sp == null || tab == null){
 			return;
 		}
-		
+
 		// if widget null, call draw
 		if(sp.getWidget() == null){
 			sp.setWidget(tab.draw());
@@ -251,5 +251,5 @@ public class TabPanelForTabItems extends TabLayoutPanel {
         return innerTabs.get(index);
 
     }
-	
+
 }

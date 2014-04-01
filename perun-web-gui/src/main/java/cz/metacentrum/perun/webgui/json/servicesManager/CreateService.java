@@ -12,9 +12,9 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which creates a new service.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateService {
 
@@ -46,7 +46,7 @@ public class CreateService {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -73,7 +73,7 @@ public class CreateService {
 
 	/**
 	 * Attempts to create a new Service, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param name service Name
 	 * @param ownerId ID of owner
 	 */
@@ -86,19 +86,19 @@ public class CreateService {
 		if(!this.testCreating()){
 			return;
 		}
-	
+
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Creating service " + serviceName + " failed.");
 				events.onError(error); // custom events
 			};
-			
+
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Service " + serviceName + " created.");
 				events.onFinished(jso);
 			};
-			
+
 			public void onLoadingStart() {
 				events.onLoadingStart();
 			};
@@ -107,7 +107,7 @@ public class CreateService {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class CreateService {
 		JSONNumber owner = new JSONNumber(ownerId); // object json number
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("service", service);           // service object
 		jsonQuery.put("owner", owner);               // owner ID
 		return jsonQuery;

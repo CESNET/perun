@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cz.metacentrum.perun.dispatcher.dao.RulesDao;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  * JavaDoc coming soon...
  *

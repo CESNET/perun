@@ -23,14 +23,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  *
  * See {@link cz.metacentrum.perun.core.bl.PerunBl#bootstrap()} to find how to get
  * an instance of Perun.
- * 
+ *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public interface PerunBl extends Perun {
 
     public static final String PERUNVERSION = "3.0.0";
     public static final String INTERNALPRINCIPAL = "INTERNAL";
-    
+
     /**
      * Gets a (possibly cached) Perun session.
      * @throws InternalErrorException raised when session cannot be created.
@@ -38,7 +38,7 @@ public interface PerunBl extends Perun {
      * @return perun session
      */
     PerunSession getPerunSession(PerunPrincipal actor) throws InternalErrorException ;
-    
+
     /**
      * Gets an internal Perun session.
      * @throws InternalErrorException raised when session cannot be created.
@@ -81,7 +81,7 @@ public interface PerunBl extends Perun {
      * @return Resources manager
      */
     public ResourcesManager getResourcesManager();
-    
+
     /**
      * Gets a ExtSources manager.
      * @return ExtSources manager
@@ -105,7 +105,7 @@ public interface PerunBl extends Perun {
      * @return Owners manager
      */
     public OwnersManager getOwnersManager();
-    
+
     /**
      * Gets a AuditMessages manager.
      * @return AuditMessages manager
@@ -117,13 +117,13 @@ public interface PerunBl extends Perun {
      * @return Messages manager
      */
     public RTMessagesManager getRTMessagesManager();
-    
+
     /**
      * Gets a Searcher.
      * @return Searcher
      */
     public Searcher getSearcher();
-    
+
     /**
      * Gets a AuditMessages manager business logic.
      * @return groups manager
@@ -165,7 +165,7 @@ public interface PerunBl extends Perun {
      * @return Resources manager
      */
     public ResourcesManagerBl getResourcesManagerBl();
-    
+
     /**
      * Gets a ExtSources manager buisness logic.
      * @return ExtSources manager
@@ -189,25 +189,25 @@ public interface PerunBl extends Perun {
      * @return Owners manager
      */
     public OwnersManagerBl getOwnersManagerBl();
-    
+
     /**
      * Gets a Messages manager.
      * @return Messages manager
      */
     public RTMessagesManagerBl getRTMessagesManagerBl();
-    
+
     /**
      * Gets a AuthzResolver.
      * @return AuthzResolver
      */
     public AuthzResolverBl getAuthzResolverBl();
-    
+
     /**
      * Gets a SearcherBl
      * @return SearcherBl
      */
     public SearcherBl getSearcherBl();
-    
+
     /**
      * Gets a ModulesUtilsBl
      * @return  ModulesUtilsBl

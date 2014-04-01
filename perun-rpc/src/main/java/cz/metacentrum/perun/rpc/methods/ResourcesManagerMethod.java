@@ -198,7 +198,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
      *
@@ -222,7 +222,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
      *
@@ -246,7 +246,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Remove group from a resource.
      * After removing, check attributes and fix them if it is needed.
@@ -291,7 +291,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Remove group from resources.
      * After removing, check attributes and fix them if it is needed.
@@ -316,7 +316,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * List all groups associated with the resource.
      *
@@ -340,7 +340,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
      */
   /*#
    * List all resources associated with a member's group.
-   * 
+   *
    * @param member int Member ID
    * @return List<Resource> Resources
    */
@@ -350,7 +350,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
             if (parms.contains("member")) {
                 if (parms.contains("service")) {
-                    return ac.getResourcesManager().getAssignedResources(ac.getSession(), 
+                    return ac.getResourcesManager().getAssignedResources(ac.getSession(),
                             ac.getMemberById(parms.readInt("member")), ac.getServiceById(parms.readInt("service")));
                 } else {
                     return ac.getResourcesManager().getAssignedResources(ac.getSession(),
@@ -381,7 +381,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
             if(parms.contains("member")) {
                 if (parms.contains("service")) {
-                    return ac.getResourcesManager().getAssignedRichResources(ac.getSession(), 
+                    return ac.getResourcesManager().getAssignedRichResources(ac.getSession(),
                             ac.getMemberById(parms.readInt("member")), ac.getServiceById(parms.readInt("service")));
                 } else {
                 return ac.getResourcesManager().getAssignedRichResources(ac.getSession(),

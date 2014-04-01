@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -12,15 +12,15 @@ Creates a new facility like recently created facility.
 ------------------------------------------------------
 Available options:
  --likeFacility  | -l name of 'like' facility
- --likeFacType   | -p type of 'like' facility 
+ --likeFacType   | -p type of 'like' facility
  --facilityName  | -F facility name
  --facilityType  | -t facility type
  --nodeName      | -n name of node
  --fromNumber    | -o numbering of nodes starts from
- --toNumber      | -d numbering of nodes ends to 
+ --toNumber      | -d numbering of nodes ends to
  --batch         | -b batch
  --help          | -h prints this help
- 
+
 };
 }
 
@@ -31,7 +31,7 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "likeFacility|l=s" => \$likeFacility, "likeFacType|p=s" => \$likeFacType,
  "nodeName|n=s" => \$nodeName,
  "fromNumber|o=i" => \$fromNumber,"toNumber|d=i" => \$toNumber,
- "facilityName|F=s" => \$facilityName,"facilityType|t=s" => \$facilityType) || die help(); 
+ "facilityName|F=s" => \$facilityName,"facilityType|t=s" => \$facilityType) || die help();
 
 # Check options
 unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
@@ -66,7 +66,7 @@ unless (defined($fromNumber) or defined($toNumber)) {
    $toNumber=@hostsO;
 }
 
-# vytvoreni nodes  
+# vytvoreni nodes
 my ($hlava,$ocasek) = split (/\./,$facilityName,2);
 
 my ($ii,@hosts);
@@ -78,7 +78,7 @@ for ($ii=$fromNumber; $ii<=$toNumber; $ii++) {
 
 $facilitiesAgent->addHosts(facility => $facilityId,hostnames => \@hosts );
 
-printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);  
+printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);
 
 # nastaveni facility atributu
 my $attributesAgent = $agent->getAttributesAgent;
@@ -92,7 +92,7 @@ for ($kk=0; $kk<3; $kk++) {
             $attributesAgent->setAttribute(facility => $facilityId, attribute => $attribute);
          };
       }
-   }  
+   }
 }
 
 # zjisteni resources
@@ -130,7 +130,7 @@ foreach my $resourceO (@resourcesO) {
                 };
                 #if ($@) { warn "Error in set Attribute:".$@."\n"; }
              }
-          }  
+          }
        }
 
        # zjisteni services
@@ -157,14 +157,14 @@ foreach my $resourceO (@resourcesO) {
        } else {
           printMessage "No Group found", $batch;
        }
-          
+
     }
 }
 
 # prirazeni destinations
 my $servicesAgent = $agent->getServicesAgent;
 while ( my($serviceId,$val) = each(%usedServices)) {
-   my @destinationsO = $servicesAgent->getDestinations(facility => $facilityIdO, service => $serviceId); 
+   my @destinationsO = $servicesAgent->getDestinations(facility => $facilityIdO, service => $serviceId);
    # patri ke sluzbe destinations ?
    if (@destinationsO) {
       my $typ="host";
@@ -189,7 +189,7 @@ if (@owners) {
 # zjisteni managers
 my @managers = $facilitiesAgent->getRichAdmins(facility => $facilityIdO, pageSize => 0, pageNum => 0);
 if (@managers) {
-   # prirazeni managers 
+   # prirazeni managers
    foreach my $manager (@managers) {
       $facilitiesAgent->addAdmin(facility => $facilityId, user => $manager->getId);
       printMessage("User Id:".$manager->getDisplayName." successfully added as a Facility Id:$facilityId manager", $batch);
@@ -198,4 +198,4 @@ if (@managers) {
    printMessage "No manager found", $batch;
 }
 
-printMessage "PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!!",$batch; 
+printMessage "PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!!",$batch;

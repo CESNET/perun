@@ -16,8 +16,8 @@ import cz.metacentrum.perun.webgui.model.Service;
 import java.util.ArrayList;
 
 /**
- * Ajax query which creates a new destinations for service and facility based on facility hosts (their names) 
- * 
+ * Ajax query which creates a new destinations for service and facility based on facility hosts (their names)
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddDestinationsByHostsOnFacility {
@@ -54,7 +54,7 @@ public class AddDestinationsByHostsOnFacility {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating() {
@@ -80,9 +80,9 @@ public class AddDestinationsByHostsOnFacility {
 	}
 
 	/**
-	 * Attempts to add new Destination to service and facility, it first tests the values and then 
+	 * Attempts to add new Destination to service and facility, it first tests the values and then
 	 * submits them.
-	 * 
+	 *
 	 * @param service to have destinations by hosts added
 	 */
 	public void addDestinationByHosts(Service service) {
@@ -132,7 +132,7 @@ public class AddDestinationsByHostsOnFacility {
 
     /**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

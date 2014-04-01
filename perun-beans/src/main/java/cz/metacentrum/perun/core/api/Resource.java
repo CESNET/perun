@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Represents resource.
- * 
- * @author  Slavek Licehammer 
+ *
+ * @author  Slavek Licehammer
  */
 public class Resource extends Auditable {
   private int facilityId;
@@ -20,28 +20,28 @@ public class Resource extends Auditable {
   public Resource() {
     super();
   }
-  
+
   public Resource(int id, String name, String description, int facilityId) {
     super(id);
     this.name = name;
     this.description = description;
     this.facilityId = facilityId;
   }
-  
+
   public Resource(int id, String name, String description, int facilityId,  int voId) {
     this(id, name, description, facilityId);
     this.voId = voId;
   }
-  
-  public Resource(int id, String name, String description, int facilityId, String createdAt, 
+
+  public Resource(int id, String name, String description, int facilityId, String createdAt,
           String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.name = name;
     this.description = description;
-    this.facilityId = facilityId; 
-  }  
-  
-  public Resource(int id, String name, String description, int facilityId, int voId, String createdAt, 
+    this.facilityId = facilityId;
+  }
+
+  public Resource(int id, String name, String description, int facilityId, int voId, String createdAt,
           String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.name = name;
@@ -85,7 +85,7 @@ public class Resource extends Auditable {
   public void setDescription(String description) {
     this.description = description;
   }
-  
+
   public int getFacilityId() {
     return facilityId;
   }
@@ -112,13 +112,13 @@ public class Resource extends Auditable {
         ", description=<" + (getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())) + ">" +
         ']';
   }
-  
+
   @Override
   public String toString() {
-          return getClass().getSimpleName() + ":[id='" + getId() 
+          return getClass().getSimpleName() + ":[id='" + getId()
                           + "', voId='" + voId
                           + "', facilityId='" + facilityId
-                          + "', name='" + name 
+                          + "', name='" + name
                           + "', description='" + description + "']";
   }
 

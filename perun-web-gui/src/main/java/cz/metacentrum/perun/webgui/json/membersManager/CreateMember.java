@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.model.User;
 
 /**
  * Ajax query to create member in VO from candidate or User
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -47,10 +47,10 @@ public class CreateMember {
 
 	/**
 	 * Attempts to create member in VO from candidate
-	 * 
+	 *
 	 * @param voId vo where member should be created
 	 * @param candidate candidate to be member
-	 * 
+	 *
 	 */
 	public void createMember(final int voId, final Candidate candidate)
 	{
@@ -72,12 +72,12 @@ public class CreateMember {
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Member "+ candidate.getDisplayName() +" created !");
-				
+
 				// call validation asynchronously
 				Member mem = jso.cast();
 				ValidateMemberAsync request = new ValidateMemberAsync();
 				request.validateMemberAsync(mem);
-				
+
 				events.onFinished(jso);
 			};
 
@@ -90,14 +90,14 @@ public class CreateMember {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
-	
+	}
+
 	/**
 	 * Attempts to create member in VO from existing perun user
-	 * 
+	 *
 	 * @param voId vo where member should be created
 	 * @param user user to be member
-	 * 
+	 *
 	 */
 	public void createMember(final int voId, final User user)
 	{
@@ -118,21 +118,21 @@ public class CreateMember {
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Member "+ user.getFullName() +" created !");
-				
+
 				// call validation asynchronously
 				Member mem = jso.cast();
 				ValidateMemberAsync request = new ValidateMemberAsync();
 				request.validateMemberAsync(mem);
-				
+
 				events.onFinished(jso);
-				
+
 			};
 
 			public void onLoadingStart() {
 				events.onLoadingStart();
 			};
 		};
-		
+
 		JSONObject query = new JSONObject();
 		query.put("vo", new JSONNumber(voId));
 		query.put("user", new JSONNumber(user.getId()));
@@ -141,11 +141,11 @@ public class CreateMember {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, query);
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -201,11 +201,11 @@ public class CreateMember {
 		newCandidate.put("titleBefore", titleBefore);
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("vo", selectedVoId);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("vo", selectedVoId);
 		jsonQuery.put("candidate", newCandidate);
 		return jsonQuery;
-		
+
 	}
 
 }

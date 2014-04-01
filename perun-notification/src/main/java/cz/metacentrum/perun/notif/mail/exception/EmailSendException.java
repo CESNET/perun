@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * Exception thrown when a mail sending error is encountered. Can register failed messages with their exceptions.
- * 
+ *
  * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
  */
@@ -23,7 +23,7 @@ public class EmailSendException extends EmailException {
 
     /**
      * Constructor for EmailSendException.
-     * 
+     *
      * @param msg
      *            the detail message
      */
@@ -33,7 +33,7 @@ public class EmailSendException extends EmailException {
 
     /**
      * Constructor for EmailSendException.
-     * 
+     *
      * @param msg
      *            the detail message
      * @param cause
@@ -48,7 +48,7 @@ public class EmailSendException extends EmailException {
      * Constructor for registration of failed messages, with the messages that failed as keys, and the thrown exceptions as values.
      * <p>
      * The messages should be the same that were originally passed to the invoked send method.
-     * 
+     *
      * @param msg
      *            the detail message
      * @param cause
@@ -66,7 +66,7 @@ public class EmailSendException extends EmailException {
      * Constructor for registration of failed messages, with the messages that failed as keys, and the thrown exceptions as values.
      * <p>
      * The messages should be the same that were originally passed to the invoked send method.
-     * 
+     *
      * @param failedMessages
      *            Map of failed messages as keys and thrown exceptions as values
      */
@@ -88,7 +88,7 @@ public class EmailSendException extends EmailException {
      * <p>
      * <b>NOTE:</b> This Map will not be available after serialization. Use {@link #getMessageExceptions()} in such a scenario, which will
      * be available after serialization as well.
-     * 
+     *
      * @return the Map of failed messages as keys and thrown exceptions as values
      * @see org.springframework.mail.SimpleMailMessage
      * @see javax.mail.internet.MimeMessage
@@ -102,7 +102,7 @@ public class EmailSendException extends EmailException {
      * <p>
      * Note that a general mail server connection failure will not result in failed messages being returned here: A message will only be
      * contained here if actually sending it was attempted but failed.
-     * 
+     *
      * @return the array of thrown message exceptions, or an empty array if no failed messages
      */
     public final Exception[] getMessageExceptions() {

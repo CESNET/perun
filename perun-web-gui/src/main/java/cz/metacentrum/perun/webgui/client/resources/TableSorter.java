@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-/** 
+/**
  * Class used for sorting list of different types of objects in their tables
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -17,7 +17,7 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their Ids
 	 */
@@ -34,7 +34,7 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their Names
 	 * or FullNames (for Member/User/RichMember)
@@ -53,7 +53,7 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their FriendlyName (attributes)
 	 */
@@ -71,7 +71,7 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns sorted list of attributes
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<Attribute> sorted list of attrs by translated names
 	 */
@@ -94,10 +94,10 @@ public class TableSorter<T> {
         return list;
 
     }
-	
+
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their shortName (Vos)
 	 */
@@ -112,10 +112,10 @@ public class TableSorter<T> {
 		return list;
 
 	}
-	
+
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their description (Resource)
 	 */
@@ -130,10 +130,10 @@ public class TableSorter<T> {
 		return list;
 
 	}
-	
+
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their hostname (Hosts)
 	 */
@@ -148,10 +148,10 @@ public class TableSorter<T> {
 		return list;
 
 	}
-	
+
 	/**
 	 * Returns sorted list of objects
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their service (for tasks)
 	 */
@@ -166,10 +166,10 @@ public class TableSorter<T> {
 		return list;
 
 	}
-	
+
 	/**
 	 * Returns sorted list of objects - FOR FACILITY STATE ONLY !!
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their facility name
 	 */
@@ -185,11 +185,11 @@ public class TableSorter<T> {
 		});
 		return list;
 
-	}	
-	
+	}
+
 	/**
 	 * Returns sorted list of objects - FOR RICH TASK RESULTS ONLY !!
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their destination name
 	 */
@@ -226,10 +226,10 @@ public class TableSorter<T> {
         return list;
 
     }
-	
+
 	/**
 	 * Returns !DESC! sorted list of objects - FOR APPLICATIONS ONLY !!
-	 * 
+	 *
 	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their created date (recent first / older then)
 	 */
@@ -288,11 +288,11 @@ public class TableSorter<T> {
 
     /**
 	 * Returns name of object
-	 * 
+	 *
 	 * @param value object
 	 * @return name / fullName of object
 	 */
-	private final native String getName(T value) /*-{	
+	private final native String getName(T value) /*-{
 
 		// for members etc.
 		if (value.name == null) {
@@ -305,7 +305,7 @@ public class TableSorter<T> {
             if (value.tagName != null) {
                 return value.tagName;
             }
-			
+
 			return value.user.lastName + " " + value.user.firstName;
 		 } else {
 		    // for candidate
@@ -319,11 +319,11 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns friendlyName of object - used for attributes
-	 * 
+	 *
 	 * @param value object
 	 * @return friendlyName of object
 	 */
-	private final native String getFriendlyName(T value) /*-{	
+	private final native String getFriendlyName(T value) /*-{
 
 		if (value.friendlyName == null) {
 		    return "";
@@ -334,11 +334,11 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns hostname of object - used for Hosts
-	 * 
+	 *
 	 * @param value object
 	 * @return hostname of object
 	 */
-	private final native String getHostname(T value) /*-{	
+	private final native String getHostname(T value) /*-{
 
 		if (value.hostname == null) {
 		    return "";
@@ -349,45 +349,45 @@ public class TableSorter<T> {
 
 	/**
 	 * Returns Id of object
-	 * 
+	 *
 	 * @param value object
 	 * @return id of object
 	 */
-	private final native int getId(T value) /*-{	
+	private final native int getId(T value) /*-{
 		if (value.id == null) { return 0; }
 		return value.id;
 	}-*/;
 
 	/**
 	 * Returns shortName of object
-	 * 
+	 *
 	 * @param value object
 	 * @return shortName of object
 	 */
-	private final native String getShortName(T value) /*-{	
+	private final native String getShortName(T value) /*-{
 		if (value.shortName == null || value.shortName == "") { return ""; }
 		return value.shortName;
 	}-*/;
-	
+
 	/**
 	 * Returns description of object
-	 * 
+	 *
 	 * @param value object
 	 * @return description of object
 	 */
-	private final native String getDescription(T value) /*-{	
+	private final native String getDescription(T value) /*-{
 		if (value.description == null || value.description == "") { return ""; }
 		return value.description;
 	}-*/;
-	
+
 	/**
 	 * Returns service of object (used for Tasks and RichDestinations compare)
-	 * 
+	 *
 	 * @param value object
 	 * @return service of object
 	 */
 	private final String getService(T value) {
-		
+
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichDestination")) {
 			Destination dest = (Destination)value;
 			return dest.getService().getName();
@@ -396,8 +396,8 @@ public class TableSorter<T> {
             return exec.getService().getName();
         } else {
 			Task task = (Task)value;
-			return task.getExecService().getService().getName() + task.getExecService().getType();	
+			return task.getExecService().getService().getName() + task.getExecService().getType();
 		}
-		
+
 	}
 }

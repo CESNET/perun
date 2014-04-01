@@ -27,11 +27,11 @@ public class PrivilegeException extends PerunException {
     public PrivilegeException(Throwable cause) {
         super(cause);
     }
-    
+
     public PrivilegeException(PerunSession sess) {
     	super("Principal " + sess.getPerunPrincipal().getActor() + " is not authorized");
     }
-    
+
     public PrivilegeException(PerunSession sess, String action) {
     	super("Principal " + sess.getPerunPrincipal().getActor() + " is not authorized to perform action '" + action + "'");
     }

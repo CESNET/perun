@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query which removes external identity from specified user
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveUserExtSource {
@@ -43,7 +43,7 @@ public class RemoveUserExtSource {
 
 	/**
 	 * Attempts to remove user ext source from specified user
-	 * 
+	 *
 	 * @param userId ID of user, which should have his ext source reomved
 	 * @param uesId ID of user ext source, which should be removed
 	 */
@@ -79,11 +79,11 @@ public class RemoveUserExtSource {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -96,7 +96,7 @@ public class RemoveUserExtSource {
 			result = false;
 		}
 
-		if(uesId == 0){ 
+		if(uesId == 0){
 			errorMsg += "Wrong parameter <strong>User Ext Source ID</strong>. ";
 			result = false;
 		}
@@ -111,7 +111,7 @@ public class RemoveUserExtSource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
@@ -120,8 +120,8 @@ public class RemoveUserExtSource {
 		JSONNumber ues = new JSONNumber(uesId);
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("user", user);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("user", user);
 		jsonQuery.put("userExtSource", ues);
 		return jsonQuery;
 	}

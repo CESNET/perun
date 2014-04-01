@@ -30,7 +30,7 @@ public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImp
      * @throws WrongAttributeValueException if the attribute value is wrong/illegal
      * @throws WrongReferenceAttributeValueException if an referenced attribute against
      *         the parameter is to be compared is not available
-     * @throws WrongAttributeAssignmentException 
+     * @throws WrongAttributeAssignmentException
      */
     void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
@@ -49,10 +49,10 @@ public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImp
      * @throws WrongAttributeAssignmentException
      */
     Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
-    
+
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param facility the facility
      * @param user the user

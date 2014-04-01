@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
  * Interface for handling Thanks entity in Cabinet.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -21,13 +21,13 @@ public interface IThanksService {
 	List<Thanks> findThanksByFilter(Thanks t);
 
 	int deleteThanksById(PerunSession sess, Integer id) throws CabinetException;
-	
+
 	List<Thanks> findThanksByPublicationId(int id);
-	
+
 	List<ThanksForGUI> findRichThanksByPublicationId(int id);
-	
+
 	Thanks findThanksById(int id);
-	
+
 	List<ThanksForGUI> findAllRichThanksByUserId(Integer id);
 
 }

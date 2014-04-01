@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
@@ -12,7 +12,7 @@ return qq{
 Sets the member attribute. Member id and attribute value and attribute id or name are required.
 --------------------------------------
 Available options:
- --memberId        | -m member id 
+ --memberId        | -m member id
  --attributeId     | -a attribute id
  --attributeName   | -A attribute name including namespace
  --attributeValue  | -w attribute value
@@ -25,8 +25,8 @@ Available options:
 my ($memberId, $attributeId, $attributeName, @attributeValue);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId, 
- "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help(); 
+ "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId,
+ "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}

@@ -27,11 +27,11 @@ public class urn_perun_user_attribute_def_def_gid_namespace extends UserAttribut
 
   private static final String A_E_namespace_minGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
   private static final String A_E_namespace_maxGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID";
-  
+
   @Override
   /**
    * Checks the new GID of the user at the specified facility. The new GID must
-   * not be lower than the min GID or greater than the max GID. Also no collision between 
+   * not be lower than the min GID or greater than the max GID. Also no collision between
    * existing user and the new user is allowed.
    */
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
@@ -58,8 +58,8 @@ public class urn_perun_user_attribute_def_def_gid_namespace extends UserAttribut
     if (GID < min || GID > max) {
       throw new WrongAttributeValueException(attribute, "GID " + GID + " is not proper range (" + min + "," + max);
     }
-    
-    
+
+
   }
 
   @Override

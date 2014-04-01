@@ -18,11 +18,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
  */
 public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
-   
+
     public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
         Integer minUID = (Integer) attribute.getValue();
         if(minUID != null) {
-          if(minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1."); 
+          if(minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
           try {
             Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID");
           } catch (AttributeNotExistsException ex) {
@@ -43,5 +43,5 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends En
       attr.setType(Integer.class.getName());
       attr.setDescription("Minimal value of User ID.");
       return attr;
-    }    
+    }
 }

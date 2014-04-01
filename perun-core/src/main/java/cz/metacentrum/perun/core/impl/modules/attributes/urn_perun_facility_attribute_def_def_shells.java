@@ -28,7 +28,7 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
     @Override
     /**
      * Checks if the facility has properly set shells. There must be at least one
-     * shell per facility which must match regular expression 
+     * shell per facility which must match regular expression
      * e.g. corretct unix path.
      */
     public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {

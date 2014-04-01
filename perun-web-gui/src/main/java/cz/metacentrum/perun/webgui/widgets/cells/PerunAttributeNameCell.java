@@ -10,12 +10,12 @@ import cz.metacentrum.perun.webgui.model.Attribute;
 
 /**
  * Custom cell for Perun attributes
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class PerunAttributeNameCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute>
 {
-	
+
 	/**
 	 * Creates a new PerunAttributeValueCell with default renderer
 	 */
@@ -30,37 +30,37 @@ public class PerunAttributeNameCell extends AbstractSafeHtmlCell<cz.metacentrum.
 					render(object, sb);
 					return sb.toSafeHtml();
 				}
-				
+
 				return SafeHtmlUtils.EMPTY_SAFE_HTML;
 			}
 
 			public void render(Attribute object, SafeHtmlBuilder sb) {
-				if (object != null) {			
+				if (object != null) {
 					generateCode(sb, object);
 				}
 			}
 		});
 	}
-	
-	
+
+
 
 	protected static void generateCode(SafeHtmlBuilder sb, Attribute attr) {
 		sb.appendHtmlConstant("<span title=\""+attr.getName()+"\"><strong>");
 		sb.appendHtmlConstant(attr.getDisplayName());
 		sb.appendHtmlConstant("</strong></span>");
 	}
-		
+
 	/**
 	 * Construct a new HyperlinkCell that will use a given
 	 * {@link SafeHtmlRenderer}.
-	 * 
+	 *
 	 * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
 	 */
 	public PerunAttributeNameCell(SafeHtmlRenderer<Attribute> renderer) {
 		super(renderer);
 	}
 
-	
+
 	/**
 	 * Renders the object
 	 */

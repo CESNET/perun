@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 /**
  * Comparator for Attribute and AttributeDefinition object
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AttributeComparator<T extends JavaScriptObject> implements Comparator<T>{
@@ -16,9 +16,9 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 	static public enum Column {
 		TRANSLATED_NAME, TRANSLATED_DESCRIPTION
 	}
-	
+
 	private Column attr;
-	
+
 	/**
 	 * Creates a new Comparator with specified attribute to sort by
 	 * @param attr
@@ -26,19 +26,19 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 	public AttributeComparator(Column attr){
 		this.attr = attr;
 	}
-	
-	
+
+
 	/**
 	 * Compares the two objects
-	 * 
+	 *
 	 * @param obj1 First object
 	 * @param obj2 Second object
 	 */
 	public int compare(T obj1, T obj2) {
-		
+
 		Attribute o1 = obj1.cast();
 		Attribute o2 = obj2.cast();
-		
+
 		switch(this.attr)
 		{
 			case TRANSLATED_NAME:
@@ -48,7 +48,7 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Compares Attributes by the name
 	 * @param o1
@@ -59,7 +59,7 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 		Collator customCollator = Collator.getInstance();
 		return customCollator.compare(o1.getDisplayName(),o2.getDisplayName());
 	}
-	
+
 	/**
 	 * Compares Attributes by the description
 	 * @param o1
@@ -70,5 +70,5 @@ public class AttributeComparator<T extends JavaScriptObject> implements Comparat
 		Collator customCollator = Collator.getInstance();
 		return customCollator.compare(o1.getDescription(),o2.getDescription());
 	}
-	
+
 }

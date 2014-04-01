@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which updates a Category
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateCategory {
@@ -46,7 +46,7 @@ public class UpdateCategory {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -73,12 +73,12 @@ public class UpdateCategory {
 
 	/**
 	 * Attempts to update a Category, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param category category to update
 	 */
 	public void updateCategory(Category category)
 	{
-		
+
 		this.id = category.getId();
 		this.name = category.getName();
 		this.rank = category.getRank();
@@ -132,7 +132,7 @@ public class UpdateCategory {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("category", category);
 		return jsonQuery;
-		
+
 	}
 
 }

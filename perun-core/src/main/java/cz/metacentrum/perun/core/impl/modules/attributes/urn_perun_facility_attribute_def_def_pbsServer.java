@@ -26,9 +26,9 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
       if(attribute.getValue() != null) {
         pbsServer = (String) attribute.getValue();
       } else {
-        throw new WrongAttributeValueException(attribute, "PbsServer cannot be null.");  
+        throw new WrongAttributeValueException(attribute, "PbsServer cannot be null.");
       }
-      
+
       //TODO better method for searching Facility by querry in DB
       List<Facility> allFacilities = new ArrayList<Facility>();
       allFacilities = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilities(perunSession);
@@ -39,7 +39,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
               break;
           }
       }
-      if(!success) throw new WrongAttributeValueException(attribute, "There is no such facility with the same name like this pbsServer");  
+      if(!success) throw new WrongAttributeValueException(attribute, "There is no such facility with the same name like this pbsServer");
     }
 
     public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {

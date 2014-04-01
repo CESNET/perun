@@ -5,9 +5,9 @@ import java.util.List;
 
 /**
  * Represents trigger to send notification
- * 
+ *
  * @author tomas.tunkl
- * 
+ *
  */
 public enum PerunNotifNotifyTrigger {
 

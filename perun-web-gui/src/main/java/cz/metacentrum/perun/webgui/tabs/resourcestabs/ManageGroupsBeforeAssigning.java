@@ -37,9 +37,9 @@ import java.util.ArrayList;
 
 /**
  * Provides Tab that allows to configure groups and their members before assigning to resource
- * 
+ *
  * !!! USE ONLY AS INNER TAB !!!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -74,15 +74,15 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 		this.resource = resource;
 		this.resourceId = resource.getId();
 		this.groupsToAssign = groupsToAssign;
-		
+
 		new GetAllGroupsWithHierarchy(resource.getVoId(), new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				allGroups = JsonUtils.jsoAsList(jso);
 			}
 		}).retrieveData();
-		
+
 	}
-	
+
 	/**
      * @param resourceId ID of resource to have groups assigned
      * @param grpToAssign list of groups to be configured and assigned
@@ -101,9 +101,9 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
-		
+
 		if (resource == null || allGroups == null) { return false; }
 		return true;
 	}
@@ -124,10 +124,10 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 		subgroupsDropDown.addNotSelectedOption();
 
 		final CustomButton finishAssigningButton = TabMenu.getPredefinedButton(ButtonType.FINISH, ButtonTranslation.INSTANCE.finishGroupAssigning());
-				
+
 		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(finishAssigningButton, this);
 		final JsonCallbackEvents disableButtonEvents = JsonCallbackEvents.disableButtonEvents(finishAssigningButton);
-		
+
 		finishAssigningButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// assign all
@@ -136,9 +136,9 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 					request.assignGroupsToResource(groupsToAssign, resource);
 				} else {
 					// assign selected
-					if (groupsDropDown.getSelectedObject() == null) { 
+					if (groupsDropDown.getSelectedObject() == null) {
 						Window.alert("No group selected");
-						return; 
+						return;
 					}
 					JsonCallbackEvents localEvents = new JsonCallbackEvents() {
 						public void onFinished(JavaScriptObject jso) {
@@ -204,11 +204,11 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 					vp.add(w);
 					vp.setCellHeight(w, "100%");
 				}
-			} 
+			}
 		});
 
 		/*
-		
+
 		subgroupsDropDown.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
 				if (vp.getWidgetCount() == 2) { vp.remove(1); } // removes previous table
@@ -234,7 +234,7 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 						ti.draw();
 						Widget w = ti.getWidget();
 						vp.add(w);
-						vp.setCellHeight(w, "100%");						
+						vp.setCellHeight(w, "100%");
 					}
 				} else {
 					// parent-group selected / subgroup not selected
@@ -246,7 +246,7 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 				}
 			}
 		});
-		
+
 		*/
 
 		TabItem ti = new GroupResourceRequiredAttributesTabItem(resourceId, groupsDropDown.getSelectedObject().getId());
@@ -282,7 +282,7 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon(); 
+		return SmallIcons.INSTANCE.groupGoIcon();
 	}
 
 	@Override
@@ -313,7 +313,7 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Finds subgroups for selected group and fills the listbox with subgroups.
-	 * 
+	 *
 	 * @return list of all subgroups
 	 */
 	private ArrayList<Group> findSubgroups(Group group){
@@ -326,28 +326,28 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 			} else {
 				// if same level group or subgroup of some other parent - break
 				break;
-			}	
+			}
 		}
-		return subgroups;		
+		return subgroups;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(resource.getVoId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
 
-	static public String URL = "manage-before-assigning"; 
-	
+	static public String URL = "manage-before-assigning";
+
 	public String getUrl() {
 		return URL;
 	}

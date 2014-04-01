@@ -18,24 +18,24 @@ import java.util.regex.Pattern;
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
-    
+
   //Pattern extensionDatePattern = Pattern.compile("^$");
-    
+
   public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
       //There is no special queue in RT for this VO (in specific method use default queue)
       if(attribute.getValue() == null) return;
-      
+
       //Get value from attribute
       String attrValue = null;
       attrValue = (String) attribute.getValue();
-      
+
       //TODO: Create some regexp Pattern for RTVoQueue and test it there
   }
 
   public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
       return new Attribute(attribute);
   }
-  
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);

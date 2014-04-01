@@ -32,9 +32,9 @@ import java.util.Map;
 
 /**
  *  Returns tab with exec services details and management (dependency, enable/disable, update settings)
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
@@ -43,22 +43,22 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading Exec service");
-	
+
 	// data
 	private ExecService execService;
 
 	private int execServiceId;
-	
+
 	/**
 	 * Creates a tab instance
      * @param service
@@ -66,9 +66,9 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	public ViewExecServiceTabItem(ExecService service){
 		this.execService = service;
 		this.execServiceId = service.getId();
-		
+
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param serviceId
@@ -85,16 +85,16 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return !(execService == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// TITLE
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(execService.getService().getName()) + " ("+execService.getType()+")");
-		
+
 		// CONTENT
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
-		
+
 		// MAIN MENU
 		TabMenu menu = new TabMenu();
 
@@ -102,7 +102,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		DecoratorPanel dp = new DecoratorPanel();
 		FlexTable ft = new FlexTable();
 		ft.setStyleName("inputFormFlexTable");
-		
+
 		ft.setHTML(0, 0, "ExecService ID: </strong>");
 		ft.setHTML(1, 0, "ExecService name: </strong>");
 		ft.setHTML(2, 0, "Type:");
@@ -126,7 +126,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 		dp.add(ft);
 		vp.add(dp);
-		
+
 		// callback
 	    final ListExecServicesThisExecServiceDependsOn callback = new ListExecServicesThisExecServiceDependsOn(execServiceId);
 
@@ -164,33 +164,33 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
                 });
 			}
 		});
-		
+
 	    HTML title = new HTML("<h3>Depends on: </h3>");
 	    vp.add(title);
 	    vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 	    vp.setCellHeight(title, "20px");
-		
+
 	    // get table
 	    CellTable<ExecService> table = callback.getTable();
-		   
+
 		// create scroll panel for table
 	    table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");	
+		sp.addStyleName("perun-tableScrollPanel");
 		sp.setWidth("100%");
 
         removeButton.setEnabled(false);
         JsonUtils.addTableManagedButton(callback, table, removeButton);
-			
+
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
-		
+
 		session.getUiElements().resizePerunTable(sp, 250, this);
-		
-		
+
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -203,7 +203,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return  SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 	@Override
@@ -231,35 +231,35 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL, execService.getService().getName(), ServicesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ServiceDetailTabItem.URL+"?id="+ execService.getService().getId());
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "exec-view";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + execServiceId;
 	}
-	
+
 	static public ViewExecServiceTabItem load(Map<String, String> parameters)
 	{
 		int id = Integer.parseInt(parameters.get("id"));

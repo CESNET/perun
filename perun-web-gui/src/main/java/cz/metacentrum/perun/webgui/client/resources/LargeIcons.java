@@ -6,14 +6,14 @@ import com.google.gwt.resources.client.ImageResource;
 
 /**
  * Interface for large icon resources.
- * 
+ *
  * Example:
  * LargeIcons icons = GWT.create(LargeIcons.class);
  * Image img = new Image(icons.acceptIcon());
- * 
+ *
  * DO NOT EDIT CONTENTS OF THIS FILE MANUALLY!
  * Instead, generate it with gen.php file.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public interface LargeIcons extends ClientBundle{
@@ -2956,7 +2956,7 @@ public interface LargeIcons extends ClientBundle{
 
     //@Source("icons/32x32/flag_czech_republic.png")
     //ImageResource flagCzechRepublicIcon();
-    
+
     //@Source("icons/32x32/flag_cze_gb.png")
     //ImageResource flagCzechBritainIcon();
 
@@ -5164,7 +5164,7 @@ public interface LargeIcons extends ClientBundle{
 
     @Source("icons/32x32/perun.png")
     ImageResource perunIcon();
-    
+
     //@Source("icons/32x32/phone.png")
     //ImageResource phoneIcon();
 
@@ -5260,10 +5260,10 @@ public interface LargeIcons extends ClientBundle{
 
     //@Source("icons/32x32/pinRed.png")
     //ImageResource pinRedIcon();
-    
+
     //@Source("icons/32x32/pinGrey.png")
     //ImageResource pinGrayIcon();
-    
+
     //@Source("icons/32x32/pirate_flag.png")
     //ImageResource pirateFlagIcon();
 
@@ -6895,7 +6895,7 @@ public interface LargeIcons extends ClientBundle{
 
     @Source("icons/32x32/user_go.png")
     ImageResource userGoIcon();
-    
+
     @Source("icons/32x32/user_go_disabled.png")
     ImageResource userGoDisabledIcon();
 

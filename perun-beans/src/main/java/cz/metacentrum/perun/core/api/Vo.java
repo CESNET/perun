@@ -10,10 +10,10 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class Vo extends Auditable implements Comparable<Vo> {
     private String name;
     private String shortName;
-    
+
     public Vo() {
     }
-    
+
     public Vo(int id, String name, String shortName) {
         super(id);
         if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
@@ -31,7 +31,7 @@ public class Vo extends Auditable implements Comparable<Vo> {
         this.name = name;
         this.shortName = shortName;
     }
-    
+
     public Vo(int id, String name, String shortName, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
@@ -66,7 +66,7 @@ public class Vo extends Auditable implements Comparable<Vo> {
                 ", shortName=<" + (getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())) + ">" +
                 ']';
     }
-    
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName()+":[" +

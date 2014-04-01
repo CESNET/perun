@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query which deletes VO from Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -46,7 +46,7 @@ public class DeleteVo {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting()
@@ -69,7 +69,7 @@ public class DeleteVo {
 
 	/**
 	 * Attempts to delete VO, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param voId ID of VO to be deleted
 	 * @param force true for force delete
 	 */
@@ -104,12 +104,12 @@ public class DeleteVo {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
@@ -117,9 +117,9 @@ public class DeleteVo {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("vo", new JSONNumber(voId));
 		if (force) {
-			jsonQuery.put("force", null);	
+			jsonQuery.put("force", null);
 		}
 		return jsonQuery;
 	}
-	
+
 }

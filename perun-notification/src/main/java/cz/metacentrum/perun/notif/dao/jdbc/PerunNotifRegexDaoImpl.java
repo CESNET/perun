@@ -55,7 +55,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 
         regex.setId(newPerunNotifRegexId);
         logger.debug("Regex saved to db, id created: {}", regex);
-        
+
         return regex;
     }
 

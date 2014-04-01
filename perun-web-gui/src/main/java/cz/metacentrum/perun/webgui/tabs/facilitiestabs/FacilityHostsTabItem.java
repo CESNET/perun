@@ -32,9 +32,9 @@ import java.util.Map;
 
 /**
  * Provides page with hosts management for cluster
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
@@ -43,22 +43,22 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private int facilityId;
 	private Facility facility;
 
-	
+
 	/**
 	 * Creates a tab instance
      * @param facilityId
@@ -72,12 +72,12 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
-	
+
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility
@@ -153,7 +153,7 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(menu);
@@ -161,9 +161,9 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(sp);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
-	
+
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -176,7 +176,7 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.serverIcon(); 
+		return  SmallIcons.INSTANCE.serverIcon();
 	}
 
 
@@ -208,7 +208,7 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
@@ -219,11 +219,11 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 			session.setActiveFacilityId(facilityId);
 		}
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -231,23 +231,23 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "hosts";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
 	}
-	
+
 	static public FacilityHostsTabItem load(Map<String, String> parameters)
 	{
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilityHostsTabItem(fid);
 	}
-	
+
 	static public FacilityHostsTabItem load(Facility fac)
 	{
 		return new FacilityHostsTabItem(fac);

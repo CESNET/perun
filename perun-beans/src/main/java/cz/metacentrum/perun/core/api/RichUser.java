@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Michal Šťava <stavamichal@gmail.com> 
+ * @author Michal Šťava <stavamichal@gmail.com>
  */
 public class RichUser extends User {
   private List<UserExtSource> userExtSources;
@@ -16,15 +16,15 @@ public class RichUser extends User {
 
   public RichUser(){
   }
-  
+
   public RichUser(User user, List<UserExtSource> userExtSources) {
     super(user.getId(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
           user.getTitleBefore(), user.getTitleAfter(), user.getCreatedAt(), user.getCreatedBy(),
-          user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.getCreatedByUid(), user.getModifiedByUid());    
+          user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.getCreatedByUid(), user.getModifiedByUid());
     this.userExtSources = userExtSources;
     this.userAttributes = null;
   }
-  
+
   public RichUser(User user, List<UserExtSource> userExtSources, List<Attribute> userAttributes) {
     this(user, userExtSources);
     this.userAttributes = userAttributes;
@@ -38,7 +38,7 @@ public class RichUser extends User {
   public List<Attribute> getUserAttributes() {
     return userAttributes;
   }
-  
+
   public void setUserAttributes(List<Attribute> userAttributes) {
     this.userAttributes = userAttributes;
   }
@@ -46,7 +46,7 @@ public class RichUser extends User {
   public void setUserExtSources(List<UserExtSource> userExtSources) {
     this.userExtSources = userExtSources;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -90,13 +90,13 @@ public class RichUser extends User {
 
   @Override
   public String serializeToString() {
-    List<UserExtSource> userESOld = getUserExtSources();  
+    List<UserExtSource> userESOld = getUserExtSources();
     List<Attribute> userAttrOld = getUserAttributes();
     List<String> userESNew = new ArrayList<String>();
     List<String> userAttrNew = new ArrayList<String>();
     String sUserESNew;
     String sUserAttrNew;
-    
+
     if(getUserExtSources() == null) sUserESNew = "\\0";
     else {
         for(UserExtSource u: userESOld) {
@@ -122,7 +122,7 @@ public class RichUser extends User {
     ", userAttributes=<" + sUserAttrNew + ">" +
     ']';
   }
-  
+
   @Override
   public String toString() {
     return "RichUser:[id='" + getId() + "', titleBefore='" + getTitleBefore() + "', firstName='" + getFirstName() + "', lastName='" + getLastName() +

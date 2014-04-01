@@ -16,33 +16,33 @@ public abstract class PerunException extends Exception {
 
     public PerunException() {
         super();
-        
+
         if (!(this instanceof InternalErrorException)) {
           log.warn("Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this); 
+            log.debug("Exception detail:", this);
           }
-        }  
+        }
     }
-    
+
     public PerunException(String message) {
         super(message);
-        
+
         if (!(this instanceof InternalErrorException)) {
           log.warn("Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this); 
+            log.debug("Exception detail:", this);
           }
         }
     }
 
     public PerunException(String message, Throwable cause) {
         super(message, cause);
-        
+
         if (!(this instanceof InternalErrorException)) {
           log.warn("Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this); 
+            log.debug("Exception detail:", this);
           }
         }
     }
@@ -52,7 +52,7 @@ public abstract class PerunException extends Exception {
         if (!(this instanceof InternalErrorException)) {
           log.warn("Exception {}: {}.", errorId, this);
           if (log.isDebugEnabled()) {
-            log.debug("Exception detail:", this); 
+            log.debug("Exception detail:", this);
           }
         }
     }
@@ -65,11 +65,11 @@ public abstract class PerunException extends Exception {
     public String getErrorId() {
         return errorId;
     }
-   
+
     public void setErrorId(String errorId) {
       this.errorId = errorId;
     }
-    
+
     public String getName() {
       return this.getClass().getSimpleName();
     }

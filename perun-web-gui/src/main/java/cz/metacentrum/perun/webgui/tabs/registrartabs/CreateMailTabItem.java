@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Types of emails for application
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateMailTabItem implements TabItem {
@@ -57,7 +57,7 @@ public class CreateMailTabItem implements TabItem {
 	private PerunEntity entity;
 	private int entityId;
     private TabLayoutPanel tabPanel;
-	
+
 	/**
 	 * DATA FOR SENDING
 	 */
@@ -66,7 +66,7 @@ public class CreateMailTabItem implements TabItem {
 	private Map<String, TextBox> messagesSubjects = new HashMap<String, TextBox>();
 
 	private CustomButton saveButton;
-	
+
 	// inputs
 	private ListBox applicationTypeListbox = new ListBox();
 	private ListBox mailTypeListbox = new ListBox();
@@ -89,7 +89,7 @@ public class CreateMailTabItem implements TabItem {
 		this.form = form;
         tabPanel = new TabLayoutPanel(30, Unit.PX);
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -104,7 +104,7 @@ public class CreateMailTabItem implements TabItem {
 			}
 		};
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-		
+
 		JsonCallbackEvents events2 = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				form = jso.cast();
@@ -124,10 +124,10 @@ public class CreateMailTabItem implements TabItem {
 		}
         tabPanel = new TabLayoutPanel(30, Unit.PX);
 	}
-	
+
 	public boolean isPrepared(){
 		if (groupId == 0) {
-			return (vo != null && form != null);			
+			return (vo != null && form != null);
 		} else {
 			return (vo != null && form != null && group != null);
 		}
@@ -135,7 +135,7 @@ public class CreateMailTabItem implements TabItem {
 
 	/**
 	 * Returns message texarea
-	 * 
+	 *
 	 * @param locale
 	 * @return
 	 */
@@ -149,21 +149,21 @@ public class CreateMailTabItem implements TabItem {
 		FlexTable ft = new FlexTable();
         ft.setStyleName("inputFormFlexTable");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
-		
+
 		// inputs
 		TextBox tb = new TextBox();
 		tb.setWidth("385px");
 		messagesSubjects.put(locale, tb);
-		
+
 		TextArea ta = new TextArea();
 		ta.setSize("450px", "190px");
 		messagesTextAreas.put(locale, ta);
-		
+
 		// adds inputs to the flex table
 		ft.setHTML(0, 0, "Subject:");
         ftf.setStyleName(0, 0, "itemName");
 		ft.setWidget(0, 1, tb);
-		
+
 		ft.setHTML(1, 0, "Text:");
         ftf.setStyleName(1, 0, "itemName");
         //ftf.setColSpan(1, 0, 2);
@@ -177,7 +177,7 @@ public class CreateMailTabItem implements TabItem {
             }
         });
         ft.setWidget(1, 1, a);
-		
+
 		ft.setWidget(2, 0, ta);
 		ftf.setColSpan(2, 0, 2);
 
@@ -187,10 +187,10 @@ public class CreateMailTabItem implements TabItem {
 		return vp;
 
 	}
-	
+
 	/**
-	 * Returns flex table with basic information 
-	 * 
+	 * Returns flex table with basic information
+	 *
 	 * @return
 	 */
 	private Widget basicInformationTab() {
@@ -220,7 +220,7 @@ public class CreateMailTabItem implements TabItem {
 
         // basic info
 		int row = 0;
-		
+
 		ft.setHTML(row, 0, "E-mail type:");
 		ft.setWidget(row, 1, mailTypeListbox);
 		ftf.setStyleName(row, 0, "itemName");
@@ -230,7 +230,7 @@ public class CreateMailTabItem implements TabItem {
         ftf.setStyleName(row, 1, "inputFormInlineComment");
 
 		row++;
-		
+
 		ft.setHTML(row, 0, "Application type: ");
 		ft.setWidget(row, 1, applicationTypeListbox);
         ftf.setStyleName(row, 0, "itemName");
@@ -241,7 +241,7 @@ public class CreateMailTabItem implements TabItem {
         ftf.setStyleName(row, 1, "inputFormInlineComment");
 
         row++;
-		
+
 		sendingEnabledCheckBox.setValue(true);
 		ft.setHTML(row, 0, "Sending enabled:");
 		ft.setWidget(row, 1, sendingEnabledCheckBox);
@@ -336,9 +336,9 @@ public class CreateMailTabItem implements TabItem {
     }
 
 	public Widget draw() {
-		
+
 		String title = "";
-		if (group != null) { 
+		if (group != null) {
 			title = group.getName();
 			entity = PerunEntity.GROUP;
 			entityId = groupId;
@@ -348,12 +348,12 @@ public class CreateMailTabItem implements TabItem {
 			entityId = voId;
 		}
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(title) + ": add email notification");
-		
+
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
 		languages.add("cs");
 		languages.add("en");
-		
+
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
         vp.setWidth("500px");
@@ -364,16 +364,16 @@ public class CreateMailTabItem implements TabItem {
         tabPanel.addStyleName("smallTabPanelWithBorder");
         tabPanel.setHeight("350px");
 
-		// basic settings 
+		// basic settings
 		tabPanel.add(basicInformationTab(), "Basic settings");
-		
+
 		// for each locale add tab
 		for(String locale : languages){
 			tabPanel.add(messageTab(locale), "Lang: "+locale);
 		}
 
         tabPanel.add(availableTagsTab(), "Available tags");
-		
+
 		// add menu
 		final TabItem tab = this;
 		TabMenu tabMenu = new TabMenu();
@@ -412,7 +412,7 @@ public class CreateMailTabItem implements TabItem {
                 session.getTabManager().closeTab(tab, false);
             }
         }));
-		
+
 		// add tab panel to main panel
         vp.add(tabPanel);
         vp.setCellWidth(tabPanel, "500px");
@@ -427,7 +427,7 @@ public class CreateMailTabItem implements TabItem {
 		return getWidget();
 
 	}
-	
+
 	public Widget getWidget() {
 		return this.contentWidget;
 	}
@@ -437,7 +437,7 @@ public class CreateMailTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.emailAddIcon(); 
+		return SmallIcons.INSTANCE.emailAddIcon();
 	}
 
 	@Override
@@ -468,13 +468,13 @@ public class CreateMailTabItem implements TabItem {
 
 
 	public void open() {
-		
+
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

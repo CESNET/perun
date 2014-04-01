@@ -15,7 +15,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Deletes a service.
-	 * 
+	 *
 	 * @param service int Service ID
 	 */
   deleteService {
@@ -28,7 +28,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Returns all services.
-   * 
+   *
    * @return List<Service> All services
    */
   listServices {
@@ -39,7 +39,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Returns a service with specific ID.
-   * 
+   *
    * @param id int Service ID
    * @return Service Found service object
    */
@@ -51,12 +51,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Returns exec services.
-   * 
+   *
    * @return List<ExecService> Exec services
    */
   /*#
    * Returns exec services.
-   * 
+   *
    * @param service int Service ID
    * @return List<ExecService> Exec services
    */
@@ -82,7 +82,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Returns an exec service with specific ID.
-   * 
+   *
    * @param id int Service ID
    * @return ExecService Found exec service object
    */
@@ -94,14 +94,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Inserts an exec service.
-   * 
+   *
    * @param execService ExecService JSON object
    * @param owner int Owner ID
    * @return int Int
    */
   insertExecService {
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGeneralServiceManager().insertExecService(ac.getSession(), 
+      return ac.getGeneralServiceManager().insertExecService(ac.getSession(),
                                                       parms.read("execService", ExecService.class),
                                                       ac.getOwnerById(parms.readInt("owner")));
     }
@@ -109,7 +109,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Updates an exec service.
-   * 
+   *
    * @param execService ExecService JSON object
    */
   updateExecService {
@@ -121,7 +121,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Deletes an exec service.
-   * 
+   *
    * @param execService int ExecService ID
    */
   deleteExecService {
@@ -133,13 +133,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Bans exec service on a facility.
-   * 
+   *
    * @param service int Service ID
    * @param facility int Facility ID
    */
   banExecServiceOnFacility {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getGeneralServiceManager().banExecServiceOnFacility(ac.getExecServiceById(parms.readInt("service")), 
+      ac.getGeneralServiceManager().banExecServiceOnFacility(ac.getExecServiceById(parms.readInt("service")),
                                                              ac.getFacilityById(parms.readInt("facility")));
       return null;
     }
@@ -147,7 +147,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Bans exec service on a destination.
-   * 
+   *
    * @param execService int Service ID
    * @param destination int Destination ID
    */
@@ -160,20 +160,20 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   /*#
    * Returns list of denials for a facility.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<ExecService> Exec services
    */
   listDenialsForFacility {
     public List<ExecService> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGeneralServiceManager().listDenialsForFacility(ac.getSession(), 
+      return ac.getGeneralServiceManager().listDenialsForFacility(ac.getSession(),
                                                                   ac.getFacilityById(parms.readInt("facility")));
     }
   },
 
   /*#
    * Returns list of denials for a destination.
-   * 
+   *
    * @param destination int Destination ID
    * @return List<ExecService> Exec services
    */
@@ -185,25 +185,25 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   isExecServiceDeniedOnFacility {
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      if (ac.getGeneralServiceManager().isExecServiceDeniedOnFacility(ac.getExecServiceById(parms.readInt("execService")), 
+      if (ac.getGeneralServiceManager().isExecServiceDeniedOnFacility(ac.getExecServiceById(parms.readInt("execService")),
                                                                          ac.getFacilityById(parms.readInt("facility"))))
         return 1;
       else return 0;
     }
   },
-  
+
   isServiceDeniedOnFacility {
 	  public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-		  
+
 		  List<ExecService> list = ac.getGeneralServiceManager().listExecServices(ac.getSession(), parms.readInt("service"));
-		  Integer answer = 0;  
+		  Integer answer = 0;
 		  for (ExecService exec : list) {
 		      if (ac.getGeneralServiceManager().isExecServiceDeniedOnFacility(ac.getExecServiceById(exec.getId()), ac.getFacilityById(parms.readInt("facility")))) {
-		    	   answer = 1;  
+		    	   answer = 1;
 		      }
-		  } 
+		  }
 		  return answer;
-	    }  
+	    }
   },
 
   isExecServiceDeniedOnDestination {
@@ -245,7 +245,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   createDependency {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getGeneralServiceManager().createDependency(ac.getExecServiceById(parms.readInt("execService")), 
+      ac.getGeneralServiceManager().createDependency(ac.getExecServiceById(parms.readInt("execService")),
                                                      ac.getExecServiceById(parms.readInt("dependantExecService")));
       return null;
     }
@@ -253,7 +253,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   removeDependency {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getGeneralServiceManager().removeDependency(ac.getExecServiceById(parms.readInt("execService")), 
+      ac.getGeneralServiceManager().removeDependency(ac.getExecServiceById(parms.readInt("execService")),
                                                      ac.getExecServiceById(parms.readInt("dependantExecService")));
       return null;
     }
@@ -261,7 +261,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
   isThereDependency {
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      if(ac.getGeneralServiceManager().isThereDependency(ac.getExecServiceById(parms.readInt("execService")), 
+      if(ac.getGeneralServiceManager().isThereDependency(ac.getExecServiceById(parms.readInt("execService")),
                                                              ac.getExecServiceById(parms.readInt("dependantExecService"))))
         return 1;
       else return 0;
@@ -283,10 +283,10 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
                                       ac.getExecServiceById(parms.readInt("dependantExecService")));
     }
   },
-  
+
   forceServicePropagation {
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      if(parms.contains("facility")) { 
+      if(parms.contains("facility")) {
         if(ac.getGeneralServiceManager().forceServicePropagation(
                                         ac.getSession(),
                                         ac.getFacilityById(parms.readInt("facility")),
@@ -299,8 +299,8 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
          else return 0;
       }
     }
-   },  
-   
+   },
+
    getFacilityAssignedServicesForGUI {
 	   public List<ServiceForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -308,5 +308,5 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 
 	   }
    };
-  
+
 }

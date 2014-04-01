@@ -11,7 +11,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
  * This interface serves as a template for virtual attributes.
- * 
+ *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface ResourceGroupVirtualAttributesModuleImplApi extends ResourceGroupAttributesModuleImplApi, VirtualAttributesModuleImplApi {

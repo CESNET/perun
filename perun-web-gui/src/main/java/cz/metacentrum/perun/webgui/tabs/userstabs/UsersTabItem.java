@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Page with Users for Perun Admin
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -65,7 +65,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
      */
 	public UsersTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -168,7 +168,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -176,7 +176,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 	 * Starts the search for users
 	 */
 	protected void startSearching(String text){
-		users.searchFor(text);	
+		users.searchFor(text);
 	}
 
 	public Widget getWidget() {
@@ -188,7 +188,7 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon(); 
+		return SmallIcons.INSTANCE.userGrayIcon();
 	}
 
 	@Override
@@ -223,25 +223,25 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "users";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public UsersTabItem load(Map<String, String> parameters) {
 		return new UsersTabItem();
 	}

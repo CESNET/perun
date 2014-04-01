@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all services on facility with allowedOnFacility property filled.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCallbackTable<RichService> {
@@ -46,7 +46,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	/**
 	 * New instance of callback
-	 * 
+	 *
 	 * @param facilityId ID of facility to get RichServices for
 	 */
 	public GetFacilityAssignedServicesForGUI(int facilityId) {
@@ -66,7 +66,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	/**
 	 * Returns table of assigned services on facility with custom onClick
-	 * 
+	 *
 	 * @param fu custom onClick (field updater)
 	 */
 	public CellTable<RichService> getTable(FieldUpdater<RichService, String> fu){
@@ -76,7 +76,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	/**
 	 * Return table with assigned services on facility
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<RichService> getTable() {
@@ -116,19 +116,19 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 				return object;
 			}
 		};
-		 
+
 		table.addColumn(checkBoxColumn);
 		table.setColumnWidth(checkBoxColumn, "60px");
 		*/
-		
+
 		table.addCheckBoxColumn();
-		
+
 		table.addIdColumn("Service Id", tableFieldUpdater, 110);
 
 		table.addNameColumn(tableFieldUpdater);
-		
+
 		// ALLOWED ON FACILITY COLUMN
-		
+
 		Column<RichService, String> allowedColumn = JsonUtils.addColumn(new JsonUtils.GetValue<RichService, String>() {
 			public String getValue(RichService object) {
 				return getAllowedValue(object);
@@ -140,16 +140,16 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 				return (getAllowedValue(o1).compareToIgnoreCase(getAllowedValue(o2)));
 			}
 		});
-		
+
 		table.addColumn(allowedColumn, "Allowed on facility");
-		
+
 		// ALLOWED GLOBALLY COLUMN
-		
+
 		Column<RichService, String> allowedGloballyColumn = JsonUtils.addColumn(new JsonUtils.GetValue<RichService, String>() {
-			public String getValue(RichService object) {	
+			public String getValue(RichService object) {
 				String gen = "";
 				String send = "";
-				
+
 				if (object.getGenExecService() != null) {
 					if (object.getGenExecService().isEnabled()==true) {
 						gen = "Allowed";
@@ -171,10 +171,10 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 				return "GENERATE: "+ gen +" SEND: "+ send;
 			}
 		},this.tableFieldUpdater);
-		
+
 		table.addColumn(allowedGloballyColumn , "Allowed globally");
-		
-		
+
+
 		return table;
 
 	}
@@ -303,7 +303,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	/**
 	 * Sets different facility ID for callback after creation
-	 * 
+	 *
 	 * @param facilityId new facility ID
 	 */
 	public void setFacility(int facilityId) {
@@ -312,7 +312,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	/**
 	 * Sets events after callback creation
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public void setEvents(JsonCallbackEvents events) {

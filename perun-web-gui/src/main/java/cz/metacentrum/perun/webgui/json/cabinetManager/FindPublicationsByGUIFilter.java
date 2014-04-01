@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * Finds RichPublications by GUI filter
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTable<Publication> {
@@ -90,7 +90,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns table with publications
 	 * @param
@@ -119,12 +119,12 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 
 		// Cell table
 		table = new PerunTable<Publication>(list);
-		
+
 		// display row-count for perun admin only
 		if (!session.isPerunAdmin()) {
-			table.removeRowCountChangeHandler();			
+			table.removeRowCountChangeHandler();
 		}
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
@@ -146,7 +146,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 
 		// ID COLUMN
 		table.addIdColumn("Publication ID", tableFieldUpdater, 60);
-		
+
 		Column<Publication, ImageResource> lockedColumn = new Column<Publication, ImageResource>(new CustomImageResourceCell("click")){
 			public ImageResource getValue(Publication object) {
 				if (object.getLocked() == true) {
@@ -192,12 +192,12 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 					ArrayList<Publication> list = new ArrayList<Publication>();
 					list.add(object);
 					request.lockUnlockPublications(object.getLocked(), list);
-					
-				}	
+
+				}
 			}
 		};
 		table.addColumn(lockedColumn, "Lock");
-		
+
 		// TITLE COLUMN
 		Column<Publication, String> titleColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -223,10 +223,10 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 
 				authorColumn.setSortable(true);
 				columnSortHandler.setComparator(authorColumn, new PublicationComparator(PublicationComparator.Column.AUTHORS));
-				table.addColumn(authorColumn, "Reported by");	
+				table.addColumn(authorColumn, "Reported by");
 			}
 		}
-		
+
 		// YEAR COLUMN
 		Column<Publication, String> yearColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -250,7 +250,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		categoryColumn.setSortable(true);
 		columnSortHandler.setComparator(categoryColumn, new PublicationComparator(PublicationComparator.Column.CATEGORY));
 		table.addColumn(categoryColumn, "Category");
-		
+
 		// THANKS COLUMN
 		Column<Publication, String> thanksColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -261,7 +261,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 							result += thks.get(i).getOwnerName()+", ";
 						}
 						if (result.length()>=2) {
-							result = result.substring(0, result.length()-2);							
+							result = result.substring(0, result.length()-2);
 						}
 						return result;
 					}
@@ -270,7 +270,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		thanksColumn.setSortable(true);
 		columnSortHandler.setComparator(thanksColumn, new PublicationComparator(PublicationComparator.Column.THANKS));
 		table.addColumn(thanksColumn, "Thanked to");
-		
+
 		/*
 		 * HIDE ISBN COLUMN FOR NOW
 		// ISBN COLUMN
@@ -286,7 +286,7 @@ public class FindPublicationsByGUIFilter implements JsonCallback, JsonCallbackTa
 		columnSortHandler.setComparator(isbnColumn, new PublicationComparator(PublicationComparator.Column.ISBN));
 		table.addColumn(isbnColumn, "ISBN");
 		 */
-		
+
 		// CITE COLUMN
 		Column<Publication, String> citaceColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {

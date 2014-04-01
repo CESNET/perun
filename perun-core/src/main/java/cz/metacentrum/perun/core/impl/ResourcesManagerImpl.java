@@ -396,7 +396,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
             throw new InternalErrorException(e);
         }
     }
-    
+
     @Override
     public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
         try  {
@@ -455,7 +455,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
             throw new InternalErrorException(e);
         }
     }
-    
+
     @Override
     public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
         try  {

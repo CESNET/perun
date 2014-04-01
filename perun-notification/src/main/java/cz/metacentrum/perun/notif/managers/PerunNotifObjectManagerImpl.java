@@ -78,7 +78,7 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
         PerunNotifObject perunNotifObject = perunNotifObjectDao.savePerunNotifObject(object);
 
         perunNotifRegexManager.addObjectToCache(object);
-        
+
         return perunNotifObject;
     }
 }

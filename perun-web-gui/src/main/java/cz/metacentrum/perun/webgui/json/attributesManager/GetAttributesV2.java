@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * Ajax query to get attributes with values for all sort of entities in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -63,7 +63,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
+
 	// friendly table
 	private FlexTable friendlyTable = new FlexTable();
 
@@ -86,7 +86,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a facility
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 */
 	public void getFacilityAttributes(int facilityId) {
@@ -96,7 +96,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a user on facility
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 * @param userId user ID
 	 */
@@ -108,7 +108,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a VO
-	 * 
+	 *
 	 * @param voId VO ID
 	 */
 	public void getVoAttributes(int voId) {
@@ -118,7 +118,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns member-resource attributes
-	 * 
+	 *
 	 * @param memberId Member ID
 	 * @param resourceId Resource ID
 	 */
@@ -130,7 +130,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a member
-	 * 
+	 *
 	 * @param memberId Member ID
 	 */
 	public void getMemberAttributes(int memberId) {
@@ -140,7 +140,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a member and user
-	 * 
+	 *
 	 * @param memberId Member ID
      * @param workWithUser true to return also user attributes
 	 */
@@ -149,10 +149,10 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 		this.ids.put("member", memberId);
 		this.ids.put("workWithUserAttributes", workWithUser);
 	}
-	
+
 	/**
 	 * Returns attributes of a resource
-	 * 
+	 *
 	 * @param resourceId Resource ID
 	 */
 	public void getResourceAttributes(int resourceId) {
@@ -162,7 +162,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a user
-	 * 
+	 *
 	 * @param userId user ID
 	 */
 	public void getUserAttributes(int userId) {
@@ -172,7 +172,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a group
-	 * 
+	 *
 	 * @param groupId Group ID
 	 */
 	public void getGroupAttributes(int groupId) {
@@ -183,7 +183,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns member-resource attributes
-	 * 
+	 *
 	 * @param groupId Group ID
 	 * @param resourceId Resource ID
 	 */
@@ -195,7 +195,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns attributes of a host
-	 * 
+	 *
 	 * @param hostId Host ID
 	 */
 	public void getHostAttributes(int hostId) {
@@ -219,7 +219,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns the table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu Field updater
 	 * @return table widget
 	 */
@@ -230,7 +230,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable(){
@@ -254,7 +254,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -340,14 +340,14 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
         valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
 			public void update(int index, Attribute object, Attribute value) {
 				object = value;
-				selectionModel.setSelected(object, object.isAttributeValid());  
+				selectionModel.setSelected(object, object.isAttributeValid());
 			}
 		});
 
 		// Sorting name column
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_NAME));
-		
+
 		// Sorting description column
 		descriptionColumn.setSortable(true);
 		columnSortHandler.setComparator(descriptionColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_DESCRIPTION));
@@ -364,7 +364,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 		this.table.addColumn(descriptionColumn, "Description");
 
 		return this.table;
-		
+
 	}
 
     /**
@@ -493,16 +493,16 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Sets IDS for this callback
-	 * 
+	 *
 	 * @param ids to be set
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Set external events after callback is created.
-	 * 
+	 *
 	 * @param extEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents extEvents) {
@@ -511,7 +511,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	/**
 	 * Return current IDS associated with callback
-	 * 
+	 *
 	 * @return IDS
 	 */
 	public Map<String, Integer> getIds() {

@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.engine.model;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 public class ProcessingRule {
 

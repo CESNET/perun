@@ -21,12 +21,12 @@ public class Member extends Auditable {
     super(id);
     membershipType = MembershipType.NOT_DEFINED;
   }
-  
+
   public Member(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     membershipType = MembershipType.NOT_DEFINED;
-  } 
-      
+  }
+
   public Member(int id, int userId) {
     this(id);
     this.userId = userId;
@@ -39,14 +39,14 @@ public class Member extends Auditable {
     this.status = status;
     membershipType = MembershipType.NOT_DEFINED;
   }
-  
+
     public Member(int id, int userId, int voId, Status status, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.userId = userId;
     this.voId = voId;
     this.status = status;
     membershipType = MembershipType.NOT_DEFINED;
-  } 
+  }
 
   public int getUserId() {
     return userId;
@@ -80,7 +80,7 @@ public class Member extends Auditable {
     public void setMembershipType(MembershipType type) {
         this.membershipType = type;
     }
-    
+
     public void setMembershipType(String type) {
     if(type == null) this.membershipType = null;
     else this.membershipType = MembershipType.valueOf(type);
@@ -127,7 +127,7 @@ public class Member extends Auditable {
     ", type=<" + (getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
     ']';
   }
-  
+
   @Override
   public String toString() {
     return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "']";

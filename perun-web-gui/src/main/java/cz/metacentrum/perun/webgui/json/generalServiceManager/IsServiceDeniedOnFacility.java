@@ -10,11 +10,11 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to get info about denial of service on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class IsServiceDeniedOnFacility implements JsonCallback {
-	
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// service ID
@@ -40,7 +40,7 @@ public class IsServiceDeniedOnFacility implements JsonCallback {
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param facilityId ID of facility
 	 * @param serviceId ID of service
 	 * @param events external events
@@ -63,16 +63,16 @@ public class IsServiceDeniedOnFacility implements JsonCallback {
 
 	/**
 	 * Updates exec services in table from RPC request
-	 * 
+	 *
 	 * @param bot services array of js objects returned from RPC
 	 */
-	private void update(BasicOverlayType bot) {		
+	private void update(BasicOverlayType bot) {
 		this.bot = bot;
 	}
-	
+
 	/**
 	 * Return bot object returned from RPC
-	 * 
+	 *
 	 * @return bot object
 	 */
 	public BasicOverlayType getBot() {
@@ -98,7 +98,7 @@ public class IsServiceDeniedOnFacility implements JsonCallback {
 
 	/**
 	 * Called when loading successfully finishes
-	 * 
+	 *
 	 * @param jso javascript object (array) returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {

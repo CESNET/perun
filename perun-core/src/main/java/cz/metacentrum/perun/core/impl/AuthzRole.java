@@ -7,12 +7,12 @@ import cz.metacentrum.perun.core.api.Role;
 public class AuthzRole {
 	private Role role;
 	private PerunBean complementaryObject;
-	
+
 	public AuthzRole(Role role, PerunBean complemenetaryObject) {
 		this.role = role;
 		this.complementaryObject = complemenetaryObject;
 	}
-	
+
 	public AuthzRole(Role role) {
 		this.role = role;
 		this.complementaryObject = null;
@@ -64,8 +64,8 @@ public class AuthzRole {
   }
 
   public String toString() {
-	  return getClass().getSimpleName() + 
-	  "role='" + role == null ? "null" : role + "', " + 
+	  return getClass().getSimpleName() +
+	  "role='" + role == null ? "null" : role + "', " +
 	  "complementaryObject='" + complementaryObject == null ? "null" : complementaryObject + "']";
 	}
 }

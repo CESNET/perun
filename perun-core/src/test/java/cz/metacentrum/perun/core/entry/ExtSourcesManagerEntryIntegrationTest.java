@@ -307,7 +307,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
 
 		extSourcesManagerEntry.removeExtSource(sess, createdVo, source);
-		// shouldn't find not assigned ext source 
+		// shouldn't find not assigned ext source
 
 	}
 

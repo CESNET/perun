@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get all RichTasks for selected facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTable<Task> {
-	
+
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
@@ -49,7 +49,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
     private ArrayList<Task> backupList = new ArrayList<Task>();
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private boolean checkable = true; // default is checkable
-	
+
 	/**
 	 * New instance of callback
 	 *
@@ -72,17 +72,17 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Return table with tasks - starts RPC call
-	 * 
+	 *
 	 * @return table
 	 */
 	public CellTable<Task> getTable() {
 		retrieveData();
 		return getEmptyTable();
 	}
-	
+
 	/**
 	 * Return table with tasks and custom field updater
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Task> getTable(FieldUpdater<Task, String> tfu) {
@@ -90,41 +90,41 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		retrieveData();
 		return getEmptyTable();
 	}
-	
+
 	/**
 	 * Return table with tasks
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Task> getEmptyTable() {
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<Task>(list);
-		
+
 		// Cell table
 		table = new PerunTable<Task>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Task> columnSortHandler = new ListHandler<Task>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Task> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("No service configuration was propagated to this facility.");
-		
+
 		// checkbox column column
         if (checkable) {
 		    table.addCheckBoxColumn();
         }
 
 		table.addIdColumn("Task Id", tableFieldUpdater);
-		
+
 		// Service column
 		Column<Task, String> serviceColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Task, String>() {
@@ -132,7 +132,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 						return String.valueOf(task.getExecService().getService().getName());
 					}
 				}, tableFieldUpdater);
-		
+
 		// Service Type column
 		Column<Task, String> serviceTypeColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Task, String>() {
@@ -140,7 +140,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 						return String.valueOf(task.getExecService().getType());
 					}
 				}, tableFieldUpdater);
-		
+
 
 		// status column
 		Column<Task, String> statusColumn = JsonUtils.addColumn(
@@ -149,27 +149,27 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 						return String.valueOf(task.getStatus());
 					}
 		}, tableFieldUpdater);
-		
+
 		// start COLUMN
 		TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
                 return result.getStartTime();
 			}
-		};		
+		};
 
 		// end COLUMN
 		TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
 				return result.getEndTime();
 			}
-		};	
+		};
 
 		// schedule COLUMN
 		TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
 				return result.getSchedule();
 			}
-		};	
+		};
 
 		// Add the columns.
 		table.addColumn(serviceColumn, "Service");
@@ -178,32 +178,32 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		table.addColumn(scheduleColumn, "Scheduled");
 		table.addColumn(startTimeColumn, "Started");
 		table.addColumn(endTimeColumn, "Ended");
-		
+
 		// set row styles based on task state
 		table.setRowStyles(new RowStyles<Task>(){
 			public String getStyleNames(Task row, int rowIndex) {
-				
+
 				if (row.getStatus().equalsIgnoreCase("NONE")) {
 					return "rowdarkgreen";
-				} 
-				else if (row.getStatus().equalsIgnoreCase("DONE")){ 
-					return "rowgreen"; 
 				}
-				else if (row.getStatus().equalsIgnoreCase("PROCESSING")){ 
-					return "rowyellow"; 
+				else if (row.getStatus().equalsIgnoreCase("DONE")){
+					return "rowgreen";
 				}
-				else if (row.getStatus().equalsIgnoreCase("ERROR")){ 
-					return "rowred"; 
+				else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
+					return "rowyellow";
+				}
+				else if (row.getStatus().equalsIgnoreCase("ERROR")){
+					return "rowred";
 				}
 				return "";
-			
+
 			}
 		});
 
 		return table;
 
 	}
-	
+
 	/**
 	 * Retrieve data from RPC
 	 */

@@ -9,7 +9,7 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 public class EntityAlreadyAssignedRuntimeException extends PerunRuntimeException {
     static final long serialVersionUID = 0;
 
-    public EntityAlreadyAssignedRuntimeException() { 
+    public EntityAlreadyAssignedRuntimeException() {
       super();
     }
 

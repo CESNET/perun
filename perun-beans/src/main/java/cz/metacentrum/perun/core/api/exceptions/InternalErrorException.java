@@ -17,25 +17,25 @@ public class InternalErrorException extends PerunException {
 
     public InternalErrorException(InternalErrorRuntimeException rt) {
         super(rt.getMessage(),rt);
-       
+
         log.error("Internal Error Exception:", this);
     }
 
     public InternalErrorException(String message) {
         super(message);
-        
+
         log.error("Internal Error Exception:", this);
     }
 
     public InternalErrorException(String message, Throwable cause) {
         super(message, cause);
-        
+
         log.error("Internal Error Exception:", this);
     }
 
     public InternalErrorException(Throwable cause) {
         super(cause);
-        
+
         log.error("Internal Error Exception:", this);
     }
 }

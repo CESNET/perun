@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query to create owner in Perun DB
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -37,7 +37,7 @@ public class CreateOwner {
 
 	/**
 	 * Creates a new request with custom events
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public CreateOwner(JsonCallbackEvents events) {
@@ -46,7 +46,7 @@ public class CreateOwner {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -77,7 +77,7 @@ public class CreateOwner {
 
 	/**
 	 * Attempts to create owner, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param ownerName name of future owner
 	 * @param ownerContact owners contact (mail, phone, vo etc.)
      * @param ownerType type of owner (administrative, technical)
@@ -119,7 +119,7 @@ public class CreateOwner {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()

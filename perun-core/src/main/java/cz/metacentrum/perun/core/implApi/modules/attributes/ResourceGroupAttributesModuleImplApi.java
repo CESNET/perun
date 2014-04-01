@@ -49,7 +49,7 @@ public interface ResourceGroupAttributesModuleImplApi extends AttributesModuleIm
     Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param resource the resource
      * @param group the group

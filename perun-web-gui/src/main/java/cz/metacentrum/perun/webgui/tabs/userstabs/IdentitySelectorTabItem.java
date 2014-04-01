@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * Page with Users for perun admin but in "User section"
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
@@ -38,7 +38,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
      */
 	public IdentitySelectorTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -150,7 +150,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
         }
 
 		this.contentWidget.setWidget(horizontalSplitter);
-		
+
 		return getWidget();
 
 	}
@@ -164,7 +164,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon(); 
+		return SmallIcons.INSTANCE.userGrayIcon();
 	}
 
 	@Override
@@ -183,7 +183,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
@@ -195,28 +195,28 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().getMenu().openMenu(MainMenu.USER, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isSelf()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "self-users";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public IdentitySelectorTabItem load(Map<String, String> parameters) {
 		return new IdentitySelectorTabItem();
 	}

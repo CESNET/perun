@@ -44,15 +44,15 @@ public interface FacilitiesManager {
   public final static String VIRTUALHOSTTYPE = "vhost";
   public final static String GENERALTYPE = "general";
   public final static String STORAGE = "storage";
-  
+
   /**
    * Searches for the Facility with specified id.
    *
    * @param perunSession
    * @param id
-   *  
+   *
    * @return Facility with specified id
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -65,9 +65,9 @@ public interface FacilitiesManager {
   * @param perunSession
   * @param name
   * @param type
-  *  
+  *
   * @return Facility with specified name
-  * 
+  *
   * @throws FacilityNotExistsException
   * @throws InternalErrorException
   * @throws PrivilegeException
@@ -81,9 +81,9 @@ public interface FacilitiesManager {
   *
   * @param perunSession
   * @param name
-  *  
+  *
   * @return Facility with specified name
-  * 
+  *
   * @throws FacilityNotExistsException
   * @throws InternalErrorException
   * @throws PrivilegeException
@@ -94,22 +94,22 @@ public interface FacilitiesManager {
   * Get all possible rich Facilities with all their owners.
   * For PerunAdmin get All richFacilities.
   * For FacilityAdmin get only richFacilities under his administration.
-  * 
+  *
   * @param perunSession
   * @return list of RichFacilities with owners
   * @throws InternalErrorException
-  * @throws PrivilegeException 
+  * @throws PrivilegeException
   */
  List<RichFacility> getRichFacilities(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
- 
+
  /**
   * Searches for the Facilities by theirs destination.
   *
   * @param perunSession
   * @param destination
-  * 
+  *
   * @return Facilities with specified name
-  * 
+  *
   * @throws FacilityNotExistsException  //FIXME proc tato vyjimka?
   * @throws InternalErrorException
   * @throws PrivilegeException
@@ -121,9 +121,9 @@ public interface FacilitiesManager {
   *
   * @param perunSession
   * @param type type of facility
-  * 
+  *
   * @return Facilities with specified types
-  * 
+  *
   * @throws InternalErrorException
   * @throws PrivilegeException
   * @deprecated the type attribute of the bean Facility will not be supported
@@ -136,9 +136,9 @@ public interface FacilitiesManager {
   *
   * @param perunSession
   * @param type type of facility
-  * 
+  *
   * @return count of facilities of specified types
-  * 
+  *
   * @throws InternalErrorException
   * @throws PrivilegeException
   * @deprecated the type attribute of the bean Facility will not be supported
@@ -150,14 +150,14 @@ public interface FacilitiesManager {
   * Get count of all facilities.
   *
   * @param perunSession
-  * 
+  *
   * @return count of all facilities
-  * 
+  *
   * @throws InternalErrorException
   * @throws PrivilegeException
   */
  int getFacilitiesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
- 
+
   /**
    * List facilities by ACCESS RIGHTS:
    * If User is:
@@ -165,9 +165,9 @@ public interface FacilitiesManager {
    * - FACILITYADMIN : only facilities where user is facility admin
    *
    * @param perunSession
-   * 
+   *
    * @return List of all Facilities within the Perun
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    */
@@ -175,12 +175,12 @@ public interface FacilitiesManager {
 
   /**
    * Returns owners of the facility.
-   * 
+   *
    * @param perunSession
-   * @param facility 
-   * 
+   * @param facility
+   *
    * @return owners of specified facility
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -189,11 +189,11 @@ public interface FacilitiesManager {
 
   /**
    * Updates owners of facility
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param owners
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -206,11 +206,11 @@ public interface FacilitiesManager {
 
   /**
    * Add owner of the facility
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param owner
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -221,11 +221,11 @@ public interface FacilitiesManager {
 
   /**
    * Remove owner of the facility
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param owner
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -238,23 +238,23 @@ public interface FacilitiesManager {
    * Copy all owners of the source facility to the destination facility.
    * The owners, that are in the destination facility and aren't in the source facility, are retained.
    * The common owners are replaced with owners from source facility.
-   * 
-   * @param sourceFacility 
-   * @param destinationFacility 
+   *
+   * @param sourceFacility
+   * @param destinationFacility
    * @throws InternalErrorException
    * @throws FacilityNotExistsException
    * @throws PrivilegeException
    */
   public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
-  
+
   /**
    * Return all VO which can use this facility. (VO muset have the resource which belongs to this facility)
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @return list of Vos
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws FacilityNotExistsException
@@ -265,7 +265,7 @@ public interface FacilitiesManager {
    * Get all Groups which can use this facility (Groups must be assigned to resource which belongs to this facility)
    * specificVo and specificService can choose concrete groups
    * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
-   * 
+   *
    * @param perunSession
    * @param facility searching for this facility
    * @param specificVo specific only those results which are in specific VO (with null, all results)
@@ -278,34 +278,34 @@ public interface FacilitiesManager {
    * @throws VoNotExistsException if vo is not null and not exist
    */
   List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException;
-  
+
   /**
    * Return all users who can use this facility
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @return list of users
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws FacilityNotExistsException
    */
   List<User> getAllowedUsers(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 
-  
+
   /**
    * Return all users who can use this facility
    * specificVo and specificService can choose concrete users
    * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param specificVo specific only those results which are in specific VO (with null, all results)
    * @param specificService specific only those results, which have resource with assigned specific service (if null, all results)
-   * 
+   *
    * @return list of users
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws FacilityNotExistsException
@@ -316,12 +316,12 @@ public interface FacilitiesManager {
 
   /**
    * Returns all resources assigned to the facility.
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @return list of resources assigned to the facility
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -330,25 +330,25 @@ public interface FacilitiesManager {
 
   /**
    * Returns all rich resources assigned to the facility with VO property filled
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @return list of rich resources assigned to the facility
-   * 
+   *
    * @throws FacilityNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
    */
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
-  
+
   /**
    * Store the facility.
-   * 
+   *
    * @param perunSession
    * @param facility
    * @return
-   * @throws InternalErrorException     
+   * @throws InternalErrorException
    * @throws FacilityExistsException
    * @throws PrivilegeException
    */
@@ -359,8 +359,8 @@ public interface FacilitiesManager {
    *
    * @param perunSession
    * @param facility
-   * 
-   * @throws InternalErrorException                 
+   *
+   * @throws InternalErrorException
    * @throws FacilityNotExistsException
    * @throws PrivilegeException
    * @throws RelationExistsException
@@ -388,25 +388,25 @@ public interface FacilitiesManager {
 
   /**
    * Returns list of all facilities owned by the owner.
-   * 
+   *
    * @param perunSession
    * @param owner
-   * 
+   *
    * @return list of facilities owned by the owner
-   * 
+   *
    * @throws InternalErrorException
-   * @throws PrivilegeException 
-   * @throws OwnerNotExistsException 
+   * @throws PrivilegeException
+   * @throws OwnerNotExistsException
    */
   List<Facility> getOwnerFacilities(PerunSession perunSession, Owner owner) throws InternalErrorException, OwnerNotExistsException, PrivilegeException;
 
   /**
    * Get facilities which are assigned to Group (via resource).
-   * 
+   *
    * @param sess
    * @param group
    * @return
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws GroupNotExistsException
@@ -415,11 +415,11 @@ public interface FacilitiesManager {
 
   /**
    * Get facilities which have the member access on.
-   * 
+   *
    * @param sess
    * @param member
    * @return
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws MemberNotExistsException
@@ -428,24 +428,24 @@ public interface FacilitiesManager {
 
   /**
    * Get facilities which have the user access on.
-   * 
+   *
    * @param sess
    * @param user
    * @return
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws UserNotExistsException
    */
   List<Facility> getAssignedFacilities(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
-  
+
   /**
    * Get facilities where the service is defined.
-   * 
+   *
    * @param sess
    * @param service
    * @return
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws ServiceNotExistsException
@@ -534,28 +534,28 @@ public interface FacilitiesManager {
    * @throws HostAlreadyRemovedException if there is at least 1 host not affected by deleting from DB
    */
   void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostAlreadyRemovedException;
-  
+
   /**
-   * Adds host to the Facility. 
-   * 
+   * Adds host to the Facility.
+   *
    * @param perunSession
    * @param host
    * @param facility
-   * 
+   *
    * return host
-   * 
+   *
    * @throws InternalErrorException
    * @throws FacilityNotExistsException
-   * @throws PrivilegeException    
+   * @throws PrivilegeException
    */
-  Host addHost(PerunSession perunSession, Host host, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException; 
+  Host addHost(PerunSession perunSession, Host host, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
 
   /**
    * Remove hosts from the Facility.
-   * 
+   *
    * @param perunSession
    * @param host
-   * 
+   *
    * @throws InternalErrorException
    * @throws HostNotExistsException
    * @throws PrivilegeException
@@ -565,7 +565,7 @@ public interface FacilitiesManager {
 
   /**
    * Get the host by its ID.
-   * 
+   *
    * @param sess
    * @param id
    * @return host
@@ -574,10 +574,10 @@ public interface FacilitiesManager {
    * @throws PrivilegeException
    */
   Host getHostById(PerunSession sess, int id) throws HostNotExistsException, InternalErrorException, PrivilegeException;
-  
+
   /**
    * Return facility which has the host.
-   * 
+   *
    * @param sess
    * @param host
    * @return facility
@@ -585,21 +585,21 @@ public interface FacilitiesManager {
    * @throws InternalErrorException
    */
   Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException, PrivilegeException, HostNotExistsException;
-  
+
   /**
    * Return all facilities where exists host with the specific hostname
-   * 
+   *
    * @param sess
    * @param hostname specific hostname
    * @return
    * @throws InternalErrorException
-   * @throws PrivilegeException 
+   * @throws PrivilegeException
    */
   List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException;
-  
+
   /**
    * Adds user administrator to the Facility.
-   * 
+   *
    * @param sess
    * @param facility
    * @param user
@@ -607,13 +607,13 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException
    * @throws UserNotExistsException
    * @throws PrivilegeException
-   * @throws AlreadyAdminException 
+   * @throws AlreadyAdminException
    */
   void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException;
-  
+
    /**
    * Adds group administrator to the Facility.
-   * 
+   *
    * @param sess
    * @param facility
    * @param group that will become a Facility administrator
@@ -621,13 +621,13 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException
    * @throws GroupNotExistsException
    * @throws PrivilegeException
-   * @throws AlreadyAdminException 
+   * @throws AlreadyAdminException
    */
   void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException;
-  
+
   /**
    * Removes a user administrator from the Facility.
-   * 
+   *
    * @param sess
    * @param facility
    * @param user
@@ -638,10 +638,10 @@ public interface FacilitiesManager {
    * @throws UserNotAdminException
    */
   void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException;
- 
+
   /**
    * Removes a group administrator from the Facility.
-   * 
+   *
    * @param sess
    * @param facility
    * @param group group that will lose a Facility administrator role
@@ -652,11 +652,11 @@ public interface FacilitiesManager {
    * @throws GroupNotAdminException
    */
   void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException;
- 
+
   /**
    * Gets list of all user administrators of the Facility.
    * If some group is administrator of the given group, all members are included in the list.
-   * 
+   *
    * @param sess
    * @param facility
    * @return list of Users who are admins in the facility.
@@ -664,14 +664,14 @@ public interface FacilitiesManager {
    * @throws PrivilegeException
    */
   List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
-  
-  /** 
+
+  /**
    * Gets list of direct user administrators of the Facility.
    * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws FacilityNotExistsException
@@ -680,7 +680,7 @@ public interface FacilitiesManager {
 
   /**
    * Gets list of all group administrators of the Facility.
-   * 
+   *
    * @param sess
    * @param facility
    * @return list of Group that are admins in the facility.
@@ -688,49 +688,49 @@ public interface FacilitiesManager {
    * @throws PrivilegeException
    */
   List<Group> getAdminGroups(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
-  
+
   /**
    * Get all Facility admins without attributes.
-   * 
+   *
    * @param sess
    * @param facility
    * @return return list of RichUsers without attributes.
    * @throws InternalErrorException
    * @throws UserNotExistsException
-   * @throws PrivilegeException 
+   * @throws PrivilegeException
    */
   List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException;
-  
+
   /**
    * Get all Facility admins with attributes.
-   * 
+   *
    * @param sess
    * @param facility
    * @return list of RichUsers who are admins in the facility WITH ATTRIBUTES.
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws PrivilegeException
-   * @throws FacilityNotExistsException 
+   * @throws FacilityNotExistsException
    */
   List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, PrivilegeException, FacilityNotExistsException;
-          
+
   /**
    * Get list of Facility administrators with specific attributes.
    * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param specificAttributes
    * @return list of RichUsers with specific attributes.
    * @throws InternalErrorException
    * @throws PrivilegeException
-   * @throws VoNotExistsException 
+   * @throws VoNotExistsException
    */
   List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
-    
+
   /**
    * Returns list of Facilities, where the user is an admin.
-   * 
+   *
    * @param sess
    * @param user
    * @return list of Facilities, where the user is an admin.
@@ -739,54 +739,54 @@ public interface FacilitiesManager {
    * @throws UserNotExistsException
    */
   List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
-  
+
   /**
    * Returns list of Users, assigned with chosen Facility.
-   * 
-   * @param sess 
-   * @param facility 
-   * 
+   *
+   * @param sess
+   * @param facility
+   *
    * @return list of users
-   * 
+   *
    * @throws PrivilegeException
    * @throws InternalErrorException
    */
   List<User> getAssignedUsers(PerunSession sess, Facility facility) throws PrivilegeException, InternalErrorException;
-          
+
   /**
    * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
-   * 
-   * @param sess 
-   * @param facility 
-   * @param service 
-   * 
+   *
+   * @param sess
+   * @param facility
+   * @param service
+   *
    * @return list of users
-   * 
+   *
    * @throws PrivilegeException
    * @throws InternalErrorException
    */
-  
+
   List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws PrivilegeException, InternalErrorException;
-  
+
   /**
    * Copy all managers(admins) of the source facility to the destination facility.
     * The admins, that are in the destination facility and aren't in the source facility, are retained.
     * The common admins are replaced with admins from source facility.
-   * 
+   *
    * @param sess
    * @param sourceFacility
    * @param destinationFacility
    * @throws InternalErrorException
    * @throws PrivilegeException
-   * @throws FacilityNotExistsException 
+   * @throws FacilityNotExistsException
    */
   void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
-  
+
  /**
   * Copy all attributes of the source facility to the destination facility.
   * The attributes, that are in the destination facility and aren't in the source facility, are retained.
   * The common attributes are replaced with attributes from source facility.
-  * 
+  *
   * @param sess
   * @param sourceFacility
   * @param destinationFacility

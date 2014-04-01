@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  * Searching for users.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
@@ -79,16 +79,16 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns table of users.
 	 * @return
 	 */
-	public CellTable<User> getTable(){ 
+	public CellTable<User> getTable(){
 		// retrieve data
 		retrieveData();
 		return getEmptyTable();
-		
+
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();	
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("User ID", tableFieldUpdater);
 
@@ -135,7 +135,7 @@ public class FindUsers implements JsonCallback, JsonCallbackTable<User> {
 				return o1.getFullName().compareToIgnoreCase(o2.getFullName());  // sort by name without titles
 			}
 		});
-		
+
 		// SERVICE COLUMN
 		Column<User, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<User, String>() {
 			public String getValue(User user) {

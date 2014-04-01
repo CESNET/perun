@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Request, which creates a new VO.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateVo {
@@ -49,7 +49,7 @@ public class CreateVo {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean testCreating()
@@ -77,7 +77,7 @@ public class CreateVo {
 
 	/**
 	 * Attempts to create a new VO, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param name		VO name
 	 * @param shortName VO short name
 	 */
@@ -111,7 +111,7 @@ public class CreateVo {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**

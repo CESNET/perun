@@ -9,9 +9,9 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 //TODO: Service, however, it can be Prototype so as to run concurrently...
 @org.springframework.stereotype.Service(value = "processPoolJob")

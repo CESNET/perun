@@ -27,7 +27,7 @@ import java.util.ArrayList;
 /**
  * Tab which allows to create a group
  * !!! USE AS INNER TAB ONLY !!!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -42,24 +42,24 @@ public class CreateGroupTabItem implements TabItem {
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Create group");
 
-	
+
 	/**
 	 * Entity ID to set
 	 */
 	private int groupId = 0;
     private int voId = 0;
-	
+
 	/**
 	 * Entity type
 	 */
 	private PerunEntity entity;
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -84,7 +84,7 @@ public class CreateGroupTabItem implements TabItem {
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
@@ -241,7 +241,7 @@ public class CreateGroupTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
         this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -254,7 +254,7 @@ public class CreateGroupTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -277,7 +277,7 @@ public class CreateGroupTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		CreateGroupTabItem create = (CreateGroupTabItem) obj;
 		if (entity != create.entity){
 			return false;
@@ -288,14 +288,14 @@ public class CreateGroupTabItem implements TabItem {
         if ((voId == create.voId) && groupId != create.groupId) {
             return false;
         }
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
         // no open for inner tab

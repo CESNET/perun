@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Group Applications 
- * 
+ * Group Applications
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
@@ -63,7 +63,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	//data
 	private int groupId;
 
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -73,7 +73,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		this.group = group;
 		this.groupId = group.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -88,7 +88,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(group == null);
 	}
@@ -100,7 +100,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
         final JsonCallbackEvents refreshEvent = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+": "+"applications");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -129,7 +129,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
                 }
 			}
 		});
-		
+
 		// accept button
         final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
         approve.addClickHandler(new ClickHandler() {
@@ -149,7 +149,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
                 }
 			}
 		});
-		
+
 		//reject button
         final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
 		reject.addClickHandler(new ClickHandler() {
@@ -214,7 +214,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
-		
+
 		// state
 		final ListBox stateListBox = new ListBox();
 		stateListBox.addItem(WidgetTranslation.INSTANCE.listboxAll(), "");
@@ -243,7 +243,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
                 applicationsRequest.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterApplications());
-		
+
 		// TABLE
         applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 		CellTable<Application> table = applicationsRequest.getTable(new FieldUpdater<Application, String>() {
@@ -253,9 +253,9 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		});
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
-		
-		
+		sp.addStyleName("perun-tableScrollPanel");
+
+
 		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
@@ -290,7 +290,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFromStorageIcon(); 
+		return SmallIcons.INSTANCE.applicationFromStorageIcon();
 	}
 
 	@Override
@@ -330,26 +330,26 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "appls";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
-	
+
 	static public GroupApplicationsTabItem load(Map<String, String> parameters) {
 		int groupId = Integer.parseInt(parameters.get("id"));
 		return new GroupApplicationsTabItem(groupId);

@@ -12,9 +12,9 @@ import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
- * 
+ *
  * Ajax query to get group by it's name
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetGroupByName implements JsonCallback {
@@ -38,7 +38,7 @@ public class GetGroupByName implements JsonCallback {
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param name name
 	 * @param voId ID of VO where to search for group
 	 */
@@ -49,7 +49,7 @@ public class GetGroupByName implements JsonCallback {
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param name name
 	 * @param voId ID of VO where to search for group
 	 * @param events external events
@@ -62,7 +62,7 @@ public class GetGroupByName implements JsonCallback {
 
 	/**
 	 * Returns decorator panel with group info
-	 * 
+	 *
 	 * @return widget with group info
 	 */
 	public DecoratorPanel getDecoratedFlexTable()
@@ -101,7 +101,7 @@ public class GetGroupByName implements JsonCallback {
 
 	/**
 	 * Updates the data from the request
-	 * 
+	 *
 	 * @param obj returned javascript object
 	 */
 	private void updateData(JavaScriptObject obj){
@@ -135,5 +135,5 @@ public class GetGroupByName implements JsonCallback {
 		session.getUiElements().setLogText("Loading group details started.");
 		events.onLoadingStart();
 	}
-	
+
 }

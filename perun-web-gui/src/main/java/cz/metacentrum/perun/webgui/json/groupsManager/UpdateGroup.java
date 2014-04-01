@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Update group details
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateGroup {
@@ -44,12 +44,12 @@ public class UpdateGroup {
 	 * @param group Group with updated details
 	 */
 	public void updateGroup(Group group) {
-		
+
 		if (group == null) {
 			Window.alert("Group can't be null");
 			return;
 		}
-		
+
 		// GROUP OBJECT
 		JSONObject oldGroup = new JSONObject(group);
 		// RECONSTRUCT OBJECT
@@ -64,7 +64,7 @@ public class UpdateGroup {
 		newGroup.put("createdBy", oldGroup.get("createdBy"));
 		newGroup.put("modifiedAt", oldGroup.get("modifiedAt"));
 		newGroup.put("modifiedBy", oldGroup.get("modifiedBy"));
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("group", newGroup);
@@ -90,7 +90,7 @@ public class UpdateGroup {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-		
+
 	}
 
 }

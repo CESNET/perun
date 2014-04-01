@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which deletes application email definition
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteApplicationMail {
@@ -24,7 +24,7 @@ public class DeleteApplicationMail {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private int mailId;
 	private int id;
@@ -57,7 +57,7 @@ public class DeleteApplicationMail {
 	 * @param id
 	 */
 	public void deleteMail(int mailId, int id) {
-		
+
 		this.mailId = mailId;
 		this.id = id;
 
@@ -86,7 +86,7 @@ public class DeleteApplicationMail {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -99,16 +99,16 @@ public class DeleteApplicationMail {
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
+
 		JSONObject request = new JSONObject();
 		request.put("id", new JSONNumber(mailId));
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			request.put("vo", new JSONNumber(id));			
+			request.put("vo", new JSONNumber(id));
 		} else if (PerunEntity.GROUP.equals(entity)) {
 			request.put("group", new JSONNumber(id));
 		}
 		return request;
-		
+
 	}
 
 }

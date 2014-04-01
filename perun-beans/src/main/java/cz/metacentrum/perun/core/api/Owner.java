@@ -24,18 +24,18 @@ public class Owner extends Auditable {
     this.name = name;
     this.contact = contact;
   }
-  
+
   public Owner(int id, String name, String contact, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.name = name;
     this.contact = contact;
   }
-  
+
   public Owner(int id, String name, String contact, OwnerType type) {
     this(id, name, contact);
     this.type = type;
   }
-  
+
   public Owner(int id, String name, String contact, OwnerType type, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
     super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
     this.name = name;
@@ -71,7 +71,7 @@ public class Owner extends Auditable {
   {
     this.contact = contact;
   }
-  
+
   public OwnerType getType() {
     return this.type;
   }
@@ -84,7 +84,7 @@ public class Owner extends Auditable {
     if(type == null) this.type = null;
     else this.type = OwnerType.valueOf(type);
   }
-  
+
   @Override
   public String serializeToString() {
         return this.getClass().getSimpleName() +":[" +
@@ -94,7 +94,7 @@ public class Owner extends Auditable {
         ", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType().toString())) + ">" +
         ']';
   }
-  
+
   public String toString() {
     return getClass().getSimpleName() + ":[" +
       "id='" + getId() + '\'' +
@@ -145,6 +145,6 @@ public boolean equals(Object obj) {
 	}
 	return true;
 }
-  
-  
+
+
 }

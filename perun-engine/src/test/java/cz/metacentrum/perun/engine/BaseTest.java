@@ -133,13 +133,13 @@ public abstract class BaseTest {
         servicePasswd.setName("ENGINE-passwd" + Long.toHexString(System.currentTimeMillis()));
         servicePasswd = Rpc.ServicesManager.createService(engineManager.getRpcCaller(), servicePasswd, testOwner);*/
         servicePasswd = Rpc.ServicesManager.getServiceById(engineManager.getRpcCaller(), 1);
-        
+
         execServicePasswdGenerate = Rpc.GeneralServiceManager.getExecService(engineManager.getRpcCaller(), 12951);
         execServicePasswdSend = Rpc.GeneralServiceManager.getExecService(engineManager.getRpcCaller(), 12950);
-        
+
         assertEquals(servicePasswd, execServicePasswdGenerate.getService());
         assertEquals(servicePasswd, execServicePasswdSend.getService());
-        
+
         execService1 = new ExecService();
         execService1.setDefaultDelay(10);
         execService1.setEnabled(true);
@@ -177,7 +177,7 @@ public abstract class BaseTest {
         destinationC.setId(8309);
         destinationC.setType("host");
         destinationC.setDestination("C");
-        
+
         //destinationA = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationA);
         //destinationB = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationB);
         //destinationC = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationC);
@@ -365,5 +365,5 @@ public abstract class BaseTest {
     public ExecService getExecServicePasswdGenerate() {
         return execServicePasswdGenerate;
     }
-    
+
 }

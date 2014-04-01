@@ -11,10 +11,10 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);  
+    my $self = fields::new(shift);
     $self->{_agent} = shift;
     $self->{_manager} = $manager;
-    
+
     return $self;
 }
 
@@ -23,7 +23,7 @@ sub getUserByUserExtSource
     return Perun::Common::callManagerMethod('getUserByUserExtSource', 'User', @_);
 }
 
-sub getUserByExtSourceNameAndExtLogin 
+sub getUserByExtSourceNameAndExtLogin
 {
     return Perun::Common::callManagerMethod('getUserByExtSourceNameAndExtLogin', 'User', @_);
 }
@@ -127,7 +127,7 @@ sub getUsersByAttributeValue
 {
 		return Perun::Common::callManagerMethod('getUsersByAttributeValue', '[]User', @_);
 }
-sub makeUserPerunAdmin 
+sub makeUserPerunAdmin
 {
 		return Perun::Common::callManagerMethod('makeUserPerunAdmin', 'null', @_);
 }

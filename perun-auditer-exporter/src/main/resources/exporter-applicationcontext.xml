@@ -21,12 +21,12 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     <!-- Scans for @Repository, @Service and @Component -->
     <context:component-scan base-package="cz.metacentrum.perun.exporter"/>
     <context:annotation-config/>
-    
+
     <!-- DataSource implementation -->
     <bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="url" value="${jdbc.url}"/>
         <property name="username" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
-    </bean> 
+    </bean>
 </beans>

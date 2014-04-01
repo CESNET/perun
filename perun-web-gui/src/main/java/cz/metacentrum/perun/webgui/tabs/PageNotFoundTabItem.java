@@ -7,16 +7,16 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 
 /**
  * Tab for Page not found case
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -26,13 +26,13 @@ public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
 	 */
 	public PageNotFoundTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -43,9 +43,9 @@ public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 		// format
 		firstTabPanel.setCellHorizontalAlignment(text, HasHorizontalAlignment.ALIGN_CENTER);
 		firstTabPanel.setCellVerticalAlignment(text, HasVerticalAlignment.ALIGN_MIDDLE);
-		
+
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -58,7 +58,7 @@ public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.errorIcon(); 
+		return SmallIcons.INSTANCE.errorIcon();
 	}
 
 	@Override
@@ -83,16 +83,16 @@ public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 		// always authorized
 		return true;
 	}
-	
+
 	static public final String URL = "404";
 
 	public String getUrl() {
@@ -102,7 +102,7 @@ public class PageNotFoundTabItem implements TabItem, TabItemWithUrl {
 	public String getUrlWithParameters() {
 		return OtherTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
-	
+
+
 
 }

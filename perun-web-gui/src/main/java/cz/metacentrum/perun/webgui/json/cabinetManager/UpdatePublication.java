@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.Publication;
 
 /**
  * Ajax query which updates a Publication
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdatePublication {
@@ -41,7 +41,7 @@ public class UpdatePublication {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -63,13 +63,13 @@ public class UpdatePublication {
 
 	/**
 	 * Attempts to update a Publication, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param publication Publication
 	 */
 	public void updatePublication(final Publication publication) {
-	
+
 		this.publication = publication;
-		
+
 		// test arguments
 		if(!this.testCreating()){
 			return;
@@ -103,14 +103,14 @@ public class UpdatePublication {
 		request.sendData(JSON_URL, jsonQuery);
 
 	}
-	
+
 	/**
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
-		
+
 		// publication
 		JSONObject oldPub = new JSONObject(publication);
 		// reconstruct object
@@ -128,12 +128,12 @@ public class UpdatePublication {
 		newPub.put("rank", oldPub.get("rank"));
 		newPub.put("doi", oldPub.get("doi"));
 		newPub.put("locked", oldPub.get("locked"));
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("publication", newPub);
 		return jsonQuery;
-		
+
 	}
 
 }

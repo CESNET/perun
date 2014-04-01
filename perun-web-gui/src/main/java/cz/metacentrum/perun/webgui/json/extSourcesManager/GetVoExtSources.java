@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all VO ext sources
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
@@ -42,7 +42,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// vo Id
-	private int voId = 0; 
+	private int voId = 0;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
@@ -58,9 +58,9 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 		this.voId = voId;
 	}
 
-	/** 
+	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param voId ID of Vo we want ext sources for
 	 * @param events external events
 	 */
@@ -71,7 +71,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 	/**
 	 * Return table containing VO external sources
-	 * 
+	 *
 	 * @return table widget containing VO ext sources
 	 */
 	public CellTable<ExtSource> getTable() {
@@ -84,14 +84,14 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 		// Cell table
 		table = new PerunTable<ExtSource>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<ExtSource> columnSortHandler = new ListHandler<ExtSource>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<ExtSource> createCheckboxManager());
 
@@ -262,7 +262,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 	/**
 	 * Return substring on position 40 and uppercase - used for ExtSourceType value
-	 * 
+	 *
 	 * @param oldString original string value
 	 * @return new string starting on position 40 and uppercase
 	 */

@@ -19,7 +19,7 @@ import java.util.Date;
 
 /**
  * Class with a client for JSON calls. For each call a new instance must be created.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetPendingRequests implements JsonCallback{
@@ -32,23 +32,23 @@ public class GetPendingRequests implements JsonCallback{
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// panel with requests
 	private VerticalPanel panelWithRequests = new VerticalPanel();
-	
+
 	// widget
 	private FlexTable widget = new FlexTable();
-	
+
 	// requests running?
 	private boolean requestsRefreshing;
-	
-	
+
+
 	public GetPendingRequests(){
-		
+
 		// set refreshing
 		this.setRequestsRefreshing(false); // true to start pending requests
-		
-		
+
+
 		final ToggleButton startStopButton = new ToggleButton("Pause requests feed", "Resume requests feed");
 		startStopButton.setDown(!isRequestsRefreshing());
 		startStopButton.addClickHandler(new ClickHandler() {
@@ -56,13 +56,13 @@ public class GetPendingRequests implements JsonCallback{
 				setRequestsRefreshing(!startStopButton.isDown());
 			}
 		});
-		
-		
+
+
 		widget.setWidget(0, 0, new HTML("<strong>Pending requests</strong>"));
 		widget.setWidget(1, 0, panelWithRequests);
 		widget.setWidget(2, 0, startStopButton);
 	}
-	
+
 	public void setRequestsRefreshing(boolean requestsRefreshing)
 	{
 		if(requestsRefreshing && !this.requestsRefreshing){
@@ -73,60 +73,60 @@ public class GetPendingRequests implements JsonCallback{
 				}
 			}, DEFAULT_INTERVAL);
 		}
-		
+
 		this.requestsRefreshing = requestsRefreshing;
 	}
-	
+
 	protected boolean isRequestsRefreshing(){
 		return requestsRefreshing;
 	}
-	
+
 
 	public void retrieveData()
 	{
 		JsonClient client = new JsonClient();
 		client.setSilent(true);
-		client.retrieveData(JSON_URL, this);	
+		client.retrieveData(JSON_URL, this);
 	}
-	
-	
+
+
 	private void updateTable(JsArray<PerunRequest> requests){
 		panelWithRequests.clear();
-		
+
 		if(requests.length() == 0){
 			Widget label = new Label("No requests");
 			panelWithRequests.add(label);
 		}
-		
+
 		for(int i = 0; i< requests.length(); i++){
 			PerunRequest req = requests.get(i);
-			
+
 			FlexTable ft = new FlexTable();
-			
+
 			// MAIN INFO
 			HTML a = new HTML("<strong>" + req.getManager() + "</strong>");
 			HTML b = new HTML("<strong>" + req.getMethod() + "</strong>");
-			
+
 			long startTime = ((long) req.getStartTime());
 			long currentTime = new Date().getTime();
 			long elapsedTime = currentTime - startTime;
 			int elapsedSeconds = (int) (elapsedTime / 1000);
-					
+
 			HTML c = new HTML(elapsedSeconds + "s");
 
 			ft.setWidget(0, 0, a);
 			ft.setWidget(1, 0, b);
 			ft.setWidget(2, 0, c);
-			
-			
+
+
 			// PARAMETERS
 			ft.setTitle(req.getParamsString());
 
 			panelWithRequests.add(ft);
-			
+
 		}
 	}
-	
+
 	public Widget getWidget()
 	{
 		return widget;
@@ -140,7 +140,7 @@ public class GetPendingRequests implements JsonCallback{
 	}
 
 
-	public void onError(PerunError error) {		
+	public void onError(PerunError error) {
 	}
 
 

@@ -16,9 +16,9 @@ import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
 
 /**
  * EngineDaoJdbc
- * 
+ *
  * @author Michal Karm Babacek
- * 
+ *
  */
 @Transactional
 public class EngineDaoJdbc extends JdbcDaoSupport implements EngineDao {

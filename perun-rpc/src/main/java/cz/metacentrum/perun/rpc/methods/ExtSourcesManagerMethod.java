@@ -21,7 +21,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
     },
     /*#
 	 * Returns an external source by its ID.
-	 * 
+	 *
 	 * @param id int ExtSource ID
 	 * @return ExtSource Found ExtSource
 	 */
@@ -35,7 +35,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
     /*#
 	 * Returns an external source by its name.
-	 * 
+	 *
 	 * @param name String ExtSource name
 	 * @return ExtSource Found ExtSource
 	 */
@@ -49,7 +49,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
     },
     /*#
      * Returns the list of external sources associated with a VO.
-     * 
+     *
      * @param vo int VO ID
      * @return List<ExtSource> VO external sources
      */
@@ -61,10 +61,10 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
                     ac.getVoById(parms.readInt("vo")));
         }
     },
-    
+
     /*#
      * Returns the list of all external sources.
-     * 
+     *
      * @return List<ExtSource> all external sources
      */
     getExtSources {
@@ -74,10 +74,10 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
             return ac.getExtSourcesManager().getExtSources(ac.getSession());
         }
     },
-    
+
     /*#
      * Associate an external source definition with a VO.
-     * 
+     *
      * @param vo int VO ID
      * @param source int ExtSource ID
      */
@@ -94,10 +94,10 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
      * Remove an association of an external source from a VO.
-     * 
+     *
      * @param vo int VO ID
      * @param source int ExtSource ID
      */
@@ -114,9 +114,9 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-    
+
     /*#
-     * Loads ext source definitions from the configuration file and updates entries stored in the DB. 
+     * Loads ext source definitions from the configuration file and updates entries stored in the DB.
      */
     loadExtSourcesDefinitions {
 

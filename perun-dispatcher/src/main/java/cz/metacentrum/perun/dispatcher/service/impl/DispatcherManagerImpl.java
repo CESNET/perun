@@ -12,7 +12,7 @@ import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  * JavaDoc coming soon...
  *

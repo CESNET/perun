@@ -16,15 +16,15 @@ import cz.metacentrum.perun.cabinet.service.IHttpService;
 /**
  * Simple HTTP client which executes HTTP requests and return HTTP responses.
  * Request is get from PSStrategy files and response returned back to them.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
 public class HttpServiceImpl implements IHttpService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	public HttpResponse execute(HttpUriRequest request) throws CabinetException {
-		
+
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = null;
 		try {

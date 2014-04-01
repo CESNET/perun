@@ -3,7 +3,7 @@ package cz.metacentrum.perun.webgui.json;
 
 /**
  * Overlaying class for a GET request
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class JsonClientRequest {
@@ -13,10 +13,10 @@ public class JsonClientRequest {
 	private String parameters = "";
 	private boolean important = false;
 	private int timeout = JsonClient.DEFAULT_TIMEOUT;
-	
+
 	/**
 	 * Creates a new instance of request
-	 * 
+	 *
 	 * @param requestId
 	 * @param url
 	 * @param parameters
@@ -40,9 +40,9 @@ public class JsonClientRequest {
 	{
 		this(requestId, url, parameters);
 		this.important = important;
-		this.timeout = timeout;		
+		this.timeout = timeout;
 	}
-	
+
 
 	/**
 	 * Returns formatted request
@@ -86,6 +86,6 @@ public class JsonClientRequest {
 	public int getTimeout() {
 		return timeout;
 	}
-	
-	
+
+
 }

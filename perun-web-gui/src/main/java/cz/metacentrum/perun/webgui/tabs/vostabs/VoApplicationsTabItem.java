@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * VO Applications 
- * 
+ * VO Applications
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -64,7 +64,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	//data
 	private int voId;
 
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -74,7 +74,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -89,7 +89,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
@@ -102,7 +102,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
         if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"applications");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -131,7 +131,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
                 }
 			}
 		});
-		
+
 		// accept button
 		final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
 		approve.addClickHandler(new ClickHandler() {
@@ -151,7 +151,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 				}
 			}
 		});
-		
+
 		//reject button
 		final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
 		reject.addClickHandler(new ClickHandler() {
@@ -213,10 +213,10 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
         menu.addWidget(approve);
         menu.addWidget(reject);
         menu.addWidget(delete);
-		
+
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
-		
+
 		// state
 		final ListBox stateListBox = new ListBox();
 		stateListBox.addItem(WidgetTranslation.INSTANCE.listboxAll(), "");
@@ -246,7 +246,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
                 applicationsRequest.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterApplications());
-		
+
 		// TABLE
         applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 		CellTable<Application> table = applicationsRequest.getTable(new FieldUpdater<Application, String>() {
@@ -256,8 +256,8 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		});
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
-		
+		sp.addStyleName("perun-tableScrollPanel");
+
 		verify.setEnabled(false);
         approve.setEnabled(false);
         reject.setEnabled(false);
@@ -272,7 +272,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
         session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
-		
+
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
@@ -287,7 +287,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFromStorageIcon(); 
+		return SmallIcons.INSTANCE.applicationFromStorageIcon();
 	}
 
 	@Override
@@ -327,26 +327,26 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "appls";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoApplicationsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoApplicationsTabItem(voId);

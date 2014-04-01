@@ -6,7 +6,7 @@ class PerunRpcClient{
 
     // settings
     // PERUN RPC URL
-    const RPC_URL = "https://perun.cesnet.cz/krb/rpc/json/"; 
+    const RPC_URL = "https://perun.cesnet.cz/krb/rpc/json/";
     // Username
     const USER = "perun-client";
     // Password based authentication
@@ -15,12 +15,12 @@ class PerunRpcClient{
     const KERBEROS_CC = "/tmp/krb5cc_perun";
 
 
-    // DO NOT EDIT BELOW THIS LINE 
+    // DO NOT EDIT BELOW THIS LINE
     // ***************************
-    
+
     // curl request
     private $curl;
-    
+
     /**
      * Initializes the connection
      */
@@ -39,7 +39,7 @@ class PerunRpcClient{
         $userpwd = self::PASSSWORD != "" ? self::USER . ":" . self::PASSSWORD : self::USER . ":";
         curl_setopt($this -> curl, CURLOPT_USERPWD, $userpwd);
     }
-    
+
     /**
      * Retrieves parsed JSON data or false if request fails.
      */
@@ -54,7 +54,7 @@ class PerunRpcClient{
 
         $response = curl_exec($this -> curl);
         curl_close($this -> curl);
-    
+
         // IF REQUEST FAILS
         if($response === false){
             return false;
@@ -62,12 +62,12 @@ class PerunRpcClient{
 
         // DECODING RESPONSE
         $json = json_decode($response);
-        
+
         // ERROR WHILE DECODING RESPONSE
         if($json === null){
             return false;
         }
-    
+
         return $json;
     }
 }

@@ -42,11 +42,11 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
   private final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerImpl.class);
   public final static String USEREXTSOURCEMAPPING = "additionalues_";
-  
-  protected final static String extSourceMappingSelectQuery = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " + 
+
+  protected final static String extSourceMappingSelectQuery = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
           "ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
           "ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid";
-  
+
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private static SimpleJdbcTemplate jdbc;
 
@@ -91,7 +91,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     try {
       // Check if the extSources already exists
       if (0 < jdbc.queryForInt("select count(id) from ext_sources where name=? and type=?", extSource.getName(), extSource.getType())) {
-        throw new ExtSourceExistsException(extSource); 
+        throw new ExtSourceExistsException(extSource);
       }
 
       // Get a new Id
@@ -115,7 +115,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
         throw new InternalErrorRuntimeException(e);
       } catch (IllegalAccessException e) {
         throw new InternalErrorRuntimeException(e);
-      } 
+      }
 
       // Set the properties
       es.setId(extSource.getId());
@@ -130,7 +130,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
         while (i.hasNext()) {
           String attr_name = i.next();
           jdbc.update("insert into ext_sources_attributes (attr_name, attr_value, ext_sources_id,created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-                "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", attr_name, attributes.get(attr_name), extSource.getId(), 
+                "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", attr_name, attributes.get(attr_name), extSource.getId(),
                 sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
         }
       }
@@ -144,7 +144,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     }
   }
 
-  public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {   
+  public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
     try {
       // Delete associated attributes
       jdbc.update("delete from ext_sources_attributes where ext_sources_id=?", extSource.getId());
@@ -158,7 +158,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
   /**
    * Updates extSource definition. It is only private method, because extSources are defined in the external XML file.
-   * 
+   *
    * @param sess
    * @param extSource
    * @throws InternalErrorException
@@ -170,7 +170,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     } catch (ExtSourceNotExistsException e) {
       throw new InternalErrorException(e);
     }
-    
+
     // Check the name
     if (!extSourceDb.getName().equals(extSource.getName())) {
       try {
@@ -188,14 +188,14 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
         throw new InternalErrorException(e);
       }
     }
-    
+
     // Check the attributes
     if (!extSourceDb.getAttributes().equals(extSource.getAttributes())) {
       log.debug("There is a change in the extSource attributes");
       try {
         // Firstly delete all attributes, then store new ones
         jdbc.update("delete from ext_sources_attributes where ext_sources_id=?", extSource.getId());
-        
+
         for (String attrName: extSource.getAttributes().keySet()) {
           jdbc.update("insert into ext_sources_attributes (ext_sources_id, attr_name, attr_value, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
               "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", extSource.getId(), attrName,
@@ -205,15 +205,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
       } catch (RuntimeException e) {
         throw new InternalErrorException(e);
       }
-    } 
+    }
   }
-  
+
   public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
     try {
       ExtSource extSource =  jdbc.queryForObject("select " + extSourceMappingSelectQuery + " from ext_sources where id=?", EXTSOURCE_MAPPER, id);
-      
+
       extSource.setAttributes(this.getExtSourceAttributes(sess, extSource));
-      
+
       return extSource;
     } catch (EmptyResultDataAccessException e) {
       throw new ExtSourceNotExistsException("ExtSourceId " + id, e);
@@ -233,10 +233,10 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   /**
    * Get extSource attributes.
-   * 
+   *
    * @param sess
    * @param extSource
    * @return Map of pairs AttrName and AttrValue.
@@ -244,15 +244,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
    */
   private Map<String, String> getExtSourceAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException {
     Map<String, String> attributes = new HashMap<String, String>();
-    
+
     try {
       List<Map<String, Object>> list = jdbc.queryForList("select attr_name as name, attr_value as value from ext_sources_attributes where ext_sources_id=?",
           extSource.getId());
-      
+
       if (list != null) {
         for (Map<String, Object> element: list) {
           attributes.put((String) element.get("name"), (String) element.get("value"));
-        }        
+        }
       }
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
@@ -260,7 +260,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     return attributes;
   }
 
-  public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {      
+  public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
     try {
       List<Integer> ess = jdbc.query("select s.id as id from vo_ext_sources v, ext_sources s where v.vo_id=?" +
           " and v.ext_sources_id=s.id", Utils.ID_MAPPER, vo.getId());
@@ -281,7 +281,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     }
   }
 
-  public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {      
+  public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
     try {
       List<Integer> extSourcesIds = jdbc.query("select id from ext_sources", Utils.ID_MAPPER);
 
@@ -336,15 +336,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
       throw new InternalErrorException(e);
     }
   }
-  
+
   /**
-   * Routine which initialize the extSourcesManager. 
-   * 
+   * Routine which initialize the extSourcesManager.
+   *
    * @throws InternalErrorException
    */
   public void initialize(PerunSession sess) {
     this.loadExtSourcesDefinitions(sess);
-    
+
     // Check if default extSource PERUN exists
     try {
     	this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_PERUN);
@@ -361,15 +361,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
     	log.error("Cannot get default PERUN extSource.");
     }
   }
-  
+
   /**
-   * Loads the extSources definitions from the XML configuration file. 
+   * Loads the extSources definitions from the XML configuration file.
    * All data from the extSouces XML file are synchronized with the DB.
-   * 
+   *
    * @throws InternalErrorException
    */
   public void loadExtSourcesDefinitions(PerunSession sess) {
-    try {    
+    try {
       // Load the XML file
       BufferedInputStream is = new BufferedInputStream(new FileInputStream(ExtSourcesManager.CONFIGURATIONFILE));
       if (is == null) {
@@ -390,7 +390,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
       for (int extSourceSeq = 0; extSourceSeq < extSourcesNodes.getLength(); extSourceSeq++) {
 
         // Get each extSource
-        Node extSourceNode = extSourcesNodes.item(extSourceSeq);     
+        Node extSourceNode = extSourcesNodes.item(extSourceSeq);
         if (extSourceNode.getNodeType() == Node.ELEMENT_NODE) {
 
           Element extSourceElement = (Element) extSourceNode;
@@ -406,7 +406,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
           if (extSourceType == null) {
             throw new InternalErrorException("extSource " + extSourceName + " doesn't have defined type");
           }
-          
+
           // Get all extSource attributes
           NodeList attributeNodes = extSourceElement.getElementsByTagName("attribute");
 
@@ -424,7 +424,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
               attributes.put(attrName, attrValue);
             }
           }
-          
+
           // Check if the extSource
           try {
             ExtSource extSource;
@@ -433,10 +433,10 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
               extSource.setName(extSourceName);
               extSource.setType(extSourceType);
               extSource.setAttributes(attributes);
-              
+
               // ExtSource exists, so check values and potentionally update it
               this.updateExtSource(sess, extSource);
-              
+
             } catch (ExtSourceNotExistsException e) {
               // ExtSource doesn't exist, so create it
               extSource = new ExtSource();

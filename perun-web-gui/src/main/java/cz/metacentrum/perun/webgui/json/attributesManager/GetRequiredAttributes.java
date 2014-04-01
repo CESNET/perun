@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Ajax query to get all required attributes for any entity and specified service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -99,7 +99,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 
 	/**
 	 * Returns the table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu custom field updater
 	 * @return table widget
 	 */
@@ -110,7 +110,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable() {
@@ -123,7 +123,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -233,7 +233,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 				}, new FieldUpdater<Attribute, String>() {
 					public void update(int index, Attribute object, String newText) {
 						if (object.setValue(newText)) {
-							selectionModel.setSelected(object, true);  
+							selectionModel.setSelected(object, true);
 						} else {
 							selectionModel.setSelected(object, false);
 							UiElements.cantSaveAttributeValueDialogBox(object);
@@ -434,7 +434,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 
 	/**
 	 * Returns shorten string for ValueTypeColum
-	 * 
+	 *
 	 * @return String shorten string
 	 */
 	private String renameContent(String oldString) {
@@ -447,17 +447,17 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 	}
 
 	/**
-	 * Sets entities and their ids to this callback 
-	 * 
+	 * Sets entities and their ids to this callback
+	 *
 	 * @param ids map of IDS
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Returns map of entities and their ids currently "in use" for this callback
-	 * 
+	 *
 	 * @return map of IDS
 	 */
 	public Map<String, Integer> getIds() {
@@ -466,7 +466,7 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 
 	/**
 	 * Returns selection model of table
-	 * 
+	 *
 	 * @return selection model
 	 */
 	public MultiSelectionModel<Attribute> getSelectionModel() {

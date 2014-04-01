@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query for finding candidates in External sources so they can become VO members
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -231,7 +231,7 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 
 	/**
 	 * Returns selected Candidates
-	 * 
+	 *
 	 * @return selected candidate
 	 */
 	public Candidate getSelected() {
@@ -239,7 +239,7 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	}
 
 	/**
-	 * Sorts table by objects Names 
+	 * Sorts table by objects Names
 	 */
 	public void sortTable() {
         list = new TableSorter<Candidate>().sortByName(getList());
@@ -249,7 +249,7 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 
 	/**
 	 * Called when the query successfully finishes
-	 * 
+	 *
 	 * @param jso The JavaScript object returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {
@@ -305,7 +305,7 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	}
 
 	public void clearTableSelectedSet() {
-		// FIXME - cannot clear SingleSelectionModel !!		
+		// FIXME - cannot clear SingleSelectionModel !!
 	}
 
 	public ArrayList<Candidate> getTableSelectedList() {
@@ -323,11 +323,11 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	public ArrayList<Candidate> getList() {
 		return this.list;
 	}
-	
+
 	public void setEvents(JsonCallbackEvents events){
 		this.events = events;
 	}
-	
+
 	public void setSelected(Candidate candidate){
 		selectionModel.setSelected(candidate, true);
 	}

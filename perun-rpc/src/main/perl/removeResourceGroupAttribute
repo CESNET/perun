@@ -4,11 +4,11 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
-Removes selected attribute from the resource-group. Group id or group name and VO, resource id and attribute id are required fields.  
+Removes selected attribute from the resource-group. Group id or group name and VO, resource id and attribute id are required fields.
 --------------------------------------
 Available options:
  --groupId        | -g group id
@@ -32,7 +32,7 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
    "voShortName|V=s" => \$voShortName,
    "resourceId|r=i" => \$resourceId,
    "attributeName|A=s" => \$attributeName,
-   "attributeId|a=i" => \$attributeId) || die help(); 
+   "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -61,5 +61,5 @@ if (!defined($attributeId)) {
 }
 
 $attributesAgent->removeAttribute(group => $groupId, resource => $resourceId, attribute => $attributeId);
-    
+
 printMessage("Attribute Id:$attributeId removed from the group Id:$groupId", $batch);

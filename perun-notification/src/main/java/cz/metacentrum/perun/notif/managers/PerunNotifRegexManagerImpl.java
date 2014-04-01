@@ -101,7 +101,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
         }
 
         allRegex.add(regex);
-        
+
         return perunNotifRegex;
     }
 

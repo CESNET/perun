@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * Extension for single Thanks to provide GUI more info
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ThanksForGUI extends Thanks {
@@ -44,7 +44,7 @@ public class ThanksForGUI extends Thanks {
 	public void setOwnerName(String owner) {
 		this.ownerName = owner;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName()+":[id="+ this.getId() + ", pubId="+ this.getPublicationId() +", ownerId="+ this.getOwnerId() +", ownerName="+ ownerName +", createdBy="+ this.getCreatedBy() +", createdByUid="+ this.getCreatedByUid() +", createdDate="+ this.getCreatedDate() +"]";

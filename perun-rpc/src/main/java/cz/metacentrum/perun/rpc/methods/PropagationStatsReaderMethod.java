@@ -18,7 +18,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
 	/*#
 	 * Returns a task.
-	 * 
+	 *
 	 * @param execService int Exec service ID
 	 * @param facility int Facility ID
 	 * @return Task Found task
@@ -33,7 +33,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Returns all tasks.
-   * 
+   *
    * @return List<Task> All tasks
    */
   listAllTasks {
@@ -41,10 +41,10 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
       return ac.getPropagationStatsReader().listAllTasks(ac.getSession());
     }
   },
-  
+
   /*#
    * Returns all tasks associated with selected facility.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<Tasks> Tasks
    */
@@ -53,32 +53,32 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	    	return ac.getPropagationStatsReader().listAllTasksForFacility(ac.getSession(), parms.readInt("facility"));
 	    }
 	  },
-  
+
 	/*#
 	 * Returns RichTasks for a service.
-	 * 
+	 *
 	 * @param service int Service ID
 	 * @param facility int Facility ID
 	 * @return List<Tasks> Tasks
 	 */
   getServiceRichTasks {
-	  public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {  
-		  
+	  public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
 		  List<ExecService> list = ac.getGeneralServiceManager().listExecServices(ac.getSession(), parms.readInt("service"));
 		  List<Task> tasks = new ArrayList<Task>();
-		  
+
 		  for (ExecService exec : list) {
 			  Task task = ac.getPropagationStatsReader().getTask(ac.getSession(), exec.getId(), parms.readInt("facility"));
 			  if (task != null) {
 				  Task rtask = (Task) task;
 				  rtask.setExecService(exec);
-				  tasks.add(rtask);  
+				  tasks.add(rtask);
 			  }
 	      }
 	      return tasks;
 	    }
   },
- 
+
   listAllTasksInState {
     public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
       throw new InternalErrorException("Not implemented yet!");
@@ -105,7 +105,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Whether task exists.
-   * 
+   *
    * @param execService int ExecService ID
    * @param facility int Facility ID
    * @return int 1 = true; 0 = false
@@ -130,7 +130,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Returns all task results.
-   * 
+   *
    * @return List<TaskResult> Task results.
    */
   getTaskResults {
@@ -141,7 +141,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Return list of TaskResults by a Task.
-   * 
+   *
    * @param task int Task ID
    * @return List<TaskResult> Results
    */
@@ -153,7 +153,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Return list of TaskResults by a Task.
-   * 
+   *
    * @param task int Task
    * @return List<TaskResult> Results
    */
@@ -162,10 +162,10 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	      return ac.getPropagationStatsReader().getTaskResultsForGUIByTask(ac.getSession(), parms.readInt("task"));
 	}
   },
-  
+
   /*#
    * Returns TaskResult by its ID.
-   * 
+   *
    * @param taskResult int TaskResult ID
    * @return TaskResult Result
    */
@@ -177,38 +177,38 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
   /*#
    * Returns Task by its ID.
-   * 
+   *
    * @param id int Task ID
    * @return Task Task
    */
-  
+
   getTaskById {
     public Task call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getPropagationStatsReader().getTaskById(ac.getSession(), parms.readInt("id"));
     }
   },
-  
+
   /*#
    * Return propagation status of facility.
-   * 
+   *
    * @param facility int Facility ID
-   * @return FacilityState Facility state 
+   * @return FacilityState Facility state
    */
   getFacilityState {
 	  public FacilityState call(ApiCaller ac, Deserializer parms) throws PerunException {
 		  return ac.getPropagationStatsReader().getFacilityState(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 	  }
   },
-  
+
   /*#
    * Return propagation status of all facilities in Perun.
-   * @return List<FacilityState> Propagation status 
+   * @return List<FacilityState> Propagation status
    */
   /*#
    * Return propagation status of all facilities related to VO resources.
-   * 
+   *
    * @param vo int VO ID
-   * @return List<FacilityState> Propagation status 
+   * @return List<FacilityState> Propagation status
    */
   getAllFacilitiesStates {
 	  public List<FacilityState> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -219,10 +219,10 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
           }
 	  }
   },
-  
+
   /*#
    * Returns task results for defined destinations.
-   * 
+   *
    * @param destinations List<String> Destinations
    * @return List<TaskResult> Results.
    */

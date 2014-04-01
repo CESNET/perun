@@ -28,7 +28,7 @@ import java.util.Collections;
 
 /**
  * Page with list of user applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class UsersApplicationsPage extends ApplicationPage {
@@ -41,7 +41,7 @@ public class UsersApplicationsPage extends ApplicationPage {
 	 * User's applications page
      */
 	public UsersApplicationsPage(){
-		
+
 		this.initWidget(bodyContents);
 		bodyContents.setWidth("100%");
         bodyContents.setStyleName("mainPanel");
@@ -55,22 +55,22 @@ public class UsersApplicationsPage extends ApplicationPage {
 	{
 
 		bodyContents.clear();
-		
+
 		String user = "";
-		
+
 		if (session.getUser() != null) {
 			user = this.session.getUser().getFullNameWithTitles().trim();
 		} else {
 			PerunPrincipal pp = session.getPerunPrincipal();
 			if (!pp.getAdditionInformations("displayName").equals("")) {
-				user = pp.getAdditionInformations("displayName");						
+				user = pp.getAdditionInformations("displayName");
 			} else if (!pp.getAdditionInformations("cn").equals("")) {
-				user = pp.getAdditionInformations("cn");				
+				user = pp.getAdditionInformations("cn");
 			} else {
 				user = pp.getActor();
 			}
 		}
-		
+
 		bodyContents.add(new HTML("<h1>" + ApplicationMessages.INSTANCE.applicationsForUser(user) + "</h1>"));
 
 		// callback
@@ -143,7 +143,7 @@ public class UsersApplicationsPage extends ApplicationPage {
         applicationsWrapper.setSize("100%", "100%");
 
         applicationsWrapper.add(tabMenu);
-		
+
 		final CellTable<Application> appsTable = req.getTable(new FieldUpdater<Application, String>() {
 			public void update(int index, Application object, String value) {
                 applicationsWrapper.clear();
@@ -166,7 +166,7 @@ public class UsersApplicationsPage extends ApplicationPage {
 
 		bodyContents.add(applicationsWrapper);
 	}
-	
+
 
 	/**
 	 * Returns application detail
@@ -174,11 +174,11 @@ public class UsersApplicationsPage extends ApplicationPage {
 	 * @return
 	 */
 	protected Widget getApplicationDetailWidget(Application app) {
-		
+
 		GetApplicationDataById data = new GetApplicationDataById(app.getId());
 		data.setShowAdminItems(false);
 		data.retrieveData();
-		
+
 		VerticalPanel vp = new VerticalPanel();
         vp.setSize("100%", "100%");
 

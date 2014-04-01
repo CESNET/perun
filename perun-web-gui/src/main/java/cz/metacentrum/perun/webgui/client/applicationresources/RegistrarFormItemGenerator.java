@@ -30,17 +30,17 @@ import java.util.*;
 
 /**
  * Creates GWT widgets from the ApplicationFormItems
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RegistrarFormItemGenerator {
-	
+
 	/**
 	 * Namespace position
 	 */
 	private static final int PERUN_ATTRIBUTE_LOGIN_NAMESPACE_POSITION = 49;
-	
+
 	/**
 	 * Variable width calculated for all TextBox inputs
 	 */
@@ -53,42 +53,42 @@ public class RegistrarFormItemGenerator {
 	 */
 	private static final int TEXT_BOX_MAX_LENGTH = 512;
 	private static final int TEXT_AREA_MAX_LENGTH = 3999;
-	
+
 	/**
 	 * Item with type definition
 	 */
 	private ApplicationFormItem item;
-	
+
 	/**
 	 * Whether to show label (input), or not (button)
 	 */
 	private boolean showLabel = true;
-	
+
 	/**
 	 * The input widget itself
 	 */
 	private Widget widget;
-	
+
 	/**
 	 * String value
 	 */
 	private String strValue = "";
-	
+
 	/**
 	 * prefilled value
 	 */
 	private String prefilledValue = "";
-	
+
 	/**
-	 * String value wrapper 
+	 * String value wrapper
 	 */
 	private ValueBoxBase<String> strValueBox;
-	
+
 	/**
-	 * LOA	
+	 * LOA
 	 */
 	private String assuranceLevel = "";
-	
+
 	/**
 	 * Whether to show it (not hidden)
 	 */
@@ -98,31 +98,31 @@ public class RegistrarFormItemGenerator {
 	 * Input checker
 	 */
 	private FormInputChecker inputChecker;
-	
-	
+
+
 	/**
 	 * Status cell
 	 */
 	private SimplePanel statusCellWrapper = new SimplePanel();
 
 	private FormValidator validationTrigger;
-	
-	
+
+
 	private boolean visibleOnlyToAdmin = false;
 
     /**
      * Counter for nameing textbox classes
      */
     private static int counter = 0;
-	
+
 	/**
 	 * Default locale
 	 */
 	private String locale = "en";
-	
+
 	/**
 	 * Create new item with prefilled value and assurance level
-	 * 
+	 *
 	 * @param withValue
 	 * @param locale
 	 */
@@ -139,7 +139,7 @@ public class RegistrarFormItemGenerator {
 	public RegistrarFormItemGenerator(ApplicationFormItem item, String locale) {
 		this(item, "", locale);
 	}
-	
+
 	/**
 	 * Widget generator instance
 	 * @param item
@@ -151,15 +151,15 @@ public class RegistrarFormItemGenerator {
 		if(strValue == null || strValue.equals("null")) {
 			strValue = "";
 		}
-		
+
 		this.strValue = strValue.trim();
 		this.prefilledValue = strValue.trim();  // store original value
 		this.item = item;
 		if (locale.equalsIgnoreCase("en") || locale.equalsIgnoreCase("cs")) {
 			// set locale if correct
-			this.locale = locale;			
+			this.locale = locale;
 		}
-		
+
 		// fix value for mails from federation
 		if ("mail".equalsIgnoreCase(item.getFederationAttribute())) {
 			// multiple emails can be returned from RPC, they are separated by semi-colon
@@ -170,48 +170,48 @@ public class RegistrarFormItemGenerator {
 				this.strValue = emails[0].trim();
 			}
 		}
-		
+
 		widget = generateWidget();
-		
+
 		if(inputChecker == null){
 			inputChecker = getDefaultInputChecker();
 		}
-		
+
 		// when changed, check
 		whenChangedCheck();
 	}
-	
+
 	private FormInputChecker getDefaultInputChecker() {
 		// default input checker - if item required and box empty -> not valid & check regex
 		return new FormInputChecker() {
-			
+
 			private boolean valid = true;
-			
+
 			public boolean isValid(boolean forceNewValidation) {
-				
+
 				// if hidden, true
 				if(!isVisible()){
 					return true;
 				}
-				
+
 				if(!forceNewValidation){
 					return valid;
 				}
-				
+
 				// missing?
 				valid = (!(item.isRequired() && getValue().equals("")));
 				if(!valid && !item.getType().equalsIgnoreCase("FROM_FEDERATION_SHOW")){
 					// from_federation_show can be valid when empty
-					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));					
+					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
 					return false;
 				}
-				
+
 				// length
 				valid = checkLength();
 				if(!valid){
 					return false;
 				}
-				
+
 				// is regex?
 				valid = checkValueRegex();
 				return valid;
@@ -227,17 +227,17 @@ public class RegistrarFormItemGenerator {
 		};
 	}
 
-	
+
 	protected boolean checkValueRegex(){
 		if(item.getRegex() != null && !("".equals(item.getRegex()))){
-			
+
 			// Compile and use regular expression
 			RegExp regExp = RegExp.compile(item.getRegex());
 			MatchResult matcher = regExp.exec(strValueBox.getValue());
-			boolean matchFound = (matcher != null); // equivalent to regExp.test(inputStr); 
+			boolean matchFound = (matcher != null); // equivalent to regExp.test(inputStr);
 
 			if(!matchFound){
-				
+
 				String errorMessage = ApplicationMessages.INSTANCE.incorrectFormat();
 
 				// does a custom message exist?
@@ -247,14 +247,14 @@ public class RegistrarFormItemGenerator {
 						errorMessage = it.getErrorMessage();
 					}
 				}
-				
-				statusCellWrapper.setWidget(new FormInputStatusWidget(errorMessage, Status.ERROR));					
+
+				statusCellWrapper.setWidget(new FormInputStatusWidget(errorMessage, Status.ERROR));
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	protected boolean checkLength() {
 
 		boolean tooLong = false;
@@ -263,19 +263,19 @@ public class RegistrarFormItemGenerator {
 			if ("TEXTAREA".equalsIgnoreCase(item.getType())) {
 				if (value.length() > TEXT_AREA_MAX_LENGTH) {
 					tooLong = true;
-				} 
+				}
 			} else {
 				if (value.length() > TEXT_BOX_MAX_LENGTH) {
 					tooLong = true;
-				} 
+				}
 			}
 		}
 		if(tooLong){
 			String errorMessage = ApplicationMessages.INSTANCE.inputTextIsTooLong();
 
-			statusCellWrapper.setWidget(new FormInputStatusWidget(errorMessage, Status.ERROR));					
+			statusCellWrapper.setWidget(new FormInputStatusWidget(errorMessage, Status.ERROR));
 		}
-		
+
 		return !tooLong;
 
 	}
@@ -286,9 +286,9 @@ public class RegistrarFormItemGenerator {
 		if(strValueBox == null) return;
 
 		if ("USERNAME".equalsIgnoreCase(item.getType())) {
-			
+
 			// Check USERNAME only when leaving text box
-			
+
 			strValueBox.addBlurHandler(new BlurHandler() {
 				public void onBlur(BlurEvent event) {
 
@@ -305,7 +305,7 @@ public class RegistrarFormItemGenerator {
 						}else{
 							// input empty - clear;
 							statusCellWrapper.clear();
-						}	
+						}
 					}
 
 					// update
@@ -320,11 +320,11 @@ public class RegistrarFormItemGenerator {
                     DomEvent.fireNativeEvent(Document.get().createBlurEvent(), strValueBox);
                 }
             });
-			
+
 		} else {
-			
+
 			// Check OTHER when typing in text box
-			
+
 			strValueBox.addKeyUpHandler(new KeyUpHandler() {
                 public void onKeyUp(KeyUpEvent event) {
                     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), strValueBox);
@@ -391,27 +391,27 @@ public class RegistrarFormItemGenerator {
 	{
 		return widget;
 	}
-	
+
 	public FormInputChecker getInputChecker()
 	{
 		return this.inputChecker;
 	}
-	
+
 	/**
 	 * Generates the widget according to the "type"
-	 * 
+	 *
 	 * @return
 	 */
 	private Widget generateWidget(){
-		
+
 		if(item.getType().equals("TEXTFIELD")){
 			return generateTextBox();
 		}
-		
+
 		if(item.getType().equals("TEXTAREA")){
-			return generateTextArea();			
+			return generateTextArea();
 		}
-		
+
 		if(item.getType().equals("SELECTIONBOX")){
 			return generateListBox();
 		}
@@ -419,52 +419,52 @@ public class RegistrarFormItemGenerator {
         if(item.getType().equals("CHECKBOX")){
             return generateCheckBox();
         }
-		
+
 		if(item.getType().equals("COMBOBOX")){
 			return generateComboBox();
 		}
-		
+
 		if(item.getType().equals("PASSWORD")){
 			return generatePasswordTextBox();
 		}
-		
+
 		if(item.getType().equals("VALIDATED_EMAIL")){
 			return generateEmailTextBox();
 		}
-		
+
 		if(item.getType().equals("SUBMIT_BUTTON")){
 			showLabel = false;
 			return generateButton();
 		}
-		
+
 		if(item.getType().equals("HTML_COMMENT")){
 			showLabel = false;
 			return generateHtmlComment();
 		}
-		
+
 		if(item.getType().equals("FROM_FEDERATION_HIDDEN")){
 			this.visibleOnlyToAdmin = true;
 			this.visible = false;
 			return generateHidden();
 		}
-		
+
 		if(item.getType().equals("FROM_FEDERATION_SHOW")){
 			this.visible = true;
 			return generateReadonlyTextBox();
 		}
-		
+
 		if(item.getType().equals("USERNAME")){
 			this.visible = true;
 			return generateUsernameBox();
 		}
-		
+
 		this.visible = false;
-		
-		
+
+
 		return new HTML(item.getType() + " is not supported");
-		
+
 	}
-	
+
 	/**
 	 * Generates the readonly textbox
 	 * @return
@@ -474,9 +474,9 @@ public class RegistrarFormItemGenerator {
 		tbox.setMaxLength(TEXT_BOX_MAX_LENGTH);
 		strValueBox = tbox;
 		strValueBox.setValue(strValue);
-		
+
 		setVariableWidth(tbox);
-		
+
 		//tbox.setReadOnly(true);
 		//don't want to trigger on click action
 		tbox.setEnabled(false);
@@ -506,7 +506,7 @@ public class RegistrarFormItemGenerator {
 
         box.getElement().setClassName("apptextbox"+counter++);
         setCutCopyPasteHandler("apptextbox"+counter);
-		
+
 		// multiple emails can be returned from RPC, they are separated by semi-colon
 		if (strValue != null && !strValue.isEmpty()) {
 			// split mails and use first one
@@ -514,15 +514,15 @@ public class RegistrarFormItemGenerator {
 			strValue = emails[0];
 		}
 		box.setText(strValue);
-		
+
 		setVariableWidth(box);
-		
+
 		inputChecker = new FormInputChecker() {
-			
+
 			private boolean valid = true;
-			
+
 			public boolean isValid(boolean forceNewValidation) {
-				
+
 				if(!forceNewValidation){
 					return valid;
 				}
@@ -533,8 +533,8 @@ public class RegistrarFormItemGenerator {
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
 					return false;
 				}
-				
-				// check 
+
+				// check
 				valid = JsonUtils.isValidEmail(strValueBox.getValue());
                 if(!valid){
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.incorrectEmailFormat(), Status.ERROR));
@@ -545,13 +545,13 @@ public class RegistrarFormItemGenerator {
                         return false;
                     }
 				}
-				
+
 				// length
 				valid = checkLength();
 				if(!valid){
 					return false;
 				}
-				
+
 				return valid;
 			}
 
@@ -563,10 +563,10 @@ public class RegistrarFormItemGenerator {
 				return true;
 			}
 		};
-		
+
 		return box;
 	}
-	
+
 	/**
 	 * Generates the HTML comment
 	 * @return
@@ -605,23 +605,23 @@ public class RegistrarFormItemGenerator {
 		strValueBox = pwdbox1;
 		pwdbox1.setWidth(MIN_WIDTH+"px");
 		pwdbox2.setWidth(MIN_WIDTH+"px");
-		
+
 		inputChecker = new FormInputChecker() {
-			
+
 			private boolean valid = true;
-			
+
 			public boolean isValid(boolean forceNewValidation) {
-				
+
 				// if not new, don't force
 				if(!forceNewValidation) return valid;
-				
+
 				// Password can never be empty !! even if not "required" by app form config !!
 				valid = (!(pwdbox1.getValue().equals("") && pwdbox2.getValue().equals("")));
 				if(!valid){
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
 					return false;
 				}
-				
+
 				// length
 				valid = checkLength();
 				if(!valid){
@@ -633,7 +633,7 @@ public class RegistrarFormItemGenerator {
 				if(!valid){
 					return false;
 				}
-				
+
 				// password same
 				if(!pwdbox1.getText().equals(pwdbox2.getText())){
 					statusCellWrapper.setWidget(new FormInputStatusWidget( ApplicationMessages.INSTANCE.passwordsDontMatch(), Status.ERROR));
@@ -762,7 +762,7 @@ public class RegistrarFormItemGenerator {
                 validationTrigger.triggerValidation();
             }
         });
-		
+
 		FlexTable ft = new FlexTable();
         ft.setStyleName("appFormPasswordTable");
 		ft.setCellPadding(0);
@@ -782,10 +782,10 @@ public class RegistrarFormItemGenerator {
 
 		final ListBox lbox = new ListBox();
 		strValueBox = new ExtendedTextBox();
-		
+
 		// parse options
 		String options = getOptions();
-		
+
 		Map<String,String> boxContents = parseSelectionBox(options);
 
         ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
@@ -798,14 +798,14 @@ public class RegistrarFormItemGenerator {
 			lbox.setItemSelected(i, selected);
 			i++;
 		}
-		
+
 		// when changed, update value
 		lbox.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				
+
 				String value = lbox.getValue(lbox.getSelectedIndex());
 				strValueBox.setValue(value);
-				
+
 			}
 		});
 
@@ -914,7 +914,7 @@ public class RegistrarFormItemGenerator {
         return ft;
 
     }
-	
+
 	/**
 	 * Generates the combobox
 	 * @return
@@ -931,19 +931,19 @@ public class RegistrarFormItemGenerator {
 		strValueBox = textBox;
 		inputChecker = getDefaultInputChecker();
 		textBox.setVisible(false);
-		
+
 		// parse options
 		String options = getOptions();
-		
+
 		Map<String,String> boxContents = parseSelectionBox(options);
         ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
         //Collections.sort(keyList);
-		
+
 		int i = 0;
 		for(String key : keyList){
-			
+
 			boolean selected = strValue.equals(key);
-			
+
 			lbox.addItem(boxContents.get(key), key);
 			lbox.setItemSelected(i, selected);
 			if(selected == true){
@@ -961,24 +961,24 @@ public class RegistrarFormItemGenerator {
 			lbox.setItemSelected(otherValueIndex, true);
 			textBox.setVisible(true);
 		}
-		
-		
+
+
 		// when changed, update value
 		lbox.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				
+
 				String value = lbox.getValue(lbox.getSelectedIndex());
 				strValueBox.setValue(value);
 
 				// if other value selected, set textbox visible
 				textBox.setVisible(lbox.getSelectedIndex() == otherValueIndex);
-				
+
 				if(lbox.getSelectedIndex() == otherValueIndex)
 				{
 					textBox.setFocus(true);
 					textBox.selectAll();
-				}				
-				
+				}
+
 				// validation
 				if(inputChecker.isValid(true)){
 					// is valid AND value not empty
@@ -992,14 +992,14 @@ public class RegistrarFormItemGenerator {
 					}else{
 						// input empty - clear;
 						statusCellWrapper.clear();
-					}	
+					}
 				}
 			}
 		});
 		// set default value
 		strValueBox.setText(lbox.getValue(lbox.getSelectedIndex()));
-		
-		
+
+
 		// container
 		FlexTable ft = new FlexTable();
         ft.setStyleName("appFormComboBoxTable");
@@ -1007,9 +1007,9 @@ public class RegistrarFormItemGenerator {
 		ft.setWidget(0, 0, lbox);
 		ft.setWidget(1, 0, textBox);
 		ftf.setWidth(1, 0, MIN_WIDTH + "px");
-		
-		
-		return ft;		
+
+
+		return ft;
 	}
 
 	/**
@@ -1026,11 +1026,11 @@ public class RegistrarFormItemGenerator {
         setCutCopyPasteHandler("apptextbox"+counter);
 
 		setVariableWidth(tbox);
-		
+
 		return tbox;
 	}
-	
-	
+
+
 	/**
 	 * Generates the username textbox
 	 * @return
@@ -1044,16 +1044,16 @@ public class RegistrarFormItemGenerator {
 
         tbox.getElement().setClassName("apptextbox"+counter++);
         setCutCopyPasteHandler("apptextbox"+counter);
-		
+
 		setVariableWidth(tbox);
-		
+
 		// if username not empty - disable
 		if (!tbox.getValue().equalsIgnoreCase("")) {
 			tbox.setEnabled(false);
 			// do not check prefilled logins
 			inputChecker = getDefaultInputChecker();
 		} else {
-			
+
 			// get namespace
             if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
 
@@ -1192,7 +1192,7 @@ public class RegistrarFormItemGenerator {
 
 		return tbox;
 	}
-	
+
 	/**
 	 * Generates the textarea
 	 * @return
@@ -1200,7 +1200,7 @@ public class RegistrarFormItemGenerator {
 	private Widget generateTextArea() {
 
 		TextArea tarea = new ExtendedTextArea();
-		
+
 		strValueBox = tarea;
 		tarea.setSize("300px", "150px");
 		tarea.setText(strValue);
@@ -1212,7 +1212,7 @@ public class RegistrarFormItemGenerator {
 
 		return tarea;
 	}
-	
+
 	/**
 	 * Returns the label or shortname for current locale
 	 * @return
@@ -1220,11 +1220,11 @@ public class RegistrarFormItemGenerator {
 	public String getLabelOrShortname() {
 		String label = item.getItemTexts(locale).getLabel();
 		if(label == null || label.length() == 0){
-			label = item.getShortname();			
+			label = item.getShortname();
 		}
 		return label;
 	}
-	
+
 	/**
 	 * Returns the options for current locale
 	 * @return
@@ -1234,7 +1234,7 @@ public class RegistrarFormItemGenerator {
 		return options;
 	}
 
-	/** 
+	/**
 	 * Whether to show label
 	 * @return
 	 */
@@ -1242,111 +1242,111 @@ public class RegistrarFormItemGenerator {
 	{
 		return showLabel;
 	}
-	
-	
+
+
 	/**
 	 * Returns the value inserted
-	 * 
+	 *
 	 * @return
 	 */
 	public String getValue() {
 
         if(strValueBox == null) return strValue.trim();
-		
+
 		return strValueBox.getValue().trim();
 
     }
-	
+
 	/**
 	 * Returns the form item
-	 * 
+	 *
 	 * @return
 	 */
 	public ApplicationFormItem getFormItem()
 	{
 		return item;
 	}
-	
+
 	/**
 	 * Return the input value status
-	 * 
+	 *
 	 * @return
 	 */
 	public Widget getStatusWidget(){
 		return this.statusCellWrapper;
 	}
-	
+
 	/**
 	 * Parses the "options" into MAP
-	 * 
+	 *
 	 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
      * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
-	 * 
+	 *
 	 * @param options
 	 * @return
 	 */
 	static public Map<String, String> parseSelectionBox(String options){
-		
+
 		Map<String, String> map = new HashMap<String, String>();
-		
+
 		if(options == null || options.length() == 0){
 			return map;
 		}
-		
+
 		String[] keyValue = options.split("\\|");
-		
+
 		for(int i = 0; i < keyValue.length; i++){
-			
+
 			String kv = keyValue[i];
-			
+
 			String[] split = kv.split("#", 2);
-			
+
 			if(split.length != 2){
 				continue;
 			}
-			
+
 			String key = split[0];
 			String value = split[1];
 			map.put(key, value);
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Serializes MAP into "options"
-	 * 
+	 *
 	 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
      * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
-	 * 
+	 *
 	 * @param map
 	 * @return
 	 */
 	static public String serializeSelectionBox(Map<String, String> map){
-		
+
 		String serialized = "";
-		
+
 		for(Map.Entry<String, String> entry : map.entrySet()){
-			
+
 			if(serialized != ""){
 				serialized += "|";
 			}
-			
-			serialized += entry.getKey() + "#" + entry.getValue(); 
+
+			serialized += entry.getKey() + "#" + entry.getValue();
 		}
 		return serialized;
 	}
 
 	/**
 	 * Generates form item from given values
-	 * 
+	 *
 	 * @param shortname
 	 * @param type
 	 * @return
 	 */
 	public static ApplicationFormItem generateFormItem(String shortname, String type) {
-		
+
 		JSONObject jsonObj = new JSONObject();
-		
+
 		jsonObj.put("id", new JSONNumber(0));
 		jsonObj.put("shortname", new JSONString(shortname));
 		jsonObj.put("type", new JSONString(type));
@@ -1357,10 +1357,10 @@ public class RegistrarFormItemGenerator {
 		jsonObj.put("required", JSONBoolean.getInstance(false));
 		jsonObj.put("i18n", new JSONArray());
 		jsonObj.put("ordnum", new JSONNumber(-1));
-		
+
 		// convert to ApplicationFormItem
 		ApplicationFormItem formItem = jsonObj.getJavaScriptObject().cast();
-		
+
 		return formItem;
 	}
 
@@ -1371,7 +1371,7 @@ public class RegistrarFormItemGenerator {
 	public boolean isVisible() {
 		return this.visible ;
 	}
-	
+
 	/**
 	 * Returns the assurance level
 	 * @return
@@ -1385,7 +1385,7 @@ public class RegistrarFormItemGenerator {
 	public void addValidationTrigger(FormValidator formValidator) {
 		this.validationTrigger = formValidator;
 	}
-	
+
 	/**
 	 * Returns original prefilled value of this item
 	 * @return
@@ -1393,7 +1393,7 @@ public class RegistrarFormItemGenerator {
 	public String getPrefilledValue() {
 		return this.prefilledValue.trim();
 	}
-	
+
 	/**
 	 * Whether is the item visible only to the administrator
 	 * @return
@@ -1402,14 +1402,14 @@ public class RegistrarFormItemGenerator {
 	{
 		return visibleOnlyToAdmin;
 	}
-	
+
 	/**
 	 * Set variable width for TextBox like widgets
-	 * 
+	 *
 	 * @param box to set width to
 	 */
 	private void setVariableWidth(TextBox box) {
-		
+
 		if (box.getText().length() != 0) {
 			if (box.getText().length()*WIDTH_PER_CHAR < MIN_WIDTH) {
 				box.setWidth(MIN_WIDTH+"px");
@@ -1421,7 +1421,7 @@ public class RegistrarFormItemGenerator {
 		} else {
 			box.setWidth(MIN_WIDTH+"px");
 		}
-		
+
 	}
 
     private class ExtendedTextBox extends TextBox {

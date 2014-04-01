@@ -8,14 +8,14 @@ import java.util.Map;
 
 /**
  * Pages, which are for registrar
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class RegistrarTabs {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	static public final String URL = "reg";
 
 
@@ -26,18 +26,18 @@ public class RegistrarTabs {
 
 	/**
 	 * Loads the page
-	 * 
+	 *
 	 * @return true on success, false otherwise
 	 */
 	public boolean loadTab(String tab, Map<String, String> parameters) {
-		
+
 		if(tab == null){
-			return false;				
+			return false;
 		}
 		// if active
 		boolean open = ("1".equals(parameters.get("active")));
-					
-		
+
+
 		// which page?
 		if (tab.equals(EditMailTabItem.URL))
 		{
@@ -50,11 +50,11 @@ public class RegistrarTabs {
 			session.getTabManager().addTab(MailsTabItem.load(parameters), open);
 			return true;
 		}
-		
-	
-		
+
+
+
 		return false;
-		
+
 	}
-	
+
 }

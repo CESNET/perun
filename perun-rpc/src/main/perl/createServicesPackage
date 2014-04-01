@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -15,13 +15,13 @@ Available options:
  --packageDescription | -d description
  --batch              | -b batch
  --help               | -h prints this help
- 
+
 };
 }
 
 my ($packageName, $dsc, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "packageName|P=s" => \$packageName,"packageDescription|d=s" => \$dsc) || die help(); 
+ "packageName|P=s" => \$packageName,"packageDescription|d=s" => \$dsc) || die help();
 
 # Check options
 unless (defined($packageName)) { die "ERROR: packageName is required \n";}

@@ -9,12 +9,12 @@ import cz.metacentrum.perun.webgui.model.Group;
 
 /**
  * Custom GWT cell, which displays the group name with the correct indent.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class PerunGroupCell extends AbstractCell<Group> {
 
-	
+
 	/**
 	 * Creates a new Group cell
 	 */
@@ -39,7 +39,7 @@ public class PerunGroupCell extends AbstractCell<Group> {
 		}
 		// styles
 		String style = "customClickableTextCell";
-		
+
 		// core group
 		if(group.isCoreGroup()){
 			style += " bold";
@@ -53,8 +53,8 @@ public class PerunGroupCell extends AbstractCell<Group> {
 		sb.appendHtmlConstant(value);
 		sb.appendHtmlConstant("</div>");
 	}
-	
-		
+
+
 	/**
 	 * When user clicks on the cell, fire the enterKeyDownEvent
 	 */
@@ -64,7 +64,7 @@ public class PerunGroupCell extends AbstractCell<Group> {
 			ValueUpdater<Group> valueUpdater) {
 		if ("click".equals(event.getType())) {
 			onEnterKeyDown(context, parent, value, event, valueUpdater);
-			
+
 		}
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
 

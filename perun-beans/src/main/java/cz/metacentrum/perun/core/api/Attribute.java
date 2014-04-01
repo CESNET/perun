@@ -22,27 +22,27 @@ public class Attribute extends AttributeDefinition {
 	 * Value of the attribute, can be Map, List, String, Integer, ...
 	 */
 	private Object value;
-        
+
         /**
          * Attribute with information about time when the value was created.
-         */        
+         */
         private String valueCreatedAt;
-        
+
         /**
          * Attribute with information who created the value.
          */
         private String valueCreatedBy;
-        
+
         /**
          * Attribute with information when the value was modified.
          */
         private String valueModifiedAt;
-        
+
         /**
          * Attribute with information who modified the value.
          */
-        private String valueModifiedBy;        
-	
+        private String valueModifiedBy;
+
 	public Attribute() {
 	}
 
@@ -58,43 +58,43 @@ public class Attribute extends AttributeDefinition {
 	public Object getValue() {
 		return value;
 	}
-        
+
         public String getValueCreatedAt() {
                 return valueCreatedAt;
         }
-        
+
         public String getValueCreatedBy() {
                 return valueCreatedBy;
         }
-        
+
         public String getValueModifiedAt() {
                 return valueModifiedAt;
         }
-        
+
         public String getValueModifiedBy() {
                 return valueModifiedBy;
         }
-        
+
 	public void setValue(Object value) {
 		this.value = value;
         }
-        
+
         public void setValueCreatedAt(String valueCreatedAt) {
                 this.valueCreatedAt = valueCreatedAt;
         }
-        
+
         public void setValueCreatedBy(String valueCreatedBy) {
                 this.valueCreatedBy = valueCreatedBy;
         }
-        
+
         public void setValueModifiedAt(String valueModifiedAt) {
                 this.valueModifiedAt = valueModifiedAt;
         }
-        
+
         public void setValueModifiedBy(String valueModifiedBy) {
                 this.valueModifiedBy = valueModifiedBy;
         }
-	
+
 	@Override
 	public int hashCode() {
 		int hash = 7;
@@ -106,7 +106,7 @@ public class Attribute extends AttributeDefinition {
 
 	/**
 	 * Check if the attribute value contains value. In case of list, it uses method contains. In case of array it searches in both keys and values.
-	 * 
+	 *
 	 * @param value
 	 * @return true if the attribute value contains value.
 	 */
@@ -116,12 +116,12 @@ public class Attribute extends AttributeDefinition {
 		} else if (this.getType().equals(ArrayList.class.getName())) {
 			return this.getValue() == null ? value == null : ((ArrayList<String>) this.getValue()).contains(value);
 		} else if (this.getType().equals(LinkedHashMap.class.getName())) {
-			return this.getValue() == null ? value == null : 
-				(((LinkedHashMap<String, String>) this.getValue()).containsKey(value) || 
+			return this.getValue() == null ? value == null :
+				(((LinkedHashMap<String, String>) this.getValue()).containsKey(value) ||
 				 ((LinkedHashMap<String, String>) this.getValue()).containsValue(value));
 		} else return false;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
@@ -140,21 +140,21 @@ public class Attribute extends AttributeDefinition {
 		if(this.value == null ? other.value != null : !this.value.equals(other.value)) return false;
 		return true;
 	}
-        
+
         @Override
         public String serializeToString() {
                 String stringValue;
                 if(getValue() == null) stringValue = null;
-                else 
+                else
                     try {
                         stringValue = BeansUtils.attributeValueToString(this);
-                    
+
                     } catch (InternalErrorException ex) {
-                        //WARNING: This error is not catched. There is very low chance to occur. 
+                        //WARNING: This error is not catched. There is very low chance to occur.
                         //When this happens, error is logged and there is need to look on attributeValueToString script above.
                         log.error("Attribute value can't be serialize! {}",ex);
                         stringValue = null;
-                    } 
+                    }
 		return this.getClass().getSimpleName() +":[" +
 		"id=<" + getId() + ">" +
 		", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
@@ -163,7 +163,7 @@ public class Attribute extends AttributeDefinition {
 		", value=<" + BeansUtils.createEscaping(stringValue) + ">" +
 		']';
         }
-        
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+":[" +

@@ -7,22 +7,22 @@ import java.sql.Date;
 
 /**
  * Overlay type for TaskResult object from Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class TaskResult extends JavaScriptObject {
 
 	protected TaskResult() {}
-	
+
 	/**
 	 * Get ID of TaskResult
-	 * 
+	 *
 	 * @return ID of TaskResult
 	 */
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public final native Destination getDestination() /*-{
 		return this.destination;
 	}-*/;
@@ -53,36 +53,36 @@ public class TaskResult extends JavaScriptObject {
 		if (!this.timestamp) { return 0; }
 		return this.timestamp;
 	}-*/;
-	
+
 	public final native int getReturnCode() /*-{
 		return this.returnCode;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			return "JavaScriptObject"
 		}
-		return this.objecttype;	
+		return this.objecttype;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;	
+		this.objecttype = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
@@ -96,7 +96,7 @@ public class TaskResult extends JavaScriptObject {
 	 */
 	public final boolean equals(TaskResult o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
-	
+
 }

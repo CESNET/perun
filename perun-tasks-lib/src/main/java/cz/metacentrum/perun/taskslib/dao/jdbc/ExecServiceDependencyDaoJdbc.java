@@ -47,7 +47,7 @@ public class ExecServiceDependencyDaoJdbc extends JdbcDaoSupport implements Exec
         .query("" +
             "select " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery +
             " from exec_services left join service_dependencies on exec_services.id = service_dependencies.exec_service_id left join services on " +
-            " services.id=exec_services.service_id where service_dependencies.dependency_id = ?",	
+            " services.id=exec_services.service_id where service_dependencies.dependency_id = ?",
             new Integer[] { execServiceId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
     if (execServices != null) {
       return execServices;

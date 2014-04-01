@@ -19,7 +19,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  * Tab which create service package
  *
  * ! USE AS INNER TAB ONLY !
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateServicePackageTabItem implements TabItem {
@@ -43,7 +43,7 @@ public class CreateServicePackageTabItem implements TabItem {
 	 * Tab with create service form
      */
 	public CreateServicePackageTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -181,7 +181,7 @@ public class CreateServicePackageTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isPerunAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

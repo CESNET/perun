@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
  * Namespace_uid_policy attribute specifies how IDs are generated in the namespace. Possible value is "recycle" or "increment". <br />
  * <b>Recycle</b> - Always use first free id within allowed range.
  * <b>Increment</b> - Each new generated ID is one grater than previously generated ID.
- * 
+ *
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
@@ -22,7 +22,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_uid_policy extends
 
     public static final String RECYCLE_POLICY = "recycle";
     public static final String INCREMENT_POLICY = "increment";
-   
+
     public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
       if(attribute.getValue() == null) return;
       if(!(RECYCLE_POLICY.equals(attribute.getValue()) || INCREMENT_POLICY.equals(attribute.getValue()))) throw new WrongAttributeValueException(attribute, key, "Posible values for this attribute are " + RECYCLE_POLICY + " or " + INCREMENT_POLICY);
@@ -35,5 +35,5 @@ public class urn_perun_entityless_attribute_def_def_namespace_uid_policy extends
       attr.setType(String.class.getName());
       attr.setDescription("Policy for generating new UID number. recycle - use first available UID, increment - add 1 to last used UID (maximal one)");
       return attr;
-    }    
+    }
 }

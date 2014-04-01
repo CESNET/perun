@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * VO attributes
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -46,17 +46,17 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading vo attributes");
-	
+
 	// data
 	private VirtualOrganization vo;
 	private int voId;
@@ -70,7 +70,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 		this.voId = vo.getId();
 		this.vo = vo;
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -91,9 +91,9 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": settings");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -118,15 +118,15 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// refresh table
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(jsonCallback);
-		
+
 		// set button event with button disable
 		final JsonCallbackEvents setButtonEvent = JsonCallbackEvents.disableButtonEvents(setButton, events);
-		
+
 		setButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				
+
 				ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
-				
+
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					Map<String, Integer> ids = new HashMap<String,Integer>();
 					ids.put("vo", voId);
@@ -181,7 +181,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -222,7 +222,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
@@ -236,24 +236,24 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "settings";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoSettingsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoSettingsTabItem(voId);

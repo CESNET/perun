@@ -60,10 +60,10 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
    */
   public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
     Attribute virtLoginAttribute = new Attribute(attributeDefinition);
-    
+
     try {
     Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-    
+
     if (loginNamespaceAttribute.getValue() != null) {
       // Get the u:login-namespace[loginNamespaceAttribute]
       Attribute loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
@@ -144,7 +144,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
      */
     public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
     }
-  
+
     @Override
     public List<String> getStrongDependencies() {
       List<String> StrongDependencies = new ArrayList<String>();
@@ -160,5 +160,5 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
       attr.setType(String.class.getName());
       attr.setDescription("Login if is set.");
       return attr;
-  }  
+  }
 }

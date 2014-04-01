@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * UsersManager/getUsers
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
@@ -179,7 +179,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
     }
 
 	/**
-	 * Clears list of selected items  
+	 * Clears list of selected items
 	 */
 	public void clearTableSelectedSet(){
 		selectionModel.clear();
@@ -187,7 +187,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
 	/**
 	 * Return selected items from list
-	 *  
+	 *
 	 * @return return list of checked items
 	 */
 	public ArrayList<User> getTableSelectedList(){
@@ -263,5 +263,5 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
     public void hidePerson(boolean hide){
         this.hidePerson = hide;
     }
-	
+
 }

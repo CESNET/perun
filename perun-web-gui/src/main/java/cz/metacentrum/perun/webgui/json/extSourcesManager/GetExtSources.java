@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get external sources from Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -53,9 +53,9 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	 */
 	public GetExtSources() {}
 
-	/** 
+	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public GetExtSources(JsonCallbackEvents events) {
@@ -64,7 +64,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 	/**
 	 * Return table widget with external sources
-	 * 
+	 *
 	 * @return table widget containing ext sources
 	 */
 	public CellTable<ExtSource> getTable() {
@@ -77,14 +77,14 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 		// Cell table
 		table = new PerunTable<ExtSource>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<ExtSource> columnSortHandler = new ListHandler<ExtSource>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<ExtSource> createCheckboxManager());
 
@@ -96,10 +96,10 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 		if(this.checkable) {
 			table.addCheckBoxColumn();
 		}
-		
+
 		// ID column
 		table.addIdColumn("Ext. source ID", null);
-		
+
 		// Name column
 		table.addNameColumn(null);
 
@@ -248,7 +248,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 	/**
 	 * Return substring on position 40 and uppercase - used for ExtSourceType value
-	 * 
+	 *
 	 * @param oldString original string value
 	 * @return new string starting on position 40 and uppercase
 	 */
@@ -262,7 +262,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {

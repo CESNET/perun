@@ -11,31 +11,31 @@ import java.util.ArrayList;
 
 /**
  * Left menu used in password reset form gui
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PasswordResetLeftMenu extends Composite {
-	
+
 	/**
 	 * Stack panel with currently one item - "Application form"
 	 */
 	private StackPanel stackPanel = new StackPanel();
-	
+
 	private FlexTable menuContents = new FlexTable();
-	
+
 	private SimplePanel content = new SimplePanel();
 
     private ArrayList<Anchor> listOfLinks = new ArrayList<Anchor>();
-	
+
 	/**
 	 * Creates the left menu & navigation
 	 */
 	public PasswordResetLeftMenu(){
-		
+
 		this.initWidget(stackPanel);
 
         listOfLinks.clear();
-		
+
 		SimplePanel menuContentsWrapper= new SimplePanel(menuContents);
         menuContentsWrapper.setHeight("100%");
 		stackPanel.addStyleName("menuStackPanel");
@@ -46,21 +46,21 @@ public class PasswordResetLeftMenu extends Composite {
 		Element i = new Image(LargeIcons.INSTANCE.keyIcon()).getElement();
 		i.addClassName("stackPanelHeaderImage");
 		header.getElement().appendChild(i);
-		
+
 		// creating the section
 		stackPanel.add(menuContentsWrapper, header.getElement().getString(), true);
 		stackPanel.setHeight("100%");
 		stackPanel.setWidth("240px");
-		
+
 		menuContents.setWidth("100%");
         menuContents.setStyleName("mainMenuItems");
 
 	}
-	
-	
+
+
 	/**
 	 * Adds the item to the menu
-	 * 
+	 *
 	 * @param label
 	 * @param res
 	 * @param w
@@ -82,27 +82,27 @@ public class PasswordResetLeftMenu extends Composite {
                 }
                 // bold to selected
                 link.addStyleName("mainMenuActive");
-				content.setWidget(w);				
+				content.setWidget(w);
 			}
 		});
-		
+
 		menuContents.setWidget(rowCount, 1, link);
 
         return link;
 
 	}
-	
+
 	/**
 	 * Adds the item
-	 * 
+	 *
 	 * @param label label
 	 * @param res image
 	 * @param w content
 	 */
 	public void addItem(String label, ImageResource res, Widget w){
-		
+
 		addMenuContents(label, res, w);
-		
+
 		// if content empty, add
 		if(content.getWidget() == null)
 		{

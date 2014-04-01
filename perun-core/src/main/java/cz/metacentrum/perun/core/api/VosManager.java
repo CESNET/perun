@@ -32,17 +32,17 @@ public interface VosManager {
 
   static final String MEMBERS_GROUP = "members";
   static final String MEMBERS_GROUP_DESCRIPTION = "Group containing VO members";
-  
+
     /**
      * Get list of Vos by Access Righs:
      * If User is:
      * - PERUNADMIN : get all Vos
      * - VoAdmin : Vo where user is Admin
      * - GroupAdmin: Vo where user is GroupAdmin
-     * 
+     *
      * @param perunSession
      * @return List of VOs or empty ArrayList<Vo>
-     * 
+     *
      * @throws RelationExistsException
      * @throws InternalErrorException
      */
@@ -50,15 +50,15 @@ public interface VosManager {
 
     /**
      * Get list of Vos without any privilege.
-     * 
+     *
      * @param perunSession
      * @return List of VOs or empty ArrayList<Vo>
-     * 
+     *
      * @throws RelationExistsException
      * @throws InternalErrorException
      */
     List<Vo> getAllVos(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
-    
+
     /**
      * Delete VO.
      *
@@ -132,7 +132,7 @@ public interface VosManager {
      * @throws PrivilegeException
      */
     Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, InternalErrorException, PrivilegeException;
-   
+
      /**
      * Finds users, who can join the Vo.
      *
@@ -159,7 +159,7 @@ public interface VosManager {
      * @throws PrivilegeException
      */
     List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException;
-    
+
     /**
      * Add a user administrator to the VO.
      *
@@ -187,7 +187,7 @@ public interface VosManager {
      */
     void addAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException;
 
-    
+
      /**
      * Removes a user administrator from the VO.
      *
@@ -215,7 +215,7 @@ public interface VosManager {
      */
     void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException;
 
-    
+
     /**
      * Get list of Vo administrators.
      * If some group is administrator of the VO, all members are included in the list.
@@ -228,14 +228,14 @@ public interface VosManager {
      * @throws PrivilegeException
      */
     List<User> getAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
-    
-    /** 
+
+    /**
      * Gets list of direct user administrators of the VO.
      * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
-     * 
+     *
      * @param perunSession
      * @param vo
-     * 
+     *
      * @throws InternalErrorException
      * @throws PrivilegeException
      * @throws VoNotExistsException
@@ -253,23 +253,23 @@ public interface VosManager {
      * @throws PrivilegeException
      */
     List<Group> getAdminGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
-    
-    
+
+
     /**
      * Get list of Vo administrators with specific attributes.
      * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
-     * 
+     *
      * @param perunSession
      * @param vo
      * @param specificAttributes
      * @return list of RichUsers with specific attributes.
      * @throws InternalErrorException
      * @throws PrivilegeException
-     * @throws VoNotExistsException 
+     * @throws VoNotExistsException
      * @throws UserNotExistsException
      */
     List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException;
-    
+
     /**
      * Get list of Vo administrators like RichUsers without attributes.
      *
@@ -282,7 +282,7 @@ public interface VosManager {
      * @throws PrivilegeException
      */
     List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException;
-    
+
     /**
      * Get list of Vo administrators like RichUsers with attributes.
      *

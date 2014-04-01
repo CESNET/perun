@@ -20,15 +20,15 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
     @Override
     public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
         String fromEmail = null;
-        
+
         // null attribute
         if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo fromEmail cannot be null.");
-        
+
         // wrong type of the attribute
         if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
-        
+
         fromEmail = (String) attribute.getValue();
-        
+
         if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, fromEmail))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has fromEmail " + fromEmail +" which is not valid.");
     }
 
@@ -41,7 +41,7 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
       attr.setDescription("Email address used as \"from\" in mail notifications");
       return attr;
     }
-    
-    
-    
+
+
+
 }

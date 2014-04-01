@@ -32,27 +32,27 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- * 
+ *
  * Note: ServicesManager is not to be used directly by any client.
  * ServicesManager's functionality is going to be encapsulated in the Controller's
  * GeneralServiceManager.
- * 
+ *
  */
 public interface ServicesManagerBl {
 
   /**
    * Creates new service.
-   * 
+   *
    * @param perunSession
-   * @param service 
+   * @param service
    * @return new service
    */
   Service createService(PerunSession perunSession, Service service, Owner owner) throws InternalErrorException, ServiceExistsException;
 
   /** Deletes the service.
-   * 
+   *
    * @param perunSession
-   * @param service 
+   * @param service
    * @throws RelationExistsException
    * @throws InternalErrorException
    * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
@@ -60,30 +60,30 @@ public interface ServicesManagerBl {
   void deleteService(PerunSession perunSession, Service service) throws InternalErrorException, RelationExistsException, ServiceAlreadyRemovedException;
 
   /** Updates the service.
-   * 
+   *
    * @param perunSession
-   * @param service 
+   * @param service
    */
   void updateService(PerunSession perunSession, Service service) throws InternalErrorException;
 
   /**
    * Get service by id.
-   * 
+   *
    * @param perunSession
    * @param id
    * @return service with specified id
-   * 
+   *
    * @throws InternalErrorException
    */
   Service getServiceById(PerunSession perunSession, int id) throws InternalErrorException, ServiceNotExistsException;
 
   /**
    * Get service by name.
-   * 
+   *
    * @param perunSession
    * @param name name of the service
    * @return service with specified name
-   * 
+   *
    * @throws InternalErrorException
    * @throws ServiceNotExistsException
    */
@@ -91,28 +91,28 @@ public interface ServicesManagerBl {
 
   /**
    * get all services in perun
-   * 
+   *
    * @param perunSession
    * @return all services in perun
-   * 
+   *
    * @throws InternalErrorException
    */
   List<Service> getServices(PerunSession perunSession) throws InternalErrorException;
-  
+
   /**
    * Get all services with given attribute.
-   * 
+   *
    * @param sess perun session
-   * @param attributeDefinition 
+   * @param attributeDefinition
    * @return all services with given attribute
-   * 
+   *
    * @throws InternalErrorException
    */
   List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
   /**
    * Get all resources where the service is defined.
-   *  
+   *
    * @param sess
    * @param service
    * @return list of resources where the service is defined
@@ -121,78 +121,78 @@ public interface ServicesManagerBl {
   List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException;
 
   /**
-   * Generates the list of attributes per each member associated with the resource. 
-   * 
+   * Generates the list of attributes per each member associated with the resource.
+   *
    * @param perunSession
    * @param service attributes required by this service you will get
    * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
    * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
-   * 
+   *
    * @throws InternalErrorException
    */
-  ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException; 
+  ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
   /**
-   * Generates the list of attributes per each member associated with the resource. 
-   * 
+   * Generates the list of attributes per each member associated with the resource.
+   *
    * @param perunSession
    * @param service attributes required by this service you will get
    * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
    * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all members.
-   * 
-   * @throws InternalErrorException 
+   *
+   * @throws InternalErrorException
    */
-  ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException; 
+  ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
   /**
    * Generates the list of attributes per each member associated with the resources and groups.
-   * 
+   *
    * @param perunSession
    * @param service attributes required by this service you will get
    * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-   * @return attributes in special structure. Facility is in the root, facility children are resources. 
+   * @return attributes in special structure. Facility is in the root, facility children are resources.
    *         Resource first child is abstract structure which children are groups.
    *         Resource  second chi is abstract structure which children are members.
    *         Group first child is abstract structure which children are groups.
    *         Group second chi is abstract structure which children are members.
-   * 
+   *
    * @throws InternalErrorException
    */
-  ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException; 
+  ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
 
   /**
    * List packages
-   * 
+   *
    * @param perunSession
-   * 
+   *
    * @return list of packages in the DB
-   * 
+   *
    * @throws InternalErrorException
    */
   public List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException;
 
   /**
    * Get package by Id
-   * 
+   *
    * @param servicesPackageId id of the package we want to retrieve
    * @param perunSession
-   * 
+   *
    * @return package
-   * 
+   *
    * @throws InternalErrorException
    * @throws ServicesPackageNotExistsException
    */
   ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException;
 
   /**
-   * Get package by name 
-   * 
+   * Get package by name
+   *
    * @param name name of the services package
    * @param perunSession
-   * 
+   *
    * @return package
-   * 
+   *
    * @throws InternalErrorException
    * @throws ServicesPackageNotExistsException
    */
@@ -200,12 +200,12 @@ public interface ServicesManagerBl {
 
   /**
    * Insert a new package
-   * 
+   *
    * @param servicesPackage package to be inserted
    * @param perunSession
-   * 
+   *
    * @return ServicesPackage object completely filled (including Id)
-   * 
+   *
    * @throws InternalErrorException
    * @throws ServicesPackageExistsException
    */
@@ -213,17 +213,17 @@ public interface ServicesManagerBl {
 
   /**
    * Update package
-   * 
+   *
    * @param servicesPackage with which is the old one supposed to be updated :-)
    * @param perunSession
-   * 
+   *
    * @throws InternalErrorException
    */
   void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
 
   /**
    * Remove the package
-   * 
+   *
    * @param perunSession
    * @param servicesPackage services package to be removed.
    * @throws RelationExistsException
@@ -233,22 +233,22 @@ public interface ServicesManagerBl {
 
   /**
    * Add the service to the package
-   * 
+   *
    * @param perunSession
    * @param servicesPackage services package to which the service supposed to be added
    * @param service service to be added to the services package
-   * 
+   *
    * @throws InternalErrorException
    */
   public void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException;
 
   /**
    * Remove Service from Services Package
-   * 
+   *
    * @param perunSession
    * @param servicesPackage services package from which the service supposed to be removed
    * @param service service that will be removed from the services package
-   * 
+   *
    * @throws InternalErrorException
    * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from servicePackage in DB
    */
@@ -256,11 +256,11 @@ public interface ServicesManagerBl {
 
   /**
    * List services stored in the packages
-   * 
+   *
    * @param servicesPackage the package from which we want to list the services
-   * 
+   *
    * @return list consisting services
-   * 
+   *
    * @throws InternalErrorException
    */
   public List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
@@ -272,11 +272,11 @@ public interface ServicesManagerBl {
   /**
    * Mark the attribute as required for the service. Required attributes are requisite for Service to run.
    * If you add attribute which has a default attribute then this default attribute will be automatically add too.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param attribute
-   * 
+   *
    * @throws InternalErrorException
    * @throws AttributeAlreadyAssignedException
    */
@@ -289,13 +289,13 @@ public interface ServicesManagerBl {
   void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException;
 
   /**
-   * Remove required attribute from service. 
+   * Remove required attribute from service.
    * TODO If you try to remove attribute which is default for other Required attribute ...
-   * 
+   *
    * @param perunSession
    * @param service
    * @param attribute
-   * 
+   *
    * @throws InternalErrorException
    * @throws AttributeNotAssignedException
    */
@@ -309,17 +309,17 @@ public interface ServicesManagerBl {
 
   /**
    * Detate all required attributes from service.
-   * 
+   *
    * @param perunSession
    * @param service
-   * 
+   *
    * @throws InternalErrorException
    */
   void removeAllRequiredAttributes(PerunSession perunSession, Service service) throws InternalErrorException;
 
   /**
    * Adds an destination for the facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
@@ -333,20 +333,20 @@ public interface ServicesManagerBl {
 
   /**
    * Adds an destination for the facility and all services. Destination id doesn't need to be filled. If destination doesn't exist it will be created.
-   * 
+   *
    * @param perunSession
    * @param services
    * @param facility
    * @param destination (id of this destination doesn't need to be filled.)
    * @return destination with it's id set
    * @throws InternalErrorException
-   * @throws DestinationAlreadyAssignedException 
+   * @throws DestinationAlreadyAssignedException
    */
   Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
-    
+
   /**
    * Adds destination for all services defined on the facility.
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param destination
@@ -358,7 +358,7 @@ public interface ServicesManagerBl {
 
   /**
    * Defines service destination for all cluster hosts.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
@@ -367,49 +367,49 @@ public interface ServicesManagerBl {
    * @throws DestinationAlreadyAssignedException
    */
   List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
-  
+
   /**
    * Defines service destination for all hosts using theirs hostnames.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
    * @return list of added destinations
    * @throws InternalErrorException
-   * @throws DestinationAlreadyAssignedException 
+   * @throws DestinationAlreadyAssignedException
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
-  
+
   /**
    * Defines services destination for all hosts using their hostnames.
    * Do it for all services in List.
-   * 
+   *
    * If some destination for service and facility already exist, do not create it but still return back in the list.
-   * 
+   *
    * @param perunSession
    * @param facility
    * @return list of added destinations (even if they already was added before)
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException;
-  
+
   /**
    * Defines services destination for all hosts using their hostnames.
    * Use all assigned services to resources for the facility.
-   * 
+   *
    * If some destination for service and facility already exist, do not create it but still return back in the list.
-   * 
+   *
    * @param perunSession
    * @param facility
    * @return list of added destinations (even if they already was added before)
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
-  
-  
+
+
   /**
    * Removes an destination from the facility and service.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
@@ -421,7 +421,7 @@ public interface ServicesManagerBl {
 
   /**
    * Get destination by id
-   * 
+   *
    * @param perunSession
    * @param id
    * @return Destination with the id
@@ -432,7 +432,7 @@ public interface ServicesManagerBl {
 
   /**
    * Get list of all destinations defined for the service and facility.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
@@ -440,41 +440,41 @@ public interface ServicesManagerBl {
    * @throws InternalErrorException
    */
   List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
-  
+
   /**
    * Get list of all rich destinations defined for the facility.
-   * 
+   *
    * @param perunSession
    * @param facility
    * @return list of rich destinations defined for the facility
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
-  
+
   /**
    * Get list of all rich destinations defined for the service.
-   * 
+   *
    * @param perunSession
    * @param service
    * @return list of rich destinations defined for the service
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException;
-  
+
   /**
    * Get list of all rich destinations defined for the service and the facility
-   * 
+   *
    * @param perunSession
    * @param facility
    * @param service
    * @return list of rich destinations defined for the service and the facility
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException;
-  
+
   /**
    * Removes all defined destinations for the service and facility.
-   * 
+   *
    * @param perunSession
    * @param service
    * @param facility
@@ -484,7 +484,7 @@ public interface ServicesManagerBl {
 
   /**
    * Check if the service exits.
-   * 
+   *
    * @param sess
    * @param service
    * @throws InternalErrorException
@@ -494,7 +494,7 @@ public interface ServicesManagerBl {
 
   /**
    * Check if the service package exists.
-   * 
+   *
    * @param sess
    * @param servicesPackage
    * @throws InternalErrorException
@@ -504,12 +504,12 @@ public interface ServicesManagerBl {
 
   /**
    * Returns owner of the Service.
-   * 
+   *
    * @param perunSession
-   * @param service 
-   * 
+   * @param service
+   *
    * @return owner of specified service
-   * 
+   *
    * @throws InternalErrorException
    */
   Owner getOwner(PerunSession perunSession, Service service) throws InternalErrorException;
@@ -517,19 +517,19 @@ public interface ServicesManagerBl {
 
   /**
    * List all services associated with the facility (via resource).
-   * 
+   *
    * @param perunSession
    * @param facility
-   * 
+   *
    * @throws InternalErrorException
    *
    * @return list of services assigned  to facility
    */
   List<Service> getAssignedServices(PerunSession perunSession, Facility facility) throws InternalErrorException;
-  
+
   /**
    * List all destinations for all facilities which are joined by resources to the VO.
-   * 
+   *
    * @param sess
    * @param vo vo for which we are searching destinations
    * @return list of destinations

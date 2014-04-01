@@ -16,7 +16,7 @@ public class Group extends Auditable implements Comparable<Group> {
     private String name;
     private String description;
 
-    
+
     /**
      * Constructor.
      */
@@ -28,19 +28,19 @@ public class Group extends Auditable implements Comparable<Group> {
      *
      * @param vo          VO of the group
      * @param name        name of the Group
-     * @param description description the the group  
+     * @param description description the the group
      */
     public Group(String name, String description)  {
         this.name = name;
         this.description = description;
     }
-    
+
     public Group(String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
         super(createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.name = name;
         this.description = description;
     }
-    
+
     public Group(int id, String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.name = name;
@@ -52,21 +52,21 @@ public class Group extends Auditable implements Comparable<Group> {
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, null, null);
         this.name = name;
         this.description = description;
-        
+
     }
-    
+
     public Group(Integer parentGroupId, String name, String description) {
         this(name, description);
         this.parentGroupId = parentGroupId;
     }
-    
+
     public Group(String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer parentGroupId, Integer createdByUid, Integer modifiedByUid){
         super(createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.name = name;
         this.description = description;
         this.parentGroupId = parentGroupId;
     }
-    
+
     public Group(int id, String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer parentGroupId, Integer createdByUid, Integer modifiedByUid){
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.name = name;
@@ -80,9 +80,9 @@ public class Group extends Auditable implements Comparable<Group> {
 
     public void setName(String name) {
         this.name = name;
-        
+
     }
-    
+
     public Integer getParentGroupId() {
       return parentGroupId;
     }
@@ -107,7 +107,7 @@ public class Group extends Auditable implements Comparable<Group> {
       this.voId = voId;
     }
 
-    
+
     public String getShortName() {
         if(name == null) return null;
         return name.substring(name.lastIndexOf(':')+1);
@@ -120,9 +120,9 @@ public class Group extends Auditable implements Comparable<Group> {
           this.name = name.substring(0, name.lastIndexOf(':') + 1) + shortName;
         }
     }
-    
-    
-    
+
+
+
     public int compareTo(Group group) {
         if (group == null) throw new InternalErrorRuntimeException(new NullPointerException("Group group"));
         if (this.getId() != group.getId()) {
@@ -142,7 +142,7 @@ public class Group extends Auditable implements Comparable<Group> {
       ", voId=<" + getVoId() + ">" +
       ']';
     }
-    
+
     @Override
     public String toString() {
       StringBuilder ret = new StringBuilder();

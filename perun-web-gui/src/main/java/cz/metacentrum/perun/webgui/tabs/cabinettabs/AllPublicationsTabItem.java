@@ -38,9 +38,9 @@ import java.util.Map;
 
 /**
  * Tab for viewing all publications in Perun system
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
@@ -49,12 +49,12 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -74,23 +74,23 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
      */
 	public AllPublicationsTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		// CALLBACK
 		final Map<String, Object> ids = new HashMap<String, Object>();
 		ids.put("authors", 1);
 		ids.put("yearSince", JsonUtils.getCurrentYear());
 
 		final FindPublicationsByGUIFilter callback = new FindPublicationsByGUIFilter(ids);
-		
+
 		// menus
 		TabMenu menu = new TabMenu();
 		final HTML userHtml = new HTML("<strong>User:</strong>");
@@ -161,7 +161,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
                 users.addItem("Loading...");
             }
 		});
-		
+
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
 		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
@@ -195,7 +195,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
                 filterCategory.addItem("Loading...");
             }
 		});
-		
+
 		// switch lock state button
         final CustomButton lock = new CustomButton("Lock", "Lock selected publications", SmallIcons.INSTANCE.lockIcon());
 		lock.addClickHandler(new ClickHandler(){
@@ -207,7 +207,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				}
 			}
 		});
-		
+
 		// switch lock state button
 		final CustomButton unlock = new CustomButton("Unlock", "Unlock selected publications", SmallIcons.INSTANCE.lockOpenIcon());
 		unlock.addClickHandler(new ClickHandler(){
@@ -222,7 +222,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 
         menu.addWidget(lock);
         menu.addWidget(unlock);
-		
+
 		CustomButton filter = new CustomButton("Show / Hide filter", SmallIcons.INSTANCE.filterIcon(), new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (filterMenu.isVisible() == false) {
@@ -243,7 +243,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
         menu.addWidget(filter);
-		
+
 		// filter objects
 		final TextBox filterTitle = new TextBox();
 		filterTitle.setWidth("80px");
@@ -263,22 +263,22 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		filterTill.setMaxLength(4);
 		filterTill.setWidth("30px");
         filterTill.setText(lastYearTill);
-		
+
 		final ListBox codeBox = new ListBox();
 		codeBox.addItem("ISBN/ISSN:");
 		codeBox.addItem("DOI:");
         if (!lastIsbnOrDoi) {
             codeBox.setSelectedIndex(1);
         }
-		
+
 		// add users filter in upper menu
 		menu.addWidget(userHtml);
 		menu.addWidget(users);
-		
+
 		// buttons
 		CustomButton applyFilter = new CustomButton("Apply", "Show publications based on filter", SmallIcons.INSTANCE.filterAddIcon());
 		CustomButton clearFilter = new CustomButton("Clear","Show all publications",SmallIcons.INSTANCE.filterDeleteIcon());
-		
+
 		clearFilter.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// clear last values
@@ -307,10 +307,10 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				callback.retrieveData();
 			}
 		});
-		
+
 		applyFilter.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				
+
 				// refresh ids
 				ids.clear();
 				if (users.getSelectedIndex() > 0) {
@@ -321,7 +321,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
                     lastUserId = 0;
 				}
 				ids.put("authors", 1);
-				
+
 				// checks input
 				if (!filterTitle.getText().isEmpty()) {
 					ids.put("title", filterTitle.getText());
@@ -343,7 +343,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 					if (codeBox.getSelectedIndex() == 0) {
 						// ISBN/ISSN selected
                         lastIsbnOrDoi = true;
-						ids.put("isbn", filterIsbn.getText());						
+						ids.put("isbn", filterIsbn.getText());
 					} else {
 						// DOI selected
                         lastIsbnOrDoi = false;
@@ -382,10 +382,10 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 				callback.setIds(ids);
 				callback.clearTable();
 				callback.retrieveData();
-				
+
 			}
 		});
-		
+
 		// add to filter menu
 		filterMenu.addWidget(new HTML("<strong>Title:</strong>"));
 		filterMenu.addWidget(filterTitle);
@@ -399,10 +399,10 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		filterMenu.addWidget(filterSince);
 		filterMenu.addWidget(new HTML("&nbsp;/&nbsp;"));
 		filterMenu.addWidget(filterTill);
-		
+
 		filterMenu.addWidget(applyFilter);
 		filterMenu.addWidget(clearFilter);
-		
+
 		vp.add(menu);
 		vp.setCellHeight(menu, "50px");
 		vp.add(filterMenu);
@@ -429,13 +429,13 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		sp.add(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
-		vp.add(sp);   
+		vp.add(sp);
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
-			
+
 		this.contentWidget.setWidget(vp);
-				
+
 		return getWidget();
 	}
 
@@ -448,7 +448,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.booksIcon(); 
+		return SmallIcons.INSTANCE.booksIcon();
 	}
 
 	@Override
@@ -482,30 +482,30 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
 	}
-	
+
 	public boolean isAuthorized() {
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public final static String URL = "publications";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public AllPublicationsTabItem load(Map<String, String> parameters)
 	{
 		return new AllPublicationsTabItem();
 	}
-	
+
 }

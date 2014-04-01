@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
 Removes all attributes from the VO. VO id or short name is required.
 -----------------------------------
 Available options:
- --voId         | -v vo id 
+ --voId         | -v vo id
  --voShortName  | -V vo name
  --batch        | -b batch
  --help         | -h prints this help
@@ -21,8 +21,8 @@ Available options:
 
 my ($voId, $voShortName, $userId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "voId|v=i" => \$voId, 
- "voShortName|V=s" => \$voShortName) || die help(); 
+ "voId|v=i" => \$voId,
+ "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($voId) or defined($voShortName)) { die "ERROR: voId or voShortName is required \n";}
@@ -38,5 +38,5 @@ unless($voId) {
 my $attributesAgent = $agent->getAttributesAgent;
 
 $attributesAgent->removeAllAttributes(vo => $voId);
-    
+
 printMessage("All attributes removed from the vo Id:$voId", $batch);

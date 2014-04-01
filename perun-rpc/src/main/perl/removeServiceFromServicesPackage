@@ -17,7 +17,7 @@ Available options:
  --serviceName | -S service name
  --batch       | -b batch
  --help        | -h prints this help
- 
+
 };
 }
 
@@ -48,5 +48,5 @@ unless($serviceId) {
 $servicesAgent->removeServiceFromServicesPackage(servicesPackage => $packageId, service => $serviceId);
 
 printMessage("Service Id:$serviceId removed from service package: $packageId",$batch);
-  
+
 

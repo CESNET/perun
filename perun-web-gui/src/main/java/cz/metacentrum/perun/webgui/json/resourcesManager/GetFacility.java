@@ -14,9 +14,9 @@ import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 
 /**
  * Ajax query to get facility object for specified resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class GetFacility implements JsonCallback {
@@ -59,12 +59,12 @@ public class GetFacility implements JsonCallback {
 	 */
 	public Widget getLabelWithLink()
 	{
-		return facilityLinkWrapper;		
+		return facilityLinkWrapper;
 	}
 
 	/**
 	 * Returns facility object associated with resource
-	 * 
+	 *
 	 * @return facility object
 	 */
 	public Facility getFacility() {
@@ -78,12 +78,12 @@ public class GetFacility implements JsonCallback {
 		final String param = "resource=" + this.resourceId;
 		// retrieve data
 		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, param, this);		
+		js.retrieveData(JSON_URL, param, this);
 	}
 
 	/**
 	 * When successfully finishes
-	 * 
+	 *
 	 * @param jso javascript objects (array) returned from RPC
 	 */
 	public void onFinished(JavaScriptObject jso) {

@@ -31,9 +31,9 @@ import java.util.ArrayList;
  * Returns tab which contains addExecService form for specified service.
  *
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class AddExecServiceTabItem implements TabItem {
@@ -67,7 +67,7 @@ public class AddExecServiceTabItem implements TabItem {
 		this.service = service;
 		this.serviceId = service.getId();
 	}
-	
+
 	public boolean isPrepared() {
 		return (service != null);
 	}
@@ -75,7 +75,7 @@ public class AddExecServiceTabItem implements TabItem {
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": create exec service");
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
@@ -128,7 +128,7 @@ public class AddExecServiceTabItem implements TabItem {
 		Label serviceLabel = new Label();
 		serviceLabel.setText(service.getName()+" ("+serviceId+")");
 
-		final ListBox type = new ListBox(); 
+		final ListBox type = new ListBox();
 		type.addItem("GENERATE", "GENERATE");
 		type.addItem("SEND", "SEND");
 
@@ -231,7 +231,7 @@ public class AddExecServiceTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -266,8 +266,8 @@ public class AddExecServiceTabItem implements TabItem {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}

@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
 Removes selected attribute from the member. Member id and attribute id are required.
 --------------------------------------
 Available options:
- --memberId     | -m member id 
+ --memberId     | -m member id
  --attributeId  | -a attribute id
  --batch        | -b batch
  --help         | -h prints this help
@@ -21,7 +21,7 @@ Available options:
 
 my ($memberId, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help(); 
+ "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -31,5 +31,5 @@ my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
 $attributesAgent->removeAttribute(member => $memberId, attribute => $attributeId);
-    
+
 printMessage("Attribute Id:$attributeId removed from the member Id:$memberId", $batch);

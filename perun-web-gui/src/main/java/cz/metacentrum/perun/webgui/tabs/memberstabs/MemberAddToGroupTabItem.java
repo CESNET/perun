@@ -47,13 +47,13 @@ public class MemberAddToGroupTabItem implements TabItem {
 		this.member = member;
 		this.memberId = member.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(member == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": add to group(s)");
 
         // main widget panel
@@ -116,7 +116,7 @@ public class MemberAddToGroupTabItem implements TabItem {
         vp.add(sp);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 
 	}
@@ -130,7 +130,7 @@ public class MemberAddToGroupTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon(); 
+		return SmallIcons.INSTANCE.userGreenIcon();
 	}
 
 	@Override
@@ -158,13 +158,13 @@ public class MemberAddToGroupTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

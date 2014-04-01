@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cz.metacentrum.perun.core.impl;
 
@@ -17,29 +17,29 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 
 /**
  * Dummy ExtSource - IdP - Identity federation
- * 
+ *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
 public class ExtSourceIdp extends ExtSource implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceIdp.class);
-	
+
 	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
     return findSubjects(searchString, 0);
   }
-  
+
   public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException,ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }
-  
+
   public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }
-  
+
   public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }
-  
+
   public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }

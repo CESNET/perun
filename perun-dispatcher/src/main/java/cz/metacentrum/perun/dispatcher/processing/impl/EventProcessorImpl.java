@@ -14,9 +14,9 @@ import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor {

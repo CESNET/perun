@@ -420,7 +420,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
         //Propagating new receiver to template
         PerunNotifTemplate template = allTemplatesById.get(receiver.getTemplateId());
         template.addReceiver(receiver);
-        
+
         return perunNotifReceiver;
     }
 
@@ -485,7 +485,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
                 list.add(template);
             }
         }
-        
+
         return perunNotifTemplate;
     }
 
@@ -592,7 +592,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
         StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
         insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
-        
+
         return perunNotifTemplateMessage;
     }
 

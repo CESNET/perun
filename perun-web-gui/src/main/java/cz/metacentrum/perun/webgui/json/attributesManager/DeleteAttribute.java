@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query which deletes attribute definition
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -44,7 +44,7 @@ public class DeleteAttribute {
 
 	/**
 	 * Deletes attribute definition from DB - make RPC call
-	 * 
+	 *
 	 * @param attrDefId - ID of attribute definition which should be deleted
 	 */
 	public void deleteAttributeDefinition(final int attrDefId) {
@@ -78,11 +78,11 @@ public class DeleteAttribute {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting() {
@@ -90,7 +90,7 @@ public class DeleteAttribute {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(attrDefId == 0){ 
+		if(attrDefId == 0){
 			errorMsg += "Wrong Attribute definition ID parametr.\n";
 			result = false;
 		}
@@ -106,13 +106,13 @@ public class DeleteAttribute {
 
 	/**
 	 * Prepares a JSON object.
-	 * 
+	 *
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
 
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("attribute", new JSONNumber(attrDefId));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("attribute", new JSONNumber(attrDefId));
 		return jsonQuery;
 
 	}

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * This entity represents one message from auditer.
  * Is used to backup messages during process of processing the message.
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -40,12 +40,12 @@ public class PerunNotifAuditMessage {
     private List<PerunBean> perunBeanList;
 
 	public PerunNotifAuditMessage() {}
-	
+
 	public PerunNotifAuditMessage(long id, String message) {
 		this.id = id;
 		this.message = message;
 	}
-	
+
 	public long getId() {
 		return id;
 	}
@@ -87,7 +87,7 @@ public class PerunNotifAuditMessage {
 			PerunNotifAuditMessage auditMessage = new PerunNotifAuditMessage();
 			auditMessage.setId(rs.getLong("id"));
 			auditMessage.setMessage(rs.getString("message"));
-			
+
 			return auditMessage;
 		}
 	};

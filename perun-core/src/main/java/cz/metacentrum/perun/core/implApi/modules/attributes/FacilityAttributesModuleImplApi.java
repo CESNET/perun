@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * This interface serves as a template for checking facilities attributes.
- * 
+ *
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
  */
 public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi {
@@ -47,10 +47,10 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
      * @throws WrongAttributeAssignmentException
      */
     Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
-    
+
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param facility the facility
      * @param attribute the attribute

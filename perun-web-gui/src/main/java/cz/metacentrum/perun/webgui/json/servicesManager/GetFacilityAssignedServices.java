@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get all services on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTable<Service> {
@@ -64,7 +64,7 @@ public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Returns table of assigned services on facility with custom onClick
-	 * 
+	 *
 	 * @param fu custom onClick (field updater)
 	 */
 	public CellTable<Service> getTable(FieldUpdater<Service, String> fu){
@@ -74,7 +74,7 @@ public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Return table with assigned services on facility
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Service> getTable() {
@@ -233,7 +233,7 @@ public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Sets different facility ID for callback after creation
-	 * 
+	 *
 	 * @param facilityId new facility ID
 	 */
 	public void setFacility(int facilityId) {
@@ -242,7 +242,7 @@ public class GetFacilityAssignedServices implements JsonCallback, JsonCallbackTa
 
 	/**
 	 * Sets events after callback creation
-	 * 
+	 *
 	 * @param events external events
 	 */
 	public void setEvents(JsonCallbackEvents events) {

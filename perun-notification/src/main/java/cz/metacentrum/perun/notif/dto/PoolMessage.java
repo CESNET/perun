@@ -66,7 +66,7 @@ public class PoolMessage {
 		if (list == null) {
 			list = new ArrayList<PerunNotifPoolMessage>();
 		}
-		
+
 		list.add(message);
 	}
-} 
+}

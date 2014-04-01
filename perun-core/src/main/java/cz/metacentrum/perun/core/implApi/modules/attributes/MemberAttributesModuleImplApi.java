@@ -31,7 +31,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
      * @throws WrongReferenceAttributeValueException if an referenced attribute against
      *         the parameter is to be compared is not available
      * @throws WrongReferenceAttributeValueException
-     * @throws WrongAttributeAssignmentException 
+     * @throws WrongAttributeAssignmentException
      */
     void checkAttributeValue(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
@@ -39,7 +39,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
      * Tries to fill an attribute to the specified member.
      *
      * @param session Perun Session
-     * @param member Member 
+     * @param member Member
      * @param attribute Attribute of the member
      * @return Attribute which MAY be filled in
      *
@@ -51,7 +51,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param member the member
      * @param attribute the attribute

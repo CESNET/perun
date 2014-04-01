@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * Tab, which displays Groups where user is Admin
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -45,12 +45,12 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -58,7 +58,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
     private int voId = 0;
 	private VirtualOrganization vo = null;
-	
+
 	/**
 	 * Creates a tab instance
      *
@@ -92,7 +92,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
         // if vo selected and loaded or no vo selected
         return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
 	}
-	
+
 	public Widget draw() {
 
 		// main panel
@@ -188,7 +188,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -201,7 +201,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupIcon(); 
+		return SmallIcons.INSTANCE.groupIcon();
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Select group", getUrlWithParameters());
@@ -236,27 +236,27 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 	public boolean isAuthorized() {
 
 		if (session.isGroupAdmin() || session.isVoAdmin() || session.isVoObserver()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "list";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?vo="+voId;
 	}
-	
+
 	static public GroupsTabItem load(Map<String, String> parameters) {
         int id = Integer.parseInt(parameters.get("vo"));
 		return new GroupsTabItem(id);
 	}
-	
+
 }

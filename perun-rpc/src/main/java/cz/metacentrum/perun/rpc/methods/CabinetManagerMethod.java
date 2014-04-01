@@ -26,7 +26,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 * Finds publications of perun's user specified in param
 	 * Search is done in external publication systems (MU, ZCU)
 	 * All parameters are required.
-	 * 
+	 *
 	 * @param user int Perun user
 	 * @param yearSince int Year since
 	 * @param yearTill int Year till - must be equal or greater then yearSince
@@ -34,7 +34,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 * @return List<Publication> Found publications
 	 */
 	findExternalPublications {
-		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {  
+		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findExternalPublications(ac.getSession(), parms.readInt("user"), parms.readInt("yearSince"), parms.readInt("yearTill"), parms.readString("pubSysNamespace"));
 		}
 	},
@@ -42,84 +42,84 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	/*#
 	 * Finds publications according to provided instance. All set
 	 * properties are used with conjunction AND.
-	 * 
+	 *
 	 * @param publication Publication JSON object
 	 * @return List<Publication> Found publications
 	 */
 	findPublicationByFilter {
-		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {  
+		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findPublicationsByFilter(parms.read("publication", Publication.class));
 		}
 	},
 
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param title String Title
 	 * @param isbn String ISBN
 	 * @param doi String DOI
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param isbn String ISBN
 	 * @param doi String DOI
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param doi String DOI
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param title String Title
 	 * @param doi String DOI
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param title String Title
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param isbn String ISBN
 	 * @param doi String DOI
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	/*#
 	 * Finds similar publications
-	 * 
+	 *
 	 * @param isbn String ISBN
-	 * 
+	 *
 	 * @return List<PublicationForGUI> Found publications
-	 */	
+	 */
 	findSimilarPublications {
-		public Set<PublicationForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {  
-			
+		public Set<PublicationForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+
 			Set<PublicationForGUI> result = new HashSet<PublicationForGUI>();
-			
+
 			int yearSince = 0;
 			int yearTill = 0;
 			Integer userId = null;
-			
+
 			if (parms.contains("title")) {
 				Publication filter = new Publication();
 				filter.setTitle(parms.readString("title"));
 				result.addAll(ac.getCabinetManager().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill));
-			} 
+			}
 			if (parms.contains("isbn")) {
 				Publication filter = new Publication();
 				filter.setIsbn(parms.readString("isbn"));
@@ -131,23 +131,23 @@ public enum CabinetManagerMethod implements ManagerMethod {
 				result.addAll(ac.getCabinetManager().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill));
 			}
 			return result;
-			
+
 		}
-	},  
+	},
 
 	/*#
 	 * Finds rich publications in Cabinet by GUI filter:
-	 * 
+	 *
 	 * id = exact match (used when search for publication of authors)
 	 * title = if "like" this substring
-	 * year = exact match 
+	 * year = exact match
 	 * isbn = if "like" this substring
 	 * category = exact match
 	 * yearSince = if year >= yearSince
 	 * yearTill = if year <= yearTill
-	 * 
+	 *
 	 * If you don't want to filter by publication params, do not include the attribute in the query.
-	 * 
+	 *
 	 * @param id int Publication ID
 	 * @param title String Title
 	 * @param isbn String ISBN
@@ -157,7 +157,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 * @param locked boolean Publication locked
 	 * @param yearSince int Year since
 	 * @param yearTill int Year till
-	 * @param userId int User ID 
+	 * @param userId int User ID
 	 * @return List<PublicationForGUI> Found publications
 	 */
 	findPublicationsByGUIFilter {
@@ -168,13 +168,13 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			int yearSince = 0;
 			int yearTill = 0;
 			Integer userId = null;
-			
+
 			if (parms.contains("id")) {
 				filter.setId(parms.readInt("id"));
-			} 
+			}
 			if (parms.contains("title")) {
 				filter.setTitle(parms.readString("title"));
-			} 
+			}
 			if (parms.contains("isbn")) {
 				filter.setIsbn(parms.readString("isbn"));
 			}
@@ -188,7 +188,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 				filter.setDoi(parms.readString("doi"));
 			}
 			if (parms.contains("locked")) {
-				if (parms.readString("locked").equalsIgnoreCase("false")) { 
+				if (parms.readString("locked").equalsIgnoreCase("false")) {
 					filter.setLocked(false);
 				} else if (parms.readString("locked").equalsIgnoreCase("true")) {
 					filter.setLocked(true);
@@ -203,18 +203,18 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			if (parms.contains("userId")) {
 				// just to be safe
 				if (parms.readInt("userId") != 0) {
-					userId = parms.readInt("userId");	
+					userId = parms.readInt("userId");
 				}
 			}
-	
+
 			// result list
 			List<PublicationForGUI> result = new ArrayList<PublicationForGUI>();
-			
+
 			result = ac.getCabinetManager().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill);
-			
+
 			return result;
-			
-		}  
+
+		}
 	},
 
 	/*#
@@ -226,7 +226,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findRichPublicationById(parms.readInt("id"));
 		}
-	},  
+	},
 
 	/*#
 	 * Returns all autorships.
@@ -235,20 +235,20 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	findAllAuthorships {
 		public List<Authorship> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAllAuthorships();
-		}  
+		}
 	},
 
 	/*#
 	 * Returns all autorships according to a filter. Between filled properties is
 	 * used conjunction AND.
-	 * 
+	 *
 	 * @param authorship Authorship JSON object
 	 * @return List<Authorship> Authorships
 	 */
 	findAuthorshipsByFilter {
 		public List<Authorship> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAuthorshipsByFilter(parms.read("authorship", Authorship.class));
-		}   
+		}
 	},
 
 	/*#
@@ -259,7 +259,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	findAuthorshipById {
 		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAuthorshipById(parms.readInt("id"));
-		} 		  
+		}
 	},
 
 	/*#
@@ -269,19 +269,19 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	findAllAuthors {
 		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAllAuthors();
-		}  
-	},  
-	
+		}
+	},
+
 	/*#
 	 * Finds Authors of a Publication.
 	 * @param id int Publication ID
-	 * @return List<Author> Authors 
+	 * @return List<Author> Authors
 	 */
 	findAuthorsByPublicationId {
 		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAuthorsByPublicationId(parms.readInt("id"));
-		}  
-	},  
+		}
+	},
 
 	/*#
 	 * Returns all Categories.
@@ -290,31 +290,31 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	findAllCategories {
 		public List<Category> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findAllCategories();
-		}  
-	}, 
+		}
+	},
 
 	/*#
 	 * Finds thanks by a filter.
 	 * @param thanks Thanks JSON object
-	 * @return List<Thanks> Found thanks 
+	 * @return List<Thanks> Found thanks
 	 */
 	findThanksByFilter {
 		public List<Thanks> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findThanksByFilter(parms.read("thanks", Thanks.class));
-		}  
-	},  
-	
+		}
+	},
+
 	/*#
 	 * Finds thanks by a Publication.
 	 * @param id int Publication ID
-	 * @return List<ThanksForGUI> Found thanks 
+	 * @return List<ThanksForGUI> Found thanks
 	 */
 	findThanksByPublicationId {
 		public List<ThanksForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			return ac.getCabinetManager().findRichThanksByPublicationId(parms.readInt("id"));
-		}  
+		}
 	},
-	
+
 	/*#
 	 * Returns all PublicationSystems.
 	 * @return List<PublicationSystem> Publication systems
@@ -325,7 +325,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
-	// CREATE / UPDATE / DELETE / CHECK METHODS 
+	// CREATE / UPDATE / DELETE / CHECK METHODS
 
 	/*#
 	 * Creates a category.
@@ -370,7 +370,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 * Creates an Authorship.
 	 * If the authorship already exists, it's returned.
 	 * @param authorship Authorship JSON object
-	 * @return Authorship Authorship 
+	 * @return Authorship Authorship
 	 */
 	createAuthorship {
 		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -378,7 +378,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			Authorship auth = parms.read("authorship", Authorship.class);
 			if (ac.getCabinetManager().authorshipExists(auth)) {
 				// exists - return existing
-				return ac.getCabinetManager().findAuthorshipsByFilter(auth).get(0); 
+				return ac.getCabinetManager().findAuthorshipsByFilter(auth).get(0);
 				// pubId and userId are unique and checked before, so we can safely return first and only authorship.
 			} else {
 				int id = ac.getCabinetManager().createAuthorship(ac.getSession(), parms.read("authorship", Authorship.class));
@@ -390,7 +390,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	/*#
 	 * Updates an Authorship.
 	 * @param authorship Authorship JSON object
-	 * @return Authorship Updated Authorship 
+	 * @return Authorship Updated Authorship
 	 */
 	updateAuthorship {
 		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -423,7 +423,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a new Publication.
 	 * If publication already exists, it's returned.
-	 * 
+	 *
 	 * @param publication Publication JSON object
 	 * @return Publication Publication
 	 */
@@ -456,7 +456,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Updates a Publication.
-	 * 
+	 *
 	 * @param publication Publication JSON object
 	 * @return Publication Updated Publication
 	 */
@@ -479,12 +479,12 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			ac.getCabinetManager().deletePublicationById(ac.getSession(), parms.readInt("id"));
 			return null;
 		}
-	},	
-	
+	},
+
 	/*#
 	 * Checks whether a publication exists.
 	 * If you don't want to filter by a publication param, do not include the attribute in the query.
-	 * 
+	 *
 	 * @param externalId int External ID
 	 * @param pubSysId int PubSys ID
 	 * @param isbn String ISBN
@@ -507,7 +507,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Locks and unlocks publications. 
+	 * Locks and unlocks publications.
 	 * @param publications List<Publication> Publications
 	 * @param lock int 1 = lock, 0 = unlock
 	 * @return int Number of updated rows
@@ -515,11 +515,11 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	lockPublications {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			ac.stateChangingCheck();
-			
+
 			List<Publication> pubs = parms.readList("publications", Publication.class);
-			boolean lockState = parms.readInt("lock") == 1 ? true : false; 
+			boolean lockState = parms.readInt("lock") == 1 ? true : false;
 			return ac.getCabinetManager().lockPublications(ac.getSession(), lockState, pubs);
-			
+
 		}
 	},
 
@@ -535,7 +535,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			return ac.getCabinetManager().findThanksById(id);
 		}
 	},
-	
+
 	/*#
 	 * Deletes Thanks.
 	 * @param id int Thanks ID
@@ -552,7 +552,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns user's rank.
-	 * 
+	 *
 	 * @param user int User ID
 	 * @return double User's rank
 	 */
@@ -561,9 +561,9 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			return ac.getCabinetManager().getRank(parms.readInt("user"));
 		}
 	},
-	
+
 	/*#
-	 * Recalculates "publications" attribute for 
+	 * Recalculates "publications" attribute for
 	 * all users who reported any publication
 	 */
 	recalculateThanksAttribute {

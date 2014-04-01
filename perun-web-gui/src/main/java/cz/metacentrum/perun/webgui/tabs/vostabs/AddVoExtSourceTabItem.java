@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Provides page with add external source to VO form
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -76,8 +76,8 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		};
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
-	
+
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -85,16 +85,16 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
      */
 	public AddVoExtSourceTabItem(VirtualOrganization vo){
 		this.voId = vo.getId();
-		this.vo = vo; 
+		this.vo = vo;
 	}
-	
-	
+
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": add ext. source");
 
 		VerticalPanel vp = new VerticalPanel();
@@ -184,7 +184,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		// do not use resizePerunTable() when tab is in overlay - wrong width is calculated
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
@@ -216,7 +216,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.addIcon(); 
+		return  SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -258,7 +258,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -266,16 +266,16 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "add-ext-src";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public AddVoExtSourceTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new AddVoExtSourceTabItem(voId);

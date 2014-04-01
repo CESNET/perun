@@ -84,7 +84,7 @@ public class ApiCaller {
   private VOOT vootManager = null;
 
   private final static String RPCPRINCIPAL = "perunRpc";
-  
+
   private final PerunSession session;
   private final PerunSession rpcSession;
 
@@ -94,21 +94,21 @@ public class ApiCaller {
       }
       return auditMessagesManager;
   }
-  
+
   public RTMessagesManager getRTMessagesManager() {
     if (rtMessagesManager == null) {
       rtMessagesManager = rpcSession.getPerun().getRTMessagesManager();
     }
     return rtMessagesManager;
   }
-  
+
   public Searcher getSearcher() {
     if (searcher == null) {
       searcher = rpcSession.getPerun().getSearcher();
     }
     return searcher;
-  }  
-  
+  }
+
   public VosManager getVosManager() {
     if (vosManager == null) {
       vosManager = rpcSession.getPerun().getVosManager();
@@ -186,15 +186,15 @@ public class ApiCaller {
   public PropagationStatsReader getPropagationStatsReader() {
     return propagationStatsReader;
   }
- 
+
   public ICabinetApi getCabinetManager() {
 	    return cabinetManager;
   }
-  
+
   public RegistrarManager getRegistrarManager() {
 	    return registrarManager;
 	  }
-  
+
   public PerunNotifNotificationManager getNotificationManager() {
     return notificationManager;
   }
@@ -205,7 +205,7 @@ public class ApiCaller {
       }
       return vootManager;
   }
-  
+
   public Vo getVoById(int id) throws PerunException {
     return getVosManager().getVoById(rpcSession, id);
   }
@@ -277,23 +277,23 @@ public class ApiCaller {
   public Attribute getAttributeById(Host host, int id) throws PerunException {
     return getAttributesManager().getAttributeById(rpcSession, host, id);
   }
-  
+
   public Attribute getAttributeById(Group group, int id) throws PerunException {
     return getAttributesManager().getAttributeById(rpcSession, group, id);
   }
-  
+
   public Attribute getAttributeById(Resource resource, Group group, int id) throws PerunException {
     return getAttributesManager().getAttributeById(rpcSession, resource, group, id);
   }
-  
+
   public Attribute getAttributeById(User user, int id) throws PerunException {
     return getAttributesManager().getAttributeById(rpcSession, user, id);
   }
-  
+
   public Attribute getAttributeById(Member member, int id) throws PerunException {
     return getAttributesManager().getAttributeById(session, member, id);
   }
-  
+
   public Attribute getAttributeById(Facility facility, User user, int id) throws PerunException {
     return getAttributesManager().getAttributeById(session, facility, user, id);
   }
@@ -305,27 +305,27 @@ public class ApiCaller {
   public ExecService getExecServiceById(int id) throws PerunException {
     return getGeneralServiceManager().getExecService(rpcSession, id);
   }
-  
+
   public PerunNotifObject getPerunNotifObjectById(int id) throws PerunException {
     return getNotificationManager().getPerunNotifObjectById(id);
   }
-  
+
   public PerunNotifReceiver getPerunNotifReceiverById(int id) throws PerunException {
-    return getNotificationManager().getPerunNotifReceiverById(id);  
+    return getNotificationManager().getPerunNotifReceiverById(id);
   }
 
   public PerunNotifRegex getPerunNotifRegexById(int id) throws PerunException {
     return getNotificationManager().getPerunNotifRegexById(id);
   }
-  
+
   public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws PerunException {
     return getNotificationManager().getPerunNotifTemplateMessageById(id);
   }
-  
+
   public PerunNotifTemplate getPerunNotifTemplateById(int id) throws PerunException {
     return getNotificationManager().getPerunNotifTemplateById(id);
   }
-  
+
   public Destination getDestination(String destination, String type) throws PerunException {
     Destination d = new Destination();
     d.setDestination(destination);
@@ -354,7 +354,7 @@ public class ApiCaller {
 
     PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
     this.rpcSession = perun.getPerunSession(rpcPrincipal);
-    
+
     // Initialize serviceManager
     this.generalServiceManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("generalServiceManager", GeneralServiceManager.class);
 
@@ -363,20 +363,20 @@ public class ApiCaller {
 
     // Initialize ICabinetApi (cabinet manager)
     this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetApi", ICabinetApi.class);
-    
+
     // Initialize RegistrarManager
     this.registrarManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("registrarManager", RegistrarManager.class);
 
     // Initialize Notifications
     this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perunNotifNotificationManager", PerunNotifNotificationManager.class);
-        
-    this.session = perun.getPerunSession(perunPrincipal); 
+
+    this.session = perun.getPerunSession(perunPrincipal);
   }
 
   public PerunSession getSession() {
     return session;
   }
-  
+
   private boolean stateChanging = true;
 
   public boolean isStateChanging() {

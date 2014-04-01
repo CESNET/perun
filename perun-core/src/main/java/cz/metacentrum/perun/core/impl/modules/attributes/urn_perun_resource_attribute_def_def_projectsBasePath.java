@@ -16,26 +16,26 @@ import java.util.regex.Pattern;
 
 /**
  * Module for projects directory base path
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 25.2.2014
  */
 public class urn_perun_resource_attribute_def_def_projectsBasePath extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
-    
+
     public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
       String path = (String) attribute.getValue();
       if (path == null) {
         throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty.");
       }
-      
+
       Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
       Matcher match = pattern.matcher(path);
 
       if (!match.matches()) {
-        throw new WrongAttributeValueException(attribute, resource, "Bad format of attribute projectsBasePath (expected something like '/first/second').");    
+        throw new WrongAttributeValueException(attribute, resource, "Bad format of attribute projectsBasePath (expected something like '/first/second').");
       }
     }
-    
+
     public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

@@ -29,8 +29,8 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
     @Override
     /**
      * Checks an attribute with shell for the user at the specified facility. There
-     * must be at least some facilities allowed and also the user must have 
-     * an account there. In that case the new user's shell must be included 
+     * must be at least some facilities allowed and also the user must have
+     * an account there. In that case the new user's shell must be included
      * in allowed shells and also need to have correct format.
      */
     public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
@@ -41,7 +41,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
         session.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
 
         List<String> allowedShells = allShellsAtSpecifiedFacility(session, facility, user);
-        
+
         if (allowedShells.isEmpty()) {
             throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "There are no shells available at associated facilities");
         }
@@ -72,7 +72,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
         }
         return allowedShells;
     }
-    
+
     @Override
     public List<String> getDependencies() {
       List<String> dependencies = new ArrayList<String>();
@@ -87,5 +87,5 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
       attr.setType(String.class.getName());
       attr.setDescription("Shell.");
       return attr;
-  }  
+  }
 }

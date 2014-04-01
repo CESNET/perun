@@ -27,7 +27,7 @@ public interface PerunNotifPoolMessageDao {
 	/**
 	 * Gets all perunNotifPoolMessages from db
 	 * Integer is templateId, perunNotifPoolMessageProcessDto holds messages with same templateId and keyAttributes
-	 * 
+	 *
 	 * @return templateId = list<PoolMessage>
 	 */
 	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing();

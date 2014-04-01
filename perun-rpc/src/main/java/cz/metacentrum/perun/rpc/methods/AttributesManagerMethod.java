@@ -52,7 +52,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
          * @param resource int Resource ID
 	 * @param workWithGroupAttributes int Must = 1
 	 * @return List<Attribute> Attributes
-	 */ 
+	 */
 	/*#
 	 * Returns Resource attributes.
 	 * @param resource int Resource ID
@@ -114,7 +114,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
                                             ac.getVoById(parms.readInt("vo")),
                                             parms.readList("attrNames", String.class));
-                                } else {        
+                                } else {
                                     return ac.getAttributesManager().getAttributes(ac.getSession(),
                                                 ac.getVoById(parms.readInt("vo")));
                                 }
@@ -142,26 +142,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				if (parms.contains("workWithUserAttributes")){
                                         if (parms.contains("attrNames[]")) {
                                             return ac.getAttributesManager().getAttributes(ac.getSession(),
-                                                            ac.getMemberById(parms.readInt("member")), 
+                                                            ac.getMemberById(parms.readInt("member")),
                                                             parms.readList("attrNames", String.class),
                                                             parms.readInt("workWithUserAttributes") == 1);
                                         } else {
-                                            return ac.getAttributesManager().getAttributes(ac.getSession(), 
+                                            return ac.getAttributesManager().getAttributes(ac.getSession(),
                                                             ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
                                         }
 				} else if (parms.contains("attrNames[]")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
                             ac.getMemberById(parms.readInt("member")),
-                            parms.readList("attrNames", String.class)); 
+                            parms.readList("attrNames", String.class));
                                 } else {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")));
 				}
 			} else if (parms.contains("user")) {
-				if (parms.contains("attrNames[]")) { 
-					return ac.getAttributesManager().getAttributes(ac.getSession(), 
-							ac.getUserById(parms.readInt("user")), 
-							parms.readList("attrNames", String.class));	
+				if (parms.contains("attrNames[]")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+							ac.getUserById(parms.readInt("user")),
+							parms.readList("attrNames", String.class));
 				} else {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 						   ac.getUserById(parms.readInt("user")));
@@ -179,7 +179,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Returns all entityless attributes.
-	 * 
+	 *
 	 * @return List<Attribute> Attributes
 	 */
         getEntitylessAttributes {
@@ -188,10 +188,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
                     return ac.getAttributesManager().getEntitylessAttributes(ac.getSession(), parms.readString("attrName"));
                 }
         },
-        
+
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param facility int Facility ID
          * @param user int User ID
          * @param member int Member ID
@@ -200,72 +200,72 @@ public enum AttributesManagerMethod implements ManagerMethod {
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param facility int Facility ID
          * @param user int User ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param facility int Facility ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param vo int VO ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param member int Member ID
          * @param resoruce int Resource ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param group int Group ID
          * @param resoruce int Resource ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param resoruce int Resource ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param member int Member ID
          * @param workWithUserAttributes int Must = 1
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param member int Member ID
          * @param attributes List<Attribute> List of attributes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param user int User ID
          * @param attributes List<Attribute> List of attribbutes
          */
-        
+
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param group int Group ID
          * @param attributes List<Attribute> List of attribbutes
          */
         /*#
          * Sets the attributes.
-         * 
+         *
          * @param host int Host ID
          * @param attributes List<Attribute> List of attribbutes
          */
@@ -360,10 +360,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
-	
+
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
      * @param facility int Facility ID
      * @param user int User ID
      * @param attributeId int Attribute ID
@@ -371,21 +371,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resoruce int Resource ID
 	 * @param attributeId int Attribute ID
@@ -393,7 +393,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param resoruce int Resource ID
 	 * @param attributeId int Attribute ID
@@ -401,35 +401,35 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param resoruce int Resource ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param user int User ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param host int Host ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
      * @param facility int Facility ID
      * @param user int User ID
      * @param attributeName String Attribute name
@@ -437,21 +437,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resoruce int Resource ID
 	 * @param attributeName String Attribute name
@@ -459,7 +459,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param resoruce int Resource ID
 	 * @param attributeName String Attribute name
@@ -467,28 +467,28 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param resoruce int Resource ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param user int User ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name.
-	 * 
+	 *
 	 * @param host int Host ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
@@ -614,10 +614,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	
+
 	/*#
 	 * Returns AttributeDefinition.
-	 * 
+	 *
 	 * @param attributeName String Attribute name
 	 * @return AttributeDefinition Definition of an Attribute
 	 */
@@ -631,7 +631,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Returns all AttributeDefinitions.
-	 * 
+	 *
 	 * @return List<AttributeDefinition> Definitions of Attributes
 	 */
 	getAttributesDefinition {
@@ -643,7 +643,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns AttributeDefinition.
-	 * 
+	 *
 	 * @param id int Attribute ID
 	 * @return AttributeDefinition Definition of an Attribute
 	 */
@@ -657,7 +657,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns all AttributeDefinitions in a namespace.
-	 * 
+	 *
 	 * @return List<AttributeDefinition> Definitions of Attributes in a namespace
 	 */
 	getAttributesDefinitionByNamespace {
@@ -667,7 +667,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					parms.readString("namespace"));
 		}
 	},
-        
+
     /*#
 	 * Returns all AttributeDefinitions for every entity and possible combination of entities with rights.
 	 * Only attribute definition of attributes user can read (or write) you will get.
@@ -698,7 +698,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
                     //Not supported entityless attirbutes now
                     //String entityless = null;
                     List<PerunBean> entities = new ArrayList<PerunBean>();
-                    
+
                     //If member exists in query
                     if(parms.contains("member")) {
                         member = ac.getMemberById(parms.readInt("member"));
@@ -736,11 +736,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
                     }
                     //If entityless exists in query
                     /*if(parms.contains("entityless")) {
-                        
+
                     }*/
-                    
+
                     List<AttributeDefinition> attributesDefinition = ac.getAttributesManager().getAttributesDefinitionWithRights(ac.getSession(), entities);
-                    
+
                     return attributesDefinition;
                 }
         },
@@ -748,21 +748,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resoruce int Resource ID
 	 * @param id int Attribute ID
@@ -770,14 +770,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param resoruce int Resource ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
-	 * 
+	 *
 	 * @param host int Host ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
@@ -814,68 +814,68 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	
+
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param vo int VO ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resoruce int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param resoruce int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param resoruce int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param user int User ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param attribute Attribute JSON object
 	 *
 	 */
 	/*#
 	 * Sets an Attribute.
-	 * 
+	 *
 	 * @param host int Host ID
 	 * @param attribute Attribute JSON object
 	 */
@@ -943,7 +943,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
-	
+
 	/*#
 	 * Creates AttributeDefinition
 	 *
@@ -959,10 +959,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			AttributeDefinition attribute = parms.read("attribute", AttributeDefinition.class);
 
                         return ac.getAttributesManager().createAttribute(ac.getSession(),attribute);
-			
+
 		}
 	},
-	
+
 	/*#
 	 * Deletes attribute definition from Perun.
 	 *
@@ -982,10 +982,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
-	
+
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param service int Service ID
 	 * @param resource int Resource ID
@@ -993,7 +993,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param group int Group ID
 	 * @param service int Service ID
 	 * @param resource int Resource ID
@@ -1001,14 +1001,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param service int Service ID
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param service int Service ID
 	 * @return List<Attribute> Required Attributes
@@ -1022,21 +1022,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param host int Host ID
 	 * @param service int Service ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
 	 * @param workWithUserAttributes int Must = 1
@@ -1050,26 +1050,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param facility int Facility ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
-	 * 
+	 *
 	 * @param member int Member ID
 	 * @param workWithUserAttributes int Must = 1
 	 * @return List<Attribute> Required Attributes
@@ -1146,7 +1146,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")));
 				}
-			} else if (parms.contains("facility")) { 
+			} else if (parms.contains("facility")) {
 				if (parms.contains("user")) {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
@@ -1155,15 +1155,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")));
 				}
-			} else if (parms.contains("member")) { 
+			} else if (parms.contains("member")) {
 				if (parms.contains("workWithUserAttributes")){
-					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), 
+					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
 				} else {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")), false);
 				}
-			} else if (parms.contains("user")) { 
+			} else if (parms.contains("user")) {
 				return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 						ac.getUserById(parms.readInt("user")));
 			} else {
@@ -1171,10 +1171,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	
+
 	/*#
 	 * Returns required attributes definition for a Service.
-	 * 
+	 *
 	 * @param service int Service ID
 	 * @return List<AttributeDefinition> Attributes definitions
 	 */
@@ -1248,57 +1248,57 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 	fillAttribute {
-            
+
 		@Override
                 public Attribute call(ApiCaller ac, Deserializer parms) throws PerunException {
                         ac.stateChangingCheck();
-                        
+
                         if (parms.contains("group")) {
                             Group group = ac.getGroupById(parms.readInt("group"));
-                            return ac.getAttributesManager().fillAttribute(ac.getSession(), 
-                                                                            group, 
+                            return ac.getAttributesManager().fillAttribute(ac.getSession(),
+                                                                            group,
                                                                             ac.getAttributeById(group, parms.readInt("attribute")));
                         } else if (parms.contains("host")) {
                             Host host = ac.getHostById(parms.readInt("host"));
-                            return ac.getAttributesManager().fillAttribute(ac.getSession(), 
-                                                                            host, 
+                            return ac.getAttributesManager().fillAttribute(ac.getSession(),
+                                                                            host,
                                                                             ac.getAttributeById(host, parms.readInt("attribute")));
                         } else if (parms.contains("resource")) {
                             Resource resource = ac.getResourceById(parms.readInt("resource"));
                             if (parms.contains("group")) {
                                 Group group = ac.getGroupById(parms.readInt("group"));
-                                return ac.getAttributesManager().fillAttribute(ac.getSession(), 
+                                return ac.getAttributesManager().fillAttribute(ac.getSession(),
                                                                                 resource,
                                                                                 group,
                                                                                 ac.getAttributeById(resource, group, parms.readInt("attribute")));
                             } else if (parms.contains("member")) {
                                 Member member = ac.getMemberById(parms.readInt("member"));
-                                return ac.getAttributesManager().fillAttribute(ac.getSession(), 
+                                return ac.getAttributesManager().fillAttribute(ac.getSession(),
                                                                                 resource,
                                                                                 member,
                                                                                 ac.getAttributeById(resource, member, parms.readInt("attribute")));
                             } else {
-                                return ac.getAttributesManager().fillAttribute(ac.getSession(), 
-                                                                                resource, 
+                                return ac.getAttributesManager().fillAttribute(ac.getSession(),
+                                                                                resource,
                                                                                 ac.getAttributeById(resource, parms.readInt("attribute")));
                             }
                         } else if (parms.contains("user")) {
                             User user = ac.getUserById(parms.readInt("user"));
                             if (parms.contains("facility")) {
                                 Facility facility = ac.getFacilityById(parms.readInt("facility"));
-                                return ac.getAttributesManager().fillAttribute(ac.getSession(), 
+                                return ac.getAttributesManager().fillAttribute(ac.getSession(),
                                                                             facility,
                                                                             user,
                                                                             ac.getAttributeById(facility, user, parms.readInt("attribute")));
                             } else {
-                                return ac.getAttributesManager().fillAttribute(ac.getSession(), 
-                                                                                user, 
+                                return ac.getAttributesManager().fillAttribute(ac.getSession(),
+                                                                                user,
                                                                                 ac.getAttributeById(user, parms.readInt("attribute")));
                             }
                         } else if (parms.contains("member")) {
                             Member member = ac.getMemberById(parms.readInt("member"));
-                            return ac.getAttributesManager().fillAttribute(ac.getSession(), 
-                                                                            member, 
+                            return ac.getAttributesManager().fillAttribute(ac.getSession(),
+                                                                            member,
                                                                             ac.getAttributeById(member, parms.readInt("attribute")));
                         } else {
                             throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resoure, user, member");
@@ -1310,15 +1310,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
                 @Override
 		public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-                        
+
                         List<Attribute> attributes = new ArrayList<Attribute>();
                         if(parms.contains("attributes")) {
                              attributes = parms.readList("attributes", Attribute.class);
                         } else {
                             throw new RpcException(RpcException.Type.MISSING_VALUE, "attributes");
                         }
-                        
-                        
+
+
                         if (parms.contains("host")) {
                             Host host = ac.getHostById(parms.readInt("host"));
                             return ac.getAttributesManager().fillAttributes(ac.getSession(),
@@ -1595,13 +1595,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 			if (parms.contains("facility")){
                                 if(parms.contains("resource") && parms.contains("user") && parms.contains("member")) {
-                                
+
                                     Facility facility = ac.getFacilityById(parms.readInt("facility"));
                                     Member member = ac.getMemberById(parms.readInt("member"));
                                     User user = ac.getUserById(parms.readInt("user"));
                                     Resource resource = ac.getResourceById(parms.readInt("resource"));
-                                    ac.getAttributesManager().removeAttributes(ac.getSession(),facility, resource, user, member, attributes);        
-                                    
+                                    ac.getAttributesManager().removeAttributes(ac.getSession(),facility, resource, user, member, attributes);
+
                                 } else if (parms.contains("user")) {
                                     Facility facility = ac.getFacilityById(parms.readInt("facility"));
                                     User user = ac.getUserById(parms.readInt("user"));
@@ -1624,7 +1624,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
                                             Group group = ac.getGroupById(parms.readInt("group"));
                                         if (parms.contains("workWithGroupAttributes")) {
                                             ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, parms.readInt("workWithGroupAttributes") == 1 );
-                                        } else {                                            
+                                        } else {
                                             ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes);
                                         }
 				} else {
@@ -1647,7 +1647,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
                                 } else {
                                     ac.getAttributesManager().removeAttributes(ac.getSession(), member, true, attributes);
                                 }
-							
+
                             } else {
 				Member member = ac.getMemberById(parms.readInt("member"));
 				ac.getAttributesManager().removeAttributes(ac.getSession(), member, attributes);
@@ -1655,7 +1655,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("user")) {
 				User user = ac.getUserById(parms.readInt("user"));
 				ac.getAttributesManager().removeAttributes(ac.getSession(), user, attributes);
-			
+
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, host, resource, member or user");
 			}
@@ -1932,7 +1932,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
-        
+
        /*#
         * Gets attribute rights of an attribute with id given as a parametr.
         * If the attribute has no rights for a role, it returns empty list.
@@ -1946,7 +1946,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
                 return ac.getAttributesManager().getAttributeRights(ac.getSession(), parms.readInt("attributeId"));
             }
         },
-        
+
        /*#
         * Sets all attribute rights in the list given as a parameter.
         *
@@ -1961,5 +1961,5 @@ public enum AttributesManagerMethod implements ManagerMethod {
                 return null;
             }
         };
-	
+
 }

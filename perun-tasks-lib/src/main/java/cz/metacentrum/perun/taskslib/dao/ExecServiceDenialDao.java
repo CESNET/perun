@@ -7,20 +7,20 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
  * ExecService Denial Data Access Object
- * 
+ *
  * @author Michal Karm Babacek
  */
 public interface ExecServiceDenialDao {
 
 	/**
 	 * Ban execService on facility
-	 * It woun't be possible to execute the given execService on the 
-	 * whole facility nor on any of it's destinations. 
+	 * It woun't be possible to execute the given execService on the
+	 * whole facility nor on any of it's destinations.
 	 * @param execServiceId
 	 * 				The execService to be banned on the facility
 	 * @param facilityId
 	 * 				The facility on which we want to ban the execService
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public void banExecServiceOnFacility(int execServiceId, int facilityId) throws InternalErrorException;
 
@@ -32,7 +32,7 @@ public interface ExecServiceDenialDao {
 	 * 			The execService to be banned on this particular destination
 	 * @param destinationId
 	 * 			The destination on which we want to ban the execService
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public void banExecServiceOnDestination(int execServiceId, int destinationId) throws InternalErrorException;
 
@@ -40,7 +40,7 @@ public interface ExecServiceDenialDao {
 	 * List denials for facility
 	 * List all the execServices that are banned on this facility.
 	 * @param facilityId
-	 * 			
+	 *
 	 * @return a list of execServices that are denied on the facility
 	 */
 	public List<ExecService> listDenialsForFacility(int facilityId);
@@ -49,16 +49,16 @@ public interface ExecServiceDenialDao {
 	 * List denials for destination
 	 * List all the execServices that are banned on this destination.
 	 * @param destinationId
-	 * 
+	 *
 	 * @return a list of execServices that are denied on the destination
 	 */
 	public List<ExecService> listDenialsForDestination(int destinationId);
 
 	/**
 	 * Is this execService denied on the facility?
-	 * 
+	 *
 	 * @param execServiceId
-	 * 			The execService, the denial of which we want to examine 
+	 * 			The execService, the denial of which we want to examine
 	 * @param facilityId
 	 * 			The facility on which we want to look up the denial of the execService
 	 * @return	true - in case the execService is denied on the facility
@@ -68,9 +68,9 @@ public interface ExecServiceDenialDao {
 
 	/**
 	 * Is this execService denied on the destination?
-	 * 
+	 *
 	 * @param execService
-	 * 			The execService, the denial of which we want to examine 
+	 * 			The execService, the denial of which we want to examine
 	 * @param destination
 	 * 			The destination on which we want to look up the denial of the execService
 	 * @return	true - in case the execService is denied on the destination
@@ -100,7 +100,7 @@ public interface ExecServiceDenialDao {
 	 * Free the denial of the execService on this facility.
 	 * If the execService was banned on this facility, it will be freed. In case
 	 * the execService was not banned on this facility, nothing will happen.
-	 * 
+	 *
 	 * @param execService
 	 * 			The execService, the denial of which we want to free on this facility.
 	 * @param facility
@@ -112,7 +112,7 @@ public interface ExecServiceDenialDao {
 	 * Free the denial of the execService on this destination.
 	 * If the execService was banned on this destination, it will be freed. In case
 	 * the execService was not banned on this destination, nothing will happen.
-	 * 
+	 *
 	 * @param execService
 	 * 			The execService, the denial of which we want to free on this destination.
 	 * @param destination

@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Ajax query to get all resource required attributes for any entity and all services on specified resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -101,7 +101,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 	/**
 	 * Returns the table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu custom field updater
 	 * @return table widget
 	 */
@@ -112,7 +112,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable() {
@@ -125,7 +125,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -206,7 +206,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
         valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
 			public void update(int index, Attribute object, Attribute value) {
 				object = value;
-				selectionModel.setSelected(object, object.isAttributeValid());  
+				selectionModel.setSelected(object, object.isAttributeValid());
 			}
 		});
 
@@ -216,7 +216,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 		// Sorting name column
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_NAME));
-		
+
 		// Sorting description column
 		descriptionColumn.setSortable(true);
 		columnSortHandler.setComparator(descriptionColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_DESCRIPTION));
@@ -354,17 +354,17 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
     }
 
 	/**
-	 * Sets entities and their ids to this callback 
-	 * 
+	 * Sets entities and their ids to this callback
+	 *
 	 * @param ids map of IDS
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Returns map of entities and their ids currently "in use" for this callback
-	 * 
+	 *
 	 * @return map of IDS
 	 */
 	public Map<String, Integer> getIds() {
@@ -373,7 +373,7 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 
 	/**
 	 * Returns selection model of table
-	 * 
+	 *
 	 * @return selection model
 	 */
 	public MultiSelectionModel<Attribute> getSelectionModel() {

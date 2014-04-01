@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query for creating resource tag in VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CreateResourceTag {
@@ -43,7 +43,7 @@ public class CreateResourceTag {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting()
@@ -70,7 +70,7 @@ public class CreateResourceTag {
 
 	/**
 	 * Attempts to delete resource tag, it first tests the values and then submits them
-	 * 
+	 *
 	 * @param tagName Resource tag name
      * @param voId ID of VO to create resource tag for
 	 */

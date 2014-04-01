@@ -21,7 +21,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
  * Class for handling Category entity in Cabinet.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -32,53 +32,53 @@ public class CategoryServiceImpl implements ICategoryService {
 	private IPerunService perunService;
 	private IAuthorshipService authorshipService;
 	private IAuthorService authorService;
-	
+
 	private static Logger log = LoggerFactory.getLogger(CategoryServiceImpl.class);
-	
+
 	// setters ----------------------
-	
+
 	public void setCategoryDao(ICategoryDao categoryDao) {
 		this.categoryDao = categoryDao;
 	}
-	
+
 	public void setPublicationService(IPublicationService publicationService) {
 		this.publicationService = publicationService;
 	}
-	
+
 	public void setPerunService(IPerunService perunService) {
 		this.perunService = perunService;
 	}
-	
+
 	public void setAuthorshipService(IAuthorshipService authorshipService) {
 		this.authorshipService = authorshipService;
 	}
-	
+
 	public void setAuthorService(IAuthorService authorService) {
 		this.authorService = authorService;
 	}
 
 	// methods ----------------------
-	
+
 	public int createCategory(Category c) {
 		return categoryDao.createCategory(c);
 	}
 
-	
+
 	public List<Category> findAllCategories() {
 		return categoryDao.findAllCategories();
 	}
 
-	
+
 	public Category findCategoryById(Integer categoryId) {
 		return categoryDao.findCategoryById(categoryId);
 	}
 
-	
+
 	public int getCount() {
 		return categoryDao.getCount();
 	}
 
-	
+
 	public int updateCategoryById(PerunSession sess, Category category) throws CabinetException {
 
 		// save original category
@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements ICategoryService {
 			Publication filter = new Publication();
 			filter.setCategoryId(category.getId());
 			List<Publication> pubs = publicationService.findPublicationsByFilter(filter);
-			
+
 			// update coef for all authors of all publications in updated category
 			Set<Author> authors = new HashSet<Author>();
 			for (Publication p : pubs) {
@@ -104,7 +104,7 @@ public class CategoryServiceImpl implements ICategoryService {
 		}
 
 		return result;
-		
+
 	}
 
 	public int deleteCategoryById(Integer id) {

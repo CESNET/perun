@@ -10,7 +10,7 @@ public class ExtSourceUnsupportedOperationException extends PerunException {
 
     public ExtSourceUnsupportedOperationException() {
     }
-    
+
     public ExtSourceUnsupportedOperationException(String message) {
         super(message);
     }

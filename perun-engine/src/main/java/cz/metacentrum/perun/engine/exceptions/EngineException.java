@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 /**
  * The base of Perun-Engine checked exceptions.
- * 
+ *
  * @author Michal Karm Babacek
  */
 public abstract class EngineException extends Exception {

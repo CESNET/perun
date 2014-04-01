@@ -46,9 +46,9 @@ public class Main {
     private PerunSession perunSession;
     private final static Logger log = LoggerFactory.getLogger(Main.class);
     private final PerunPrincipal pp = new PerunPrincipal("main", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-    
+
     private static BufferedWriter writer;
-    
+
     public Main(String fileName) throws Exception{
         try {
             this.springCtx = new ClassPathXmlApplicationContext("perun-beans.xml", "perun-datasources.xml", "perun-transaction-manager.xml");
@@ -59,7 +59,7 @@ public class Main {
             throw e;
         }
         this.writer = new BufferedWriter(openForFile(fileName));
-        
+
         int LastMessageBeforeInitializingData = perun.getAuditer().getLastMessageId();
         System.err.println("Last message id before starting initializing: " + LastMessageBeforeInitializingData + '\n');
         vosLdifToWriter();
@@ -87,13 +87,13 @@ public class Main {
                 main = new Main(null);
             }
             writer.close();
-        } else {      
+        } else {
             System.out.println(badUsage(args[0]));
             System.out.println(help());
         }
     }
-       
-    private static String badUsage(String badArgument) {      
+
+    private static String badUsage(String badArgument) {
         StringBuilder sb = new StringBuilder();
         sb.append("Bad usage. Wrong argument or less than 1 or more than 2 arguments (not supported).");
         sb.append('\n');
@@ -103,7 +103,7 @@ public class Main {
         }
         return sb.toString();
     }
-    
+
     private static String help() {
         StringBuilder sb = new StringBuilder();
         sb.append("--------------HELP-------------");
@@ -116,7 +116,7 @@ public class Main {
         sb.append('\n');
         return sb.toString();
     }
-    
+
     private static String version() throws IOException {
         Package p = Main.class.getPackage();
         StringBuilder sb = new StringBuilder();
@@ -129,12 +129,12 @@ public class Main {
 
         Properties pom = new Properties();
         pom.load(Main.class.getResourceAsStream("/META-INF/maven/cz.metacentrum.perun/perun-core/pom.properties"));
-        
+
         sb.append("pom = " + pom);
         sb.append('\n');
         return sb.toString();
     }
-    
+
     //Prepare for using file insted of stdout
     private Writer openForFile(String fileName) {
         try {
@@ -175,11 +175,11 @@ public class Main {
             }
             writer.write('\n');
         }
-    }   
-    
+    }
+
     private void resourcesLdifToWriter() throws Exception {
         List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
-        
+
         for(Vo v: vos) {
             List<Resource> resources = new ArrayList<Resource>();
             resources = perun.getResourcesManagerBl().getResources(perunSession, v);
@@ -193,7 +193,7 @@ public class Main {
                 String perunFacilityId = "perunFacilityId: ";
                 String perunResourceId = "perunResourceId: ";
                 String description = "description: ";
-                
+
                 perunVoId+= String.valueOf(r.getVoId());
                 perunFacilityId+= String.valueOf(r.getFacilityId());
                 perunResourceId+= String.valueOf(r.getId());
@@ -279,12 +279,12 @@ public class Main {
                     writer.write("assignedToResourceId: " + r.getId());
                     writer.write('\n');
                 }
-                //FOR NOW No groups has owner  
+                //FOR NOW No groups has owner
                 writer.write(owner + '\n');
                 writer.write('\n');
-            }               
-        }  
-    } 
+            }
+        }
+    }
 
     private void usersLdifToWriter() throws Exception {
         List<User> users = perun.getUsersManagerBl().getUsers(perunSession);
@@ -391,7 +391,7 @@ public class Main {
             //GET ALL USERS EXTlogins FOR EVERY EXTSOURCE WITH TYPE EQUALS IDP
             List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(perunSession, u);
             List<String> extLogins = new ArrayList<String>();
-            for(UserExtSource ues: userExtSources) {                  
+            for(UserExtSource ues: userExtSources) {
                 if(ues != null && ues.getExtSource() != null) {
                     String type = ues.getExtSource().getType();
                     if(type != null) {
@@ -410,6 +410,6 @@ public class Main {
             }
             writer.write('\n');
         }
-        
-    } 
+
+    }
 }

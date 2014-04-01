@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to delete exec service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteExecService {
@@ -41,7 +41,7 @@ public class DeleteExecService {
 
 	/**
 	 * Deletes Exec Service from DB
-	 * 
+	 *
 	 * @param serviceId id of exec service to be deleted
 	 */
 	public void deleteExecService(final int serviceId) {

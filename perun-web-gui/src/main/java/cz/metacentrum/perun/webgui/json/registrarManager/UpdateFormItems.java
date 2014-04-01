@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Request, which updates form items
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateFormItems {
@@ -29,7 +29,7 @@ public class UpdateFormItems {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private ArrayList<ApplicationFormItem> formItems = new ArrayList<ApplicationFormItem>();
 
@@ -67,7 +67,7 @@ public class UpdateFormItems {
 	 * @param formItems
 	 */
 	public void updateFormItems(ArrayList<ApplicationFormItem> formItems) {
-		
+
 		this.formItems = formItems;;
 
 		// test arguments
@@ -95,7 +95,7 @@ public class UpdateFormItems {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -109,14 +109,14 @@ public class UpdateFormItems {
 	 */
 	private JSONObject prepareJSONObject()
 	{
-		
+
 		// data to JSON array
 		JSONArray data = new JSONArray();
 		for(int i = 0; i<formItems.size(); i++){
-			
+
 			// get
 			JSONObject obj = new JSONObject(formItems.get(i));
-			
+
 			// reconstruct
 			JSONObject newItem = new JSONObject();
 			newItem.put("id", obj.get("id"));
@@ -130,29 +130,29 @@ public class UpdateFormItems {
 			newItem.put("ordnum", obj.get("ordnum"));
 			newItem.put("forDelete", obj.get("forDelete"));
 			newItem.put("applicationTypes", obj.get("applicationTypes"));
-			
+
 			// recreate i18n
 			JSONObject i18n = new JSONObject();
 			i18n.put("en", new JSONObject(formItems.get(i).getItemTexts("en")));
 			i18n.put("cs", new JSONObject(formItems.get(i).getItemTexts("cs")));
 			newItem.put("i18n", i18n);
-			
+
 			data.set(i, newItem);
-			
+
 		}
-		
+
 		// query
 		JSONObject query = new JSONObject();
-		
+
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			query.put("vo", new JSONNumber(id));			
+			query.put("vo", new JSONNumber(id));
 		} else if (PerunEntity.GROUP.equals(entity)) {
-			query.put("group", new JSONNumber(id));		
+			query.put("group", new JSONNumber(id));
 		}
 		query.put("items", data);
 
 		return query;
-		
+
 	}
 
 }

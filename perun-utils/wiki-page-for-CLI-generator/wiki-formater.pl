@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-my $table_begin = 0;  #true if table start tag was already printed 
+my $table_begin = 0;  #true if table start tag was already printed
 
 while(<>) {
   chomp;

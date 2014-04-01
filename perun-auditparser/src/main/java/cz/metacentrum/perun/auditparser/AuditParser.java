@@ -25,9 +25,9 @@ import org.slf4j.helpers.MessageFormatter;
 public class AuditParser {
     private final static Logger loger = LoggerFactory.getLogger(AuditParser.class);
     static final Pattern perunBeanStartPattern = Pattern.compile("\\w+:\\[");
-    static final Pattern pointyAndSquareBracket = Pattern.compile(".\\[|.\\]|[^\\\\](\\\\\\\\)*(<|>)"); 
-    
-    
+    static final Pattern pointyAndSquareBracket = Pattern.compile(".\\[|.\\]|[^\\\\](\\\\\\\\)*(<|>)");
+
+
     public static List<PerunBean> parseLog(String log) throws InternalErrorException {
         List<PerunBean> listPerunBeans = new ArrayList<PerunBean>();
         PerunBean perunBean = null;
@@ -108,7 +108,7 @@ public class AuditParser {
                     break;
                 }
             }
-            
+
             if(s.charAt(0) == '\\' && s.charAt(1) == '0') map = null;
             else {
                 /*
@@ -155,7 +155,7 @@ public class AuditParser {
                         if (!BeansUtils.isEscaped(s, i - 1)) {
                             pointyBrackets++;
                         }
-                    } //If i found name already, there are some open angle breackets and is nonescaped so count this one off 
+                    } //If i found name already, there are some open angle breackets and is nonescaped so count this one off
                     else if (pointyBrackets != 0 && s.charAt(i) == '>' && isName == false) {
                         //if this bracket is nonescaped so count it off
                         if (!BeansUtils.isEscaped(s, i - 1)) {
@@ -177,7 +177,7 @@ public class AuditParser {
                         startValue = -1;
                         endValue = -1;
                     }
-               
+
                 }
             }
             //Put name of object and map of attribute and values to the list of all objects
@@ -204,14 +204,14 @@ public class AuditParser {
         int squareBrackets = 0;
         int pointyBrackets = 0;
         boolean enableCountSquareBrackets = true;
-        
+
         log = CutStartOfLog(log);
         while(log!=null) {
             //TODO this regular expresion expect, that never get char <,>,[,] or \ like first char in string log!!!
             Matcher pointyAndSquareBracketMatcher = pointyAndSquareBracket.matcher(log);
             int endOfObject = 0;
             int start = 0;
-            while(pointyAndSquareBracketMatcher.find(start)) {       
+            while(pointyAndSquareBracketMatcher.find(start)) {
                 if(log.charAt(pointyAndSquareBracketMatcher.end()-1)=='<') {
                     enableCountSquareBrackets = false;
                     pointyBrackets++;
@@ -256,7 +256,7 @@ public class AuditParser {
      * @return Message cutted to Start of first real bean in log
      */
     private static String CutStartOfLog(String log) {
-        
+
         if(log == null) return null;
         Matcher perunBeanStartMatcher = perunBeanStartPattern.matcher(log);
         if(perunBeanStartMatcher.find()) {
@@ -300,7 +300,7 @@ public class AuditParser {
         attributeDefinition.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
         return attributeDefinition;
     }
-    
+
     private static Candidate createCandidate(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Candidate candidate = new Candidate();
@@ -326,7 +326,7 @@ public class AuditParser {
         candidate.setAdditionalUserExtSources(additionalUserExtSources);
         return candidate;
     }
-    
+
     private static Destination createDestination(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Destination destination = new Destination();
@@ -335,7 +335,7 @@ public class AuditParser {
         destination.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
         return destination;
     }
-    
+
     private static ExtSource createExtSource(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         ExtSource extSource = new ExtSource();
@@ -353,7 +353,7 @@ public class AuditParser {
         facility.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
         return facility;
     }
-    
+
     private static Group createGroup(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Group group = new Group();
@@ -365,15 +365,15 @@ public class AuditParser {
         group.setVoId(Integer.valueOf(beanAttr.get("voId")));
         return group;
     }
-    
+
     private static Host createHost(Map<String, String> beanAttr) throws InternalErrorException {
         if(beanAttr==null) return null;
-        Host host = new Host();    
+        Host host = new Host();
         host.setId(Integer.valueOf(beanAttr.get("id")).intValue());
         host.setHostname(BeansUtils.eraseEscaping(beanAttr.get("hostname")));
         return host;
     }
-    
+
     private static Member createMember(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Member member = new Member();
@@ -384,7 +384,7 @@ public class AuditParser {
         member.setMembershipType(BeansUtils.eraseEscaping(beanAttr.get("type")));
         return member;
     }
-    
+
     private static Owner createOwner(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Owner owner = new Owner();
@@ -394,7 +394,7 @@ public class AuditParser {
         owner.setTypeByString(BeansUtils.eraseEscaping(beanAttr.get("type")));
         return owner;
     }
-    
+
     private static Resource createResource(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Resource resource = new Resource();
@@ -405,7 +405,7 @@ public class AuditParser {
         resource.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
         return resource;
     }
-    
+
     private static Service createService(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Service service = new Service();
@@ -413,7 +413,7 @@ public class AuditParser {
         service.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
         return service;
     }
-    
+
     private static UserExtSource createUserExtSource(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         UserExtSource userExtSource = new UserExtSource();
@@ -427,10 +427,10 @@ public class AuditParser {
             List<Pair<String, Map<String, String>>> extSourceList = beansToMap(beanAttr.get("source"));
             extSource = createExtSource(extSourceList.get(0).getRight());
         }
-        userExtSource.setExtSource(extSource);   
+        userExtSource.setExtSource(extSource);
         return userExtSource;
     }
-    
+
     private static Vo createVo(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         Vo vo = new Vo();
@@ -439,7 +439,7 @@ public class AuditParser {
         vo.setShortName(BeansUtils.eraseEscaping(beanAttr.get("shortName")));
         return vo;
     }
-    
+
     private static Authorship createAuthorship(Map<String, String> beanAttr) throws InternalErrorException {
         if(beanAttr==null) return null;
         Authorship authorship = new Authorship();
@@ -455,12 +455,12 @@ public class AuditParser {
                 date = BeansUtils.DATE_FORMATTER.parse(BeansUtils.eraseEscaping(beanAttr.get("createdDate")));
             } catch (ParseException ex) {
                 throw new InternalErrorException("Error when date was parsing from String to Date.", ex);
-            } 
+            }
             authorship.setCreatedDate(date);
         }
         return authorship;
     }
-    
+
     private static ResourceTag createResourceTag(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         ResourceTag resourceTag = new ResourceTag();
@@ -469,7 +469,7 @@ public class AuditParser {
         resourceTag.setTagName(BeansUtils.eraseEscaping(beanAttr.get("tagName")));
         return resourceTag;
     }
-    
+
     private static ExecService createExecService(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         ExecService execService = new ExecService();
@@ -492,10 +492,10 @@ public class AuditParser {
         execService.setExecServiceType(exType);
         return execService;
      }
-    
+
     //--------------------------------------------------------------------------
     //------------------------RICH BEANS CREATORS-------------------------------
-    
+
     private static RichDestination createRichDestination(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         RichDestination richDestination = new RichDestination();
@@ -520,13 +520,13 @@ public class AuditParser {
         richDestination.setFacility(facility);
         return richDestination;
     }
-    
+
     private static RichMember createRichMember(Map<String, String> beanAttr) throws InternalErrorException {
         if(beanAttr==null) return null;
         Member member = createMember(beanAttr);
         User user;
         if(beansToMap(beanAttr.get("user")) == null) user = null;
-        else user = createUser(beansToMap(beanAttr.get("user")).get(0).getRight());    
+        else user = createUser(beansToMap(beanAttr.get("user")).get(0).getRight());
         //Parse and get list of UserExtSources
         List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
         if(beanAttr.get("userExtSources").equals("\\0")) userExtSources = null;
@@ -560,7 +560,7 @@ public class AuditParser {
         RichMember richMember = new RichMember(user, member, userExtSources, userAttributes, memberAttributes);
         return richMember;
     }
-    
+
     private static RichUser createRichUser(Map<String, String> beanAttr) throws InternalErrorException {
         if(beanAttr==null) return null;
         User user = createUser(beanAttr);
@@ -587,7 +587,7 @@ public class AuditParser {
         RichUser richUser = new RichUser(user, userExtSources, userAttributes);
         return richUser;
     }
-    
+
     private static RichFacility createRichFacility(Map<String, String> beanAttr) throws InternalErrorException {
         if(beanAttr==null) return null;
         Facility facility = createFacility(beanAttr);
@@ -604,7 +604,7 @@ public class AuditParser {
         RichFacility richFacility = new RichFacility(facility, facilityOwners);
         return richFacility;
     }
-    
+
     private static RichResource createRichResource(Map<String, String> beanAttr) {
         if(beanAttr==null) return null;
         RichResource richResource = new RichResource();

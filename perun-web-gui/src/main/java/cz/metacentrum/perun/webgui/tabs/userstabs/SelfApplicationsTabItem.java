@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * User's applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -59,7 +59,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		this.user = session.getActiveUser();
 		this.userId = user.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance with custom user
      * @param user
@@ -95,9 +95,9 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// callback
 		final GetApplicationsForUser req = new GetApplicationsForUser(user.getId());
-		
+
 		req.setCheckable(false);
-		
+
 		// tab menu for filtering
 		TabMenu tabMenu = new TabMenu();
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(req.getOracle()), new PerunSearchEvent() {
@@ -108,7 +108,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
         }, ButtonTranslation.INSTANCE.filterByVoOrGroup());
 
 		bodyContents.add(tabMenu);
-		
+
 		CellTable<Application> appsTable = req.getTable(new FieldUpdater<Application, String>() {
             @Override
 			public void update(int index, Application object, String value) {
@@ -118,7 +118,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 		appsTable.addStyleName("perun-table");
 
 		ScrollPanel sp = new ScrollPanel(appsTable);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
         bodyContents.add(sp);
@@ -136,7 +136,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFromStorageIcon(); 
+		return SmallIcons.INSTANCE.applicationFromStorageIcon();
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class SelfApplicationsTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isSelf(userId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

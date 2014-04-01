@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 
 sub help {
@@ -14,7 +14,7 @@ Prints list of Groups in VO. VO is required filed.
 ---------------------------
 Available options:
  --voId          | -v VO idetifier
- --voShortName   | -V VO shortName  
+ --voShortName   | -V VO shortName
  --orderById     | -i order by numeric ID (default)
  --orderByName   | -n order by name
  --showSubgroups | -s show also subgroups
@@ -30,7 +30,7 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
            "voShortName|V=s" => \$voShortName,
            "showSubgroups|s" => \$showSubgroups,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();

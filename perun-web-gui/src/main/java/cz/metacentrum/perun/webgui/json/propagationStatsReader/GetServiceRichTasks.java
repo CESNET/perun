@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get RichTasks for service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 @Deprecated
@@ -52,7 +52,7 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 
 	/**
 	 * New instance of get tasks results
-	 * 
+	 *
 	 * @param facilityId Facility ID
 	 */
 	public GetServiceRichTasks(int facilityId) {
@@ -72,17 +72,17 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 
 	/**
 	 * Return table with tasks - starts RPC call
-	 * 
+	 *
 	 * @return table
 	 */
-	public CellTable<Task> getTable() { 
+	public CellTable<Task> getTable() {
 		retrieveData();
 		return getEmptyTable();
 	}
 
 	/**
 	 * Return table with tasks and custom field updater
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Task> getEmptyTable(FieldUpdater<Task, String> tfu) {
@@ -94,7 +94,7 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 
 	/**
 	 * Return table with tasks
-	 *  
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Task> getEmptyTable() {
@@ -153,21 +153,21 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 			public String getValue(Task result) {
 				return result.getStartTime();
 			}
-		};		
+		};
 
 		// end COLUMN
 		TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
 				return result.getEndTime();
 			}
-		};	
+		};
 
 		// schedule COLUMN
 		TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
 			public String getValue(Task result) {
 				return result.getSchedule();
 			}
-		};	
+		};
 
 		// Add the columns.
 		table.addColumn(serviceColumn, "Service");
@@ -183,15 +183,15 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 
 				if (row.getStatus().equalsIgnoreCase("NONE")) {
 					return "rowdarkgreen";
-				} 
-				else if (row.getStatus().equalsIgnoreCase("DONE")){ 
-					return "rowgreen"; 
 				}
-				else if (row.getStatus().equalsIgnoreCase("PROCESSING")){ 
-					return "rowyellow"; 
+				else if (row.getStatus().equalsIgnoreCase("DONE")){
+					return "rowgreen";
 				}
-				else if (row.getStatus().equalsIgnoreCase("ERROR")){ 
-					return "rowred"; 
+				else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
+					return "rowyellow";
+				}
+				else if (row.getStatus().equalsIgnoreCase("ERROR")){
+					return "rowred";
 				}
 				return "";
 
@@ -325,7 +325,7 @@ public class GetServiceRichTasks implements JsonCallback, JsonCallbackTable<Task
 
     /**
 	 * Set service for callback
-	 * 
+	 *
 	 * @param serv service
 	 */
 	public void setService(Service serv){

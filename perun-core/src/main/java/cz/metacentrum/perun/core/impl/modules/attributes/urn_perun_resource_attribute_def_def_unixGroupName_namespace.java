@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
 public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
-  
+
     private static final String A_F_unixGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
     private static final String A_F_unixGID_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
     private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
@@ -42,14 +42,14 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
       String groupName = null;
       if(attribute.getValue() != null) groupName = (String) attribute.getValue();
       String groupNameNamespace = attribute.getFriendlyNameParameter();
-      
+
       if(groupName == null) {
           // if this is resource, its not ok
           throw new WrongAttributeValueException(attribute, "Attribute groupName-namespace for resourece can't be null.");
         }else if(!groupName.matches("^[-_.a-zA-Z0-9]+$")){
           throw new WrongAttributeValueException(attribute,"GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
         }
-      
+
       try {
         //prepare attributes group and resource unixGroupName
         Attribute groupUnixGroupName = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGroupName_namespace + ":" + groupNameNamespace));
@@ -70,49 +70,49 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
         //First need to know that i have right to write any of duplicit groupName-namespace attribute
         boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, resourceUnixGroupName);
         if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, "This groupName is already used for other group or resource and user has no rights to use it.");
-       
+
         //Now if rights are ok, prepare lists of UnixGIDs attributes of this group (also equivalent resource GID)
         List<Attribute> resourceUnixGIDs = sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, resource, A_R_unixGID_namespace + ":");
         List<Attribute> groupVersionUnixGIDs = sess.getPerunBl().getModulesUtilsBl().getListOfGroupGIDsFromListOfResourceGIDs(sess, resourceUnixGIDs);
-        
+
         //In list of duplicit groups looking for GID in same namespace but with different value, thats not correct
         if(!groupsWithSameGroupNameInTheSameNamespace.isEmpty()) {
           for(Group g: groupsWithSameGroupNameInTheSameNamespace) {
             for(Attribute a: groupVersionUnixGIDs) {
               int compare;
               compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, g, a);
-              
+
               if(compare > 0) {
-                throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other group GID but with different values."); 
-              }      
+                throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other group GID but with different values.");
+              }
             }
           }
         }
-        
+
         //In list of duplicit resources looking for GID in same namespace but with different value, thats not correct
         if(!resourcesWithSameGroupNameInTheSameNamespace.isEmpty()) {
           for(Resource r: resourcesWithSameGroupNameInTheSameNamespace) {
             for(Attribute a: resourceUnixGIDs) {
               int compare;
               compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, r, a);
-              
+
               if(compare > 0) {
                 throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
               }
             }
           }
         }
-                
+
       } catch(AttributeNotExistsException ex) {
           throw new ConsistencyErrorException(ex);
       }
   }
 
   @Override
-  public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {     
+  public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
     //Need to know if this is remove or set, if value is null, its remove, otherway it is set
     String groupNameNamespace = attribute.getFriendlyNameParameter();
-    
+
     try {
         if(attribute.getValue() == null) {
           //This is ok, for now no changes for removing some GroupName of this Resource
@@ -120,8 +120,8 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
           //First need to find facility for the group
           Facility facilityOfResource = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
           String gidNamespace = null;
-          
-          //If facility has the same namespace of GroupName like attribute unixGroupName-namespace, then prepare gidNamespace 
+
+          //If facility has the same namespace of GroupName like attribute unixGroupName-namespace, then prepare gidNamespace
           Attribute facilityGroupNameNamespace = session.getPerunBl().getAttributesManagerBl().getAttribute(session, facilityOfResource, A_F_unixGroupName_namespace);
           if(facilityGroupNameNamespace.getValue() != null) {
               if(groupNameNamespace.equals(facilityGroupNameNamespace.getValue())) {
@@ -138,7 +138,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
               if(resourceUnixGIDNamespace.getValue() == null) {
                   resourceUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl().fillAttribute(session, resource, resourceUnixGIDNamespace);
                   if(resourceUnixGIDNamespace.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace);
-                  
+
                   try {
                       session.getPerunBl().getAttributesManagerBl().setAttribute(session, resource, resourceUnixGIDNamespace);
                   } catch (WrongAttributeValueException ex) {
@@ -152,7 +152,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
                   }
               }
           }
- 
+
         }
     } catch (WrongAttributeAssignmentException ex) {
         //TODO: need to add WrongAttributeAssignmentException to header of modules methods

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 /**
  * Tab with form for adding attribute definition as required attribute to service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -36,18 +36,18 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading service");
-	
-	
+
+
 	// data
 	private int serviceId;
 	private Service service;
@@ -67,7 +67,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 			}
 		}).retrieveData();
 	}
-	
+
 	/**
 	 * Tab with form for adding attribute definition as required attribute to service
 	 *
@@ -77,13 +77,13 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		this.service = service;
 		this.serviceId = service.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return (service != null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": add required attributes");
 
 		VerticalPanel mainTab = new VerticalPanel();
@@ -154,10 +154,10 @@ public class AddRequiredAttributesTabItem implements TabItem {
         mainTab.add(alreadyAdded);
 		mainTab.add(sp);
 		mainTab.setCellHeight(sp, "100%");
-				
+
 		// add tabs to the main panel
 		this.contentWidget.setWidget(mainTab);
-		
+
 		return getWidget();
 	}
 
@@ -183,7 +183,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -211,15 +211,15 @@ public class AddRequiredAttributesTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}

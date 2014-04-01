@@ -32,8 +32,8 @@ sub TO_JSON
         } else {
                 $name = undef;
         }
-    
-        my $rank;        
+
+        my $rank;
         if (defined($self->{_rank})) {
                 $rank = $self->{_rank}*1;
         } else {

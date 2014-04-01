@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which Assigns group to resources
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveGroupFromResources {
@@ -47,7 +47,7 @@ public class RemoveGroupFromResources {
 
 	/**
 	 * Attempts to remove group from resources
-	 * 
+	 *
 	 * @param group group which should be removed
 	 * @param resources resources where group should be removed
 	 */
@@ -82,11 +82,11 @@ public class RemoveGroupFromResources {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAssigning() {
@@ -113,7 +113,7 @@ public class RemoveGroupFromResources {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

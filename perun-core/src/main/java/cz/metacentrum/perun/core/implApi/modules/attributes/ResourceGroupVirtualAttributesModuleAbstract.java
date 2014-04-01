@@ -21,7 +21,7 @@ import java.util.List;
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public abstract class ResourceGroupVirtualAttributesModuleAbstract extends ResourceGroupAttributesModuleAbstract implements ResourceGroupVirtualAttributesModuleImplApi{
-    
+
 
     public Attribute getAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
         return new Attribute(attribute);
@@ -30,11 +30,11 @@ public abstract class ResourceGroupVirtualAttributesModuleAbstract extends Resou
     public boolean setAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
         return false;
     }
-  
+
     public void removeAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-        
+
     }
-    
+
     @Override
     public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
         return new ArrayList<String>();

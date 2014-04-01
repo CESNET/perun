@@ -17,11 +17,11 @@ import java.util.Set;
 
 /**
  * Attribute represents timezone of the user's location.
- * 
+ *
  * @author Jiří Mauritz <jirmauritz@gmail.com>
  */
 public class urn_perun_user_attribute_def_def_timezone extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
-    
+
     /*
      * The HashSet is filled with database of timezones from http://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
      * The HashSet has contant searching time complexity.
@@ -576,14 +576,14 @@ public class urn_perun_user_attribute_def_def_timezone extends UserAttributesMod
         "W-SU",
         "Zulu"
             ));
-    
+
     @Override
     public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
         if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Timezone must be set");
         if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, user, "Attribute value (timezone) is not String type.");
-        
+
         String attributeValue = (String) attribute.getValue();
-               
+
         if (!(timezones.contains(attributeValue))) throw new WrongAttributeValueException(attribute, user, "Timezone is not in the correct form.");
     }
 
@@ -596,5 +596,5 @@ public class urn_perun_user_attribute_def_def_timezone extends UserAttributesMod
         attr.setDescription("User's timezone described by ±[hh] (ISO 8601).");
         return attr;
     }
-    
+
 }

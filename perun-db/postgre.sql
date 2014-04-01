@@ -538,7 +538,7 @@ create table "application_mail_texts" (
    modified_by_uid integer
 );
 
-create table "application_reserved_logins" ( 
+create table "application_reserved_logins" (
    login varchar(256) not null,
    namespace varchar(30) not null,
    app_id integer not null,
@@ -561,9 +561,9 @@ create table "facility_service_destinations" (
    modified_by_uid integer
 );
 
-create table "entityless_attr_values" ( 
-    subject varchar(256) not null, 
-    attr_id integer not null, 
+create table "entityless_attr_values" (
+    subject varchar(256) not null,
+    attr_id integer not null,
     attr_value varchar(4000),
     created_at timestamp  default now() not null,
     created_by varchar(1024) default user not null,
@@ -647,7 +647,7 @@ create table "groups_members" (
 );
 
 create table "groups_resources" (
-    group_id integer not null, 
+    group_id integer not null,
     resource_id integer not null,
     created_at  timestamp default now() not null,
     created_by varchar(1024) default user not null,
@@ -1011,9 +1011,9 @@ create sequence "groups_id_seq" maxvalue 9223372036854775807;
 create sequence "hosts_id_seq" maxvalue 9223372036854775807;
 create sequence "members_id_seq" maxvalue 9223372036854775807;
 create sequence "owners_id_seq" maxvalue 9223372036854775807;
-create sequence "processing_rules_id_seq" start with 10 increment by 1 maxvalue 9223372036854775807 no minvalue no cycle; 
+create sequence "processing_rules_id_seq" start with 10 increment by 1 maxvalue 9223372036854775807 no minvalue no cycle;
 create sequence "resources_id_seq" maxvalue 9223372036854775807;
-create sequence "routing_rules_id_seq" start with 10 increment by 1 maxvalue 9223372036854775807 no minvalue no cycle; 
+create sequence "routing_rules_id_seq" start with 10 increment by 1 maxvalue 9223372036854775807 no minvalue no cycle;
 create sequence "services_id_seq" maxvalue 9223372036854775807;
 create sequence "service_denials_id_seq" start with 10 increment by 1 maxvalue 9223372036854775807 no minvalue no cycle;
 create sequence "service_packages_id_seq" maxvalue 9223372036854775807;
@@ -1056,9 +1056,9 @@ create index idx_tasks_facility_id on tasks(facility_id);
 create index idx_tasks_exec_service_id on tasks(exec_service_id);
 create index idx_tasks_results_task_id on tasks_results(task_id);
 create index idx_authz_user_role_id on authz (user_id,role_id);
-create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id); 
+create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
 create index idx_fk_cabthank_pub on cabinet_thanks(publicationid);
-create index idx_fk_usrex_usr on user_ext_sources(user_id); 
+create index idx_fk_usrex_usr on user_ext_sources(user_id);
 create index idx_fk_usrex_usersrc on user_ext_sources(ext_sources_id);
 create index idx_fk_mem_user on members(user_id);
 create index idx_fk_mem_vo on members(vo_id);
@@ -1125,10 +1125,10 @@ create index idx_fk_hostav_attrt on host_attr_values(attr_id);
 create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
-create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0')); 
+create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'));
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
-create index idx_fk_authz_authz_group on authz(authorized_group_id); 
+create index idx_fk_authz_authz_group on authz(authorized_group_id);
 create index idx_fk_authz_vo on authz(vo_id);
 create index idx_fk_authz_fac on authz(facility_id);
 create index idx_fk_authz_mem on authz(member_id);
@@ -1218,7 +1218,7 @@ alter table exec_services add constraint exsrv_srv_fk foreign key (service_id) r
 alter table exec_services add constraint exsrv_type_chk check (type in ('SEND','GENERATE'));
 
 alter table destinations add constraint dest_pk primary key (id);
-alter table destinations add constraint dest_u unique(name,type); 
+alter table destinations add constraint dest_u unique(name,type);
 
 alter table facility_service_destinations add constraint dest_srv_fk foreign key (service_id) references services(id);
 alter table facility_service_destinations add constraint dest_fac_fk foreign key (facility_id) references facilities(id);
@@ -1445,7 +1445,7 @@ alter table res_tags add constraint restags_vos_fk foreign key (vo_id) reference
 alter table tags_resources add constraint tags_res_pk primary key (tag_id,resource_id);
 alter table tags_resources add constraint tags_res_tags_fk foreign key (tag_id) references res_tags(id);
 alter table tags_resources add constraint tags_res_res_fk  foreign key (resource_id) references resources(id);
- 
+
 alter table tasks add constraint task_pk primary key (id);
 alter table tasks add constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table tasks add constraint task_fac_fk foreign key (facility_id) references facilities(id);

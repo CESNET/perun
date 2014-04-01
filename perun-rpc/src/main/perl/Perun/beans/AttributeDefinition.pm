@@ -10,13 +10,13 @@ use overload
 
 sub toString {
     my $self = shift;
-    
+
     my $id = $self->getId;
     my $friendlyName = $self->getFriendlyName;
     my $namespace = $self->getNamespace;
     my $description = $self->getDescription;
     my $type = $self->getType;
-    
+
     my $str = 'Attribute (';
     $str .= "id: $id, " if (defined($id));
     $str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
@@ -24,7 +24,7 @@ sub toString {
     $str .= "description: $description, " if (defined($description));
     $str .= "type: $type, " if (defined($type));
     $str .= ")";
-    
+
     return $str;
 }
 
@@ -41,42 +41,42 @@ sub fromHash
 sub TO_JSON
 {
 	my $self = shift;
-	
+
 	my $id;
 	if (defined($self->{_id})) {
 		$id = $self->{_id}*1;
 	} else {
 		$id = 0;
 	}
-	
+
 	my $friendlyName;
 	if (defined($self->{_friendlyName})) {
 		$friendlyName = "$self->{_friendlyName}";
 	} else {
 		$friendlyName = undef;
 	}
-	
+
 	my $namespace;
 	if (defined($self->{_namespace})) {
 		$namespace = "$self->{_namespace}";
 	} else {
 		$namespace = undef;
 	}
-	
+
 	my $description;
 	if (defined($self->{_description})) {
 		$description = "$self->{_description}";
 	} else {
 		$description = undef;
 	}
-    
+
     my $type;
 	if (defined($self->{_type})) {
 		$type = "$self->{_type}";
 	} else {
 		$type = undef;
 	}
-		
+
 	return {id => $id, friendlyName => $friendlyName, namespace => $namespace,
 		description => $description, type => $type};
 }
@@ -84,7 +84,7 @@ sub TO_JSON
 sub getId
 {
     my $self = shift;
-    
+
     return $self->{_id};
 }
 
@@ -92,21 +92,21 @@ sub setId
 {
     my $self = shift;
     $self->{_id} = shift;
-    
+
     return;
 }
 
 sub getName
 {
     my $self = shift;
-    
+
     return ($self->{_namespace} . ':' . $self->{_friendlyName});
 }
 
 sub getFriendlyName
 {
     my $self = shift;
-    
+
     return $self->{_friendlyName};
 }
 
@@ -114,14 +114,14 @@ sub setFriendlyName
 {
     my $self = shift;
     $self->{_friendlyName} = shift;
-    
+
     return;
 }
 
 sub getNamespace
 {
     my $self = shift;
-    
+
     return $self->{_namespace};
 }
 
@@ -129,14 +129,14 @@ sub setNamespace
 {
     my $self = shift;
     $self->{_namespace} = shift;
-    
+
     return;
 }
 
 sub getDescription
 {
     my $self = shift;
-    
+
     return $self->{_description};
 }
 
@@ -144,7 +144,7 @@ sub setDescription
 {
     my $self = shift;
     $self->{_description} = shift;
-    
+
     return;
 }
 
@@ -152,7 +152,7 @@ sub getType
 {
     my $self = shift;
     my $type = $self->{_type};
-    
+
     if ($type eq 'java.lang.Integer') {
         $type = 'integer';
     } elsif ($type eq 'java.lang.String') {
@@ -162,7 +162,7 @@ sub getType
     } elsif ($type eq 'java.util.LinkedHashMap') {
         $type = 'hash';
     }
-    
+
     return $type;
 }
 
@@ -170,7 +170,7 @@ sub setType
 {
     my $self = shift;
     my $type = shift;
-    
+
     if ($type eq 'integer') {
         $type = 'java.lang.Integer';
     } elsif ($type eq 'string') {
@@ -180,7 +180,7 @@ sub setType
     } elsif ($type eq 'hash') {
         $type = 'java.util.LinkedHashMap';
     }
-    
+
     $self->{_type} = $type;
     return;
 }

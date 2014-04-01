@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which adds owner to facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddOwner {
@@ -33,7 +33,7 @@ public class AddOwner {
 
 	/**
 	 * Creates a new request with custom events
-	 * 
+	 *
 	 * @param events Custom events
 	 */
 	public AddOwner(JsonCallbackEvents events) {
@@ -42,7 +42,7 @@ public class AddOwner {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false if process can/can't continue
 	 */
 	private boolean testAdding()
@@ -69,7 +69,7 @@ public class AddOwner {
 
 	/**
 	 * Attempts to add owner to facility, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param facility ID of facility which should have owner added
 	 * @param owner ID of owner to be added to facility
 	 */
@@ -108,12 +108,12 @@ public class AddOwner {
 		// create request
 		JsonPostClient request = new JsonPostClient(newEvents);
 		request.sendData(JSON_URL, jsonQuery);
-		
+
 	}
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

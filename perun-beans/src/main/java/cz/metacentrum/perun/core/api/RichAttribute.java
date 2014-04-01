@@ -4,8 +4,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 
 
 /**
- * 
- * 
+ *
+ *
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
@@ -77,9 +77,9 @@ public class RichAttribute<P,S>  {
   @Override
   public String toString() {
     return this.getClass().getSimpleName()+":[" +
-      (attribute == null ? "Attribute: NULL." : attribute.toString()) + 
-      " Primary holder: " +  (primaryHolder == null ? "NULL. " : primaryHolder.toString()) + 
-      " Secondary holder: " +  (secondaryHolder == null ? "NULL. " : secondaryHolder.toString()) + 
+      (attribute == null ? "Attribute: NULL." : attribute.toString()) +
+      " Primary holder: " +  (primaryHolder == null ? "NULL. " : primaryHolder.toString()) +
+      " Secondary holder: " +  (secondaryHolder == null ? "NULL. " : secondaryHolder.toString()) +
       ']';
   }
 }

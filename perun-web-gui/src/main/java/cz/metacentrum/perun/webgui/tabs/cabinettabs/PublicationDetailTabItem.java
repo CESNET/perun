@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Tab which shows publication's details.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -98,7 +98,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public boolean isPrepared(){
-		return !(publication == null);		
+		return !(publication == null);
 	}
 
 	public Widget draw() {
@@ -109,14 +109,14 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		// MAIN PANEL
 		ScrollPanel sp = new ScrollPanel();
 		sp.addStyleName("perun-tableScrollPanel");
-				
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.addStyleName("perun-table");
 		sp.add(vp);
-				
+
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		// content
 		final FlexTable ft = new FlexTable();
 		ft.setStyleName("inputFormFlexTable");
@@ -138,7 +138,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
                 ft.getFlexCellFormatter().setStyleName(i, 0, "itemName");
             }
             ft.getFlexCellFormatter().setWidth(1, 0, "100px");
-			
+
 			final ListBoxWithObjects<Category> listbox = new ListBoxWithObjects<Category>();
 			// fill listbox
 			JsonCallbackEvents events = new JsonCallbackEvents(){
@@ -151,7 +151,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 						}
 					}
 				}
-			};			
+			};
 			FindAllCategories categories = new FindAllCategories(events);
 			categories.retrieveData();
 
@@ -159,7 +159,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			rank.setWidth("30px");
 			rank.setMaxLength(4);
 			rank.setText(String.valueOf(publication.getRank()));
-			
+
 			final TextBox title = new TextBox();
 			title.setMaxLength(1024);
 			title.setText(publication.getTitle());
@@ -195,9 +195,9 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			ft.setWidget(8, 1, main);
 			ft.setHTML(9, 1, String.valueOf(publication.getCreatedBy()));
 			ft.setHTML(10, 1, DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)publication.getCreatedDate())));
-			
+
 			// update button
-			
+
 			final CustomButton change = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in publication details");
 			change.addClickHandler(new ClickHandler() {
 
@@ -296,19 +296,19 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 					upCall.updatePublication(p);
 				}
 			});
-			
+
 		}
 
 		DisclosurePanel dp = new DisclosurePanel();
 		dp.setWidth("100%");
 		dp.setContent(ft);
 		dp.setOpen(true);
-		
+
 		FlexTable detailsHeader = new FlexTable();
 		detailsHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.bookIcon()));
 		detailsHeader.setHTML(0, 1, "<h3>Details</h3>");
 		dp.setHeader(detailsHeader);
-		
+
 		vp.add(dp);
 		vp.add(loadAuthorsSubTab());
 		vp.add(loadThanksSubTab());
@@ -321,7 +321,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Returns widget with authors management for publication
-	 * 
+	 *
 	 * @return widget
 	 */
 	private Widget loadAuthorsSubTab(){
@@ -332,19 +332,19 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 		dp.setContent(vp);
-		
+
 		FlexTable header = new FlexTable();
 		header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGreenIcon()));
 		header.setHTML(0, 1, "<h3>Authors / Reported by</h3>");
 		dp.setHeader(header);
-		
+
 		// menu
 		TabMenu menu = new TabMenu();
 
 		// callback
 		final FindAuthorsByPublicationId call = new FindAuthorsByPublicationId(publication.getId());
 		call.setCheckable(false);
-		
+
 		if (!publication.getLocked()) {
 			// editable if not locked
 			vp.add(menu);
@@ -418,7 +418,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Returns thanks management widget for publication
-	 * 
+	 *
 	 * @return widget
 	 */
 	private Widget loadThanksSubTab(){
@@ -434,21 +434,21 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		header.setWidget(0, 0, new Image(LargeIcons.INSTANCE.smallBusinessIcon()));
 		header.setHTML(0, 1, "<h3>Acknowledgement</h3>");
 		dp.setHeader(header);
-		
+
 		// menu
 		TabMenu menu = new TabMenu();
 
 		// callback
 		final FindThanksByPublicationId thanksCall = new FindThanksByPublicationId(publicationId);
 		thanksCall.setCheckable(false);
-		
+
 		if (!publication.getLocked()) {
 			// editable if not locked
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
 			thanksCall.setCheckable(true);
 		}
-		
+
 		CellTable<Thanks> table = thanksCall.getTable();
 
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement to publication", new ClickHandler() {
@@ -547,7 +547,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 		if (session.isSelf()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

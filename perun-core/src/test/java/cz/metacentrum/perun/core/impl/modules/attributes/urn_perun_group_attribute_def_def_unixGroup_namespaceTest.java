@@ -12,7 +12,7 @@ import org.junit.Test;
  * @author Norexan
  */
 public class urn_perun_group_attribute_def_def_unixGroup_namespaceTest {
-  
+
     @Test
     @Ignore
     public void testCheckAttributeValue() throws Exception {

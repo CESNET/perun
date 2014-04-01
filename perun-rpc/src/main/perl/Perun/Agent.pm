@@ -46,14 +46,14 @@ use constant {
 
 sub new {
     my $self = fields::new(shift);
-    
+
     # Check if the PERUN_URL is defined
     if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash({ type => MISSING_URL }); };
     $self->{_url} = $ENV{PERUN_URL};
 
     # Extract login/password from ENV if available
     my ($login,$pass) = split '/',$ENV{PERUN_USER} if $ENV{PERUN_USER};
-    
+
     $self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion");
 		# Enable cookies if the HOME env is available
 		if (defined($ENV{HOME})) {
@@ -62,24 +62,24 @@ sub new {
 		}
 
     $self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
-		
+
     # if $login is defined then use login/password authentication
     if (defined($login)) {
 				my $uri = URI->new($self->{_url});
 				my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
         $self->{_lwpUserAgent}->credentials($uri->host.":".$port, 'Kerberos META', $login => $pass);
     }
-    
+
     # Connect to the Perun server
     my $response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
-    
+
     # Check the connection
     unless ($response->is_success) {
         my $code = $response->code;
-        
+
         # Connection was OK, so check the return code
         switch($code) {
-          case 401 { die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED }); } 
+          case 401 { die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED }); }
           case 500 { die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo => ("HTTP STATUS CODE: $code") }); }
           case 302 { next; }
           case 405 { next; }
@@ -87,22 +87,22 @@ sub new {
           else { die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo => ("HTTP STATUS CODE: $code") }); }
         }
     }
-    
+
     # Some error occured during connection
     if($response->is_error) {
-      die Perun::Exception->fromHash({ type => SERVER_ERROR }); 
+      die Perun::Exception->fromHash({ type => SERVER_ERROR });
     }
-    
+
     # Check if the reponse contains string 'OK'
-    if($response->content !~ /^OK! /) { 
-      die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} }); 
+    if($response->content !~ /^OK! /) {
+      die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} });
     }
-    
+
     # Check the version of the Perun server
     if ($response->content !~ /Version: $agentVersion/) {
       $response->content =~ m/Version: ([0-9]+.[0-9]+.[0-9]+)/;
       my $perunVersion = $1;
-      die Perun::Exception->fromHash({ type => WRONG_AGENT_VERSION, errorInfo => "Tools version $agentVersion, Perun version $perunVersion" }); 
+      die Perun::Exception->fromHash({ type => WRONG_AGENT_VERSION, errorInfo => "Tools version $agentVersion, Perun version $perunVersion" });
     }
 
     return $self;
@@ -111,21 +111,21 @@ sub new {
 sub call
 {
     my ($self, $class, $method, $hash) = @_;
-    
+
     my $fullUrl = "$self->{_url}/$format/$class/$method";
 
     my $content = $self->{_jsonXs}->encode($hash);
     my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
     my $code = $response->code;
     my $decodedContent = $response->decoded_content;
-    
+
     #print $response->decoded_content;
     #print "\n\n\n";
-    
+
     unless ($code == 200 || $code == 400 || $code == 500) {
         die Perun::Exception->fromHash({ type => 'http', errorInfo => ("HTTP STATUS CODE: $code\nCONTENT:\n" . $decodedContent) });
     }
-    
+
     my $returnedHash;
     eval {
         $returnedHash = $self->{_jsonXs}->decode($decodedContent);
@@ -133,11 +133,11 @@ sub call
     if ($@) {
         die Perun::Exception->fromHash({ type => 'parse_error', errorInfo => ("CONTENT:\n" . $decodedContent) });
     }
-    
+
     if ($code == 256 || $code == 400 || $code == 500) {
         die Perun::Exception->fromHash($returnedHash);
     }
-    
+
     return $returnedHash;
 }
 

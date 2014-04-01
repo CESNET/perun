@@ -6,7 +6,7 @@ import cz.metacentrum.perun.cabinet.model.Author;
 
 /**
  * Interface for handling Author entity in Cabinet.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -14,7 +14,7 @@ public interface IAuthorService {
 
 	/**
 	 * Check if author exists in DB (user in Perun)
-	 * 
+	 *
 	 * @param a author
 	 * @return true if author exists
 	 */
@@ -30,20 +30,20 @@ public interface IAuthorService {
 
 	/**
 	 * Return all users from Perun as authors (with logins and authorships property filled)
-	 * 
+	 *
 	 * @return list of all authors
 	 */
 	List<Author> findAllAuthors();
 
 	/**
 	 * Return count of all authors (users) in Perun
-	 * 
+	 *
 	 * @return count of all authors
 	 */
 	int getAuthorsCount();
-	
+
 	List<Author> findAuthorsByPublicationId(Integer id);
-	
+
 	List<Integer> findUniqueAuthorsIds();
-	
+
 }

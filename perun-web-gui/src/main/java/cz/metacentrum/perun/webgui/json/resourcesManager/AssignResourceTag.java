@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
 
 /**
  * Ajax query for assigning resource tag to Resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AssignResourceTag {
@@ -48,7 +48,7 @@ public class AssignResourceTag {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -75,7 +75,7 @@ public class AssignResourceTag {
 
 	/**
 	 * Attempts to assign resource tag to Resource, it first tests the values and then submits them
-	 * 
+	 *
 	 * @param tag ResourceTag to assign
 	 */
 	public void assignResourceTag(ResourceTag tag) {

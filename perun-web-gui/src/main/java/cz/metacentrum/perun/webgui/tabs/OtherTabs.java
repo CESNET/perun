@@ -6,14 +6,14 @@ import java.util.Map;
 
 /**
  * Other tabs
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class OtherTabs {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	static public final String URL = "other";
 
 	/**
@@ -26,24 +26,24 @@ public class OtherTabs {
 	 */
 	public boolean loadTab(String tab, Map<String, String> parameters) {
 		if(tab == null){
-			return false;				
+			return false;
 		}
-	
+
 		// if active
 		boolean open = ("1".equals(parameters.get("active")));
-			
-		
 
-		
+
+
+
 		// user home
 		if (tab.equals(PageNotFoundTabItem.URL))
 		{
 			session.getTabManager().addTab(new PageNotFoundTabItem(), open);
 			return true;
 		}
-		
+
 		return false;
-		
+
 	}
 
 }

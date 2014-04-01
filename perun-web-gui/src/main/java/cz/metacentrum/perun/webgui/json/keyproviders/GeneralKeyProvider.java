@@ -6,9 +6,9 @@ import cz.metacentrum.perun.webgui.model.GeneralObject;
 
 /**
  * Key provider for all basic model classes in Perun for tables
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
- * 
+ *
  * @param <T>
  */
 public class GeneralKeyProvider<T extends JavaScriptObject> implements ProvidesKey<T> {

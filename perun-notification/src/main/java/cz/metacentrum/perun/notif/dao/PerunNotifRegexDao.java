@@ -16,7 +16,7 @@ public interface PerunNotifRegexDao {
 	 * @return
 	 */
 	public List<PerunNotifRegex> getAll();
-	
+
 	/**
 	 * Saves regex to db and creates new id using sequence, saves only basic attributes, not collections
 	 * @param regex

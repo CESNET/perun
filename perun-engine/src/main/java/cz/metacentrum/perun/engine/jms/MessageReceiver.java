@@ -19,9 +19,9 @@ import cz.metacentrum.perun.engine.processing.CommandProcessor;
 import cz.metacentrum.perun.engine.processing.EventProcessor;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventReceiver")
 public class MessageReceiver implements Runnable {
@@ -103,7 +103,7 @@ public class MessageReceiver implements Runnable {
                                 throw ex;
                             }
                         } else if (messageType.equalsIgnoreCase("command")) {
-                            //TODO: There is no need to put commandProcessor to a separate thread at the moment, however it is very likely to be so in a future. 
+                            //TODO: There is no need to put commandProcessor to a separate thread at the moment, however it is very likely to be so in a future.
                             commandProcessor.receiveCommand(message);
                         } else {
                             throw new UnknownMessageTypeException("UNKNOWN TYPE[" + messageType + "]");

@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 
 /**
  * Ajax query to remove member from group
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveMember {
@@ -37,7 +37,7 @@ public class RemoveMember {
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
-	 * 
+	 *
 	 * @param events JsonCallbackaEvents
 	 */
 	public RemoveMember(final JsonCallbackEvents events) {
@@ -46,7 +46,7 @@ public class RemoveMember {
 
 	/**
 	 * Attempts to remove member from group
-	 * 
+	 *
 	 * @param groupId id of group
 	 * @param memberId ID of member to be removed from group
 	 */
@@ -130,7 +130,7 @@ public class RemoveMember {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving() {
@@ -157,18 +157,18 @@ public class RemoveMember {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {
 
-		JSONNumber group = new JSONNumber(groupId); 
+		JSONNumber group = new JSONNumber(groupId);
 		JSONNumber member = new JSONNumber(memberId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("group", group);          
-		jsonQuery.put("member", member);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("group", group);
+		jsonQuery.put("member", member);
 		return jsonQuery;
 	}
 

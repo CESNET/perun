@@ -80,13 +80,13 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		this.userId = user.getId();
 		this.user = user;
 	}
-	
+
 	public boolean isPrepared(){
 		return !(user == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": connect identity");
 
         VerticalPanel content = new VerticalPanel();
@@ -176,7 +176,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
         session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
 		this.contentWidget.setWidget(new SimplePanel(content));
-		
+
 		return getWidget();
 	}
 
@@ -189,7 +189,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -215,23 +215,23 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		ConnectServiceIdentityTabItem other = (ConnectServiceIdentityTabItem) obj;
 		if (userId != other.userId)
 			return false;
-			
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
-		
+
 	}
 
 	public boolean isAuthorized() {
 
 		if (session.isSelf(userId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -239,21 +239,21 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "connect-identity";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
 	}
-	
+
 	static public ConnectServiceIdentityTabItem load(Map<String, String> parameters)
 	{
 		int uid = Integer.parseInt(parameters.get("id"));
 		return new ConnectServiceIdentityTabItem(uid);
 	}
-	
+
 }

@@ -15,12 +15,12 @@ import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Custom GWT cell, which displays checkbox when Group not core Group
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEditableCell<T, Boolean> {
-	
+
 	/**
 	 * Whether to show the checkbox, if core group
 	 */
@@ -37,13 +37,13 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 	 */
 	private static final SafeHtml INPUT_UNCHECKED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\"/>");
-	
+
 	/**
 	 * An html string representation of a disabled input box.
 	 */
 	private static final SafeHtml INPUT_DISABLED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled/>");
-	
+
 
 	private final boolean dependsOnSelection;
 	private final boolean handlesSelection;
@@ -57,7 +57,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 
 	/**
 	 * Construct a new {@link CheckboxCell} that optionally controls selection.
-	 * 
+	 *
 	 * @param isSelectBox
 	 *            true if the cell controls the selection state
 	 * @deprecated use {@link #CheckboxCell(boolean, boolean)} instead
@@ -69,7 +69,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 
 	/**
 	 * Construct a new {@link CheckboxCell} that optionally controls selection.
-	 * 
+	 *
 	 * @param dependsOnSelection
 	 *            true if the cell depends on the selection state
 	 * @param handlesSelection
@@ -144,9 +144,9 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 
 	@Override
 	public void render(Context context, T value, SafeHtmlBuilder sb) {
-		
+
 		// Render disabled for different kinds of Types from Perun
-		
+
 		// is core group
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group")) {
 			if(((Group)value).isCoreGroup() && !editable){
@@ -154,7 +154,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 				return;
 			}
 		}
-		
+
 		// is service disabled on facility
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ServiceForGUI")) {
 			if(((RichService)value).getAllowedOnFacility().equalsIgnoreCase("Denied") && !editable){

@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get assigned rich resources for user
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
@@ -50,15 +50,15 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private FieldUpdater<RichResource, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
-	private PerunEntity entity; 
+	private PerunEntity entity;
 	// oracle support
 	private ArrayList<RichResource> fullBackup = new ArrayList<RichResource>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
-	 * Creates a new getResources method instance	
+	 * Creates a new getResources method instance
 	 *
-	 * @param id 
+	 * @param id
 	 * @param entity to get rich resources for
 	 */
 	public GetAssignedRichResources(int id, PerunEntity entity) {
@@ -67,7 +67,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	}
 
 	/**
-	 * Creates a new getResources method instance	
+	 * Creates a new getResources method instance
 	 *
 	 * @param id
 	 * @param entity
@@ -81,18 +81,18 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 	/**
 	 * Returns table with resources and with custom onClick
-	 * 
-	 * @param fu Field updater 
+	 *
+	 * @param fu Field updater
 	 * @return table widget
 	 */
 	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu) {
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
 	/**
 	 * Returns table with resources assigned to group
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<RichResource> getTable() {
@@ -120,7 +120,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("Resource ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
@@ -160,7 +160,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
         table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
-		
+
 	}
 
 	/**

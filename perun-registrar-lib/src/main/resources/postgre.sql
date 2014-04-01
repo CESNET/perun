@@ -59,7 +59,7 @@ create table "application_data" (
     assurance_level varchar(128)
  );
 
-create table "application_reserved_logins" ( 
+create table "application_reserved_logins" (
  	login varchar(256) not null,
  	namespace varchar(30) not null,
 	app_id integer not null,
@@ -104,7 +104,7 @@ create index IDX_FK_APPMAILTXT_APPMAILS on application_mail_texts(mail_id);
 alter table application_form add (
 constraint APPLFORM_PK primary key (id),
 constraint APPLFORM_U unique (vo_id,group_id),
-constraint APPLFORM_VO_FK foreign key (vo_id) references vos(id) on delete cascade 
+constraint APPLFORM_VO_FK foreign key (vo_id) references vos(id) on delete cascade
 constraint APPLFORM_GROUP_FK foreign key (group_id) references groups(id) on delete cascade
 );
 

@@ -3,7 +3,7 @@
 INSERT INTO `perun-cabinet-db`.`CATEGORY` (
 `id` ,
 `name` ,
-`rank` 
+`rank`
 )
 VALUES (
 NULL , 'Publikace bodované v RIVu', '2'
@@ -19,7 +19,7 @@ INSERT INTO `perun-cabinet-db`.`AUTHOR` (
 `id` ,
 `firstName` ,
 `lastName` ,
-`userId` 
+`userId`
 )
 VALUES (
 NULL , 'Pepa', 'Becher', '1'
@@ -36,7 +36,7 @@ INSERT INTO `perun-cabinet-db`.`REPORT` (
 `publicationId` ,
 `userId` ,
 `createdBy` ,
-`createdDate` 
+`createdDate`
 )
 VALUES (
 NULL , '2', '1', '1', '2011-11-05 19:49:59'
@@ -49,7 +49,7 @@ NULL , '2', '1', '1', '2011-11-05 19:49:59'
 INSERT INTO `perun-cabinet-db`.`OWNER` (
 `id` ,
 `name` ,
-`contact` 
+`contact`
 )
 VALUES (
 NULL , 'CESNET', 'foo@bar'

@@ -30,15 +30,15 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
   final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
 
   private SimpleJdbcTemplate jdbc;
-  
+
   protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
-      "owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " + 
+      "owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +
       "owners.created_by_uid as owners_created_by_uid, owners.modified_by_uid as owners_modified_by_uid";
 
 
   /**
    * Constructor.
-   * 
+   *
    * @param perunPool connection pool
    */
   public OwnersManagerImpl(DataSource perunPool) {
@@ -85,7 +85,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
     Utils.notNull(owner.getType(), "owner.getType()");
 
     int newId = Utils.getNewId(jdbc, "owners_id_seq");
-    
+
     try {
       jdbc.update("insert into owners(id, name, contact, type, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
           "values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, owner.getName(),

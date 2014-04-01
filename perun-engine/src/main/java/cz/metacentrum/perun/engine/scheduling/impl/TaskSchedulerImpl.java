@@ -27,9 +27,9 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "taskScheduler")
 @Transactional
@@ -153,15 +153,15 @@ public class TaskSchedulerImpl implements TaskScheduler {
                             //              FI
                             //     DONE        IF dependency is GENERATE THEN DO
                             //                  Schedule it and wait (put this [ExecService,Facility] pair back to the SchedulingPool for a while).
-                            //                  
-                            //                  It might look like we get an infinite loop where GENERATE will be in DONE and then rescheduled again and again.              
+                            //
+                            //                  It might look like we get an infinite loop where GENERATE will be in DONE and then rescheduled again and again.
                             //                  It is not so because PropagationMaintainer sets its state to NONE as soon as the SEND, that depends on it,
                             //                  enters either DONE or ERROR states (one of its finite states).
                             //              ELSE IF dependency is SEND THEN DO
                             //                  Proceed (Yes, no need to schedule this dependency, it is done already and we don't care for how long it has been so at this point.)
                             //              ELSE
                             //                  throw new IllegalArgumentException
-                            //              FI 
+                            //              FI
                             // :-)
                             // #######################################################################################################
                             proceed = true;

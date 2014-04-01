@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to free denial of selected exec service on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -29,7 +29,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Creates a new request
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 */
 	public FreeDenialOfExecServiceOnFacility(int facilityId) {
@@ -38,7 +38,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Creates a new request with custom events
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 * @param events Custom events
 	 */
@@ -49,7 +49,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -76,7 +76,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Attempts to free denial of selected exec service for specified facility
-	 * 
+	 *
 	 * @param execServiceId
 	 * @param facilityId
 	 */
@@ -87,7 +87,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Attempts to free denial of selected exec service on facility
-	 * 
+	 *
 	 * @param execServiceId
 	 */
 	public void freeDenialOfExecService(final int execServiceId){
@@ -124,7 +124,7 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
@@ -139,11 +139,11 @@ public class FreeDenialOfExecServiceOnFacility {
 
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {
 		this.events = events;
 	}
-	
+
 }

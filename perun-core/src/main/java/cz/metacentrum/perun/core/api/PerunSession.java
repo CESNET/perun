@@ -38,15 +38,15 @@ public abstract class PerunSession {
     public Perun getPerun() {
         return perun;
     }
-    
+
     public void destroy() throws InternalErrorException {
       perun = null;
       principal = null;
     }
-    
+
     public void validate() throws InternalErrorException {
     }
-  
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" +

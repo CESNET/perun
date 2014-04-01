@@ -12,24 +12,24 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Retrieves logins for a user
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetLogins implements JsonCallback{
 
 	// Perun session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// JSON URL
 	private static final String JSON_URL = "attributesManager/getLogins";
-	
+
 	// user id
 	private int userId;
-	
+
 	// events
 	private JsonCallbackEvents events;
 
-	
+
 
 	/**
 	 * Creates new instance of callback
@@ -80,7 +80,7 @@ public class GetLogins implements JsonCallback{
 
 	/**
 	 * When callback finishes
-	 * 
+	 *
 	 * @param jso returned object = array of js elements to be processed
 	 */
 	public void onFinished(JavaScriptObject jso) {

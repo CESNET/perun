@@ -11,7 +11,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
 
 /**
  * This interface serves as a template for virtual attributes.
- * 
+ *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttributesModuleImplApi, VirtualAttributesModuleImplApi {

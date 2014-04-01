@@ -10,7 +10,7 @@ import java.util.List;
  * Manager interface for work with messages send by auditer
  * Is Used to backup messages which are in process of processing.
  * After processing of message, this message should be erased from db.
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -22,7 +22,7 @@ public interface PerunNotifAuditMessageManager {
 	 * @return
 	 */
 	public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String messasge, PerunSession message) throws InternalErrorException;
-	
+
 	/**
 	 * Removes perunAuditerMessage from db based on id
 	 * @param id

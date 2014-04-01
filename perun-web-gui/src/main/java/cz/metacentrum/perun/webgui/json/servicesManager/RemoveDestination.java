@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which removes a destination from service and facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -55,7 +55,7 @@ public class RemoveDestination {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -91,9 +91,9 @@ public class RemoveDestination {
 	}
 
 	/**
-	 * Attempts to remove a Destination from service and facility, it first tests the values and then 
+	 * Attempts to remove a Destination from service and facility, it first tests the values and then
 	 * submits them.
-	 * 
+	 *
 	 * @param destination destination string
 	 * @param type type of destination
 	 */
@@ -128,18 +128,18 @@ public class RemoveDestination {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("destination", new JSONString(destination));
 		jsonQuery.put("type", new JSONString(type));
 		jsonQuery.put("service", new JSONNumber(serviceId));

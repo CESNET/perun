@@ -28,7 +28,7 @@ import java.util.*;
 
 /**
  * Ajax query to get all attributes definitions in Perun but stores them as attributes
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -82,7 +82,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Returns table widget with attributes definitions
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable() {
@@ -112,7 +112,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 		if (checkable) {
 			table.addCheckBoxColumn();
 		}
-		
+
 		// Create ID column.
 		table.addIdColumn("Attr ID", null, 90);
 
@@ -133,11 +133,11 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 		// updates the columns size
 		this.table.setColumnWidth(nameColumn, 200.0, Unit.PX);
-		
+
 		// Sorting name column
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_NAME));
-		
+
 		// Sorting description column
 		descriptionColumn.setSortable(true);
 		columnSortHandler.setComparator(descriptionColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_DESCRIPTION));
@@ -149,7 +149,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 		this.table.addColumn(nameColumn, "Name");
 		this.table.addColumn(valueColumn, "Value");
 		this.table.addColumn(descriptionColumn, "Description");
-		
+
 		return table;
 
 	}
@@ -320,7 +320,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Set entity filter on returned Attributes
-	 * 
+	 *
 	 * @param entity name of entity (member,resource,facility,user,....)
 	 */
 	public void setEntity(String entity) {
@@ -330,7 +330,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Set entity filter on returned Attributes
-	 * 
+	 *
 	 * @param entity name of entity (member,resource,facility,user,....)
 	 * @param add true if adding
 	 */
@@ -344,7 +344,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Set entity filter on returned Attributes
-	 * 
+	 *
 	 * @param entities set of the entities
 	 */
 	public void setEntities(Set<String> entities) {
@@ -353,7 +353,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Sets external events to callback after it's creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {
@@ -362,7 +362,7 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 
 	/**
 	 * Returns table selection model
-	 * 
+	 *
 	 * @return selection model
 	 */
 	public SelectionModel<Attribute> getSelectionModel(){

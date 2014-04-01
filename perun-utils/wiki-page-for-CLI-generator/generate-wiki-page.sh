@@ -18,27 +18,27 @@ export PERL5LIB=$CLI_DIR;
 
 echo '=== CLI ==='
 echo "* ''' tools for listing '''"
-for FILE in `ls $CLI_DIR/list*`; do 
+for FILE in `ls $CLI_DIR/list*`; do
   echo "** [[#$FILE|$FILE]]"
 done
 
 echo "* ''' tools for creating, updating a validation of entities '''"
-for FILE in `ls $CLI_DIR/{create,update,validate}*`; do 
+for FILE in `ls $CLI_DIR/{create,update,validate}*`; do
   echo "** [[#$FILE|$FILE]]"
 done
 
 echo "* ''' tools for adding '''"
-for FILE in `ls $CLI_DIR/add*`; do 
+for FILE in `ls $CLI_DIR/add*`; do
   echo "** [[#$FILE|$FILE]]"
 done
 
 echo "* ''' tools for deleting '''"
-for FILE in `ls $CLI_DIR/delete*`; do 
+for FILE in `ls $CLI_DIR/delete*`; do
   echo "** [[#$FILE|$FILE]]"
 done
 
 echo "* ''' tools for assigning setting and removing '''"
-for FILE in `ls $CLI_DIR/{assign,set,remove}*`; do 
+for FILE in `ls $CLI_DIR/{assign,set,remove}*`; do
   echo "** [[#$FILE|$FILE]]"
 done
 
@@ -48,7 +48,7 @@ for FILE in `ls {propagate}*`; do
 done
 
 echo -e "\n\n\n"
-                 
+
 #generate helps
 for FILE in `ls $CLI_DIR/{add,assign,create,delete,list,remove,set,update,validate,propagate}*`
  do echo -n "==== $FILE ===="

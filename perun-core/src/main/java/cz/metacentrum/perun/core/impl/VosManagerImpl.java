@@ -53,19 +53,19 @@ public class VosManagerImpl implements VosManagerImplApi {
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private SimpleJdbcTemplate jdbc;
 
-  protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " + 
+  protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
           "vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +
           "vos.created_by_uid as vos_created_by_uid, vos.modified_by_uid as vos_modified_by_uid";
 
-  
+
   /**
    * Converts s ResultSet's row to a Vo instance.
    */
   protected static final RowMapper<Vo> VO_MAPPER = new RowMapper<Vo>() {
     public Vo mapRow(ResultSet rs, int i) throws SQLException {
-      return new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"), 
-              rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"), 
-              rs.getInt("vos_created_by_uid") == 0 ? null : rs.getInt("vos_created_by_uid"), 
+      return new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"),
+              rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"),
+              rs.getInt("vos_created_by_uid") == 0 ? null : rs.getInt("vos_created_by_uid"),
               rs.getInt("vos_modified_by_uid") == 0 ? null : rs.getInt("vos_modified_by_uid"));
     }
   };
@@ -100,7 +100,7 @@ public class VosManagerImpl implements VosManagerImplApi {
     }
   }
 
-  public Vo getVoById(PerunSession sess, int id) throws VoNotExistsException, InternalErrorException {  
+  public Vo getVoById(PerunSession sess, int id) throws VoNotExistsException, InternalErrorException {
     try {
       return jdbc.queryForObject("select " + voMappingSelectQuery + " from vos where id=?", VO_MAPPER, id);
     } catch(EmptyResultDataAccessException ex) {
@@ -135,10 +135,10 @@ public class VosManagerImpl implements VosManagerImplApi {
   }
 
   public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
-    try {  
+    try {
       // Delete authz entries for this VO
       AuthzResolverBlImpl.removeAllAuthzForVo(sess, vo);
-      
+
       if (jdbc.update("delete from vos where id=?", vo.getId()) == 0) {
         throw new ConsistencyErrorException("no record was deleted from the DB.");
       }
@@ -164,7 +164,7 @@ public class VosManagerImpl implements VosManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-  
+
   @Override
   public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
       try {
@@ -172,23 +172,23 @@ public class VosManagerImpl implements VosManagerImplApi {
           // direct admins
           setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
                 "where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')", UsersManagerImpl.USER_MAPPER, vo.getId()));
-          
+
           // admins through a group
           List<Group> listOfGroupAdmins = getAdminGroups(sess, vo);
           for(Group group : listOfGroupAdmins) {
               setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
                       "join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, group.getId()));
           }
-          
+
           return new ArrayList(setOfAdmins);
-          
+
       } catch(EmptyResultDataAccessException ex) {
         return new ArrayList<User>();
       }   catch (RuntimeException ex) {
         throw new InternalErrorException(ex);
       }
   }
-  
+
   @Override
   public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
       try {
@@ -200,7 +200,7 @@ public class VosManagerImpl implements VosManagerImplApi {
         throw new InternalErrorException(ex);
       }
   }
-  
+
   @Override
   public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
       try {
@@ -213,7 +213,7 @@ public class VosManagerImpl implements VosManagerImplApi {
         throw new InternalErrorException(ex);
       }
   }
-  
+
   public boolean voExists(PerunSession sess, Vo vo) throws InternalErrorException {
     Utils.notNull(vo, "vo");
     try {
@@ -228,7 +228,7 @@ public class VosManagerImpl implements VosManagerImplApi {
   public void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException {
     if(!voExists(sess, vo)) throw new VoNotExistsException("Vo: " + vo);
   }
-  
+
   public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) {
 	// get app ids for all applications
 	return jdbc.query("select id from application where vo_id=?", new RowMapper<Integer>() {
@@ -239,7 +239,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 			  }
 		  },vo.getId());
   }
-  
+
   public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) {
 	  return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
 		  @Override
@@ -255,15 +255,15 @@ public class VosManagerImpl implements VosManagerImplApi {
 		  jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 	  }
   }
-  
+
   public void deleteVoApplicationForm(PerunSession sess, Vo vo) {
 	  // form items + texts are deleted on cascade with form itself
 	  jdbc.update("delete from application_form where vo_id=?", vo.getId());
   }
-  
+
   public void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException {
 	  int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
 	  jdbc.update("insert into application_form(id, vo_id) values (?,?)", id, vo.getId());
   }
-  
+
 }

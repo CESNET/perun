@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get exec services which are denied on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<ExecService> {
@@ -51,7 +51,7 @@ public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<E
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param id ID of facility
 	 */
 	public ListDenialsForFacility(int id) {
@@ -71,7 +71,7 @@ public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<E
 
 	/**
 	 * Returns the table with exec services
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -82,39 +82,39 @@ public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<E
 
 	/**
 	 * Returns the table with exec services
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
-	public CellTable<ExecService> getTable() {	
+	public CellTable<ExecService> getTable() {
 
 		// retrieves data
 		retrieveData();
-				
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<ExecService>(list);
 
 		// Cell table
 		table = new PerunTable<ExecService>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<ExecService> columnSortHandler = new ListHandler<ExecService>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<ExecService> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		if(this.checkable)
 		{
 			// checkbox column column
 			table.addCheckBoxColumn();
 		}
-		
+
 		//add id column
 		table.addIdColumn("ExecService ID", tableFieldUpdater);
 
@@ -139,7 +139,7 @@ public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<E
 				return object.isLocalEnabled();
 			}
 		},this.tableFieldUpdater);
-		
+
 		// Create enabled column
 		Column<ExecService, String> enabledColumn = JsonUtils.addColumn(new JsonUtils.GetValue<ExecService, String>() {
 			public String getValue(ExecService object) {
@@ -183,7 +183,7 @@ public class ListDenialsForFacility implements JsonCallback, JsonCallbackTable<E
 				return String.valueOf(o1.isEnabled()).compareToIgnoreCase(String.valueOf(o2.isEnabled()));
 			}
 		});
-		
+
 		localEnabledColumn.setSortable(true);
 		columnSortHandler.setComparator(localEnabledColumn, new Comparator<ExecService>() {
 			public int compare(ExecService o1, ExecService o2) {

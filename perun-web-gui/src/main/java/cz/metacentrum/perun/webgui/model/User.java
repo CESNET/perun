@@ -5,7 +5,7 @@ import com.google.gwt.core.client.JsArray;
 
 /**
  * Overlay type for User / RichUser object
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -15,16 +15,16 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get ID of user
-	 * 
+	 *
 	 * @return id of user
 	 */
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	/**
 	 * Set ID of user
-	 * 
+	 *
 	 * @param userId of user
 	 */
 	public final native void setId(int userId) /*-{
@@ -33,7 +33,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get first name of user
-	 * 
+	 *
 	 * @return first name of user
 	 */
 	public final native String getFirstName() /*-{
@@ -52,7 +52,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get last name of user
-	 * 
+	 *
 	 * @return last name of user
 	 */
 	public final native String getLastName() /*-{
@@ -71,7 +71,7 @@ public class User extends JavaScriptObject {
 
     /**
 	 * Get full name of user
-	 * 
+	 *
 	 * @return last+first name of user
 	 */
 	public final native String getFullName() /*-{
@@ -80,7 +80,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get ID of user
-	 * 
+	 *
 	 * @return id of user
 	 */
 	public final native String getMiddleName() /*-{
@@ -99,7 +99,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get title before name of user
-	 * 
+	 *
 	 * @return title before name of user
 	 */
 	public final native String getTitleBefore() /*-{
@@ -118,7 +118,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get title after name of user
-	 * 
+	 *
 	 * @return title after name of user
 	 */
 	public final native String getTitleAfter() /*-{
@@ -212,7 +212,7 @@ public class User extends JavaScriptObject {
 
 	/**
 	 * Get full name with titles of user
-	 * 
+	 *
 	 * @return full name with titles of user
 	 */
 	public final native String getFullNameWithTitles() /*-{
@@ -238,58 +238,58 @@ public class User extends JavaScriptObject {
 			fullName += this.titleAfter + " ";
 		}
 
-		return fullName;	
+		return fullName;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Return TRUE if user is "service user".
-	 * 
+	 *
 	 * @return TRUE = service user / FALSE = standard user
 	 */
 	public final native boolean isServiceUser() /*-{
 		return this.serviceUser;
 	}-*/;
-	
+
 	/**
 	 * Mark user as service account
-	 * 
+	 *
 	 * @param service TRUE = service user / FALSE = normal user
 	 */
 	public final native void setServiceUser(boolean service) /*-{
 		return this.serviceUser = service;
-	}-*/;	
-	
+	}-*/;
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -297,6 +297,6 @@ public class User extends JavaScriptObject {
 	 */
 	public final boolean equals(User o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 }

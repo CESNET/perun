@@ -25,10 +25,10 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * @author Michal Karm Babacek
- * 
+ *
  *         Unfortunately, this test can not be transactional due to multi-threaded environment, hence it can not be rolled back. We have to clean up after ourselves...
- *         
- *         
+ *
+ *
  *  THIS IS A MANUAL TEST
  *  1) Has to be executed explicitly as -Dtest=ForcePropagationIntegrationManualTest
  *  2) Take a look in log and verify that there was a special TaskScheduler for the "forceit" message.
@@ -113,7 +113,7 @@ public class ForcePropagationIntegrationManualTest extends BaseTest {
         itWentOk = false;
         while (System.currentTimeMillis() - started < TIME_OUT) {
             itWentOk = true;
-            /* 
+            /*
             No no no, PasswdSend can not be ready by this time, because we have PasswdGenerate in PLANNED.
             if (taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
                 itWentOk = false;

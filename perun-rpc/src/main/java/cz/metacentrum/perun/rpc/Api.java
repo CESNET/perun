@@ -70,9 +70,9 @@ public class Api extends HttpServlet {
   protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req) throws InternalErrorException, RpcException, UserNotExistsException {
     return this.setupPerunPrincipal(req, null);
   }
-  
+
   protected String getExtSourceName(HttpServletRequest req, Deserializer des) throws RpcException {
-	  if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) { 
+	  if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
 		  return (String) req.getHeader("Shib-Identity-Provider");
 	  } else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
 		  return (String) req.getAttribute("SSL_CLIENT_I_DN");
@@ -82,7 +82,7 @@ public class Api extends HttpServlet {
 		  return (String) des.readString("delegatedExtSourceName");
 	  }
   }
-  
+
   protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws InternalErrorException, RpcException, UserNotExistsException {
     String extSourceLoaString = null;
     String extLogin = null;
@@ -92,7 +92,7 @@ public class Api extends HttpServlet {
     Map<String, String> additionalInformations = new HashMap<String, String>();
 
     // If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
-    if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) { 
+    if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
       extSourceName = (String) req.getHeader("Shib-Identity-Provider");
       extSourceType = ExtSourcesManager.EXTSOURCE_IDP;
       if (req.getHeader("loa") != null && ! req.getHeader("loa").isEmpty()) {
@@ -104,17 +104,17 @@ public class Api extends HttpServlet {
       if (req.getHeader("eppn") != null && ! req.getHeader("eppn").isEmpty()) {
         try {
           String eppn = new String(req.getHeader("eppn").getBytes("ISO-8859-1"));
-          
+
           // Remove scope from the eppn attribute
           additionalInformations.put("eppnwoscope", eppn.replaceAll("(.*)@.*", "$1"));
         } catch (UnsupportedEncodingException e) {
           log.error("Cannot encode header eppn with value from ISO-8859-1.");
         }
-      } 
+      }
       if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
         extLogin = req.getRemoteUser();
       }
-    } 
+    }
 
     // X509 cert was used
     else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
@@ -124,14 +124,14 @@ public class Api extends HttpServlet {
       extLogin = (String) req.getAttribute("SSL_CLIENT_S_DN");
 
       // Store X509 certificate in the additionalInformations structure
-      additionalInformations.put("userCertificates", 
+      additionalInformations.put("userCertificates",
           AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
           AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_CERT")));
-      additionalInformations.put("userCertDNs", 
+      additionalInformations.put("userCertDNs",
           AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
           AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_I_DN")));
 
-      // Store X509 
+      // Store X509
       additionalInformations.put("SSL_CLIENT_S_DN", (String) req.getAttribute("SSL_CLIENT_S_DN"));
       additionalInformations.put("dn", (String) req.getAttribute("SSL_CLIENT_S_DN"));
 
@@ -169,7 +169,7 @@ public class Api extends HttpServlet {
           }
         }
       }
-    } 
+    }
     // EXT_SOURCE was defined in Apache configuration
     else if (req.getAttribute("EXTSOURCE") != null) {
       extSourceName = (String) req.getAttribute("EXTSOURCE");
@@ -186,7 +186,7 @@ public class Api extends HttpServlet {
         extLogin = Long.toString(System.currentTimeMillis());
       }
     }
-    
+
     // Read all headers and store them in additionalInformation
     String headerName = "";
     for(Enumeration<String> headerNames = req.getHeaderNames(); headerNames.hasMoreElements();){
@@ -198,7 +198,7 @@ public class Api extends HttpServlet {
         log.error("Cannot encode header {} with value from ISO-8859-1.", headerName, req.getHeader(headerName));
       }
     }
-    
+
     // If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
     if (des != null && extLogin != null) {
       List<String> powerUsers = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
@@ -222,7 +222,7 @@ public class Api extends HttpServlet {
         extSourceLoa = 0;
       }
     }
-    
+
     // Check if any of authentication system returns extLogin and extSourceName
     if (extLogin == null || extLogin.isEmpty() || extSourceName == null || extSourceName.isEmpty()) {
     	throw new UserNotExistsException("extLogin or extSourceName is empty");
@@ -232,7 +232,7 @@ public class Api extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {    
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
       resp.setContentType("text/plain; charset=utf-8");
       Writer wrt = resp.getWriter();
@@ -248,7 +248,7 @@ public class Api extends HttpServlet {
       } catch (UserNotExistsException e) {
     	wrt.write("ERROR! Exception " + e.getMessage());
       }
-      
+
       wrt.write("\n");
 
       wrt.close();
@@ -274,11 +274,11 @@ public class Api extends HttpServlet {
     boolean isJsonp = false;
     PerunRequest perunRequest = null;
     ApiCaller caller;
-    
+
 
     long timeStart = System.currentTimeMillis();
     caller = (ApiCaller) req.getSession(true).getAttribute(APICALLER);
-    
+
     OutputStream out = resp.getOutputStream();
 
     // Check if it is request for list of pending operations.
@@ -342,7 +342,7 @@ public class Api extends HttpServlet {
         // If the user is coming from the URL protected by different authN mechanism, destroy and create session again
         caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
         req.getSession(true).setAttribute(APICALLER, caller);
-      } 
+      }
 
       // Does user want to logout from perun?
       if("utils".equals(manager) && "logout".equals(method)) {
@@ -388,12 +388,12 @@ public class Api extends HttpServlet {
           return;
 
       }
-      
+
       // In case of GET requests (read ones) set changing state to false
       caller.setStateChanging(!isGet);
 
       // Store identification of the request
-      perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), 
+      perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(),
           manager, method, des.readAll());
       // Add perunRequest into the queue of the requests
       ((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
@@ -408,13 +408,13 @@ public class Api extends HttpServlet {
     } catch (PerunException pex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if(!isJsonp) {
-        resp.setStatus(400); 
+        resp.setStatus(400);
       }
       ser.writePerunException(pex);
     } catch (PerunRuntimeException prex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if(!isJsonp) {
-        resp.setStatus(400); 
+        resp.setStatus(400);
       }
       ser.writePerunRuntimeException(prex);
     } catch (IOException ioex) { //IOException gets logged and is rethrown
@@ -423,7 +423,7 @@ public class Api extends HttpServlet {
     } catch (Exception ex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if(!isJsonp) {
-        resp.setStatus(500); 
+        resp.setStatus(500);
       }
       ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
     } finally {
@@ -476,7 +476,7 @@ public class Api extends HttpServlet {
     json,
     jsonp,
     voot;
-    
+
 
     /**
      * Matches a string with the enum's values.

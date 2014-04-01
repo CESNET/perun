@@ -28,7 +28,7 @@ import java.util.ArrayList;
 /**
  * Tab for adding new facility owner
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddFacilityOwnerTabItem implements TabItem {
@@ -37,21 +37,21 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading facility");
-	
+
 	// data
 	private int facilityId;
 	private Facility facility;
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -65,12 +65,12 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
-	
+
 	public Widget draw() {
 
 		// TITLE
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add owner");
-		
+
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -81,12 +81,12 @@ public class AddFacilityOwnerTabItem implements TabItem {
 		// CALLBACK
 		final  GetOwners owners = new GetOwners();
 		CellTable<Owner> table = owners.getTable();
-		
+
 		// ADD BUTTON
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addOwners());
-		
+
 		final TabItem tab = this; // tab to be closed
-		
+
 		addButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// get
@@ -137,9 +137,9 @@ public class AddFacilityOwnerTabItem implements TabItem {
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -151,7 +151,7 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 	}
@@ -187,11 +187,11 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facilityId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 }

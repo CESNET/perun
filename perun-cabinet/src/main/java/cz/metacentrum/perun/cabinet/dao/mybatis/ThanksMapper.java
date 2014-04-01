@@ -98,9 +98,9 @@ public interface ThanksMapper {
 	int updateByPrimaryKey(Thanks record);
 
 	List<Thanks> findThanksByFilter(Thanks t);
-	
+
 	List<ThanksForGUI> selectRichByExample(ThanksExample t);
-	
+
 	List<ThanksForGUI> selectAllRichByUserId(Integer user);
 
 }

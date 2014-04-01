@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Searcher page
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -46,7 +46,7 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
      */
 	public SearcherTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -59,18 +59,18 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
-		
+
 		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.USER, new PerunSearchParametersWidget.SearchEvent() {
-			
+
 			public void search(Map<String, String> map) {
-				
+
 				request.clearParameters();
-				
+
 				for(Map.Entry<String, String> entry : map.entrySet())
 				{
 					request.addSearchParameter(entry.getKey(), entry.getValue());
 				}
-				
+
 				request.search();
 			}
 		});
@@ -93,7 +93,7 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
-		
+
 		this.contentWidget.setWidget(firstTabPanel);
 
 		return getWidget();
@@ -108,7 +108,7 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.magnifierIcon(); 
+		return SmallIcons.INSTANCE.magnifierIcon();
 	}
 
 
@@ -148,8 +148,8 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -157,17 +157,17 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "searcher";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public SearcherTabItem load(Map<String, String> parameters)
 	{
 		return new SearcherTabItem();

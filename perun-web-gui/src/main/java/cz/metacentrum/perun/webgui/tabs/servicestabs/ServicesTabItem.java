@@ -33,7 +33,7 @@ import java.util.Map;
  * Services management for Perun Admin
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class ServicesTabItem implements TabItem, TabItemWithUrl{
@@ -61,7 +61,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// create widget for the whole page
@@ -133,7 +133,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 		// add styling to table with services
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");	
+		sp.addStyleName("perun-tableScrollPanel");
 		mainTab.add(sp);
 
         deleteButton.setEnabled(false);
@@ -155,7 +155,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 
@@ -195,8 +195,8 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -204,17 +204,17 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "list";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public ServicesTabItem load(Map<String, String> parameters)
 	{
 		return new ServicesTabItem();

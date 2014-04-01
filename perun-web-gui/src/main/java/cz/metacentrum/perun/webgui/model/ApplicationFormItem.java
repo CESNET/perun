@@ -5,14 +5,14 @@ import com.google.gwt.core.client.JsArrayString;
 
 /**
  * Overlay type for registrar: ApplicationFormItem
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class ApplicationFormItem extends JavaScriptObject {
 
 	protected ApplicationFormItem() {}
-	
+
 	/**
 	 * Get ID
 	 * @return id
@@ -21,7 +21,7 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.id == "undefined") return 0;
 		return this.id;
 	}-*/;
-	
+
 	/**
 	 * Get shorname
 	 * @return shortname
@@ -30,14 +30,14 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.shortname == "undefined") return "";
 		return this.shortname;
 	}-*/;
-	
+
 	/**
 	 * Set shorname
 	 */
 	public final native void setShortname(String shortname) /*-{
 		this.shortname = shortname;
 	}-*/;
-	
+
 	/**
 	 * Is required
 	 * @return required
@@ -46,14 +46,14 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.required == "undefined") return false;
 		return this.required;
 	}-*/;
-	
+
 	/**
 	 * Set required
 	 */
 	public final native void setRequired(boolean required) /*-{
 		this.required = required;
 	}-*/;
-	
+
 	/**
 	 * Get type
 	 * @return type
@@ -61,7 +61,7 @@ public class ApplicationFormItem extends JavaScriptObject {
 	public final native String getType() /*-{
 		return this.type;
 	}-*/;
-	
+
 	/**
 	 * Get federationAttribute
 	 * @return federationAttribute
@@ -70,14 +70,14 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.federationAttribute == "undefined") return "";
 		return this.federationAttribute;
 	}-*/;
-	
+
 	/**
 	 * Set federationAttribute
 	 */
 	public final native void setFederationAttribute(String federationAttribute) /*-{
 		this.federationAttribute = federationAttribute;
 	}-*/;
-	
+
 	/**
 	 * Get perunDestinationAttribute
 	 * @return perunDestinationAttribute
@@ -86,14 +86,14 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.perunDestinationAttribute == "undefined") return "";
 		return this.perunDestinationAttribute;
 	}-*/;
-	
+
 	/**
 	 * Set perunDestinationAttribute
 	 */
 	public final native void setPerunDestinationAttribute(String perunDestinationAttribute) /*-{
 		this.perunDestinationAttribute = perunDestinationAttribute;
 	}-*/;
-	
+
 	/**
 	 * Get regex
 	 * @return regex
@@ -102,14 +102,14 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if(typeof this.regex == "undefined") return "";
 		return this.regex;
 	}-*/;
-	
+
 	/**
 	 * Set regex
 	 */
 	public final native void setRegex(String regex) /*-{
 		this.regex = regex;
 	}-*/;
-	
+
 	/**
 	 * List of applicationTypes
 	 * @return applicationTypes
@@ -117,21 +117,21 @@ public class ApplicationFormItem extends JavaScriptObject {
 	public final native JsArrayString getApplicationTypes() /*-{
 		return this.applicationTypes;
 	}-*/;
-	
+
 	/**
 	 * Set applicationTypes
 	 */
 	public final native void setApplicationTypes(JsArrayString applicationTypes) /*-{
 		this.applicationTypes = applicationTypes;
 	}-*/;
-	
+
 	/**
 	 * Set applicationTypes
 	 */
 	public final native void setApplicationTypes(JavaScriptObject applicationTypes) /*-{
 		this.applicationTypes = applicationTypes;
 	}-*/;
-	
+
 	/**
 	 * get ordnum
 	 * @return ordnum
@@ -139,32 +139,32 @@ public class ApplicationFormItem extends JavaScriptObject {
 	public final native int getOrdnum() /*-{
 		return this.ordnum;
 	}-*/;
-	
+
 	/**
 	 * Set ordnum
 	 */
 	public final native void setOrdnum(int ordnum) /*-{
 		this.ordnum = ordnum;
 	}-*/;
-	    
+
 	/**
 	 * Get ItemTexts
-	 * @return 
+	 * @return
 	 */
 	public final native ItemTexts getItemTexts(String locale) /*-{
 		if(!(locale in this.i18n)){
 			this.i18n[locale] = {locale: locale, errorMessage : "", help : "", label : "", options : ""};
 		}
 		return this.i18n[locale];
-	}-*/;	
-	
+	}-*/;
+
 	/**
 	 * Set item texts
 	 */
 	public final native void setItemTexts(String locale, ItemTexts itemTexts) /*-{
 		this.i18n[locale] = itemTexts;
 	}-*/;
-	
+
 	/**
 	 * get for delete state
 	 * @return for delete
@@ -173,7 +173,7 @@ public class ApplicationFormItem extends JavaScriptObject {
 		if (!this.forDelete) { return false; }
 		return this.forDelete;
 	}-*/;
-	
+
 	/**
 	 * Set deletion state
 	 * @param del true = delete / false = keep (default)
@@ -207,35 +207,35 @@ public class ApplicationFormItem extends JavaScriptObject {
 
     /**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -243,8 +243,8 @@ public class ApplicationFormItem extends JavaScriptObject {
 	 */
 	public final boolean equals(ApplicationFormItem o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 
-	
+
 }

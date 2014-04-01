@@ -24,7 +24,7 @@ import java.util.ArrayList;
 /**
  * Custom implementation of the CellTable
  * Contains some of the prepared columns
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
@@ -48,7 +48,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	 * Whether automatically show hyperlinks for base entities
 	 */
 	private boolean hyperlinksAllowed = true;
-	
+
 	/**
 	 * RowCountChangeHandler registration
 	 */
@@ -94,7 +94,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	/**
 	 * Whether are hyperlinks allowed
 	 * Default: true
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isHyperlinksAllowed() {
@@ -104,7 +104,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	/**
 	 * Whether to allow hyperlinks in the table
 	 * Default: true
-	 * 
+	 *
 	 * @param hyperlinksAllowed
 	 */
 	public void setHyperlinksAllowed(boolean hyperlinksAllowed) {
@@ -135,7 +135,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 				return false;//return true to see a checked checkbox.
 			}
 		};
-		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {	
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
 			public void update(Boolean value) {
 				// sets selected to all, if value = true, unselect otherwise
 				for(T obj : list){
@@ -152,7 +152,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	/**
 	 * Adds the default ID column to the table
 	 * The default width is 150px
-	 * 
+	 *
 	 * @param title Use the element name width ID: VO ID, Attribute ID, ...
 	 */
 	public void addIdColumn(String title)
@@ -163,7 +163,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	/**
 	 * Adds the default ID column to the table
 	 * The default width is 150px
-	 * 
+	 *
 	 * @param title Use the element name width ID: VO ID, Attribute ID, ...
 	 * @param tableFieldUpdater
 	 */
@@ -174,7 +174,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 	/**
 	 * Adds the default ID column to the table
-	 * 
+	 *
 	 * @param title Use the element name width ID: VO ID, Attribute ID, ...
 	 * @param tableFieldUpdater
 	 * @param width Width of the column in PX
@@ -254,7 +254,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 	/**
 	 * Adds the default NAME column to the table
-	 * 
+	 *
 	 * @param tableFieldUpdater
 	 */
 	public void addNameColumn(FieldUpdater<T, String> tableFieldUpdater)
@@ -264,7 +264,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 	/**
 	 * Adds the default NAME column to the table
-	 * 
+	 *
 	 * @param tableFieldUpdater
 	 * @param width Column width in pixels
 	 */
@@ -291,7 +291,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 			// width
 			if(width != 0){
-				this.setColumnWidth(nameColumn, width, Unit.PX);			
+				this.setColumnWidth(nameColumn, width, Unit.PX);
 			}
 			return;
 		}
@@ -313,7 +313,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 			// width
 			if(width != 0){
-				this.setColumnWidth(nameColumn, width, Unit.PX);			
+				this.setColumnWidth(nameColumn, width, Unit.PX);
 			}
 
 			return;
@@ -339,7 +339,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 		// width
 		if(width != 0){
-			this.setColumnWidth(nameColumn, width, Unit.PX);			
+			this.setColumnWidth(nameColumn, width, Unit.PX);
 		}
 
 
@@ -351,22 +351,22 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	 */
 	public void addDescriptionColumn()
 	{
-		this.addDescriptionColumn(null, 0);		
+		this.addDescriptionColumn(null, 0);
 	}
 
 	/**
 	 * Adds the default DESCRIPTION column to the table
-	 * 
+	 *
 	 * @param tableFieldUpdater
 	 */
 	public void addDescriptionColumn(FieldUpdater<T, String> tableFieldUpdater)
 	{
-		this.addDescriptionColumn(tableFieldUpdater, 0);		
+		this.addDescriptionColumn(tableFieldUpdater, 0);
 	}
 
 	/**
 	 * Adds the default DESCRIPTION column to the table
-	 * 
+	 *
 	 * @param tableFieldUpdater
 	 * @param width Column width in pixels
 	 */
@@ -395,7 +395,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 			// width
 			if(width != 0){
-				this.setColumnWidth(descriptionColumn, width, Unit.PX);			
+				this.setColumnWidth(descriptionColumn, width, Unit.PX);
 			}
 			return;
 		}
@@ -415,7 +415,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 			// width
 			if(width != 0){
-				this.setColumnWidth(descriptionColumn, width, Unit.PX);			
+				this.setColumnWidth(descriptionColumn, width, Unit.PX);
 			}
 
 		} else {
@@ -438,7 +438,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 			// width
 			if(width != 0){
-				this.setColumnWidth(descriptionColumn, width, Unit.PX);			
+				this.setColumnWidth(descriptionColumn, width, Unit.PX);
 			}
 
 		}
@@ -447,7 +447,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 
 	/**
 	 * Add a handler to handle {@link ColumnSortEvent}s.
-	 * 
+	 *
 	 * @param columnSortHandler  the {@link ColumnSortEvent.Handler} to add
 	 * @return a {@link HandlerRegistration} to remove the handler
 	 */
@@ -464,14 +464,14 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
     public ListHandler<T> getColumnSortHandler() {
         return this.columnSortHandler;
     }
-	
+
 	/**
 	 * Removes rowCountChangeHandler which shows count of rows in table in top right corner.
 	 */
 	public void removeRowCountChangeHandler(){
 		if (rowCountChangeHandler != null) {
             rowCountWidget.removeFromParent();
-			rowCountChangeHandler.removeHandler();			
+			rowCountChangeHandler.removeHandler();
 		}
 	}
 

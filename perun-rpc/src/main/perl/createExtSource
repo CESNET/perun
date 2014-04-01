@@ -5,7 +5,7 @@ use warnings;
 use Switch;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -16,13 +16,13 @@ Available options:
  --extSourceType   | -t type (KERBEROS/IDP/INTERNAL/SQL/LDAP/ISMU/X509)
  --batch           | -b batch
  --help            | -h prints this help
- 
+
 };
 }
 
 my ($extSourceName, $extSourceType, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "extSourceName|e=s" => \$extSourceName,"extSourceType|t=s" => \$extSourceType) || die help(); 
+ "extSourceName|e=s" => \$extSourceName,"extSourceType|t=s" => \$extSourceType) || die help();
 
 # Check options
 unless (defined($extSourceName)) { die "ERROR: extSourceName is required \n";}
@@ -37,7 +37,7 @@ switch ($extSourceType) {
     $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceKerberos";
   }
   case "IDP" {
-    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceIdp"; 
+    $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceIdp";
   }
   case "INTERNAL" {
     $extSourceTypeInternal = "cz.metacentrum.perun.core.impl.ExtSourceInternal";

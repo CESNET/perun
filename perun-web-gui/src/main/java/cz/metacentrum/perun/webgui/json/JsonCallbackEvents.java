@@ -9,7 +9,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 /**
  * This class is passed to the JSON request and called when an event happen.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
   */
 public class JsonCallbackEvents {
@@ -23,7 +23,7 @@ public class JsonCallbackEvents {
 	public void onFinished(JavaScriptObject jso){
 		// do nothing
 	}
-	
+
 	/**
 	 * Called, when an error occurs/
 	 * @param error
@@ -31,40 +31,40 @@ public class JsonCallbackEvents {
 	public void onError(PerunError error){
 		// do nothing
 	}
-	
+
 	/**
 	 * Called, when started
 	 */
 	public void onLoadingStart(){
-		// do nothing		
+		// do nothing
 	}
-	
+
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
 	 * When a callback finishes successfully, the tab is closed
-	 * 
+	 *
 	 * @param session Perun Web Session
 	 * @param tab Tab to be closed
 	 * @return JsonCallbackEvents object
 	 */
 	static public JsonCallbackEvents closeTabEvents(final PerunWebSession session, final TabItem tab)	{
-		
+
 		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
 			{
 				session.getTabManager().closeTab(tab);
 			}
 		};
-		
-		return closeTabEvents;	
+
+		return closeTabEvents;
 	}
-	
+
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
-	 * 
+	 *
 	 * When a callbacks starts, the button is disabled
 	 * When a callback finishes with error or successfully, the button is enabled
-	 * 
+	 *
 	 *
      *
      * @param button Button to be enabled / disabled
@@ -73,13 +73,13 @@ public class JsonCallbackEvents {
 	static public JsonCallbackEvents disableButtonEvents(final CustomButton button)	{
 		return disableButtonEvents(button, null);
 	}
-	
+
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
-	 * 
+	 *
 	 * When a callbacks starts, the button is disabled
 	 * When a callback finishes with error or successfully, the button is enabled
-	 * 
+	 *
 	 *
      *
      *
@@ -88,23 +88,23 @@ public class JsonCallbackEvents {
      * @return JsonCallbackEvents object
 	 */
 	static public JsonCallbackEvents disableButtonEvents(final CustomButton button, final JsonCallbackEvents events)	{
-		
+
 		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
-			
+
 			public void onLoadingStart(){
 				button.setProcessing(true);
 				if(events != null){
 					events.onLoadingStart();
 				}
 			}
-			
+
 			public void onError(PerunError err){
                 button.setProcessing(false);
                 if(events != null){
 					events.onError(err);
 				}
 			}
-			
+
 			public void onFinished(JavaScriptObject jso) {
                 button.setProcessing(false);
 				if(events != null){
@@ -112,18 +112,18 @@ public class JsonCallbackEvents {
 				}
 			}
 		};
-		
-		return closeTabEvents;	
+
+		return closeTabEvents;
 	}
-	
-	
+
+
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
-	 * 
+	 *
 	 * When a callbacks starts, the button is disabled
 	 * When a callback finishes with error, the button is enabled
 	 * When a callback finishes successfully, the tab is closed
-	 * 
+	 *
 	 *
      * @param button Button to be enabled / disabled
      * @param tab Tab to be closed
@@ -132,15 +132,15 @@ public class JsonCallbackEvents {
 	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab)	{
 		return closeTabDisableButtonEvents(button, tab, null);
 	}
-	
+
 
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
-	 * 
+	 *
 	 * When a callbacks starts, the button is disabled
 	 * When a callback finishes with error, the button is enabled
 	 * When a callback finishes successfully, the tab is closed
-	 * 
+	 *
 	 *
      * @param button Button to be enabled / disabled
      * @param tab Tab to be closed
@@ -148,7 +148,7 @@ public class JsonCallbackEvents {
      * @return JsonCallbackEvents object
 	 */
 	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, final JsonCallbackEvents events)	{
-		
+
 		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
 
 			public void onLoadingStart(){
@@ -157,14 +157,14 @@ public class JsonCallbackEvents {
 					events.onLoadingStart();
 				}
 			}
-			
+
 			public void onError(PerunError err){
                 button.setProcessing(false);
                 if(events != null){
 					events.onError(err);
 				}
 			}
-			
+
 			public void onFinished(JavaScriptObject jso)
 			{
                 button.setProcessing(false);
@@ -174,49 +174,49 @@ public class JsonCallbackEvents {
 				}
 			}
 		};
-		
-		return closeTabEvents;	
+
+		return closeTabEvents;
 	}
-	
+
 	/**
 	 * Creates a new instance of JsonCallbackEvent.
 	 * When a callback finishes successfully, the table is reloaded.
-	 * 
+	 *
 	 * @param request Request to be reloaded
 	 * @return refresh table event
 	 */
 	static public <T extends JavaScriptObject> JsonCallbackEvents refreshTableEvents(final JsonCallbackTable<T> request)	{
-		
+
 		JsonCallbackEvents refreshTableEvents = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				request.clearTable();
 				request.retrieveData();
 			}
 		};
-		return refreshTableEvents;	
+		return refreshTableEvents;
 	}
-	
+
 	/**
 	 * Merges two JsonCallbackEvents
-	 * 
+	 *
 	 * @param events1 Events passed to this events
 	 * @param events2 Events passed to this events
 	 * @return JsonCallbackEvents object
 	 */
 	static public JsonCallbackEvents mergeEvents(final JsonCallbackEvents events1, final JsonCallbackEvents events2)	{
-		
+
 		return new JsonCallbackEvents(){
-			
+
 			public void onLoadingStart(){
 				events1.onLoadingStart();
 				events2.onLoadingStart();
 			}
-			
+
 			public void onError(PerunError err){
 				events1.onError(err);
-				events2.onError(err);				
+				events2.onError(err);
 			}
-			
+
 			public void onFinished(JavaScriptObject jso)
 			{
 				events1.onFinished(jso);

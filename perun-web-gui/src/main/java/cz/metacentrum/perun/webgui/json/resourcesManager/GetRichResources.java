@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 /**
  * Axaj query to get Rich Resources for VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
@@ -52,7 +52,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 	// oracle support
 	private ArrayList<RichResource> fullBackup = new ArrayList<RichResource>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-	
+
 	private boolean checkable = true;
 
 	/**
@@ -77,11 +77,11 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<RichResource> getTable(FieldUpdater<RichResource, String> fu) {
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -117,7 +117,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("Resource ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
@@ -161,7 +161,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         // TODO - sorting
 		table.addColumn(tagsColumn, "Tags");
         table.setColumnWidth(tagsColumn, "200px");
-				
+
 		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
@@ -305,7 +305,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
     }
 
 	public void filterTable(String filter) {
-		
+
 		// store list only for first time
 		if (fullBackup.isEmpty() || fullBackup == null) {
 			fullBackup.addAll(list);
@@ -342,7 +342,7 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();
-		
+
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

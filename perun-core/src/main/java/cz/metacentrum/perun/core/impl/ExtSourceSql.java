@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cz.metacentrum.perun.core.impl;
 
@@ -105,11 +105,11 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
         throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
       }
     }
-    
+
     try {
       if (this.con == null || (Compatibility.isOracle() && !this.con.isValid(0))) {
         if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
-          this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), 
+          this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"),
               (String) getAttributes().get("user"), (String) getAttributes().get("password"))).createConnection();
         } else {
           this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), null)).createConnection();
@@ -135,7 +135,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
       List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 
       log.trace("Query {}", query);
-      
+
       while (rs.next()) {
         Map<String, String> map = new HashMap<String, String>();
 
@@ -151,7 +151,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
           // If the column doesn't exists, ignore it
           map.put("lastName", null);
         }
-        try { 
+        try {
           map.put("middleName", rs.getString("middleName"));
         } catch (SQLException e) {
           // If the column doesn't exists, ignore it
@@ -225,7 +225,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
         log.error("SQL exception during closing the resultSet or statement, while searching for subject '{}'", query);
         throw new InternalErrorRuntimeException(e);
       }
-    }  
+    }
   }
 
   public void close() throws InternalErrorException {

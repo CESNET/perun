@@ -17,19 +17,19 @@ public class WrongRangeOfCountException extends IllegalArgumentException {
 
     public WrongRangeOfCountException(String message) {
         super(message);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 
     public WrongRangeOfCountException(String message, Throwable cause) {
         super(message, cause);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 
     public WrongRangeOfCountException(Throwable cause) {
         super(cause);
-        
+
         log.error("Illegal Argument Exception:", this);
     }
 }

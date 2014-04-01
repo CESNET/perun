@@ -5,16 +5,16 @@ import java.io.Serializable;
 /**
  * Class represents a publication system, i.e. prezentator.
  * Holds information necessary to work with it (connection url etc).
- * 
+ *
  * TODO Zjednodus pouziti domenovych objektu a strategii na jedno misto!
  * Property type is supposed to hold full qualified class name of appropriate
  * business strategy class (i.e. prezentator strategy).
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PublicationSystem implements Serializable {
-    
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -244,7 +244,7 @@ public class PublicationSystem implements Serializable {
     public String getBeanName() {
         return this.getClass().getSimpleName();
     }
-    
+
     @Override
 	public int hashCode() {
 		final int prime = 31;
@@ -277,5 +277,5 @@ public class PublicationSystem implements Serializable {
 	public String toString() {
 			return getClass().getSimpleName()+":[id=" + this.getId() + ", friendlyName=" + this.getFriendlyName() + ", loginNamespace=" + this.getLoginNamespace() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", type=" + this.getType() + ", url=" + this.getUrl() + "]";
 	}
-	
+
 }

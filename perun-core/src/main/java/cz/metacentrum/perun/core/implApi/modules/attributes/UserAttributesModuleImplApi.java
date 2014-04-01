@@ -31,7 +31,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
      * @throws WrongReferenceAttributeValueException if an referenced attribute against
      *         the parameter is to be compared is not available
      * @throws WrongReferenceAttributeValueException
-     * @throws WrongAttributeAssignmentException 
+     * @throws WrongAttributeAssignmentException
      */
     void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
@@ -39,7 +39,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
      * Tries to fill an attribute to the specified user.
      *
      * @param perunSession PerunSession
-     * @param user User 
+     * @param user User
      * @param attribute Attribute in relationship between facility and user to be filled in.
      * @return Attribute which MAY be filled in
      *
@@ -51,7 +51,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param user the user
      * @param attribute the attribute

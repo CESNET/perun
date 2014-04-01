@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 @SuppressWarnings("serial")
 /**
  * Checked RPC exception.
- * 
+ *
  * @author Jan Klos <ddd@mail.muni.cz>
  * @since 0.1
  */
@@ -77,7 +77,7 @@ public class RpcException extends PerunException {
     public RpcException(Type type, Throwable cause) {
         this(type, null, cause);
     }
-    
+
     /**
      * @return type of the error.
      */

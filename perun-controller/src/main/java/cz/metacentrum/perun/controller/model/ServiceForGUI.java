@@ -5,12 +5,12 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
  * Extension of Service (from Perun-Core) to provide more info for GUI
- * 
+ *
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
 
 public class ServiceForGUI extends Service {
-	
+
 	// global service info calculated by GeneralServiceManager
 	// (based on allowed status of exec services)
 	private boolean allowedOnFacility;
@@ -20,50 +20,50 @@ public class ServiceForGUI extends Service {
 	// Exec services (with global allowed info about them)
 	private ExecService generate;
 	private ExecService send;
-	
+
 	public ServiceForGUI(Service service){
-		
+
 		setId(service.getId());
 		setName(service.getName());
-		
+
 	}
-	
+
 	public void setAllowedOnFacility(boolean allowed){
-		allowedOnFacility = allowed;		
+		allowedOnFacility = allowed;
 	}
-	
+
 	public boolean getAllowedOnFacility(){
 		return allowedOnFacility;
 	}
-	
+
 	public void setGenAllowedOnFacility(boolean allowed){
-		genAllowedOnFacility = allowed;		
+		genAllowedOnFacility = allowed;
 	}
-	
+
 	public boolean getGenAllowedOnFacility(){
 		return genAllowedOnFacility;
 	}
-	
+
 	public void setSendAllowedOnFacility(boolean allowed){
-		sendAllowedOnFacility = allowed;		
+		sendAllowedOnFacility = allowed;
 	}
-	
+
 	public boolean getSendAllowedOnFacility(){
 		return sendAllowedOnFacility;
 	}
-	
+
 	public void setGenExecService(ExecService gen){
-		generate = gen;		
+		generate = gen;
 	}
-	
+
 	public ExecService getGenExecService(){
 		return generate;
 	}
-	
+
 	public void setSendExecService(ExecService send){
-		this.send = send;		
+		this.send = send;
 	}
-	
+
 	public ExecService getSendExecService(){
 		return this.send;
 	}
@@ -95,7 +95,7 @@ public class ServiceForGUI extends Service {
 			return false;
 		if (generate != other.generate)
 			return false;
-		
+
 		return true;
 	}
 
@@ -108,5 +108,5 @@ public class ServiceForGUI extends Service {
 				+ ", send = " + send
 				+ ", Service=" + super.toString() + "]";
 	}
-	
+
 }

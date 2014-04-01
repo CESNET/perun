@@ -83,7 +83,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
   public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException, RelationExistsException {
     log.debug("Deleting vo {}", vo);
-    
+
     try {
       List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 
@@ -135,7 +135,7 @@ public class VosManagerBlImpl implements VosManagerBl {
       // Delete members group
       log.debug("Removing an administrators' group from the vo {}", vo);
       getPerunBl().getGroupsManagerBl().deleteMembersGroup(sess, vo);
-      
+
       // delete all VO reserved logins from KDC
       List<Integer> list = getVosManagerImpl().getVoApplicationIds(sess, vo);
       for (Integer appId : list) {
@@ -152,19 +152,19 @@ public class VosManagerBlImpl implements VosManagerBl {
       }
       // delete all VO reserved logins from DB
       getVosManagerImpl().deleteVoReservedLogins(sess, vo);
-      
+
       // VO applications, submitted data and app_form are deleted on cascade with "deleteVo()"
 
       // Delete VO attributes
       getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, vo);
-      
+
       // Delete all Vo tags (for resources in Vo)
       getPerunBl().getResourcesManagerBl().deleteAllResourcesTagsForVo(sess, vo);
-      
+
     } catch (Exception ex) {
       throw new InternalErrorException(ex);
     }
-    
+
     // Finally delete the VO
     getVosManagerImpl().deleteVo(sess, vo);
     getPerunBl().getAuditer().log(sess, "{} deleted.", vo);
@@ -179,16 +179,16 @@ public class VosManagerBlImpl implements VosManagerBl {
     // Create entries in the DB and Grouper
     vo = getVosManagerImpl().createVo(sess, vo);
     getPerunBl().getAuditer().log(sess, "{} created.", vo);
-    
+
     try {
-      // Create group containing VO members            
+      // Create group containing VO members
       Group members = new Group(VosManager.MEMBERS_GROUP, VosManager.MEMBERS_GROUP_DESCRIPTION + " for VO " + vo.getName());
       getPerunBl().getGroupsManagerBl().createGroup(sess, vo, members);
       log.debug("Members group created, vo '{}'", vo);
     } catch (GroupExistsException e) {
-      throw new ConsistencyErrorException("Group already exists", e); 
+      throw new ConsistencyErrorException("Group already exists", e);
     }
-    
+
     // create empty application form
     getVosManagerImpl().createApplicationForm(sess, vo);
 
@@ -202,9 +202,9 @@ public class VosManagerBlImpl implements VosManagerBl {
     } else {
       log.error("Can't set VO manager during creting of the VO. User from perunSession is null. {} {}", vo, sess);
     }
-    
+
     log.debug("Vo {} created", vo);
-   
+
     return vo;
   }
 
@@ -220,11 +220,11 @@ public class VosManagerBlImpl implements VosManagerBl {
   public Vo getVoById(PerunSession sess, int id) throws InternalErrorException, VoNotExistsException {
     return getVosManagerImpl().getVoById(sess, id);
   }
-  
+
   public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) throws InternalErrorException {
     List<Candidate> candidates = new ArrayList<Candidate>();
     int numOfResults = 0;
-    
+
     try {
       // Iterate through all registered extSources
       for (ExtSource source : getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo)) {
@@ -248,7 +248,7 @@ public class VosManagerBlImpl implements VosManagerBl {
             log.error("Can't close extSource connection. Cause: {}", e);
           }
         }
-        
+
         for (Map<String, String> s : subjects) {
           // Check if the user has unique identifier whithin extSource
           if ((s.get("login") == null) || (s.get("login") != null && ((String) s.get("login")).isEmpty())) {
@@ -257,7 +257,7 @@ public class VosManagerBlImpl implements VosManagerBl {
             continue;
           }
           String extLogin = (String) s.get("login");
-          
+
           // Get Canddate
           Candidate candidate;
           try {
@@ -269,7 +269,7 @@ public class VosManagerBlImpl implements VosManagerBl {
           } catch (ExtSourceUnsupportedOperationException e) {
             throw new InternalErrorException("extSource supports findSubjects but not getCandidate???", e);
           }
-          
+
           try {
             getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, vo, candidate.getUserExtSources());
             // Candidate is already a member of the VO, so do not add him to the list of candidates
@@ -277,11 +277,11 @@ public class VosManagerBlImpl implements VosManagerBl {
           } catch (MemberNotExistsException e) {
             // This is OK
           }
-          
+
           // Add candidate to the list of candidates
           log.debug("findCandidates: returning candidate: {}", candidate);
           candidates.add(candidate);
-          
+
           numOfResults++;
           // Stop getting new members if the number of already retrieved members exceeded the maxNumOfResults
           if (maxNumOfResults > 0 && numOfResults >= maxNumOfResults) {
@@ -309,15 +309,15 @@ public class VosManagerBlImpl implements VosManagerBl {
   public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
       List<User> adminsOfVo = this.getAdmins(sess, vo);
       if(adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);
-      AuthzResolverBlImpl.addAdmin(sess, vo, user);   
+      AuthzResolverBlImpl.addAdmin(sess, vo, user);
       log.debug("User [{}] added like administrator to VO [{}]", user, vo);
   }
-  
+
   @Override
    public void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
       List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
       if(adminsOfVo.contains(group)) throw new AlreadyAdminException(group, vo);
-      AuthzResolverBlImpl.addAdmin(sess, vo, group);   
+      AuthzResolverBlImpl.addAdmin(sess, vo, group);
       log.debug("Group [{}] added like administrator to VO [{}]", group, vo);
   }
 
@@ -327,7 +327,7 @@ public class VosManagerBlImpl implements VosManagerBl {
       AuthzResolverBlImpl.removeAdmin(sess, vo, user);
       log.debug("User [{}] deleted like administrator from VO [{}]", user, vo);
   }
-  
+
   @Override
   public void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
       List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
@@ -339,17 +339,17 @@ public class VosManagerBlImpl implements VosManagerBl {
   public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
     return getVosManagerImpl().getAdmins(sess, vo);
   }
-  
+
   @Override
   public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
     return getVosManagerImpl().getDirectAdmins(sess, vo);
   }
-  
+
   @Override
    public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
     return getVosManagerImpl().getAdminGroups(sess, vo);
   }
-  
+
   public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
     List<User> users = this.getAdmins(perunSession, vo);
     List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
@@ -360,24 +360,24 @@ public class VosManagerBlImpl implements VosManagerBl {
     List<User> users = this.getAdmins(perunSession, vo);
     List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
     List<RichUser> richUsersWithAttributes = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
-    return richUsersWithAttributes;    
-  }  
+    return richUsersWithAttributes;
+  }
 
   public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
     try {
-      return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));   
+      return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
     } catch (AttributeNotExistsException ex) {
         throw new InternalErrorException("One of Attribute not exist.", ex);
-    }  
-  }  
-  
+    }
+  }
+
   public void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException {
     getVosManagerImpl().checkVoExists(sess, vo);
   }
 
   public List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException {
     List<Vo> vos = new ArrayList<Vo>();
-      
+
     //All possible useful objects
     Vo vo = null;
     Facility facility = null;
@@ -386,7 +386,7 @@ public class VosManagerBlImpl implements VosManagerBl {
     User user = null;
     Host host = null;
     Resource resource = null;
-    
+
     if(perunBean != null) {
         if(perunBean instanceof Vo) vo = (Vo) perunBean;
         else if(perunBean instanceof Facility) facility = (Facility) perunBean;
@@ -401,12 +401,12 @@ public class VosManagerBlImpl implements VosManagerBl {
     } else {
         throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
     }
-    
+
     //Important For Groups not work with Subgroups! Invalid members are executed too.
-    
+
     if(group != null) {
         vos.add(getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()));
-    } else if(member != null) {  
+    } else if(member != null) {
         vos.add(getPerunBl().getMembersManagerBl().getMemberVo(sess, member));
     } else if(resource != null) {
         vos.add(getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId()));
@@ -423,8 +423,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 
     vos = new ArrayList<Vo>(new HashSet<Vo>(vos));
     return vos;
-  }    
-  
+  }
+
   /**
    * Gets the vosManagerImpl.
    *

@@ -43,7 +43,7 @@ public class ApplicationForm {
 	public void setGroup(Group group) {
 		this.group = group;
 	}
-	
+
 	public boolean isAutomaticApproval() {
         return automaticApproval;
     }
@@ -51,7 +51,7 @@ public class ApplicationForm {
 	public void setAutomaticApproval(boolean automaticApproval) {
         this.automaticApproval = automaticApproval;
     }
-    
+
     public boolean isAutomaticApprovalExtension() {
         return automaticApprovalExtension;
     }
@@ -76,7 +76,7 @@ public class ApplicationForm {
     public String getBeanName() {
         return this.getClass().getSimpleName();
     }
-    
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName()+":[" +
@@ -110,5 +110,5 @@ public class ApplicationForm {
 			return false;
 		return true;
 	}
-    
+
 }

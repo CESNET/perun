@@ -39,12 +39,12 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -56,7 +56,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	private JsonCallbackEvents events;
 
 	private HTML alreadyAddedOwners = new HTML("");
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -70,7 +70,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -80,7 +80,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		this.publication = publication;
 		this.publicationId = publication.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -92,25 +92,25 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		this.publicationId = publication.getId();
 		this.events = extEvents;
 	}
-	
+
 	public boolean isPrepared(){
 		return !(publication == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// MAIN PANEL
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
-		
+
 		// CALLBACK
 		final GetOwners owners = new GetOwners();
-		
+
 		// MENU
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		
+
 		// add button
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement for selected owner(s)");
 
@@ -143,7 +143,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
                 }
 			}
 		});
-		
+
         menu.addWidget(addButton);
         menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
             @Override
@@ -153,11 +153,11 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
                 session.getTabManager().closeTab(tab, false);
             }
         }));
-		
+
 		// add already added
 		vp.add(alreadyAddedOwners);
 		vp.setCellHeight(alreadyAddedOwners, "30px");
-		
+
 		// TABLE
 		owners.setFilterByType("administrative"); // show only administrative contacts
 		CellTable<Owner> table = owners.getTable();
@@ -173,7 +173,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
         JsonUtils.addTableManagedButton(owners, table, addButton);
 
         this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -181,15 +181,15 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	{
 		String text = alreadyAddedOwners.getHTML();
 		if(text.length() == 0){
-			text += "<strong>Added:</strong> ";			
+			text += "<strong>Added:</strong> ";
 		}else{
 			text += ", ";
 		}
-		
+
 		text += newlyAdded;
 		alreadyAddedOwners.setHTML(text);
 	}
-	
+
 	public Widget getWidget() {
 		return this.contentWidget;
 	}
@@ -199,7 +199,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override
@@ -230,33 +230,33 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isSelf()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "create-thanks";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?pubId=" + publicationId;
 	}
-	
+
 	static public CreateThanksTabItem load(Map<String, String> parameters)
 	{
 		int publicationId = Integer.parseInt(parameters.get("pubId"));

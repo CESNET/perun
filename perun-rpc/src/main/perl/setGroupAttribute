@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage);
-use Switch; 
+use Switch;
 
 sub help {
 return qq{
@@ -32,8 +32,8 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
    "groupName|G=s" => \$groupName,
    "voId|v=i" => \$voId,
    "voShortName|V=s" => \$voShortName,
-   "attributeId|a=i" => \$attributeId, 
-   "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help(); 
+   "attributeId|a=i" => \$attributeId,
+   "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 
 

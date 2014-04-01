@@ -23,7 +23,7 @@ public class ApplicationFormItemData {
         this.value = value;
         this.assuranceLevel = assuranceLevel;
     }
-    
+
     public ApplicationFormItemData(Integer id, ApplicationFormItem formItem, String shortname, String value, String assuranceLevel) {
         this.id = id;
     	this.formItem = formItem;
@@ -31,7 +31,7 @@ public class ApplicationFormItemData {
         this.value = value;
         this.assuranceLevel = assuranceLevel;
     }
-    
+
     public ApplicationFormItemData(ApplicationFormItem formItem, String shortname, String value, String prefilled, String assuranceLevel) {
         this.formItem = formItem;
         this.shortname = shortname;
@@ -39,7 +39,7 @@ public class ApplicationFormItemData {
         this.prefilledValue = prefilled;
         this.assuranceLevel = assuranceLevel;
     }
-    
+
     public ApplicationFormItemData(Integer id, ApplicationFormItem formItem, String shortname, String value, String prefilled, String assuranceLevel) {
         this.id = id;
     	this.formItem = formItem;
@@ -88,7 +88,7 @@ public class ApplicationFormItemData {
     public void setAssuranceLevel(String assuranceLevel) {
         this.assuranceLevel = assuranceLevel;
     }
-    
+
 	public String getPrefilledValue() {
 		return prefilledValue;
 	}
@@ -110,11 +110,11 @@ public class ApplicationFormItemData {
 	public String toString() {
 		return this.getClass().getSimpleName()+":[" +
 				"formItem='" + getFormItem().toString() +  '\'' +
-				", shortname='" + getShortname() +  '\'' + 
+				", shortname='" + getShortname() +  '\'' +
 				", value='" + getValue() +  '\'' +
 				", prefilledValue='" + getPrefilledValue() +  '\'' +
-				", assuranceLevel='"+ getAssuranceLevel() +  '\'' 
+				", assuranceLevel='"+ getAssuranceLevel() +  '\''
 				+"]";
 	}
-    
+
 }

@@ -311,8 +311,8 @@ public class Auditer {
             throw new InternalErrorException(err);
         }
     }
-    
-    public int getLastMessageId() throws InternalErrorException {    
+
+    public int getLastMessageId() throws InternalErrorException {
        try {
           return jdbc.queryForInt("select max(id) from auditer_log");
        } catch (RuntimeException ex) {
@@ -320,7 +320,7 @@ public class Auditer {
        }
     }
 
-      
+
     public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
       try {
           jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
@@ -328,7 +328,7 @@ public class Auditer {
           throw new InternalErrorException(ex);
       }
     }
-    
+
     public List<AuditMessage> getMessageForParser(int count) throws InternalErrorException {
         try {
             return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",

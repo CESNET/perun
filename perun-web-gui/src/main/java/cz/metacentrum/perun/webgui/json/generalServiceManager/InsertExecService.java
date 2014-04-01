@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.model.Service;
 
 /**
  * Ajax query for creation of exec service in DB
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -45,7 +45,7 @@ public class InsertExecService {
 
 	/**
 	 * Creates exec service in DB and associate it with service
-	 * 
+	 *
 	 * @param service service to associate with
 	 * @param owner owner of exec service
 	 * @param type type of exec service (SEND, GENERATE)

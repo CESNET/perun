@@ -26,7 +26,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of User's applications
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
@@ -51,18 +51,18 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 	// Table field updater
 	private FieldUpdater<Application, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
+
 	private String state = "";
-	
+
 	private boolean checkable = true;
 
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<Application> backupList = new ArrayList<Application>();
-	
+
 	/**
 	 * Creates a new method instance
      *
-	 * @param id User ID (if = 0 search by actor / extSourceName in session) 
+	 * @param id User ID (if = 0 search by actor / extSourceName in session)
 	 */
 	public GetApplicationsForUser(int id) {
 		this.userId = id;
@@ -71,7 +71,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 	/**
 	 * Creates a new method instance
      *
-	 * @param id User ID (if = 0 search by actor / extSourceName in session) 
+	 * @param id User ID (if = 0 search by actor / extSourceName in session)
 	 * @param events Custom events
 	 */
 	public GetApplicationsForUser(int id, JsonCallbackEvents events) {
@@ -81,12 +81,12 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<Application> getTable(FieldUpdater<Application, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -123,7 +123,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("App ID", tableFieldUpdater, 100);
 
@@ -299,20 +299,20 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
         });
 
 		return table;
-		
+
 	}
 
 	/**
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		
+
 		String param = "";
-		
+
 		if (userId != 0) {
 			param = "id=" + this.userId;
 		}
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}

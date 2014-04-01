@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Request, which creates a new application
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class CreateApplication {
@@ -27,10 +27,10 @@ public class CreateApplication {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// application form
 	private Application application;
-	
+
 	// data
 	private ArrayList<ApplicationFormItemData> formData = new ArrayList<ApplicationFormItemData>();
 
@@ -82,7 +82,7 @@ public class CreateApplication {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -100,7 +100,7 @@ public class CreateApplication {
 		for(int i = 0; i<formData.size(); i++){
 			data.set(i, new JSONObject(formData.get(i)));
 		}
-		
+
 		// query
 		JSONObject query = new JSONObject();
 		query.put("app", new JSONObject(application));

@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * Ajax query to get attributes with values for all sort of entities in Perun
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute> {
@@ -85,7 +85,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a facility
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 */
 	public void getFacilityAttributes(int facilityId) {
@@ -95,7 +95,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a user on facility
-	 * 
+	 *
 	 * @param facilityId facility ID
 	 * @param userId user ID
 	 */
@@ -107,7 +107,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a VO
-	 * 
+	 *
 	 * @param voId VO ID
 	 */
 	public void getVoAttributes(int voId) {
@@ -117,7 +117,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns member-resource attributes
-	 * 
+	 *
 	 * @param memberId Member ID
 	 * @param resourceId Resource ID
 	 */
@@ -129,7 +129,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a member
-	 * 
+	 *
 	 * @param memberId Member ID
 	 */
 	public void getMemberAttributes(int memberId) {
@@ -139,7 +139,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a member
-	 * 
+	 *
 	 * @param memberId Member ID
 	 */
 	public void getMemberAttributes(int memberId, int workWithUser) {
@@ -147,10 +147,10 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 		this.ids.put("member", memberId);
 		this.ids.put("workWithUserAttributes", workWithUser);
 	}
-	
+
 	/**
 	 * Returns attributes of a resource
-	 * 
+	 *
 	 * @param resourceId Resource ID
 	 */
 	public void getResourceAttributes(int resourceId) {
@@ -160,7 +160,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a user
-	 * 
+	 *
 	 * @param userId user ID
 	 */
 	public void getUserAttributes(int userId) {
@@ -170,7 +170,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a group
-	 * 
+	 *
 	 * @param groupId Group ID
 	 */
 	public void getGroupAttributes(int groupId) {
@@ -181,7 +181,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns member-resource attributes
-	 * 
+	 *
 	 * @param groupId Group ID
 	 * @param resourceId Resource ID
 	 */
@@ -193,7 +193,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns attributes of a host
-	 * 
+	 *
 	 * @param hostId Host ID
 	 */
 	public void getHostAttributes(int hostId) {
@@ -217,7 +217,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns the table widget with attributes and custom field updater
-	 * 
+	 *
 	 * @param fu Field updater
 	 * @return table widget
 	 */
@@ -228,7 +228,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getTable(){
@@ -252,7 +252,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Returns empty table widget with attributes
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Attribute> getEmptyTable(){
@@ -374,7 +374,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 							if (object.setValue(newText)) {
 								selectionModel.setSelected(object, true);
 							} else {
-								selectionModel.setSelected(object, false);		
+								selectionModel.setSelected(object, false);
 								UiElements.cantSaveAttributeValueDialogBox(object);
 							}
 
@@ -598,7 +598,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Return substring of input text - start on index 10
-	 * 
+	 *
 	 * @param oldString old string
 	 * @return new string
 	 */
@@ -611,16 +611,16 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Sets IDS for this callback
-	 * 
+	 *
 	 * @param ids to be set
 	 */
 	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;	
+		this.ids = ids;
 	}
 
 	/**
 	 * Set external events after callback is created.
-	 * 
+	 *
 	 * @param extEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents extEvents) {
@@ -629,7 +629,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 
 	/**
 	 * Return current IDS associated with callback
-	 * 
+	 *
 	 * @return IDS
 	 */
 	public Map<String, Integer> getIds() {

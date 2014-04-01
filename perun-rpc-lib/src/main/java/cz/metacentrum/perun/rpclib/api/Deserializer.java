@@ -42,7 +42,7 @@ public abstract class Deserializer {
      */
     public abstract String readString() throws RpcException;
 
-    
+
     /**
      * Reads value with the specified name as {@code int}.
      *
@@ -52,7 +52,7 @@ public abstract class Deserializer {
      * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
      */
     public abstract int readInt(String name) throws RpcException;
-    
+
     /**
      * Reads value as {@code int}.
      *
@@ -66,7 +66,7 @@ public abstract class Deserializer {
     public int[] readArrayOfInts(String name) throws RpcException {
         throw new UnsupportedOperationException("readArrayOfInts(String name)");
     }
-    
+
     public int[] readArrayOfInts() throws RpcException {
       throw new UnsupportedOperationException("readArrayOfInts(String name)");
   }
@@ -84,7 +84,7 @@ public abstract class Deserializer {
     public <T> T read(String name, Class<T> valueType) throws RpcException {
         throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
     }
-    
+
     /**
      * Reads value as {@code valueType}.
      *
@@ -112,7 +112,7 @@ public abstract class Deserializer {
     public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
         throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
     }
-    
+
     /**
      * Reads an array {@code List<valueType>}.
      *

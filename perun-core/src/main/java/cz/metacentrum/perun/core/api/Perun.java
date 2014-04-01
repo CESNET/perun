@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.impl.Auditer;
  *
  * See {@link cz.metacentrum.perun.core.bl.PerunBl#bootstrap()} to find how to get
  * an instance of Perun.
- * 
+ *
  * @author Martin Kuba makub@ics.muni.cz
  */
 public interface Perun {
@@ -50,7 +50,7 @@ public interface Perun {
      * @return VOs manager
      */
     public VosManager getVosManager();
-    
+
     /**
      * Gets a AuditMessages manager.
      * @return AuditMessages manager
@@ -62,7 +62,7 @@ public interface Perun {
      * @return Resources manager
      */
     public ResourcesManager getResourcesManager();
-    
+
     /**
      * Gets a ExtSources manager.
      * @return ExtSources manager
@@ -92,13 +92,13 @@ public interface Perun {
      * @return Auditer/
      */
     public Auditer getAuditer();
-    
+
     /**
      * Gets a Messages manager.
      * @return Messages manager
      */
     public RTMessagesManager getRTMessagesManager();
-    
+
     /**
      * Gets a Searcher.
      * @return Searcher

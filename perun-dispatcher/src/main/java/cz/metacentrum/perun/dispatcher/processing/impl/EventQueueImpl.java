@@ -9,7 +9,7 @@ import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  * JavaDoc coming soon...
  *
@@ -18,7 +18,7 @@ import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 public class EventQueueImpl implements EventQueue {
 
 	private ConcurrentLinkedQueue<Event> eventQueue = new ConcurrentLinkedQueue<Event>();
-	
+
 	public EventQueueImpl() {
 	}
 

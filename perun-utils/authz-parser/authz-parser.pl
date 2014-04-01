@@ -31,7 +31,7 @@ while(<>) {
     if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
       $methodName = $1;
       next;
-    } 
+    }
 
 
     if(/AuthzResolver\.isAuthorized/) {
@@ -48,7 +48,7 @@ while(<>) {
     }
 }
 
-#output 
+#output
 foreach $methodName (keys %$authorizations) {
   print "<tr><td>$methodName</td>";
   for my $role (@roles) {

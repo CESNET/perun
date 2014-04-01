@@ -18,13 +18,13 @@ Available options:
  --orderByName  | -n order by attribute friendly name
  --batch        | -b batch
  --help         | -h help
- 
+
 };
 }
- 
+
 my ($resourceId,$memberId,$sortingFunction, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch, 
-  "resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId, 
+GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
+  "resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId,
   "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
   "orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 

@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.tabs.vostabs.VoGroupsTabItem;
 
 /**
  * Returns the count of the groups in VO.
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetGroupsCount implements JsonCallback {
@@ -87,7 +87,7 @@ public class GetGroupsCount implements JsonCallback {
 		this.groupsCountLabel.setText(String.valueOf(count.getInt()));
         this.hyp.setText(String.valueOf(count.getInt()));
 		this.events.onFinished(jso);
-	}	
+	}
 
 	/**
 	 * Returns the members count label

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -13,14 +13,14 @@ Creates a resource. Resource name and facility id or name are required fields.
 Available options:
  --resourceName  | -R resource name
  --resourceDsc   | -d resource description
- --voId          | -v  VO identifier 
+ --voId          | -v  VO identifier
  --voShortName   | -V  VO short name
  --facilityId    | -f facility id
  --facilityName  | -F facility name
  --facilityType  | -t facility type
  --batch         | -b batch
  --help          | -h prints this help
- 
+
 };
 }
 
@@ -33,7 +33,7 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "facilityType|t=s" => \$facilityType,
  "voId|v=i" => \$voId,
  "voShortName|V=s" => \$voShortName,
- "resourceDsc|d=s" => \$resourceDsc ) || die help(); 
+ "resourceDsc|d=s" => \$resourceDsc ) || die help();
 
 # Check options
 unless (defined($resourceName)) { die "ERROR: resourceName is required \n";}

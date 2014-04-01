@@ -21,7 +21,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-    @Override   
+    @Override
     public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
         if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
         String value = (String) attribute.getValue();
@@ -41,5 +41,5 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
       attr.setDescription("Kerberos pricipal used for root access.");
       return attr;
     }
-    
+
 }

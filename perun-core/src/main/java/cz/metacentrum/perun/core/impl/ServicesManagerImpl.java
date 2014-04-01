@@ -51,32 +51,32 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
     jdbc = new SimpleJdbcTemplate(perunPool);
   }
 
-public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " + 
+public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +
           "services.created_at as services_created_at, services.created_by as services_created_by, " +
-          "services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " + 
+          "services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " +
           "services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
 
 public final static String servicePackageMappingSelectQuery = " service_packages.id as service_packages_id, service_packages.description as service_packages_description, " +
           "service_packages.name as service_packages_name, service_packages.created_at as service_packages_created_at, service_packages.created_by as service_packages_created_by, " +
-          "service_packages.modified_by as service_packages_modified_by, service_packages.modified_at as service_packages_modified_at, " + 
+          "service_packages.modified_by as service_packages_modified_by, service_packages.modified_at as service_packages_modified_at, " +
           "service_packages.modified_by_uid as s_packages_modified_by_uid, service_packages.created_by_uid as s_packages_created_by_uid";
 
-public final static String destinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " + 
+public final static String destinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
           "destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
-          "destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " + 
+          "destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
           "destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid";
 
-  
-  public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " + 
+
+  public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
           "destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
           "destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
           "destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid, " +
           "facilities.id as facilities_id, facilities.name as facilities_name, facilities.type as facilities_type, " +
           "facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
           "facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
-          "services.id as services_id, services.name as services_name, " + 
+          "services.id as services_id, services.name as services_name, " +
           "services.created_at as services_created_at, services.created_by as services_created_by, " +
-          "services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " + 
+          "services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " +
           "services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
 
   public static final RowMapper<Service> SERVICE_MAPPER = new RowMapper<Service>() {
@@ -127,7 +127,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       destination.setCreatedAt(rs.getString("destinations_created_at"));
       destination.setCreatedBy(rs.getString("destinations_created_by"));
       destination.setModifiedAt(rs.getString("destinations_modified_at"));
-      destination.setModifiedBy(rs.getString("destinations_modified_by")); 
+      destination.setModifiedBy(rs.getString("destinations_modified_by"));
       if(rs.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
       else destination.setModifiedByUid(rs.getInt("destinations_modified_by_uid"));
       if(rs.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
@@ -150,7 +150,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       else destination.setModifiedByUid(rs.getInt("destinations_modified_by_uid"));
       if(rs.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
       else destination.setCreatedByUid(rs.getInt("destinations_created_by_uid"));
-      
+
       Facility facility = new Facility();
       facility.setId(rs.getInt("facilities_id"));
       facility.setName(rs.getString("facilities_name"));
@@ -163,7 +163,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
       if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
       else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-      
+
       Service service = new Service();
       service.setId(rs.getInt("services_id"));
       service.setName(rs.getString("services_name"));
@@ -175,7 +175,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       else service.setModifiedByUid(rs.getInt("services_modified_by_uid"));
       if(rs.getInt("services_created_by_uid") == 0) service.setCreatedByUid(null);
       else service.setCreatedByUid(rs.getInt("services_created_by_uid"));
-      
+
       RichDestination richDestination = new RichDestination(destination, facility, service);
       return richDestination;
     }
@@ -185,8 +185,8 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
     try {
       int newId = Utils.getNewId(jdbc, "services_id_seq");
 
-      jdbc.update("insert into services(id, name, owner_id,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " + 
-           "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(), 
+      jdbc.update("insert into services(id, name, owner_id,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
+           "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
            owner.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
       log.info("Service created: {}, service owner: {}", service, owner);
 
@@ -202,7 +202,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
     try {
       // Delete authz entries for this service
       AuthzResolverBlImpl.removeAllAuthzForService(sess, service);
-      
+
       int numAffected = jdbc.update("delete from services where id=?", service.getId());
       if(numAffected == 0) throw new ServiceAlreadyRemovedException("Service: " + service);
     } catch(RuntimeException ex) {
@@ -238,7 +238,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(ex);
     }
   }
-  
+
   public List<Service> getServices(PerunSession sess) throws InternalErrorException {
     try {
       return jdbc.query("select " + serviceMappingSelectQuery + " from services", SERVICE_MAPPER);
@@ -262,7 +262,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
           throw new InternalErrorException(ex);
       }
   }
-  
+
   public List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException {
     try {
       return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
@@ -295,10 +295,10 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
 
   public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
     try {
-      
+
       int newId = Utils.getNewId(jdbc, "service_packages_id_seq");
 
-      jdbc.update("insert into service_packages (id, name, description, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " + 
+      jdbc.update("insert into service_packages (id, name, description, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
               "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, servicesPackage.getName(),
               servicesPackage.getDescription(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
       servicesPackage.setId(newId);
@@ -328,7 +328,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
 
   public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException {
     try {
-      jdbc.update("insert into service_service_packages (package_id, service_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " + 
+      jdbc.update("insert into service_service_packages (package_id, service_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
            "values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", servicesPackage.getId(), service.getId(),
            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
     } catch (RuntimeException e) {
@@ -344,7 +344,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(e);
     }
   }
-  
+
   public ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws InternalErrorException, ServicesPackageNotExistsException {
     try {
       return jdbc.queryForObject("select " + servicePackageMappingSelectQuery + " from service_packages where name=?", SERVICESPACKAGE_MAPPER, name);
@@ -450,7 +450,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(e);
     }
   }
-  
+
   @Deprecated
   public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
     try {
@@ -461,10 +461,10 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(e);
     }
   }
-  
+
   public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
     try {
-      jdbc.update("insert into facility_service_destinations (service_id, facility_id, destination_id, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " + 
+      jdbc.update("insert into facility_service_destinations (service_id, facility_id, destination_id, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
            "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", service.getId(), facility.getId(), destination.getId(),
            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
     } catch (RuntimeException e) {
@@ -490,7 +490,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(e);
     }
   }
-  
+
   public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
     try {
       return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
@@ -502,7 +502,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       throw new InternalErrorException(e);
     }
   }
-  
+
   public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException {
     try {
       return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
@@ -512,9 +512,9 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
                 "where service_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, service.getId());
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    } 
+    }
   }
-  
+
   public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException{
     try {
       return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
@@ -524,10 +524,10 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
                 "where facility_id=? and service_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId(), service.getId());
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }  
+    }
   }
-  
-  
+
+
   public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
     try {
       jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=?", service.getId(), facility.getId());
@@ -570,7 +570,7 @@ public final static String destinationMappingSelectQuery = " destinations.id as 
       return jdbc.query("select distinct " + serviceMappingSelectQuery + " from services join resource_services on services.id = resource_services.service_id join resources on resource_services.resource_id = resources.id where resources.facility_id=?", SERVICE_MAPPER, facility.getId());
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }	  
+    }
   }
 
   public Destination getDestination(PerunSession sess, String destination, String type) throws InternalErrorException, DestinationNotExistsException {

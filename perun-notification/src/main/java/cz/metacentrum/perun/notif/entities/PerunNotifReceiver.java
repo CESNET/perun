@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * Table pn_receiver
  *
  * @author tomas.tunkl
- * 
+ *
  */
 public class PerunNotifReceiver {
 
@@ -85,7 +85,7 @@ public class PerunNotifReceiver {
 			receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.resolve(rs.getString("type_of_receiver")));
 			receiver.setTemplateId(rs.getInt("template_id"));
 			receiver.setId(rs.getInt("id"));
-			
+
 			return receiver;
 		}
 	};

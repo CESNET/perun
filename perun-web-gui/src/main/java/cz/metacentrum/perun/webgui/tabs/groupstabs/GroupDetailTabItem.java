@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Displays a group detail
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -38,12 +38,12 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -54,7 +54,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
     private VirtualOrganization vo;
     // sub panels
     TabPanelForTabItems tabPanel;
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -65,7 +65,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		this.groupId = group.getId();
         tabPanel = new TabPanelForTabItems(this);
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -81,7 +81,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
         new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
         tabPanel = new TabPanelForTabItems(this);
     }
-	
+
 	public boolean isPrepared(){
 		return !(group == null);
 	}
@@ -89,7 +89,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
         titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()));
-		
+
 		// main panel
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -192,7 +192,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
         vp.add(tabPanel);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -205,7 +205,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupIcon(); 
+		return SmallIcons.INSTANCE.groupIcon();
 	}
 
 	@Override
@@ -224,20 +224,20 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		GroupDetailTabItem create = (GroupDetailTabItem) obj;
-		
+
 		if (groupId != create.groupId){
 			return false;
 		}
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
@@ -265,28 +265,28 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
             session.setActiveGroupId(groupId);
         }
 	}
-	
+
 	public boolean isAuthorized() {
-				
+
 		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
-		
+
 	}
 
 	public final static String URL = "detail";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
-	
+
 	static public GroupDetailTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
 		return new GroupDetailTabItem(gid);

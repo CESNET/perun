@@ -284,7 +284,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
         group = getGroupsManagerImpl().updateGroup(sess, group);
         getPerunBl().getAuditer().log(sess, "{} updated.", group);
-        
+
         List<Group> allSubgroups = this.getAllSubGroups(sess, group);
         for(Group g: allSubgroups) {
             getPerunBl().getAuditer().log(sess, "{} updated.", g);
@@ -1064,7 +1064,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                     // There is a problem with attribute value, so set INVALID status of the member
                     getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
                 }
-                
+
                 // Try to validate member
                 try {
                     getPerunBl().getMembersManagerBl().validateMember(sess, member);

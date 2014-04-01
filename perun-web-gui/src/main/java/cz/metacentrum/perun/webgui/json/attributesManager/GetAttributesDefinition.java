@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * Ajax query to get all attributes definitions in Perun
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<AttributeDefinition>, JsonCallbackOracle<AttributeDefinition> {
@@ -87,7 +87,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns table widget with attributes definitions
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<AttributeDefinition> getTable() {
@@ -118,7 +118,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 		if (checkable) {
 			table.addCheckBoxColumn();
 		}
-		
+
 		// ID COLUMN
 		table.addIdColumn("Attr ID", tableFieldUpdater, 100);
 
@@ -396,7 +396,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Change showed string in table to new one based on it's own rules
-	 * 
+	 *
 	 * @param oldString original string
 	 * @return String new string (substring which starts on position 10)
 	 */
@@ -415,7 +415,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Set entity filter on returned attributeDefinitions
-	 * 
+	 *
 	 * @param entity name of entity (member,resource,facility,user,....)
 	 */
 	public void setEntity(String entity) {
@@ -425,7 +425,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Set entity filter on returned attributeDefinitions
-	 * 
+	 *
 	 * @param entity name of entity (member,resource,facility,user,....)
 	 * @param add true if adding
 	 */
@@ -438,7 +438,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Set entity filter on returned attributeDefinitions
-	 * 
+	 *
 	 * @param entities set of the entities
 	 */
 	public void setEntities(Set<String> entities) {
@@ -447,7 +447,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Sets external events to callback after it's creation
-	 * 
+	 *
 	 * @param externalEvents external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvents) {
@@ -456,7 +456,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns table selection model
-	 * 
+	 *
 	 * @return selection model
 	 */
 	public SelectionModel<AttributeDefinition> getSelectionModel(){

@@ -48,11 +48,11 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
     public static final String DEFAULT_LOCALE = "en";
 
     private static final Map<String, ParsedMethod> parsedMethodCache = new ConcurrentHashMap<String, ParsedMethod>();
-	
+
 	@SuppressWarnings("unused")
 	@PostConstruct
 	private void init() throws Exception {
-		
+
 		perunNotifPoolMessageDao.setAllCreatedToNow();
         this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
@@ -109,7 +109,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 							}
 							if (matchingObject != null) {
 								if (template.getPrimaryProperties().get(className) != null) {
-									
+
 									List<String> methods = template.getPrimaryProperties().get(className);
 									retrieveProperties(methods, className, retrievedPrimaryProperties, retrievedProperties, matchingObject);
 								}
@@ -124,7 +124,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 
 				if (template.getPrimaryProperties().get(METHOD_CLASSNAME) != null) {
 					for (String methodName : template.getPrimaryProperties().get(METHOD_CLASSNAME)) {
-						
+
 						String value = retrieveMethodProperty(retrievedProperties, methodName, usableObjects);
 						retrievedPrimaryProperties.put(methodName, value);
 					}
@@ -157,7 +157,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	}
 
 	private void retrieveProperties(List<String> methods, String className, Map<String, String> resultProperties, Map<String, String> retrievedProperties, Object matchingObject) {
-		
+
 		for (String methodName : methods) {
 			if (retrievedProperties.containsKey(className + "." + methodName)) {
 				resultProperties.put(className + "." + methodName, retrievedProperties.get(className + "." + methodName));
@@ -174,7 +174,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	}
 
 	private String retrieveMethodProperty(Map<String, String> retrievedProperties, String methodName, Map<String, Object> usableObjects) {
-		
+
 		if (retrievedProperties.containsKey(methodName)) {
 			// Manager call retrieved from already retrieved
 			// properties
@@ -192,7 +192,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
                 retrievedProperties.put(methodName, value.toString());
                 return value.toString();
 			}
-			
+
 			return null;
 		}
 	}
@@ -261,7 +261,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 				if (result == null) {
 					result = usableObjects.get(parsedMethod.getMethodName());
 				}
-				
+
 				return result;
 			case STRING_PARAM:
 				return parsedMethod.getMethodName();
@@ -392,7 +392,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 			return null;
 		}
 		Class resolvedClass = matchingObject.getClass();
-		
+
 		try {
             String preparedMethodName = prepareMethodName(methodName);
 			logger.debug("Using reflection to get values for method: " + preparedMethodName);

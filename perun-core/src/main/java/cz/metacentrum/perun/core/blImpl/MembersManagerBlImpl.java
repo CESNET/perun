@@ -77,7 +77,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
   /**
    * Constructor.
-   * 
+   *
    */
   public MembersManagerBlImpl(MembersManagerImplApi membersManagerImpl) {
     this.membersManagerImpl = membersManagerImpl;
@@ -120,8 +120,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           throw new ConsistencyErrorException("User is an administrator of the group, but he/she doesn't have an admin role", e);
         }
       }
-    }    
-    
+    }
+
     // Remove member from all groups
     List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
     for (Group group: memberGroups) {
@@ -166,7 +166,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       //remove currently required attributes from requiredAttributesBeforeMemberRemove
       requiredAttributes.removeAll(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user));
       //remove attributes which are no longer required
-      try { 
+      try {
         getPerunBl().getAttributesManagerBl().removeAttributes(sess, facility, user, requiredAttributes);
       } catch(AttributeValueException ex) {
         throw new ConsistencyErrorException(ex);
@@ -184,7 +184,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         log.debug("Removing user-facility attributes for facility {}", facility);
       } catch (AttributeValueException e) {
         throw new ConsistencyErrorException("Member is removed from all resources. There are no required attribute for this member. User-facility attributes can be removed without problem.", e);
-      } 
+      }
     }
      */
 
@@ -214,7 +214,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     } catch (ExtendMembershipException e) {
       log.error("Error during setting initial membership expiration: {}", e);
     }
-    
+
     insertToMemberGroup(sess, member, vo);
 
     // Set default membership expiration
@@ -236,30 +236,30 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     return member;
   }
-  
+
   public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
     Member member = createMember(sess, vo, false, candidate);
-    
+
     //Validate synchronously
     try {
         member = validateMember(sess, member);
-    } catch (AttributeValueException ex) { 
-      log.info("Member can't be validated. He stays in invalid state. Cause: " + ex); 
-    } 
-    
+    } catch (AttributeValueException ex) {
+      log.info("Member can't be validated. He stays in invalid state. Cause: " + ex);
+    }
+
     return member;
   }
-  
+
   public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, AlreadyMemberException {
     Member member = createServiceMember(sess, vo, candidate, serviceUserOwners);
-    
+
     //Validate synchronously
     try {
         member = validateMember(sess, member);
-    } catch (AttributeValueException ex) { 
-      log.info("Service Member can't be validated. He stays in invalid state. Cause: " + ex); 
-    } 
-    
+    } catch (AttributeValueException ex) {
+      log.info("Service Member can't be validated. He stays in invalid state. Cause: " + ex);
+    }
+
     return member;
   }
 
@@ -366,15 +366,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
       getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributes);
-      
+
     } catch (WrongAttributeValueException e) {
       throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     } catch (WrongReferenceAttributeValueException e) {
       throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
-    } 
-    
+    }
+
     // Set the initial membershipExpiration
     try {
       this.extendMembership(sess, member);
@@ -386,7 +386,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     return member;
   }
-  
+
   /*
    * This method with support of LoA finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
    * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
@@ -408,7 +408,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     return this.createMember(sess, vo, candidate);
   }
-  
+
   /*
    * This method finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
    * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
@@ -440,7 +440,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     if(storedMember.getUserId() != member.getUserId()) throw new InternalErrorException("Can't change userId in object member");
     if(!storedMember.getStatus().equals(member.getStatus())) {
-      try { 
+      try {
         member = setStatus(sess, storedMember, member.getStatus());
       } catch(MemberNotValidYetException ex) {
         throw new WrongAttributeValueException(ex);
@@ -452,7 +452,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea) throws InternalErrorException, MemberNotExistsException {
     return getMembersManagerImpl().getMemberByUserExtSource(sess, vo, uea);
   }
-  
+
   public Member getMemberByUserExtSources(PerunSession sess, Vo vo, List<UserExtSource> ueas) throws InternalErrorException, MemberNotExistsException {
     for (UserExtSource ues: ueas) {
       try {
@@ -460,7 +460,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       } catch (MemberNotExistsException e) {
         // Ignore
       }
-    } 
+    }
     throw new MemberNotExistsException("Member with userExtSources " + ueas + " doesn't exists.");
   }
 
@@ -484,7 +484,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
       return getPerunBl().getGroupsManagerBl().getGroupMembers(sess, g);
-    } catch (GroupNotExistsException e) {      
+    } catch (GroupNotExistsException e) {
       throw new InternalErrorException(e);
     }
   }
@@ -493,17 +493,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
       return getPerunBl().getGroupsManagerBl().getGroupMembers(sess, g, status);
-    } catch (GroupNotExistsException e) {      
+    } catch (GroupNotExistsException e) {
       throw new InternalErrorException(e);
     }
   }
-  
+
   public RichMember getRichMember(PerunSession sess, Member member) throws InternalErrorException {
     List<Member> members = new ArrayList<Member>();
     members.add(member);
     return this.convertMembersToRichMembers(sess, members).get(0);
   }
-  
+
   public RichMember getRichMemberWithAttributes(PerunSession sess, Member member) throws InternalErrorException {
     List<Member> members = new ArrayList<Member>();
     members.add(member);
@@ -511,7 +511,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     List<RichMember> richMembersWithAttributes =  this.convertMembersToRichMembersWithAttributes(sess, richMembers);
     return richMembersWithAttributes.get(0);
   }
-  
+
   public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException {
     List<Member> members = new ArrayList<Member>();
     members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
@@ -532,7 +532,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
     return richMembersWithAttributes;
   }
-  
+
   public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
     if(attrsNames == null || attrsNames.isEmpty()) {
         return this.getRichMembersWithAttributes(sess, vo);
@@ -540,82 +540,82 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         return this.getRichMembersWithAttributesByNames(sess, vo, attrsNames);
     }
   }
-  
+
   public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException {
     return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, vo, attrsNames), allowedStatuses);
   }
-  
+
   public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
     if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
-    
+
     if(attrsNames == null || attrsNames.isEmpty()) {
         return this.convertMembersToRichMembersWithAttributes(sess, getRichMembers(sess, group));
     } else {
         return this.getRichMembersWithAttributesByNames(sess, group, attrsNames);
-    }      
+    }
   }
-  
+
   public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
-    return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);       
+    return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);
   }
 
   public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
     List<RichMember> richMembersWithAttributesFromVo = this.findRichMembersWithAttributesInVo(sess, vo, searchString);
     return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributesFromVo, attrsNames);
   }
-  
+
   public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
-    return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);      
+    return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);
   }
 
   public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
     if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
     List<RichMember> richMembersWithAttributesFromGroup = this.findRichMembersWithAttributesInGroup(sess, group, searchString);
     return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributesFromGroup, attrsNames);
-  } 
+  }
 
   public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
-    return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), allowedStatuses);  
-  }  
-      
+    return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), allowedStatuses);
+  }
+
   /**
    * Return list of RichMembers with allowed statuses contains in list of allowedStatuses.
    * If allowedStatuses is empty or null, get richMembers with all statuses.
-   * 
+   *
    * @param sess
    * @param richMembers
    * @param allowedStatuses
    * @return list of allowed richMembers
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   private List<RichMember> getOnlyRichMembersWithAllowedStatuses(PerunSession sess, List<RichMember> richMembers, List<String> allowedStatuses) throws InternalErrorException {
     List<RichMember> allowedRichMembers = new ArrayList<RichMember>();
     if(richMembers == null || richMembers.isEmpty()) return allowedRichMembers;
     if(allowedStatuses == null || allowedStatuses.isEmpty()) return richMembers;
-    
+
     //Covert statuses to objects Status
     List<Status> statuses = new ArrayList<Status>();
     for(String status: allowedStatuses) {
         statuses.add(Status.valueOf(status));
     }
-    
+
     for(RichMember rm: richMembers) {
       if(statuses.contains(rm.getStatus())) allowedRichMembers.add(rm);
     }
-    
+
     return allowedRichMembers;
   }
-  
+
   /**
    * From list of richMembers with attributes get all these richMembers only with specificied attributes by attrsNames.
    * If attrsNames is empty or null, return back all richMembers with all already defined attributes.
-   * 
+   *
    * @param sess
    * @param richMembersWithAttributes
    * @param attrsNames
    * @return list of RichMembers with already specified attributes.
    * @throws InternalErrorException
-   * @throws AttributeNotExistsException 
+   * @throws AttributeNotExistsException
    */
   private List<RichMember> getRichMembersOnlyWithSpecificAttrNames(PerunSession sess, List<RichMember> richMembersWithAttributes, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
     if(richMembersWithAttributes == null || richMembersWithAttributes.isEmpty()) return new ArrayList<RichMember>();
@@ -632,7 +632,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     return richMembersWithAttributes;
   }
-  
+
   public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
     List<Member> members = new ArrayList<Member>();
     members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
@@ -644,8 +644,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
     return richMembersWithAttributes;
-  }  
-  
+  }
+
   public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
     List<Member> members = new ArrayList<Member>();
     members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
@@ -658,14 +658,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     List<Member> members = this.getMembers(sess, vo);
     return this.convertMembersToRichMembers(sess, members);
   }
-  
+
   public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException {
     List<Member> members = new ArrayList<Member>();
     members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
     List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
     return richMembers;
   }
-   
+
   public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
     List<Member> members = this.getMembers(sess, vo, status);
     return this.convertMembersToRichMembers(sess, members);
@@ -696,7 +696,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     return richMembers;
   }
 
-  public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException {  
+  public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException {
     for (RichMember richMember: richMembers) {
       List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser());
       List<Attribute> memberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember);
@@ -708,15 +708,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     return richMembers;
   }
 
-  public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {  
+  public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
     List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
     List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
-    
+
     for(AttributeDefinition attrd: attrsDef) {
         if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
         else if(attrd.getName().startsWith(AttributesManager.NS_MEMBER_ATTR)) membersAttributesDef.add(attrd);
     }
-    
+
     for (RichMember richMember: richMembers) {
       List<Attribute> userAttributes = new ArrayList<Attribute>();
       List<Attribute> memberAttributes = new ArrayList<Attribute>();
@@ -726,13 +726,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           userAttrNames.add(ad.getName());
       }
       userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
-      
+
       List<String> memberAttrNames = new ArrayList<String>();
       for(AttributeDefinition ad: membersAttributesDef) {
           memberAttrNames.add(ad.getName());
       }
       memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
-      
+
       richMember.setUserAttributes(userAttributes);
       richMember.setMemberAttributes(memberAttributes);
     }
@@ -753,7 +753,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       return getPerunBl().getVosManagerBl().getVoById(sess, getMembersManagerImpl().getMemberVoId(sess, member));
     } catch (VoNotExistsException e1) {
       throw new ConsistencyErrorException("Member is under nonexistent VO", e1);
-    } 
+    }
   }
 
   public List<Member> findMembersByName(PerunSession sess, String searchString) throws InternalErrorException {
@@ -802,15 +802,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
   public List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException{
 
-    List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);  
-    List<Member> allGroupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);  
+    List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
+    List<Member> allGroupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
     List<Member> allFoundMembers = new ArrayList<Member>();
     for(User user: users){
       allFoundMembers.addAll(getMembersByUser(sess, user));
     }
     allGroupMembers.retainAll(allFoundMembers);
     return allGroupMembers;
-  }  
+  }
 
   public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, ParentGroupNotExistsException{
 
@@ -827,7 +827,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     } else {
         allGroupMembers = getPerunBl().getGroupsManagerBl().getParentGroupMembers(sess, group);
     }
-    
+
     List<Member> allFoundMembers = new ArrayList<Member>();
     for(User user: users){
       allFoundMembers.addAll(getMembersByUser(sess, user));
@@ -932,7 +932,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           ((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
         } catch(Exception ex) {
           log.info("validateMemberAsync failed. Cause: {}", ex);
-          try { 
+          try {
             getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, member.getStatus());
             log.info("Validation of {} failed. He stays in {} state.", member, member.getStatus());
           } catch(InternalErrorException internalError) {
@@ -993,7 +993,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     member.setStatus(Status.DISABLED);
     return member;
   }
-  
+
   public void insertToMemberGroup(PerunSession sess, Member member, Vo vo) throws InternalErrorException, AlreadyMemberException {
     // Insert member into the members group
     try {
@@ -1011,7 +1011,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
     } catch (WrongReferenceAttributeValueException e) {
       throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
-    }  
+    }
   }
 
   public List<Member> retainMembersWithStatus(PerunSession sess, List<Member> members, Status status) throws InternalErrorException {
@@ -1038,7 +1038,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   public void extendMembership(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException {
       this.manageMembershipExpiration(sess, member, true, true);
   }
-  
+
   public boolean canExtendMembership(PerunSession sess, Member member) throws InternalErrorException {
     try {
       Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, false);
@@ -1047,33 +1047,33 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       return false;
     }
   }
-  
+
   public boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException {
     Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, true);
     return ret.getLeft();
   }
-  
+
   public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException {
 	  throw new InternalErrorException("Not implemented yet!");
   }
-  
+
   public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException {
     try {
       Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, false);
       if (ret.getLeft()) {
         return ret.getRight();
-      } 
+      }
     } catch (ExtendMembershipException e) {}
-    
+
     return null;
   }
-  
+
   /* Check if the user can apply for VO membership
    */
   public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, ExtendMembershipException {
     return this.canBeMemberInternal(sess, vo, user, loa, true);
   }
-  
+
   /* Check if the user can apply for VO membership
    */
   public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException {
@@ -1083,7 +1083,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       return false;
     }
   }
-  
+
   public RichMember filterOnlyAllowedAttributes(PerunSession sess, RichMember richMember) throws InternalErrorException {
     if(richMember == null) throw new InternalErrorException("RichMember can't be null.");
     if(richMember.getUser() == null) throw new InternalErrorException("User cant be null in RichMember.");
@@ -1113,18 +1113,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     return richMember;
   }
-  
+
   public List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers) throws InternalErrorException {
     List<RichMember> filteredRichMembers = new ArrayList<RichMember>();
     if(richMembers == null || richMembers.isEmpty()) return filteredRichMembers;
-    
+
     for(RichMember rm: richMembers) {
         filteredRichMembers.add(this.filterOnlyAllowedAttributes(sess, rm));
     }
-    
+
     return filteredRichMembers;
   }
-  
+
   /* Check if the user can apply for VO membership
    */
   protected boolean canBeMemberInternal(PerunSession sess, Vo vo, User user, String loa, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
@@ -1143,14 +1143,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	  } catch (WrongAttributeAssignmentException e) {
 		  throw new InternalErrorException("Shouldn't happen.");
 	  }
-	  
+
 	  // Which LOA we won't allow?
 	    if (membershipExpirationRules.get(MembersManager.membershipDoNotAllowLoaKeyName) != null) {
 	      if (loa == null) {
 	        // User doesn't have LOA defined and LOA is required for getting in, so do not allow membership.
 	        log.warn("User {} doesn't have LOA defined, but 'doNotAllowLoa' option is set for VO {}.", user, vo);
 	        if (throwExceptions) {
-	          throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA, 
+	          throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA,
 	              "User " + user + " doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id " + vo.getId() + ".");
 	        } else {
 	          return false;
@@ -1163,11 +1163,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	        if (doNotAllowLoa.equals(loa)) {
 	          // User has LOA which is not allowed for getting in
 	          if (throwExceptions) {
-	            throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA, 
+	            throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
 	                "User " + user + " doesn't have required LOA for VO id " + vo.getId() + ".");
 	          } else {
 	            return false;
-	          }  
+	          }
 	        }
 	      }
 	    }
@@ -1176,7 +1176,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
   /**
    * More info on http://meta.cesnet.cz/wiki/Manu%C3%A1l_pro_spr%C3%A1vce_VO#Definice_pravidel_pro_prodlu.C5.BEov.C3.A1n.C3.AD_.C3.BA.C4.8Dt.C5.AF
-   * 
+   *
    * if setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
    * return object pair containg true/false if the member can be extended and date specifing exact date of the expiration
    */
@@ -1200,7 +1200,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException("Shouldn't happen.");
     }
-    
+
     // Get user LOA
     String memberLoa = null;
     try {
@@ -1211,33 +1211,33 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     }
-    
+
     // Get current membershipExpiration date
     Attribute membershipExpirationAttribute = null;
     try {
-      membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, 
+      membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
           AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
     } catch (AttributeNotExistsException e) {
       // membershipExpiration was not set, so calculate it in a next phase
       try {
-        AttributeDefinition membershipExpirationAttributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, 
+        AttributeDefinition membershipExpirationAttributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess,
             AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
         membershipExpirationAttribute = new Attribute(membershipExpirationAttributeDefinition);
       } catch (AttributeNotExistsException e1) {
-        throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF + 
+        throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF +
             ":membershipExpiration" + " must be defined in order to use membershipExpirationRules");
       }
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     }
-    
+
     // Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
     if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null && membershipExpirationAttribute.getValue() != null) {
       if (memberLoa == null) {
         // Member doesn't have LOA defined and LOA is required for extenstion, so do not extend membership.
         log.warn("Member {} doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id {}.", member, member.getVoId());
         if (throwExceptions) {
-          throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA, 
+          throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA,
               "Member " + member + " doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id " + member.getVoId() + ".");
         } else {
           return new Pair<Boolean, Date>(false, null);
@@ -1250,25 +1250,25 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         if (doNotEtxendLoa.equals(memberLoa)) {
           // Member has LOA which is not allowed for extension
           if (throwExceptions) {
-            throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA, 
+            throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
                 "Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
           } else {
             return new Pair<Boolean, Date>(false, null);
-          } 
+          }
         }
       }
     }
-    
+
     Calendar calendar = Calendar.getInstance();
-    
+
     // Does the user have expired membership, if yes, then for canExtendMembership return true
     if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
     	try {
     	  Date currentMemberExpiration = BeansUtils.DATE_FORMATTER.parse((String) membershipExpirationAttribute.getValue());
-			
+
     	  Calendar currentMemberExpirationCalendar = Calendar.getInstance();
 	      currentMemberExpirationCalendar.setTime(currentMemberExpiration);
-	        
+
 	      if (calendar.after(currentMemberExpirationCalendar)) {
 	        	return new Pair<Boolean, Date>(true, null);
 	      }
@@ -1282,7 +1282,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
       period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
     }
-    
+
     // Do we extend particular LoA? Attribute syntax LoA|[period][.]
     if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
       // Which period
@@ -1295,11 +1295,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           // If period ends with ., then we do not allow extension for users with particular LoA if they are already members
           if (membershipExpirationAttribute.getValue() != null) {
             if (throwExceptions) {
-              throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION, 
+              throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
                   "Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
             } else {
               return new Pair<Boolean, Date>(false, null);
-            } 
+            }
           }
           // remove dot from the end of the string
           period = periodLoa.substring(0, periodLoa.length() - 1);
@@ -1308,21 +1308,21 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         }
       }
     }
-      
+
     // Do we extend for x months or for static date?
     if (period != null) {
       if (period.startsWith("+")) {
         // By default do not add nothing
         int amount = 0;
         int field;
-        
+
         // We will add days/months/years
         Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
         Matcher m = p.matcher(period);
         if (m.matches()) {
           String countString = m.group(1);
           amount = Integer.valueOf(countString);
-          
+
           String dmyString = m.group(2);
           if (dmyString.equals("d")) {
             field = Calendar.DAY_OF_YEAR;
@@ -1336,12 +1336,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         } else {
           throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
         }
-        
+
         // Add days/months/years
         calendar.add(field, amount);
       } else {
         // We will extend to particular date
-      
+
         // Parse date
         Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
         Matcher m = p.matcher(period);
@@ -1351,7 +1351,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
           // Get current year
           int year = calendar.get(Calendar.YEAR);
-        
+
           // We must detect if the extension date is in current year or in a next year
           boolean extensionInNextYear;
           Calendar extensionCalendar = Calendar.getInstance();
@@ -1364,33 +1364,33 @@ public class MembersManagerBlImpl implements MembersManagerBl {
             // Extension is in the current year
             extensionInNextYear = false;
           }
-          
+
           // Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
           calendar.set(year, month-1, day); // month is 0-based
           if (extensionInNextYear) {
             calendar.add(Calendar.YEAR, 1);
           }
-          
+
           // ***** GRACE PERIOD *****
           // Is there a grace period?
           if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
             String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
             // If the extension is requested in period-gracePeriod then extend to next period
-            
+
             // Get the value of the grace period
             p = Pattern.compile("([0-9]+)([dmy]?)");
             m = p.matcher(gracePeriod);
             if (m.matches()) {
               String countString = m.group(1);
               int amount = Integer.valueOf(countString);
-              
+
               // Set the gracePeriodCalendar to the extension date
               Calendar gracePeriodCalendar = Calendar.getInstance();
               gracePeriodCalendar.set(year, month-1, day);
               if (extensionInNextYear) {
                 gracePeriodCalendar.add(Calendar.YEAR, 1);
               }
-              
+
               int field;
               String dmyString = m.group(2);
               if (dmyString.equals("d")) {
@@ -1404,13 +1404,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
               }
               // subtracts period definition, e.g. 3m
               gracePeriodCalendar.add(field, -amount);
-              
+
               // Check if we are in grace period
               if (gracePeriodCalendar.before(Calendar.getInstance())) {
                 // We are in grace period, so extend to the next period
                   calendar.add(Calendar.YEAR, 1);
               }
-              
+
               // If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
               if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
                 try {
@@ -1418,37 +1418,37 @@ public class MembersManagerBlImpl implements MembersManagerBl {
                   // subtracts grace period from the currentMemberExpiration
                   Calendar currentMemberExpirationCalendar = Calendar.getInstance();
                   currentMemberExpirationCalendar.setTime(currentMemberExpiration);
-                  
+
                   currentMemberExpirationCalendar.add(field, -amount);
-                  
+
                   // if today is before that time, user can extend his period
                   if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
                     if (throwExceptions) {
-                      throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, 
+                      throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD,
                           "Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
                     } else {
                       return new Pair<Boolean, Date>(false, null);
-                    } 
+                    }
                   }
                 } catch (ParseException e) {
                   throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
                 }
               }
             }
-          } 
+          }
         } else {
           throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
         }
       }
-           
+
       // Reset hours, minutes and seconds to 0
       calendar.set(Calendar.HOUR, 0);
       calendar.set(Calendar.MINUTE, 0);
       calendar.set(Calendar.SECOND, 0);
       calendar.set(Calendar.MILLISECOND, 0);
-      
+
       // Set new value of the membershipExpiration for the member
-      if (setAttributeValue) {    
+      if (setAttributeValue) {
         membershipExpirationAttribute.setValue(BeansUtils.DATE_FORMATTER.format(calendar.getTime()));
         try {
           getPerunBl().getAttributesManagerBl().setAttribute(sess, member, membershipExpirationAttribute);
@@ -1459,18 +1459,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         } catch (WrongAttributeAssignmentException e) {
           throw new InternalErrorException(e);
         }
-      } 
+      }
     }
     return new Pair<Boolean, Date>(true, calendar.getTime());
   }
-  
+
   /**
    * Take list of members and set them all the same type.
-   * 
+   *
    * @param members
    * @param type
    * @return list of members with the same type
-   * @throws InternalErrorException 
+   * @throws InternalErrorException
    */
   private List<Member> setAllMembersSameType(List<Member> members, MembershipType type) throws InternalErrorException {
     if(members == null) return new ArrayList<Member>();
@@ -1479,7 +1479,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     return members;
   }
-  
+
   /**
    * Gets the membersManagerImpl.
    *

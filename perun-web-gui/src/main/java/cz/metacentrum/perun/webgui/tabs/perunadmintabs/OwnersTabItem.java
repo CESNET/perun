@@ -30,9 +30,9 @@ import java.util.Map;
 
 /**
  * Owners Management for Perun Admin
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class OwnersTabItem implements TabItem, TabItemWithUrl {
 
@@ -55,7 +55,7 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 	 * Creates a tab instance
      */
 	public OwnersTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -70,7 +70,7 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 		TabMenu tabMenu = new TabMenu();
 
 		final GetOwners owners = new GetOwners();
-		
+
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(owners);
 
 		// create button
@@ -145,7 +145,7 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userSilhouetteIcon(); 
+		return SmallIcons.INSTANCE.userSilhouetteIcon();
 	}
 
 
@@ -185,8 +185,8 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -194,17 +194,17 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "owners";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public OwnersTabItem load(Map<String, String> parameters)
 	{
 		return new OwnersTabItem();

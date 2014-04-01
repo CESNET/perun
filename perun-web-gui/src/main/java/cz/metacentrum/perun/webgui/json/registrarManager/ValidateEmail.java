@@ -9,7 +9,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which tries to validate user's email address
- *  
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ValidateEmail implements JsonCallback {
@@ -22,7 +22,7 @@ public class ValidateEmail implements JsonCallback {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private String i = "";
 	private String m = "";
@@ -66,14 +66,14 @@ public class ValidateEmail implements JsonCallback {
 	}
 
 	public void retrieveData() {
-		
+
 		String params = "";
-		
+
 		params += "i="+i+"&m="+m;
 
 		JsonClient client = new JsonClient();
 		client.retrieveData(JSON_URL, params, this);
-		
+
 	}
 
 }

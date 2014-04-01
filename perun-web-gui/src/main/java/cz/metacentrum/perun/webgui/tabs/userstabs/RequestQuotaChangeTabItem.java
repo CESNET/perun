@@ -19,14 +19,14 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
  * Inner tab item for quota change
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class RequestQuotaChangeTabItem implements TabItem {
 
-	static private final String RT_SUBJECT = "QUOTA: Change request";	
-	
+	static private final String RT_SUBJECT = "QUOTA: Change request";
+
 	private PerunWebSession session = PerunWebSession.getInstance();
     private SimplePanel contentWidget = new SimplePanel();
 
@@ -37,10 +37,10 @@ public class RequestQuotaChangeTabItem implements TabItem {
 	private User user;
 	private String oldQuota;
     private String defaultQuota;
-	
+
 	public enum QuotaType {
 		FILES, DATA
-	}	
+	}
 
 	/**
 	 * Creates a tab instance
@@ -49,7 +49,7 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		this.quotaType = type;
 		this.resource = resource;
 		this.user = user;
-		
+
 		if (oldQuota.equalsIgnoreCase("null")) {
 			this.oldQuota = "Using default";
 		}  else {
@@ -64,19 +64,19 @@ public class RequestQuotaChangeTabItem implements TabItem {
 	}
 
 	public boolean isPrepared(){
-		return (user != null && resource != null && quotaType != null);		
+		return (user != null && resource != null && quotaType != null);
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
 
 		// set tab name
 		this.titleWidget.setText(getQuotaTypeAsString() + " quota change request");
-		
+
 		// quota string
 		//String quotaStr = getQuotaTypeAsString();
-		
+
 		// new quota input
 		final TextBox newQuota = new TextBox();
         final TextBox reason = new TextBox();
@@ -85,10 +85,10 @@ public class RequestQuotaChangeTabItem implements TabItem {
         units.addItem("G");
         units.addItem("T");
         units.setSelectedIndex(1); // default G
-		
+
 		FlexTable ft = new FlexTable();
 		ft.setStyleName("inputFormFlexTable");
-		
+
 		ft.setWidget(0, 0, new HTML("Resource:"));
 		ft.setWidget(1, 0, new HTML("Current quota:"));
 		ft.setWidget(2, 0, new HTML("Requested quota:"));
@@ -156,16 +156,16 @@ public class RequestQuotaChangeTabItem implements TabItem {
 
 		this.contentWidget.setWidget(vp);
 		return getWidget();
-		
+
 	}
 
 	protected void requestQuotaChange(String newQuota, String reason) {
-		
+
 		SendMessageToRt rt = new SendMessageToRt(JsonCallbackEvents.closeTabEvents(session, this));
 		rt.sendMessage(SendMessageToRt.DEFAULT_QUEUE, RT_SUBJECT, getRequestText(newQuota, reason), resource.getVoId());
-		
+
 	}
-	
+
 	private String getRequestText(String newQuota, String reason) {
 
 		String text = "QUOTA CHANGE REQUEST\n\n";
@@ -232,11 +232,11 @@ public class RequestQuotaChangeTabItem implements TabItem {
 	}
 
 	public void open() {
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
         return session.isSelf(user.getId());
 	}
-	
+
 }

@@ -24,13 +24,13 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get all resources assigned to selected facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
 public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable<RichResource>, JsonCallbackOracle<RichResource> {
-	
+
 	// params
 	static private final String JSON_URL = "facilitiesManager/getAssignedRichResources";
 	private int facilityId = 0;
@@ -45,7 +45,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
     private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
     private ArrayList<RichResource> backupList = new ArrayList<RichResource>();
     private boolean checkable = true;
-	
+
 	/**
 	 * Creates a new callback
 	 *
@@ -54,10 +54,10 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	public GetAssignedRichResources(int facilityId) {
 		this.facilityId = facilityId;
 	}
-	
+
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param facilityId ID of service to get facilities for
 	 * @param events custom events
 	 */
@@ -68,7 +68,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @param fu custom onClick
 	 * @return table widget
 	 */
@@ -77,44 +77,44 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		this.retrieveData();
 		return this.getEmptyTable();
 	}
-	
+
 	/**
 	 * Returns table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<RichResource> getTable() {
 		this.retrieveData();
 		return this.getEmptyTable();
 	}
-	
+
 	/**
 	 * Returns empty table with facilities assigned to specified service
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<RichResource> getEmptyTable() {
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<RichResource>(list);
 
 		// Cell table
 		table = new PerunTable<RichResource>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<RichResource> columnSortHandler = new ListHandler<RichResource>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichResource> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("Facility has no resources.");
-		
+
 		// checkbox column column
 		if (checkable) {
             table.addCheckBoxColumn();
@@ -132,12 +132,12 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 
 		columnSortHandler.setComparator(idColumn, new GeneralComparator<RichResource>(GeneralComparator.Column.ID));
 		idColumn.setSortable(true);
-		
+
 		// headers
 		if(JsonUtils.isExtendedInfoVisible()){
 			table.addColumn(idColumn, "Resource ID");
 		}
-		
+
 		table.addNameColumn(tableFieldUpdater);
 
 		// VO column.
@@ -160,11 +160,11 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		});
 
 		table.addColumn(voColumn, "Virtual Organization");
-		
+
 		table.addDescriptionColumn(tableFieldUpdater);
-		
+
 		return table;
-		
+
 	}
 
 	/**

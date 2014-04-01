@@ -2,7 +2,7 @@ package Perun::Common;
 
 use Exporter;
 @ISA = ('Exporter');
-@EXPORT_OK = ('tableToPrint', 'printMessage', 'getSortingFunction', 'printTable'); 
+@EXPORT_OK = ('tableToPrint', 'printMessage', 'getSortingFunction', 'printTable');
 
 use strict;
 # FIXME: rozbilo to cestinu na prihlaskach
@@ -43,7 +43,7 @@ sub newEmptyBean
 {
     my $class = shift;
     $class = ref $class if ref $class;
-    
+
     return fields::new($class);
 }
 
@@ -53,7 +53,7 @@ sub fromHash
     $class = ref $class if ref $class;
     my $self = {};
     my $hash;
-    
+
     if ( (@_ == 1) && (ref($_[0]) eq 'HASH') ) {
         $hash = $_[0];
     } else {
@@ -64,7 +64,7 @@ sub fromHash
     while (my ($k,$v) = each %$hash) {
         $self->{'_' . $k} = $v;
     }
-    
+
     bless ($self,$class);
 }
 
@@ -79,40 +79,40 @@ sub callManagerMethod
 {
 	my $method = shift;
 	my $type = shift;
-	my $self = shift;   
+	my $self = shift;
     my $hash = Perun::Common::getHash(@_);
-    
+
     my $result = $self->{_agent}->call($self->{_manager}, $method, $hash);
-    
+
     if (substr($type,0,2) eq '[]')
     {
     	my @arr;
     	$type = substr($type,2);
-    	
-    	
+
+
     	if (substr($type,0,2) eq '[]') {
             $type = substr($type,2);
-            
+
             if ( ($type eq 'string') || ($type eq 'number') || ($type eq '') || ($type eq 'null') ) {
     	    	foreach (@$result) {
                     my @arr2;
-            		
+
             		foreach (@$_) {
                         push(@arr2, $_);
                     }
-                    
+
                     push(@arr, \@arr2);
     	    	}
     	    } else {
     	    	foreach (@$result) {
                     my @arr2;
-            		
+
             		foreach (@$_) {
-                            { no strict 'refs'; 
+                            { no strict 'refs';
                               push(@arr2, &{"Perun::beans::" . $type . "::fromHash"}('Perun::beans::' . $type, $_));
                             }
                     }
-                    
+
                     push(@arr, \@arr2);
     		    }
     	    }
@@ -122,12 +122,12 @@ sub callManagerMethod
     		}
     	} else {
     		foreach (@$result) {
-                        { no strict 'refs'; 
+                        { no strict 'refs';
                           push(@arr, &{"Perun::beans::" . $type . "::fromHash"}('Perun::beans::' . $type, $_));
                         }
     		}
     	}
-    	
+
     	return @arr;
     }
     else
@@ -169,13 +169,13 @@ sub tableToPrint {
                                              #(optional) row separator  LEFT, RIGTH, LINE, DELIMITER
                        );
   } else {
-    return $table->draw(); 
+    return $table->draw();
   }
 }
 
 #Print message unless batch mode is activated
 #Act as build-in print function, except last parametr muset be boolean BatchMode
-#Batch mode is also active if PERUN_BATCH environmental variable is set 
+#Batch mode is also active if PERUN_BATCH environmental variable is set
 sub printMessage {
   my $batch = pop || $ENV{'PERUN_BATCH'};
   unless($batch) { print @_, "\n"; }
@@ -195,9 +195,9 @@ sub printMessage {
 sub getSortingFunction {
   my $method = shift;
   my $sortAsStrings = shift;
-  my ($first, $second) = shift() ? (1, 0) : (0, 1);  # reverse sort order if 3rd agrument is true 
+  my ($first, $second) = shift() ? (1, 0) : (0, 1);  # reverse sort order if 3rd agrument is true
 
-  if($sortAsStrings) { 
+  if($sortAsStrings) {
     return sub ($$) {uc($_[$first]->$method) cmp uc($_[$second]->$method) }
   } else {
     return sub ($$) {$_[$first]->$method <=> $_[$second]->$method }
@@ -208,7 +208,7 @@ sub printTable($@) {
   my $sortingFunction = shift;
   my @objects = @_;
   unless(@objects) { warn "Nothing to print."; return }
-  
+
   if(!blessed($objects[0])) {
     warn "print_table: Can't print. Second argument is not an object.";
     return;
@@ -225,7 +225,7 @@ sub printTable($@) {
   for(sort $sortingFunction @objects) {
     $table->addRow($_->getCommonArrayRepresentation);
   }
-  
+
   print tableToPrint($table, $::batch);
 }
 

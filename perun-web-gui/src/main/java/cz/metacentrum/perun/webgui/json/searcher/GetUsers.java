@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Searching for users.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
@@ -52,7 +52,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
 	// checkable
 	private boolean checkable = true;
-	
+
 	// private hashmap attributes to search by
 	private Map<String, String> attributesToSearchBy = new HashMap<String, String>();
 
@@ -80,16 +80,16 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns table of users.
 	 * @return
 	 */
-	public CellTable<User> getTable(){ 
+	public CellTable<User> getTable(){
 		// retrieve data
 		retrieveData();
 		return getEmptyTable();
-		
+
 	}
 
     /**
@@ -128,7 +128,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();	
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("User ID", tableFieldUpdater);
 
@@ -145,7 +145,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 				return o1.getFullName().compareToIgnoreCase(o2.getFullName());  // sort by name without titles
 			}
 		});
-		
+
 		// SERVICE COLUMN
 		Column<User, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<User, String>() {
 			public String getValue(User user) {
@@ -181,7 +181,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		clearTable();
 		retrieveData();
 	}
-	
+
 	/**
 	 * Add parameter
 	 */
@@ -198,20 +198,20 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 			session.getUiElements().setLogText("No keywords.");
 			return;
 		}
-		
+
 		// ok, start
 		loaderImage.loadingStart();
-		
+
 		// build request
-			
+
 		JSONObject attributesWithSearchingValues = new JSONObject();
 		for(Map.Entry<String, String> entry : attributesToSearchBy.entrySet()) {
 			String name = entry.getKey();
 			String value = entry.getValue();
-			
+
 			attributesWithSearchingValues.put(name, new JSONString(value));
 		}
-		
+
 		JSONObject req = new JSONObject();
 		req.put("attributesWithSearchingValues", attributesWithSearchingValues);
 
@@ -238,8 +238,8 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 
         });
 		js.sendData(JSON_URL, req);
-		
-		return;	
+
+		return;
 	}
 
     /**
@@ -366,5 +366,5 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		this.attributesToSearchBy.clear();
 	}
 
-  
+
 }

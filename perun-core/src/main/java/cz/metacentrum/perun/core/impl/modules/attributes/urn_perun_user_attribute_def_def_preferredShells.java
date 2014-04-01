@@ -21,7 +21,7 @@ public class urn_perun_user_attribute_def_def_preferredShells extends UserAttrib
 
   public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     List<String> pshell = (List<String>) attribute.getValue();
-    
+
     if (pshell != null){
         for(String shell : pshell){
            if(shell != null){
@@ -36,7 +36,7 @@ public class urn_perun_user_attribute_def_def_preferredShells extends UserAttrib
         }
     }
   }
-  
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

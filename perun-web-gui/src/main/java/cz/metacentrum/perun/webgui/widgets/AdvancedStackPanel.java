@@ -16,16 +16,16 @@ import com.google.gwt.view.client.SelectionModel;
 /**
  * Extension of GWT's stack panel, which has SelectionChangedEvent and allows
  * widgets to be closed
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForIsWidget {
 
 	public class AdvancedStackSelectionModel implements  HasSelectionChangedHandlers, SelectionModel<Integer>{
-		
+
 		final private HandlerManager handlerManager = new HandlerManager(this);
 		private int selectedItem = -1;
-		
+
 		public void fireEvent(GwtEvent<?> event) {
 			handlerManager.fireEvent(event);
 		}
@@ -44,7 +44,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 		public void setSelected(Integer object, boolean selected) {
 			if(selected == true){
-				selectedItem = object;				
+				selectedItem = object;
 			}else{
 				selectedItem = -1;
 			}
@@ -58,11 +58,11 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 	private Element body;
 	private int visibleStack = -1;
 	public SelectionModel<Integer> selectionModel = new AdvancedStackSelectionModel();
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * Creates an empty stack panel.
 	 */
@@ -78,8 +78,8 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 		DOM.sinkEvents(table, Event.ONCLICK);
 		setStyleName(DEFAULT_STYLENAME);
 	}
-	
-	
+
+
 
 
 	@Override
@@ -89,7 +89,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Adds a new child with the given widget and header.
-	 * 
+	 *
 	 * @param w the widget to be added
 	 * @param stackText the header text associated with this widget
 	 */
@@ -100,7 +100,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 	/**
 	 * Adds a new child with the given widget and header, optionally
 	 * interpreting the header as HTML.
-	 * 
+	 *
 	 * @param w
 	 *            the widget to be added
 	 * @param stackHtml
@@ -113,7 +113,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 	/**
 	 * Adds a new child with the given widget and header, optionally
 	 * interpreting the header as HTML.
-	 * 
+	 *
 	 * @param w
 	 *            the widget to be added
 	 * @param stackText
@@ -128,7 +128,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Gets the currently selected child index.
-	 * 
+	 *
 	 * @return selected child
 	 */
 	public int getSelectedIndex() {
@@ -199,7 +199,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 			if (index != -1) {
 				continueEvent = showStack(index, true);
 				if(!continueEvent){
-					event.stopPropagation();					
+					event.stopPropagation();
 				}
 			}
 		}
@@ -221,7 +221,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Sets the text associated with a child by its index.
-	 * 
+	 *
 	 * @param index
 	 *            the index of the child whose text is to be set
 	 * @param text
@@ -233,7 +233,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Sets the html associated with a child by its index.
-	 * 
+	 *
 	 * @param index
 	 *            the index of the child whose text is to be set
 	 * @param html
@@ -245,7 +245,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Sets the text associated with a child by its index.
-	 * 
+	 *
 	 * @param index
 	 *            the index of the child whose text is to be set
 	 * @param text
@@ -269,33 +269,33 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 
 	/**
 	 * Shows the widget at the specified child index.
-	 * 
+	 *
 	 * @param index the index of the child to be shown
-	 * @return continue with event 
+	 * @return continue with event
 	 */
 	public boolean showStack(int index) {
 		return showStack(index, false);
 	}
-	
+
 	/**
 	 * Shows the widget at the specified child index.
-	 * 
+	 *
 	 * @param index the index of the child to be shown
 	 * @return continue with event
 	 */
 	public boolean showStack(int index, boolean hideWhenAlreadySelected) {
-		
+
 		if ((index >= getWidgetCount()) || (index < 0)) {
 			return true;
 		}
-		
+
 		selectionModel.setSelected(index, true);
-		
+
 		// if already selected, show it / hide it
 		if(hideWhenAlreadySelected && index == visibleStack){
 			boolean visible = getWidget(index).isVisible();
 			setStackVisible(index, !visible);
-			
+
 			if(!visible)
 			{
 				SelectionChangeEvent.fire(selectionModel);
@@ -303,19 +303,19 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 			return !visible;
 		}
 
-		
+
 		if (visibleStack >= 0) {
 			setStackVisible(visibleStack, false);
 		}
-		
+
 		visibleStack = index;
 		setStackVisible(visibleStack, true);
-		
+
 		// only fire event
 		if(hideWhenAlreadySelected){
-			SelectionChangeEvent.fire(selectionModel);			
+			SelectionChangeEvent.fire(selectionModel);
 		}
-				
+
 		return true;
 	}
 
@@ -327,7 +327,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 	 * index.</li>
 	 * <li>-content# = The element around the body at the specified index.</li>
 	 * </ul>
-	 * 
+	 *
 	 * @see UIObject#onEnsureDebugId(String)
 	 */
 	@Override
@@ -355,7 +355,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 	/**
 	 * Get the element that holds the header text given the header element
 	 * created by #createHeaderElement.
-	 * 
+	 *
 	 * @param headerElem
 	 *            the header element
 	 * @return the element around the header text
@@ -465,7 +465,7 @@ public class AdvancedStackPanel extends ComplexPanel implements InsertPanel.ForI
 		this.selectionModel = selectionModel;
 	}
 
-	
-	
+
+
 
 }

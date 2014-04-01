@@ -17,7 +17,7 @@ public class Destination extends Auditable implements Comparable<Destination> {
     public final static String DESTINATIONURLTYPE = "url";
     public final static String DESTINATIONUSERHOSTTYPE = "user@host";
     public final static String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";
-    
+
     private String destination;
     private String type;
 
@@ -29,18 +29,18 @@ public class Destination extends Auditable implements Comparable<Destination> {
         super(id);
         this.destination = destination;
     }
-    
+
     public Destination(int id, String destination, String type) {
         this(id, destination);
         this.type = type;
     }
-    
+
     public Destination(int id, String destination, String type, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.destination = destination;
         this.type = type;
     }
-    
+
     /**
      * Gets the destination for this instance.
      *
@@ -67,23 +67,23 @@ public class Destination extends Auditable implements Comparable<Destination> {
     public String getType() {
         return this.type;
     }
-    
+
     /**
      * Gets the hostname from destination
      * e.g. if destination is type user@host then return host
      * e.g. if destination is type user@host:port then return host
      * if destination is other type then those two, return destination without changes
-     * 
+     *
      * if there is no chars @ and :, return not changed type
      * if type is null, return this destination without changes
      * if destination null, return destination without changes (null)
-     * 
+     *
      * @return host from destination if possible to separate, in other case return destination without changes
      */
     public String getHostNameFromDestination() {
         if(this.destination == null) return this.destination;
         if(this.type == null) return this.destination;
-       
+
         if(this.type.equals(DESTINATIONUSERHOSTPORTTYPE) || this.type.equals(DESTINATIONUSERHOSTTYPE)) {
             int startIndex = this.destination.indexOf('@');
             int endIndex = this.destination.indexOf(':');
@@ -103,7 +103,7 @@ public class Destination extends Auditable implements Comparable<Destination> {
     public void setType(String type) {
         this.type = type;
     }
-    
+
     @Override
     public String serializeToString() {
         return this.getClass().getSimpleName() +":[" +
@@ -112,7 +112,7 @@ public class Destination extends Auditable implements Comparable<Destination> {
 	", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
 	']';
     }
-    
+
     public String toString() {
         return getClass().getSimpleName() + ":["
                 + "id='" + getId()

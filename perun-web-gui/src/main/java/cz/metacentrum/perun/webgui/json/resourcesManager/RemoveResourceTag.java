@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
 
 /**
  * Ajax query for removing resource tag from Resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveResourceTag {
@@ -48,7 +48,7 @@ public class RemoveResourceTag {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -75,7 +75,7 @@ public class RemoveResourceTag {
 
 	/**
 	 * Attempts to remove resource tag from Resource, it first tests the values and then submits them
-	 * 
+	 *
 	 * @param tag ResourceTag to remove
 	 */
 	public void removeResourceTag(ResourceTag tag) {

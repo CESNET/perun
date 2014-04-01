@@ -34,21 +34,21 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
     public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
         Attribute attribute = new Attribute(attributeDefinition);
         HashMap<String, String> certsExpirations = new LinkedHashMap<String, String>();
-        
+
         try {
           Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
           HashMap<String,String> certs = (LinkedHashMap<String,String>) userCertsAttribute.getValue();
-          
+
           if (certs != null) {
             for (String certDN : certs.keySet()) {
               String cert = certs.get(certDN);
-              
+
               // Remove --- BEGIN --- and --- END ----
               String certWithoutBegin = cert.replaceFirst("-----BEGIN CERTIFICATE-----", "");
               String rawCert = certWithoutBegin.replaceFirst("-----END CERTIFICATE-----", "");
-                         
+
               X509Certificate x509 = X509Certificate.getInstance(Base64.decodeBase64(rawCert.getBytes()));
-              
+
               // TODO use some defined date/time format
               DateFormat dateFormat = DateFormat.getDateInstance();
               certsExpirations.put(certDN, dateFormat.format(x509.getNotAfter()));
@@ -60,15 +60,15 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
         } catch (CertificateException e) {
           throw new InternalErrorException("CertificateException - user: " + user + ".", e);
         }
-      
+
         attribute.setValue(certsExpirations);
         return attribute;
     }
-    
+
     private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException {
       try {
         return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-      } catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex); 
+      } catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
       }
   }
 
@@ -78,7 +78,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
       strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
       return strongDependencies;
   }
-    
+
   public AttributeDefinition getAttributeDefinition() {
       AttributeDefinition attr = new AttributeDefinition();
       attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
@@ -86,5 +86,5 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
       attr.setType(LinkedHashMap.class.getName());
       attr.setDescription("Expiration of user certificate.");
       return attr;
-  }  
+  }
 }

@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Provides page with service on resources managements (assign / remove)
  * Used by FACILITY administrators
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -44,21 +44,21 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Manage assigned services");
-	
+
 	// data
 	private int resourceId;
 	private Resource resource;
-	
+
 	/**
 	 * Creates a tab instance
      * @param resourceId ID of resource to get services management for
@@ -71,7 +71,7 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param resource resource to get services management for
@@ -80,17 +80,17 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 		this.resource = resource;
 		this.resourceId = resource.getId();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": manage assigned services");
-		
+
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");	    
+		vp.setSize("100%", "100%");
 
 		TabMenu menu = new TabMenu();
 
@@ -167,12 +167,12 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		session.getUiElements().resizePerunTable(sp, 400, this);
-		
+
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -213,16 +213,16 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
 		session.setActiveFacilityId(resource.getFacilityId());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(resource.getFacilityId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -230,21 +230,21 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "manage-services";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return ResourcesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + resourceId;
 	}
-	
+
 	static public ResourceAssignedServicesTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ResourceAssignedServicesTabItem(id);
 	}
-	
+
 	static public ResourceAssignedServicesTabItem load(Resource resource) {
 		return new ResourceAssignedServicesTabItem(resource);
 	}

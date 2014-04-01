@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Tab with ExecServices management for selected service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -69,7 +69,7 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 		this.service = service;
 		this.serviceId = service.getId();
 	}
-	
+
 	/**
 	 * Tab with ExecServices management for selected service
 	 *
@@ -83,7 +83,7 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(service == null);
 	}
@@ -167,7 +167,7 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 	@Override
@@ -203,26 +203,26 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "exec";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
 	}
-	
+
 	static public ServiceExecServicesTabItem load(Map<String, String> parameters)
 	{
 		int id = Integer.parseInt(parameters.get("id"));

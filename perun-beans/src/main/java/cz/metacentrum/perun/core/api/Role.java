@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 public enum Role {
 
-  PERUNADMIN  ("perunadmin"),  
+  PERUNADMIN  ("perunadmin"),
   VOADMIN ("voadmin"),
   GROUPADMIN ("groupadmin"),
   SELF ("self"),
@@ -18,11 +18,11 @@ public enum Role {
   UNKNOWNROLENAME ("unknown");
 
   private final String roleName;
-  
+
   Role(String roleName) {
     this.roleName = roleName;
   }
-  
+
   public String getRoleName() {
     return roleName;
   }

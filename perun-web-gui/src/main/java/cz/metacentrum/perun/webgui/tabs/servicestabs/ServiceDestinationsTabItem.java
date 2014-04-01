@@ -37,9 +37,9 @@ import java.util.Map;
 
 /**
  * Provides page with service's destinations management
- * 
+ *
  * You can select a facility on page or view destinations for all facilities
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -49,12 +49,12 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -67,7 +67,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 	/**
 	 * Provides page with service's destinations management
-	 * 
+	 *
 	 * You can select a facility on page or view destinations for all facilities
 	 *
      * @param service Service to get destinations for
@@ -76,10 +76,10 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		this.service = service;
 		this.serviceId = service.getId();
 	}
-	
+
 	/**
 	 * Provides page with service's destinations management
-	 * 
+	 *
 	 * You can select a facility on page or view destinations for all facilities
 	 *
      * @param serviceId Service to get destinations for
@@ -96,11 +96,11 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return !(service == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": destinations");
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
@@ -110,14 +110,14 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-		// buttons 
+		// buttons
 		final CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
         final CustomButton removeDestButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
 
         menu.addWidget(addDestButton);
         menu.addWidget(removeDestButton);
 		menu.addWidget(new HTML("<strong>Selected facility:</strong>"));
-		
+
 		// listbox with facilities
 		final ListBoxWithObjects<Facility> ls = new ListBoxWithObjects<Facility>();
 		menu.addWidget(ls);
@@ -201,7 +201,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		assignedFacilities.retrieveData();
 
 
-		
+
 		ls.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
                 if (ls.getSelectedIndex() > 0) {
@@ -215,15 +215,15 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
                 refreshEvents.onFinished(null);
 			}
 		});
-		
+
 		// CLICK HANDLERS FOR BUTTONS
-		
+
 		addDestButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(ls.getSelectedObject()));
 			}
 		});
-		
+
 		removeDestButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// get
@@ -245,17 +245,17 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
                 });
 			}
 		});
-		
+
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
                 callback.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterDestinationByFacility());
-		
+
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
@@ -265,7 +265,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
         // add tabs to the main panel
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -278,7 +278,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverGoIcon(); 
+		return SmallIcons.INSTANCE.serverGoIcon();
 	}
 
 	@Override
@@ -306,34 +306,34 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "srv-dest";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
 	}
-	
+
 	static public ServiceDestinationsTabItem load(Map<String, String> parameters)
 	{
 		int id = Integer.parseInt(parameters.get("id"));

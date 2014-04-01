@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Update facility details
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UpdateFacility {
@@ -46,12 +46,12 @@ public class UpdateFacility {
 	 * @param fac Facility with updated details
 	 */
 	public void updateFacility(Facility fac) {
-		
+
 		if (fac == null) {
             UiElements.generateAlert("Error updating facility", "Facility to update can't be null.");
             return;
 		}
-		
+
 		// GROUP OBJECT
 		JSONObject oldFacility = new JSONObject(fac);
 		// RECONSTRUCT OBJECT
@@ -64,7 +64,7 @@ public class UpdateFacility {
 		newFacility.put("createdBy", oldFacility.get("createdBy"));
 		newFacility.put("modifiedAt", oldFacility.get("modifiedAt"));
 		newFacility.put("modifiedBy", oldFacility.get("modifiedBy"));
-		
+
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("facility", newFacility);
@@ -90,7 +90,7 @@ public class UpdateFacility {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-		
+
 	}
 
 }

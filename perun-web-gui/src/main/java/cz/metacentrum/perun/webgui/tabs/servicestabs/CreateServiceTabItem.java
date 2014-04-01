@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Tab with create service form
  *
  * ! USE AS INNER TAB ONLY !
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -53,7 +53,7 @@ public class CreateServiceTabItem implements TabItem {
 	 * Tab with create service form
      */
 	public CreateServiceTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
@@ -171,7 +171,7 @@ public class CreateServiceTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon(); 
+		return SmallIcons.INSTANCE.trafficLightsIcon();
 	}
 
 	@Override
@@ -205,7 +205,7 @@ public class CreateServiceTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isPerunAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  * Searching for users.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class FindUsersByName implements JsonCallback, JsonCallbackTable<User> {

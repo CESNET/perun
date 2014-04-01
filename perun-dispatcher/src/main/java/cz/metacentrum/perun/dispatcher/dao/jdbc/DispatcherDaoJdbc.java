@@ -16,24 +16,24 @@ public class DispatcherDaoJdbc extends JdbcDaoSupport implements DispatcherDao {
 	@Autowired
 	private Properties propertiesBean;
 	private SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-	
+
 	private void cleanUpOldRecords() {
 		this.getJdbcTemplate().update("delete from dispatcher_settings");
 	}
-	
+
 	@Override
 	public void registerDispatcher() {
 		cleanUpOldRecords();
-		this.getJdbcTemplate().update("insert into dispatcher_settings(ip_address, port, last_check_in) values (?,?,to_date(?,'YYYYMMDD HH24:MI:SS'))", 
-				propertiesBean.getProperty("dispatcher.ip.address"), 
-				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")), 
+		this.getJdbcTemplate().update("insert into dispatcher_settings(ip_address, port, last_check_in) values (?,?,to_date(?,'YYYYMMDD HH24:MI:SS'))",
+				propertiesBean.getProperty("dispatcher.ip.address"),
+				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")),
 				formater.format(new Date(System.currentTimeMillis())));
 	}
 
 	@Override
 	public void checkIn() {
 		this.getJdbcTemplate().update("update dispatcher_settings set last_check_in = to_date(?,'YYYYMMDD HH24:MI:SS') where ip_address = ?",
-				formater.format(new Date(System.currentTimeMillis())), 
+				formater.format(new Date(System.currentTimeMillis())),
 				propertiesBean.getProperty("dispatcher.ip.address"));
 	}
 

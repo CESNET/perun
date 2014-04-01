@@ -7,18 +7,18 @@ import java.util.ArrayList;
 
 /**
  * Overlay type for RichMember object
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class RichMember extends JavaScriptObject {
 
 	protected RichMember(){}
-	
+
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public final native int getVoId() /*-{
 		return this.voId;
 	}-*/;
@@ -37,10 +37,10 @@ public class RichMember extends JavaScriptObject {
         }
         return this.checked;
     }-*/;
-	
+
 	/**
 	 * Get user stored in rich member
-	 * 
+	 *
 	 * @return user
 	 */
 	public final native User getUser()/*-{
@@ -49,7 +49,7 @@ public class RichMember extends JavaScriptObject {
 
 	/**
 	 * Get user attributes stored in rich member
-	 * 
+	 *
 	 * @return user attributes
 	 */
 	public final native JsArray<Attribute> getUserAttributes() /*-{
@@ -58,7 +58,7 @@ public class RichMember extends JavaScriptObject {
 
 	/**
 	 * Get member attributes stored in rich member
-	 * 
+	 *
 	 * @return member attributes
 	 */
 	public final native JsArray<Attribute> getMemberAttributes() /*-{
@@ -152,7 +152,7 @@ public class RichMember extends JavaScriptObject {
 
 	/**
 	 * Gets all logins stored in user attributes
-	 * 
+	 *
 	 * @return users logins
 	 */
     public final native String getUserLogins() /*-{
@@ -177,7 +177,7 @@ public class RichMember extends JavaScriptObject {
 
 	/**
 	 * Gets user ext sources associated with user stored in rich member
-	 * 
+	 *
 	 * @return users ext sources stored in user
 	 */
 	public final native ArrayList<UserExtSource> getUserExtSources() /*-{
@@ -196,38 +196,38 @@ public class RichMember extends JavaScriptObject {
             return this.membershipType;
         }
     }-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 
 	/**
 	 * Compares to another object
@@ -236,6 +236,6 @@ public class RichMember extends JavaScriptObject {
 	 */
 	public final boolean equals(RichMember o)
 	{
-		return (o.getId() == this.getId()) && (o.getUser().getId() == this.getUser().getId());		
+		return (o.getId() == this.getId()) && (o.getUser().getId() == this.getUser().getId());
 	}
 }

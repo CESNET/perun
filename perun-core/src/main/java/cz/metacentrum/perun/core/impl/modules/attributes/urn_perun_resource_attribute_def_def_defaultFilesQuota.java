@@ -28,26 +28,26 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
     Attribute attrDefaultFilesLimit = null;
     Integer defaultFilesQuota = null;
     Integer defaultFilesLimit = null;
-    
+
     //Get DefaultFilesLimit attribute
     try {
       attrDefaultFilesLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesLimit);
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);
     }
-    
+
     //Get defaultFilesQuota value
     if(attribute.getValue() != null) {
         defaultFilesQuota = (Integer) attribute.getValue();
     }
     if(defaultFilesQuota != null && defaultFilesQuota < 0) throw new WrongAttributeValueException(attribute, attribute + " cannot be less than 0.");
-    
+
     //Get defaultFilesLimit value
     if(attrDefaultFilesLimit != null &&  attrDefaultFilesLimit.getValue() != null) {
       defaultFilesLimit = (Integer) attrDefaultFilesLimit.getValue();
     }
     if(defaultFilesLimit != null && defaultFilesLimit < 0) throw new ConsistencyErrorException(attrDefaultFilesLimit + " cannot be less than 0.");
-    
+
     //Compare DefaultFilesQuota with DefaultFilesLimit
     if(defaultFilesQuota == null || defaultFilesQuota == 0) {
       if(defaultFilesLimit != null && defaultFilesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, "Try to set unlimited quota, but limit is still " + defaultFilesLimit);
@@ -64,5 +64,5 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
     attr.setType(Integer.class.getName());
     attr.setDescription("Soft quota for number of files.");
     return attr;
-  }        
+  }
 }

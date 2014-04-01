@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * This interface serves as a template for virtual attributes.
- * 
+ *
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
@@ -51,7 +51,7 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
      *         implementation, the exception is wrapped in InternalErrorException
      */
     void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException;
-    
+
     /**
      * Method searches all users, who have attribute with the given value.
      * The rules of the match are dependent on the type of the attribute:
@@ -60,7 +60,7 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
      * <tr><td><em>List</em></td> <td>match in one item</td></tr>
      * <tr><td><em>Map</em></td> <td>match in key or value</td></tr>
      * </table>
-     * 
+     *
      * @param perunSession perun session
      * @param attribute attribute with value, which all returned users have to have
      * @return all users, who have attribute with given value

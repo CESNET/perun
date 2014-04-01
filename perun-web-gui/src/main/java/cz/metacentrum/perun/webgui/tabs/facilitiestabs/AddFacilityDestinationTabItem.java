@@ -34,7 +34,7 @@ import java.util.ArrayList;
  * Provides tab for adding destination to facility
  *
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -44,21 +44,21 @@ public class AddFacilityDestinationTabItem implements TabItem {
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Add destination");
-	
+
 	// data
 	private Facility facility;
 	private int facilityId;
-	
+
 	/**
 	 * Creates a tab instance
      * @param facility facility to get services from / destination to add
@@ -67,15 +67,15 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	public boolean isPrepared() {
 		return (facility != null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add destination");
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
@@ -84,7 +84,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
         layout.setStyleName("inputFormFlexTable");
         FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
         layout.setWidth("300px");
-		
+
 		final TextBox destination = new TextBox();
 		final ListBox type = new ListBox();
 		type.addItem("HOST","host");
@@ -100,7 +100,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
         final ListBoxWithObjects<Service> services = new ListBoxWithObjects<Service>();
 		final CheckBox useHosts = new CheckBox(WidgetTranslation.INSTANCE.useFacilityHostnames(), false);
 		useHosts.setTitle(WidgetTranslation.INSTANCE.useFacilityHostnamesTitle());
-		
+
 		type.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
 				// if hosts - checkbox visible
@@ -113,7 +113,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 				}
 			}
 		});
-		
+
 		useHosts.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (useHosts.getValue() == true) {
@@ -123,7 +123,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 				}
 			}
 		});
-		
+
 		// fills services listbox with assigned services
 		final JsonCallbackEvents fillAssignedServices = new JsonCallbackEvents(){
 			public void onLoadingStart() {
@@ -156,25 +156,25 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		};
 		final GetFacilityAssignedServices callback = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
 		callback.retrieveData();
-		
+
 		int row = 0;
 		layout.setHTML(row, 0, "Facility:");
 		layout.setHTML(row, 1, facility.getName()+" ("+facility.getType()+")");
 		row++;
-		
+
 		layout.setHTML(row, 0, "Service:");
 		layout.setWidget(row, 1, services);
 		row++;
-		
+
 		// display all services
 		final CheckBox allServicesCheckbox = new CheckBox(WidgetTranslation.INSTANCE.displayAllServices(), false);
 		allServicesCheckbox.setTitle(WidgetTranslation.INSTANCE.displayAllServicesTitle());
 		allServicesCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				 
+
 				boolean allServices = event.getValue();
-				
+
 				if(!allServices){
 					GetFacilityAssignedServices callback = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
 					callback.retrieveData();
@@ -182,19 +182,19 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					GetServices callback = new GetServices(fillAssignedServices);
 					callback.retrieveData();
 				}
-				
+
 			}
 		});
 		layout.setWidget(row, 1, allServicesCheckbox);
 		row++;
-		
+
 		layout.setHTML(row, 0, "Destination:");
 		layout.setWidget(row, 1, destination);
 		row++;
-		
+
 		layout.setWidget(row, 1, useHosts);
 		row++;
-		
+
 		layout.setHTML(row, 0, "Type:");
 		layout.setWidget(row, 1, type);
 		row++;
@@ -205,7 +205,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 
         // close tab, disable button
 		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, this);
-				
+
 		addButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (services.isEmpty()) {
@@ -258,7 +258,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
         this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -271,7 +271,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverGoIcon(); 
+		return SmallIcons.INSTANCE.serverGoIcon();
 	}
 
 	@Override
@@ -299,14 +299,14 @@ public class AddFacilityDestinationTabItem implements TabItem {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facilityId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

@@ -56,12 +56,12 @@ public abstract class AbstractPublicationSystemStrategy {
 			log.error("Failed to parse http response [{}].", response.toString());
 			throw new CabinetException(ErrorCodes.IO_EXCEPTION, ioe);
 		} //catch (org.xml.sax.SAXParseException spe) {
-			
+
 		//}
 		return (publications != null) ? publications
 				: new ArrayList<Publication>();
 	}
-	
+
 	protected String capitalize(String name) {
 		return StringUtils.capitalize(name.toLowerCase());
 	}

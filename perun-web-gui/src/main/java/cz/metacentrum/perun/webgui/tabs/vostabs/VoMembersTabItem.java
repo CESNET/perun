@@ -41,7 +41,7 @@ import java.util.Map;
 
 /**
  * VO Members page
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -51,17 +51,17 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading VO members");
-	
+
 	// data
 	private VirtualOrganization vo;
 
@@ -80,7 +80,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -95,16 +95,16 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// SET TAB NAME
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": members");
-		
+
 		// MAIN PANEL
 		final VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -275,9 +275,9 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
             }
         });
         tabMenu.addWidget(listAllButton);
-		
+
 		tabMenu.addWidget(disabled);
-		
+
 		/* WHEN TAB RELOADS, CHECK THE STATE */
 		if(search){
             findMembers.excludeDisabled(!disabled.getValue());
@@ -302,7 +302,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -314,7 +314,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon(); 
+		return SmallIcons.INSTANCE.userGreenIcon();
 	}
 
 	@Override
@@ -342,7 +342,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
         session.getUiElements().getBreadcrumbs().setLocation(vo, "Members", getUrlWithParameters());
@@ -354,31 +354,31 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
-		
+
 	}
-	
+
 	public final static String URL = "members";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoMembersTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoMembersTabItem(voId);
 	}
-	
+
 	static public VoMembersTabItem load(VirtualOrganization vo) {
 		return new VoMembersTabItem(vo);
 	}

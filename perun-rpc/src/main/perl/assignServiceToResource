@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -16,7 +16,7 @@ Available options:
  --resourceId  | -r resource id
  --batch       | -b batch
  --help        | -h prints this help
- 
+
 };
 }
 
@@ -24,7 +24,7 @@ my ($resourceId, $serviceId, $serviceName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "resourceId|r=i" => \$resourceId,
  "serviceId|s=i" => \$serviceId,
- "serviceName|S=s" => \$serviceName) || die help(); 
+ "serviceName|S=s" => \$serviceName) || die help();
 
 # Check options
 unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}

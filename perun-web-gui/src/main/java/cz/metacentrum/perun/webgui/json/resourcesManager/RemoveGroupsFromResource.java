@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query which removes groups from resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveGroupsFromResource {
@@ -82,11 +82,11 @@ public class RemoveGroupsFromResource {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving() {
@@ -114,7 +114,7 @@ public class RemoveGroupsFromResource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

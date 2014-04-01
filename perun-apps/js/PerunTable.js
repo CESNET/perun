@@ -4,11 +4,11 @@
 PerunTable = {
 
     columnNames : [],
-    
+
     columnTitles : [],
-    
+
     values : [],
-    
+
     type : "",
     /**
      * Returns a new instance of the table
@@ -16,7 +16,7 @@ PerunTable = {
     create : function(){
         return $.extend(true, {}, this);
     },
-    
+
     /**
      * Adds a new column. Name is the name of JSON
      */
@@ -24,28 +24,28 @@ PerunTable = {
         this.columnNames.push(name);
         this.columnTitles.push(title);
     },
-    
-    
+
+
     /**
      * Adds the array with values
      */
     add : function(values){
-        this.values = values;    
+        this.values = values;
     },
 
     addList : function(values){
-        this.values = values;    
+        this.values = values;
         this.type = "list";
     },
 
     addListOfObjects : function(values){
-        this.values = values;    
+        this.values = values;
         this.type = "listOfObjects";
     },
 
 
     addArray : function(values){
-        this.values = values;    
+        this.values = values;
         this.type = "array";
     },
 
@@ -54,18 +54,18 @@ PerunTable = {
      * Draws the table and returns the HTML string
      */
     draw : function(){
-        
+
         var html = "<table class=\"table table-striped table-bordered\">";
-        
+
         // draw headers
-        
+
         html += "<tr>";
         for(var i in this.columnTitles){
             var value = this.columnTitles[i];
             html += "    <th>" + value + "</th>";
         }
         html += "</tr>";
-       
+
         if (this.type == "list") {
           for(var n in this.columnNames){
             var colName = this.columnNames[n];
@@ -102,18 +102,18 @@ PerunTable = {
         } else {
         // draw values
         for(var i in this.values){
-           
+
             var row = this.values[i];
-            
+
             var rowHtml = "<tr>";
-        
+
             for(var n in this.columnNames){
-            
+
                 var colName = this.columnNames[n];
                 var colNameParts = colName.split(".");
                 var value = "";
                 value = row;
-                
+
                 for(var o in colNameParts){
                     var localName = colNameParts[o];
                     if (value != null && typeof value[localName] != 'undefined') {
@@ -121,19 +121,19 @@ PerunTable = {
                       rowHtml += "    <td>" + value + "</td>";
                     }
                 }
-                
-            
+
+
               }
             rowHtml += "</tr>";
-            
+
             html += rowHtml;
           }
         }
-        
+
         html += "</table>";
-        
+
         return html;
-    }    
+    }
 
 
 }

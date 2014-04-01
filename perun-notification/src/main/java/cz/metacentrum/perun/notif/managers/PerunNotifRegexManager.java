@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * Manager for work with perun regexes used for recognizing type of message
- * 
+ *
  * @author tomas.tunkl
  *
  */

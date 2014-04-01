@@ -12,8 +12,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
 
 <!-- Log trace -->
-    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">  
-     <property name="proxyTargetClass" value="false"/>  
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+     <property name="proxyTargetClass" value="false"/>
       <property name="beanNames">
        <list>
 			 <value>AttributesManager</value>
@@ -35,9 +35,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         </list>
       </property>
     </bean>
-    
-    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">  
-     <property name="proxyTargetClass" value="false"/>  
+
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+     <property name="proxyTargetClass" value="false"/>
       <property name="beanNames">
        <list>
          <value>*ManagerBl</value>
@@ -49,9 +49,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         </list>
       </property>
     </bean>
-    
-    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">  
-     <property name="proxyTargetClass" value="false"/>  
+
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+     <property name="proxyTargetClass" value="false"/>
       <property name="beanNames">
        <list>
          <value>*ManagerImpl</value>
@@ -77,7 +77,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 time: $[invocationTime]"/>
       <property name="exceptionMessage" value="Exception $[exception] thrown in method '$[methodName]' of class [$[targetClassShortName]]"/>
     </bean>
-    
+
     <bean id="loggingAdviceBl" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
       <property name="useDynamicLogger" value="true"/>
       <property name="hideProxyClassNames" value="true"/>
@@ -86,7 +86,7 @@ time: $[invocationTime]"/>
 time: $[invocationTime]"/>
       <property name="exceptionMessage" value="++ Exception $[exception] thrown in method '$[methodName]' of class [$[targetClassShortName]]"/>
     </bean>
-    
+
     <bean id="loggingAdviceImpl" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
       <property name="useDynamicLogger" value="true"/>
       <property name="hideProxyClassNames" value="true"/>

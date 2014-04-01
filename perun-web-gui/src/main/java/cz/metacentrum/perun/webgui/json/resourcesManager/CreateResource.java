@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query for creating a resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -46,7 +46,7 @@ public class CreateResource {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -82,7 +82,7 @@ public class CreateResource {
 
 	/**
 	 * Attempts to create resource, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param resourceName name of future resource
 	 * @param resourceDescription eg. resource purpose
 	 * @param facilityId id of Facility, to which resource is connected
@@ -125,7 +125,7 @@ public class CreateResource {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

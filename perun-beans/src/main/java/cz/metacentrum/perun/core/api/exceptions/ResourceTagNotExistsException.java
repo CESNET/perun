@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.ResourceTag;
 
 /**
  * ResourceTag not exists exception.
- * 
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class ResourceTagNotExistsException extends EntityNotExistsException {

@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Test is not yet implemented for there are extensive test of the DAOs.
- * 
+ *
  * @author Michal Karm Babacek
- * 
+ *
  @RunWith(SpringJUnit4ClassRunner.class)
  * @ContextConfiguration(locations = { "classpath:perun-controller-applicationcontext.xml", "classpath:perun-beans.xml", "classpath:perun-datasources.xml" })
  * @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManagerPerunController")

@@ -17,7 +17,7 @@ public abstract class DispatcherException extends Exception {
         super();
         logger.error("Error ID: " + errorId, this);
     }
-    
+
     public DispatcherException(String message) {
         super(message);
         logger.error("Error ID: " + errorId, this);

@@ -15,7 +15,7 @@ $(document).ready(function(){
      userAttributesRaw = {};
      callPerunSync("attributesManager", "getAttributes", userAttributesRaw, { user : user.id });
      for (attrId in userAttributesRaw) {
-        userAttributes[userAttributesRaw[attrId].friendlyName] = userAttributesRaw[attrId].value; 
+        userAttributes[userAttributesRaw[attrId].friendlyName] = userAttributesRaw[attrId].value;
      }
 
      // Fill basic info about the user
@@ -39,52 +39,52 @@ $(document).ready(function(){
         table.addColumn("name", "Name");
         table.add(data);
         var tableHtml = table.draw();
-        $("#projects-table").html(tableHtml);    
+        $("#projects-table").html(tableHtml);
     });
 
     $("#sshkeysLink").click(function(){
         $("#sshkeys-table").html(Configuration.LOADER_IMAGE);
- 
+
         var data = {};
         callPerunSync("attributesManager", "getAttribute", data, { user : user.id, attributeName: "urn:perun:user:attribute-def:def:sshPublicKey" });
 
         var table = PerunTable.create();
         table.addColumn("value", "SSH Keys");
-        
+
         table.addList(data);
-        
+
         var tableHtml = table.draw();
         $("#sshkeys-table").html(tableHtml);
-    });                                   
+    });
 
     /*
     $("#certsLink").click(function(){
         $("#certs-table").html(Configuration.LOADER_IMAGE);
-    
+
         var data = {};
         callPerunSync("attributesManager", "getAttribute", data, { user : user.id, attributeName: "urn:perun:user:attribute-def:def:userCertDNs" });
 
         var table = PerunTable.create();
         table.addColumn("value.0", "X.509 Certificate DN");
         table.addColumn("value.1", "X.509 Certificate Issuer");
-        
+
         table.addArray(data);
-        
+
         var tableHtml = table.draw();
         $("#certs-table").html(tableHtml);
-    }); 
+    });
     */
 
     $("#identitiesLink").click(function(){
         $("#identities-table-fed").html(Configuration.LOADER_IMAGE);
-    
+
         var data = {};
         callPerunSync("usersManager", "getUserExtSources", data, { user : user.id });
 
         var orgs = [];
         orgs["https://idp.upce.cz/idp/shibboleth"] = "University in Pardubice";
         orgs["https://idp.slu.cz/idp/shibboleth"] = "University in Opava";
-        orgs["https://login.feld.cvut.cz/idp/shibboleth"] = "Faculty of Electrical Engineering, Czech Technical University In Prague";            
+        orgs["https://login.feld.cvut.cz/idp/shibboleth"] = "Faculty of Electrical Engineering, Czech Technical University In Prague";
         orgs["https://www.vutbr.cz/SSO/saml2/idp"] = "Brno University of Technology";
         orgs["https://shibboleth.nkp.cz/idp/shibboleth"] = "The National Library of the Czech Republic";
         orgs["https://idp2.civ.cvut.cz/idp/shibboleth"] = "Czech Technical University In Prague";
@@ -122,9 +122,9 @@ $(document).ready(function(){
         var table = PerunTable.create();
         table.addColumn("login", "Identity");
         table.addColumn("extSource", "Issuer");
-        
+
         table.add(userExtSources);
-        
+
         var tableHtml = table.draw();
         $("#identities-table-fed").html(tableHtml);
 
@@ -141,18 +141,18 @@ $(document).ready(function(){
         var table = PerunTable.create();
         table.addColumn("login", "Identity");
         table.addColumn("extSource", "Issuer");
-        
+
         table.add(userExtSources);
-        
+
         var tableHtml = table.draw();
         $("#identities-table-cert").html(tableHtml);
 
-    }); 
+    });
 
 
     // Adding new identity
     $("#new-identity").click(function() {
-        
+
     });
 
 
@@ -179,7 +179,7 @@ $(document).ready(function(){
     setTimeout(executeQuery, 5000);
     function reloadMsg() {
         alert("Data connection lost. Click OK to reload the page.");
-        window.location.reload();  
+        window.location.reload();
     }
 
     function executeQuery() {

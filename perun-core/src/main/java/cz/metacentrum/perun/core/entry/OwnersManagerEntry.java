@@ -22,7 +22,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
 
 /**
- * 
+ *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class OwnersManagerEntry implements OwnersManager {
@@ -34,7 +34,7 @@ public class OwnersManagerEntry implements OwnersManager {
 
   /**
    * Constructor.
-   * 
+   *
    */
   public OwnersManagerEntry(PerunBl perunBl) {
     this.perunBl = perunBl;
@@ -90,7 +90,7 @@ public class OwnersManagerEntry implements OwnersManager {
 
   public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException {
     Utils.checkPerunSession(sess);
-    
+
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
@@ -106,7 +106,7 @@ public class OwnersManagerEntry implements OwnersManager {
 
   public List<Owner> getOwners(PerunSession sess) throws InternalErrorException, PrivilegeException {
     Utils.checkPerunSession(sess);
-    
+
     // Authorization
     if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
         !AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&

@@ -621,8 +621,8 @@ public class EditFormItemTabItem implements TabItem{
             i++;
         }
         item.setApplicationTypes(newApplicationTypesJson.getJavaScriptObject());
-		
-		
+
+
 		/* LANGUAGE */
 
         // item texts

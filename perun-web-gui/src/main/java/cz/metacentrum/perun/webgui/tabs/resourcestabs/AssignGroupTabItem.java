@@ -32,7 +32,7 @@ import java.util.ArrayList;
 /**
  * Provides page with assign group to resource form
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
@@ -64,11 +64,11 @@ public class AssignGroupTabItem implements TabItem {
 		this.resourceId = resourceId;
 		new GetEntityById(PerunEntity.RESOURCE, resourceId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
-				resource = jso.cast();			
+				resource = jso.cast();
 			}
 		}).retrieveData();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param resource ID of resource
@@ -81,17 +81,17 @@ public class AssignGroupTabItem implements TabItem {
 	public boolean isPrepared(){
 		return !(resource == null);
 	}
-	
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign group");
-		
+
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
 		// menu
 		TabMenu menu = new TabMenu();
-	
+
 		final GetAllGroups voGroups = new GetAllGroups(resource.getVoId());
         voGroups.setCoreGroupsCheckable(true);
         final CellTable<Group> table = voGroups.getEmptyTable(new FieldUpdater<Group, String>() {
@@ -179,7 +179,7 @@ public class AssignGroupTabItem implements TabItem {
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp); 
+		vp.add(sp);
 
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 		this.contentWidget.setWidget(vp);
@@ -196,7 +196,7 @@ public class AssignGroupTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon(); 
+		return SmallIcons.INSTANCE.groupGoIcon();
 	}
 
 	@Override
@@ -230,7 +230,7 @@ public class AssignGroupTabItem implements TabItem {
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin(resource.getVoId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

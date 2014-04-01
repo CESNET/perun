@@ -43,17 +43,17 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Facilities");
-	
+
 	/**
 	 * Creates a tab instance
      */
@@ -62,7 +62,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// MAIN PANEL
@@ -71,16 +71,16 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 
 		// TAB MENU
 		TabMenu tabMenu = new TabMenu();
-		
+
 		// get RICH facilities request
 		final GetFacilities facilities = new GetFacilities(true);
-		
+
 		// retrieve data (table)
 		final CellTable<Facility> table = facilities.getTable(new FieldUpdater<Facility, String>() {
 			public void update(int index, Facility object, String value) {
 				session.getTabManager().addTab(new FacilityDetailTabItem(object));
 			}
-		});		
+		});
 
 		// add new facility button
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
@@ -116,7 +116,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
                 });
 			}
 		});
-		
+
 		// filter box
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
@@ -130,7 +130,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(tabMenu);
@@ -139,9 +139,9 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.setCellHeight(sp, "100%");
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -154,7 +154,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon(); 
+		return SmallIcons.INSTANCE.databaseServerIcon();
 	}
 
 	@Override
@@ -179,16 +179,16 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Facilities", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isPerunAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -196,16 +196,16 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public final static String URL = "facs";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public FacilitiesTabItem load(Map<String, String> parameters) {
 		return new FacilitiesTabItem();
 	}

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PublicationSystemExample implements Serializable {
-    
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -783,5 +783,5 @@ public class PublicationSystemExample implements Serializable {
             this(condition, value, secondValue, null);
         }
     }
-    
+
 }

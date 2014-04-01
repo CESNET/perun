@@ -31,7 +31,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 
   /**
    * Checks the new UID of the user at the specified facility. The new UID must
-   * not be lower than the min UID or greater than the max UID. Also no collision between 
+   * not be lower than the min UID or greater than the max UID. Also no collision between
    * existing user and the new user is allowed.
    */
   @Override
@@ -113,7 +113,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	// Get the f:uid-namespace attribute
 	Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-	if (uidNamespaceAttribute.getValue() == null) { 
+	if (uidNamespaceAttribute.getValue() == null) {
 	  throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
 	}
 	userUidAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
@@ -140,7 +140,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
     */
     public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
     }
-  
+
     @Override
     public List<String> getStrongDependencies() {
       List<String> StrongDependencies = new ArrayList<String>();
@@ -156,5 +156,5 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
       attr.setType(String.class.getName());
       attr.setDescription("UID if is set.");
       return attr;
-  }  
+  }
 }

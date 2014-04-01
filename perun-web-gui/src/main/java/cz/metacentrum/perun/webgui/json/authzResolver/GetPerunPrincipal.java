@@ -10,7 +10,7 @@ import cz.metacentrum.perun.webgui.model.PerunPrincipal;
 
 /**
  * Ajax qeury to logIn to RPC and get PerunPrincipal
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -43,7 +43,7 @@ public class GetPerunPrincipal implements JsonCallback {
 	public void retrieveData(){
 		// retrieve data
 		JsonClient js = new JsonClient(true, 60000);
-		js.retrieveData(JSON_URL, this);		
+		js.retrieveData(JSON_URL, this);
 	}
 
 	/**

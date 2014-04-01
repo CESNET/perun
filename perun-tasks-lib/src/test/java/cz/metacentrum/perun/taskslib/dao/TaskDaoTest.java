@@ -54,11 +54,11 @@ import cz.metacentrum.perun.taskslib.service.GeneralServiceManager;*/
 @Transactional
 */
 public class TaskDaoTest {
-    
-    
+
+
     @Test
     public void testDummy() {
-        
+
     }
 /*
     private final static Logger log = LoggerFactory.getLogger(TaskDaoTest.class);
@@ -148,7 +148,7 @@ public class TaskDaoTest {
         testExecService2.setExecServiceType(ExecServiceType.SEND);
         testExecService2.setId(generalServiceManager.insertExecService(perunSession, testExecService2, testOwner));
 
-        
+
         jdbcTemplate.update("delete from tasks_results");
         jdbcTemplate.update("delete from tasks");
     }
@@ -572,7 +572,7 @@ public class TaskDaoTest {
             throw e;
         }
     }
-    
+
     @Test
     public void testRemoveTask() throws Exception {
         try {

@@ -10,7 +10,7 @@ use overload
 
 sub toString {
     my $self = shift;
-    
+
     my $id = $self->{_id};
     my $defaultDelay = $self->{_defaultDelay};
     my $defaultRecurrence = $self->{_defaultRecurrence};
@@ -18,7 +18,7 @@ sub toString {
     my $service = $self->{_service};
     my $script = $self->{_script};
     my $execServiceType = $self->{_execServiceType};
-    
+
     my $str = 'ExecService (';
     $str .= "id: $id, ";
     $str .= "defaultDelay: $defaultDelay, ";
@@ -28,7 +28,7 @@ sub toString {
     $str .= "script: $script, ";
     $str .= "execServiceType: $execServiceType, ";
     $str .= ')';
-    
+
     return $str;
 }
 
@@ -45,28 +45,28 @@ sub fromHash
 sub TO_JSON
 {
 	my $self = shift;
-	
+
 	my $id;
 	if (defined($self->{_id})) {
 		$id = $self->{_id}*1;
 	} else {
 		$id = 0;
 	}
-	
+
 	my $name;
 	if (defined($self->{_name})) {
 		$name = "$self->{_name}";
 	} else {
 		$name = undef;
 	}
-	
+
 	return {id => $id, name => $name};
 }
 
 sub getId
 {
     my $self = shift;
-    
+
     return $self->{_id};
 }
 
@@ -74,14 +74,14 @@ sub setId
 {
     my $self = shift;
     $self->{_id} = shift;
-    
+
     return;
 }
 
 sub getDefaultDelay
 {
     my $self = shift;
-    
+
     return $self->{_defaultDelay};
 }
 
@@ -89,7 +89,7 @@ sub setDefaultDelay
 {
     my $self = shift;
     $self->{_defaultDelay} = shift;
-    
+
     return;
 }
 

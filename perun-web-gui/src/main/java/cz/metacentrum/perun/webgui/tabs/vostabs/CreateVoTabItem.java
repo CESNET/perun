@@ -22,7 +22,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 /**
  * Create VO tab
  * !! USE AS INNER TAB ONLY !!
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -32,12 +32,12 @@ public class CreateVoTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -50,11 +50,11 @@ public class CreateVoTabItem implements TabItem {
 	 *
      */
 	public CreateVoTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
@@ -136,7 +136,7 @@ public class CreateVoTabItem implements TabItem {
                 session.getTabManager().closeTab(tab, false);
             }
         });
-	
+
 		// Add some standard form options
 		layout.setHTML(0, 0, "Full name:");
 		layout.setWidget(0, 1, nameTextBox);
@@ -155,7 +155,7 @@ public class CreateVoTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -168,7 +168,7 @@ public class CreateVoTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -191,22 +191,22 @@ public class CreateVoTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isVoAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

@@ -9,7 +9,7 @@ import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 
 /**
- * Class of DAO layer for handling Thanks entity. 
+ * Class of DAO layer for handling Thanks entity.
  * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
@@ -53,17 +53,17 @@ public class ThanksDaoImpl implements IThanksDao {
 	}
 
 	public List<ThanksForGUI> findRichThanksByPublicationId(Integer id) {
-		
+
 		ThanksExample example = new ThanksExample();
 		example.createCriteria().andPublicationIdEqualTo(id);
 		return thanksMapper.selectRichByExample(example);
-		
+
 	}
-	
+
 	public List<ThanksForGUI> findAllRichThanksByUserId(Integer id) {
-		
+
 		return thanksMapper.selectAllRichByUserId(id);
-		
+
 	}
 
 }

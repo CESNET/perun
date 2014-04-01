@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * External Source Bean
- * 
+ *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
 public class ExtSource extends Auditable {

@@ -5,11 +5,11 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage printTable getSortingFunction); 
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 return qq{
-Prints list of Resources assigned to User. Can be limited 
+Prints list of Resources assigned to User. Can be limited
 to resources from specified facility. User is required field.
 ---------------------------------------------------------
 Available options:
@@ -32,12 +32,12 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
            "facilityName|F=s" => \$facilityName,
            "facilityType|t=s" => \$facilityType,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getShortName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check
-unless(defined($userId)) { die "ERROR: userId is required\n";} 
-if(defined($facilityName) xor defined($facilityType)) { die "ERROR: both or neither facilityName and facilityType is required\n";} 
+unless(defined($userId)) { die "ERROR: userId is required\n";}
+if(defined($facilityName) xor defined($facilityType)) { die "ERROR: both or neither facilityName and facilityType is required\n";}
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();

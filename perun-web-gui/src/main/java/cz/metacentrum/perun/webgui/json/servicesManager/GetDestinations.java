@@ -26,7 +26,7 @@ import java.util.Comparator;
 
 /**
  * Ajax query to get destinations for selected facility and service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -81,7 +81,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	/**
 	 * Returns table with destinations and custom onClick
-	 * 
+	 *
 	 * @param fu field updater
 	 * @return table widget
 	 */
@@ -102,7 +102,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 	}
 
 	/**
-	 * Returns empty table 
+	 * Returns empty table
 	 * @return table widget
 	 */
 	public CellTable<Destination> getEmptyTable(){
@@ -152,7 +152,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 		// SERVICE COLUMN
 		Column<Destination, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination,String>() {
 			public String getValue(Destination dest) {
-				if (dest.getService() != null ) { return dest.getService().getName(); } 
+				if (dest.getService() != null ) { return dest.getService().getName(); }
 				else { return ""; }
 			}
 		}, tableFieldUpdater);
@@ -160,7 +160,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 		// FACILITY COLUMN
 		Column<Destination, String> facilityColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
 					public String getValue(Destination dest) {
-						if (dest.getService() != null ) { return dest.getFacility().getName() + " ("+dest.getFacility().getType()+")"; } 
+						if (dest.getService() != null ) { return dest.getFacility().getName() + " ("+dest.getFacility().getType()+")"; }
 						else { return ""; }
 					}
 				}, tableFieldUpdater);
@@ -359,7 +359,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	/**
 	 * Sets different external events after creating this query
-	 * 
+	 *
 	 * @param externalEvent external events
 	 */
 	public void setEvents(JsonCallbackEvents externalEvent) {
@@ -368,7 +368,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	/**
 	 * Sets service object for this callback
-	 * 
+	 *
 	 * @param service service to get destinations for
 	 */
 	public void setService(Service service) {
@@ -377,7 +377,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 	/**
 	 * Sets facility object for this callback
-	 * 
+	 *
 	 * @param facility facility to get destinations for
 	 */
 	public void setFacility(Facility facility) {
@@ -410,7 +410,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 				if (dst.getService() != null) {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getService().getName().toLowerCase().startsWith(text.toLowerCase())) {
 						list.add(dst);
-					}	
+					}
 				} else {
 					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase())) {
 						list.add(dst);
@@ -422,7 +422,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
         dataProvider.flush();
         dataProvider.refresh();
         loaderImage.loadingFinished();
-		
+
 	}
 
 	public UnaccentMultiWordSuggestOracle getOracle() {

@@ -8,9 +8,9 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 //TODO: Service, should not be concurrent...???
 @org.springframework.stereotype.Service(value = "taskExecutorEngineJob")

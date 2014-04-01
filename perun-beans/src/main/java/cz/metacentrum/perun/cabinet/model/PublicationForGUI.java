@@ -5,17 +5,17 @@ import java.util.List;
 
 /**
  * Extension for single publication which provides more info for GUI
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PublicationForGUI extends Publication{
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String pubSystemName;
 	private String categoryName;
 	private List<ThanksForGUI> thanks;
-	
+
 	public PublicationForGUI() {
 		super();
 	}
@@ -78,10 +78,10 @@ public class PublicationForGUI extends Publication{
 	public void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
 	}
-	
+
 	@Override
 	public String toString() {
 			return getClass().getSimpleName()+":[id=" + this.getId() + ", externalId=" + this.getExternalId() + ", pubSysId=" + this.getPublicationSystemId() + ", pubSysName=" + this.getPubSystemName() + ", title=" + this.getTitle() + ", categoryId=" + this.getCategoryId() + ", categoryName=" + this.getCategoryName() + ", year=" + this.getYear() + ", isbn=" + this.getIsbn() + ", doi=" + this.getDoi() + ", locked=" + this.getLocked() + ", main=" + this.getMain() + ", createdBy=" + this.getCreatedBy() + ", createdDate=" + this.getCreatedDate() + ", rank=" + this.getRank() + ", createdByUid=" + this.getCreatedByUid() + ", authors=" + this.getAuthors() + ", thanks=" + this.getThanks() + "]";
 	}
-	
+
 }

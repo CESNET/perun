@@ -32,24 +32,24 @@ public abstract class Auditable extends PerunBean {
      * Attribute with information who modified it.
      */
     private String modifiedBy;
-    
+
     /**
      * Attribute with ID information who user created it.
      */
     private Integer createdByUid;
-            
+
     /**
      * Attribute with ID information who user modified it.
      */
     private Integer modifiedByUid;
-    
+
     public Auditable() {
     }
-    
+
     public Auditable(int id) {
         super(id);
     }
-    
+
     public Auditable(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
         this(id);
         this.createdAt = createdAt;
@@ -59,7 +59,7 @@ public abstract class Auditable extends PerunBean {
         this.modifiedByUid = modifiedByUid;
         this.createdByUid = createdByUid;
     }
-    
+
     public Auditable(String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
@@ -68,11 +68,11 @@ public abstract class Auditable extends PerunBean {
         this.modifiedByUid = modifiedByUid;
         this.createdByUid = createdByUid;
     }
-    
+
     /**
      * Gets the information when it was created.
      *
-     * @return createdAt, the date 
+     * @return createdAt, the date
      */
     public String getCreatedAt() {
         return createdAt;
@@ -90,7 +90,7 @@ public abstract class Auditable extends PerunBean {
     /**
      * Gets the information who created it.
      *
-     * @return createdBy, the user 
+     * @return createdBy, the user
      */
     public String getCreatedBy() {
         return createdBy;
@@ -108,7 +108,7 @@ public abstract class Auditable extends PerunBean {
     /**
      * Gets the information when it was modofied.
      *
-     * @return modifiedAt, the time  
+     * @return modifiedAt, the time
      */
     public String getModifiedAt() {
         return modifiedAt;
@@ -126,7 +126,7 @@ public abstract class Auditable extends PerunBean {
     /**
      * Gets the information who modified it.
      *
-     * @return modifiedBy, the user 
+     * @return modifiedBy, the user
      */
     public String getModifiedBy() {
         return modifiedBy;
@@ -140,7 +140,7 @@ public abstract class Auditable extends PerunBean {
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-    
+
     /**
      * Gets the information who user modified it.
      *
@@ -158,11 +158,11 @@ public abstract class Auditable extends PerunBean {
     public void setModifiedByUid(Integer modifiedByUid) {
         this.modifiedByUid = modifiedByUid;
     }
-    
+
     /**
      * Gets the information who user created it.
      *
-     * @return createdByUid, the user 
+     * @return createdByUid, the user
      */
     public Integer getCreatedByUid() {
         return createdByUid;
@@ -176,7 +176,7 @@ public abstract class Auditable extends PerunBean {
     public void setCreatedByUid(Integer createdByUid) {
         this.createdByUid = createdByUid;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if(obj == null) return false;
@@ -189,8 +189,8 @@ public abstract class Auditable extends PerunBean {
 
         return true;
     }
-    
-    public int compareByCreatedAt(Auditable auditable) {   
+
+    public int compareByCreatedAt(Auditable auditable) {
         if (auditable == null || auditable.createdAt == null || this.createdAt == null) {
             throw new InternalErrorRuntimeException(new NullPointerException("There is null pointer in auditable object or in createdAt"));
         }
@@ -200,17 +200,17 @@ public abstract class Auditable extends PerunBean {
         } catch (Exception ex) {
             throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this,ex);
         }
-        
+
         Date date2;
         try {
             date2 = BeansUtils.DATE_FORMATTER.parse(auditable.getCreatedAt());
         } catch (Exception ex) {
             throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable,ex);
         }
-        
+
         return date1.compareTo(date2);
     }
-            
+
     public int compareByModifiedAt(Auditable auditable) {
         if (auditable == null || auditable.modifiedAt == null || this.modifiedAt == null) {
             throw new InternalErrorRuntimeException(new NullPointerException("There is null pointer in auditable object or in createdAt"));
@@ -221,14 +221,14 @@ public abstract class Auditable extends PerunBean {
         } catch (Exception ex) {
             throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this,ex);
         }
-        
+
         Date date2;
         try {
             date2 = BeansUtils.DATE_FORMATTER.parse(auditable.getModifiedAt());
         } catch (Exception ex) {
             throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable,ex);
         }
-        
+
         return date1.compareTo(date2);
     }
 
@@ -243,6 +243,6 @@ public abstract class Auditable extends PerunBean {
     public String serializeToString() {
       return this.getClass().getSimpleName()+":[" +
       "id=<" + this.getId() + ">" +
-      ']'; 
+      ']';
     }
 }

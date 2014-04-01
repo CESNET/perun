@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Audit log
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -34,12 +34,12 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -52,17 +52,17 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 	 *
      */
 	public AuditLogTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// page main tab
 		final VerticalPanel mainTab = new VerticalPanel();
 		mainTab.setSize("100%", "100%");
-		
+
 		// number of messages
 		final TextBox tb = new TextBox();
 		tb.setText(String.valueOf(count));
@@ -87,7 +87,7 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 
 		// resize perun table to correct size on screen
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		// refresh button action
 		refreshButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -118,13 +118,13 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
                 }
             }
         });
-		
+
 		// add textbox into menu
 		menu.addWidget(new HTML("<strong>Number of messages: </strong>"));
 		menu.addWidget(tb);
-		
-		this.contentWidget.setWidget(mainTab);		
-		
+
+		this.contentWidget.setWidget(mainTab);
+
 		return getWidget();
 	}
 
@@ -159,24 +159,24 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
         session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Audit log", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}
@@ -184,20 +184,20 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "alog";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters()
 	{
 		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public AuditLogTabItem load(Map<String, String> parameters)
 	{
 		return new AuditLogTabItem();
 	}
-	
+
 }

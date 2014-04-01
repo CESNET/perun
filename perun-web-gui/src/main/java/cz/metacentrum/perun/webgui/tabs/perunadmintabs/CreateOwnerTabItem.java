@@ -30,12 +30,12 @@ public class CreateOwnerTabItem implements TabItem {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -46,11 +46,11 @@ public class CreateOwnerTabItem implements TabItem {
 	 *
      */
 	public CreateOwnerTabItem(){ }
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
         VerticalPanel vp = new VerticalPanel();
@@ -90,7 +90,7 @@ public class CreateOwnerTabItem implements TabItem {
 
         ownerNameTextBox.setValidator(nameValidator);
         ownerContactTextBox.setValidator(contactValidator);
-		
+
 		// layout
         FlexTable layout = new FlexTable();
         layout.setStyleName("inputFormFlexTable");
@@ -137,7 +137,7 @@ public class CreateOwnerTabItem implements TabItem {
         vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
 	    this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -150,7 +150,7 @@ public class CreateOwnerTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -173,23 +173,23 @@ public class CreateOwnerTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
-		
+
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isPerunAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}

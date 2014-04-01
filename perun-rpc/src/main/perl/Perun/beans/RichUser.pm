@@ -19,7 +19,7 @@ sub fromHash
 sub TO_JSON
 {
 	my $self = shift;
-	
+
 	return {id => $self->{_id}, userAttributes => $self->{_userAttributes}, userExtSources => $self->{_userExtSources}};
 }
 

@@ -27,7 +27,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
      *
      * @throws InternalErrorException if an exception is raised in particular
      *         implementation, the exception is wrapped in InternalErrorException
-     * @throws WrongAttributeAssignmentException 
+     * @throws WrongAttributeAssignmentException
      */
     Attribute fillAttribute(PerunSessionImpl perunSession, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
@@ -37,7 +37,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
      * @param perunSession Perun session
      * @param vo Virtual Organization
      * @param attribute attribute to be checked
-     * 
+     *
      * @throws InternalErrorException if an exception is raised in particular
      *         implementation, the exception is wrapped in InternalErrorException
      * @throws WrongAttributeValueException if the attribute value is wrong/illegal
@@ -49,7 +49,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 
     /**
      * If you need to do some further work with other modules, this method do that
-     * 
+     *
      * @param session session
      * @param vo the vo
      * @param attribute the attribute

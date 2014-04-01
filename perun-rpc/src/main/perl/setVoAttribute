@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 use Switch;
 
 sub help {
@@ -12,7 +12,7 @@ return qq{
 Sets the VO attribute. VO id or VO short name and attribute value and attribute id or name are required.
 ---------------------------------------------------------------
 Available options:
- --voId            | -v vo id 
+ --voId            | -v vo id
  --voShortName     | -V vo short name
  --attributeId     | -a attribute id
  --attributeName   | -A attribute name including namespace
@@ -27,9 +27,9 @@ my ($voId, $voShortName, $attributeId, $attributeName, @attributeValue);
 our $batch;
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "voId|v=i" => \$voId,
- "voShortName|V=s" => \$voShortName, 
- "attributeId|a=i" => \$attributeId, 
- "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help(); 
+ "voShortName|V=s" => \$voShortName,
+ "attributeId|a=i" => \$attributeId,
+ "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
 unless (defined($voId) or defined($voShortName)) { die "ERROR: voId or voShortName is required \n";}

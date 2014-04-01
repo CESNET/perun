@@ -11,10 +11,10 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);  
+    my $self = fields::new(shift);
     $self->{_agent} = shift;
     $self->{_manager} = $manager;
-    
+
     return $self;
 }
 
@@ -180,12 +180,12 @@ sub removeAllDestinations
     return Perun::Common::callManagerMethod('removeAllDestinations', '', @_);
 }
 
-sub getOwner 
+sub getOwner
 {
     return Perun::Common::callManagerMethod('getOwner', 'Owner', @_);
 }
 
-sub getAssignedServices 
+sub getAssignedServices
 {
     return Perun::Common::callManagerMethod('getAssignedServices', '[]Service', @_);
 }

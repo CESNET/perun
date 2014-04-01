@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get resources where Group is assigned
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Resource> {
@@ -29,7 +29,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// group id
-	private int id = 0;	
+	private int id = 0;
 	// JSON URL
 	static private final String JSON_URL = "resourcesManager/getAssignedResources";
 	// Selection model
@@ -46,12 +46,12 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 	private FieldUpdater<Resource, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
-	private PerunEntity entity; 
-	
+	private PerunEntity entity;
+
 	/**
-	 * Creates a new getResources method instance	
+	 * Creates a new getResources method instance
 	 *
-	 * @param id 
+	 * @param id
 	 * @param entity to get rich resources for
 	 */
 	public GetAssignedResources(int id, PerunEntity entity) {
@@ -60,7 +60,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 	}
 
 	/**
-	 * Creates a new getResources method instance	
+	 * Creates a new getResources method instance
 	 *
 	 * @param id
 	 * @param entity
@@ -74,19 +74,19 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 	/**
 	 * Returns table with resources and with custom onClick
-	 * 
-	 * @param fu Field updater 
+	 *
+	 * @param fu Field updater
 	 * @return table widget
 	 */
 	public CellTable<Resource> getTable(FieldUpdater<Resource, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
 	/**
 	 * Returns table with resources assigned to group
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<Resource> getTable() {
@@ -114,7 +114,7 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();	
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("Resource ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
@@ -128,14 +128,14 @@ public class GetAssignedResources implements JsonCallback, JsonCallbackTable<Res
 	 */
 	public void retrieveData()
 	{
-		
+
 		String param = "";
 		if (entity == PerunEntity.GROUP) {
-			param += "group=" + this.id;			
+			param += "group=" + this.id;
 		} else if (entity == PerunEntity.MEMBER) {
 			param += "member=" + this.id;
 		}
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}

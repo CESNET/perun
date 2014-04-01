@@ -80,10 +80,10 @@ sub TO_JSON
         } else {
                 @authorships = undef;
         }
-         
+
         return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources, authorships => \@authorships};
 }
- 
+
 sub getId
 {
     my $self = shift;
@@ -179,13 +179,13 @@ sub getUsersExtSources
     my $self = shift;
 
     return @{$self->{_logins}};
-} 
+}
 
 sub getAuthorships
 {
     my $self = shift;
 
-    return @{$self->{_authorships}}; 
+    return @{$self->{_authorships}};
 }
 
 1;

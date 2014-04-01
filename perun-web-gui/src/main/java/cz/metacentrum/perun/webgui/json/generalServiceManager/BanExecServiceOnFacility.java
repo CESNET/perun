@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to ban selected exec service on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -29,7 +29,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Creates a new request
-	 * 
+	 *
 	 * @param facilityId ID of Facility
 	 */
 	public BanExecServiceOnFacility(int facilityId) {
@@ -38,7 +38,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Creates a new request with custom events
-	 * 
+	 *
 	 * @param facilityId ID of Facility
 	 * @param events Custom events
 	 */
@@ -49,7 +49,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -76,7 +76,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Attempts to ban selected exec service for specified facility
-	 * 
+	 *
 	 * @param execServiceId
 	 * @param facilityId
 	 */
@@ -87,7 +87,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Attempts to ban selected exec service on facility
-	 * 
+	 *
 	 * @param execServiceId
 	 */
 	public void banExecService(final int execServiceId){
@@ -124,7 +124,7 @@ public class BanExecServiceOnFacility {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
@@ -136,10 +136,10 @@ public class BanExecServiceOnFacility {
 		return jsonQuery;
 
 	}
-	
+
 	/**
 	 * Sets external events after callback creation
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events) {

@@ -11,7 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  */
 public class NotServiceUserExpectedException extends PerunException {
     static final long serialVersionUID = 0;
-    
+
     private User user;
 
     public NotServiceUserExpectedException(String message) {
@@ -25,7 +25,7 @@ public class NotServiceUserExpectedException extends PerunException {
     public NotServiceUserExpectedException(Throwable cause) {
         super(cause);
     }
-    
+
     public NotServiceUserExpectedException(User user) {
       super(user.toString());
       this.user = user;

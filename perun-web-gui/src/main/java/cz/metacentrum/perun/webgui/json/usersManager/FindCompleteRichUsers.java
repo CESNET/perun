@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 /**
  * Callback to find RichUsers with attributes by name/login/email, optionally users without specific VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<User> {
@@ -103,16 +103,16 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns table of users.
 	 * @return
 	 */
-	public CellTable<User> getTable(){ 
+	public CellTable<User> getTable(){
 		// retrieve data
 		retrieveData();
 		return getEmptyTable();
-		
+
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();	
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("User ID", tableFieldUpdater);
 

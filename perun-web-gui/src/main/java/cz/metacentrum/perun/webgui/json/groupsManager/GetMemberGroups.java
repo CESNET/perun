@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 /**
  * GroupsManager/getMemberGroups Method
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -66,7 +66,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 	public GetMemberGroups(int id) {
 		this.memberId = id;
 	}
-	
+
 	/**
 	 * Creates a new instance of GroupsManager/getMemberGroups method with custom field updater
      *
@@ -96,7 +96,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns the table with subgroups.
 	 * @return
@@ -105,28 +105,28 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 
 		// retrieve data
 		retrieveData();
-		
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<Group>(list);
 
 		// Cell table
 		table = new PerunTable<Group>(list);
         table.setHyperlinksAllowed(false);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<Group> columnSortHandler = new ListHandler<Group>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Group> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
         loaderImage.setEmptyResultMessage("User is not member of any group.");
-		
+
 		// checkbox column column
         Column<Group, Group> checkBoxColumn = new Column<Group, Group>(
                 new PerunCheckboxCell<Group>(true, false, coreGroupsCheckable)) {
@@ -171,7 +171,7 @@ public class GetMemberGroups implements JsonCallback, JsonCallbackTable<Group>, 
 		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
-		
+
 	}
 
     /**

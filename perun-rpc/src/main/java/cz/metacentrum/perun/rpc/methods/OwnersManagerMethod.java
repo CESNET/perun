@@ -10,7 +10,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates a new owner.
-	 * 
+	 *
 	 * @param owner Owner JSON object
 	 * @return Owner Created object
 	 */
@@ -26,7 +26,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 
     /*#
      * Deletes an owner.
-     * 
+     *
      * @param owner int Owner ID
      * @return Object Always null
      */
@@ -44,7 +44,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 
     /*#
      * Returns an owner by its ID.
-     * 
+     *
      * @param id int Owner ID
      * @return Owner Found Owner
      */
@@ -57,7 +57,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 
     /*#
      * Returns all owners.
-     * 
+     *
      * @return List<Owner> All owners
      */
     getOwners {

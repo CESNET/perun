@@ -20,38 +20,38 @@ import java.util.Comparator;
 
 /**
  * Returns data sent by user in the form elements in application form
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetApplicationDataById implements JsonCallback{
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	// VO id
 	private int appId;
-	
+
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getApplicationDataById";
-	
+
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// Loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	
+
 	// Content
 	private SimplePanel contents = new SimplePanel();
-	
+
 	// list
 	private ArrayList<ApplicationFormItemData> applFormItems = new ArrayList<ApplicationFormItemData>();
-	
+
 	// RegistrarFormItemGenerators for getting values
 	private ArrayList<RegistrarFormItemGenerator> applFormGenerators = new ArrayList<RegistrarFormItemGenerator>();
 
 	// whether to show hidden information
 	private boolean showAdminItems = true;
-	
+
 	/**
 	 * Creates a new method instance
      *
@@ -79,11 +79,11 @@ public class GetApplicationDataById implements JsonCallback{
 	public void retrieveData()
 	{
 		String param = "id=" + this.appId;
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
-	
+
 	/**
 	 * Returns contents
 	 */
@@ -113,7 +113,7 @@ public class GetApplicationDataById implements JsonCallback{
 	 * Called when loading successfully finishes.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		
+
 		applFormItems.clear();
 		applFormItems.addAll(JsonUtils.<ApplicationFormItemData>jsoAsList(jso));
 		// sort by form ordnum (or shortname for delted items)
@@ -128,22 +128,22 @@ public class GetApplicationDataById implements JsonCallback{
 			}
 		});
 		applFormGenerators.clear();
-	
+
 		prepareApplicationForm();
-		
+
 		session.getUiElements().setLogText("Loading application form items in selected VO finished:" + applFormItems.size());
 		events.onFinished(jso);
         loaderImage.setEmptyResultMessage("Application doesn't contain any data.");
 		loaderImage.loadingFinished();
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
 	 */
 	public void prepareApplicationForm(){
-		
+
 		FlexTable ft = new FlexTable();
         ft.setWidth("100%");
 		ft.setCellPadding(10);
@@ -157,29 +157,29 @@ public class GetApplicationDataById implements JsonCallback{
 
 		int i = 0;
 		for(final ApplicationFormItemData item : applFormItems){
-			
+
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item.getFormItem(), item.getValue(), locale);
 			this.applFormGenerators.add(gen);
-			
+
 			// show only visible items - show also hidden to perun admin and vo admin
 			if(!gen.isVisible() && !(session.isPerunAdmin() || session.isVoAdmin())){
 				continue;
 			}
-			
+
 			// if only for admin
 			if(!showAdminItems && gen.isVisibleOnlyToAdmin()){
 				continue;
 			}
-			
-			
+
+
 			//ItemTexts itemTexts = item.getFormItem().getItemTexts(locale);
-			
+
 			// WITH LABEL (input box ...)
 			if(gen.isLabelShown()){
-				
+
 				// don't show password
 				if (!item.getFormItem().getType().equalsIgnoreCase("PASSWORD")) {
-					
+
 					// 0 = label or shortname
 					if (item.getFormItem().getType().startsWith("FROM_FEDERATION_HIDDEN")) {
 						// hidden
@@ -202,13 +202,13 @@ public class GetApplicationDataById implements JsonCallback{
                     fcf.setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_LEFT);
                     fcf.setWidth(i, 0, "25%");
                     fcf.setWidth(i, 1, "75%");
-					
+
 				}
 
 			}
 
 			i++;
-			
+
 		}
 
         // set empty text
@@ -223,7 +223,7 @@ public class GetApplicationDataById implements JsonCallback{
 	}
 
 	public void setShowAdminItems(boolean b) {
-		this.showAdminItems  = b;		
+		this.showAdminItems  = b;
 	}
 
 }

@@ -22,9 +22,9 @@ import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor {

@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 
 /**
  * ClusterNotExistsRuntimeException
- * 
+ *
  * This exception is to be thrown in case we
  * are unable to look up the cluster in the Perun system.
  *

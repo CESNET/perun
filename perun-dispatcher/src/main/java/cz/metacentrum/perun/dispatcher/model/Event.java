@@ -3,16 +3,16 @@ package cz.metacentrum.perun.dispatcher.model;
 import java.util.Date;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 public class Event {
 	private String header;
 	private String data;
 	private long timeStamp;
-	
+
 	public String getData() {
 		return data;
 	}
@@ -28,15 +28,15 @@ public class Event {
 	public long getTimeStamp() {
 		return timeStamp;
 	}
-	
+
 	public void setHeader(String header) {
 		this.header = header;
 	}
 
 	public String getHeader() {
 		return header;
-	}	
-	
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

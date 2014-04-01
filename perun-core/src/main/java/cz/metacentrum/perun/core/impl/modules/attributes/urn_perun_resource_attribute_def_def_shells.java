@@ -37,7 +37,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
     public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
         Attribute atr = new Attribute(attribute);
         Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-        
+
         Attribute allShellsPerFacility;
         try {
             allShellsPerFacility = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_shells);
@@ -74,8 +74,8 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
         } catch (AttributeNotExistsException ex) {
             throw new InternalErrorException("Attribute with list of shells from facility " + facility.getId() +" could not obtained.",ex);
         }
-        
-        
+
+
         if (allShellsPerFacility.getValue() == null) {
             throw new WrongReferenceAttributeValueException(attribute, allShellsPerFacility);
         } else {

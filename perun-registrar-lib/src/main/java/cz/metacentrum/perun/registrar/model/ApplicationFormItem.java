@@ -20,13 +20,13 @@ public class ApplicationFormItem {
     private String perunDestinationAttribute;
     private String regex;
     private List<AppType> applicationTypes = Arrays.asList(AppType.INITIAL,AppType.EXTENSION);
-    
+
     private Integer ordnum;
-    
+
     /**
      * Field for GUI purpose - tells updateFromItems()
      * to delete this item instead of update
-     * 
+     *
      * default is FALSE = keep/update item
      * TRUE = delete item
      */
@@ -44,8 +44,8 @@ public class ApplicationFormItem {
         this.perunDestinationAttribute = perunDestinationAttribute;
         this.regex = regex;
     }
-    
-    
+
+
 
     public ApplicationFormItem(int id, String shortname, boolean required,
 			Type type, String federationAttribute,
@@ -64,7 +64,7 @@ public class ApplicationFormItem {
 		this.ordnum = ordnum;
 		this.forDelete = forDelete;
 		this.i18n = i18n;
-		
+
 	}
 
 	public String getPerunDestinationAttribute() {
@@ -82,7 +82,7 @@ public class ApplicationFormItem {
     public void setApplicationTypes(List<AppType> applicationTypes) {
         this.applicationTypes = applicationTypes;
     }
-    
+
     public Integer getOrdnum() {
 		return ordnum;
 	}
@@ -172,7 +172,7 @@ public class ApplicationFormItem {
 
         public ItemTexts() {
         }
-        
+
         public ItemTexts(Locale locale) {
         	this.locale = locale;
         }
@@ -188,7 +188,7 @@ public class ApplicationFormItem {
         public Locale getLocale() {
             return locale;
         }
-        
+
         public void setLocale(Locale locale) {
             this.locale= locale ;
         }
@@ -362,6 +362,6 @@ public class ApplicationFormItem {
 		if (id != other.id)
 			return false;
 		return true;
-	} 
-	
+	}
+
 }

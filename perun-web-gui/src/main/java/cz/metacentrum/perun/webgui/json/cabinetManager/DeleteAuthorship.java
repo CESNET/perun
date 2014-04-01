@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which deletes Authorship
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteAuthorship {
@@ -42,7 +42,7 @@ public class DeleteAuthorship {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testDeleting()
@@ -54,7 +54,7 @@ public class DeleteAuthorship {
 			errorMsg += "Wrong parameter 'Publication ID'.\n";
 			result = false;
 		}
-		
+
 		if(userId == 0){
 			errorMsg += "Wrong parameter 'User ID'.\n";
 			result = false;
@@ -69,12 +69,12 @@ public class DeleteAuthorship {
 
 	/**
 	 * Attempts to delete Authorship, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param publicationId
 	 * @param userId
 	 */
 	public void deleteAuthorship(final int publicationId, final int userId) {
-		
+
 		this.publicationId = publicationId;
 		this.userId = userId;
 
@@ -123,7 +123,7 @@ public class DeleteAuthorship {
 		category.put("userId", new JSONNumber(userId));
 
 		return category;
-		
+
 	}
 
 }

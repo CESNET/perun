@@ -45,7 +45,7 @@ public class BaseIntegrationTest {
 
     private boolean init = false;
 	private int p1Id;
-	
+
 	@Autowired protected IAuthorshipDao authorshipDao;
 	@Autowired protected ICategoryDao categoryDao;
 	@Autowired protected IPublicationDao publicationDao;
@@ -55,13 +55,13 @@ public class BaseIntegrationTest {
     @Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
 			   PerunSession sess;
-	
+
 	// setters -------------------------
-	
+
 	public void setPerunService(IPerunService perunService) {
 		this.perunService = perunService;
 	}
-	
+
 	public void setAuthorService(IAuthorService authorService) {
 		this.authorService = authorService;
 	}
@@ -69,7 +69,7 @@ public class BaseIntegrationTest {
 	public void setReportDao(IAuthorshipDao reportDao) {
 		this.authorshipDao = reportDao;
 	}
-	
+
 	public void setCategoryDao(ICategoryDao categoryDao) {
 		this.categoryDao = categoryDao;
 	}
@@ -85,12 +85,12 @@ public class BaseIntegrationTest {
     public void setCabinetProperties(Properties cabinetProperties) {
         this.cabinetProperties = cabinetProperties;
     }
-	
+
 	// test -------------------------------
-	
+
 	@Before
 	public void beforeClass() throws Exception {
-		
+
 		if (init) return; //do only once for all tests
 
         // principal
@@ -159,7 +159,7 @@ public class BaseIntegrationTest {
 		p1.setRank(0.0);
 		p1.setLocked(false);
 		p1.setDoi("DOI1");
-		
+
 		Publication p2 = new Publication();
 		p2.setCategoryId(c1.getId());
 		p2.setExternalId(333);
@@ -173,15 +173,15 @@ public class BaseIntegrationTest {
 		p2.setRank(0.0);
 		p2.setLocked(false);
 		p2.setDoi("DOI2");
-		
+
 		p1Id = publicationDao.createPublication(sess, p1);
 		p1.setId(p1Id);
 		int p2Id = publicationDao.createPublication(sess, p2);
 		p2.setId(p2Id);
-		
+
 		publicationOne = p1;
 		publicationTwo = p2;
-		
+
 		Authorship a1 = new Authorship();
 		a1.setCreatedBy(sess.getPerunPrincipal().getActor());
 		a1.setCreatedDate(new Date());
@@ -198,12 +198,12 @@ public class BaseIntegrationTest {
 		a1.setId(aId1);
 		int aId2 = authorshipDao.create(a2);
 		a2.setId(aId2);
-		
+
 		authorshipOne = a1;
 		authorshipTwo = a2;
-		
+
 		init = true;
-		
+
 	}
 
     @Test

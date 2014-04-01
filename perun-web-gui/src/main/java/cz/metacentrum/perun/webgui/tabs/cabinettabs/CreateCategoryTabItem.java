@@ -27,12 +27,12 @@ public class CreateCategoryTabItem implements TabItem {
 	 * Perun web session
 	 */
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
@@ -42,13 +42,13 @@ public class CreateCategoryTabItem implements TabItem {
 	 * Creates a tab instance
      */
 	public CreateCategoryTabItem(){}
-	
+
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
-		
+
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
@@ -134,7 +134,7 @@ public class CreateCategoryTabItem implements TabItem {
         table.getFlexCellFormatter().setStyleName(2, 1, "inputFormInlineComment");
 
         this.contentWidget.setWidget(vp);
-		
+
 		return getWidget();
 	}
 
@@ -147,7 +147,7 @@ public class CreateCategoryTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 
@@ -170,23 +170,23 @@ public class CreateCategoryTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open()
 	{
 		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
 	}
-	
+
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}

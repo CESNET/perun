@@ -11,7 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ExtSourceExistsRuntimeExcepti
  */
 public class ExtSourceExistsException extends EntityExistsException {
     static final long serialVersionUID = 0;
-    
+
     private ExtSource extSource;
 
     public ExtSourceExistsException(ExtSourceExistsRuntimeException rt) {

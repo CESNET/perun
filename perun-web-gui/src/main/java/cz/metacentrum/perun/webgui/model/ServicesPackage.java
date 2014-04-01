@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Overlay type for ServicesPackage object
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ServicesPackage extends JavaScriptObject {
@@ -13,7 +13,7 @@ public class ServicesPackage extends JavaScriptObject {
 
 	/**
 	 * Gets ID of service package
-	 * 
+	 *
 	 * @return id of service package
 	 */
 	public final native int getId() /*-{
@@ -22,7 +22,7 @@ public class ServicesPackage extends JavaScriptObject {
 
 	/**
 	 * Gets name of service package
-	 * 
+	 *
 	 * @return name of service package
 	 */
 	public final native String getName()  /*-{
@@ -58,35 +58,35 @@ public class ServicesPackage extends JavaScriptObject {
 
     /**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -94,7 +94,7 @@ public class ServicesPackage extends JavaScriptObject {
 	 */
 	public final boolean equals(ServicesPackage o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 
 }

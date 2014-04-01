@@ -44,7 +44,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   private UsersManagerImplApi usersManagerImpl;
   private PerunBl perunBl;
-  
+
   private static final String PASSWORD_VALIDATE = "validate";
   private static final String PASSWORD_CREATE = "create";
   private static final String PASSWORD_RESERVE = "reserve";
@@ -52,7 +52,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   private static final String PASSWORD_CHANGE = "change";
   private static final String PASSWORD_CHECK = "check";
   private static final String PASSWORD_DELETE = "delete";
-  
+
 
   /**
    * Constructor.
@@ -66,7 +66,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public User getUserByUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException {
     return getUsersManagerImpl().getUserByUserExtSource(sess, userExtSource);
   }
-  
+
   // FIXME do this in IMPL
   public User getUserByUserExtSources(PerunSession sess, List<UserExtSource> userExtSources) throws InternalErrorException, UserNotExistsException {
     for (UserExtSource ues: userExtSources) {
@@ -75,40 +75,40 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       } catch (UserNotExistsException e) {
         // Ignore
       }
-    } 
+    }
     throw new UserNotExistsException("User with userExtSources " + userExtSources + " doesn't exists.");
   }
-  
+
   public List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) throws InternalErrorException {
       if ((extSourceType == null) || (login == null)) return new ArrayList<User>();
-      
+
       return getUsersManagerImpl().getUsersByExtSourceTypeAndLogin(perunSession, extSourceType, login);
   }
 
   public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException {
     return getUsersManagerImpl().getServiceUsersByUser(sess, user);
   }
-  
+
   public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException {
     return getUsersManagerImpl().getUsersByServiceUser(sess, serviceUser);
   }
-  
+
   public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException {
     List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
     if(!serviceUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the service user.");
-    
+
     if(!getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
         throw new RelationNotExistsException("User has no relationship to serviceUser.");
-    } 
-    
+    }
+
     getPerunBl().getAuditer().log(sess, "{} ownership was disabled for serviceUser {}.", user, serviceUser);
     getUsersManagerImpl().disableOwnership(sess, user, serviceUser);
   }
-  
+
   public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationExistsException {
-    List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);  
+    List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
     if(serviceUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of service user.");
-    
+
     if(getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
         getUsersManagerImpl().enableOwnership(sess, user, serviceUser);
         getPerunBl().getAuditer().log(sess, "{} ownership was enabled for serviceUser {}.", user, serviceUser);
@@ -117,15 +117,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         getUsersManagerImpl().addServiceUserOwner(sess, user, serviceUser);
     }
   }
-  
+
   public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
       return getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser);
   }
-  
+
   public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
       return getUsersManagerImpl().getServiceUsers(sess);
   }
-  
+
   public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {
     return getUsersManagerImpl().getUserById(sess, id);
   }
@@ -159,16 +159,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     users.add(user);
     List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
     return richUsers.get(0);
-  }  
-  
+  }
+
   public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     List<User> users = new ArrayList<User>();
     users.add(user);
     List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
     List<RichUser> richUsersWithAttributes =  this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
     return richUsersWithAttributes.get(0);
-  }  
-  
+  }
+
   public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) throws InternalErrorException {
     List<RichUser> richUsers = new ArrayList<RichUser>();
 
@@ -176,11 +176,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
       RichUser richUser = new RichUser(user, userExtSources);
       richUsers.add(richUser);
-    }  
+    }
     return richUsers;
-  }  
-  
-  public List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws InternalErrorException, UserNotExistsException {  
+  }
+
+  public List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws InternalErrorException, UserNotExistsException {
     for (RichUser richUser: richUsers) {
       User user = getPerunBl().getUsersManagerBl().getUserById(sess, richUser.getId());
       List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user);
@@ -190,7 +190,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     return richUsers;
   }
-  
+
   public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, UserNotExistsException {
     List<User> users = new ArrayList<User>();
     users.addAll(this.getUsers(sess));
@@ -198,7 +198,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
     return richUsers;
   }
-  
+
   public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, UserNotExistsException {
     List<User> users = new ArrayList<User>();
     users.addAll(this.getUsers(sess));
@@ -207,27 +207,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
     return richUsersWithAttributes;
   }
-  
-  
-  public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException {  
+
+
+  public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException {
     List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
     return richUsers;
   }
-  
+
   public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException {
     List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
     List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
-    return richUsersWithAttributes;  
+    return richUsersWithAttributes;
   }
-  
-  public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {  
+
+  public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
     List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
-    
+
     for(AttributeDefinition attrd: attrsDef) {
         if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
         //If not, skip this attribute, it is not user Attribute
     }
-    
+
     for (RichUser richUser: richUsers) {
       List<Attribute> userAttributes = new ArrayList<Attribute>();
       List<String> userAttrNames = new ArrayList<String>();
@@ -235,13 +235,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           userAttrNames.add(ad.getName());
       }
       userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser, userAttrNames));
-      
+
       richUser.setUserAttributes(userAttributes);
     }
 
     return richUsers;
   }
-  
+
   public User createUser(PerunSession sess, User user) throws InternalErrorException {
 
       // trim input
@@ -257,10 +257,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     if(user.getMiddleName() != null && user.getMiddleName().isEmpty()) user.setMiddleName(null);
     if(user.getTitleBefore() != null && user.getTitleBefore().isEmpty()) user.setTitleBefore(null);
     if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
-    
+
     user = getUsersManagerImpl().createUser(sess, user);
     getPerunBl().getAuditer().log(sess, "{} created.", user);
-    
+
     // Add default userExtSource
     ExtSource es;
 	try {
@@ -274,7 +274,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } catch (UserExtSourceExistsException e) {
     	throw new ConsistencyErrorException(e);
     }
-    
+
     return user;
   }
 
@@ -282,7 +282,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     this.deleteUser(sess, user, false);
   }
 
-  public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {  
+  public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
     List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
     if (members != null && (members.size() > 0)) {
@@ -307,7 +307,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     // get all reserved logins of user
     List<Pair<String,String>> logins = getUsersManagerImpl().getUsersReservedLogins(user);
-    
+
     // delete them from KDC
     for (Pair<String,String> login : logins) {
     	try {
@@ -324,12 +324,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
             }
           }
     }
-    
+
     // delete them from DB
     getUsersManagerImpl().deleteUsersReservedLogins(user);
-    
+
     // all users applications and submitted data are deleted on cascade when "deleteUser()"
-    
+
     // Remove all possible passwords associated with logins (stored in attributes)
     for (Attribute loginAttribute: getPerunBl().getAttributesManagerBl().getLogins(sess, user)) {
       try {
@@ -340,13 +340,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         if (forceDelete) {
           log.error("Error during deletion of the account at {} for user {} with login {}.", new Object[]{loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue()});
         } else {
-          throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() + 
+          throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
               " for user " + user + " with login " + (String) loginAttribute.getValue() + ".");
         }
       }
     }
 
-    
+
     // Delete assigned attributes
     // Users one
     try {
@@ -363,7 +363,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     //Remove user authz
     AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
-    
+
     // Finally delete the user
     if(user.isServiceUser()) {
         getUsersManagerImpl().deleteServiceUser(sess, user);
@@ -383,12 +383,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         getPerunBl().getAuditer().log(sess, "{} updated.", user);
         return getUsersManagerImpl().updateNameTitles(sess, user);
     }
-  
+
   public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 	    getPerunBl().getAuditer().log(sess, "{} updated.", userExtSource);
 	    return getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 	}
-  
+
   public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
     getUsersManagerImpl().updateUserExtSourceLastAccess(sess, userExtSource);
   }
@@ -403,12 +403,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException {
     return getUsersManagerImpl().getUserExtsourcesByIds(sess, ids);
   }
-  
+
   public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
     return getUsersManagerImpl().getUserExtSourceById(sess, id);
   }
 
-  public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {   
+  public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
     // Check if the userExtSource already exists
     try {
       getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
@@ -416,7 +416,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } catch (UserExtSourceNotExistsException e) {
       // this is OK
     }
-    
+
     userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
     getPerunBl().getAuditer().log(sess, "{} added to {}.", userExtSource, user);
     return userExtSource;
@@ -448,11 +448,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<User> users = this.getUsersWithoutVoAssigned(sess);
     return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
   }
-  
+
   public List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException  {
     return usersManagerImpl.getUsersWithoutVoAssigned(sess);
   }
-  
+
   public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
     List<User> allSearchingUsers = new ArrayList<User>();
     List<User> allVoUsers = new ArrayList<User>();
@@ -478,7 +478,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<Resource> allowedResources = new ArrayList<Resource>();
 
     List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-    for(Resource resource : resources) { 
+    for(Resource resource : resources) {
       if (getPerunBl().getResourcesManagerBl().isUserAssigned(sess, user, resource)) {
         allowedResources.add(resource);
       }
@@ -517,16 +517,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
        return new ArrayList<RichResource>(resources);
   }
-  
+
   private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
     // try to find method in attribute module
     UserVirtualAttributesModuleImplApi attributeModul = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
     List<User> listOfUsers = attributeModul.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
-    
+
     if (listOfUsers != null) {
         return listOfUsers;
     }
-      
+
     // iterate over all users
     List<User> matchedUsers = new ArrayList<User>();
     for (User user: perunBl.getUsersManagerBl().getUsers(sess)) {
@@ -544,13 +544,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
     return matchedUsers;
   }
-  
+
   public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException {
     try {
       AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
-    
+
       if (perunBl.getAttributesManagerBl().isVirtAttribute(sess, attributeDef)) {
-        return this.getUsersByVirtualAttribute(sess, attributeDef, attributeValue); 
+        return this.getUsersByVirtualAttribute(sess, attributeDef, attributeValue);
       } else {
         return this.getUsersManagerImpl().getUsersByAttributeValue(sess, attributeDef, attributeValue);
       }
@@ -558,11 +558,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
     }
   }
-  
+
   public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
       return this.getUsersManagerImpl().getUsersByAttribute(sess, attribute);
   }
-    
+
   /**
    * Search attributes directly in the DB only if the attr is def or opt and value is type of String, otherwise load all users and search in a loop.
    */
@@ -571,7 +571,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 
       if (perunBl.getAttributesManagerBl().isVirtAttribute(sess, attributeDef)) {
-        return this.getUsersByVirtualAttribute(sess, attributeDef, attributeValue); 
+        return this.getUsersByVirtualAttribute(sess, attributeDef, attributeValue);
       } else {
         Attribute attribute = new Attribute(attributeDef);
         attribute.setValue(attributeValue);
@@ -582,8 +582,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
     }
   }
-  
-  
+
+
 
   public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
     return this.getUsersManagerImpl().findUsers(sess, searchString);
@@ -593,7 +593,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<User> users = this.getUsersManagerImpl().findUsers(sess, searchString);
     return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
   }
-  
+
   public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
     return this.getUsersManagerImpl().findUsersByName(sess, searchString);
   }
@@ -641,7 +641,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } catch (WrongAttributeValueException e) {
       return false;
     }
-    
+
     //TODO Check also reserved logins in Registrar
   }
   /**
@@ -666,7 +666,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
     getUsersManagerImpl().checkUserExists(sess, user);
   }
-  
+
   public void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException {
     getUsersManagerImpl().checkReservedLogins(sess, namespace, login);
   }
@@ -674,7 +674,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException {
     getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
   }
-  
+
   public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
     return getUsersManagerImpl().userExtSourceExists(sess, userExtSource);
   }
@@ -690,7 +690,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
     return getUsersManagerImpl().isUserPerunAdmin(sess, user);
   }
-  
+
   public RichUser filterOnlyAllowedAttributes(PerunSession sess, RichUser richUser) throws InternalErrorException {
     if(richUser == null) throw new InternalErrorException("RichUser can't be null.");
     //Filtering users attributes
@@ -707,21 +707,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
     return richUser;
   }
-  
+
   public List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException {
     List<RichUser> filteredRichUsers = new ArrayList<RichUser>();
     if(richUsers == null || richUsers.isEmpty()) return filteredRichUsers;
-    
+
     for(RichUser ru: richUsers) {
         filteredRichUsers.add(this.filterOnlyAllowedAttributes(sess, ru));
     }
-    
+
     return filteredRichUsers;
   }
-  
+
   public List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
     List<User> users = new ArrayList<User>();
-      
+
     //All possible useful objects
     Vo vo = null;
     Facility facility = null;
@@ -730,7 +730,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     User user = null;
     Host host = null;
     Resource resource = null;
-    
+
     //Get object for primaryHolder of aidingAttr
     if(perunBean != null) {
         if(perunBean instanceof Vo) vo = (Vo) perunBean;
@@ -746,7 +746,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } else {
         throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
     }
-    
+
     if(group != null) {
         List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
         List<User> usersFromGroup = new ArrayList<User>();
@@ -790,14 +790,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         for(User userElement: usersFromVo) {
             users.add(userElement);
         }
-    } 
-    
+    }
+
     return users;
-  }  
+  }
 
   /**
    * Method which calls external program for password reservation.
-   * 
+   *
    * @param sess
    * @param user
    * @param loginNamespace
@@ -809,11 +809,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     // Get login.
     try {
       Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
-      
+
       if (attr.getValue() == null) {
         throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
       }
-      
+
        // Create the password
         try {
           this.managePassword(sess, PASSWORD_RESERVE_RANDOM, (String) attr.getValue(), loginNamespace, null);
@@ -829,7 +829,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   /**
    * Method which calls external program for password reservation.
-   * 
+   *
    * @param sess
    * @param userLogin
    * @param loginNamespace
@@ -846,10 +846,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new PasswordCreationFailedException(e);
     }
   }
-  
+
   /**
    * Method which calls external program for password reservation. User and login is already known.
-   * 
+   *
    * @param sess
    * @param user
    * @param loginNamespace
@@ -862,11 +862,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     // Get login.
     try {
       Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
-      
+
       if (attr.getValue() == null) {
         throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
       }
-      
+
        // Create the password
         try {
           this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
@@ -879,10 +879,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new InternalErrorException(e);
     }
   }
-  
+
   /**
    * Method which calls external program for password validation.
-   * 
+   *
    * @param sess
    * @param userLogin
    * @param loginNamespace
@@ -898,10 +898,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new PasswordCreationFailedException(e);
     }
   }
-  
+
   /**
    * Method which calls external program for password validation. User and login is already known.
-   * 
+   *
    * @param sess
    * @param user
    * @param loginNamespace
@@ -913,11 +913,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     // Get login.
     try {
       Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
-      
+
       if (attr.getValue() == null) {
         throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
       }
-      
+
        // Create the password
         try {
           this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
@@ -933,14 +933,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   /**
    * Method which calls external program for password validation. User and login is already known.
-   * 
+   *
    * @param sess
    * @param userLogin
    * @param loginNamespace
    */
   public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-    /* 
-     * FIXME This method is very badly writen - it should be rewrited or refactored 
+    /*
+     * FIXME This method is very badly writen - it should be rewrited or refactored
      */
 
     try {
@@ -1055,12 +1055,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
 
     validatePassword(sess, user, loginNamespace);
-   
+
   }
-  
+
   /**
    * Method which calls external program for password creation.
-   * 
+   *
    * @param sess
    * @param userLogin
    * @param loginNamespace
@@ -1078,10 +1078,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new PasswordCreationFailedException(e);
     }
   }
-  
+
   /**
    * Method which calls external program for password creation. User and login is already known.
-   * 
+   *
    * @param sess
    * @param user
    * @param loginNamespace
@@ -1095,11 +1095,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     // Get login.
     try {
     	Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
-    	
+
     	if (attr.getValue() == null) {
     		throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
     	}
-    	
+
     	 // Create the password
         try {
           this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
@@ -1115,7 +1115,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   /**
    * Method which calls external program for password deletion.
-   * 
+   *
    * @param sess
    * @param userLogin
    * @param loginNamespace
@@ -1137,7 +1137,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   /**
    * Method which calls external program for password change.
    */
-  public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) 
+  public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
       throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
     log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -1181,12 +1181,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   /**
    * Calls external program which do the job with the password.
-   * 
+   *
    * Return codes of the external program
    * If password check fails then return 1
    * If there is no handler for loginNamespace return 2
    * If setting of the new password failed return 3
-   * 
+   *
    * @param sess
    * @param operation
    * @param userLogin
@@ -1194,11 +1194,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
    * @param password
    * @throws InternalErrorException
    */
-  protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password) 
+  protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password)
       throws InternalErrorException {
-    
+
     // Check validity of original password
-    ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.passwordManager.program"), 
+    ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.passwordManager.program"),
         operation, loginNamespace, userLogin);
 
     Process process;
@@ -1210,7 +1210,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     InputStream es = process.getErrorStream();
 
-    if (operation.equals(PASSWORD_CHANGE) || operation.equals(PASSWORD_CHECK)  || operation.equals(PASSWORD_RESERVE)) {      
+    if (operation.equals(PASSWORD_CHANGE) || operation.equals(PASSWORD_CHECK)  || operation.equals(PASSWORD_RESERVE)) {
       OutputStream os = process.getOutputStream();
       if (password == null || password.isEmpty()) {
         throw new EmptyPasswordRuntimeException("Password for " + loginNamespace + ":" + userLogin + " cannot be empty.");
@@ -1267,7 +1267,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         return result;
 
     }
-  
+
   public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
 
       if(attrsName == null || attrsName.isEmpty()) {
@@ -1277,7 +1277,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
 
   }
-  
+
   public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException{
 
       if(attrsName == null || attrsName.isEmpty()) {
@@ -1286,7 +1286,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         return convertUsersToRichUsersWithAttributesByNames(sess, getUsersWithoutSpecificVo(sess, vo, searchString), attrsName);
       }
   }
-  
+
   public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException{
 
       if(attrsName == null || attrsName.isEmpty()) {
@@ -1295,7 +1295,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         return convertUsersToRichUsersWithAttributesByNames(sess, getUsersWithoutVoAssigned(sess), attrsName);
       }
   }
-  
+
   public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
 
       List<User> users = getUsers(sess);
@@ -1317,11 +1317,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
 
   }
-  
+
   public List<RichUser> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
       List<Pair<User, Attribute>> usersWithNonVirtAttrs = usersManagerImpl.getAllRichUsersWithAllNonVirutalAttributes(sess);
       Map<User,List<Attribute>> sortingMap = new HashMap<User, List<Attribute>>();
-      
+
       //User map for sorting users with all their attributes
       for(Pair<User, Attribute> p: usersWithNonVirtAttrs) {
           if(sortingMap.containsKey(p.getLeft())) {
@@ -1332,7 +1332,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
               sortingMap.put(p.getLeft(), attributes);
           }
       }
-      
+
       //Add extSources and VirtualAttributes
       List<RichUser> richUsersWithAttributes = new ArrayList<RichUser>();
       Set<User> usersSet = sortingMap.keySet();
@@ -1343,7 +1343,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           RichUser ru = new RichUser(u, null, allAttrsOfUser);
           richUsersWithAttributes.add(ru);
       }
-      
+
       return richUsersWithAttributes;
   }
 

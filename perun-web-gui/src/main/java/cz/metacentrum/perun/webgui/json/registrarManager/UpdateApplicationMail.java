@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Request, which updates application email
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class UpdateApplicationMail {
@@ -27,7 +27,7 @@ public class UpdateApplicationMail {
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// data
 	private ApplicationMail appMail;
 
@@ -51,7 +51,7 @@ public class UpdateApplicationMail {
 	 * @param appMail
 	 */
 	public void updateMail(ApplicationMail appMail) {
-		
+
 		this.appMail = appMail;
 
 		// test arguments
@@ -79,7 +79,7 @@ public class UpdateApplicationMail {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
-		
+
 	}
 
 	private boolean testCreating() {
@@ -92,37 +92,37 @@ public class UpdateApplicationMail {
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
-		
-		
-		
+
+
+
 		JSONObject mail = new JSONObject();
-		
+
 		// update send
 		mail.put("send", JSONBoolean.getInstance(appMail.isSend()));
-		
+
 		JSONObject mailTexts = new JSONObject();
-		
+
 		// update texts
 		String locales[] = {"cs", "en"};
 		for(String locale : locales){
-			
+
 			MailText mt = appMail.getMessage(locale);
 			mailTexts.put(locale, new JSONObject(mt));
 		}
 		mail.put("message", mailTexts);
-		
+
 		// sending other values just for sure
 		mail.put("id", new JSONNumber(appMail.getId()));
 		mail.put("appType", new JSONString(appMail.getAppType()));
 		mail.put("mailType", new JSONString(appMail.getMailType()));
 		mail.put("formId", new JSONNumber(appMail.getFormId()));
-		
-		
+
+
 		JSONObject request = new JSONObject();
 		request.put("mail", mail);
-		
+
 		return request;
-		
+
 	}
 
 }

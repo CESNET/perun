@@ -50,7 +50,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
         int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
         this.getJdbcTemplate().update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)", newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(), templateMessages.getLocale().toString(), templateMessages.getSubject());
         templateMessages.setId(newPerunNotifTemplateMessageId);
-        
+
         return templateMessages;
     }
 
@@ -88,7 +88,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
         this.getJdbcTemplate().update("insert into pn_receiver (id, target, type_of_receiver, template_id) values (?, ?, ?, ?)", newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId());
         receiver.setId(newPerunNotifReceiverId);
-        
+
         return receiver;
     }
 
@@ -129,7 +129,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
         this.getJdbcTemplate().update("insert into pn_template(id, primary_properties, notify_trigger, youngest_message_time, oldest_message_time, locale, sender) values (?, ?, ?, ?, ?, ?, ?)", newPerunNotifTemplateId, template.getSerializedPrimaryProperties(), template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(), template.getLocale(), template.getSender());
         template.setId(newPerunNotifTemplateId);
-        
+
         return template;
     }
 

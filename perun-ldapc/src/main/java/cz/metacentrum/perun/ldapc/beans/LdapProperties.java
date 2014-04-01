@@ -5,16 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * LdapProperties data from properties file.
- * 
+ *
  * @author norexan
  */
 public class LdapProperties {
-    
+
     private Properties ldapcProperties;
     private String ldapConsumerName;
     private String ldapBase;
     private String ldapLoginNamespace;
-    
+
     @Autowired
     public LdapProperties(Properties ldapcProperties) {
         this.ldapcProperties=ldapcProperties;

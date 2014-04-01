@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of Group applications
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
@@ -82,12 +82,12 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<Application> getTable(FieldUpdater<Application, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -122,7 +122,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("App ID", tableFieldUpdater, 85);
 
@@ -193,7 +193,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
         });
         table.addColumn(stateColumn, "State");
         table.setColumnWidth(stateColumn, "60px");
-		
+
 		Column<Application, String> extSourceColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {
 					@Override
@@ -235,7 +235,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 			}
 		});
 		table.addColumn(extSourceColumn, "Submitted by");
-		
+
 		Column<Application, String> loaColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {
 					@Override
@@ -290,7 +290,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
         });
 
         return table;
-		
+
 	}
 
 	/**
@@ -305,7 +305,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
                 param += "&state[]=" + s;
             }
         }
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -505,5 +505,5 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
-	
+
 }

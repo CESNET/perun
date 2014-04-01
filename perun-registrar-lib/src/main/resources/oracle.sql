@@ -59,7 +59,7 @@ create table application_data (
     assurance_level varchar2(128)
 );
 
-create table application_reserved_logins ( 
+create table application_reserved_logins (
 	login varchar2(256) not null,
 	namespace varchar2(30) not null,
 	app_id integer not null,

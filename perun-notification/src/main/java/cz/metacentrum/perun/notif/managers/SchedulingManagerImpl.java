@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Scheduling manager for firing sending emails from db to users. Main method is doNotification.
- * 
+ *
  * @author tomas.tunkl
  *
  */
@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 public class SchedulingManagerImpl {
 
 	private static final Logger logger = LoggerFactory.getLogger(SchedulingManagerImpl.class);
-	
+
 	private static Boolean doNotif = false;
-	
+
 	@Autowired
 	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
 
@@ -34,18 +34,18 @@ public class SchedulingManagerImpl {
 				doNotif = true;
 			}
 		}
-		
+
 		logger.info("Getting poolMessages from db.");
-		
+
 		try {
 			perunNotifPoolMessageManager.processPerunNotifPoolMessagesFromDb();
 		} catch (Exception ex) {
 			logger.error("Exception thrown during processing poolMessages:", ex);
 		}
-		
+
 		synchronized (doNotif) {
 			doNotif = false;
-			
+
 		}
 	}
 }

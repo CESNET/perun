@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query to remove dependency between two exec services
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class RemoveDependency {
@@ -42,7 +42,7 @@ public class RemoveDependency {
 
 	/**
 	 * Remove dependency for exec service on another exec service
-	 * 
+	 *
 	 * @param execService remove dependency for
 	 * @param dependsOn remove dependency on
 	 */
@@ -84,7 +84,7 @@ public class RemoveDependency {
 
 	/**
 	 * Test input
-	 * 
+	 *
 	 * @return true on correct input, false otherwise
 	 */
 	private boolean testArguments(){

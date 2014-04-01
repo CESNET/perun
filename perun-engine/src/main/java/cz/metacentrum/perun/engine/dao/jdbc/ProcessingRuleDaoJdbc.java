@@ -24,9 +24,9 @@ import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @Transactional
 public class ProcessingRuleDaoJdbc extends JdbcDaoSupport implements ProcessingRuleDao {

@@ -1,6 +1,6 @@
 <!--#include virtual="header.shtml" -->
 
-            
+
             <h3>Features</h3>
             <div class="row-fluid">
                     <ul>
@@ -12,7 +12,7 @@
                         <li>Customizable for your use-cases</li>
                     </ul>
             </div>
-            <!--#include virtual="footer.shtml" --> 
+            <!--#include virtual="footer.shtml" -->
 
 
             - sjednoceni identit + identity consolidator
@@ -24,4 +24,4 @@
              - validace nastaveni/pozadovanych informaci (moduly)
               - monitorovani stavu propagaci
               - API (java, RPC, perl, php, WOOT?)
-              - Perun je (bude) poskytovan "as a service" 
+              - Perun je (bude) poskytovan "as a service"

@@ -11,16 +11,16 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class ResourceTag extends Auditable {
     private String tagName;
     private int voId;
-    
+
     public ResourceTag() {
     }
-    
+
     public ResourceTag(int id, String tagName, int voId) {
         super(id);
         this.tagName = tagName;
         this.voId = voId;
     }
-    
+
     public ResourceTag(int id, String tagName, int voId, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
         super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
         this.tagName = tagName;
@@ -42,7 +42,7 @@ public class ResourceTag extends Auditable {
     public void setVoId(int voId) {
         this.voId = voId;
     }
-    
+
     @Override
     public String serializeToString() {
         return this.getClass().getSimpleName() +":[" +
@@ -51,7 +51,7 @@ public class ResourceTag extends Auditable {
                 ", voId=<" + getVoId() + ">" +
                 ']';
     }
-    
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName()+":[" +

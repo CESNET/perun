@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get allowed vos on facility
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrganization> {
@@ -42,10 +42,10 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 	private int facilityId = 0;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
-	
+
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param facilityId ID of facility to get allowed VOs for
 	 */
 	public GetAllowedVos(int facilityId) {
@@ -54,7 +54,7 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 
 	/**
 	 * Creates a new callback
-	 * 
+	 *
 	 * @param facilityId ID of facility to get allowed VOs for
 	 * @param events external events
 	 */
@@ -65,7 +65,7 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 
 	/**
 	 * Returns table widget with allowed Vos
-	 * 
+	 *
 	 * @return table widget
 	 */
 	public CellTable<VirtualOrganization> getTable() {
@@ -77,23 +77,23 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 
 		// Cell table
 		table = new PerunTable<VirtualOrganization>(list);
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
 		ListHandler<VirtualOrganization> columnSortHandler = new ListHandler<VirtualOrganization>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<VirtualOrganization> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		
+
 		// checkbox column column
 		if (checkable == true){
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 
         VoColumnProvider columnProvider = new VoColumnProvider(table, null);
@@ -106,7 +106,7 @@ public class GetAllowedVos implements JsonCallback, JsonCallbackTable<VirtualOrg
 		return table;
 
 	}
-	
+
 	/**
 	 * Retrieve data from RPC
 	 */

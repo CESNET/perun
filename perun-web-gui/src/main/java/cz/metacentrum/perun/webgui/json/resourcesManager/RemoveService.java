@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which removes service from resource
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -45,7 +45,7 @@ public class RemoveService {
 
 	/**
 	 * Attempts to remove service from resource
-	 * 
+	 *
 	 * @param serviceId ID of service which should be removed
 	 * @param resourceId ID of resource where should be removed
 	 */
@@ -81,11 +81,11 @@ public class RemoveService {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -112,14 +112,14 @@ public class RemoveService {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("service", new JSONNumber(serviceId));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("service", new JSONNumber(serviceId));
 		jsonQuery.put("resource", new JSONNumber(resourceId));
 		return jsonQuery;
 	}

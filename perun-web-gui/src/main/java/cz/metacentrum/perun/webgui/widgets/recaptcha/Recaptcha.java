@@ -18,7 +18,7 @@ public class Recaptcha {
         $wnd.Recaptcha.create(key, "recaptcha_div", {
         theme:theme,
         lang:lang,
-        tabindex:tabIndex 
+        tabindex:tabIndex
         });
     }-*/;
 
@@ -29,7 +29,7 @@ public class Recaptcha {
         theme:theme,
         lang:lang,
         tabindex:tabIndex,
-        custom_theme_widget:customTheme 
+        custom_theme_widget:customTheme
         });
     }-*/;
 

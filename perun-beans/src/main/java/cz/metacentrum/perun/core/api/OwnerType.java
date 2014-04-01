@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum OwnerType {
-  technical  (0),    
+  technical  (0),
   administrative (1);
 
   private static final Map<Integer,OwnerType> lookup = new HashMap<Integer,OwnerType>();
@@ -24,7 +24,7 @@ public enum OwnerType {
     return code;
   }
 
-  public static OwnerType getOwnerType(int code) { 
-    return lookup.get(code); 
+  public static OwnerType getOwnerType(int code) {
+    return lookup.get(code);
   }
 }

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
@@ -14,17 +14,17 @@ Available options:
  --attributeName       | -N attribute friendly name
  --attributeNameSpace  | -n namespace
  --attributeType       | -t attribute type (integer/string/array/hash)
- --attributeDsc        | -d description 
+ --attributeDsc        | -d description
  --batch               | -b batch
  --help                | -h prints this help
- 
+
 };
 }
 
 my ($attributeName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
  "attributeName|N=s" => \$attributeName,"attributeNameSpace|n=s" => \$attributeNameSpace,
- "attributeType|t=s" => \$attributeType,"attributeDsc|d=s" => \$attributeDsc) || die help(); 
+ "attributeType|t=s" => \$attributeType,"attributeDsc|d=s" => \$attributeDsc) || die help();
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}

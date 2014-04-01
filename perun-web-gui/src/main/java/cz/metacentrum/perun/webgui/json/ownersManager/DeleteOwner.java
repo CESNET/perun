@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which deletes owner
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteOwner {
@@ -41,7 +41,7 @@ public class DeleteOwner {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testDeleting()
@@ -63,7 +63,7 @@ public class DeleteOwner {
 
 	/**
 	 * Attempts to delete owner, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param ownerId ID of owner to be deleted
 	 */
 	public void deleteOwner(final int ownerId)
@@ -101,7 +101,7 @@ public class DeleteOwner {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

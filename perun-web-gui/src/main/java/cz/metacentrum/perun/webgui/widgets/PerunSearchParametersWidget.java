@@ -22,23 +22,23 @@ import java.util.Map;
 
 /**
  * Logout button with image
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class PerunSearchParametersWidget extends Composite {
 
-	
+
 	private FlexTable ft = new FlexTable();
 	private CustomButton addParameterButton = new CustomButton("Add parameter", SmallIcons.INSTANCE.addIcon());
 	private CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.magnifierIcon());
 
 	private Map<ListBoxWithObjects<AttributeDefinition>, TextBox> inputs = new HashMap<ListBoxWithObjects<AttributeDefinition>, TextBox>();
-	
+
 	private ArrayList<AttributeDefinition> availableAttrDefs = new ArrayList<AttributeDefinition>();
-	
+
 	private SearchEvent event;
     private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Search inteface
 	 */
@@ -49,62 +49,62 @@ public class PerunSearchParametersWidget extends Composite {
 		 */
 		void search(Map<String, String> map);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Creates a new button
 	 */
 	public PerunSearchParametersWidget(final PerunEntity entity, SearchEvent event) {
-		
-		
+
+
 		this.initWidget(ft);
-		
+
 		this.event = event;
-		
+
 		final FlexCellFormatter ftf = ft.getFlexCellFormatter();
-		
+
 		// add param button
 		addParameterButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				addParameter();
 			}
 		});
-		
+
 		// search button
 		searchButton.addClickHandler(new ClickHandler() {
-			
+
 			public void onClick(ClickEvent event) {
 				doSearch();
-				
+
 			}
 		});
-		
+
 		//ft.setHTML(0, 0, "<h3>" + "Search by parameters:" + "</h3>");
 		//ftf.setColSpan(0, 0, 4);
-		
+
 		// prepare list of attr defs
 		GetAttributesDefinitionV2 req = new GetAttributesDefinitionV2(new JsonCallbackEvents(){
-			
+
 			public void onLoadingStart(){
-				
+
 				// loading
-				ft.setText(1, 0, "Loading ...");					
+				ft.setText(1, 0, "Loading ...");
 			}
-			
+
 			public void onFinished(JavaScriptObject jso){
-				
+
 				// parse name we need
 				String ent = "";
 				switch(entity){
 					case USER:
 						ent = "user";
 						break;
-						
+
 					default:
 						return;
 				}
-				
+
 				// take only defs we need
 				ArrayList<AttributeDefinition> allDefs = JsonUtils.jsoAsList(jso);
                 for(AttributeDefinition def : allDefs)
@@ -114,20 +114,20 @@ public class PerunSearchParametersWidget extends Composite {
                     }
 				}
                 availableAttrDefs = new TableSorter<AttributeDefinition>().sortByAttrDefNameTranslation(availableAttrDefs);
-				
+
 				// add parameter button
 				addParameter();
                 rebuild();
 
 			}
-			
+
 		});
-		
+
 		req.retrieveData();
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Updates ListBoxes
 	 */
@@ -141,9 +141,9 @@ public class PerunSearchParametersWidget extends Composite {
 			lb.addAllItems(availableAttrDefs);
 			lb.setSelectedIndex(selectedItem);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Adds a parameter
 	 */
@@ -158,24 +158,24 @@ public class PerunSearchParametersWidget extends Composite {
         rebuild();
 
 	}
-	
+
 	protected void doSearch()
 	{
 		Map<String, String> attrsToSearchBy = new HashMap<String, String>();
-		
+
 		for(Map.Entry<ListBoxWithObjects<AttributeDefinition>, TextBox> entry : inputs.entrySet())
 		{
 			ListBoxWithObjects<AttributeDefinition> lb = entry.getKey();
-			
+
 			// value
 			String value = entry.getValue().getText();
-			
+
 			// attribute name
 			String name = lb.getSelectedObject().getName();
-			
+
 			attrsToSearchBy.put(name, value);
 		}
-		
+
 		event.search(attrsToSearchBy);
 	}
 

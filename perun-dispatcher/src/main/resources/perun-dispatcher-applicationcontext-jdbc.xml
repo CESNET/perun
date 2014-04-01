@@ -18,19 +18,19 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="password" value="${jdbc.password}"/>
         <property name="maxActive" value="10"/>
     </bean>
-    
+
     <!-- Transaction manager for Spring JDBC -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-    
-    <!-- DAOs --> 
+
+    <!-- DAOs -->
     <bean id="dispatcherDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.DispatcherDaoJdbc">
-    	<property name="dataSource" ref="dataSource"/> 
+    	<property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
     <bean id="rulesDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.RulesDaoJdbc">
-    	<property name="dataSource" ref="dataSource"/> 
+    	<property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
 </beans>

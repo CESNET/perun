@@ -30,7 +30,7 @@ public class AlreadyAdminException extends PerunException {
     public AlreadyAdminException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
     public AlreadyAdminException(Throwable cause) {
         super(cause);
     }
@@ -69,7 +69,7 @@ public class AlreadyAdminException extends PerunException {
         this.user = user;
         this.vo = vo;
     }
-    
+
     // when group is already admin
     public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Vo vo) {
         super(message, cause);
@@ -99,13 +99,13 @@ public class AlreadyAdminException extends PerunException {
         this.authorizedGroup = authorizedGroup;
         this.vo = vo;
     }
-    
+
     // getters
-    
+
     public Member getMember() {
         return member;
     }
-    
+
     public User getUser() {
         return user;
     }
@@ -121,7 +121,7 @@ public class AlreadyAdminException extends PerunException {
     public Group getGroup() {
         return group;
     }
-    
+
     public Group getAuthorizedGroup() {
         return authorizedGroup;
     }

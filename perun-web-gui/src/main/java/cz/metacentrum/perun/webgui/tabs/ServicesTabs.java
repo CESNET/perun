@@ -7,15 +7,15 @@ import java.util.Map;
 
 /**
  * Services tabs
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class ServicesTabs {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	static public final String URL = "srv";
-	
+
 	/**
 	 * Creates a new instance of pages
      */
@@ -23,13 +23,13 @@ public class ServicesTabs {
 
 	/**
 	 * Loads the page
-	 * 
+	 *
 	 * @return true on success / false otherwise
 	 */
 	public boolean loadTab(final String tab, final Map<String, String> parameters) {
-	
+
 		if(tab == null){
-			return false;				
+			return false;
 		}
 		// if active
 		boolean open = ("1".equals(parameters.get("active")));
@@ -63,11 +63,11 @@ public class ServicesTabs {
             session.getTabManager().addTab(ServicePackagesTabItem.load(parameters), open);
             return true;
         }
-		
+
 		return false;
-		
-		
-		
+
+
+
 	}
-	
+
 }

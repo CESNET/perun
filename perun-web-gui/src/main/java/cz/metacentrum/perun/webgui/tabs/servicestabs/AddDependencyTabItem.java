@@ -25,9 +25,9 @@ import java.util.ArrayList;
 
 /**
  *  Returns widget containing add Dependency form for selected exec service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
- * @author Vaclav Mach <374430@mail.muni.cz> 
+ * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class AddDependencyTabItem implements TabItem {
 
@@ -59,7 +59,7 @@ public class AddDependencyTabItem implements TabItem {
 		this.execService = service;
 		this.execServiceId = service.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
      * @param serviceId
@@ -72,7 +72,7 @@ public class AddDependencyTabItem implements TabItem {
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared() {
 		return !(execService == null);
 	}
@@ -183,7 +183,7 @@ public class AddDependencyTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon(); 
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	public boolean multipleInstancesEnabled() {
@@ -192,13 +192,13 @@ public class AddDependencyTabItem implements TabItem {
 
 	public void open()
 	{
-		
+
 	}
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) { 
-			return true; 
+		if (session.isPerunAdmin()) {
+			return true;
 		} else {
 			return false;
 		}

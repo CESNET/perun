@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
  * Interface for Perun-Cabinet API. Use this for access all features of this library.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -29,14 +29,14 @@ public interface ICabinetApi extends Serializable {
 	 * Finds publications of perun's user specified in param
 	 * Search is done in external publication systems (MU, ZCU)
 	 * All parameters are required.
-	 * 
+	 *
 	 * @param user from Perun
 	 * @param yearSince
 	 * @param yearTill (must be equal or greater then yearSince)
 	 * @param pubSysNamespace (MU or ZCU)
-	 * @throws PrivilegeException 
+	 * @throws PrivilegeException
 	 * @throws InternalErrorException
-	 *            
+	 *
 	 * @return list of publications or empty list if nothing is found
 	 * @throws CabinetException
 	 */
@@ -44,9 +44,9 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds owners in Perun.
-	 * 
+	 *
 	 * @return list of owners or empty list if none is found
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	List<Owner> findAllOwners(PerunSession sess) throws CabinetException;
 
@@ -56,7 +56,7 @@ public interface ICabinetApi extends Serializable {
      * @param sess PerunSession
 	 * @param p publication
 	 * @return id of new publication
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int createPublication(PerunSession sess, Publication p) throws CabinetException;
 
@@ -66,7 +66,7 @@ public interface ICabinetApi extends Serializable {
 	 * property externalId and publicationSystemId exist in db false
 	 * otherwise
 	 * TODO add checks in createPublication/update and don't allow two equal publications in db, because it makes no sesne!!!
-	 * 
+	 *
 	 * @param p
 	 * @return true if publication exists in db
 	 */
@@ -75,7 +75,7 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Checks whether author exists. Author exists iff author with equal userId
 	 * is in perun.
-	 * 
+	 *
 	 * @param a
 	 * @return true if author with equal property userId is in db. otherwise false
 	 */
@@ -83,16 +83,16 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Saves authorship to db.
-	 * 
+	 *
 	 * @param a
 	 * @return id of created authorship.
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException;
 
 	/**
 	 * Finds all categories in db.
-	 * 
+	 *
 	 * @return list of categories or empty list if none exist
 	 */
 	List<Category> findAllCategories();
@@ -102,7 +102,7 @@ public interface ICabinetApi extends Serializable {
 	 * if: a/ id property is provided and this authorship with the id is in db.
 	 * or b/ if property publicationId and userId are set in some authorship in
 	 * db. otherwise returns false
-	 * 
+	 *
 	 * @param authorship
 	 * @return true if authorship exists
 	 */
@@ -111,28 +111,28 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Finds publications in db according to provided instance. All set
 	 * properties are used with conjunction AND.
-	 * 
+	 *
 	 * @param p
 	 * @return list of results or empty list if nothing is found.
 	 */
 	List<Publication> findPublicationsByFilter(Publication p);
-	
+
 	List<PublicationForGUI> findRichPublicationsByFilter(Publication p, Integer userId);
-	
+
 	/**
 	 * Finds rich publications in Cabinet by GUI filter:
-	 * 
+	 *
 	 * id = exact match (used when search for publication of authors)
 	 * title = if "like" this substring
-	 * year = exact match 
+	 * year = exact match
 	 * isbn = if "like" this substring
 	 * category = exact match
 	 * yearSince = if year >= yearSince
 	 * yearTill = if year <= yearTill
-	 * 
-	 * If you don't want to filter by publication params, 
+	 *
+	 * If you don't want to filter by publication params,
 	 * pass either 'null' or 'new Publication()' (null is preferred)
-	 * 
+	 *
 	 * @param p publication to filter by (params as above)
 	 * @param userId optional (only for user's publications)
 	 * @param yearSince optional year since
@@ -140,12 +140,12 @@ public interface ICabinetApi extends Serializable {
 	 * @return list of results or empty list if nothing is found.
 	 */
 	List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill);
-	
+
 	/**
 	 * Checks whether thanks exists in db. Thanks is supposed to exist if: a/ id
 	 * property is filled and record with given id is in db b/ ownerId and
 	 * reportId properties are filled and given record is in db.
-	 * 
+	 *
 	 * @param t
 	 * @return true if exists, false otherwise
 	 */
@@ -155,7 +155,7 @@ public interface ICabinetApi extends Serializable {
 	 * creates thanks entity. Dependent fields (i.e. reportId) must already
 	 * exist in db. If property createdDate is null, current timestamp will be
 	 * used.
-	 * 
+	 *
 	 * @param sess
 	 * @param t
 	 * @return id of created thanks
@@ -166,7 +166,7 @@ public interface ICabinetApi extends Serializable {
 	 * Finds authorships according to filter. Between properties AND conjunction
 	 * is used. Page and size are for paging. If you search all records, you
 	 * provide empty (but not null) authorship.
-	 * 
+	 *
 	 * @param authorship
 	 * @param sortParam
 	 *            might be null or some properties might be null (then they will
@@ -179,16 +179,16 @@ public interface ICabinetApi extends Serializable {
 	 * Finds all rich publications in db of given user ID. Returned publications don't
 	 * have filled <authors> property. If you desire authors, you have to search
 	 * for them manually.
-	 * 
+	 *
 	 * @param id property userId of author
 	 * @return list of author's rich publications or an empty array if hasn't any.
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	List<PublicationForGUI> findRichPublicationsOfAuthor(Integer id) throws CabinetException;
 
 	/**
 	 * Finds thanks by filter. Between properties AND conjunction is used.
-	 * 
+	 *
 	 * @param t
 	 * @return list of thanks or empty list if nothing is found.
 	 */
@@ -196,7 +196,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Find thanks related to selected publication
-	 * 
+	 *
 	 * @param id ID of selected publication
 	 * @return thanks related to publication
 	 */
@@ -204,7 +204,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Find rich thanks related to selected publication
-	 * 
+	 *
 	 * @param id ID of publication
 	 * @return list of rich thanks
 	 */
@@ -212,7 +212,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Return thanks by it's ID property
-	 * 
+	 *
 	 * @param id
 	 * @return thanks
 	 */
@@ -220,7 +220,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds category by id in db.
-	 * 
+	 *
 	 * @param categoryId
 	 * @return existing category or null if nothing is found.
 	 */
@@ -229,7 +229,7 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Gets the overall rank of given user as sum of all his publications'
 	 * authorships.
-	 * 
+	 *
 	 * @param userId
 	 * @return total rank of user or 1.0 if user has no reports (=authorship)
 	 *         yet (default rank).
@@ -242,7 +242,7 @@ public interface ICabinetApi extends Serializable {
 	 * via createdBy property, so another user might create authorship for given
 	 * author with later date. If there is no authorship from this user, null is
 	 * returned.
-	 * 
+	 *
 	 * @param userId
 	 * @return
 	 */
@@ -250,10 +250,10 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds owner by id in db.
-	 * 
+	 *
 	 * @param id
 	 * @return existing owner or null if not exists.
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	Owner findOwnerById(PerunSession sess, Integer id) throws CabinetException;
 
@@ -261,17 +261,17 @@ public interface ICabinetApi extends Serializable {
 	 * Finds authors by given authorshipId. It finds all authors who reported
 	 * the publication related to given authorship (publicationId of given
 	 * authorship).
-	 * 
+	 *
 	 * @param id authorshipId
 	 * @return list of authors
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException;
 
 	/**
 	 * Finds all authors of publication by given publicationId
 	 * (users who reported publication)
-	 * 
+	 *
 	 * @param id id of publication
 	 * @return list of authors
 	 */
@@ -280,14 +280,14 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Finds all authorships stored in db. If none exists, empty list is
 	 * returned.
-	 * 
+	 *
 	 * @return
 	 */
 	List<Authorship> findAllAuthorships();
 
 	/**
 	 * Returns a count of authorships stored in db.
-	 * 
+	 *
 	 * @return
 	 */
 	int getAuthorshipsCount();
@@ -295,7 +295,7 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Finds records in db according to filter. Between filled properties is
 	 * used conjunction AND. If none result matches, empty array is returned.
-	 * 
+	 *
 	 * @param authorship
 	 * @return
 	 */
@@ -303,7 +303,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds author by his userId
-	 * 
+	 *
 	 * @param userId
 	 * @return
 	 */
@@ -311,7 +311,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds publication in db by it's id. (Not by it's externalId).
-	 * 
+	 *
 	 * @param publicationId
 	 * @return founded publication or null if nothing is found
 	 */
@@ -319,7 +319,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds rich publication in db by it's id. (Not by it's externalId).
-	 * 
+	 *
 	 * @param publicationId
 	 * @return founded publication or null if nothing is found
 	 */
@@ -327,39 +327,39 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Finds authorship in db.
-	 * 
+	 *
 	 * @param id
 	 * @return authorship or null if record with given id does not exist in db
 	 */
 	Authorship findAuthorshipById(Integer id);
-	
+
 	/**
 	 * Updates authorship
 	 * @param a
 	 * @return
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int updateAuthorship(PerunSession sess, Authorship a) throws CabinetException;
 
 	/**
 	 * Deletes authorship by it's id.
-	 * 
+	 *
 	 * @param id
 	 * @return
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException;
 
 	/**
 	 * Finds all publications in db.
-	 * 
+	 *
 	 * @return
 	 */
 	List<Publication> findAllPublications();
 
 	/**
 	 * Finds all rich publications in db (with category and pub. sys. property filled)
-	 * 
+	 *
 	 * @return all rich publications
 	 */
 	List<PublicationForGUI> findAllRichPublications() throws CabinetException;
@@ -378,17 +378,17 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Updates category according it's id.
-	 * 
+	 *
 	 * @param session
 	 * @param modelObject
 	 * @return number of updated rows in db
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int updateCategoryById(PerunSession sess, Category category) throws CabinetException;
 
 	/**
 	 * Deletes category by it's id.
-	 * 
+	 *
 	 * @param id
 	 * @return number of deleted categories
 	 */
@@ -396,7 +396,7 @@ public interface ICabinetApi extends Serializable {
 
 	/**
 	 * Creates a new category in db.
-	 * 
+	 *
 	 * @param modelObject
 	 * @return id of new category
 	 */
@@ -407,37 +407,37 @@ public interface ICabinetApi extends Serializable {
 	 * the user reports publication. Then author is holder of additional
 	 * information about user and can search in perun after user by author's
 	 * property userId.
-	 * 
+	 *
 	 * @return list of founded authors
 	 */
 	List<Author> findAllAuthors();
 
 	/**
 	 * Gets number of authors in cabinet.
-	 * 
+	 *
 	 * @return count of authors in perun
 	 */
 	int getAuthorsCount();
 
 	/**
 	 * Deletes thanks by its id.
-	 * 
+	 *
 	 * @param id
 	 * @return number of deleted lines in db
-	 * @throws CabinetException 
+	 * @throws CabinetException
 	 */
 	int deleteThanksById(PerunSession sess, Integer id) throws CabinetException;
 
 	/**
 	 * Finds all publication systems in cabinet db.
-	 * 
+	 *
 	 * @return list of publication systems
 	 */
 	List<PublicationSystem> findAllPublicationSystems();
-	
+
 	/**
 	 * Lock / Unlock publications by their ids.
-	 * 
+	 *
 	 * @param sess session to verify as perunadmin
 	 * @param lockState true=lock / false=unlock
 	 * @param pubs publications to update
@@ -445,11 +445,11 @@ public interface ICabinetApi extends Serializable {
 	 * @throws CabinetException when not authorized or something is wrong
 	 */
 	int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException;
-	
+
 	/**
-	 * Recalculates "publications" attribute for 
+	 * Recalculates "publications" attribute for
 	 * all users who reported any publication
-	 * 
+	 *
 	 * @param sess
 	 * @throws CabinetException
 	 */

@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction); 
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
 return qq{
@@ -13,10 +13,10 @@ Prints list of Members allowed on Resource. Resource is required field.
 ----------------------------------------------------
 Available options:
  --resourceId  | -r  Resource idetifier
- --orderById   | -i  order by numeric ID  
+ --orderById   | -i  order by numeric ID
  --batch       | -b  batch
  --help        | -h  prints this help
- 
+
 };
 }
 
@@ -24,12 +24,12 @@ my ($resourceId, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
            "resourceId|r=i" => \$resourceId,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           #FIXME member nema getName ###     "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           #FIXME member nema getName ###     "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
-unless(defined $resourceId) { die "ERROR: resourceId required\n";} 
+unless(defined $resourceId) { die "ERROR: resourceId required\n";}
 
 my $agent = Perun::Agent->new();
 my $resourcesAgent = $agent->getResourcesAgent;

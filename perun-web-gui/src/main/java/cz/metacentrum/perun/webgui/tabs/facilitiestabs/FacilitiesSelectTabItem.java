@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Page with Facilities management for Perun Admin
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -41,17 +41,17 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Facilities");
-	
+
 	/**
 	 * Creates a tab instance
      */
@@ -60,7 +60,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	public boolean isPrepared(){
 		return true;
 	}
-	
+
 	public Widget draw() {
 
 		// MAIN PANEL
@@ -69,7 +69,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 
 		// TAB MENU
 		TabMenu tabMenu = new TabMenu();
-		
+
 		// get RICH facilities request
 		final GetFacilities facilities = new GetFacilities(true);
         final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(facilities);
@@ -116,7 +116,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
                 });
 			}
 		});
-		
+
 		// filter box
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(facilities.getOracle()), new PerunSearchEvent() {
             public void searchFor(String text) {
@@ -133,7 +133,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(tabMenu);
@@ -142,9 +142,9 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.setCellHeight(sp, "100%");
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
-		
+
 		this.contentWidget.setWidget(firstTabPanel);
-		
+
 		return getWidget();
 	}
 
@@ -157,7 +157,7 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon(); 
+		return SmallIcons.INSTANCE.databaseServerIcon();
 	}
 
 	@Override
@@ -182,16 +182,16 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
         session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN, true);
         session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "Select facility", getUrlWithParameters());
 	}
-	
+
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin()) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
@@ -199,16 +199,16 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public final static String URL = "list";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
 	}
-	
+
 	static public FacilitiesSelectTabItem load(Map<String, String> parameters) {
 		return new FacilitiesSelectTabItem();
 	}

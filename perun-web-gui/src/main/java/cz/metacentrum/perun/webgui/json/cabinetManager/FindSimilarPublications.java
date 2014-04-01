@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * Finds similar RichPublications
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<Publication> {
@@ -90,7 +90,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
-	
+
 	/**
 	 * Returns table with publications
 	 * @param fu field updater
@@ -123,12 +123,12 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 
 		// Cell table
 		table = new PerunTable<Publication>(list);
-		
+
 		// display row-count for perun admin only
 		if (!session.isPerunAdmin()) {
-			table.removeRowCountChangeHandler();			
+			table.removeRowCountChangeHandler();
 		}
-		
+
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
@@ -151,7 +151,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 
 		// ID COLUMN
 		table.addIdColumn("Publication ID", tableFieldUpdater, 60);
-		
+
 		Column<Publication, ImageResource> lockedColumn = new Column<Publication, ImageResource>(new CustomImageResourceCell("click")){
 			public ImageResource getValue(Publication object) {
 				if (object.getLocked() == true) {
@@ -197,12 +197,12 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 					ArrayList<Publication> list = new ArrayList<Publication>();
 					list.add(object);
 					request.lockUnlockPublications(object.getLocked(), list);
-					
-				}	
+
+				}
 			}
 		};
 		table.addColumn(lockedColumn, "Lock");
-		
+
 		// TITLE COLUMN
 		Column<Publication, String> titleColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -228,10 +228,10 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 
 				authorColumn.setSortable(true);
 				columnSortHandler.setComparator(authorColumn, new PublicationComparator(PublicationComparator.Column.AUTHORS));
-				table.addColumn(authorColumn, "Reported by");	
+				table.addColumn(authorColumn, "Reported by");
 			}
 		}
-		
+
 		// YEAR COLUMN
 		Column<Publication, String> yearColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -255,7 +255,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 		categoryColumn.setSortable(true);
 		columnSortHandler.setComparator(categoryColumn, new PublicationComparator(PublicationComparator.Column.CATEGORY));
 		table.addColumn(categoryColumn, "Category");
-		
+
 		// THANKS COLUMN
 		Column<Publication, String> thanksColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -266,7 +266,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 							result += thks.get(i).getOwnerName()+", ";
 						}
 						if (result.length()>=2) {
-							result = result.substring(0, result.length()-2);							
+							result = result.substring(0, result.length()-2);
 						}
 						return result;
 					}
@@ -275,7 +275,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 		thanksColumn.setSortable(true);
 		columnSortHandler.setComparator(thanksColumn, new PublicationComparator(PublicationComparator.Column.THANKS));
 		table.addColumn(thanksColumn, "Thanked to");
-		
+
 		// CITE COLUMN
 		Column<Publication, String> citaceColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Publication, String>() {
@@ -421,7 +421,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
     public ArrayList<Publication> getList() {
         return this.list;
     }
-	
+
 	/**
 	 * Sets params map
 	 * @param ids

@@ -10,7 +10,7 @@ use overload
 
 sub toString {
     my $self = shift;
-    
+
     my @authors = $self->{_authors};
     my $rank = $self->{_rank};
     my $id = $self->{_id};
@@ -25,7 +25,7 @@ sub toString {
     my $createdDate = $self->{_createdDate};
     my $doi = $self->{_doi};
     my $locked = $self->{_locked};
-    
+
     my $str = 'Publication (';
     $str .= "authors: @authors, " if (@authors);
     $str .= "rank: $rank, " if ($rank);
@@ -42,7 +42,7 @@ sub toString {
     $str .= "doi: $doi" if ($doi);
     $str .= "locked: $locked" if ($locked);
     $str .= ')';
-    
+
     return $str;
 }
 
@@ -63,28 +63,28 @@ sub fromHash
 sub TO_JSON
 {
 	my $self = shift;
-	
+
 	my $id;
 	if (defined($self->{_id})) {
 		$id = $self->{_id}*1;
 	} else {
 		$id = 0;
 	}
-	
+
 	my $title;
 	if (defined($self->{_title})) {
 		$title = "$self->{_title}";
 	} else {
 		$title = undef;
 	}
-	
+
 	my $rank;
 	if (defined($self->{_rank})) {
 		$rank = $self->{_rank}*1;
 	} else {
 		$rank = undef;
 	}
-	
+
 	my $externalId;
 	if (defined($self->{_externalId})) {
 		$externalId = $self->{_externalId}*1;
@@ -119,35 +119,35 @@ sub TO_JSON
 	} else {
 		$main = undef;
 	}
-	
+
 	my $isbn;
 	if (defined($self->{_isbn})) {
 		$isbn = "$self->{_isbn}";
 	} else {
 		$isbn = undef;
 	}
-	
+
 	my $createdBy;
 	if (defined($self->{_createdBy})) {
 		$createdBy = "$self->{_createdBy}";
 	} else {
 		$createdBy = undef;
 	}
-	
+
 	my $createdDate;
 	if (defined($self->{_createdDate})) {
 		$createdDate = "$self->{_createdDate}";
 	} else {
 		$createdDate = undef;
 	}
-	
+
 	my $doi;
 	if (defined($self->{_doi})) {
 		$doi = "$self->{_doi}";
 	} else {
 		$doi = undef;
 	}
-	
+
 	my $locked;
 	if (defined($self->{_locked})) {
 		$locked = $self->{_locked}*1;
@@ -168,7 +168,7 @@ sub TO_JSON
 sub getId
 {
     my $self = shift;
-    
+
     return $self->{_id};
 }
 
@@ -176,14 +176,14 @@ sub setId
 {
     my $self = shift;
     $self->{_id} = shift;
-    
+
     return;
 }
 
 sub getTitle
 {
     my $self = shift;
-    
+
     return $self->{_title};
 }
 
@@ -191,14 +191,14 @@ sub setTitle
 {
     my $self = shift;
     $self->{_title} = shift;
-    
+
     return;
 }
 
 sub getRank
 {
 	my $self = shift;
-    
+
     return $self->{_rank};
 }
 
@@ -206,14 +206,14 @@ sub setRank
 {
     my $self = shift;
     $self->{_rank} = shift;
-    
+
     return;
 }
 
 sub getExternalId
 {
 	my $self = shift;
-    
+
     return $self->{_externalId};
 }
 
@@ -221,14 +221,14 @@ sub setExternalId
 {
     my $self = shift;
     $self->{_externalId} = shift;
-    
+
     return;
 }
 
 sub getPublicationSystemId
 {
 	my $self = shift;
-    
+
     return $self->{_publicationSystemId};
 }
 
@@ -236,14 +236,14 @@ sub setPublicationSystemId
 {
     my $self = shift;
     $self->{_publicationSystemId} = shift;
-    
+
     return;
 }
 
 sub getYear
 {
 	my $self = shift;
-    
+
     return $self->{_year};
 }
 
@@ -251,14 +251,14 @@ sub setYear
 {
     my $self = shift;
     $self->{_year} = shift;
-    
+
     return;
 }
 
 sub getMain
 {
 	my $self = shift;
-    
+
     return $self->{_main};
 }
 
@@ -266,14 +266,14 @@ sub setMain
 {
     my $self = shift;
     $self->{_main} = shift;
-    
+
     return;
 }
 
 sub getIsbn
 {
 	my $self = shift;
-    
+
     return $self->{_isbn};
 }
 
@@ -281,14 +281,14 @@ sub setIsbn
 {
     my $self = shift;
     $self->{_isbn} = shift;
-    
+
     return;
 }
 
 sub getCategoryId
 {
 	my $self = shift;
-    
+
     return $self->{_categoryId};
 }
 
@@ -296,14 +296,14 @@ sub setCategoryId
 {
     my $self = shift;
     $self->{_categoryId} = shift;
-    
+
     return;
 }
 
 sub getCreatedBy
 {
 	my $self = shift;
-    
+
     return $self->{_createdBy};
 }
 
@@ -311,14 +311,14 @@ sub setCreatedBy
 {
     my $self = shift;
     $self->{_createdBy} = shift;
-    
+
     return;
 }
 
 sub getCreatedDate
 {
 	my $self = shift;
-    
+
     return $self->{_createdDate};
 }
 
@@ -326,14 +326,14 @@ sub setCreatedDate
 {
     my $self = shift;
     $self->{_createdDate} = shift;
-    
+
     return;
 }
 
 sub getDoi
 {
 	my $self = shift;
-    
+
     return $self->{_doi};
 }
 
@@ -341,14 +341,14 @@ sub setDoi
 {
     my $self = shift;
     $self->{_doi} = shift;
-    
+
     return;
 }
 
 sub getLocked
 {
 	my $self = shift;
-    
+
     return $self->{_locked};
 }
 
@@ -356,14 +356,14 @@ sub setLocked
 {
     my $self = shift;
     $self->{_locked} = shift;
-    
+
     return;
 }
 
 sub getCathegortId
 {
 	my $self = shift;
-    
+
     return $self->{_cathegoryId};
 }
 
@@ -371,7 +371,7 @@ sub setCathegortId
 {
     my $self = shift;
     $self->{_cathegoryId} = shift;
-    
+
     return;
 }
 

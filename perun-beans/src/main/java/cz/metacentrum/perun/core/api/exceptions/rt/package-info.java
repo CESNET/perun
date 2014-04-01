@@ -5,7 +5,7 @@
  * they should be converted to checked exceptions.
  *
  * The base exception is {@link cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException}.
- * 
+ *
  *
  */
 package cz.metacentrum.perun.core.api.exceptions.rt;

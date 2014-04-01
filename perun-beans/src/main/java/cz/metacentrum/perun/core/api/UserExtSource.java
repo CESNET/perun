@@ -24,18 +24,18 @@ public class UserExtSource extends Auditable {
       this(id, source, login, userId);
       this.loa = loa;
     }
-    
+
     public UserExtSource(int id, ExtSource source, String login, int userId) {
       this(id, source, login);
       this.userId = userId;
     }
-    
+
     public UserExtSource(int id, ExtSource source, String login) {
         super(id);
         this.login = login;
         this.extSource = source;
     }
-    
+
     public UserExtSource(ExtSource source, int loa, String login) {
         this.loa = loa;
         this.login = login;
@@ -46,7 +46,7 @@ public class UserExtSource extends Auditable {
         this.login = login;
         this.extSource = source;
     }
-    
+
     public UserExtSource(int id, ExtSource source, String login, int userId, int loa,
             String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
       super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
@@ -79,7 +79,7 @@ public class UserExtSource extends Auditable {
     public void setUserId(int userId) {
       this.userId = userId;
     }
-    
+
     public int getLoa() {
       return loa;
     }
@@ -90,7 +90,7 @@ public class UserExtSource extends Auditable {
 
     @Override
     public String serializeToString() {
-        
+
         return this.getClass().getSimpleName() +":[" +
                 "id=<" + getId() + ">" +
                 ", login=<" + (getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())) + ">" +
@@ -98,7 +98,7 @@ public class UserExtSource extends Auditable {
                 ", loa=<" + getLoa() + ">" +
                 ']';
     }
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + ":[" +

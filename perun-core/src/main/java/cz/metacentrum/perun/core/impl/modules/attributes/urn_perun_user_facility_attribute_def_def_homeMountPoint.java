@@ -82,7 +82,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
         }
         return returnAttribute;
     }
-    
+
     @Override
     public List<String> getDependencies() {
       List<String> dependencies = new ArrayList<String>();
@@ -97,5 +97,5 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
       attr.setType(String.class.getName());
       attr.setDescription("Home mount point.");
       return attr;
-  }  
+  }
 }

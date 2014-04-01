@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to create service member in VO
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -50,7 +50,7 @@ public class CreateServiceMember {
 
 	/**
 	 * Attempts to create service member in VO
-	 * 
+	 *
 	 * @param voId vo where member should be created
 	 * @param name name of service member
      * @param users list of real users
@@ -80,12 +80,12 @@ public class CreateServiceMember {
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Member "+ name +" created !");
-				
+
 				// call validation asynchronously
 				Member mem = jso.cast();
 				ValidateMemberAsync request = new ValidateMemberAsync();
 				request.validateMemberAsync(mem);
-				
+
 				events.onFinished(jso);
 			};
 
@@ -98,11 +98,11 @@ public class CreateServiceMember {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -180,13 +180,13 @@ public class CreateServiceMember {
         }
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("vo", selectedVoId);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("vo", selectedVoId);
 		jsonQuery.put("candidate", newCandidate);
         jsonQuery.put("serviceUserOwners", array);
 
 		return jsonQuery;
-		
+
 	}
 
 }

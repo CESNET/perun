@@ -42,11 +42,11 @@ import java.util.Map;
 
 /**
  * Tab for setting attributes for specified services on facility
- * 
+ *
  * also:
- * 
+ *
  * FACILITY ADMIN / PERUN ADMIN - Create facility wizard - page 2
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -83,7 +83,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -97,7 +97,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
             }
         }).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
@@ -111,7 +111,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 		// set title
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Service settings");
-		
+
 		// content
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
@@ -133,7 +133,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		final CheckBox switchServicesChb = new CheckBox(WidgetTranslation.INSTANCE.offerAvailableServicesOnly(), false);
 		switchServicesChb.setValue(lastCheckBoxValue); // selected by default - unselected if switch hidden
 		switchServicesChb.setTitle(WidgetTranslation.INSTANCE.offerAvailableServicesOnlyTitle());
-		
+
 		// services listbox
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
 		// on change of service update table
@@ -215,7 +215,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
                 servList.addItem("Loading...");
             }
 		};
-		
+
 		final GetServices allServices = new GetServices(event);
 		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(),event);
 
@@ -237,7 +237,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 					SetAttributes request = new SetAttributes(saveChangesButtonEvent);
 					request.setAttributes(ids, reqAttrs.getTableSelectedList());
 				}
-			}			
+			}
 		});
 
 		// Remove attr button
@@ -251,7 +251,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 					ids.put("facility", facilityId);
 					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
 					request.removeAttributes(ids, list);
-				}		
+				}
 			}
 		});
 
@@ -288,7 +288,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
         }
 
 		/* TODO - not yet implemented
-		
+
 		CustomButton fillDefaultButton = new CustomButton("Fill default values", SmallIcons.INSTANCE.scriptGoIcon(), new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				Window.alert("not yet implemented");
@@ -310,7 +310,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		vp.add(menu);
@@ -333,7 +333,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.settingToolsIcon(); 
+		return SmallIcons.INSTANCE.settingToolsIcon();
 	}
 
 	@Override
@@ -371,20 +371,20 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	public boolean isAuthorized() {
 
 		if (session.isFacilityAdmin(facility.getId())) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "settings";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
 	}
@@ -392,11 +392,11 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	static public FacilitySettingsTabItem load(Facility facility) {
 		return new FacilitySettingsTabItem(facility);
 	}
-	
+
 	static public FacilitySettingsTabItem load(Map<String, String> parameters) {
 		int fid = Integer.parseInt(parameters.get("id"));
 		return new FacilitySettingsTabItem(fid);

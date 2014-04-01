@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Overlay type for ExecService objects
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -15,7 +15,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get ID of exec service
-	 * 
+	 *
 	 * @return ID of exec service
 	 */
 	public final native int getId() /*-{
@@ -24,7 +24,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get service associated with exec service
-	 * 
+	 *
 	 * @return service associated with exec service
 	 */
 	public final native Service getService() /*-{
@@ -33,17 +33,17 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get status of exec service (enabled/disabled)
-	 * 
+	 *
 	 * @return status of exec service
 	 */
 	public final native boolean isEnabled() /*-{
 		return this.enabled;
     }-*/;
-	
+
 	/**
 	 * Get status of exec service (enabled/disabled) for facility listed as denial.
 	 * This parameter is normally empty and must be filled by callback !!
-	 * 
+	 *
 	 * @return status of exec service on facility
 	 */
 	public final native String isLocalEnabled() /*-{
@@ -52,11 +52,11 @@ public class ExecService extends JavaScriptObject {
 		}
 		return this.localEnabled;
     }-*/;
-	
+
 	/**
 	 * Set status of exec service (enabled/disabled) for facility listed as denial.
 	 * This parameter is normally empty and must be filled by callback !!
-	 * 
+	 *
 	 * @param enable - state
 	 */
 	public final native void setLocalEnabled(String enabled) /*-{
@@ -65,7 +65,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get default delay value of exec service
-	 * 
+	 *
 	 * @return default delay value of exec service
 	 */
 	public final native int getDefaultDelay() /*-{
@@ -74,7 +74,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get default recurrence value of exec service
-	 * 
+	 *
 	 * @return default recurrence value of exec service
 	 */
 	public final native int getDefaultRecurrence() /*-{
@@ -83,7 +83,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get path to propagations scripts of exec service
-	 * 
+	 *
 	 * @return path to propagations scripts of exec service
 	 */
 	public final native String getScriptPath() /*-{
@@ -92,7 +92,7 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Get type of exec service (SEND / GENERATE)
-	 * 
+	 *
 	 * @return type of exec service
 	 */
 	public final native String getType() /*-{
@@ -101,38 +101,38 @@ public class ExecService extends JavaScriptObject {
 
 	/**
 	 * Sets status of exec service
-	 * 
+	 *
 	 * @param value (enabled = true / disabled = false)
 	 */
 	public final native void setEnabled(boolean value) /*-{
 		this.enabled = value;
 	}-*/;
-	
+
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			return "JavaScriptObject"
 		}
-		return this.objecttype;	
+		return this.objecttype;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.objecttype = type;	
+		this.objecttype = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
@@ -146,6 +146,6 @@ public class ExecService extends JavaScriptObject {
 	 */
 	public final boolean equals(ExecService o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 }

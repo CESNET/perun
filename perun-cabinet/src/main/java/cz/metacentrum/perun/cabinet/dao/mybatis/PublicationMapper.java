@@ -119,11 +119,11 @@ public interface PublicationMapper {
 	List<Publication> selectByParams(Map<String, Object> params);
 
 	PublicationForGUI selectRichByPrimaryKey(Integer publicationId);
-	
+
 	List<PublicationForGUI> selectRichByFilter(@Param("pub") Publication p,@Param("user") Integer userId);
-	
+
 	List<PublicationForGUI> selectRichByANDExample(@Param("pub") PublicationExample example,@Param("user") Integer userId);
-	
+
 	int lockPublications(@Param("lockState") boolean lockState, @Param("ids") List<Integer> ids);
-	
+
 }

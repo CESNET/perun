@@ -7,9 +7,9 @@ import cz.metacentrum.perun.engine.model.Statistics;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public interface PropagationMaintainer {
 

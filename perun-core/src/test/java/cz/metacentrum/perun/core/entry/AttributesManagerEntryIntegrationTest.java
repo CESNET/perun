@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.File;
-import java.io.FileWriter; 
+import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import org.junit.Before;
@@ -138,7 +138,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         private Host host1OnFacility3;
         private Host host2OnFacility3;
         private String key;
-        
+
 	@Before
 	public void setUp() throws Exception {
 
@@ -146,12 +146,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 this.setUpWorld();
 
 	}
-        
+
         /**
          * How the world look: "->" means "have a binding, connection with"
-         * 
-         * vo1 -> member1OfUser1, member2OfUser2, member1OfUser3 && group1InVo1, group2InVo1, membersGroupOfVo1 && resource1InVo1, resource2InVo1 
-         * vo2 -> member2OfUser1, member1OfUser2, member2OfUser3 && group1InVo2, group2InVo2, membersGroupOfVo2 && resource1InVo2, resource2InVo2 
+         *
+         * vo1 -> member1OfUser1, member2OfUser2, member1OfUser3 && group1InVo1, group2InVo1, membersGroupOfVo1 && resource1InVo1, resource2InVo1
+         * vo2 -> member2OfUser1, member1OfUser2, member2OfUser3 && group1InVo2, group2InVo2, membersGroupOfVo2 && resource1InVo2, resource2InVo2
          *
          * user1 -> member1OfUser1, member2OfUser1 && userExtSource1
          * user2 -> member1OfUser2, member2OfUser2 && userExtSource2
@@ -163,16 +163,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
          * member2OfUser2 IS disallowed
          * member1OfUser3 IS allowed
          * member2OfUser3 IS allowed
-         * 
+         *
          * group1InVo1 -> member1OfUser1, member2OfUser2, member1OfUser3
          * group2InVo1 -> member1OfUser1, member2OfUser2
          * group1InVo2 -> member2OfUser1, member1OfUser2
          * group2InVo2 -> member2OfUser1, member1OfUser2, member2OfUser3
-         * 
+         *
          * facility1 -> host1OnFacility1, host2OnFacility1
          * facility2 -> host1OnFacility2, host2OnFacility2
          * facility3 -> host1OnFacility3, host2OnFacility3
-         * 
+         *
          * resource1InVo1 ->  facility1 && group1InVo1, group2InVo1
          * resource2InVo1 ->  facility2 && group2InVo1
          * resource1InVo2 ->  facility2 && group1InVo2, group2InVo2
@@ -182,8 +182,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 //Create VO
 		vo1 = perun.getVosManagerBl().createVo(sess, new Vo(0, "vo1Test", "v1T"));
                 vo2 = perun.getVosManagerBl().createVo(sess, new Vo(0, "vo2Test", "v2T"));
-                
-                //Create Groups(members groups in vos), Members and Users from Candidates 
+
+                //Create Groups(members groups in vos), Members and Users from Candidates
                 Candidate can1 = new Candidate();
 		can1.setFirstName("user1");
 		can1.setId(0);
@@ -209,7 +209,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 member1OfUser3 = perun.getMembersManagerBl().createMemberSync(sess, vo1, can1);
                 user3 = perun.getUsersManagerBl().getUserByMember(sess, member1OfUser3);
                 member2OfUser3 = perun.getMembersManagerBl().createMember(sess, vo2, user3);
-                
+
                 //Validate members
                 member1OfUser1 = perun.getMembersManagerBl().validateMember(sess, member1OfUser1);
                 member2OfUser1 = perun.getMembersManagerBl().validateMember(sess, member2OfUser1);
@@ -217,11 +217,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 member2OfUser2 = perun.getMembersManagerBl().validateMember(sess, member2OfUser2);
                 member1OfUser3 = perun.getMembersManagerBl().validateMember(sess, member1OfUser3);
                 member2OfUser3 = perun.getMembersManagerBl().validateMember(sess, member2OfUser3);
-                
+
                 //Invalidate some members to Disallowed them
                 perun.getMembersManagerBl().invalidateMember(sess, member2OfUser1);
                 perun.getMembersManagerBl().invalidateMember(sess, member2OfUser2);
-                
+
                 //Create groups and add members to them
                 membersGroupOfVo1 = perun.getGroupsManagerBl().getGroupByName(sess, vo1, VosManager.MEMBERS_GROUP);
                 membersGroupOfVo2 = perun.getGroupsManagerBl().getGroupByName(sess, vo2, VosManager.MEMBERS_GROUP);
@@ -239,12 +239,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 perun.getGroupsManagerBl().addMember(sess, group2InVo2, member1OfUser2);
                 perun.getGroupsManagerBl().addMember(sess, group1InVo1, member1OfUser3);
                 perun.getGroupsManagerBl().addMember(sess, group2InVo2, member2OfUser3);
-                
+
                 //Create Facility
                 facility1 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility1", "test"));
                 facility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility2", "test"));
                 facility3 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility3", "test"));
-                
+
                 //Create Host on Facilities
                 host1OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility1"), facility1);
                 host2OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility1"), facility1);
@@ -252,7 +252,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 host2OnFacility2 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility2"), facility2);
                 host1OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility3"), facility3);
                 host2OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility3"), facility3);
-                
+
                 //Create resources and assing group to them
                 resource1InVo1 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource1InVo1", "", facility1.getId(), vo1.getId()), vo1, facility1);
                 resource2InVo1 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource2InVo1", "", facility2.getId(), vo1.getId()), vo1, facility2);
@@ -265,16 +265,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource1InVo2);
                 perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource2InVo2);
         }
-        
-	// ==============  1. GET ATTRIBUTES ================================   
-        
-        @Test 
+
+	// ==============  1. GET ATTRIBUTES ================================
+
+        @Test
 	public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResourceAndMember() throws Exception {
 		System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResourceAndMember");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute<Resource, Member>(resource1InVo1, member1OfUser1, null);
 
@@ -285,14 +285,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
 	}
-        
-        @Test 
+
+        @Test
 	public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResourceAndGroup() throws Exception {
 		System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResourceAndGroup");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute<Resource, Group>(resource1InVo1, group1InVo1, null);
 
@@ -303,7 +303,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromUserAndFacility() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromUserAndFacility");
@@ -311,95 +311,95 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute<User, Facility>(user2, facility2, null);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromGroup() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromGroup");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(group2InVo2);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromMember() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromMember");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(member2OfUser2);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 assertTrue("Return no vo.", listOfRichAttributes.size() == 0);
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResource() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromResource");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(resource2InVo2);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromUser() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromUser");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(user1);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 assertTrue("return 1 vo", listOfRichAttributes.size() == 1);
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromHost() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromHost");
@@ -407,13 +407,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
                 perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(host1OnFacility2);
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-                
+
                 //Return facilities Administrator too if exists
                 assertTrue("return at least 2 vos", listOfRichAttributes.size() >= 2);
                 assertTrue("return maximum of 3 vos", listOfRichAttributes.size() <= 3);
@@ -426,14 +426,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertTrue("returned vos contains vo1", returnedVos.contains(vo1));
                 assertTrue("returned vos contains vo2", returnedVos.contains(vo2));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromFacility() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromFacility");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(facility3);
@@ -450,16 +450,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                     returnedVos.add((Vo) ra.getPrimaryHolder());
                 }
                 assertTrue("returned vos contains vo2", returnedVos.contains(vo2));
-                assertTrue("returned vos not contains vo1", !returnedVos.contains(vo1));        
+                assertTrue("returned vos not contains vo1", !returnedVos.contains(vo1));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromVo() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromVo");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(vo2);
@@ -473,14 +473,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertTrue("returned vos contains vo2", listOfRichAttributes.get(0).getPrimaryHolder().equals(vo2));
                 assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetVosFromKey() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetVosFromKey");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder("String");
@@ -496,9 +496,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                     returnedVos.add((Vo) ra.getPrimaryHolder());
                 }
                 assertTrue("returned vos contains vo2", returnedVos.contains(vo2));
-                assertTrue("returned vos contains vo1", returnedVos.contains(vo1));        
+                assertTrue("returned vos contains vo1", returnedVos.contains(vo1));
         }
- 
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromResourceAndMember() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromResourceAndMember");
@@ -506,7 +506,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, group1InVo2, attribute);
                 perun.getAttributesManagerBl().setAttribute(sess, group2InVo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(resource1InVo2);
@@ -514,16 +514,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
                 List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-                assertTrue("Return no group.", listOfRichAttributes.size() == 0);       
+                assertTrue("Return no group.", listOfRichAttributes.size() == 0);
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromResourceAndGroup() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromResourceAndGroup");
                 //Prepare attribute, create it and set it with testing value
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, group2InVo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(resource1InVo2);
@@ -536,9 +536,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Group);
                 assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
                 assertTrue("richObject have in primaryAttribute our group", listOfRichAttributes.get(0).getPrimaryHolder().equals(group2InVo2));
-                assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));        
+                assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));
         }
-        
+
         @Test
         public void getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromUserAndFacility() throws Exception {
                 System.out.println("attributesManager.getRichAttributesWithHoldersForAttributeDefinitionGetGroupFromUserAndFacility");
@@ -546,7 +546,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_ATTR);
                 perun.getAttributesManagerBl().setAttribute(sess, group1InVo2, attribute);
                 perun.getAttributesManagerBl().setAttribute(sess, group2InVo2, attribute);
-                
+
                 //Prepare richAttribute with holders (attribute is not needed but holders are needed)
                 RichAttribute richAttr = new RichAttribute();
                 richAttr.setPrimaryHolder(user2);
@@ -563,21 +563,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 }
                 assertTrue("groups contains group1InVo2", groups.contains(group1InVo2));
                 assertTrue("groups contains group2InVo2", groups.contains(group2InVo2));
-                assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));        
+                assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));
         }
-        
+
         //TODO Another TESTS for getRichAttributesWithHolders
-        
+
         @Test
 	public void getAllSimilarAttributeNames() throws Exception {
 		System.out.println("attributesManager.getAllSimilarAttributeNames");
-                
+
                 List<String> similarAttrNames = new ArrayList<String>();
                 String name = "urn:perun:user:attribute-def:def:login-namespace";
                 similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
 		assertTrue("returned less than 0 names",similarAttrNames.size() >= 0);
 	}
-        
+
 	@Test
 	public void getFacilityAttributes() throws Exception {
 		System.out.println("attributesManager.getFacilityAttributes");
@@ -594,7 +594,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// 3 core + 1 opt
 
 	}
-        
+
 	@Test (expected=FacilityNotExistsException.class)
 	public void getFacilityAttributesWhenFacilityNotExists() throws Exception {
 		System.out.println("attributesManager.getFacilityAttributesWhenFacilityNotExists");
@@ -603,48 +603,48 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find facility
 
 	}
-        
+
         @Test
         public void getAllGroupAttributesStartWithNameWithoutNullValue() throws Exception {
                 System.out.println("attributesManager.getAllAttributesStartWithNameWithoutNullValue");
-                
+
                 vo = setUpVo();
                 group = setUpGroup();
                 attributes = setUpGroupAttributes();
-                
+
                 for(Attribute a: attributes) {
                     attributesManager.setAttribute(sess, group, a);
                 }
-                
+
                 List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, group, AttributesManager.NS_GROUP_ATTR_OPT + ":group_test_uniqueattribute");
-                
+
                 for(Attribute a: retAttr) {
                     System.out.println(a);
                 }
-                
+
                 assertNotNull("unable to get group attributes", retAttr);
-                
-                
+
+
                 assertTrue("our atttributes not returned",attributes.containsAll(retAttr));
 		assertTrue("returned 3 attributes",retAttr.size() == 3);
         }
-        
+
         @Test
         public void getAllResourceAttributesStartWithNameWithoutNullValue() throws Exception {
                 System.out.println("attributesManager.getAllAttributesStartWithNameWithoutNullValue");
-                
+
                 vo = setUpVo();
                 facility = setUpFacility();
                 resource = setUpResource();
                 attributes = setUpResourceAttributes();
-                
+
                 for(Attribute a: attributes) {
                     attributesManager.setAttribute(sess, resource, a);
                 }
-                
+
                 List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, resource, AttributesManager.NS_RESOURCE_ATTR_OPT + ":resource_test_uniqueattribute:");
                 assertNotNull("unable to get resource attributes", retAttr);
-                
+
                 assertTrue("our atttributes not returned",attributes.containsAll(retAttr));
 		assertTrue("returned 3 attributes",retAttr.size() == 3);
         }
@@ -665,7 +665,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// 3 core + 1 opt
 
 	}
-        
+
 	@Test
 	public void testOfAllGetMethods() throws Exception {
             vo = setUpVo();
@@ -716,16 +716,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             attributes = setUpResourceLargeAttribute();
             perun.getAttributesManagerBl().setAttribute(sess, resource, attributes.get(0));
             assertEquals(attributes.get(0), perun.getAttributesManagerBl().getAttribute(sess, resource, attributes.get(0).getName()));
-	}        
-        
+	}
+
         @Test
 	public void getEntitylessAttributes() throws Exception {
 		System.out.println("attributesManager.getEntitylessAttributes");
-                
+
 		attributes = setUpEntitylessAttribute();
                 String key = "Test Attributu Michal";
 		attributesManager.setAttribute(sess, key, attributes.get(0));
-                    
+
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, key);
 		assertNotNull("unable to get entityless attributes", retAttr);
 
@@ -733,15 +733,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertEquals("We expected 1 and we get "+retAttr.size(), 1, retAttr.size());
 
 	}
-        
+
         @Test
 	public void getEntitylessKeys() throws Exception {
 		System.out.println("attributesManager.getEntitylessKeys");
-                
+
 		attributes = setUpEntitylessAttribute();
                 String key = "Test Attributu Michal2";
 		attributesManager.setAttribute(sess, key, attributes.get(0));
-                    
+
                 List<String> entStr = attributesManager.getEntitylessKeys(sess, attributesManager.getAttributeDefinition(sess, attributes.get(0).getName()));
 		assertNotNull("unable to get entityless attributes", entStr);
 
@@ -749,7 +749,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 assertEquals("We expected 1 and we get "+entStr.size(), 1, entStr.size());
 
 	}
-        
+
         /*@Test
 	public void checkAttributeDependenciesForAllAttributesInMap() throws Exception {
 		System.out.println("attributesManager.checkAttributeDependenciesForAllAttributesInMap");
@@ -757,7 +757,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 //spy(attributesManagerBlImpl).checkAttributeValue(sess, resource, null);
                 //when(attributesManagerBlImpl.checkAttributeValue(any(PerunSession.class), any(Resource.class), any(Attribute.class)))
         }*/
-        
+
 	@Test (expected=VoNotExistsException.class)
 	public void getVoAttributesWhenVoNotExists() throws Exception {
 		System.out.println("attributesManager.getVoAttributesWhenVoNotExists");
@@ -883,7 +883,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 
 	}
-        
+
         @Test
 	public void getMemberAttributesByListOfNames1() throws Exception {
 		System.out.println("attributesManager.getMemberAttributesByListOfNames");
@@ -900,17 +900,17 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attr.setValue("MemberAttributeForList");
                 attributesManager.createAttribute(sess, attr);
                 attributesManager.setAttribute(sess, member, attr);
-                
+
                 List<String> attrNames = new ArrayList<String>();
                 attrNames.add(attributes.get(0).getName());
                 attrNames.add(attr.getName());
-                
+
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, attrNames);
 		assertNotNull("unable to get member attributes", retAttr);
 		assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
                 assertTrue("our attribute was not returned",retAttr.contains(attr));
 	}
-        
+
         @Test
 	public void getMemberAttributesByListOfNames2() throws Exception {
 		System.out.println("attributesManager.getMemberAttributesByListOfNames");
@@ -927,10 +927,10 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attr.setValue("MemberAttributeForList");
                 attributesManager.createAttribute(sess, attr);
                 attributesManager.setAttribute(sess, member, attr);
-                
+
                 List<String> attrNames = new ArrayList<String>();
                 attrNames.add(attr.getName());
-                
+
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, attrNames);
 		assertNotNull("unable to get member attributes", retAttr);
 		assertFalse("our attribute was not returned",retAttr.contains(attributes.get(0)));
@@ -1192,12 +1192,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		facility = setUpFacility();
 		attributes = setUpFacilityAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, facility, attributes);
 		// shouldn't set wrong attribute
 
-	}	
+	}
 
 	@Test
 	public void setVoAttributes() throws Exception {
@@ -1255,12 +1255,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		vo = setUpVo();
 		attributes = setUpVoAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, vo, attributes);
 		// shouldn't set wrong attribute
 
-	}	
+	}
 
 	@Test
 	public void setResourceAttributes() throws Exception {
@@ -1326,7 +1326,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility = setUpFacility();
 		resource = setUpResource();
 		attributes = setUpResourceAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, resource, attributes);
 		// shouldn't set wrong attribute
@@ -1422,13 +1422,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		member = setUpMember();
 		attributes = setUpMemberResourceAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, resource, member, attributes);
 		// shouldn't set wrong attribute
 
 	}
-       
+
 	@Test
 	public void setUserAttributesForMemberResource() throws Exception {
 		System.out.println("attributesManager.setUserAttributesForMemberResource");
@@ -1501,7 +1501,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		member = setUpMember();
 		attributes = setUpUserAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, resource, member, attributes, true);
 		// shouldn't set wrong attribute
@@ -1573,7 +1573,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		vo = setUpVo();
 		member = setUpMember();
 		attributes = setUpMemberAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, member, attributes);
 		// shouldn't set wrong attribute
@@ -1645,7 +1645,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		vo = setUpVo();
 		member = setUpMember();
 		attributes = setUpUserAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		User user = perun.getUsersManager().getUserByMember(sess, member);
 		attributesManager.setAttributes(sess, user, attributes);
@@ -1715,7 +1715,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		vo = setUpVo();
 		group = setUpGroup();
 		attributes = setUpGroupAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, group, attributes);
 		// shouldn't set wrong attribute
@@ -1733,29 +1733,29 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 attributes = new ArrayList<Attribute>();
                 attributes.addAll(attributes_member);
                 attributes.addAll(attributes_user);
-                
+
                 attributesManager.setAttributes(sess, member, attributes, true);
-                
+
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, member, true);
                 assertNotNull("unable to get member attributes", retAttr);
 		assertTrue("unable to set/or return our member attribute",retAttr.contains(attributes.get(0)));
                 assertTrue("unable to set/or return our member attribute",retAttr.contains(attributes.get(1)));
 	}
-        
+
         @Test
 	public void setMemberWorkWithoutUserAttributes() throws Exception {
 		System.out.println("attributesManager.setMemberWorkWithoutUserAttributes");
                 vo = setUpVo();
                 member = setUpMember();
                 attributes = setUpMemberAttribute();
-                
+
                 attributesManager.setAttributes(sess, member, attributes, false);
-                
+
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, member, false);
                 assertNotNull("unable to get member attributes", retAttr);
 		assertTrue("unable to set/or return our member attribute",retAttr.contains(attributes.get(0)));
 	}
-        
+
 	@Test
 	public void setGroupResourceAttributes() throws Exception {
 		System.out.println("attributesManager.setGroupResourceAttributes");
@@ -1843,7 +1843,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		group = setUpGroup();
 		attributes = setUpGroupResourceAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, resource, member, attributes);
 		// shouldn't set wrong attribute
@@ -1908,7 +1908,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		host = setUpHost().get(0);
 		attributes = setUpHostAttribute();
-		attributes.get(0).setValue(1); 
+		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
 		attributesManager.setAttributes(sess, host, attributes);
 		// shouldn't set wrong attribute
@@ -2526,41 +2526,41 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("returned wrong attr def by name",attrDef.getName().equals("urn:perun:vo:attribute-def:core:id"));
 
 	}
-        
+
         @Test
         public void getAttributeDefinitionWithRights() throws Exception {
                 System.out.println("attributesManager.getAttributeDefinitionWithRights");
-                
+
                 vo = setUpVo();
                 facility = setUpFacility();
                 resource = setUpResource();
                 group = setUpGroup();
                 member = setUpMember();
-                
+
                 perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
                 perun.getGroupsManagerBl().addMember(sess, group, member);
-                
+
                 Attribute attr = setUpSpecificMemberResourceAttribute(member, resource);
-                
+
                 List<PerunBean> perunBeans = new ArrayList<PerunBean>();
                 perunBeans.add(member);
                 perunBeans.add(resource);
-                
+
                 List<AttributeDefinition> attrDefs = attributesManager.getAttributesDefinitionWithRights(sess, perunBeans);
                 List<AttributeDefinition> allAttrDef = attributesManager.getAttributesDefinition(sess);
-                
+
                 assertFalse(attrDefs.isEmpty());
                 assertFalse(attrDefs.containsAll(allAttrDef));
                 assertTrue(allAttrDef.containsAll(attrDefs));
                 assertTrue(attrDefs.contains(attr));
-                
+
                 for(AttributeDefinition ad: attrDefs) {
-                    assertTrue(attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_ATTR) || 
+                    assertTrue(attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_ATTR) ||
                                attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_RESOURCE_ATTR) ||
                                attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_RESOURCE_ATTR));
                     assertTrue(ad.getWritable());
                 }
-                
+
         }
 
 	@Test (expected=AttributeNotExistsException.class)
@@ -3060,7 +3060,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	// TODO - není implementace pro getAttributeById(sess, group, id) 
+	// TODO - není implementace pro getAttributeById(sess, group, id)
 	// až bude metoda potřeba doplní se i test
 
 	@Test
@@ -4156,7 +4156,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("should have only 1 req facility attribute",reqAttr.size() == 1);
 
 	}
-        
+
         @Test
 	public void getResourceRequiredGroupResourceAndGroupAttributesForItsServices() throws Exception {
 		System.out.println("attributesManager.getRequiredFacilityAttributesForItsServices");
@@ -4177,7 +4177,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 }
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group, true);
-		
+
                 assertNotNull("unable to get required group_resource and group attributes for its services",reqAttr);
 		assertTrue("should have only 2 req group_resource and group attributes",reqAttr.size() == 2);
 
@@ -4287,7 +4287,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, member);  
+		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, member);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
 
@@ -4379,7 +4379,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, member, true);  
+		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, member, true);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
 
@@ -4491,7 +4491,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, facility, user);
 		assertNotNull("unable to get required facility user attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);      
+		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
 	}
 
@@ -4549,7 +4549,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member);
 		assertNotNull("unable to get required member attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);      
+		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
 	}
 
@@ -4613,7 +4613,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, user);
 		assertNotNull("unable to get required user attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);      
+		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
 	}
 
@@ -4685,7 +4685,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, group);  
+		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, group);
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
 
@@ -4763,7 +4763,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, group);
 		assertNotNull("unable to get required group attributes for resource",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);      
+		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
 	}
 
@@ -4823,16 +4823,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, host);
 		assertNotNull("unable to get required host attributes for resource",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);      
+		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
 
 	}
 
 	// TODO - doplnit testy na:
 	/*
 	 * v API chybí varinata group_resource work with group attributes:
-	 * 
+	 *
 	 * getResourceRequiredAttributes(sess, resource, resource, group, boolean);
-	 * 
+	 *
 	 */
 
 	@Test
@@ -5074,7 +5074,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
 
 	}
-        
+
         @Test
 	public void getRequiredMemberAndUserAttributesFromOneService() throws Exception {
 		System.out.println("attributesManager.getRequiredMemberAndUserAttributesFromOneService");
@@ -5084,9 +5084,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 group = setUpGroup();
 		facility = setUpFacility();
 		resource = setUpResource();
-                
+
                 this.setUpMemberToResource();
-                
+
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
 		perun.getResourcesManager().assignService(sess, resource, service);
@@ -5094,7 +5094,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, true);
 		assertNotNull("unable to get required member attributes for one service",reqAttr);
 		assertEquals("getRequiredAtributes(sess, member, true) returns wrong count of attributes", 2, reqAttr.size());
-                
+
 
 	}
 
@@ -5343,36 +5343,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertFalse("our facility shouldn't have set our attribute",retAttr.contains(attributes.get(0)));
 
 	}
-        
+
         @Test
         public void removeUserMemberResourceToMemberAndUserToFacilityAttributes() throws Exception {
                 System.out.println("attributesManager.removeUserMemberResourceToMemberAndUserToFacilityAttributes");
-                
+
                 vo = setUpVo();
                 facility = setUpFacility();
                 member = setUpMember();
                 User user = sess.getPerun().getUsersManager().getUserByMember(sess, member);
                 resource = setUpResource();
-                
+
                 List<Attribute> attributes_user = setUpUserAttribute();
                 List<Attribute> attributes_member = setUpMemberAttribute();
                 List<Attribute> attributes_user_facility = setUpFacilityUserAttribute();
                 List<Attribute> attributes_member_resource = setUpMemberResourceAttribute();
-                
+
                 List<Attribute> attributes = new ArrayList<Attribute>();
                 attributes.addAll(attributes_user);
                 attributes.addAll(attributes_member);
                 attributes.addAll(attributes_user_facility);
                 attributes.addAll(attributes_member_resource);
-                
+
                 attributesManager.removeAttributes(sess, facility, resource, user, member, attributes);
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, resource, user, member);
-                
+
                 retAttr.retainAll(attributes);
                 assertEquals("Excepted empty array list of Attributes.", new ArrayList<Attribute>(), retAttr);
-               
+
         }
-        
+
         @Test
         public void removeEntitylessAttribute() throws Exception {
                 System.out.println("attributesManager.removeEntitylessAttribute");
@@ -5416,7 +5416,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find vo attribute on facility
 
 	}
-        
+
         @Test
 	public void removeAllGroupResourceAndGroupAttributes() throws Exception {
 		System.out.println("attributesManager.removeAllGroupResourceAttributes");
@@ -5425,24 +5425,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility = setUpFacility();
                 resource = setUpResource();
                 group = setUpGroup();
-                
+
 		attributes = setUpGroupResourceAttribute();
                 attributes.addAll(setUpGroupAttribute());
-                
+
 		attributesManager.setAttributes(sess, resource, group, attributes, true);
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, group, true);
                 for(Attribute a: attributes) {
                     assertTrue("our group or group and resource has set this attribute", retAttr.contains(a));
                 }
-                
+
                 //remove all of them
                 attributesManager.removeAllAttributes(sess, resource, group, true);
                 retAttr = attributesManager.getAttributes(sess, resource, group, true);
                 for(Attribute a: attributes) {
                     assertFalse("our group or group and resource has not set this attribute", retAttr.contains(a));
-                }               
+                }
 	}
-        
+
         @Test
 	public void removeGroupResourceAndGroupAttributes() throws Exception {
 		System.out.println("attributesManager.removeAllGroupResourceAttributes");
@@ -5451,22 +5451,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility = setUpFacility();
                 resource = setUpResource();
                 group = setUpGroup();
-                
+
 		attributes = setUpGroupResourceAttribute();
                 attributes.addAll(setUpGroupAttribute());
-                
+
 		attributesManager.setAttributes(sess, resource, group, attributes, true);
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, group, true);
                 for(Attribute a: attributes) {
                     assertTrue("our group or group and resource has set this attribute", retAttr.contains(a));
                 }
-                
+
                 //remove all of them
                 attributesManager.removeAttributes(sess, resource, group, attributes, true);
                 retAttr = attributesManager.getAttributes(sess, resource, group, true);
                 for(Attribute a: attributes) {
                     assertFalse("our group or group and resource has not set this attribute", retAttr.contains(a));
-                }               
+                }
 	}
 
 	@Test
@@ -5484,7 +5484,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("our facility should still have core attribute",retAttr.contains(attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:id")));
 
 	}
-        
+
         @Test
 	public void removeAllFacilityAttributesWithUserFacilityAttributes() throws Exception {
 		System.out.println("attributesManager.removeAllFacilityAttributesExceptUserFacilityAttributes");
@@ -5498,15 +5498,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 attributes.addAll(setUpFacilityUserAttribute());
                 attributesManager.setAttribute(sess, facility, user, attributes.get(1));
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, facility);
-                retAttr.addAll(attributesManager.getAttributes(sess, facility, user)); 
+                retAttr.addAll(attributesManager.getAttributes(sess, facility, user));
                 assertTrue("our facility should have set our facility attribute", retAttr.contains(attributes.get(0)));
-                assertTrue("our facility should have set our user-facility attribute", retAttr.contains(attributes.get(1)));      
-                
+                assertTrue("our facility should have set our user-facility attribute", retAttr.contains(attributes.get(1)));
+
 		// remove all attributes from facility (definition or attribute)
                 attributesManager.removeAllAttributes(sess, facility, true);
                 retAttr.clear();
 		retAttr.addAll(attributesManager.getAttributes(sess, facility));
-                retAttr.addAll(attributesManager.getAttributes(sess, facility, user)); 
+                retAttr.addAll(attributesManager.getAttributes(sess, facility, user));
                 assertFalse("our facility should not have set our facility attribute", retAttr.contains(attributes.get(0)));
                 assertFalse("our facility should not have set our user-facility attribute", retAttr.contains(attributes.get(1)));
                 assertTrue("our facility should still have core attribute",retAttr.contains(attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:id")));
@@ -5525,20 +5525,20 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 attributes.addAll(setUpFacilityUserAttribute());
                 attributesManager.setAttribute(sess, facility, user, attributes.get(1));
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, facility);
-                retAttr.addAll(attributesManager.getAttributes(sess, facility, user)); 
+                retAttr.addAll(attributesManager.getAttributes(sess, facility, user));
                 assertTrue("our facility should have set our facility attribute", retAttr.contains(attributes.get(0)));
-                assertTrue("our facility should have set our user-facility attribute", retAttr.contains(attributes.get(1)));      
-                
+                assertTrue("our facility should have set our user-facility attribute", retAttr.contains(attributes.get(1)));
+
 		// remove all attributes from facility (definition or attribute)
                 attributesManager.removeAllAttributes(sess, facility, false);
                 retAttr.clear();
 		retAttr.addAll(attributesManager.getAttributes(sess, facility));
-                retAttr.addAll(attributesManager.getAttributes(sess, facility, user)); 
+                retAttr.addAll(attributesManager.getAttributes(sess, facility, user));
                 assertFalse("our facility should not have set our facility attribute", retAttr.contains(attributes.get(0)));
                 assertTrue("our facility should not have set our user-facility attribute", retAttr.contains(attributes.get(1)));
                 assertTrue("our facility should still have core attribute",retAttr.contains(attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:id")));
 	}
-        
+
 	@Test (expected=FacilityNotExistsException.class)
 	public void removeAllFacilityAttributesWhenFacilityNotExists() throws Exception {
 		System.out.println("attributesManager.removeAllFacilityAttributesWhenFacilityNotExists");
@@ -5991,7 +5991,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 
 	}
- 
+
 	@Test
 	public void removeMemberAttribute() throws Exception {
 		System.out.println("attributesManager.removeMemberAttribute");
@@ -6055,15 +6055,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 attributesManager.setAttributes(sess, user, userAttrs);
                 attributes.addAll(userAttrs);
                 attributesManager.removeAttributes(sess, member, true, attributes);
-                
+
                 List<Attribute> retAttr = attributesManager.getAttributes(sess, member);
                 retAttr.addAll(attributesManager.getAttributes(sess,user));
                 for(Attribute attr:attributes){
                     assertFalse("our member and user (who we getted from this member) shouldn't have set our attribute",retAttr.contains(attr));
                 }
-		    
+
         }
-        
+
         @Test
         public void removeMemberAttributesWorkWithoutUserAtributes() throws Exception {
                 System.out.println("attributesManager.removeMemberAttributesWorkWithoutUserAtributes");
@@ -6077,7 +6077,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                     assertFalse("our member shouldn't have set our attribute",retAttr.contains(attr));
                 }
         }
-        
+
 	@Test
 	public void removeMemberAttributes() throws Exception {
 		System.out.println("attributesManager.removeMemberAttributes");
@@ -7089,7 +7089,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         @Test
         public void getAttributeRights() throws Exception {
                 System.out.println("attributesManager.getAttributeRights");
-                
+
                 // setting rights
                 List<ActionType> listOfActions = new ArrayList<ActionType>();
                 listOfActions.add(ActionType.WRITE);
@@ -7098,7 +7098,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 rights.add(new AttributeRights(1, Role.VOADMIN, listOfActions));
                 rights.add(new AttributeRights(1, Role.SELF, new ArrayList<ActionType>()));
                 perun.getAttributesManager().setAttributeRights(sess, rights);
-                
+
                 // getting rights
                 rights.clear();
                 rights = perun.getAttributesManager().getAttributeRights(sess, 1);
@@ -7113,7 +7113,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                     }
                 }
         }
-        
+
         @Test
         public void setAttributeRights() throws Exception {
             System.out.println("attributesManager.setAttributeRights");
@@ -7133,10 +7133,10 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             rights.add(new AttributeRights(1, Role.VOADMIN, new ArrayList<ActionType>()));
             rights.add(new AttributeRights(1, Role.SELF, listOfActions));
             perun.getAttributesManager().setAttributeRights(sess, rights);
-            
+
             rights.clear();
             rights = perun.getAttributesManager().getAttributeRights(sess, 1);
-            
+
             for (AttributeRights attributeRights : rights) {
                     if (attributeRights.getRole().equals(Role.SELF)) {
                         assertTrue("our attribute 1 should not have right READ for VOADMIN", !(attributeRights.getRights().contains(ActionType.READ)));
@@ -7242,9 +7242,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return group;
 
 	}
-        
+
         private void setUpMemberToResource() throws Exception {
-            
+
                 perun.getGroupsManager().addMember(sess, group, member);
                 perun.getResourcesManager().assignGroupToResource(sess, group, resource);
         }
@@ -7329,7 +7329,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
         private List<Attribute> setUpEntitylessAttribute() throws Exception {
-            
+
             Attribute attr = new Attribute();
             attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
             attr.setFriendlyName("entityless_test_attribute");
@@ -7337,13 +7337,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             attr.setValue("EntitylessAttribute");
             assertNotNull("unable to create facility attribute",attributesManager.createAttribute(sess, attr));
             //create new entityless attribute
-            
+
             List<Attribute> attributes = new ArrayList<Attribute>();
             attributes.add(attr);
             // put attribute into list because setAttributes requires it
             return attributes;
         }
-        
+
 	private List<Attribute> setUpVoAttribute() throws Exception {
 
 		Attribute attr = new Attribute();
@@ -7435,7 +7435,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return attributes;
 
 	}
-        
+
         private List<Attribute> setUpResourceLargeAttribute() throws Exception {
 
 		Attribute attr = new Attribute();
@@ -7474,7 +7474,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return attributes;
 
 	}
-        
+
 
 	private List<Attribute> setUpGroupAttribute() throws Exception {
 
@@ -7494,85 +7494,85 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return attributes;
 
 	}
-        
+
         private List<Attribute> setUpGroupAttributes() throws Exception {
-            
+
                 Attribute attr = new Attribute();
                 String namespace = "group_test_uniqueattribute:specialNamespace";
                 attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
                 attr.setFriendlyName(namespace + "1");
                 attr.setType(String.class.getName());
                 attr.setValue("GroupAttribute");
-                
+
                 List<Attribute> attributes = new ArrayList<Attribute>();
                 assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr));
                 attributes.add(attr);
-                
+
                 Attribute attr2 = new Attribute(attr);
                 attr2.setFriendlyName(namespace + "2");
                 attr2.setValue("next2");
                 assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr2));
                 attributes.add(attr2);
-                
+
                 Attribute attr3 = new Attribute(attr);
                 attr3.setFriendlyName(namespace + "3");
                 attr3.setValue("next3");
                 assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr3));
                 attributes.add(attr3);
-                
+
                 //And one attribute with other name
                 Attribute attr4 = new Attribute(attr);
                 attr4.setFriendlyName("group_test_uniqueEattribute:specialNamespace");
                 attr4.setValue("next4");
                 assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr4));
-                
+
                 //Attribute with null value
                 Attribute attr5 = new Attribute(attr);
                 attr5.setFriendlyName(namespace + "5");
                 assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr5));
                 attributes.add(attr5);
-                
-                
+
+
                 return attributes;
         }
-        
+
         private List<Attribute> setUpResourceAttributes() throws Exception {
-            
+
                 Attribute attr = new Attribute();
                 String namespace = "resource_test_uniqueattribute:specialNamespace";
                 attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
                 attr.setFriendlyName(namespace + "1");
                 attr.setType(String.class.getName());
                 attr.setValue("ResourceAttribute");
-                
+
                 List<Attribute> attributes = new ArrayList<Attribute>();
                 assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr));
                 attributes.add(attr);
-                
+
                 Attribute attr2 = new Attribute(attr);
                 attr2.setFriendlyName(namespace + "2");
                 attr2.setValue("next2");
                 assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr2));
                 attributes.add(attr2);
-                
+
                 Attribute attr3 = new Attribute(attr);
                 attr3.setFriendlyName(namespace + "3");
                 attr3.setValue("next3");
                 assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr3));
                 attributes.add(attr3);
-                
+
                 //And one attribute with other name
                 Attribute attr4 = new Attribute(attr);
                 attr4.setFriendlyName("resource_test_uniqueEattribute:specialNamespace");
                 attr4.setValue("next4");
                 assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr4));
-                
-                //Attribute with null value 
+
+                //Attribute with null value
                 Attribute attr5 = new Attribute(attr);
                 attr5.setFriendlyName(namespace + "5");
                 assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr5));
                 attributes.add(attr5);
-                
+
                 return attributes;
         }
 
@@ -7613,7 +7613,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return attributes;
 
 	}
-        
+
         private Attribute setUpSpecificMemberResourceAttribute(Member member, Resource resource) throws Exception {
                 Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:member_resource:attribute-def:opt");
@@ -7625,7 +7625,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		return attr;
         }
-        
+
         public Attribute setAttributeInNamespace(String namespace) throws Exception {
                 AttributeDefinition attrDef = new AttributeDefinition();
                 attrDef.setNamespace(namespace);
@@ -7637,13 +7637,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
                 attribute.setValue("Testing value");
                 return attribute;
         }
-        
+
         private Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependenciesMapForTesting() {
                 Map<AttributeDefinition, Set<AttributeDefinition>> allDependenciesForTesting = new HashMap<AttributeDefinition, Set<AttributeDefinition>>();
                 //Prepare every possible way to test Attribute with Attribute
-                
+
                 //TODO FILL THIS MAP FOR USING
-                
+
                 return allDependenciesForTesting;
         }
 }

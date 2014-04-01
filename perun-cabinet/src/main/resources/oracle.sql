@@ -27,7 +27,7 @@ create table cabinet_publications (
    createdDate date not null,
    rank  number (38,1) default 0 not null,
    doi varchar2(256),
-   locked varchar2(1) default 0 not null  
+   locked varchar2(1) default 0 not null
 );
 
 create table cabinet_authorships (

@@ -28,7 +28,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
  * Class which provides connection to the rest of Perun.
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
 public class PerunServiceImpl implements IPerunService {
@@ -53,17 +53,17 @@ public class PerunServiceImpl implements IPerunService {
 	private PerunBl perun;
 	private PerunSession cabinetSession;
 	private Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	private IThanksDao thanksDao;
 
 	// setters ------------------------
-	
+
 	public void setThanksDao(IThanksDao thanksDao) {
 		this.thanksDao = thanksDao;
 	}
 
 	// methods ------------------------
-		
+
 	public Owner findOwnerById(PerunSession sess, Integer id) throws CabinetException {
 		try {
 			return perun.getOwnersManager().getOwnerById(sess, id);
@@ -75,11 +75,11 @@ public class PerunServiceImpl implements IPerunService {
 	public List<Owner> findAllOwners(PerunSession sess) throws CabinetException {
 		try {
 			return perun.getOwnersManager().getOwners(sess);
-		} catch (PerunException pe){ 
+		} catch (PerunException pe){
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}
 	}
-	
+
 	public User findUserById(PerunSession sess, Integer userId) throws CabinetException {
 		try {
 			return perun.getUsersManager().getUserById(sess, userId);
@@ -90,7 +90,7 @@ public class PerunServiceImpl implements IPerunService {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION ,pe);
 		}
 	}
-	
+
 	public List<User> findAllUsers(PerunSession sess) throws CabinetException {
 		try {
 			return perun.getUsersManager().getUsers(sess);
@@ -98,9 +98,9 @@ public class PerunServiceImpl implements IPerunService {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION , pe);
 		}
 	}
-	
+
 	public int getUsersCount(PerunSession sess) throws CabinetException {
-		try {	
+		try {
 			return perun.getUsersManager().getUsers(sess).size();
 		} catch (PerunException pe) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION , pe);
@@ -125,13 +125,13 @@ public class PerunServiceImpl implements IPerunService {
 		}
 
 	}
-	
+
 
 	@Override
 	public synchronized void setThanksAttribute(int userId) throws CabinetException {
 
 		List<ThanksForGUI> thanks = thanksDao.findAllRichThanksByUserId(userId);
-		
+
 		try {
 			// get user
 			User u = perun.getUsersManager().getUserById(cabinetSession, userId);
@@ -158,15 +158,15 @@ public class PerunServiceImpl implements IPerunService {
 				// empty or null thanks - update to: remove
 				perun.getAttributesManager().removeAttribute(cabinetSession, u, attrDef);
 			}
-			
+
 		} catch (PerunException e) {
 			throw new CabinetException("Failed to update "+ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME+" in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
 		}
-		
-		
+
+
 	}
 
-	
+
 	public List<UserExtSource> getUsersLogins(PerunSession sess, User user) throws CabinetException {
 		try {
 			return perun.getUsersManager().getUserExtSources(sess, user);
@@ -174,21 +174,21 @@ public class PerunServiceImpl implements IPerunService {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}
 	}
-	
+
 	/**
 	 * Init method
-	 * 
+	 *
 	 * Checks if attribute priorityCoeficient exists in DB,
 	 * if not, it's created.
-	 * 
+	 *
 	 * @throws PerunException
 	 */
 	protected void initialize() throws PerunException {
-		
+
 		// createCabinet
 		final PerunPrincipal pp = new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		cabinetSession = perun.getPerunSession(pp);
-		
+
 		AttributeDefinition attrDef;
 		try {
 			// check if attr exists

@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * Overlay type for registrar: ApplicationMail
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -19,7 +19,7 @@ public class ApplicationMail extends JavaScriptObject {
 
 	/**
 	 * Creates a new object
-	 * 
+	 *
 	 * @param appType
 	 * @param formId
 	 * @param mailType
@@ -29,19 +29,19 @@ public class ApplicationMail extends JavaScriptObject {
 	 */
 	static public ApplicationMail construct(String appType, int formId, String mailType, boolean send, Map<String, MailText> message) {
           ApplicationMail mail = new JSONObject().getJavaScriptObject().cast();
-          
+
           mail.setAppType(appType);
           mail.setFormId(formId);
           mail.setMailType(mailType);
           mail.setSend(send);
-          
+
           for(Map.Entry<String, MailText> entry : message.entrySet()) {
             mail.setMessage(entry.getKey(), entry.getValue());
           }
-          
+
           return mail;
 	}
-	
+
 	/**
 	 * Get ID
 	 * @return id
@@ -49,7 +49,7 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	/**
 	 * Connection to correct application form (VO)
 	 * @return id
@@ -57,7 +57,7 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native int getFormId() /*-{
 		return this.formId;
 	}-*/;
-	
+
 	/**
 	 * Connection to correct application form (VO)
 	 * @param id
@@ -65,7 +65,7 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native void setFormId(int id) /*-{
 		this.formId = id;
 	}-*/;
-	
+
 	/**
 	 * Get mail type
 	 * @return mail type
@@ -76,14 +76,14 @@ public class ApplicationMail extends JavaScriptObject {
 		}
 		return this.mailType;
 	}-*/;
-	
+
 	/**
 	 * Set mail type
 	 */
 	public final native void setMailType(String mailType) /*-{
 		this.mailType = mailType;
 	}-*/;
-	
+
 	/**
 	 * Get app type
 	 * @return app type
@@ -94,14 +94,14 @@ public class ApplicationMail extends JavaScriptObject {
 		}
 		return this.appType;
 	}-*/;
-	
+
 	/**
 	 * Set app type
 	 */
 	public final native void setAppType(String appType) /*-{
 		this.appType = appType;
 	}-*/;
-	
+
 
 	/**
 	 * Get message
@@ -116,7 +116,7 @@ public class ApplicationMail extends JavaScriptObject {
 		}
 		return this.message[locale];
 	}-*/;
-	
+
 	/**
 	 * Set message
 	 * @param locale
@@ -127,7 +127,7 @@ public class ApplicationMail extends JavaScriptObject {
 		}
 		this.message[locale] = message;
 	}-*/;
-	
+
 	/**
 	 * Get sending enabled
 	 * @return whether is sending enabled
@@ -135,7 +135,7 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native boolean isSend() /*-{
 		return this.send;
 	}-*/;
-	
+
 	/**
 	 * Set sending enabled
 	 * @param send is sending enabled
@@ -143,40 +143,40 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native void setSend(boolean send) /*-{
 		this.send = send;
 	}-*/;
-	
-		
+
+
 
 	/**
 	 * Returns Perun specific type of object
-	 * 
+	 *
 	 * @return type of object
 	 */
 	public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
-		return this.beanName;	
+		return this.beanName;
 	}-*/;
-	
+
 	/**
 	 * Sets Perun specific type of object
-	 * 
+	 *
 	 * @param type type of object
 	 */
 	public final native void setObjectType(String type) /*-{
-		this.beanName = type;	
+		this.beanName = type;
 	}-*/;
-	
+
 	/**
 	 * Returns the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-	 * 
+	 *
 	 * @return string which defines item status
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
-	
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare
@@ -184,7 +184,7 @@ public class ApplicationMail extends JavaScriptObject {
 	 */
 	public final boolean equals(ApplicationMail o)
 	{
-		return o.getId() == this.getId();		
+		return o.getId() == this.getId();
 	}
 
     /**

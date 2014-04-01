@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
 return qq{
 Updates user. User id is required.
 --------------------------------------
 Available options:
- --userId      | -u user id 
+ --userId      | -u user id
  --firstName   | -f first name for update
  --lastName    | -n family name for update
  --middleName  | -d middle name for update
@@ -25,9 +25,9 @@ Available options:
 
 my ($userId, $firstName, $lastName, $middleName, $titleBefore, $titleAfter, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "userId|u=i" => \$userId, "firstName|f=s" => \$firstName, 
+ "userId|u=i" => \$userId, "firstName|f=s" => \$firstName,
  "lastName|n=s" => \$lastName, "middleName|d=s" => \$middleName,
- "titleBefore|t=s" => \$titleBefore, "titleAfter|T=s" => \$titleAfter) || die help(); 
+ "titleBefore|t=s" => \$titleBefore, "titleAfter|T=s" => \$titleAfter) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}

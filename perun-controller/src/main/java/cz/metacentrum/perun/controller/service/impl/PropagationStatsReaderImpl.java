@@ -19,10 +19,10 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "propagationStatsReader")
 public class PropagationStatsReaderImpl implements PropagationStatsReader {
@@ -230,7 +230,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
   }
 
   public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException {
-    
+
     //FIXME check privileges, probably only some monitoring system can request these data
     return getTaskResultDao().getTaskResultsForDestinations(destinationsNames);
   }

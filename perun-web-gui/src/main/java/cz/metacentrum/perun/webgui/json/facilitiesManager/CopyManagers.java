@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which copy managers from one facility to another
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class CopyManagers {
@@ -43,7 +43,7 @@ public class CopyManagers {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testCreating()
@@ -70,7 +70,7 @@ public class CopyManagers {
 
 	/**
 	 * Attempts to copy managers from one facility to another
-	 * 
+	 *
 	 * @param sourceFacility ID of source facility to get managers from
 	 * @param destinationFacility ID of destination facility to copy managers to
 	 */

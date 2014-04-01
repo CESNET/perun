@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which deletes a Category
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class DeleteCategory {
@@ -42,7 +42,7 @@ public class DeleteCategory {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false when process can/can't continue
 	 */
 	private boolean testDeleting()
@@ -64,11 +64,11 @@ public class DeleteCategory {
 
 	/**
 	 * Attempts to delete a Category, it first tests the values and then submits them.
-	 * 
+	 *
 	 * @param categoryId ID of category to be deleted
 	 */
 	public void deleteCategory(final int categoryId) {
-		
+
 		this.categoryId = categoryId;
 
 		// test arguments
@@ -115,7 +115,7 @@ public class DeleteCategory {
 		category.put("id", new JSONNumber(categoryId));
 
 		return category;
-		
+
 	}
 
 }

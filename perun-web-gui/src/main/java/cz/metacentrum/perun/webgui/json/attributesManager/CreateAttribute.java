@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Ajax query which creates attribute definition
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -49,7 +49,7 @@ public class CreateAttribute {
 
 	/**
 	 * Creates attribute definition in DB - make RPC call
-	 * 
+	 *
 	 * @param friendlyName name of new attribute
 	 * @param description description of new attribute
 	 * @param namespace namespace of new attribute
@@ -90,11 +90,11 @@ public class CreateAttribute {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testCreating()
@@ -133,7 +133,7 @@ public class CreateAttribute {
 
 	/**
 	 * Prepares a JSON object.
-	 * 
+	 *
 	 * @return JSONObject - the whole query
 	 */
 	private JSONObject prepareJSONObject() {
@@ -147,8 +147,8 @@ public class CreateAttribute {
 		attributeDef.put("type", new JSONString(type));
 
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("attribute", attributeDef);    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("attribute", attributeDef);
 		return jsonQuery;
 
 	}

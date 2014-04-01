@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of Members applications with filtering based on group name
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
@@ -275,7 +275,7 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 		});
 		table.addColumn(loaColumn, "LoA");
 		table.setColumnWidth(loaColumn, "40px");
-		
+
 		// GROUP COLUMN
 		Column<Application, String> groupColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Application, String>() {
@@ -335,7 +335,7 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
         });
 
         return table;
-		
+
 	}
 
 	/**
@@ -534,5 +534,5 @@ public class GetApplicationsForMember implements JsonCallback, JsonCallbackTable
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
-	
+
 }

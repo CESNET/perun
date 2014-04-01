@@ -14,10 +14,10 @@ import cz.metacentrum.perun.dispatcher.parser.ParserManager;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 /**
- * 
- * @author Michal Karm Babacek 
+ *
+ * @author Michal Karm Babacek
  * JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value="parserManager")
 public class ParserManagerImpl implements ParserManager {
@@ -38,7 +38,7 @@ public class ParserManagerImpl implements ParserManager {
 	//private Parser parserPerunDB;
 	//@Autowired
 	//private Parser parserGrouper;
-	
+
 	@Override
 	public void summonParsers() {
 		//taskExecutor.execute(parserPerunDB);
@@ -49,11 +49,11 @@ public class ParserManagerImpl implements ParserManager {
 	    auditerListener.setDispatcherName(name);
 	    auditerListener.setEventQueue(eventQueue);
 	    taskExecutor.execute(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				auditerListener.init();
-				
+
 			}
 		});
 		//auditer.log(message);

@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
  * Changing user's password
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
@@ -26,14 +26,14 @@ public class ChangePassword {
 	final String JSON_URL = "usersManager/changePassword";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	// local variables for entity to send
 	private User user = null;
 	private String loginNamespace = "";
 	private String oldPassword = "";
 	private String newPassword = "";
 	private boolean checkOldPassword = true;
-	
+
 	/**
 	 * Creates a new request
 	 */
@@ -47,7 +47,7 @@ public class ChangePassword {
 	public ChangePassword(final JsonCallbackEvents events) {
 		this.events = events;
 	}
-	
+
 	/**
 	 * Creates a new request with custom events passed from tab or page
      *
@@ -62,7 +62,7 @@ public class ChangePassword {
 
 	/**
 	 * Changes password for the user
-	 * 
+	 *
 	 * @param user User to change password for
 	 * @param loginNamespace Login namespace
 	 * @param oldPassword Old password for comparing
@@ -75,7 +75,7 @@ public class ChangePassword {
 		this.loginNamespace = loginNamespace;
 		this.oldPassword = oldPassword;
 		this.newPassword = newPassword;
-		
+
 		// test arguments
 		if(!this.testAdding()){
 			return;
@@ -102,11 +102,11 @@ public class ChangePassword {
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}	
+	}
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testAdding()
@@ -129,16 +129,16 @@ public class ChangePassword {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
 		int checkPasswordNum = (checkOldPassword) ? 1 : 0;
-		
+
 		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
-		jsonQuery.put("user", new JSONNumber(user.getId()));    
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("user", new JSONNumber(user.getId()));
 		jsonQuery.put("loginNamespace", new JSONString(loginNamespace));
 		jsonQuery.put("oldPassword", new JSONString(oldPassword));
 		jsonQuery.put("newPassword", new JSONString(newPassword));

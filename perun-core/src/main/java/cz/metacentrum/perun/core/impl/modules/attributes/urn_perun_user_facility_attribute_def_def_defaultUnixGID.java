@@ -38,7 +38,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
      */
     public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
         Integer gid = (Integer) attribute.getValue();
-        if(gid == null) throw new WrongAttributeValueException(attribute, user, facility, "Attribute value is null.");  
+        if(gid == null) throw new WrongAttributeValueException(attribute, user, facility, "Attribute value is null.");
 
         Attribute namespaceAttribute;
         try {
@@ -58,7 +58,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
         resourceGidAttribute.setValue(attribute.getValue());
         List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
         List<Resource> allowedResourcesWithSameGid = sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGidAttribute);
-        allowedResourcesWithSameGid.retainAll(allowedResources); 
+        allowedResourcesWithSameGid.retainAll(allowedResources);
 
         if(!allowedResourcesWithSameGid.isEmpty()) return; //We found at least one allowed resource with same gid as the user have => attribute is OK
 
@@ -123,7 +123,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 
       return attribute;
     }
-    
+
     @Override
     public List<String> getDependencies() {
       List<String> dependencies = new ArrayList<String>();
@@ -141,5 +141,5 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
       attr.setType(Integer.class.getName());
       attr.setDescription("Default Unix Group ID.");
       return attr;
-  }  
+  }
 }

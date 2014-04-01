@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage printTable getSortingFunction); 
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 return qq{
@@ -25,11 +25,11 @@ my ($userId, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
            "userId|f=i" => \$userId,
            "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) }, 
+           "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
            "batch|b" => \$batch) || die help;
 
 #options check
-unless(defined $userId) { die "ERROR: userId is required\n";} 
+unless(defined $userId) { die "ERROR: userId is required\n";}
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();

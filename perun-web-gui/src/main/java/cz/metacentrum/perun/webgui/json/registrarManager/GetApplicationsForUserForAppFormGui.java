@@ -27,7 +27,7 @@ import java.util.Comparator;
 
 /**
  * Returns list of User's applications
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCallbackTable<Application>, JsonCallbackOracle<Application> {
@@ -82,12 +82,12 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
 
 	/**
 	 * Returns the celltable with custom onclick
-	 * @param fu Field updater 
+	 * @param fu Field updater
 	 * @return
 	 */
 	public CellTable<Application> getTable(FieldUpdater<Application, String> fu)
 	{
-		this.tableFieldUpdater = fu;	
+		this.tableFieldUpdater = fu;
 		return this.getTable();
 	}
 
@@ -123,7 +123,7 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
 
 		// columns
 		if (checkable) {
-			table.addCheckBoxColumn();			
+			table.addCheckBoxColumn();
 		}
 		table.addIdColumn("App ID", tableFieldUpdater, 100);
 
@@ -269,20 +269,20 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
         });
 
 		return table;
-		
+
 	}
 
 	/**
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		
+
 		String param = "";
-		
+
 		if (userId != 0) {
 			param = "id=" + this.userId;
 		}
-		
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}

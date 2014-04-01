@@ -15,7 +15,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Searches for the Facility with specified id.
-	 * 
+	 *
 	 * @param id int Facility ID
 	 * @return Facility Found facility
 	 */
@@ -26,10 +26,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return ac.getFacilityById(parms.readInt("id"));
     }
   },
-  
+
   /*#
    * Searches the Facility by its name and type.
-   * 
+   *
    * @param name String Facility name
    * @param type String Facility type
    * @return Facility Found facility
@@ -41,14 +41,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return ac.getFacilityByName(parms.readString("name"), parms.readString("type"));
     }
   },
-  
+
   /*#
    * List all users assigned to facility
-   * 
+   *
    * @return list<User> assigned users
    */
   getAssignedUsers {
-      
+
       public List<User> call(ApiCaller ac, Deserializer params) throws PerunException {
           if(params.contains("service"))
               return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(params.readInt("facility")),ac.getServiceById(params.readInt("service")));
@@ -56,10 +56,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
               return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(params.readInt("facility")));
       }
   },
-  
+
   /*#
    * List all facilities with addidtional information.
-   * 
+   *
    * @return List<Facility> All facilities
    */
   getRichFacilities {
@@ -69,10 +69,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return ac.getFacilitiesManager().getRichFacilities(ac.getSession());
     }
   },
-  
+
   /*#
    * Searches for the Facilities by theirs destination.
-   * 
+   *
    * @param destination String Destination
    * @return Facility Found facility
    */
@@ -80,14 +80,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
     @Override
     public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getFacilitiesManager().getFacilitiesByDestination(ac.getSession(), 
+      return ac.getFacilitiesManager().getFacilitiesByDestination(ac.getSession(),
           parms.readString("destination"));
     }
   },
-  
+
   /*#
    * List all facilities.
-   * 
+   *
    * @return List<Facility> All facilities
    */
   getFacilities {
@@ -100,7 +100,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Searches for the Facilities by their type.
-   * 
+   *
    * @param type String Facility type
    * @return List<Facility> Found facilities
    */
@@ -113,7 +113,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Get count of facilities of specified type.
-   * 
+   *
    * @param type String Facility type
    * @return int Facilities count
    */
@@ -137,7 +137,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Returns owners of a facility.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<Owner> Facility owners
    */
@@ -149,10 +149,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
-  /*# 
+
+  /*#
    * Add owner of a facility.
-   * 
+   *
    * @param facility int Facility ID
    * @param owner int Owner ID
    */
@@ -166,10 +166,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
-  /*# 
+
+  /*#
    * Remove owner of a facility.
-   * 
+   *
    * @param facility int Facility ID
    * @param owner int Owner ID
    */
@@ -183,10 +183,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
-   * 
+   *
    * @param facility int Facility ID
    * @return List<Vo> List of VOs
    */
@@ -243,10 +243,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
         return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(),facility, vo, service);
     }
   },
-  
+
   /*#
    * Returns all resources assigned to a facility.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<Resource> Resources
    */
@@ -258,8 +258,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
-  
+
+
   /*#
    * Returns all rich resources assigned to a facility with VO property filled.
    * @param facility int Facility ID
@@ -273,7 +273,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   /*#
    * Creates a facility.
    * @param facility Facility JSON object
@@ -287,7 +287,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           parms.read("facility", Facility.class));
     }
   },
-  
+
   /*#
    * Deletes a facility.
    * @param facility int Facility ID
@@ -316,11 +316,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
                   parms.read("facility", Facility.class));
       }
   },
-  
+
   /*#
    * Returns list of all facilities owned by the owner.
    * @param owner int Owner ID
-   * @return List<Facility> Owner's facilities 
+   * @return List<Facility> Owner's facilities
    */
   getOwnerFacilities {
 
@@ -330,7 +330,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getOwnerById(parms.readInt("owner")));
     }
   },
-  
+
   /*#
    * List of hosts of a Facility.
    * @param facility int Facility ID
@@ -343,7 +343,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   /*#
    * Returns a host by its ID.
    * @param id int Host ID
@@ -355,7 +355,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return ac.getFacilitiesManager().getHostById(ac.getSession(), parms.readInt("id"));
     }
   },
-  
+
   /*#
    * Return facility which has the host.
    * @param host int Host ID
@@ -364,7 +364,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   getFacilityForHost {
     @Override
     public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getFacilitiesManager().getFacilityForHost(ac.getSession(), 
+      return ac.getFacilitiesManager().getFacilityForHost(ac.getSession(),
           ac.getHostById(parms.readInt("host")));
     }
   },
@@ -384,7 +384,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Adds hosts to the Facility.
-   * 
+   *
    * @param hostnames List<String> Hostnames
    * @param facility int Facility ID
    * @return List<Host> Hosts with ID's set.
@@ -397,11 +397,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       Facility facility = ac.getFacilityById(parms.readInt("facility"));
 
       List<String> hostnames = parms.readList("hostnames", String.class);
-     
+
       return ac.getFacilitiesManager().addHosts(ac.getSession(), facility, hostnames);
     }
   },
-  
+
   /*#
    * Remove hosts from a Facility.
    * @param hosts List<Integer> List of Host IDs
@@ -427,12 +427,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Adds host to a Facility.
    * @param hostname String Hostname
    * @param facility int Facility ID
-   * @return Host Host with ID set. 
+   * @return Host Host with ID set.
    */
   addHost {
     @Override
@@ -466,28 +466,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       return null;
     }
   },
-  
+
   /*#
    * Get facilities where the service is defined..
-   * 
+   *
    * @param service int Service ID
    * @return List<Facility> Assigned facilities
    */
   /*#
    * Get facilities which are assigned to a Group (via resource).
-   * 
+   *
    * @param group int Group ID
    * @return List<Facility> Assigned facilities
    */
   /*#
    * Get facilities which have the member access on.
-   * 
+   *
    * @param member int Member ID
    * @return List<Facility> Assigned facilities
    */
   /*#
    * Get facilities which have the user access on.
-   * 
+   *
    * @param user int User ID
    * @return List<Facility> Assigned facilities
    */
@@ -512,15 +512,15 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
       }
     }
   },
-  
+
   /*#
    * Adds a Facility admin.
-   * 
+   *
    * @param facility int Facility ID
    * @param user int User ID
   /*#
   *  Adds a group administrator to the Facility.
-  * 
+  *
   *  @param facility int Facility ID
   *  @param authorizedGroup int Group ID
   */
@@ -540,15 +540,15 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
    * Removes a Facility admin.
-   * 
+   *
    * @param facility int Facility ID
    * @param user int User ID
   /*#
   *  Removes a group administrator of the Facility.
-  * 
+  *
   *  @param faility int Facility ID
   *  @param group int Group ID
   */
@@ -568,10 +568,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
             return null;
         }
     },
-  
+
   /*#
    * Get all Facility admins.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<RichMember> RichMember objects
    */
@@ -584,10 +584,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
    /*#
    * Get all Facility direct admins.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<User> list of admins of the facility
    */
@@ -600,10 +600,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   /*#
    * Get all Facility group admins.
-   * 
+   *
    * @param facility int Facility ID
    * @return List<Group> admins
    */
@@ -616,9 +616,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   getRichAdmins {
-    
+
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -626,9 +626,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   getRichAdminsWithAttributes {
-    
+
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -636,9 +636,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")));
     }
   },
-  
+
   getRichAdminsWithSpecificAttributes {
-    
+
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -646,11 +646,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getFacilityById(parms.readInt("facility")),
           parms.readList("specificAttributes", String.class));
     }
-  },  
-  
+  },
+
   /*#
    * Returns list of Facilities, where the user is an Administrator.
-   * 
+   *
    * @param user int User ID
    * @return List<Facility> Found Facilities
    */
@@ -662,10 +662,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           ac.getUserById(parms.readInt("user")));
     }
   },
-  
+
   /*#
    * Return all facilities where exists host with the specific hostname
-   * 
+   *
    * @param hostname specific hostname
    * @return List<Facility> Found Facilities
    */
@@ -677,10 +677,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
           parms.readString("hostname"));
     }
   },
-  
+
   /*#
    * Return all users which can use this facility
-   * 
+   *
    * @param facility
    * @param vo if provided, filter out users who aren't in specific VO
    * @param service if provided, filter out users who aren't allowed to use the service on the facility

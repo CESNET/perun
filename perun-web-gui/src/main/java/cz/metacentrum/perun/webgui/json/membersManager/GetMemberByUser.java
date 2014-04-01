@@ -9,7 +9,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * MembersManager/GetMemberByUser
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 public class GetMemberByUser implements JsonCallback {
@@ -25,13 +25,13 @@ public class GetMemberByUser implements JsonCallback {
 
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	
+
 	private boolean hidden = false;
 
 	/**
 	 * New instance of member info
      *
-	 * @param voId 
+	 * @param voId
 	 * @param userId
 	 */
 	public GetMemberByUser(int voId, int userId) {
@@ -62,7 +62,7 @@ public class GetMemberByUser implements JsonCallback {
 		// retrieve data
 		JsonClient js = new JsonClient();
 		js.setHidden(hidden);
-		js.retrieveData(JSON_URL, param, this);		
+		js.retrieveData(JSON_URL, param, this);
 	}
 
 	/**
@@ -85,16 +85,16 @@ public class GetMemberByUser implements JsonCallback {
 	public void onLoadingStart() {
 		events.onLoadingStart();
 	}
-	
+
 	/**
 	 * Sets events to this callback
-	 * 
+	 *
 	 * @param events
 	 */
 	public void setEvents(JsonCallbackEvents events){
 		this.events = events;
 	}
-	
+
 	/**
 	 * Set callback as hidden (do not show error popup)
 	 * @param hidden
@@ -102,5 +102,5 @@ public class GetMemberByUser implements JsonCallback {
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
 	}
-	
-}	
+
+}

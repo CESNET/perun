@@ -15,7 +15,7 @@ import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy;
 public class PubSysTestStrategy implements IFindPublicationsStrategy {
 
 	public final static HttpGet httpGet = new HttpGet("www.metacentrum.cz");
-	
+
 	public HttpUriRequest getHttpRequest(String authorId, int yearSince,
 			int yearTill, PublicationSystem ps) {
 		//return new HttpGet("www.metacentrum.cz");

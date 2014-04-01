@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
  * Ajax query which removes required attribute from service
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
@@ -44,7 +44,7 @@ public class RemoveRequiredAttribute {
 
 	/**
 	 * Tests the values, if the process can continue
-	 * 
+	 *
 	 * @return true/false for continue/stop
 	 */
 	private boolean testRemoving()
@@ -71,7 +71,7 @@ public class RemoveRequiredAttribute {
 
 	/**
 	 * Attempts to remove required attribute from specified service
-	 * 
+	 *
 	 * @param serviceId ID of service to get required attribute removed
 	 * @param attributeId ID of attribute def. which will be removed as required
 	 */
@@ -110,17 +110,17 @@ public class RemoveRequiredAttribute {
 
 	/**
 	 * Prepares a JSON object
-	 * 
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject()
 	{
 		// get values
-		JSONNumber service = new JSONNumber(serviceId); 
+		JSONNumber service = new JSONNumber(serviceId);
 		JSONNumber attribute = new JSONNumber(attributeId);
 
 		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();      
+		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("service", service);
 		jsonQuery.put("attribute", attribute);
 		return jsonQuery;

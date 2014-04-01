@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * VO Groups page.
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -68,7 +68,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -83,7 +83,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
         };
         new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
+
 	public boolean isPrepared(){
 		return !(vo == null);
 	}
@@ -91,7 +91,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"groups");
-		
+
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -144,8 +144,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
                 groups.filterTable(text);
             }
         }, ButtonTranslation.INSTANCE.filterGroup());
-		
-		// add a table with a onclick		
+
+		// add a table with a onclick
 		CellTable<Group> table = groups.getTable(new FieldUpdater<Group, String>() {
 			public void update(int index, Group group, String value) {
 				session.getTabManager().addTab(new GroupDetailTabItem(group));
@@ -155,7 +155,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");		
+		sp.addStyleName("perun-tableScrollPanel");
 
 		// add menu and the table to the main panel
 		firstTabPanel.add(menu);
@@ -182,7 +182,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupIcon(); 
+		return SmallIcons.INSTANCE.groupIcon();
 	}
 
 	@Override
@@ -222,26 +222,26 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
 
 	}
-	
+
 	public final static String URL = "groups";
-	
+
 	public String getUrl()
 	{
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoGroupsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoGroupsTabItem(voId);
