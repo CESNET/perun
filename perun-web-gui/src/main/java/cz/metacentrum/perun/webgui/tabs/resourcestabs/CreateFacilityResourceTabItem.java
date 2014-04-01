@@ -134,7 +134,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 
 		// Add some standard form options
 		layout.setHTML(0, 0, "On facility:");
-		layout.setHTML(0, 1, facility.getName()+" ("+facility.getType()+")");
+		layout.setHTML(0, 1, facility.getName());
 		layout.setHTML(1, 0, "For VO:");
 		layout.setWidget(1, 1, vosDropDown);
 		layout.setHTML(2, 0, "Name:");

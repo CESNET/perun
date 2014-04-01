@@ -112,7 +112,7 @@ public class FacilityPropagationTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Services propagation");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Services propagation");
 
 		// content
 		VerticalPanel vp = new VerticalPanel();

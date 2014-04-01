@@ -158,8 +158,6 @@ public class HyperlinkCellWithAuthz<T extends JavaScriptObject> extends Abstract
 			Facility object = go.cast();
 			if (attrName.equalsIgnoreCase("name")) {
 				return object.getName();
-			} else if (attrName.equalsIgnoreCase("type")) {
-				return object.getType();
 			} else if (attrName.equalsIgnoreCase("id")) {
 				return ""+object.getId();
 			} else if (attrName.equalsIgnoreCase("technicalOwners")) {

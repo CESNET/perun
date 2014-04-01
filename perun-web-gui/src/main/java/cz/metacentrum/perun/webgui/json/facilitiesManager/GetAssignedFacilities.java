@@ -123,23 +123,6 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 		table.addIdColumn("Facility ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
 
-		// Create type column.
-		Column<Facility, String> typeColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<Facility, String>() {
-					public String getValue(Facility object) {
-						return object.getType();
-					}
-				}, this.tableFieldUpdater);
-
-		typeColumn.setSortable(true);
-		columnSortHandler.setComparator(typeColumn, new Comparator<Facility>() {
-			public int compare(Facility o1, Facility o2) {
-				return o1.getType().compareToIgnoreCase(o2.getType());
-			}
-		});
-
-		table.addColumn(typeColumn, "Type");
-
 		return table;
 
 	}

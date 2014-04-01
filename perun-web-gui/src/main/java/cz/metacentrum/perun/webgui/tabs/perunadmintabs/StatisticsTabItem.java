@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.facilitiesManager.GetFacilitiesCountByType;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetGroupsCount;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMembersCount;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetResourcesCount;
@@ -33,7 +32,6 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
@@ -50,10 +48,6 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Statistics");
-
-	//array with types of facilities
-	static private String[] FACILITIES_TYPES = {"host", "vhost", "cluster", "vcluster", "general"};
-
 
 	/**
 	 * Creates a tab instance
@@ -172,44 +166,6 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		final DisclosurePanel facStatistics = new DisclosurePanel();
-		facStatistics.setWidth("100%");
-		//vosStatistics.setOpen(true);
-		FlexTable facHeader = new FlexTable();
-		facHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.databaseServerIcon()));
-		facHeader.setWidget(0, 1, new HTML("<h3>Facilities</h3>"));
-		facHeader.setTitle("Click to show/hide Facilities statistics");
-		facStatistics.setHeader(facHeader);
-
-		vp.add(facStatistics);
-
-		// FACILITIES BY TYPE
-		final FlexTable facilitiesByTypeTable = new FlexTable();
-		facilitiesByTypeTable.addStyleName("statisticsTable");
-		facilitiesByTypeTable.setWidget(0, 0, new HTML("<strong>" + "Facility type" + "</strong>"));
-		facilitiesByTypeTable.setWidget(0, 1, new HTML("<strong>" + "Count" + "</strong>"));
-
-		facHeader.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				if (facStatistics.getContent() == null) {
-
-					// retrieve data
-					facStatistics.setContent(facilitiesByTypeTable);
-					for(int i = 0; i < FACILITIES_TYPES.length; i++)
-		{
-			String type = FACILITIES_TYPES[i];
-			GetFacilitiesCountByType count = new GetFacilitiesCountByType(type);
-			count.retrieveData();
-			facilitiesByTypeTable.setText(i+1, 0, type);
-			facilitiesByTypeTable.setWidget(i+1, 1, count.getFacilitiesCountLabel());
-		}
-
-				}
-			}
-		});
-
-
-
 		this.contentWidget.setWidget(scroll);
 
 		return getWidget();
@@ -236,9 +192,6 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
