@@ -226,7 +226,7 @@ public class RpcCallerImpl implements RpcCaller {
     try {
       // Get the path to the perun.properties file
       // FIXME - DO NOT USE ABSOLUTE PATH !!
-      BufferedInputStream is = new BufferedInputStream(new FileInputStream("/etc/perunv3/perun-rpc-lib.properties"));
+      BufferedInputStream is = new BufferedInputStream(new FileInputStream("/etc/perun/perun-rpc-lib.properties"));
       properties.load(is);
       is.close();
 
