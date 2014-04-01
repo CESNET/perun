@@ -14,8 +14,6 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -70,12 +68,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.AbstractList;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -5180,5 +5172,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
+	}
+
+	public Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting) {
+		String testAttributeType = attributeToConverting.getType();
+		if (testAttributeType.equals(String.class.getName()) && attributeToConverting.getValue().equals("")) {
+			attributeToConverting.setValue(null);
+		}
+		return attributeToConverting;
 	}
 }
