@@ -76,7 +76,7 @@ public class LdapConnectorImpl implements LdapConnector {
     attributes.put("perunResourceId", String.valueOf(resource.getId()));
     attributes.put("perunFacilityId", String.valueOf(resource.getFacilityId()));
     attributes.put("perunVoId", String.valueOf(resource.getVoId()));
-    if(resource.getDescription() != null) attributes.put("description", resource.getDescription());
+    if(resource.getDescription() != null && !resource.getDescription().isEmpty()) attributes.put("description", resource.getDescription());
    
     // Create the entry 
     try {
@@ -119,7 +119,7 @@ public class LdapConnectorImpl implements LdapConnector {
     attributes.put("perunGroupId", String.valueOf(group.getId()));
     attributes.put("perunUniqueGroupName", new String(this.getVoShortName(group.getVoId()) + ":" + group.getName()));
     attributes.put("perunVoId", String.valueOf(group.getVoId()));
-    if(group.getDescription() != null) attributes.put("description", group.getDescription());
+    if(group.getDescription() != null && !group.getDescription().isEmpty()) attributes.put("description", group.getDescription());
     if(group.getParentGroupId() != null) {
         attributes.put("perunParentGroup", "perunGroupId=" + group.getParentGroupId().toString() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
         attributes.put("perunParentGroupId", group.getParentGroupId().toString());
