@@ -144,15 +144,15 @@ public class AddMember {
 
 				UiElements.generateError(error, "Wrong settings", text);
 
-			} else if ("AlreadyMemberException".equals(error.getType())) {
+			} else if ("AlreadyMemberException".equals(error.getName())) {
 
 				UiElements.generateError(error, "Already member", member.getUser().getFullNameWithTitles() + " is already member of group " + group.getShortName() + ".");
 
-			} else if ("WrongReferenceAttributeValueException".equals(error.getType())) {
+			} else if ("WrongReferenceAttributeValueException".equals(error.getName())) {
 
 				String text = member.getUser().getFullNameWithTitles() + " can't be added to group " + group.getShortName() + ".";
 
-				text += "<p>";
+				text += "<p>Following combination of settings is not correct:";
 
 				Attribute a = error.getAttribute();
 				Attribute a2 = error.getReferenceAttribute();
@@ -164,17 +164,17 @@ public class AddMember {
 					text += "<p><strong>Setting&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
 					text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
 				} else {
-					text += "<p><i>Attribute 1 is null or not present in error message</i>";
+					text += "<p><i>Setting 1 is null or not present in error message.</i>";
 				}
 
 				if (a2 != null) {
 					String attrName = a2.getDisplayName();
 					String attrValue = a2.getValue();
 					String entity = a2.getEntity();
-					text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+					text += "<p><strong>Setting&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
 					text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
 				} else {
-					text += "<p><i>Attribute 2 is null or not present in error message</i>";
+					text += "<p><i>Setting 2 is null or not present in error message.</i>";
 				}
 
 				UiElements.generateError(error, "Wrong settings", text);

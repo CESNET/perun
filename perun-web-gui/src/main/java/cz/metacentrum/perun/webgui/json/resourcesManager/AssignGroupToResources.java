@@ -7,10 +7,9 @@ import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.Group;
-import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.RichResource;
+import cz.metacentrum.perun.webgui.model.*;
 
 import java.util.ArrayList;
 
@@ -130,6 +129,106 @@ public class AssignGroupToResources {
 		jsonQuery.put("group", new JSONNumber(group.getId()));
 
 		return jsonQuery;
+	}
+
+	/**
+	 * Handle common exceptions caused by this callback.
+	 *
+	 * @param error     PerunError returned from Perun
+	 * @param group  related group
+	 */
+	private void handleCommonExceptions(PerunError error, Group group) {
+
+		if (error != null) {
+
+			if ("WrongAttributeValueException".equals(error.getName())) {
+
+				Attribute a = error.getAttribute();
+				GeneralObject holder = error.getAttributeHolder();
+				GeneralObject secondHolder = error.getAttributeHolderSecondary();
+
+				String text = "Group "+group.getShortName()+" can't be assigned to one of resources.";
+
+				if (a != null) {
+
+					if (a.getValue().equals("null")) {
+						text += "<p>Following setting is missing, but it's required by services on resource.";
+					} else {
+						text += "<p>Following setting, required by services on resource, is wrong.";
+					}
+
+					String attrName = a.getDisplayName();
+					String attrValue = a.getValue();
+					text += "<p><strong>Setting:&nbsp;</strong>" + attrName + "<br />";
+
+					if (holder != null) {
+						if (!holder.getName().equalsIgnoreCase("undefined")) {
+							text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
+						}
+					}
+					if (secondHolder != null) {
+						if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
+							text += "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
+						}
+					}
+
+					if (!a.getValue().equals("null")) {
+						text += "<strong>Value:&nbsp;</strong>" + attrValue;
+					}
+
+					text += "<p>Please fix the issue before assigning group to resource on group's settings page.";
+
+				} else {
+					text += "<p><i>Attribute is null, please report this error.</i>";
+				}
+
+				UiElements.generateError(error, "Wrong settings", text);
+
+			} else if ("GroupAlreadyAssignedException".equals(error.getName())) {
+
+				UiElements.generateError(error, "Already assigned", "Group is already assigned to one of resources.");
+
+			} else if ("WrongReferenceAttributeValueException".equals(error.getName())) {
+
+				String text = "Group "+group.getShortName()+" can't be assigned to one of resources.";
+
+				text += "<p>Following combination of settings is not correct:";
+
+				Attribute a = error.getAttribute();
+				Attribute a2 = error.getReferenceAttribute();
+
+				if (a != null) {
+					String attrName = a.getDisplayName();
+					String attrValue = a.getValue();
+					String entity = a.getEntity();
+					text += "<p><strong>Setting&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
+					text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
+				} else {
+					text += "<p><i>Setting 1 is null or not present in error message.</i>";
+				}
+
+				if (a2 != null) {
+					String attrName = a2.getDisplayName();
+					String attrValue = a2.getValue();
+					String entity = a2.getEntity();
+					text += "<p><strong>Setting&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+					text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
+				} else {
+					text += "<p><i>Setting 2 is null or not present in error message.</i>";
+				}
+
+				UiElements.generateError(error, "Wrong settings", text);
+
+			} else {
+
+				// use standard processing for other errors
+				JsonErrorHandler.alertBox(error);
+
+			}
+
+		}
+
+
 	}
 
 }
