@@ -342,7 +342,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
 				replaceList.add(new Pair("cn",this.resource.getName()));
-				if(this.resource.getDescription() != null) replaceList.add(new Pair("description", this.resource.getDescription()));
+				if(this.resource.getDescription() != null && !this.resource.getDescription().isEmpty()) replaceList.add(new Pair("description", this.resource.getDescription()));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateResourceAttributes(attributes, this.resource);
 			}
@@ -364,7 +364,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
 				replaceList.add(new Pair("cn",this.group.getName()));
 				replaceList.add(new Pair("perunUniqueGroupName", ldapConnector.getVoShortName(this.group.getVoId()) + ":" + this.group.getName()));
-				if(this.group.getDescription() != null) replaceList.add(new Pair("description", this.group.getDescription()));
+				if(this.group.getDescription() != null && !this.group.getDescription().isEmpty()) replaceList.add(new Pair("description", this.group.getDescription()));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateGroupAttributes(attributes, this.group);
 			}
