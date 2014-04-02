@@ -2,14 +2,12 @@ package cz.metacentrum.perun.webgui.json.groupsManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.Group;
-import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Ajax query to add member to group
@@ -24,17 +22,12 @@ public class AddMember {
 	final String JSON_URL = "groupsManager/addMember";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// ids
-	private int memberId = 0;
-	private int groupId = 0;
-
-	private RichMember member = null;
-	private Group group = null;
 
 	/**
 	 * Creates a new request
 	 */
-	public AddMember() {}
+	public AddMember() {
+	}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
@@ -48,123 +41,153 @@ public class AddMember {
 	/**
 	 * Attempts to add member to group
 	 *
-	 * @param groupId ID of group
-	 * @param memberId ID of VO member to be member of group
-	 */
-	public void addMemberToGroup(final int groupId,final int memberId) {
-
-		this.memberId = memberId;
-		this.groupId = groupId;
-
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
-
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding member: " + memberId + " to group: " + groupId + " failed.");
-				events.onError(error);
-			};
-
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member: " + memberId + " added to group: " + groupId);
-				events.onFinished(jso);
-			};
-
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
-
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
-	}
-
-	/**
-	 * Attempts to add member to group
-	 *
-	 * @param group group
+	 * @param group  group
 	 * @param member member to be member of group
 	 */
-	public void addMemberToGroup(final Group group,final RichMember member) {
+	public void addMemberToGroup(final Group group, final RichMember member) {
 
-		this.group = group;
-		this.member = member;
-
-		this.memberId = (member != null) ? member.getId() : 0;
-		this.groupId = (group != null) ? group.getId() : 0;
-
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
-
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding member: " + member.getUser().getFullName() + " to group: " + group.getShortName() + " failed.");
-				events.onError(error);
-			};
-
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName()+ " added to group: " + group.getShortName());
-				events.onFinished(jso);
-			};
-
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
-
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
-	}
-
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAdding() {
-
-		boolean result = true;
 		String errorMsg = "";
 
-		if(groupId == 0){
+		if (((group != null) ? group.getId() : 0) == 0) {
 			errorMsg += "Wrong parameter <strong>Group</strong>.</br>";
-			result = false;
 		}
 
-		if(memberId == 0){
+		if (((member != null) ? member.getId() : 0) == 0) {
 			errorMsg += "Wrong parameter <strong>Member</strong>.";
-			result = false;
 		}
 
-		if(errorMsg.length()>0){
+		if (errorMsg.length() > 0) {
 			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
-		return result;
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+			@Override
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding member: " + member.getUser().getFullName() + " to group: " + group.getShortName() + " failed.");
+				handleCommonExceptions(error, member, group);
+				events.onError(error);
+			}
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Member: " + member.getUser().getFullName() + " added to group: " + group.getShortName());
+				events.onFinished(jso);
+			}
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			}
+		};
+
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		// to allow own error handling for attributes errors.
+		jspc.setHidden(true);
+		// put data
+		jspc.put("group", new JSONNumber(group.getId()));
+		jspc.put("member", new JSONNumber(member.getId()));
+		jspc.sendData(JSON_URL);
+
 	}
 
 	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
+	 * Handle common exceptions caused by this callback.
+	 *
+	 * @param error PerunError returned from Perun
+	 * @param member Member related to action
+	 * @param group Group related to action
 	 */
-	private JSONObject prepareJSONObject() {
+	private void handleCommonExceptions(PerunError error, RichMember member, Group group) {
 
-		JSONNumber group = new JSONNumber(groupId);
-		JSONNumber member = new JSONNumber(memberId);
+		if (error != null) {
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("group", group);
-		jsonQuery.put("member", member);
-		return jsonQuery;
+			if ("WrongAttributeValueException".equals(error.getName())) {
+
+				Attribute a = error.getAttribute();
+				GeneralObject holder = error.getAttributeHolder();
+				GeneralObject secondHolder = error.getAttributeHolderSecondary();
+
+				String text = member.getUser().getFullNameWithTitles() + " can't be added to group " + group.getShortName() + ".";
+
+				if (a != null) {
+
+					if (a.getValue().equals("null")) {
+						text += "<p>Following setting is missing, but it's required by resources this group has access to.";
+					} else {
+						text += "<p>Following setting, required by resources this group has access to, is wrong.";
+					}
+
+					String attrName = a.getDisplayName();
+					String attrValue = a.getValue();
+					text += "<p><strong>Setting:&nbsp;</strong>" + attrName + "<br />";
+
+					if (holder != null) {
+						if (!holder.getName().equalsIgnoreCase("undefined")) {
+							text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
+						}
+					}
+					if (secondHolder != null) {
+						if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
+							text += "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
+						}
+					}
+
+					if (!a.getValue().equals("null")) {
+						text += "<strong>Value:&nbsp;</strong>" + attrValue;
+					}
+
+					text += "<p>Please fix the issue before adding member to group on member's settings page. If you are not allowed to do so, ask user to fill application form or edit own entries on user detail.";
+
+				} else {
+					text += "<p><i>Attribute is null, please report this error.</i>";
+				}
+
+				UiElements.generateError(error, "Wrong settings", text);
+
+			} else if ("AlreadyMemberException".equals(error.getType())) {
+
+				UiElements.generateError(error, "Already member", member.getUser().getFullNameWithTitles() + " is already member of group " + group.getShortName() + ".");
+
+			} else if ("WrongReferenceAttributeValueException".equals(error.getType())) {
+
+				String text = member.getUser().getFullNameWithTitles() + " can't be added to group " + group.getShortName() + ".";
+
+				text += "<p>";
+
+				Attribute a = error.getAttribute();
+				Attribute a2 = error.getReferenceAttribute();
+
+				if (a != null) {
+					String attrName = a.getDisplayName();
+					String attrValue = a.getValue();
+					String entity = a.getEntity();
+					text += "<p><strong>Setting&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
+					text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
+				} else {
+					text += "<p><i>Attribute 1 is null or not present in error message</i>";
+				}
+
+				if (a2 != null) {
+					String attrName = a2.getDisplayName();
+					String attrValue = a2.getValue();
+					String entity = a2.getEntity();
+					text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+					text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
+				} else {
+					text += "<p><i>Attribute 2 is null or not present in error message</i>";
+				}
+
+				UiElements.generateError(error, "Wrong settings", text);
+
+			} else {
+
+				// use standard processing for other errors
+				JsonErrorHandler.alertBox(error);
+
+			}
+
+		}
+
 	}
 
 }

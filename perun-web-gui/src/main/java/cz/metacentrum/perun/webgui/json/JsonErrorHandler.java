@@ -40,7 +40,7 @@ public class JsonErrorHandler {
 			UiElements.generateError(error, getCaption(error), "<span style=\"color:red\">" + error.getName() + "</span><p>" + error.getErrorInfo());
 		} else {
 			// OTHERS SEE TRANSLATED TEXT
-			UiElements.generateError(error, getCaption(error), getText(error.getType(), error));
+			UiElements.generateError(error, getCaption(error), getText(error.getName(), error));
 		}
 
 	}

@@ -80,6 +80,8 @@ public class AssignGroupToResources {
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
+        // to allow own error handling for attributes errors.
+        jspc.setHidden(true);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
 	}
