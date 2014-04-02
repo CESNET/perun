@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -114,7 +115,13 @@ public class ChangeStatusTabItem implements TabItem {
 		changeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				SetStatus request = new SetStatus(memberId, JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, events));
+				SetStatus request = new SetStatus(memberId, JsonCallbackEvents.disableButtonEvents(changeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// close without refresh
+						session.getTabManager().closeTab(tab, false);
+					}
+				})));
 				request.setStatus(lb.getValue(lb.getSelectedIndex()));
 			}
 		});

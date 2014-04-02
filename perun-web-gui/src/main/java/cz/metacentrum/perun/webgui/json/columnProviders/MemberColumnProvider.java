@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.view.client.ListDataProvider;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
@@ -16,15 +17,19 @@ import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
 import cz.metacentrum.perun.webgui.json.comparators.RichMemberComparator;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
+import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCellWithAuthz;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
+
+import java.util.ArrayList;
 
 /**
  * Provide columns definitions for RichMember object
@@ -35,7 +40,8 @@ public class MemberColumnProvider {
 
 	private PerunTable<RichMember> table;
 	private FieldUpdater<RichMember, RichMember> fieldUpdater;
-	private JsonCallbackTable<RichMember> originalCallback;
+	private ListDataProvider<RichMember> dataProvider;
+	private ArrayList<RichMember> backupList;
 
 	/**
 	 * New instance of MemberColumnProvider
@@ -51,12 +57,13 @@ public class MemberColumnProvider {
 	/**
 	 * New instance of MemberColumnProvider
 	 *
-	 * @param callback callback associated with table (for refresh purpose)
+	 * @param dataProvider associated with table (for refresh purpose)
 	 * @param table table to add columns to
 	 * @param fieldUpdater field updater used when cell is "clicked"
 	 */
-	public MemberColumnProvider(JsonCallbackTable<RichMember> callback, PerunTable<RichMember> table, FieldUpdater<RichMember, RichMember> fieldUpdater) {
-		this.originalCallback = callback;
+	public MemberColumnProvider(ListDataProvider<RichMember> dataProvider, ArrayList<RichMember> backupList, PerunTable<RichMember> table, FieldUpdater<RichMember, RichMember> fieldUpdater) {
+		this.dataProvider = dataProvider ;
+		this.backupList = backupList;
 		this.table = table;
 		this.fieldUpdater = fieldUpdater;
 	}
@@ -235,7 +242,7 @@ public class MemberColumnProvider {
 	public void addStatusColumn(IsClickableCell authz, int width) {
 
 		// Status column
-		Column<RichMember, String> statusColumn = new Column<RichMember, String>(
+		final Column<RichMember, String> statusColumn = new Column<RichMember, String>(
 				new PerunStatusCell()) {
 			@Override
 			public String getValue(RichMember object) {
@@ -244,51 +251,34 @@ public class MemberColumnProvider {
 		};
 		// own onClick tab for changing member's status
 		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
-			public void update(int index, final RichMember object, String value) {
-
-				FlexTable widget = new FlexTable();
-				final ListBox lb = new ListBox(false);
-				lb.addItem("VALID", "VALID");
-				lb.addItem("INVALID", "INVALID");
-				lb.addItem("SUSPENDED", "SUSPENDED");
-				lb.addItem("EXPIRED", "EXPIRED");
-				lb.addItem("DISABLED", "DISABLED");
-				widget.setHTML(0, 0, "<strong>Status: </strong>");
-				widget.setWidget(0, 1, lb);
-
-				// pick which one is already set
-				for (int i=0; i<lb.getItemCount(); i++) {
-					if (lb.getItemText(i).equalsIgnoreCase(object.getStatus())) {
-						lb.setSelectedIndex(i);
-					}
-				}
-
-				Confirm conf = new Confirm("Change member's status: "+object.getUser().getFullName(), widget, true);
-				conf.setCancelButtonText("Cancel");
-				conf.setOkButtonText("Change status");
-				conf.setOkClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						SetStatus call = new SetStatus(object.getId(), new JsonCallbackEvents(){
-							public void onFinished(JavaScriptObject jso) {
-								if (originalCallback != null) {
-									originalCallback.clearTable();
-									originalCallback.retrieveData();
+			@Override
+			public void update(final int index, final RichMember object, final String value) {
+				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						Member m = jso.cast();
+						// set status to object in cell to change rendered value
+						object.setStatus(m.getStatus());
+						// forcefully set status to objects in lists,
+						// because they are not updated during .update() on cell
+						for (RichMember rm : dataProvider.getList()) {
+							if (rm.getId() == m.getId()) {
+								rm.setStatus(m.getStatus());
+							}
+						}
+						if (backupList != null) {
+							for (RichMember rm : backupList) {
+								if (rm.getId() == m.getId()) {
+									rm.setStatus(m.getStatus());
 								}
 							}
-							public void onError(PerunError error) {
-								if (originalCallback != null) {
-									originalCallback.clearTable();
-									originalCallback.retrieveData();
-								}
-							}
-						});
-						call.setStatus(lb.getValue(lb.getSelectedIndex()));
+						}
+						dataProvider.refresh();
+						dataProvider.flush();
 					}
-				});
-				conf.show();
+				}));
 			}
 		});
-
 
 		// add column
 		table.addColumn(statusColumn, "Status");

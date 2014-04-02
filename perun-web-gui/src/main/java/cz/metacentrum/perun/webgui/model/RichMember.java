@@ -215,14 +215,22 @@ public class RichMember extends JavaScriptObject {
 			return this.status;
 		}-*/;
 
+	/**
+	 * Set the status of this item in Perun system as String
+	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+	 *
+	 * @param status string which defines item status
+	 */
+	public final native void setStatus(String status) /*-{
+        this.status = status;
+    }-*/;
 
 		/**
 		 * Compares to another object
 		 * @param o Object to compare
 		 * @return true, if they are the same
 		 */
-		public final boolean equals(RichMember o)
-		{
+		public final boolean equals(RichMember o) {
 			return (o.getId() == this.getId()) && (o.getUser().getId() == this.getUser().getId());
 		}
 }

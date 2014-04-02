@@ -11,6 +11,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.model.Attribute;
+import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -33,7 +34,6 @@ public class MemberOverviewTabItem implements TabItem {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
-	private JsonCallbackEvents refreshEvent = new JsonCallbackEvents();
 	private int groupId = 0;
 
 	/**
@@ -41,11 +41,10 @@ public class MemberOverviewTabItem implements TabItem {
 	 *
 	 * @param member RichMember object, typically from table
 	 */
-	public MemberOverviewTabItem(RichMember member, int groupId, JsonCallbackEvents refreshEvent){
+	public MemberOverviewTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
 		this.groupId = groupId;
-		this.refreshEvent = refreshEvent;
 	}
 
 	public boolean isPrepared(){
@@ -108,16 +107,17 @@ public class MemberOverviewTabItem implements TabItem {
 		memberLayout.setStyleName("inputFormFlexTableDark");
 
 		memberLayout.setHTML(0, 0, "Status:");
-		PerunStatusWidget<RichMember> statusWidget;
+		final PerunStatusWidget<RichMember> statusWidget;
 		if (session.isVoAdmin(member.getVoId())) {
-			SetStatus statCall = new SetStatus(memberId, new JsonCallbackEvents(){
+			JsonCallbackEvents event = new JsonCallbackEvents(){
 				@Override
 				public void onFinished(JavaScriptObject jso) {
-					// REFRESH PARENT TAB
-					refreshEvent.onFinished(jso);
+					// UPDATE OBJECT
+					Member m = jso.cast();
+					member.setStatus(m.getStatus());
 				}
-			});
-			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), statCall);
+			};
+			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), event);
 		} else {
 			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), null);
 		}

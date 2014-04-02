@@ -7,6 +7,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonStatusSetCallback;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
@@ -36,13 +37,10 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 	private FlexTable statusWidget = new FlexTable();
 
 	// the callback to be called when user click on the change status and confirms it
-	JsonStatusSetCallback callback = null;
+	JsonCallbackEvents events;
 
 	// item's name
 	private String objectName = "item";
-
-	// new status
-	private String newStatus = "";
 
 	/**
 	 * Creates the new status widget
@@ -59,25 +57,15 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 	 * Creates the new status widget
 	 * @param object Object to show status for
 	 * @param name The object's name.
-	 * @param callback SetStatus callback. When user confirms the change, it will call the setStatus(String status) method
+	 * @param events Events triggered on status change
 	 */
-	public PerunStatusWidget(T object, String name, JsonStatusSetCallback callback) {
+	public PerunStatusWidget(T object, String name, JsonCallbackEvents events) {
 		this.object = object.cast();
 		this.checkStatus();
 		this.initWidget(statusWidget);
 		this.objectName = name;
-		this.callback = callback;
+		this.events = events;
 		this.build();
-
-		// when change confirmed
-		if (callback != null) {
-			this.callback.setEvents(new JsonCallbackEvents(){
-				public void onFinished(JavaScriptObject jso)
-			{
-				confirmChange();
-			}
-			});
-		}
 	}
 
 	/**
@@ -100,7 +88,7 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 		statusWidget.getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 
 		// if a callback set
-		if(callback != null) {
+		if(events != null) {
 
 			// FIXME better usage
 			if (object.getObjectType().equals("Member") || object.getObjectType().equals("RichMember")) {
@@ -166,7 +154,16 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 		button.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				RichMember member = object.cast();
-				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(member, new JsonCallbackEvents()));
+
+				JsonCallbackEvents newEvent = JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						Member m = jso.cast();
+						object.setStatus(m.getStatus());
+						build();
+					}
+				});
+				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(member, newEvent));
 			}
 		});
 		return button;
@@ -179,15 +176,6 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 		if(object.getStatus() == null){
 			throw new RuntimeException("Item's status cannot be null.");
 		}
-	}
-
-	/**
-	 * When new status confirmed, the widget is reloaded
-	 */
-	protected void confirmChange() {
-		if(newStatus.equals("")) return;
-		object.setStatus(newStatus);
-		build();
 	}
 
 }
