@@ -41,70 +41,70 @@ import java.util.Map;
 
 /**
  * VO Members page
- * 
+ *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class VoMembersTabItem implements TabItem, TabItemWithUrl{
+public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
-	
+
 	/**
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
-	
+
 	/**
 	 * Title widget
 	 */
 	private Label titleWidget = new Label("Loading VO members");
-	
+
 	// data
 	private VirtualOrganization vo;
 
 	// when searching
 	private String searchString = "";
-    private boolean search = true;
-
+	private boolean search = true;
+	private boolean wasDisabled = false;
 	private int voId;
 
 	/**
 	 * Creates a tab instance
 	 *
-     * @param vo
-     */
-	public VoMembersTabItem(VirtualOrganization vo){
+	 * @param vo
+	 */
+	public VoMembersTabItem(VirtualOrganization vo) {
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
-	
+
 	/**
 	 * Creates a tab instance
 	 *
-     * @param voId
-     */
-	public VoMembersTabItem(int voId){
+	 * @param voId
+	 */
+	public VoMembersTabItem(int voId) {
 		this.voId = voId;
-        JsonCallbackEvents events = new JsonCallbackEvents(){
-            public void onFinished(JavaScriptObject jso) {
-                vo = jso.cast();
-            }
-        };
-        new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+		JsonCallbackEvents events = new JsonCallbackEvents() {
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
-	
-	public boolean isPrepared(){
+
+	public boolean isPrepared() {
 		return !(vo == null);
 	}
-	
+
 	public Widget draw() {
-		
+
 		// SET TAB NAME
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": members");
-		
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": members");
+
 		// MAIN PANEL
 		final VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%", "100%");
@@ -114,155 +114,168 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
-        // DISABLED CHECKBOX
-        final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
-        disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
+		// DISABLED CHECKBOX
+		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
+		disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
+		disabled.setValue(wasDisabled);
 
         // CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, "", null);
+		members.excludeDisabled(!wasDisabled);
+		findMembers.excludeDisabled(!wasDisabled);
 
-        final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInVo());
-        final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInVo());
-        if (!session.isVoAdmin(voId)) findMembers.setCheckable(false);
+		final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInVo());
+		final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInVo());
+		if (!session.isVoAdmin(voId)) findMembers.setCheckable(false);
 
-        final CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
-            // when user click on a row -> open new tab
-            public void update(int index, RichMember object, RichMember value) {
-                session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), 0));
-            }
-        });
+		final CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
+			// when user click on a row -> open new tab
+			public void update(int index, RichMember object, RichMember value) {
+				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), 0));
+			}
+		});
 
-        // ADD
-        CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
-            }
-        });
-        if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
-        tabMenu.addWidget(addButton);
+		// ADD
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
+			}
+		});
+		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+		tabMenu.addWidget(addButton);
 
-        // REMOVE
-        final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromVo());
-        if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
-        tabMenu.addWidget(removeButton);
+		// REMOVE
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromVo());
+		if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
+		tabMenu.addWidget(removeButton);
 
-        final CustomButton addServiceButton = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton(), ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
-            public void onClick(ClickEvent clickEvent) {
-                session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
-            }
-        });
-        if (!session.isVoAdmin(voId)) addServiceButton.setEnabled(false);
-        tabMenu.addWidget(addServiceButton);
+		final CustomButton addServiceButton = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton(), ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
+			}
+		});
+		if (!session.isVoAdmin(voId)) addServiceButton.setEnabled(false);
+		tabMenu.addWidget(addServiceButton);
 
-        // refreshMembers
-        final JsonCallbackEvents refreshEvent = new JsonCallbackEvents(){
-            @Override
-            public void onFinished(JavaScriptObject jso) {
-                if (search) {
-                    findMembers.searchFor(searchString);
-                } else {
-                    findMembers.clearTable();
-                    members.retrieveData();
-                }
-            }
-        };
+		// refreshMembers
+		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				if (search) {
+					findMembers.searchFor(searchString);
+				} else {
+					findMembers.clearTable();
+					members.retrieveData();
+				}
+			}
+		};
 
-        // add click handler for remove button
-        removeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
+		// add click handler for remove button
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
 
-                // state specific events
-                final ArrayList<RichMember> membersForRemoving = findMembers.getTableSelectedList();
-                String text = "Following members will be removed from VO and their settings will be lost.<p>You can consider changing their status to \"DISABLED\", which will prevent them from accessing VO resources.";
-                UiElements.showDeleteConfirm(membersForRemoving, text, new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-                        for (int i = 0; i< membersForRemoving.size(); i++) {
-                            DeleteMember request;
-                            if (i == membersForRemoving.size() - 1) {
-                                request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
-                            } else {
-                                request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton));
-                            }
-                            request.deleteMember(membersForRemoving.get(i).getId());
-                        }
-                    }
-                });
-            }
-        });
+				// state specific events
+				final ArrayList<RichMember> membersForRemoving = findMembers.getTableSelectedList();
+				String text = "Following members will be removed from VO and their settings will be lost.<p>You can consider changing their status to \"DISABLED\", which will prevent them from accessing VO resources.";
+				UiElements.showDeleteConfirm(membersForRemoving, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < membersForRemoving.size(); i++) {
+							DeleteMember request;
+							if (i == membersForRemoving.size() - 1) {
+								request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
+							} else {
+								request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton));
+							}
+							request.deleteMember(membersForRemoving.get(i).getId());
+						}
+					}
+				});
+			}
+		});
 
-        final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-            public void searchFor(String text) {
-                searchString = text;
-                search = true;
-                findMembers.searchFor(text);
-            }
-        }, searchButton);
-        searchBox.getTextBox().setText(searchString);
+		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+			public void searchFor(String text) {
+				searchString = text;
+				search = true;
+				findMembers.searchFor(text);
+			}
+		}, searchButton);
+		searchBox.getTextBox().setText(searchString);
 
+		// checkbox click handler
+		disabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event) {
+				wasDisabled = disabled.getValue();
+				if (search) {
+					// case when update but not triggered by button
+					searchString = searchBox.getTextBox().getText();
+					members.excludeDisabled(!disabled.getValue());
+					findMembers.excludeDisabled(!disabled.getValue());
+					findMembers.searchFor(searchString);
+				} else {
+					members.excludeDisabled(!disabled.getValue());
+					findMembers.excludeDisabled(!disabled.getValue());
+					findMembers.clearTable();
+					members.retrieveData();
+				}
+			}
+		});
 
-        // checkbox click handler
-        disabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> event) {
-                if (search) {
-                    // case when update but not triggered by button
-                    searchString = searchBox.getTextBox().getText();
-                    findMembers.excludeDisabled(!disabled.getValue());
-                    findMembers.searchFor(searchString);
-                } else {
-                    members.excludeDisabled(!disabled.getValue());
-                    findMembers.clearTable();
-                    members.retrieveData();
-                }
-            }
-        });
+		findMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
+				new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						searchBox.getTextBox().setEnabled(true);
+						listAllButton.setEnabled(true);
+					}
 
-        findMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
-                new JsonCallbackEvents(){
-                    @Override
-                    public void onFinished(JavaScriptObject jso) {
-                        searchBox.getTextBox().setEnabled(true);
-                        listAllButton.setEnabled(true);
-                    }
-                    @Override
-                    public void onError(PerunError error){
-                        searchBox.getTextBox().setEnabled(true);
-                        listAllButton.setEnabled(true);
-                    }
-                    @Override
-                    public void onLoadingStart(){
-                        searchBox.getTextBox().setEnabled(false);
-                        listAllButton.setEnabled(false);
-                    }
-                }));
+					@Override
+					public void onError(PerunError error) {
+						searchBox.getTextBox().setEnabled(true);
+						listAllButton.setEnabled(true);
+					}
 
-        members.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(listAllButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
-                new JsonCallbackEvents() {
-                    @Override
-                    public void onFinished(JavaScriptObject jso) {
-                        // pass data to table handling callback
-                        findMembers.onFinished(jso);
-                        ((AjaxLoaderImage)table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
-                        searchBox.getTextBox().setEnabled(true);
-                        searchButton.setEnabled(true);
-                    }
-                    @Override
-                    public void onError(PerunError error) {
-                        // pass data to table handling callback
-                        findMembers.onError(error);
-                        searchBox.getTextBox().setEnabled(true);
-                        searchButton.setEnabled(true);
-                    }
-                    @Override
-                    public void onLoadingStart(){
-                        searchBox.getTextBox().setEnabled(false);
-                        searchButton.setEnabled(false);
-                    }
-        }));
+					@Override
+					public void onLoadingStart() {
+						searchBox.getTextBox().setEnabled(false);
+						listAllButton.setEnabled(false);
+					}
+				}
+		));
+
+		members.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(listAllButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
+				new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// pass data to table handling callback
+						findMembers.onFinished(jso);
+						((AjaxLoaderImage) table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
+						searchBox.getTextBox().setEnabled(true);
+						searchButton.setEnabled(true);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						// pass data to table handling callback
+						findMembers.onError(error);
+						searchBox.getTextBox().setEnabled(true);
+						searchButton.setEnabled(true);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						searchBox.getTextBox().setEnabled(false);
+						searchButton.setEnabled(false);
+						// to show progress when reloading
+						((AjaxLoaderImage)table.getEmptyTableWidget()).loadingStart();
+					}
+				}
+		));
 
 		// LIST ALL BUTTON
 		listAllButton.addClickHandler(new ClickHandler() {
@@ -275,13 +288,13 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
             }
         });
         tabMenu.addWidget(listAllButton);
-		
+
 		tabMenu.addWidget(disabled);
-		
+
 		/* WHEN TAB RELOADS, CHECK THE STATE */
-		if(search){
-            findMembers.excludeDisabled(!disabled.getValue());
-            findMembers.searchFor(searchString);
+		if (search) {
+			findMembers.excludeDisabled(!disabled.getValue());
+			findMembers.searchFor(searchString);
 		} else {
             members.excludeDisabled(!disabled.getValue());
             members.retrieveData();
@@ -302,7 +315,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();
-		
+
 	}
 
 	public Widget getWidget() {
@@ -314,7 +327,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon(); 
+		return SmallIcons.INSTANCE.userGreenIcon();
 	}
 
 	@Override
@@ -342,11 +355,11 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	public boolean multipleInstancesEnabled() {
 		return false;
 	}
-	
+
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-        session.getUiElements().getBreadcrumbs().setLocation(vo, "Members", getUrlWithParameters());
-        if(vo != null){
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Members", getUrlWithParameters());
+		if (vo != null) {
 			session.setActiveVo(vo);
 			return;
 		}
@@ -354,31 +367,30 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public boolean isAuthorized() {
-		
+
 		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
-		
+
 	}
-	
+
 	public final static String URL = "members";
-	
-	public String getUrl()
-	{
+
+	public String getUrl() {
 		return URL;
 	}
-	
+
 	public String getUrlWithParameters() {
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
 	}
-	
+
 	static public VoMembersTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("id"));
 		return new VoMembersTabItem(voId);
 	}
-	
+
 	static public VoMembersTabItem load(VirtualOrganization vo) {
 		return new VoMembersTabItem(vo);
 	}

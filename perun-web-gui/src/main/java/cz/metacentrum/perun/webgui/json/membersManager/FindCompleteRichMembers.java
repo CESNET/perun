@@ -111,40 +111,42 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	 */
 	public void retrieveData() {
 
-        String param = "";
-        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-            param = "vo=" + entityId+"&searchString=" + this.searchString;
-        } else if (PerunEntity.GROUP.equals(entity)) {
-            param = "group=" + entityId+"&lookingInParentGroup=0&searchString=" + this.searchString;
-        }  else if (PerunEntity.GROUP_PARENT.equals(entity)) {
-            param = "group=" + entityId+"&lookingInParentGroup=1&searchString=" + this.searchString;
-        }
-        if (!attributes.isEmpty()) {
-            // parse lists
-            for (String attribute : attributes) {
-                param += "&attrsNames[]=" + attribute;
-            }
-        }
-        if (!allowedStatuses.isEmpty()) {
-            // parse list
-            for (PerunStatus s : allowedStatuses) {
-                param += "&allowedStatuses[]="+s.toString();
-            }
-        }
-		
+		if (searchString == null || searchString.isEmpty()) return;
+
+		String param = "";
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+			param = "vo=" + entityId+"&searchString=" + this.searchString;
+		} else if (PerunEntity.GROUP.equals(entity)) {
+			param = "group=" + entityId+"&lookingInParentGroup=0&searchString=" + this.searchString;
+		}  else if (PerunEntity.GROUP_PARENT.equals(entity)) {
+			param = "group=" + entityId+"&lookingInParentGroup=1&searchString=" + this.searchString;
+		}
+		if (!attributes.isEmpty()) {
+			// parse lists
+			for (String attribute : attributes) {
+				param += "&attrsNames[]=" + attribute;
+			}
+		}
+		if (!allowedStatuses.isEmpty()) {
+			// parse list
+			for (PerunStatus s : allowedStatuses) {
+				param += "&allowedStatuses[]="+s.toString();
+			}
+		}
+
 		JsonClient js = new JsonClient(120000);
 		js.retrieveData(JSON_URL, param, this);
-		
+
 	}
 
-    public void searchFor(String searchString) {
-        if (searchString != null && !searchString.isEmpty()) {
-            loaderImage.setEmptyResultMessage("No member matching '"+searchString+"' found.");
-            this.searchString = searchString;
-            clearTable();
-            retrieveData();
-        }
-    }
+	public void searchFor(String searchString) {
+		if (searchString != null && !searchString.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No member matching '"+searchString+"' found.");
+			clearTable();
+			this.searchString = searchString;
+			retrieveData();
+		}
+	}
 
 	/**
 	 * Returns the table with RichMembers
@@ -201,75 +203,75 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		// Sorting
 		ListHandler<RichMember> columnSortHandler = new ListHandler<RichMember>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichMember> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        loaderImage.setEmptyResultMessage("No member found.");
+		loaderImage.setEmptyResultMessage("No member found.");
 
-        Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
-                new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
-            @Override
-            public RichMember getValue(RichMember object) {
-                // Get the value from the selection model.
-                object.setChecked(selectionModel.isSelected(object));
-                return object;
-            }
-        };
+		Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
+				new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
+			@Override
+			public RichMember getValue(RichMember object) {
+				// Get the value from the selection model.
+				object.setChecked(selectionModel.isSelected(object));
+				return object;
+			}
+		};
 
-        // updates the columns size
-        table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
+		// updates the columns size
+		table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-        // Add the columns
+		// Add the columns
 
-        // Checkbox column header
-        CheckboxCell cb = new CheckboxCell();
-        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-            public Boolean getValue() {
-                return false; //return true to see a checked checkbox.
-            }
-        };
-        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-            public void update(Boolean value) {
-                // sets selected to all, if value = true, unselect otherwise
-                for(RichMember obj : list){
-                    if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
-                        selectionModel.setSelected(obj, value);
-                    }
-                }
-            }
-        });
+		// Checkbox column header
+		CheckboxCell cb = new CheckboxCell();
+		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+			public Boolean getValue() {
+				return false; //return true to see a checked checkbox.
+			}
+		};
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+			public void update(Boolean value) {
+				// sets selected to all, if value = true, unselect otherwise
+				for(RichMember obj : list){
+					if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
+						selectionModel.setSelected(obj, value);
+					}
+				}
+			}
+		});
 
-        if (checkable) {
-            table.addColumn(checkBoxColumn,checkBoxHeader);
-        }
+		if (checkable) {
+			table.addColumn(checkBoxColumn,checkBoxHeader);
+		}
 
-        MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
-        IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
-            @Override
-            public boolean isClickable(RichMember object) {
-                return true;
-            }
+		MemberColumnProvider columnProvider = new MemberColumnProvider(dataProvider, null, table, tableFieldUpdater);
+		IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
+			@Override
+			public boolean isClickable(RichMember object) {
+				return true;
+			}
 
-            @Override
-            public String linkUrl(RichMember object) {
-                return null;
-            }
-        };
+			@Override
+			public String linkUrl(RichMember object) {
+				return null;
+			}
+		};
 
-        columnProvider.addIdColumn(authz, 110);
-        columnProvider.addUserIdColumn(authz, 110);
-        columnProvider.addStatusColumn(authz, 20);
-        columnProvider.addNameColumn(authz);
-        columnProvider.addOrganizationColumn(authz);
-        columnProvider.addEmailColumn(authz);
-        columnProvider.addLoginsColumn(authz);
+		columnProvider.addIdColumn(authz, 110);
+		columnProvider.addUserIdColumn(authz, 110);
+		columnProvider.addStatusColumn(authz, 20);
+		columnProvider.addNameColumn(authz);
+		columnProvider.addOrganizationColumn(authz);
+		columnProvider.addEmailColumn(authz);
+		columnProvider.addLoginsColumn(authz);
 
 		return table;
-		
+
 	}
 
     /**
@@ -310,6 +312,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
     public void clearTable(){
         loaderImage.loadingStart();
         list.clear();
+	    searchString = "";
         selectionModel.clear();
         dataProvider.flush();
         dataProvider.refresh();

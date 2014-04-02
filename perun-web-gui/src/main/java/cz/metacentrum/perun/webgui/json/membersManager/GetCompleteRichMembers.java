@@ -134,12 +134,12 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
 		JsonClient js = new JsonClient(120000);
 		js.retrieveData(JSON_URL, param, this);
-		
+
 	}
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @param fu Custom field updater
 	 * @return CellTable widget
 	 */
@@ -150,13 +150,13 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 
 	/**
 	 * Returns the table with member-users
-	 * 
+	 *
 	 * @return CellTable widget
 	 */
 	public CellTable<RichMember> getTable() {
-		
+
 		retrieveData();
-	
+
 		// Table data provider.
 		dataProvider = new ListDataProvider<RichMember>(list);
 
@@ -169,79 +169,79 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 		// Sorting
 		ListHandler<RichMember> columnSortHandler = new ListHandler<RichMember>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// table selection
 		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<RichMember> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-        if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-            loaderImage.setEmptyResultMessage("VO has no members.");
-        } else {
-            loaderImage.setEmptyResultMessage("Group has no members.");
-        }
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+			loaderImage.setEmptyResultMessage("VO has no members.");
+		} else {
+			loaderImage.setEmptyResultMessage("Group has no members.");
+		}
 
-        Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
-                new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
-            @Override
-            public RichMember getValue(RichMember object) {
-                // Get the value from the selection model.
-                object.setChecked(selectionModel.isSelected(object));
-                return object;
-            }
-        };
+		Column<RichMember, RichMember> checkBoxColumn = new Column<RichMember, RichMember>(
+				new PerunCheckboxCell<RichMember>(true, false, indirectCheckable)) {
+			@Override
+			public RichMember getValue(RichMember object) {
+				// Get the value from the selection model.
+				object.setChecked(selectionModel.isSelected(object));
+				return object;
+			}
+		};
 
-        // updates the columns size
-        table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
+		// updates the columns size
+		table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-        // Add the columns
+		// Add the columns
 
-        // Checkbox column header
-        CheckboxCell cb = new CheckboxCell();
-        Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-            public Boolean getValue() {
-                return false; //return true to see a checked checkbox.
-            }
-        };
-        checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
-            public void update(Boolean value) {
-                // sets selected to all, if value = true, unselect otherwise
-                for(RichMember obj : list){
-                    if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
-                        selectionModel.setSelected(obj, value);
-                    }
-                }
-            }
-        });
+		// Checkbox column header
+		CheckboxCell cb = new CheckboxCell();
+		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+			public Boolean getValue() {
+				return false; //return true to see a checked checkbox.
+			}
+		};
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+			public void update(Boolean value) {
+				// sets selected to all, if value = true, unselect otherwise
+				for(RichMember obj : list){
+					if (!"INDIRECT".equalsIgnoreCase(obj.getMembershipType())) {
+						selectionModel.setSelected(obj, value);
+					}
+				}
+			}
+		});
 
-        if (checkable) {
-            table.addColumn(checkBoxColumn,checkBoxHeader);
-        }
+		if (checkable) {
+			table.addColumn(checkBoxColumn,checkBoxHeader);
+		}
 
-        MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
-        IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
-            @Override
-            public boolean isClickable(RichMember object) {
-                return true;
-            }
+		MemberColumnProvider columnProvider = new MemberColumnProvider(dataProvider, backupList, table, tableFieldUpdater);
+		IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
+			@Override
+			public boolean isClickable(RichMember object) {
+				return true;
+			}
 
-            @Override
-            public String linkUrl(RichMember object) {
-                return null;
-            }
-        };
+			@Override
+			public String linkUrl(RichMember object) {
+				return null;
+			}
+		};
 
-        columnProvider.addIdColumn(authz, 110);
-        columnProvider.addUserIdColumn(authz, 110);
-        columnProvider.addStatusColumn(authz, 20);
-        columnProvider.addNameColumn(authz);
-        columnProvider.addOrganizationColumn(authz);
-        columnProvider.addEmailColumn(authz);
-        columnProvider.addLoginsColumn(authz);
+		columnProvider.addIdColumn(authz, 110);
+		columnProvider.addUserIdColumn(authz, 110);
+		columnProvider.addStatusColumn(authz, 20);
+		columnProvider.addNameColumn(authz);
+		columnProvider.addOrganizationColumn(authz);
+		columnProvider.addEmailColumn(authz);
+		columnProvider.addLoginsColumn(authz);
 
 		return table;
-		
+
 	}
 
     /**
