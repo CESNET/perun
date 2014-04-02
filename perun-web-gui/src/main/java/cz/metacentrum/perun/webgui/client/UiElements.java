@@ -25,6 +25,7 @@ import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -291,6 +292,52 @@ public class UiElements {
 		Confirm c = new Confirm(header, layout, okClickHandler, true);
 		c.setNonScrollable(true);
 		c.show();
+
+	}
+
+	/**
+	 * Generates standardized error box for error messages based on passed params
+	 * It's used for GUI internal events, not for errors from RPC.
+	 *
+	 * @param error
+	 * @param header
+	 * @param text
+	 */
+	static public void generateError(final PerunError error, String header, String text) {
+
+		// default texts
+		String reportLabel = WidgetTranslation.INSTANCE.jsonClientReportErrorButton();
+		String okLabel = "OK";
+
+		final ClickHandler okClickHandler = new ClickHandler() {
+			public void onClick(ClickEvent arg0) {
+				// do nothing
+			}
+		};
+
+		final ClickHandler reportClickHandler = new ClickHandler() {
+			public void onClick(ClickEvent arg0) {
+				// show the report window
+				JsonErrorHandler.reportBox(error);
+			}
+		};
+
+		FlexTable layout = new FlexTable();
+
+		layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
+		layout.setHTML(0, 1, "<p>" + text);
+
+		layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+		layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+		layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+		// build confirm
+		Confirm conf = new Confirm(header + ((!error.getErrorId().equals("")) ? " (" + error.getErrorId() + ")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
+		conf.setNonScrollable(true);
+		conf.setAutoHide(false);
+		conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
+
+		conf.show();
 
 	}
 
@@ -683,52 +730,53 @@ public class UiElements {
 	 * @param visible true = show log / false = hide log
 	 */
 	private native void setLogVisible(boolean visible)/*-{
-		var logHeight = 200;
-		var logBottomSpace = 30;
-				if (visible) {
-		$wnd.jQuery("#perun-log").animate({ bottom: logBottomSpace + "px"}, 'fast');
+        var logHeight = 200;
+        var logBottomSpace = 30;
+
+        if (visible) {
+            $wnd.jQuery("#perun-log").animate({ bottom: logBottomSpace + "px"}, 'fast');
+        }
+        else {
+            $wnd.jQuery("#perun-log").animate({ bottom: (-logHeight - 10) + "px" }, 'fast');
+        }
+    }-*/;
+
+	/**
+	 * Adds log entry into the devel log widget.
+	 *
+	 * @param text text to be inserted in gui's devel log
+	 */
+	public void setLogText(String text) {
+
+		// add time
+		text = this.getFormattedLogText(text);
+
+		// removes error or success indicator 5sec after page is displayed,
+		// but only if there was such indicator
+		if (log.getStyleName().contains("log-success") ||
+				log.getStyleName().contains("log-error")) {
+
+			Scheduler.get().scheduleDeferred(new Command() {
+				public void execute() {
+					Timer time = new Timer() {
+						@Override
+						public void run() {
+							// sets the normal log icon
+							prepareToggleLogButton(SmallIcons.INSTANCE.bulletArrowUpIcon(), SmallIcons.INSTANCE.bulletArrowDownIcon());
+							log.setStyleName("log-success", false);   // remove success indicator
+							log.setStyleName("log-error", false);   // remove error indicator
+						}
+					};
+					time.schedule(5000);
+				}
+			});
 		}
-		else {
-		$wnd.jQuery("#perun-log").animate({ bottom: (-logHeight - 10) + "px" }, 'fast');
-		}
-	}-*/;
+		//adds log at top
+		this.logInside.insert(new HTML(text), logInside.getWidgetCount());
+		// scroll to bottom
+		this.log.getElement().setScrollTop(this.logInside.getElement().getScrollHeight());
 
-		/**
-		 * Adds log entry into the devel log widget.
-		 *
-		 * @param text text to be inserted in gui's devel log
-		 */
-		public void setLogText(String text) {
-
-			// add time
-			text = this.getFormattedLogText(text);
-
-			// removes error or success indicator 5sec after page is displayed,
-			// but only if there was such indicator
-			if (log.getStyleName().contains("log-success") ||
-					log.getStyleName().contains("log-error")) {
-
-				Scheduler.get().scheduleDeferred(new Command() {
-					public void execute() {
-						Timer time = new Timer() {
-							@Override
-							public void run() {
-								// sets the normal log icon
-								prepareToggleLogButton(SmallIcons.INSTANCE.bulletArrowUpIcon(), SmallIcons.INSTANCE.bulletArrowDownIcon());
-								log.setStyleName("log-success", false);   // remove success indicator
-								log.setStyleName("log-error", false);   // remove error indicator
-							}
-						};
-						time.schedule(5000);
-					}
-				});
-					}
-			//adds log at top
-			this.logInside.insert(new HTML(text), logInside.getWidgetCount());
-			// scroll to bottom
-			this.log.getElement().setScrollTop(this.logInside.getElement().getScrollHeight());
-
-		}
+	}
 
 	/**
 	 * Adds a Success log entry into the devel log widget
@@ -808,24 +856,28 @@ public class UiElements {
 	 * Sets a status string
 	 */
 	public native void setStatus(String text)/*-{
-				clearTimeout($wnd.hideStatusTimeout);
-				$wnd.jQuery("#perun-status").text(text);
-		$wnd.jQuery("#perun-status").animate({ top: "0px" }, 200);
-				// after a while, hide it
-		$wnd.hideStatusTimeout = setTimeout(function () {
-		$wnd.jQuery("#perun-status").animate({ top: "-300px" }, 500);
-		$wnd.jQuery("#perun-status").text("");
-		}, 5000);
-			}-*/;
 
-		/**
-		 * Returns the MainMenu class
-		 *
-		 * @return MainMenu menu
-		 */
-		public MainMenu getMenu() {
-			return menu;
-		}
+        clearTimeout($wnd.hideStatusTimeout);
+
+        $wnd.jQuery("#perun-status").text(text);
+        $wnd.jQuery("#perun-status").animate({ top: "0px" }, 200);
+
+        // after a while, hide it
+        $wnd.hideStatusTimeout = setTimeout(function () {
+            $wnd.jQuery("#perun-status").animate({ top: "-300px" }, 500);
+            $wnd.jQuery("#perun-status").text("");
+        }, 5000);
+
+    }-*/;
+
+	/**
+	 * Returns the MainMenu class
+	 *
+	 * @return MainMenu menu
+	 */
+	public MainMenu getMenu() {
+		return menu;
+	}
 
 	/**
 	 * Returns the header widget
@@ -1181,17 +1233,17 @@ public class UiElements {
 	public int contentAddTab(final Widget child, Widget titleWidget, boolean openAfterAdding, ImageResource imgres) {
 
 		tabCount++;
-		/* Creating a special tab with close button */
+        /* Creating a special tab with close button */
 
 		// unique tab ID
 		final int TAB_ID = tabCount;
 
 		// wrapps the content
-		/*
-			 final SimplePanel wrapper = new SimplePanel();
-			 wrapper.add(child);
-			 wrapper.addStyleName("tab-wrapper-" + TAB_ID);
-			 */
+        /*
+		final SimplePanel wrapper = new SimplePanel();
+        wrapper.add(child);
+		wrapper.addStyleName("tab-wrapper-" + TAB_ID);
+         */
 
 		// CHILD = ABSOLUTE PANEL child id - tab
 		child.getElement().setId("tab-" + TAB_ID);
@@ -1264,10 +1316,11 @@ public class UiElements {
 		// Close button
 		Button closeButton = new Button(
 				"X", new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						closeTab(TAB_ID);
-					}
-				});
+			public void onClick(ClickEvent event) {
+				closeTab(TAB_ID);
+			}
+		}
+		);
 
 		closeButton.addStyleName("tabPanelCloseButton");
 		closeButton.setVisible(closeButtonEnabled);
@@ -1279,10 +1332,10 @@ public class UiElements {
 		// sets the flextable format
 		ft.getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 
-		/* !!! WE DO SET PAGE WIDTH AND HEIGHT USING CSS  !!! */
-		/* Chrome 19+, Firefox 14+, Explorer 9+ */
+        /* !!! WE DO SET PAGE WIDTH AND HEIGHT USING CSS  !!! */
+        /* Chrome 19+, Firefox 14+, Explorer 9+ */
 
-		/* Opera and IE8 fallback */
+        /* Opera and IE8 fallback */
 		if (isOperaBeforeFifteen() || isExplorerBeforeNine()) {
 
 			// autoresize
@@ -1291,23 +1344,23 @@ public class UiElements {
 
 					try {
 						int clientHeight = (Window.getClientHeight() > WebGui.MIN_CLIENT_HEIGHT) ? Window
-				.getClientHeight() : WebGui.MIN_CLIENT_HEIGHT;
-			int height = clientHeight - tabPanel.getAbsoluteTop()
-				- FOOTER_HEIGHT;
-			tabPanel.setHeight(height + "px");
-			height = clientHeight - child.getAbsoluteTop() - FOOTER_HEIGHT;
+								.getClientHeight() : WebGui.MIN_CLIENT_HEIGHT;
+						int height = clientHeight - tabPanel.getAbsoluteTop()
+								- FOOTER_HEIGHT;
+						tabPanel.setHeight(height + "px");
+						height = clientHeight - child.getAbsoluteTop() - FOOTER_HEIGHT;
 
-			int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window
-				.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
+						int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window
+								.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
 
-			int width = clientWidth - child.getAbsoluteLeft() - 5;
+						int width = clientWidth - child.getAbsoluteLeft() - 5;
 
-			// tab content size
-			((AbsolutePanel) child).getWidget(0).setHeight(height - 5 + "px");
-			((AbsolutePanel) child).getWidget(0).setWidth(width - 5 + "px");
-			// absolute panel size
-			child.setHeight(height + "px");
-			child.setWidth(width + "px");
+						// tab content size
+						((AbsolutePanel) child).getWidget(0).setHeight(height - 5 + "px");
+						((AbsolutePanel) child).getWidget(0).setWidth(width - 5 + "px");
+						// absolute panel size
+						child.setHeight(height + "px");
+						child.setWidth(width + "px");
 
 					} catch (Exception e) {
 					}
@@ -1338,143 +1391,157 @@ public class UiElements {
 	}
 
 	public static native boolean isOperaBeforeFifteen() /*-{
-				if (typeof opera != "undefined") {
-		//do stuffs, for example
-		return ($wnd.opera.version().indexOf("15.") == -1);
-		}
-		return false;
-			}-*/;
 
-		public static native boolean isExplorerBeforeNine() /*-{
-						if (navigator.appName.indexOf("Internet Explorer") != -1) {
-			var number = navigator.appVersion.match(/MSIE ([\d.]+)/)[1];
-			if (number != null) {
-			if (number < 9.0) {
-			return true;
-			}
-			}
-			}
-			return false;
-					}-*/;
+        if (typeof opera != "undefined") {
+            //do stuffs, for example
+            return ($wnd.opera.version().indexOf("15.") == -1);
+        }
+        return false;
 
-		/**
-		 * Changes the position of tab headers - when more tabs than page width
-		 *
-		 * @param position
-		 * @boolean absolute;
-		 */
-		public static native void moveTabs(int position, boolean absolute) /*-{
-						// get current
-			var left;
-			var newLeft;
-						if (absolute) {
-			newLeft = position;
-			left = 30;
-			} else {
-			left = parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
-			newLeft = left + position;
-			}
-						// if wrong value
-			if (newLeft > 30) {
-						// if already 0
-			if (left == 30) {
-			return;
-			}
-						// if higher - move to 0
-			newLeft = 30;
-			}
-						// update - without animation
-			//$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left", newLeft + "px");
-						// update - with animation
-			$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().animate({ left: newLeft }, 'fast');
-					}-*/;
+    }-*/;
 
-		/**
-		 * Return tabs offset
-		 *
-		 * @return tabsLeftOffset
-		 */
-		public static native int getTabsLeftOffset() /*-{
-						// get current
-			return parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
-					}-*/;
+	public static native boolean isExplorerBeforeNine() /*-{
+
+        if (navigator.appName.indexOf("Internet Explorer") != -1) {
+            var number = navigator.appVersion.match(/MSIE ([\d.]+)/)[1];
+            if (number != null) {
+                if (number < 9.0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }-*/;
+
+	/**
+	 * Changes the position of tab headers - when more tabs than page width
+	 *
+	 * @param position
+	 * @boolean absolute;
+	 */
+	public static native void moveTabs(int position, boolean absolute) /*-{
+
+        // get current
+        var left;
+        var newLeft;
+
+        if (absolute) {
+            newLeft = position;
+            left = 30;
+        } else {
+            left = parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
+            newLeft = left + position;
+        }
+
+        // if wrong value
+        if (newLeft > 30) {
+
+            // if already 0
+            if (left == 30) {
+                return;
+            }
+
+            // if higher - move to 0
+            newLeft = 30;
+        }
+
+        // update - without animation
+        //$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left", newLeft + "px");
+
+        // update - with animation
+        $wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().animate({ left: newLeft }, 'fast');
+
+    }-*/;
+
+	/**
+	 * Return tabs offset
+	 *
+	 * @return tabsLeftOffset
+	 */
+	public static native int getTabsLeftOffset() /*-{
+
+        // get current
+        return parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
+
+    }-*/;
 
 
-		/**
-		 * Sets the current user information to the header
-		 * based on received PerunPrincipal from RPC
-		 *
-		 * @param pp PerunPrincipal
-		 */
-		public void setLoggedUserInfo(final PerunPrincipal pp) {
+	/**
+	 * Sets the current user information to the header
+	 * based on received PerunPrincipal from RPC
+	 *
+	 * @param pp PerunPrincipal
+	 */
+	public void setLoggedUserInfo(final PerunPrincipal pp) {
 
-			loggedUserInfo.addStyleName("logged-user-info");
+		loggedUserInfo.addStyleName("logged-user-info");
 
-			final Anchor nameHyperlink;
+		final Anchor nameHyperlink;
 
-			if (pp.getUser() != null) {
-				// name
-				nameHyperlink = new Anchor(pp.getUser().getFullNameWithTitles());
-				nameHyperlink.setHTML("<strong>" + nameHyperlink.getHTML() + "</strong>");
-				nameHyperlink.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent arg0) {
-						if (session.getUser() != null) {
-							session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
-						}
+		if (pp.getUser() != null) {
+			// name
+			nameHyperlink = new Anchor(pp.getUser().getFullNameWithTitles());
+			nameHyperlink.setHTML("<strong>" + nameHyperlink.getHTML() + "</strong>");
+			nameHyperlink.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent arg0) {
+					if (session.getUser() != null) {
+						session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
 					}
-				});
+				}
+			});
 
-			} else {
-				nameHyperlink = new Anchor(pp.getActor());
+		} else {
+			nameHyperlink = new Anchor(pp.getActor());
+		}
+
+		nameHyperlink.setTitle("Ext. source: " + pp.getExtSource() + " (" + pp.getActor() + ")");
+
+		// process roles to display
+		String roles = "";
+		// only self
+		if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver())) {
+			roles += "SELF";
+		} else if (session.isPerunAdmin()) {
+			roles += "PERUN ADMIN";
+		} else if (session.isVoObserver() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
+			roles += "VO OBSERVER";
+		} else {
+
+			// display only if not Perun admin
+			if (session.isVoAdmin()) {
+				roles += "VO/";
+			}
+			if (session.isGroupAdmin()) {
+				roles += "GROUP/";
+			}
+			if (session.isFacilityAdmin()) {
+				roles += "FACILITY/";
 			}
 
-			nameHyperlink.setTitle("Ext. source: " + pp.getExtSource() + " (" + pp.getActor() + ")");
-
-			// process roles to display
-			String roles = "";
-			// only self
-			if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver())) {
-				roles += "SELF";
-			} else if (session.isPerunAdmin()) {
-				roles += "PERUN ADMIN";
-			} else if (session.isVoObserver() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
-				roles += "VO OBSERVER";
-			} else {
-
-				// display only if not Perun admin
-				if (session.isVoAdmin()) {
-					roles += "VO/";
-				}
-				if (session.isGroupAdmin()) {
-					roles += "GROUP/";
-				}
-				if (session.isFacilityAdmin()) {
-					roles += "FACILITY/";
-				}
-
-				if (roles.length() >= 1) {
-					roles = roles.substring(0, roles.length() - 1);
-					roles += " MANAGER";
-				}
-
+			if (roles.length() >= 1) {
+				roles = roles.substring(0, roles.length() - 1);
+				roles += " MANAGER";
 			}
-			if (roles.length() == 0) {
-				roles = "N/A";
-			}
-
-			// set layout
-			loggedUserInfo.setHTML(0, 0, "<strong>Name:</strong>");
-			loggedUserInfo.setWidget(0, 1, nameHyperlink);
-
-			loggedUserInfo.setHTML(1, 0, "<strong>Role:</strong>");
-			loggedUserInfo.setText(1, 1, roles);
-
-			LogoutButton logoutButton = new LogoutButton();
-			loggedUserInfo.setWidget(0, 2, logoutButton);
-			loggedUserInfo.getFlexCellFormatter().setRowSpan(0, 2, 2);
-			loggedUserInfo.getFlexCellFormatter().setWidth(0, 2, "60px");
 
 		}
+		if (roles.length() == 0) {
+			roles = "N/A";
+		}
+
+		// set layout
+		loggedUserInfo.setHTML(0, 0, "<strong>Name:</strong>");
+		loggedUserInfo.setWidget(0, 1, nameHyperlink);
+
+		loggedUserInfo.setHTML(1, 0, "<strong>Role:</strong>");
+		loggedUserInfo.setText(1, 1, roles);
+
+		LogoutButton logoutButton = new LogoutButton();
+		loggedUserInfo.setWidget(0, 2, logoutButton);
+		loggedUserInfo.getFlexCellFormatter().setRowSpan(0, 2, 2);
+		loggedUserInfo.getFlexCellFormatter().setWidth(0, 2, "60px");
+
+	}
 
 
 	/**
@@ -1600,9 +1667,9 @@ public class UiElements {
 					panel.setHeight(height + "px");
 				}
 
-				/* WE CAN SET WIDTH BY CSS NOW */
+                /* WE CAN SET WIDTH BY CSS NOW */
 				if (isOperaBeforeFifteen() || isExplorerBeforeNine()) {
-					/* Opera and IE8 fallback */
+                    /* Opera and IE8 fallback */
 					if (resizeWidth) {
 						int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
 						int width = clientWidth - MainMenu.MENU_WIDTH - 10;

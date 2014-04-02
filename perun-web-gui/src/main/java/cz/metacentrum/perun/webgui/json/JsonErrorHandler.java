@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -31,50 +32,16 @@ public class JsonErrorHandler {
 	 * Creates and display an error box containing information about error from RPC server.
 	 *
 	 * @param error Error object returned from RPC
-	 * @param requestedUrl URL of original request
-	 * @param postObject posted object if any (used by POST calls) or NULL
 	 */
-	public static void alertBox(final PerunError error, final String requestedUrl, final JSONObject postObject){
-
-		// default texts
-		String reportLabel = WidgetTranslation.INSTANCE.jsonClientReportErrorButton();
-		String okLabel = "OK";
-
-		final ClickHandler okClickHandler = new ClickHandler() {
-			public void onClick(ClickEvent arg0) {
-				// do nothing
-			}
-		};
-
-		final ClickHandler reportClickHandler = new ClickHandler() {
-			public void onClick(ClickEvent arg0) {
-				// show the report window
-				reportBox(error, requestedUrl, postObject);
-			}
-		};
-
-		// box contents
-		FlexTable layout = new FlexTable();
-		layout.setStyleName("alert-box-table");
-		layout.setWidget(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()));
-		layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
-		String type = error.getName();
+	public static void alertBox(final PerunError error) {
 
 		if (PerunWebSession.getInstance().isPerunAdmin()) {
 			// PERUN ADMIN SEE RAW ERROR MESSAGE
-			layout.setWidget(0, 1, new HTML("<span style=\"color:red\">"+error.getName()+"</span><p>"+error.getErrorInfo()));
+			UiElements.generateError(error, getCaption(error), "<span style=\"color:red\">" + error.getName() + "</span><p>" + error.getErrorInfo());
 		} else {
 			// OTHERS SEE TRANSLATED TEXT
-			layout.setHTML(0, 1, getText(type, error));
+			UiElements.generateError(error, getCaption(error), getText(error.getType(), error));
 		}
-
-		// build confirm
-		Confirm conf = new Confirm(getCaption(error) + ((!error.getErrorId().equals("")) ? " ("+error.getErrorId()+")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
-		conf.setNonScrollable(true);
-		conf.setAutoHide(false);
-		conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
-
-		conf.show();
 
 	}
 
@@ -82,21 +49,27 @@ public class JsonErrorHandler {
 	 * Creates and display a report box used for reporting errors
 	 *
 	 * @param error Error object returned from RPC
-	 * @param request URL of original request
-	 * @param postObject posted object if any (used by POST calls) or NULL
 	 */
-	public static void reportBox(final PerunError error, final String request, final JSONObject postObject){
+	public static void reportBox(final PerunError error) {
 
 		// clear password fields if present
+		final JSONObject postObject = new JSONObject(JsonUtils.parseJson(error.getPostData()));
+
 		if (postObject != null) {
 			Set<String> keys = postObject.keySet();
-			if (keys.contains("oldPassword")) { postObject.put("oldPassword", new JSONString("")); }
-			if (keys.contains("newPassword")) { postObject.put("newPassword", new JSONString("")); }
-			if (keys.contains("password")) { postObject.put("password", new JSONString("")); }
+			if (keys.contains("oldPassword")) {
+				postObject.put("oldPassword", new JSONString(""));
+			}
+			if (keys.contains("newPassword")) {
+				postObject.put("newPassword", new JSONString(""));
+			}
+			if (keys.contains("password")) {
+				postObject.put("password", new JSONString(""));
+			}
 		}
 
 		String s = "unknown";
-		if(PerunWebSession.getInstance().getTabManager() != null){
+		if (PerunWebSession.getInstance().getTabManager() != null) {
 			s = PerunWebSession.getInstance().getTabManager().getCurrentUrl(true);
 		}
 		final String status = s;
@@ -111,26 +84,26 @@ public class JsonErrorHandler {
 
 				String text = error.getErrorId() + " - " + error.getName() + "\n";
 				text += error.getErrorInfo() + "\n\n";
-				text += "Request: " + request + "\n";
-				if(postObject != null) text += "Post data: " + postObject.toString() + "\n";
+				text += "Request: " + error.getRequestURL() + "\n";
+				if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
 				text += "Application state: " + status + "\n\n";
 				text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
-				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion()+ "\n\n";
+				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion() + "\n\n";
 				text += "Message: " + messageTextBox.getText();
 
 				final String finalText = text;
 
 				// request itself
-				SendMessageToRt msg = new SendMessageToRt(new JsonCallbackEvents(){
+				SendMessageToRt msg = new SendMessageToRt(new JsonCallbackEvents() {
 					@Override
-					public void onError(PerunError error){
+					public void onError(PerunError error) {
 
 						FlexTable layout = new FlexTable();
 
 						TextArea scrollPanel = new TextArea();
 						scrollPanel.setText(finalText);
 
-						layout.setWidget(0, 0, new HTML("<p>"+new Image(LargeIcons.INSTANCE.errorIcon())));
+						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
 						layout.setHTML(0, 1, "<p>Reporting errors is not working at the moment. We are sorry for inconvenience. <p>Please send following text to <strong>perun@cesnet.cz</strong>.");
 
 						layout.getFlexCellFormatter().setColSpan(1, 0, 2);
@@ -147,10 +120,12 @@ public class JsonErrorHandler {
 						c.setAutoHide(false);
 						c.show();
 
-					};
+					}
+
+					;
 				});
 
-				msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR "+error.getErrorId()+": "+request, text);
+				msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR " + error.getErrorId() + ": " + error.getRequestURL(), text);
 
 			}
 		};
@@ -189,19 +164,19 @@ public class JsonErrorHandler {
 
 		} else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong attribute assignment ("+error.getErrorId()+")";
+			return "Wrong attribute assignment (" + error.getErrorId() + ")";
 
 		} else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong attribute value ("+error.getErrorId()+")";
+			return "Wrong attribute value (" + error.getErrorId() + ")";
 
 		} else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong value of related attributes ("+error.getErrorId()+")";
+			return "Wrong value of related attributes (" + error.getErrorId() + ")";
 
 		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
-			return "IDP doesn't provide required data ("+error.getErrorId()+")";
+			return "IDP doesn't provide required data (" + error.getErrorId() + ")";
 
 		}
 
@@ -220,7 +195,7 @@ public class JsonErrorHandler {
 			if ("UNCATCHED_EXCEPTION".equalsIgnoreCase(error.getType())) {
 				return "Unknown error occurred. Please report it.";
 			} else {
-				return "Error in communication with server. "+pleaseRefresh;
+				return "Error in communication with server. " + pleaseRefresh;
 			}
 
 		} else if ("PrivilegeException".equalsIgnoreCase(errorName)) {
@@ -241,25 +216,25 @@ public class JsonErrorHandler {
 
 			if (holder != null) {
 				if (!holder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>"+holder.getObjectType()+":</strong>&nbsp;"+holder.getName()+"<br />";
+					text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
 				}
 			}
 			if (secondHolder != null) {
 				if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>"+secondHolder.getObjectType()+":</strong>&nbsp;"+secondHolder.getName()+"<br />";
+					text += "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
 				}
 			}
 			if (a != null) {
 				String attrName = a.getDisplayName();
 				String attrValue = a.getValue();
-				text += "<strong>Attribute:&nbsp;</strong>"+attrName+"<br /><strong>Value:&nbsp;</strong>"+attrValue;
+				text += "<strong>Attribute:&nbsp;</strong>" + attrName + "<br /><strong>Value:&nbsp;</strong>" + attrValue;
 			} else {
 				text += "<i>Attribute is null</i>";
 			}
 
 			return text;
 
-		}  else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
+		} else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
 
 			String text = "Value of one of related attributes is incorrect.";
 
@@ -270,8 +245,8 @@ public class JsonErrorHandler {
 				String attrName = a.getDisplayName();
 				String attrValue = a.getValue();
 				String entity = a.getEntity();
-				text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;"+attrName + " ("+entity+")";
-				text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;"+attrValue;
+				text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
+				text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
 			} else {
 				text += "<p><i>Attribute 1 is null</i>";
 			}
@@ -280,8 +255,8 @@ public class JsonErrorHandler {
 				String attrName = a2.getDisplayName();
 				String attrValue = a2.getValue();
 				String entity = a2.getEntity();
-				text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;"+attrName + " ("+entity+")";
-				text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;"+attrValue;
+				text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+				text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
 			} else {
 				text += "<p><i>Attribute 2 is null</i>";
 			}
@@ -291,8 +266,8 @@ public class JsonErrorHandler {
 		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
 
 			Attribute a = error.getAttribute();
-			if (a!= null) {
-				return "Attribute definition for attribute <i>"+a.getName()+"</i> doesn't exist.";
+			if (a != null) {
+				return "Attribute definition for attribute <i>" + a.getName() + "</i> doesn't exist.";
 			} else {
 				return "Attribute definition for attribute <i>null</i> doesn't exist.";
 			}
@@ -302,7 +277,7 @@ public class JsonErrorHandler {
 
 			String text = "";
 			if (error.getType().equalsIgnoreCase("NO_IDENTITY_FOR_PUBLICATION_SYSTEM")) {
-				text = "You don't have registered identity in Perun related to selected publication system.<p>Please visit <a target=\"new\" href=\""+ Utils.getIdentityConsolidatorLink(false)+"\">identity consolidator</a> to add more identities.";
+				text = "You don't have registered identity in Perun related to selected publication system.<p>Please visit <a target=\"new\" href=\"" + Utils.getIdentityConsolidatorLink(false) + "\">identity consolidator</a> to add more identities.";
 			}
 
 			return text;
@@ -317,11 +292,11 @@ public class JsonErrorHandler {
 				text = "User";
 			}
 			if (error.getVo() != null) {
-				text += " is already manager of VO: "+error.getVo().getName();
+				text += " is already manager of VO: " + error.getVo().getName();
 			} else if (error.getFacility() != null) {
-				text += " is already manager of Facility: "+error.getFacility().getName();
+				text += " is already manager of Facility: " + error.getFacility().getName();
 			} else if (error.getGroup() != null) {
-				text += " is already manager of Group: "+error.getGroup().getName();
+				text += " is already manager of Group: " + error.getGroup().getName();
 			}
 			return text;
 
@@ -334,16 +309,16 @@ public class JsonErrorHandler {
 
 			String text = "";
 			if (error.getLogin() != null) {
-				text += "Login: "+error.getLogin();
+				text += "Login: " + error.getLogin();
 				if (error.getNamespace() != null) {
-					text += " in namespace: "+error.getNamespace()+" is already reserved.";
+					text += " in namespace: " + error.getNamespace() + " is already reserved.";
 				} else {
 					text += " is already reserved.";
 				}
 			} else {
 				text += "Login";
 				if (error.getNamespace() != null) {
-					text += " in namespace: "+error.getNamespace()+" is already reserved.";
+					text += " in namespace: " + error.getNamespace() + " is already reserved.";
 				} else {
 					text += " is already reserved in selected namespace.";
 				}
@@ -353,7 +328,7 @@ public class JsonErrorHandler {
 		} else if ("AttributeAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getAttribute() != null) {
-				return "Attribute <i>"+error.getAttribute().getDisplayName()+"</i> is already set as required by service.";
+				return "Attribute <i>" + error.getAttribute().getDisplayName() + "</i> is already set as required by service.";
 			} else {
 				return "Attribute is already set as required by service.";
 			}
@@ -365,7 +340,7 @@ public class JsonErrorHandler {
 		} else if ("AttributeNotAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getAttribute() != null) {
-				return "Attribute <i>"+error.getAttribute().getDisplayName()+"</i> is already NOT required by service.";
+				return "Attribute <i>" + error.getAttribute().getDisplayName() + "</i> is already NOT required by service.";
 			} else {
 				return "Attribute is already NOT required by service.";
 			}
@@ -395,7 +370,7 @@ public class JsonErrorHandler {
 		} else if ("DestinationAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getDestination() != null) {
-				return "Destination <i>"+error.getDestination().getDestination()+"</i> already exists for facility/service.";
+				return "Destination <i>" + error.getDestination().getDestination() + "</i> already exists for facility/service.";
 			} else {
 				return "Same destination already exists for facility/service combination.";
 			}
@@ -403,7 +378,7 @@ public class JsonErrorHandler {
 		} else if ("DestinationAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getDestination() != null) {
-				return "Destination <i>"+error.getDestination().getDestination()+"</i> already removed for facility/service.";
+				return "Destination <i>" + error.getDestination().getDestination() + "</i> already removed for facility/service.";
 			} else {
 				return "Destination is already removed from facility/service combination.";
 			}
@@ -440,9 +415,9 @@ public class JsonErrorHandler {
 		} else if ("ExtSourceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getExtSource() != null) {
-				return "Same external source is already assigned to your VO."+
-					"<p><strong>Name:</strong> "+error.getExtSource().getName()+"</br>" +
-					"<strong>Type:</strong> "+error.getExtSource().getType();
+				return "Same external source is already assigned to your VO." +
+						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
+						"<strong>Type:</strong> " + error.getExtSource().getType();
 			} else {
 				return "Same external source is already assigned to your VO.";
 			}
@@ -450,9 +425,9 @@ public class JsonErrorHandler {
 		} else if ("ExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getExtSource() != null) {
-				return "Same external source was already removed from your VO."+
-					"<p><strong>Name:</strong> "+error.getExtSource().getName()+"</br>" +
-					"<strong>Type:</strong> "+error.getExtSource().getType();
+				return "Same external source was already removed from your VO." +
+						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
+						"<strong>Type:</strong> " + error.getExtSource().getType();
 			} else {
 				return "Same external source was already removed from your VO.";
 			}
@@ -460,9 +435,9 @@ public class JsonErrorHandler {
 		} else if ("ExtSourceExistsException".equalsIgnoreCase(errorName)) {
 
 			if (error.getExtSource() != null) {
-				return "Same external source already exists."+
-					"<p><strong>Name:</strong> "+error.getExtSource().getName()+"</br>" +
-					"<strong>Type:</strong> "+error.getExtSource().getType();
+				return "Same external source already exists." +
+						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
+						"<strong>Type:</strong> " + error.getExtSource().getType();
 			} else {
 				return "Same external source already exists.";
 			}
@@ -507,7 +482,7 @@ public class JsonErrorHandler {
 
 			Group g = error.getGroup();
 			if (g != null) {
-				return "Group: "+g.getName()+" is already assigned to Resource.";
+				return "Group: " + g.getName() + " is already assigned to Resource.";
 			} else {
 				return "Group is already assigned to Resource.";
 			}
@@ -562,7 +537,7 @@ public class JsonErrorHandler {
 		} else if ("InternalErrorException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - is this generic error ??
-			return "Your operation can't be completed. Internal error exception occurred. Please report this error.";
+			return "Your operation can't be completed. Internal error occurred. Please report this error.";
 
 		} else if ("LoginNotExistsException".equalsIgnoreCase(errorName)) {
 
@@ -692,7 +667,7 @@ public class JsonErrorHandler {
 
 			// FIXME - must contain also resource
 			if (error.getService() != null) {
-				return "Service "+error.getService().getName()+" is already assigned to resource.";
+				return "Service " + error.getService().getName() + " is already assigned to resource.";
 			} else {
 				return "Same service is already assigned to resource.";
 			}
@@ -700,7 +675,7 @@ public class JsonErrorHandler {
 		} else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
 
 			if (error.getService() != null) {
-				return "Service "+error.getService().getName()+" already exists in Perun. Choose different name.";
+				return "Service " + error.getService().getName() + " already exists in Perun. Choose different name.";
 			} else {
 				return "Service with same name already exists in Perun.";
 			}
@@ -709,7 +684,7 @@ public class JsonErrorHandler {
 
 			// FIXME - must contain also resource
 			if (error.getService() != null) {
-				return "Service "+error.getService().getName()+" is not assigned to resource.";
+				return "Service " + error.getService().getName() + " is not assigned to resource.";
 			} else {
 				return "Service is not assigned to resource.";
 			}
@@ -757,11 +732,11 @@ public class JsonErrorHandler {
 
 		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo()+" You can use only letters, numbers and spaces.";
+			return error.getErrorInfo() + " You can use only letters, numbers and spaces.";
 
 		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo()+" You can use only letters, numbers and spaces.";
+			return error.getErrorInfo() + " You can use only letters, numbers and spaces.";
 
 		} else if ("SubGroupCannotBeRemovedException".equalsIgnoreCase(errorName)) {
 
@@ -817,18 +792,18 @@ public class JsonErrorHandler {
 
 			return error.getErrorInfo();
 
-		}  else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
+		} else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
 
 			// meaningful message
 			return error.getErrorInfo();
 
-		}  else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
+		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
 			String result = "Your IDP doesn't provide all required data for this application form. Please contact your IDP to resolve this issue or log-in using different IDP.";
 
 			String missingItems = "<p>";
 			if (error.getFormItems() != null) {
-				for (int i=0; i<error.getFormItems().length(); i++) {
+				for (int i = 0; i < error.getFormItems().length(); i++) {
 					missingItems += "<strong>Missing attribute: </strong>";
 					missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
 					missingItems += "<br />";
