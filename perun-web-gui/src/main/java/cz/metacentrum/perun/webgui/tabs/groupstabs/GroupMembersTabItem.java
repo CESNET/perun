@@ -19,7 +19,6 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMember;
-import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichMember;
@@ -64,7 +63,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	final SimplePanel pageWidget = new SimplePanel();
 	// members table wrapper
 	ScrollPanel tableWrapper = new ScrollPanel();
-
+	private boolean wasDisabled = false;
 	String searchString = "";
 
 	/**
@@ -114,12 +113,12 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		// DISABLED CHECKBOX
 		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
 		disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
-
-		JsonCallbackEvents disableCheckboxEvent = JsonCallbackEvents.disableCheckboxEvents(disabled);
+		disabled.setValue(wasDisabled);
 
 		// CALLBACKS
-		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, disableCheckboxEvent);
+		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null, JsonCallbackEvents.disableCheckboxEvents(disabled));
 		members.setIndirectCheckable(false);
+		members.excludeDisabled(!disabled.getValue());
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) members.setCheckable(false);
 
 		// refreshMembers

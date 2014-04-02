@@ -300,14 +300,14 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 				// fill inner layout
 				PerunStatusWidget<Member> statusWidget;
 				if (session.isVoAdmin(vo.getId())) {
-					SetStatus statCall = new SetStatus(m.getId(), new JsonCallbackEvents(){
+					JsonCallbackEvents event = new JsonCallbackEvents(){
 						@Override
 						public void onFinished(JavaScriptObject jso) {
 							// REFRESH PARENT TAB
 							draw();
 						}
-					});
-					statusWidget = new PerunStatusWidget<Member>(m, user.getFullName(), statCall);
+					};
+					statusWidget = new PerunStatusWidget<Member>(m, user.getFullName(), event);
 				} else {
 					statusWidget = new PerunStatusWidget<Member>(m, user.getFullName(), null);
 				}

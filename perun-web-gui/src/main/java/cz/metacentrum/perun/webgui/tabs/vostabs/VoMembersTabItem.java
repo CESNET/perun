@@ -45,7 +45,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class VoMembersTabItem implements TabItem, TabItemWithUrl{
+public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -68,7 +68,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	// when searching
 	private String searchString = "";
 	private boolean search = true;
-
+	private boolean wasDisabled = false;
 	private int voId;
 
 	/**
@@ -76,7 +76,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	 *
 	 * @param vo
 	 */
-	public VoMembersTabItem(VirtualOrganization vo){
+	public VoMembersTabItem(VirtualOrganization vo) {
 		this.vo = vo;
 		this.voId = vo.getId();
 	}
@@ -86,9 +86,9 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	 *
 	 * @param voId
 	 */
-	public VoMembersTabItem(int voId){
+	public VoMembersTabItem(int voId) {
 		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
+		JsonCallbackEvents events = new JsonCallbackEvents() {
 			public void onFinished(JavaScriptObject jso) {
 				vo = jso.cast();
 			}
@@ -96,14 +96,14 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return !(vo == null);
 	}
 
 	public Widget draw() {
 
 		// SET TAB NAME
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": members");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": members");
 
 		// MAIN PANEL
 		final VerticalPanel firstTabPanel = new VerticalPanel();
@@ -117,10 +117,13 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		// DISABLED CHECKBOX
 		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
 		disabled.setTitle(WidgetTranslation.INSTANCE.showDisabledMembersTitle());
+		disabled.setValue(wasDisabled);
 
 		// CALLBACKS
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, null);
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, "", null);
+		members.excludeDisabled(!wasDisabled);
+		findMembers.excludeDisabled(!wasDisabled);
 
 		final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInVo());
 		final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInVo());
@@ -156,7 +159,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		tabMenu.addWidget(addServiceButton);
 
 		// refreshMembers
-		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents(){
+		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				if (search) {
@@ -180,7 +183,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 					@Override
 					public void onClick(ClickEvent clickEvent) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i< membersForRemoving.size(); i++) {
+						for (int i = 0; i < membersForRemoving.size(); i++) {
 							DeleteMember request;
 							if (i == membersForRemoving.size() - 1) {
 								request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
@@ -203,18 +206,20 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		}, searchButton);
 		searchBox.getTextBox().setText(searchString);
 
-
 		// checkbox click handler
 		disabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
+				wasDisabled = disabled.getValue();
 				if (search) {
 					// case when update but not triggered by button
 					searchString = searchBox.getTextBox().getText();
+					members.excludeDisabled(!disabled.getValue());
 					findMembers.excludeDisabled(!disabled.getValue());
 					findMembers.searchFor(searchString);
 				} else {
 					members.excludeDisabled(!disabled.getValue());
+					findMembers.excludeDisabled(!disabled.getValue());
 					findMembers.clearTable();
 					members.retrieveData();
 				}
@@ -222,47 +227,55 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		findMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
-					new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							searchBox.getTextBox().setEnabled(true);
-							listAllButton.setEnabled(true);
-						}
-		@Override
-		public void onError(PerunError error){
-			searchBox.getTextBox().setEnabled(true);
-			listAllButton.setEnabled(true);
-		}
-		@Override
-		public void onLoadingStart(){
-			searchBox.getTextBox().setEnabled(false);
-			listAllButton.setEnabled(false);
-		}
-		}));
+				new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						searchBox.getTextBox().setEnabled(true);
+						listAllButton.setEnabled(true);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						searchBox.getTextBox().setEnabled(true);
+						listAllButton.setEnabled(true);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						searchBox.getTextBox().setEnabled(false);
+						listAllButton.setEnabled(false);
+					}
+				}
+		));
 
 		members.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(listAllButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
-					new JsonCallbackEvents() {
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							// pass data to table handling callback
-							findMembers.onFinished(jso);
-							((AjaxLoaderImage)table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
-							searchBox.getTextBox().setEnabled(true);
-							searchButton.setEnabled(true);
-						}
-		@Override
-		public void onError(PerunError error) {
-			// pass data to table handling callback
-			findMembers.onError(error);
-			searchBox.getTextBox().setEnabled(true);
-			searchButton.setEnabled(true);
-		}
-		@Override
-		public void onLoadingStart(){
-			searchBox.getTextBox().setEnabled(false);
-			searchButton.setEnabled(false);
-		}
-		}));
+				new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// pass data to table handling callback
+						findMembers.onFinished(jso);
+						((AjaxLoaderImage) table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
+						searchBox.getTextBox().setEnabled(true);
+						searchButton.setEnabled(true);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						// pass data to table handling callback
+						findMembers.onError(error);
+						searchBox.getTextBox().setEnabled(true);
+						searchButton.setEnabled(true);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						searchBox.getTextBox().setEnabled(false);
+						searchButton.setEnabled(false);
+						// to show progress when reloading
+						((AjaxLoaderImage)table.getEmptyTableWidget()).loadingStart();
+					}
+				}
+		));
 
 		// LIST ALL BUTTON
 		listAllButton.addClickHandler(new ClickHandler() {
@@ -279,7 +292,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 		tabMenu.addWidget(disabled);
 
 		/* WHEN TAB RELOADS, CHECK THE STATE */
-		if(search){
+		if (search) {
 			findMembers.excludeDisabled(!disabled.getValue());
 			findMembers.searchFor(searchString);
 		} else {
@@ -346,7 +359,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
 		session.getUiElements().getBreadcrumbs().setLocation(vo, "Members", getUrlWithParameters());
-		if(vo != null){
+		if (vo != null) {
 			session.setActiveVo(vo);
 			return;
 		}
@@ -365,8 +378,7 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "members";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 

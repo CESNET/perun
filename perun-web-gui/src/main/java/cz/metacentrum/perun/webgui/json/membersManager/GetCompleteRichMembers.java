@@ -219,7 +219,7 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 			table.addColumn(checkBoxColumn,checkBoxHeader);
 		}
 
-		MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
+		MemberColumnProvider columnProvider = new MemberColumnProvider(dataProvider, backupList, table, tableFieldUpdater);
 		IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
 			@Override
 			public boolean isClickable(RichMember object) {

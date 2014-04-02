@@ -111,6 +111,8 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	 */
 	public void retrieveData() {
 
+		if (searchString == null || searchString.isEmpty()) return;
+
 		String param = "";
 		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
 			param = "vo=" + entityId+"&searchString=" + this.searchString;
@@ -140,8 +142,8 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	public void searchFor(String searchString) {
 		if (searchString != null && !searchString.isEmpty()) {
 			loaderImage.setEmptyResultMessage("No member matching '"+searchString+"' found.");
-			this.searchString = searchString;
 			clearTable();
+			this.searchString = searchString;
 			retrieveData();
 		}
 	}
@@ -247,7 +249,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 			table.addColumn(checkBoxColumn,checkBoxHeader);
 		}
 
-		MemberColumnProvider columnProvider = new MemberColumnProvider(this, table, tableFieldUpdater);
+		MemberColumnProvider columnProvider = new MemberColumnProvider(dataProvider, null, table, tableFieldUpdater);
 		IsClickableCell<RichMember> authz = new IsClickableCell<RichMember>() {
 			@Override
 			public boolean isClickable(RichMember object) {
@@ -309,6 +311,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	 */
 	public void clearTable(){
 		loaderImage.loadingStart();
+		searchString = "";
 		list.clear();
 		selectionModel.clear();
 		dataProvider.flush();

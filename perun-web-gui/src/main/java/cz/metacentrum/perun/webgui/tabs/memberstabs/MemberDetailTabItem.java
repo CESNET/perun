@@ -156,20 +156,7 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 
 		tabPanel.clear();
 
-		// Event for refreshing the whole tab
-		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				new GetEntityById(PerunEntity.RICH_MEMBER, memberId, new JsonCallbackEvents(){
-					public void onFinished(JavaScriptObject jso){
-						member = jso.cast();
-						draw();
-					}
-				}).retrieveData();
-			}
-		};
-
-		tabPanel.add(new MemberOverviewTabItem(member, groupId, refreshEvent), "Overview");
+		tabPanel.add(new MemberOverviewTabItem(member, groupId), "Overview");
 		tabPanel.add(new MemberGroupsTabItem(member, groupId), "Groups");
 		tabPanel.add(new MemberResourcesTabItem(member, groupId), "Resources");
 		tabPanel.add(new MemberApplicationsTabItem(member, groupId), "Applications");
