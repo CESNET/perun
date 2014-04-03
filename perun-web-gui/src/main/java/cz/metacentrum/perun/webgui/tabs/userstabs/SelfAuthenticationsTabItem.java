@@ -205,9 +205,9 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 						if (a.getValueAsMap().keySet() != null && !a.getValueAsMap().keySet().isEmpty()) {
 							String result = "";
 							for (String s : a.getValueAsMap().keySet()) {
-								result += "<p>";
-								result += s+"<br/>";
-								result += "<i>Expire: "+a.getValueAsMap().get(s)+"</i></p>";
+								result += "<p><strong>";
+								result += s+"</strong><br/>";
+								result += "<i>Issuer: "+a.getValueAsMap().get(s)+"</i></p>";
 							}
 							certTable.setHTML(0, 1, result);
 						} else {
@@ -229,7 +229,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		}
 		});
 		ArrayList<String> list = new ArrayList<String>();
-		list.add("urn:perun:user:attribute-def:virt:userCertExpirations");
+		list.add("urn:perun:user:attribute-def:virt:userCertDNs");
 		Map<String,Integer> ids = new HashMap<String,Integer>();
 		ids.put("user", userId);
 		attrs.getListOfAttributes(ids, list);
