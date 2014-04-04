@@ -617,6 +617,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+    * Get all Facility admins as RichUsers
+    *
+    * @param facility int Facility ID
+    * @return List<RichUser> admins
+    */
 	getRichAdmins {
 
 		@Override
@@ -627,6 +633,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	* Get all Facility admins as RichUsers with all their non-null user attributes
+	*
+	* @param facility int Facility ID
+	* @return List<RichUser> admins with attributes
+	*/
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -637,12 +649,38 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
+	*
+	* @param facility int Facility ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> admins with attributes
+	*/
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readList("specificAttributes", String.class));
+		}
+	},
+
+	/*#
+	* Get all Facility admins, which are assigned directly,
+	* as RichUsers with specific attributes (from user namespace)
+	*
+	* @param facility int Facility ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> direct admins with attributes
+	*/
+	getDirectRichAdminsWithSpecificAttributes {
+
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
 					parms.readList("specificAttributes", String.class));
 		}
