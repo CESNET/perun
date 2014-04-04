@@ -255,13 +255,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	}
  },
 
- /*#
+   /*#
 	* Returns administrators of a VO.
 	*
 	* @param vo int VO ID
 	* @return List<RichUser> VO admins
 	*/
-
  getRichAdmins {
 
 	@Override
@@ -287,6 +286,13 @@ public enum VosManagerMethod implements ManagerMethod {
 	}
  },
 
+	/*#
+	* Returns administrators of a VO with additional information.
+	*
+	* @param vo int VO ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> VO rich admins with attributes
+	*/
  getRichAdminsWithSpecificAttributes {
 
 	@Override
@@ -296,5 +302,26 @@ public enum VosManagerMethod implements ManagerMethod {
 				ac.getVoById(parms.readInt("vo")),
 				parms.readList("specificAttributes", String.class));
 	}
- };
+ },
+
+	/*#
+	* Returns administrators of a VO, which are directly assigned
+	* with additional information.
+	*
+	* @param vo int VO ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> VO rich admins with attributes
+	*/
+	getDirectRichAdminsWithSpecificAttributes {
+
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getVosManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("specificAttributes", String.class));
+		}
+	};
+
+
 }

@@ -224,6 +224,17 @@ public interface VosManagerBl {
 	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Get list of Vo administrators directly assigned to VO like RichUsers without attributes.
+	 *
+	 * @param perunSession
+	 * @param vo
+	 * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Get list of Vo administrators like RichUsers with attributes.
 	 *
 	 * @param perunSession
@@ -246,6 +257,19 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * Get list of Vo administrators, which are directly assigned (not by group membership) with specific attributes.
+	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 *
+	 * @param perunSession
+	 * @param vo
+	 * @param specificAttributes
+	 * @return list of RichUsers with specific attributes.
+	 * @throws UserNotExistsException
+	 * @throws InternalErrorException
+	 */
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * !!! Not Complete yet, need to implement all perunBeans !!!

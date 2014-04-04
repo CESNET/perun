@@ -33,10 +33,16 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	// JSON URL
+
+	// JSON URL TO LIST ALL ADMINISTRATORS (ASSIGNED DIRECTLY OR BY GROUP)
 	private static final String GROUP_JSON_URL = "groupsManager/getRichAdminsWithSpecificAttributes";
 	private static final String VO_JSON_URL = "vosManager/getRichAdminsWithSpecificAttributes";
 	private static final String FACILITY_JSON_URL = "facilitiesManager/getRichAdminsWithSpecificAttributes";
+
+	// JSON URL TO LIST ONLY DIRECT ADMINISTRATORS (NOT ASSIGNED BY GROUP)
+	private static final String GROUP_DIRECT_JSON_URL = "groupsManager/getDirectRichAdminsWithSpecificAttributes";
+	private static final String VO_DIRECT_JSON_URL = "vosManager/getDirectRichAdminsWithSpecificAttributes";
+	private static final String FACILITY_DIRECT_JSON_URL = "facilitiesManager/getDirectRichAdminsWithSpecificAttributes";
 
 	// entity ID
 	private int entityId;
@@ -57,6 +63,9 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private PerunEntity entity;
 	private boolean checkable = true; // default true
+
+	// wheter to load all admins (true) or only direct (false). Default is false (direct admins only).
+	private boolean showAllAdmins = false;
 
 	/**
 	 * Creates a new instance of callback
@@ -90,6 +99,16 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	}
 
 	/**
+	 * Choose between listing all admins (direct + indirect (by group))
+	 * and only directly assigned admins.
+	 *
+	 * @param showAllAdmins TRUE = list all admins / FALSE = list direct admins
+	 */
+	public void setShowAllAdmins(boolean showAllAdmins) {
+		this.showAllAdmins = showAllAdmins;
+	}
+
+	/**
 	 * Retrieves members from RPC
 	 */
 	public void retrieveData() {
@@ -105,7 +124,11 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 					param += "&specificAttributes[]=" + attribute;
 				}
 			}
-			js.retrieveData(VO_JSON_URL, param, this);
+			if (showAllAdmins) {
+				js.retrieveData(VO_JSON_URL, param, this);
+			} else {
+				js.retrieveData(VO_DIRECT_JSON_URL, param, this);
+			}
 		} else if (entity.equals(PerunEntity.GROUP)) {
 			param = "group="+entityId;
 			if (!attributes.isEmpty()) {
@@ -114,7 +137,11 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 					param += "&specificAttributes[]=" + attribute;
 				}
 			}
-			js.retrieveData(GROUP_JSON_URL, param, this);
+			if (showAllAdmins) {
+				js.retrieveData(GROUP_JSON_URL, param, this);
+			} else {
+				js.retrieveData(GROUP_DIRECT_JSON_URL, param, this);
+			}
 		} else if (entity.equals(PerunEntity.FACILITY)) {
 			param = "facility="+entityId;
 			if (!attributes.isEmpty()) {
@@ -123,11 +150,12 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 					param += "&specificAttributes[]=" + attribute;
 				}
 			}
-			js.retrieveData(FACILITY_JSON_URL, param, this);
+			if (showAllAdmins) {
+				js.retrieveData(FACILITY_JSON_URL, param, this);
+			} else {
+				js.retrieveData(FACILITY_DIRECT_JSON_URL, param, this);
+			}
 		}
-
-
-
 
 	}
 
@@ -162,11 +190,11 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 		dataProvider.addDataDisplay(table);
 
 		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
-			loaderImage.setEmptyResultMessage("VO has no managers.");
+			loaderImage.setEmptyResultMessage("VO has no managers (try to switch to 'Groups' view).");
 		} else if (entity.equals(PerunEntity.GROUP)) {
-			loaderImage.setEmptyResultMessage("Group has no managers.");
+			loaderImage.setEmptyResultMessage("Group has no managers (try to switch to 'Groups' view).");
 		} else if (entity.equals(PerunEntity.FACILITY)) {
-			loaderImage.setEmptyResultMessage("Facility has no managers.");
+			loaderImage.setEmptyResultMessage("Facility has no managers (try to switch to 'Groups' view).");
 		}
 
 		// Sorting

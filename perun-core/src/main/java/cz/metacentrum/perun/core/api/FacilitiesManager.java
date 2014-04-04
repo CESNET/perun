@@ -729,6 +729,21 @@ public interface FacilitiesManager {
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 
 	/**
+	 * Get list of Facility administrators, which are assigned directly (not by group membership), with specific attributes.
+	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificAttributes
+	 * @return list of RichUsers with specific attributes.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 */
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+
+
+	/**
 	 * Returns list of Facilities, where the user is an admin.
 	 *
 	 * @param sess

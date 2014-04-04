@@ -462,6 +462,20 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdminsWithSpecificAttributes(perunSession, group, specificAttributes));
 	}
 
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		getGroupsManagerBl().checkGroupExists(perunSession, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getDirectRichAdminsWithSpecificAttributes(perunSession, group, specificAttributes));
+	}
+
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 

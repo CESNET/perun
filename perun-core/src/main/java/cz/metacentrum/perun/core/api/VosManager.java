@@ -256,6 +256,21 @@ public interface VosManager {
 
 
 	/**
+	 * Get list of Vo administrators, which are directly assigned (not by group membership) with specific attributes.
+	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 *
+	 * @param perunSession
+	 * @param vo
+	 * @param specificAttributes
+	 * @return list of RichUsers with specific attributes.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException;
+
+	/**
 	 * Get list of Vo administrators with specific attributes.
 	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
 	 *
