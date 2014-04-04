@@ -536,6 +536,22 @@ public interface GroupsManager {
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
 	/**
+	 * Get list of Group administrators, which are directly assigned (not by group membership) with specific attributes.
+	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param specificAttributes
+	 * @return list of RichUsers with specific attributes.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+
+
+	/**
 	 * Get groups of users under the VO by ACCESS RIGHTS:
 	 * If user is:
 	 * - PERUNADMIN or VOADMIN : all groups

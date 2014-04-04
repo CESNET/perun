@@ -537,6 +537,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richUsers;
 	}
 
+	public List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getDirectAdmins(perunSession, group);
+		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
+		return richUsers;
+	}
+
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
@@ -546,6 +552,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, group), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException("One of Attribute not exist.", ex);
+		}
+	}
+
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
+		try {
+			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, group), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException("One of Attribute not exist.", ex);
 		}

@@ -695,6 +695,18 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getRichAdminsWithSpecificAttributes(perunSession, facility, specificAttributes));
 	}
 
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(perunSession);
+
+		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getDirectRichAdminsWithSpecificAttributes(perunSession, facility, specificAttributes));
+	}
+
 	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

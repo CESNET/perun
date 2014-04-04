@@ -366,6 +366,19 @@ public class VosManagerEntry implements VosManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getRichAdminsWithSpecificAttributes(sess, vo, specificAttributes));
 	}
 
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+		Utils.notNull(sess, "sess");
+		vosManagerBl.checkVoExists(sess, vo);
+
+		//  Authorization - Vo admin required
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			throw new PrivilegeException(sess, "getDirectRichAdminsWithSpecificAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getDirectRichAdminsWithSpecificAttributes(sess, vo, specificAttributes));
+	}
+
 	/**
 	 * Gets the perunBl for this instance.
 	 *

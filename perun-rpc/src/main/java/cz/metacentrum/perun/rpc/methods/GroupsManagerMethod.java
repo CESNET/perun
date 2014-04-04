@@ -395,6 +395,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	* Get all Group admins as RichUsers
+	*
+	* @param group int Group ID
+	* @return List<RichUser> admins
+	*/
 	getRichAdmins {
 
 		@Override
@@ -404,6 +410,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	* Get all Group admins as RichUsers with all their non-null user attributes
+	*
+	* @param group int Group ID
+	* @return List<RichUser> admins with attributes
+	*/
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -413,12 +425,38 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	* Get all Group admins as RichUsers with specific attributes (from user namespace)
+	*
+	* @param group int Group ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> admins with attributes
+	*/
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getGroupsManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readList("specificAttributes", String.class));
+		}
+	},
+
+	/*#
+	* Get all Group admins, which are assigned directly,
+	*  as RichUsers with specific attributes (from user namespace)
+	*
+	* @param group int Group ID
+	* @param specificAttributes List<String> list of attributes URNs
+	* @return List<RichUser> direct admins with attributes
+	*/
+	getDirectRichAdminsWithSpecificAttributes {
+
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					parms.readList("specificAttributes", String.class));
 		}
