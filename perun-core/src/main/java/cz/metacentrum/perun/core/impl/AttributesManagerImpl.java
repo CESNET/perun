@@ -3682,6 +3682,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		try {
+			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
+					"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
+					"join resources on resource_services.resource_id=resources.id " +
+					"where service_required_attrs.attr_id=? and resources.vo_id=?",
+					attributeDefinition.getId(), vo.getId());
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
