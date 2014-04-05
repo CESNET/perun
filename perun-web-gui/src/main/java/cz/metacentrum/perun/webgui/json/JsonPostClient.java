@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -54,15 +55,30 @@ public class JsonPostClient {
 	/**
 	 * New JsonPostClient
 	 */
-	public JsonPostClient() {}
+	public JsonPostClient() {
+	}
 
 
 	/**
 	 * New JsonPostClient
+	 *
 	 * @param events
 	 */
 	public JsonPostClient(JsonCallbackEvents events) {
 		this.events = events;
+	}
+
+	/**
+	 * Put value to output data
+	 *
+	 * @param key
+	 * @param json
+	 */
+	public void put(String key, JSONValue json) {
+		if (jsonObject == null) {
+			jsonObject = new JSONObject();
+		}
+		jsonObject.put(key, json);
 	}
 
 	/**
@@ -73,14 +89,30 @@ public class JsonPostClient {
 	 * @param json
 	 * @return
 	 */
-	public boolean sendData(String url, JSONObject json)
-	{
-		if(json == null){
+	public boolean sendData(String url, JSONObject json) {
+		if (json == null) {
 			return false;
 		}
 		this.sendNative = false;
 		this.url = url;
 		this.jsonObject = json;
+		this.send();
+		return true;
+	}
+
+	/**
+	 * Sends data.
+	 * Returns true, if the data was send.
+	 * After the callback is complete, it calls the events.
+	 *
+	 * @return
+	 */
+	public boolean sendData(String url) {
+		if (jsonObject == null) {
+			return false;
+		}
+		this.sendNative = false;
+		this.url = url;
 		this.send();
 		return true;
 	}
@@ -93,9 +125,8 @@ public class JsonPostClient {
 	 * @param json
 	 * @return
 	 */
-	public boolean sendNativeData(String url, String json)
-	{
-		if(json == null){
+	public boolean sendNativeData(String url, String json) {
+		if (json == null) {
 			return false;
 		}
 		this.sendNative = true;
@@ -111,10 +142,10 @@ public class JsonPostClient {
 	private void send() {
 
 		// url to call
-		String requestUrl = PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName;
+		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName);
 
 		// request building
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(requestUrl));
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, requestUrl);
 		try {
 			// sends the request
 			onRequestLoadingStart();
@@ -124,46 +155,48 @@ public class JsonPostClient {
 			} else {
 				data = jsonObject.toString();
 			}
-			builder.sendRequest(data, new RequestCallback() {
+			final String payload = data;
+			builder.sendRequest(payload, new RequestCallback() {
 				@Override
 				public void onResponseReceived(Request req, Response resp) {
 					// if response = OK
-					if(resp.getStatusCode() == 200)
-			{
-				// jso
-				JavaScriptObject jso = parseResponse(resp.getText());
+					if (resp.getStatusCode() == 200) {
+						// jso
+						JavaScriptObject jso = parseResponse(resp.getText());
 
-				// if null - finished
-				if(jso == null)
-			{
-				session.getUiElements().setLogText("Response NULL.");
-				onRequestFinished(null);
-				return;
-			}
+						// if null - finished
+						if (jso == null) {
+							session.getUiElements().setLogText("Response NULL.");
+							onRequestFinished(null);
+							return;
+						}
 
-			// if error?
-			PerunError error = (PerunError) jso;
-			if("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())){
-				// not error, OK
-				session.getUiElements().setLogText("Response not NULL, not ERROR.");
-				onRequestFinished(jso);
-				return;
-			}
+						// if error?
+						PerunError error = (PerunError) jso;
+						if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+							// not error, OK
+							session.getUiElements().setLogText("Response not NULL, not ERROR.");
+							onRequestFinished(jso);
+							return;
+						}
 
-			// triggers onError
-			session.getUiElements().setLogText("Response ERROR.");
-			onRequestError(jso);
-			return;
-			}
+						// triggers onError
+						session.getUiElements().setLogText("Response ERROR.");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						onRequestError(error);
+						return;
+					}
 
-			// triggers onError
-			onRequestError(parseResponse(resp.getText()));
+					// triggers onError
+					onRequestError(parseResponse(resp.getText()));
 				}
-			@Override
-			public void onError(Request req, Throwable exc) {
-				// request not sent
-				onRequestError(parseResponse(exc.toString()));
-			}
+
+				@Override
+				public void onError(Request req, Throwable exc) {
+					// request not sent
+					onRequestError(parseResponse(exc.toString()));
+				}
 			});
 		} catch (RequestException exc) {
 			// usually couldn't connect to server
@@ -173,28 +206,28 @@ public class JsonPostClient {
 
 	/**
 	 * Parses the responce to an object.
+	 *
 	 * @param resp JSON string
 	 * @return
 	 */
-	protected JavaScriptObject parseResponse(String resp)
-	{
+	protected JavaScriptObject parseResponse(String resp) {
 		// trims the whitespace
 		resp = resp.trim();
 
 		// short comparing
-		if((callbackName + "(null);").equalsIgnoreCase(resp)){
+		if ((callbackName + "(null);").equalsIgnoreCase(resp)) {
 			return null;
 		}
 
 		// if starts with callbackName( and ends with ) or ); - wrapped, must be unwrapped
 		RegExp re = RegExp.compile("^" + callbackName + "\\((.*)\\)|\\);$");
 		MatchResult result = re.exec(resp);
-		if(result != null){
+		if (result != null) {
 			resp = result.getGroup(1);
 		}
 
 		// if response = null - return null
-		if(resp.equals("null")){
+		if (resp.equals("null")) {
 			return null;
 		}
 
@@ -207,38 +240,38 @@ public class JsonPostClient {
 	/**
 	 * Called when loading starts
 	 */
-	protected void onRequestLoadingStart(){
+	protected void onRequestLoadingStart() {
 		events.onLoadingStart();
 	}
 
 	/**
 	 * Called when loading finishes
+	 *
 	 * @param jso
 	 */
-	protected void onRequestFinished(JavaScriptObject jso){
+	protected void onRequestFinished(JavaScriptObject jso) {
 		events.onFinished(jso);
 	}
 
 	/**
 	 * Called when error occured.
+	 *
 	 * @param jso
 	 */
-	protected void onRequestError(JavaScriptObject jso){
+	protected void onRequestError(JavaScriptObject jso) {
 
-		if(jso != null){
+		if (jso != null) {
 			PerunError e = (PerunError) jso;
-			session.getUiElements().setLogErrorText("Error while sending request: " + e.getName() );
+			session.getUiElements().setLogErrorText("Error while sending request: " + e.getName());
 			if (!hidden) {
 				// creates a alert box
-				JsonErrorHandler.alertBox(e, url, jsonObject);
+				JsonErrorHandler.alertBox(e);
 			}
 			events.onError(e);
-		}
-		else
-		{
-			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\""+ WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType()+"\",\"message\":\""+ WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText()+"\"}").cast();
+		} else {
+			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
 			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
-			JsonErrorHandler.alertBox(e, url, jsonObject);
+			JsonErrorHandler.alertBox(e);
 		}
 		events.onError(null);
 
@@ -246,6 +279,7 @@ public class JsonPostClient {
 
 	/**
 	 * Set callback hidden (do not show error pop-up)
+	 *
 	 * @param hidden (true=hidden/false=show - default)
 	 */
 	public void setHidden(boolean hidden) {
