@@ -145,7 +145,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 		// TYPE COLUMN
 		Column<Destination, String> typeColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination,String>() {
 			public String getValue(Destination dest) {
-				return dest.getType();
+				return dest.getType().toUpperCase();
 			}
 		}, tableFieldUpdater);
 
