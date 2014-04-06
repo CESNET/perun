@@ -29,11 +29,13 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
+import org.springframework.dao.DuplicateKeyException;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -326,11 +328,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
-	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException {
+	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
 		try {
 			jdbc.update("insert into service_service_packages (package_id, service_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", servicesPackage.getId(), service.getId(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+		} catch (DuplicateKeyException e) {
+			throw new ServiceAlreadyAssignedException("Service with id " + service.getId() + " is already assigned to the service package with id " + servicesPackage.getId(), e);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
