@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.TaskResult;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,7 +28,7 @@ import java.util.Comparator;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable<TaskResult> {
+public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable<TaskResult>, JsonCallbackOracle<TaskResult> {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -44,6 +45,9 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private int taskId = 0;
+
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<TaskResult> fullBackup = new ArrayList<TaskResult>();
 
 	/**
 	 * New instance of get tasks results
@@ -123,7 +127,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		TextColumn<TaskResult> typeColumn = new TextColumn<TaskResult>() {
 			@Override
 			public String getValue(TaskResult object) {
-				return String.valueOf(object.getDestination().getType());
+				return String.valueOf(object.getDestination().getType().toUpperCase());
 			}
 		};
 
@@ -272,6 +276,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 */
 	public void addToTable(TaskResult object) {
 		list.add(object);
+		oracle.add(object.getDestination().getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -294,6 +299,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
+		oracle.clear();
 		selectionModel.clear();
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -346,6 +352,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 	public void insertToTable(int index, TaskResult object) {
 		list.add(index, object);
+		oracle.add(object.getDestination().getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -361,12 +368,53 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public void setList(ArrayList<TaskResult> list) {
 		clearTable();
 		this.list.addAll(list);
+		for (TaskResult r : list) {
+			oracle.add(r.getDestination().getDestination());
+		}
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
 
 	public ArrayList<TaskResult> getList() {
 		return this.list;
+	}
+
+	@Override
+	public void filterTable(String filter) {
+
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
+
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
+
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (TaskResult result : fullBackup){
+				if (result.getDestination().getDestination().toLowerCase().startsWith(filter)) {
+					list.add(result);
+				}
+			}
+		}
+
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+
+	}
+
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return oracle;
+	}
+
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
 	}
 
 }

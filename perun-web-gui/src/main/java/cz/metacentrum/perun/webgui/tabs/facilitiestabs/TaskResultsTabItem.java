@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -17,6 +18,8 @@ import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
 
@@ -82,16 +85,28 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-		GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
+		final GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
+
+		TabMenu menu = new TabMenu();
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, "Filter results by destination");
+
+
 		CellTable<TaskResult> table = callback.getTable();
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
+
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
 		vp.add(sp);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
-
 
 		this.contentWidget.setWidget(vp);
 
