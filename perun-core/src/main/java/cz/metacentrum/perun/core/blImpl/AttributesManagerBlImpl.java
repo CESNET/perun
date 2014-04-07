@@ -2070,6 +2070,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 
+                if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) return;
 		getAttributesManagerImpl().checkAttributeValue(sess, vo, attribute);
 	}
 
@@ -2077,6 +2078,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
 
 		for(Attribute attribute : attributes) {
+			if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) continue;
 			getAttributesManagerImpl().checkAttributeValue(sess, vo, attribute);
 		}
 	}
@@ -3247,6 +3249,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_FACILITY_ATTR);
 		return getAttributesManagerImpl().isAttributeRequiredByFacility(sess, facility, attributeDefinition);
+	}
+
+	public boolean isTrulyRequiredAttribute(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+		this.checkNamespace(sess, attributeDefinition, NS_VO_ATTR);
+		return getAttributesManagerImpl().isAttributeRequiredByVo(sess, vo, attributeDefinition);
 	}
 
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
