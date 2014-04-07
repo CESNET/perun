@@ -45,7 +45,7 @@ public class AddDestinationsByHostsOnFacility {
 	 * Creates a new request with custom events
 	 *
 	 * @param facility facility to have destination added
-	 * @param events custom events
+	 * @param events   custom events
 	 */
 	public AddDestinationsByHostsOnFacility(Facility facility, final JsonCallbackEvents events) {
 		this.facility = facility;
@@ -62,17 +62,17 @@ public class AddDestinationsByHostsOnFacility {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(facility == null){
+		if (facility == null) {
 			errorMsg += "Wrong parameter <strong>Facility</strong>.</br>";
 			result = false;
 		}
 
-		if(services == null || services.isEmpty()){
+		if (services == null || services.isEmpty()) {
 			errorMsg += "Wrong parameter <strong>Service</strong>.</br>";
 			result = false;
 		}
 
-		if(errorMsg.length()>0){
+		if (errorMsg.length() > 0) {
 			UiElements.generateAlert("Wrong parameter", errorMsg);
 		}
 
@@ -102,25 +102,25 @@ public class AddDestinationsByHostsOnFacility {
 		this.services = services;
 
 		// test arguments
-		if(!this.testCreating()){
+		if (!this.testCreating()) {
 			return;
 		}
 
 		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Adding destination for facility: " + facility.getName() + " failed.");
 				events.onError(error);
-			};
+			}
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Destination for facility: " + facility.getName() + " added.");
 				events.onFinished(jso);
-			};
+			}
 
 			public void onLoadingStart() {
 				events.onLoadingStart();
-			};
+			}
 		};
 
 		// sending data
@@ -140,7 +140,7 @@ public class AddDestinationsByHostsOnFacility {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("facility", new JSONNumber(facility.getId()));
 		JSONArray servs = new JSONArray();
-		for (int i=0; i<services.size(); i++) {
+		for (int i = 0; i < services.size(); i++) {
 			// rebuild service object
 			JSONObject srv = new JSONObject();
 			srv.put("id", new JSONNumber(services.get(i).getId()));
