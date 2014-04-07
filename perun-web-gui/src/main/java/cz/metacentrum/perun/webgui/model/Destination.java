@@ -36,6 +36,9 @@ public class Destination extends JavaScriptObject {
 		 * @return type of destination
 		 */
 		public final native String getType() /*-{
+			if (!this.type) {
+				return "";
+			}
 			return this.type;
 		}-*/;
 

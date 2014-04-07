@@ -125,7 +125,7 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<Destination> destForRemoving = callback.getTableSelectedList();
-				String text = "Following destinations will be removed. <strong>Removing destination will stop propagation of service configuration for this destination/service.</strong>";
+				String text = "<span class=\"serverResponseLabelError\"><strong>Removing destination will stop propagation of service's configuration for this destination/service.</strong></span><p>Following destinations will be removed.";
 				UiElements.showDeleteConfirm(destForRemoving, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -153,6 +153,9 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 				callback.filterTable(text);
 			}
 		}, ButtonTranslation.INSTANCE.filterDestination());
+
+		menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+		menu.addWidget(new HTML("<strong>Destinations define, where service's configuration is propagated.</strong>"));
 
 		this.contentWidget.setWidget(vp);
 

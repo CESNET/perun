@@ -113,7 +113,7 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 			@Override
 			public void onClick(ClickEvent event) {
 				final ArrayList<Host> hostsForRemoving = hosts.getTableSelectedList();
-				String text = "Following hosts will be removed from facility.";
+				String text = "<span class=\"serverResponseLabelError\"><strong>Removing host(s) won't stop services propagation. For this please remove proper 'Services destinations'.</strong></span><p>Following hosts will be removed from facility.";
 				UiElements.showDeleteConfirm(hostsForRemoving, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -179,10 +179,6 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 		return  SmallIcons.INSTANCE.serverIcon();
 	}
 
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;

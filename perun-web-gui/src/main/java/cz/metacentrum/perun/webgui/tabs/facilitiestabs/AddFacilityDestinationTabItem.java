@@ -18,15 +18,15 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.facilitiesManager.GetHosts;
 import cz.metacentrum.perun.webgui.json.servicesManager.*;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.Host;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 
@@ -59,6 +59,8 @@ public class AddFacilityDestinationTabItem implements TabItem {
 	private Facility facility;
 	private int facilityId;
 
+	private ArrayList<Host> hosts = new ArrayList<Host>();
+
 	/**
 	 * Creates a tab instance
 	 * @param facility facility to get services from / destination to add
@@ -79,13 +81,12 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-		// prepares layout
 		FlexTable layout = new FlexTable();
 		layout.setStyleName("inputFormFlexTable");
 		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
-		layout.setWidth("300px");
+		layout.setWidth("350px");
 
-		final TextBox destination = new TextBox();
+		final ExtendedSuggestBox destination = new ExtendedSuggestBox();
 		final ListBox type = new ListBox();
 		type.addItem("HOST","host");
 		type.addItem("USER@HOST", "user@host");
@@ -94,12 +95,107 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		type.addItem("MAIL","email");
 		type.addItem("SIGNED MAIL","semail");
 
-		TabMenu menu = new TabMenu();
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
-
 		final ListBoxWithObjects<Service> services = new ListBoxWithObjects<Service>();
 		final CheckBox useHosts = new CheckBox(WidgetTranslation.INSTANCE.useFacilityHostnames(), false);
 		useHosts.setTitle(WidgetTranslation.INSTANCE.useFacilityHostnamesTitle());
+
+		final CheckBox onlyAssignedServices = new CheckBox("Show only services on facility", false);
+		onlyAssignedServices.setTitle("Click to show all possible services");
+		onlyAssignedServices.setValue(true);
+
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
+
+		// fill oracle with hosts of facility
+		GetHosts getHosts = new GetHosts(facilityId, new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				ArrayList<Host> ho = JsonUtils.jsoAsList(jso);
+				for (Host h : ho) {
+					hosts.addAll(ho);
+					destination.getSuggestOracle().add(h.getName());
+				}
+			}
+		});
+		getHosts.retrieveData();
+
+		JsonCallbackEvents fillAssignedServices = new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				services.removeAllOption();
+				services.clear();
+				ArrayList<Service> ses = JsonUtils.jsoAsList(jso);
+				if (ses != null && !ses.isEmpty()) {
+					ses = new TableSorter<Service>().sortByName(ses);
+					services.addAllItems(ses);
+					services.addAllOption();
+					services.setSelectedIndex(0);
+				} else {
+					services.addItem("No service available");
+				}
+				addButton.setEnabled(true);
+				type.setEnabled(true);
+			}
+			@Override
+			public void onError(PerunError error){
+				services.removeAllOption();
+				services.clear();
+				services.addItem("Error while loading");
+				addButton.setEnabled(true);
+				type.setEnabled(true);
+			}
+			@Override
+			public void onLoadingStart(){
+				services.removeAllOption();
+				services.clear();
+				services.addItem("Loading...");
+				addButton.setEnabled(false);
+				type.setEnabled(false);
+			}
+		};
+
+		final GetFacilityAssignedServices getAssignedServices = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
+		getAssignedServices.retrieveData();
+
+		final GetServices getAllServices = new GetServices(fillAssignedServices);
+
+		onlyAssignedServices.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event) {
+				if (onlyAssignedServices.getValue() == false) {
+					onlyAssignedServices.setTitle("Click to show only services on facility");
+					getAllServices.retrieveData();
+				} else {
+					onlyAssignedServices.setTitle("Click to show all possible services");
+					getAssignedServices.retrieveData();
+				}
+			}
+		});
+
+		final Label destinationLabel = new Label();
+		destinationLabel.getElement().setInnerHTML("<strong>Host:</strong>");
+
+		final ExtendedSuggestBox.SuggestBoxValidator validator = new ExtendedSuggestBox.SuggestBoxValidator() {
+			@Override
+			public boolean validateSuggestBox() {
+				if (destination.getSuggestBox().getText().trim().isEmpty() && useHosts.getValue() == false) {
+					destination.setError("Destination value can't be empty.");
+					return false;
+				}
+				// check as email
+				if (type.getSelectedIndex() > 3) {
+					if (!JsonUtils.isValidEmail(destination.getSuggestBox().getText().trim())) {
+						destination.setError("Not valid email address.");
+						return false;
+					} else {
+						destination.setOk();
+						return true;
+					}
+				}
+				destination.setOk();
+				return true;
+			}
+		};
+		destination.setValidator(validator);
 
 		type.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
@@ -109,143 +205,115 @@ public class AddFacilityDestinationTabItem implements TabItem {
 				} else {
 					useHosts.setVisible(false);
 					useHosts.setValue(false);
-					destination.setEnabled(true);
+					destination.getSuggestBox().setEnabled(true);
 				}
+
+				if (type.getSelectedIndex() < 3) {
+					destination.getSuggestOracle().clear();
+					for (Host h : hosts) {
+						destination.getSuggestOracle().add(h.getName());
+					}
+				} else {
+					destination.getSuggestOracle().clear();
+				}
+
+				// set label
+				if (type.getSelectedIndex() == 0) {
+					destinationLabel.getElement().setInnerHTML("<strong>Host:</strong>");
+				} else if (type.getSelectedIndex() == 1) {
+					destinationLabel.getElement().setInnerHTML("<strong>User@host:</strong>");
+				} else if (type.getSelectedIndex() == 2) {
+					destinationLabel.getElement().setInnerHTML("<strong>User@host:port:</strong>");
+				} else if (type.getSelectedIndex() == 3) {
+					destinationLabel.getElement().setInnerHTML("<strong>URL:</strong>");
+				} else if (type.getSelectedIndex() == 4) {
+					destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
+				} else if (type.getSelectedIndex() == 5) {
+					destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+				}
+
+				// run validation
+				validator.validateSuggestBox();
+
 			}
 		});
 
 		useHosts.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (useHosts.getValue() == true) {
-					destination.setEnabled(false);
+					destination.getSuggestBox().setEnabled(false);
+					destination.setOk();
 				} else {
-					destination.setEnabled(true);
+					destination.getSuggestBox().setEnabled(true);
 				}
 			}
 		});
 
-		// fills services listbox with assigned services
-		final JsonCallbackEvents fillAssignedServices = new JsonCallbackEvents(){
-			public void onLoadingStart() {
-				services.removeAllOption();
-				services.clear();
-				services.addItem("Loading...");
-				addButton.setEnabled(false);
-			}
-			public void onFinished(JavaScriptObject jso) {
-				services.removeAllOption();
-				services.clear();
-				ArrayList<Service> serv = JsonUtils.jsoAsList(jso);
-				if (serv.size() == 0) {
-					services.addItem("No service available");
-				} else {
-					serv = new TableSorter<Service>().sortByName(serv);
-					for (int i=0; i<serv.size(); i++) {
-						services.addItem(serv.get(i));
-					}
-					services.addAllOption();
-				}
-				addButton.setEnabled(true);
-			}
-			public void onError(PerunError error) {
-				services.removeAllOption();
-				services.clear();
-				services.addItem("Error while loading");
-				addButton.setEnabled(false);
-			}
-		};
-		final GetFacilityAssignedServices callback = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
-		callback.retrieveData();
+		cellFormatter.setColSpan(0, 0, 2);
+		HTML text = new HTML("Please add destinations for service configuration delivery. New service configuration can be performed directly on facility (dest. type HOST) or sent to URL or by an email.");
+		text.setStyleName("inputFormInlineComment");
+		layout.setWidget(0, 0, text);
 
-		int row = 0;
-		layout.setHTML(row, 0, "Facility:");
-		layout.setHTML(row, 1, facility.getName()+" ("+facility.getType()+")");
-		row++;
+		layout.setHTML(1, 0, "Service:");
+		layout.setWidget(1, 1, services);
 
-		layout.setHTML(row, 0, "Service:");
-		layout.setWidget(row, 1, services);
-		row++;
+		layout.setWidget(2, 1, onlyAssignedServices);
 
-		// display all services
-		final CheckBox allServicesCheckbox = new CheckBox(WidgetTranslation.INSTANCE.displayAllServices(), false);
-		allServicesCheckbox.setTitle(WidgetTranslation.INSTANCE.displayAllServicesTitle());
-		allServicesCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
+		layout.setHTML(3, 0, "Type:");
+		layout.setWidget(3, 1, type);
 
-				boolean allServices = event.getValue();
+		layout.setWidget(4, 0, destinationLabel);
+		layout.setWidget(4, 1, destination);
 
-				if(!allServices){
-					GetFacilityAssignedServices callback = new GetFacilityAssignedServices(facility.getId(), fillAssignedServices);
-					callback.retrieveData();
-				}else{
-					GetServices callback = new GetServices(fillAssignedServices);
-					callback.retrieveData();
-				}
+		layout.setWidget(5, 1, useHosts);
 
-			}
-		});
-		layout.setWidget(row, 1, allServicesCheckbox);
-		row++;
-
-		layout.setHTML(row, 0, "Destination:");
-		layout.setWidget(row, 1, destination);
-		row++;
-
-		layout.setWidget(row, 1, useHosts);
-		row++;
-
-		layout.setHTML(row, 0, "Type:");
-		layout.setWidget(row, 1, type);
-		row++;
-
-		for (int i=0; i<layout.getRowCount(); i++) {
+		for (int i=1; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
 		}
 
-		// close tab, disable button
-		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, this);
+		final TabItem tab = this;
+		TabMenu menu = new TabMenu();
 
-		addButton.addClickHandler(new ClickHandler(){
+		menu.addWidget(addButton);
+
+		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (services.isEmpty()) {
 					// no services available
-					Confirm c = new Confirm("No service selected.", new Label("You must select a service to add destination for."), true);
-					c.show();
+					addButton.setEnabled(false);
 				}
-				if (destination.getText().equalsIgnoreCase("") && useHosts.getValue() == false) {
-					Confirm c = new Confirm("Wrong value", new Label("'Destination' can't be empty."), true);
-					c.show();
-					return;
-				}
-				if (services.getSelectedIndex() == 0) {
-					// selected all
-					if (useHosts.getValue() == true){
-						// auto by hosts
-						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, closeTabEvents);
-						request.addDestinationByHosts(services.getAllObjects());
+
+				if (validator.validateSuggestBox()) {
+
+					if (services.getSelectedIndex() == 0) {
+						// selected all
+						if (useHosts.getValue() == true) {
+							// auto by hosts
+							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addDestinationByHosts(services.getAllObjects());
+						} else {
+							// default
+							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
+						}
 					} else {
-						// default
-						AddDestination request = new AddDestination(facility, closeTabEvents);
-						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects());
+						// selected one
+						if (useHosts.getValue() == true) {
+							// auto by hosts
+							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addDestinationByHosts(services.getSelectedObject());
+						} else {
+							// default
+							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getSelectedObject());
+						}
 					}
-				} else {
-					// selected one
-					if (useHosts.getValue() == true){
-						// auto by hosts
-						AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, closeTabEvents);
-						request.addDestinationByHosts(services.getSelectedObject());
-					} else {
-						// default
-						AddDestination request = new AddDestination(facility, closeTabEvents);
-						request.addDestination(destination.getText().trim(), type.getValue(type.getSelectedIndex()), services.getSelectedObject());
-					}
+
 				}
+
 			}
 		});
-		menu.addWidget(addButton);
 
-		final TabItem tab = this;
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
