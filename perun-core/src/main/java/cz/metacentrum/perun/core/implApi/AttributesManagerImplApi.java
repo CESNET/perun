@@ -1816,6 +1816,18 @@ public interface AttributesManagerImplApi {
 	 */
 	boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
+        /**
+	 * Check if this attribute is currently required on this vo. Attribute can be from any namespace.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param attributeDefinition
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 */
+	boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) throws InternalErrorException;
+
 	/**
 	 * Check if this attribute is currently required on this group. Attribute can be from any namespace.
 	 *
