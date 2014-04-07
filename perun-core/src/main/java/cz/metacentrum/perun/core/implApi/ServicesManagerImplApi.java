@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -190,8 +191,9 @@ public interface ServicesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ServicesPackageNotExistsException
 	 * @throws ServiceNotExistsException
+	 * @throws ServiceAlreadyAssignedException
 	 */
-	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException;
+	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
 
 	/**
 	 * Remove Service from Services Package
