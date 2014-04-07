@@ -6,6 +6,7 @@ import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
@@ -47,22 +48,21 @@ public class AddServiceToServicesPackage {
 	 *
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAdding()
-	{
+	private boolean testAdding() {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(serviceId == 0){
+		if (serviceId == 0) {
 			errorMsg += "Wrong parameter 'Service ID'.</br>";
 			result = false;
 		}
 
-		if(packageId == 0){
+		if (packageId == 0) {
 			errorMsg += "Wrong parameter 'Services package ID'.";
 			result = false;
 		}
 
-		if(errorMsg.length()>0){
+		if (errorMsg.length() > 0) {
 			UiElements.generateAlert("Parameter error", errorMsg);
 		}
 
@@ -81,35 +81,41 @@ public class AddServiceToServicesPackage {
 		this.packageId = packageId;
 
 		// test arguments
-		if(!this.testAdding()){
+		if (!this.testAdding()) {
 			return;
 		}
 
 		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Adding service to services package failed.");
+				if (error != null && error.getName().equals("ServiceAlreadyAssignedException")) {
+					UiElements.generateError(error, "Service is already assigned", "Service is already assigned to this services package.");
+				} else {
+					JsonErrorHandler.alertBox(error);
+				}
 				events.onError(error); // custom events
-			};
-
+			}
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Service added to services package.");
 				events.onFinished(jso);
-			};
-
+			}
 			public void onLoadingStart() {
 				events.onLoadingStart();
-			};
+			}
 		};
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
+		// custom error handling
+		jspc.setHidden(true);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
 	}
 
 	/**
 	 * Prepares a JSON object
+	 *
 	 * @return JSONObject the whole query
 	 */
 	private JSONObject prepareJSONObject() {

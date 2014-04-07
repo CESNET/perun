@@ -47,7 +47,7 @@ public class AddDestination {
 	 * Creates a new request with custom events
 	 *
 	 * @param facility facility to have destination added
-	 * @param events custom events
+	 * @param events   custom events
 	 */
 	public AddDestination(Facility facility, final JsonCallbackEvents events) {
 		this.facility = facility;
@@ -64,27 +64,27 @@ public class AddDestination {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(facility == null){
+		if (facility == null) {
 			errorMsg += "Wrong parameter <strong>Facility</strong>.</br>";
 			result = false;
 		}
 
-		if(services == null || services.isEmpty()){
+		if (services == null || services.isEmpty()) {
 			errorMsg += "Wrong parameter <strong>Service</strong>.</br>";
 			result = false;
 		}
 
-		if(destination.length() == 0){
+		if (destination.length() == 0) {
 			errorMsg += "Wrong parameter <strong>Destination</strong>.</br>";
 			result = false;
 		}
 
-		if(type.length() == 0){
+		if (type.length() == 0) {
 			errorMsg += "Wrong parameter <strong>Destination type</strong>.";
 			result = false;
 		}
 
-		if(errorMsg.length()>0){
+		if (errorMsg.length() > 0) {
 			UiElements.generateAlert("Parameter Error", errorMsg);
 		}
 
@@ -96,8 +96,8 @@ public class AddDestination {
 	 * submits them.
 	 *
 	 * @param destination destination string
-	 * @param type type of destination
-	 * @param service service to add destination to
+	 * @param type        type of destination
+	 * @param service     service to add destination to
 	 */
 	public void addDestination(final String destination, final String type, final Service service) {
 		ArrayList<Service> servs = new ArrayList<Service>();
@@ -110,8 +110,8 @@ public class AddDestination {
 	 * submits them.
 	 *
 	 * @param destination destination string
-	 * @param type type of destination
-	 * @param services services to add destination to
+	 * @param type        type of destination
+	 * @param services    services to add destination to
 	 */
 	public void addDestination(final String destination, final String type, final ArrayList<Service> services) {
 
@@ -122,25 +122,25 @@ public class AddDestination {
 		}
 
 		// test arguments
-		if(!this.testCreating()){
+		if (!this.testCreating()) {
 			return;
 		}
 
 		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Adding destination" + destination + " failed.");
 				events.onError(error);
-			};
+			}
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Destination " + destination + " added.");
 				events.onFinished(jso);
-			};
+			}
 
 			public void onLoadingStart() {
 				events.onLoadingStart();
-			};
+			}
 		};
 
 		// sending data
@@ -163,7 +163,7 @@ public class AddDestination {
 		jsonQuery.put("facility", new JSONNumber(facility.getId()));
 
 		JSONArray servs = new JSONArray();
-		for (int i=0; i<services.size(); i++) {
+		for (int i = 0; i < services.size(); i++) {
 			// rebuild service object
 			JSONObject srv = new JSONObject();
 			srv.put("id", new JSONNumber(services.get(i).getId()));
