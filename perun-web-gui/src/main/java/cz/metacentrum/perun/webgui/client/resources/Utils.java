@@ -189,6 +189,26 @@ public class Utils {
 	}
 
 	/**
+	 * Returns public key part of Re-Captcha widget (by GOOGLE)
+	 * which is used for anonymous access to application form.
+	 *
+	 * If public key is not present, return null
+	 *
+	 * @return Re-Captcha public key
+	 */
+	public static String getReCaptchaPublicKey() {
+
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getReCaptchaPublicKey");
+			if (value != null && !value.isEmpty()) {
+				return value;
+			}
+		}
+		return null;
+
+	}
+
+	/**
 	 * Returns TRUE if logged to Devel instance of Perun
 	 *
 	 * @return TRUE if instance of Perun is Devel / FALSE otherwise

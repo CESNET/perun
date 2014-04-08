@@ -55,7 +55,7 @@ public class JsonErrorHandler {
 		// clear password fields if present
 		final JSONObject postObject = new JSONObject(JsonUtils.parseJson(error.getPostData()));
 
-		if (postObject != null) {
+		if (postObject.getJavaScriptObject() != null) {
 			Set<String> keys = postObject.keySet();
 			if (keys.contains("oldPassword")) {
 				postObject.put("oldPassword", new JSONString(""));
@@ -121,8 +121,6 @@ public class JsonErrorHandler {
 						c.show();
 
 					}
-
-					;
 				});
 
 				msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR " + error.getErrorId() + ": " + error.getRequestURL(), text);
@@ -132,7 +130,7 @@ public class JsonErrorHandler {
 
 		FlexTable baseLayout = new FlexTable();
 		baseLayout.setStyleName("alert-box-table");
-
+		baseLayout.setWidth("350px");
 		baseLayout.setHTML(0, 0, "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
 		baseLayout.setHTML(1, 0, "<strong>Message:</strong>");
 		baseLayout.setWidget(2, 0, messageTextBox);

@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -279,6 +280,9 @@ public class ApplicationFormGui implements EntryPoint {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 
+						// store configuration
+						session.setConfiguration((BasicOverlayType)jso.cast());
+
 						// non authz user - is used URL same as default URL (non on production) ?
 						if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
@@ -288,7 +292,20 @@ public class ApplicationFormGui implements EntryPoint {
 							ft.setSize("100%", "500px");
 
 							// captcha with public key
-							final RecaptchaWidget captcha = new RecaptchaWidget("6Lcbdt0SAAAAAGMnlJn57omFv1OCl3O-PbW0NrK7", LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
+							String key = Utils.getReCaptchaPublicKey();
+							if (key == null) {
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("0");
+								error.setName("Missing public key");
+								error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
+								error.setRequestURL("");
+								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
+								loadingBox.hide();
+								return;
+							}
+
+							final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
 
 							cz.metacentrum.perun.webgui.widgets.CustomButton cb = new CustomButton();
 							cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
