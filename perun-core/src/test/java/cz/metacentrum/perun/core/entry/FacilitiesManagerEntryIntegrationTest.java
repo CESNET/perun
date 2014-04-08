@@ -67,8 +67,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	private List<Host> hosts;
 	private FacilitiesManager facilitiesManagerEntry;
 	private Facility emptyFac;
-	private Vo facAdminsVo;
-
+	private Vo vo;
+	
 	@Before
 	public void setUp() throws Exception {
 
@@ -93,7 +93,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		emptyFac = new Facility();
 		emptyFac.setType("Testing");
 
-		facAdminsVo = perun.getVosManagerBl().getVoByShortName(sess, "facadmins");
+		vo = new Vo(0, "facilityTestVo001", "facilityTestVo001");
+		perun.getVosManagerBl().createVo(sess, vo);
 	}
 
 	@Test
@@ -666,7 +667,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void addAdmin() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".addAdmin()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		facilitiesManagerEntry.addAdmin(sess, facility, u);
@@ -681,7 +682,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".addAdminWithGroup()");
 
 		final Group group = new Group("testGroup", "just for testing");
-		perun.getGroupsManager().createGroup(sess, facAdminsVo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group);
 		facilitiesManagerEntry.addAdmin(sess, facility, group);
 
 		final List<Group> admins = facilitiesManagerEntry.getAdminGroups(sess, facility);
@@ -696,13 +697,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".getAdmins()");
 
 		// set up first user
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		facilitiesManagerEntry.addAdmin(sess, facility, user);
 
 		// set up authorized group
 		Group authorizedGroup = new Group("authorizedGroup","testovaciGroup");
-		Group returnedGroup = perun.getGroupsManager().createGroup(sess, facAdminsVo, authorizedGroup);
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, vo, authorizedGroup);
 		facilitiesManagerEntry.addAdmin(sess, facility, returnedGroup);
 
 		// set up second user
@@ -718,7 +719,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 
-		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, facAdminsVo, candidate);
+		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
 		perun.getGroupsManager().addMember(sess, returnedGroup, member2);
 
@@ -733,7 +734,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getDirectAdmins() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".getDirectAdmins()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		facilitiesManagerEntry.addAdmin(sess, facility, u);
@@ -744,7 +745,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getAdminsIfNotExist() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".getAdminsIfNotExist()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		assertTrue(facilitiesManagerEntry.getAdmins(sess, facility).isEmpty());
@@ -755,7 +756,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".getAdminGroups()");
 
 		final Group group = new Group("testGroup", "just for testing");
-		perun.getGroupsManager().createGroup(sess, facAdminsVo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group);
 		facilitiesManagerEntry.addAdmin(sess, facility, group);
 
 		assertTrue(facilitiesManagerEntry.getAdminGroups(sess, facility).contains(group));
@@ -765,7 +766,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void removeAdminWhichNotExists() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".removeAdminWhichNotExists()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		facilitiesManagerEntry.removeAdmin(sess, facility, u);
@@ -775,7 +776,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void removeAdmin() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".removeAdmin()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		final RichUser richUser = new RichUser(u, perun.getUsersManagerBl().getUserExtSources(sess, u));
@@ -792,7 +793,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".removeAdminWithGroup()");
 
 		final Group group = new Group("testGroup", "just for testing");
-		perun.getGroupsManager().createGroup(sess, facAdminsVo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group);
 		facilitiesManagerEntry.addAdmin(sess, facility, group);
 
 		facilitiesManagerEntry.removeAdmin(sess, facility, group);
@@ -803,7 +804,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getFacilitiesWhereUserIsAdmin() throws Exception {
 		System.out.println(FACILITIES_MANAGER + ".getFacilitiesWhereUserIsAdmin()");
 
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		facilitiesManagerEntry.addAdmin(sess, facility, u);
@@ -818,7 +819,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".copyManagers");
 
 		// add user as admin in facility
-		final Member member = setUpMember(facAdminsVo);
+		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 		facilitiesManagerEntry.addAdmin(sess, facility, u);
 
