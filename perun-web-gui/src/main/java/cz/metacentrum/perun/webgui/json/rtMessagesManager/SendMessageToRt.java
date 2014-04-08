@@ -114,8 +114,6 @@ public class SendMessageToRt {
 				events.onError(error);
 			}
 
-			;
-
 			public void onFinished(JavaScriptObject jso) {
 
 				RTMessage msg = jso.cast();
@@ -124,13 +122,9 @@ public class SendMessageToRt {
 				events.onFinished(jso);
 			}
 
-			;
-
 			public void onLoadingStart() {
 				events.onLoadingStart();
 			}
-
-			;
 
 		};
 
