@@ -39,6 +39,15 @@ public class PerunError extends JavaScriptObject {
     }-*/;
 
 	/**
+	 * Set name of Exception
+	 *
+	 * @param name name of exception
+	 */
+	public final native void setName(String name) /*-{
+		this.name = name;
+	}-*/;
+
+	/**
 	 * Return TYPE of exception (e.g. for CabinetException)
 	 *
 	 * @return type of exception or empty string
