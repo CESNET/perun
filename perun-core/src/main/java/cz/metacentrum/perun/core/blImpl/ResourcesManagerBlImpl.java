@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
@@ -184,6 +185,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getResourcesManagerImpl().getAssignedMembers(sess, resource);
+	}
+
+	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException {
+		List<Member> listOfMembers = getResourcesManagerImpl().getAssignedMembers(sess, resource);
+		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, listOfMembers);
 	}
 
 

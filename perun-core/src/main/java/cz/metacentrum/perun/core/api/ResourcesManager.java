@@ -338,6 +338,27 @@ public interface ResourcesManager {
 	List<Service> getAssignedServices(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns all members assigned to the resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of assigned members
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
+	/**
+	 * Returns all members assigned to the resource as RichMembers.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of assigned rich members
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
+
+	/**
 	 * Assign service to resource.
 	 *
 	 * @param perunSession

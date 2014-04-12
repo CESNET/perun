@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -391,6 +392,34 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 				return ac.getResourcesManager().getAssignedRichResources(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")));
 			}
+		}
+	},
+
+	/*#
+	 * Returns all members assigned to the resource.
+	 *
+	 * @param resource int Resource ID
+	 * @return List<Member> list of assigned members
+	 */
+	getAssignedMembers {
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedMembers(ac.getSession(),
+				ac.getResourceById(parms.readInt("resource")));
+		}
+	},
+
+	/*#
+	 * Returns all members assigned to the resource as RichMembers.
+	 *
+	 * @param resource int Resource ID
+	 * @return List<RichMember> list of assigned rich members
+	 */
+	getAssignedRichMembers {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedRichMembers(ac.getSession(),
+				ac.getResourceById(parms.readInt("resource")));
 		}
 	},
 

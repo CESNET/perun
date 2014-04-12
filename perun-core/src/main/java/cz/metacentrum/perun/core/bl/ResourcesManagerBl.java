@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
@@ -196,6 +197,17 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getAssignedMembers(PerunSession perunSession, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns all members assigned to the resource as RichMembers.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @return list of rich members assigned to the resource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> getAssignedRichMembers(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get all users, who can assess the resource.
