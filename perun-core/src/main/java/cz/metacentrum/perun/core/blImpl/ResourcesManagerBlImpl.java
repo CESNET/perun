@@ -108,6 +108,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed withou problem.", ex);
 		}
 
+		// Remove group-resource attr values for all group and resource
+		try {
+			this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
+		} catch (WrongAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		}	
 		//Remove all resources tags
 		this.removeAllResourcesTagFromResource(sess, resource);
 

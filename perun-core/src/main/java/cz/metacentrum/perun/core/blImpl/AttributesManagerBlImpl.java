@@ -2323,6 +2323,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, key);
 	}
 
+	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<Group> groups = this.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		for (Group group : groups) {
+			this.getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
+		}
+		this.attributesManagerImpl.removeAllGroupResourceAttributes(sess, resource);
+		this.getPerunBl().getAuditer().log(sess, "All non-virtual group-resource attributes removed for all groups and {}", resource);
+	}
+
 	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		removeAttributeWithoutCheck(sess, key, attribute);
 		this.checkAttributeValue(sess, key, new Attribute(attribute));
