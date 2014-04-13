@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.ResourcesManager;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
@@ -243,6 +244,34 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getAssignedServices(sess, resource);
 	}
 
+	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource))
+			{
+			throw new PrivilegeException(sess, "getAssignedMembers");
+		}
+
+		return getResourcesManagerBl().getAssignedMembers(sess, resource);
+	}
+
+	@Override
+	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource))
+			{
+			throw new PrivilegeException(sess, "getAssignedRichMembers");
+		}
+
+		return getResourcesManagerBl().getAssignedRichMembers(sess, resource);
+	}
 
 	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
