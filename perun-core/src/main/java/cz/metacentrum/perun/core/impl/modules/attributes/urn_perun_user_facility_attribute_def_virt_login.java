@@ -13,8 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
@@ -47,7 +45,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 				loginAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, loginAttribute);
 			} else {
-				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
+				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute, user, facility, "Facility need to have nonempty login-namespace attribute.");
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);
@@ -117,7 +115,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 
 			if (loginNamespaceAttribute.getValue() == null) {
-				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute);
+				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute, user, facility,  "Facility need to have nonempty login-namespace attribute.");
 			}
 
 			userLoginAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
