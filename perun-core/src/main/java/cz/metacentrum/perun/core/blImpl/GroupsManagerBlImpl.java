@@ -358,26 +358,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resource : resources) {
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 			// check members attributes
 			try {
-				long startTime = Utils.startTimer();
-				List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, member, true);
-				log.debug("addMember timer: getAttributesManagerBl().getResourceRequiredAttributes [{}]", Utils.getRunningTime(startTime));
-
-				startTime = Utils.startTimer();
-				attributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, resource, member, attributes, true);
-				log.debug("addMember timer: getAttributesManagerBl().fillAttributes [{}]", Utils.getRunningTime(startTime));
-
-				startTime = Utils.startTimer();
-				getPerunBl().getAttributesManagerBl().setAttributes(sess, resource, member, attributes, true);
-				log.debug("addMember timer: getAttributesManagerBl().setAttributes [{}]", Utils.getRunningTime(startTime));
-
-				startTime = Utils.startTimer();
-				getPerunBl().getAttributesManagerBl().checkAttributesValue(sess, resource, member, attributes, true);
-				log.debug("addMember timer: getAttributesManagerBl().checkAttributesValue [{}]", Utils.getRunningTime(startTime));
-			} catch (WrongAttributeAssignmentException ex) {
+				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
+			} catch(WrongAttributeAssignmentException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch(AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}

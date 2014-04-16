@@ -1135,6 +1135,70 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		return attribute;
 	}
+	
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
+		//get all attributes (for member, resource, facility and user) with values
+		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
+		
+		//fill attributes and get back only those which were really filled with new value
+		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
+
+		//Remove all filledAttributes from all attributes list
+		Iterator<Attribute> iterAttr = attributes.iterator();
+		while(iterAttr.hasNext()) {
+			Attribute attributeFromAllAttrs = iterAttr.next();
+			for(Attribute attributeFromFillAttrs: filledAttributes) {
+				if(attributeFromAllAttrs.getName().equals(attributeFromFillAttrs.getName())) {
+					iterAttr.remove();
+					break;
+				}
+			}
+		}
+
+		//Set all filledAttributes withoutCheck
+		for(Attribute attribute : filledAttributes) {
+			//skip core attributes
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+				if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+					this.setAttributeWithoutCheck(sess, resource, member, attribute, false);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+					this.setAttributeWithoutCheck(sess, facility, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+					this.setAttributeWithoutCheck(sess, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					this.setAttributeWithoutCheck(sess, member, attribute);
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+		
+		//Join all attributes and filled attributes together
+		attributes.addAll(filledAttributes);
+		
+		//refresh all virtual attributes with new value
+		for(Attribute attr: attributes) {
+			if(this.isVirtAttribute(sess, attr)) {
+				if (getAttributesManagerImpl().isFromNamespace(sess, attr, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+					attr.setValue(this.getAttribute(sess, resource, member, attr.getName()).getValue());
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attr, AttributesManager.NS_USER_FACILITY_ATTR)) {
+					attr.setValue(this.getAttribute(sess, facility, user, attr.getName()).getValue());
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attr, AttributesManager.NS_USER_ATTR)) {
+					attr.setValue(this.getAttribute(sess, user, attr.getName()).getValue());
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attr, AttributesManager.NS_MEMBER_ATTR)) {
+					attr.setValue(this.getAttribute(sess, member, attr.getName()).getValue());
+				} else {
+					throw new WrongAttributeAssignmentException(attr);
+				}
+			}
+		}
+		
+		//Check all attributes
+		checkAttributesValue(sess, facility, resource, user, member, attributes);
+		
+		//Check all attributes dependencies
+		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
+	}
 
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (attribute.getValue() == null) {
@@ -1925,6 +1989,32 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		return filledAttributes;
+	}
+	
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException {
+		if(!returnOnlyAttributesWithChangedValue) {
+			return this.fillAttributes(sess, facility, resource, user, member, attributes);
+		} else {
+			List<Attribute> attributesWithChangedValue = new ArrayList<Attribute>();
+			for(Attribute attribute : attributes) {
+				if(attribute.getValue() == null) {
+					Attribute a;
+					if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+						a = getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute);
+					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+						a = getAttributesManagerImpl().fillAttribute(sess, facility, user, attribute);
+					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+						a = getAttributesManagerImpl().fillAttribute(sess, user, attribute);
+					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+						a = getAttributesManagerImpl().fillAttribute(sess, member, attribute);
+					} else {
+						throw new WrongAttributeAssignmentException(attribute);
+					}
+					if(a.getValue() != null) attributesWithChangedValue.add(a);
+				}
+			}
+		return attributesWithChangedValue;
+		}
 	}
 
 	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
