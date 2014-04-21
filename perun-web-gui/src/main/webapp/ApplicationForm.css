@@ -381,3 +381,15 @@ input[type=text], input[type=password] {
 .notDetermined .notDetermined:hover {
     background: #ffffff !important;
 }
+
+/* HIDE RE-CAPTCHA INPUT FIELD - we use or own TextBox */
+.recaptcha_input_area {
+    display: none !important;
+}
+.recaptchatable, .recaptcha_theme_clean {
+    border: none !important;
+}
+#recaptcha_response_field {
+    visibility:hidden !important;
+    background:blue !important;
+}

@@ -86,6 +86,9 @@ public class Confirm {
 	private ImageResource okIcon;
 	private ImageResource cancelIcon;
 
+	// if OK button should be focused instead of cancel (by default).
+	private boolean focusOkButton = false;
+
 	/**
 	 * Confirm box caption
 	 */
@@ -275,6 +278,22 @@ public class Confirm {
 		this.cancelIcon = cancelIcon;
 	}
 
+	public boolean isFocusOkButton() {
+		return focusOkButton;
+	}
+
+	/**
+	 * Set to TRUE if OK button should be focused instead of cancel (default action).
+	 *
+	 * If OK button is only one in Confirm widget, then it's focused without
+	 * regarding this value.
+	 *
+	 * @param focusOkButton TRUE to focus OK button
+	 */
+	public void setFocusOkButton(boolean focusOkButton) {
+		this.focusOkButton = focusOkButton;
+	}
+
 	/**
 	 * @return the value
 	 */
@@ -289,6 +308,16 @@ public class Confirm {
 		this.eventCalled = false;
 		this.buildWidget();
 		dialogBox.show();
+
+		// focus on default action
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				if (cancelButton != null) cancelButton.setFocus(true);
+				if ((cancelButton == null && okButton != null) || focusOkButton) okButton.setFocus(true);
+			}
+		});
+
 	}
 
 
@@ -410,6 +439,7 @@ public class Confirm {
 		// generates the resize command
 		Command c = new Command() {
 			public void execute() {
+
 				if(content.getParent() == null) return;
 
 				if(!nonScrollable){

@@ -140,6 +140,7 @@ public class JsonErrorHandler {
 		conf.setOkIcon(SmallIcons.INSTANCE.emailIcon());
 		conf.setNonScrollable(true);
 		conf.setAutoHide(false);
+		conf.setFocusOkButton(true);
 		conf.show();
 
 		messageTextBox.setFocus(true);
