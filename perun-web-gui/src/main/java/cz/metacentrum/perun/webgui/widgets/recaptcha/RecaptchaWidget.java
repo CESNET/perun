@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.widgets.recaptcha;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * RecaptchaWidget wrapps reCaptcha itself to behave like GWT widget
@@ -9,7 +10,10 @@ import com.google.gwt.user.client.ui.HTML;
  * Original source code was taken from: http://code.google.com/p/gwt-recaptcha/
  * ORIGINAL LICENSE: Apache License 2.0
  *
+ * Modified for Perun's purpose.
+ *
  * @author Claudius Hauptmann <claudiushauptmann.com@googlemail.com>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class RecaptchaWidget extends Composite {
 
@@ -25,6 +29,8 @@ public class RecaptchaWidget extends Composite {
 	private String customTheme;
 	private RecaptchaTranslation customTranslation;
 	private int tabIndex;
+
+	private TextBox ownTextBox;
 
 	/**
 	 * This Constructor is used to create an default reCAPTCHA widget
@@ -274,6 +280,7 @@ public class RecaptchaWidget extends Composite {
 	}
 
 	public void reload() {
+		if (ownTextBox != null) ownTextBox.setText("");
 		Recaptcha.reload();
 	}
 
@@ -281,7 +288,14 @@ public class RecaptchaWidget extends Composite {
 		return Recaptcha.getChallenge();
 	}
 
+	/**
+	 * Return users response (if ownTextBox is set,
+	 * then value from ownTextBox is used)
+	 *
+	 * @return users captcha response
+	 */
 	public String getResponse() {
+		if (ownTextBox != null) return ownTextBox.getValue().trim();
 		return Recaptcha.getResponse();
 	}
 
@@ -296,4 +310,13 @@ public class RecaptchaWidget extends Composite {
 	public void switchType(String newType) {
 		Recaptcha.switchType(newType);
 	}
+
+	public TextBox getOwnTextBox() {
+		return ownTextBox;
+	}
+
+	public void setOwnTextBox(TextBox ownTextBox) {
+		this.ownTextBox = ownTextBox;
+	}
+
 }
