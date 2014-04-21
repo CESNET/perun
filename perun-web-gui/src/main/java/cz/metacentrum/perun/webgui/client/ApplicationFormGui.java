@@ -3,12 +3,13 @@ package cz.metacentrum.perun.webgui.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.applicationresources.ApplicationFormLeftMenu;
@@ -32,7 +33,6 @@ import cz.metacentrum.perun.webgui.json.registrarManager.VerifyCaptcha;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.testtabs.TestRtReportingTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.recaptcha.RecaptchaWidget;
 
@@ -238,17 +238,17 @@ public class ApplicationFormGui implements EntryPoint {
 				loadPerunPrincipal(events);
 
 			}
-		@Override
-		public void onError(PerunError error) {
+			@Override
+			public void onError(PerunError error) {
 
-			// hides the loading box
-			loadingBox.hide();
+				// hides the loading box
+				loadingBox.hide();
 
-			RootLayoutPanel panel = RootLayoutPanel.get();
-			panel.clear();
-			panel.add(getErrorWidget(error));
+				RootLayoutPanel panel = RootLayoutPanel.get();
+				panel.clear();
+				panel.add(getErrorWidget(error));
 
-		}
+			}
 		});
 
 		req.setHidden(true);
@@ -307,13 +307,34 @@ public class ApplicationFormGui implements EntryPoint {
 
 							final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
 
-							cz.metacentrum.perun.webgui.widgets.CustomButton cb = new CustomButton();
+							final CustomButton cb = new CustomButton();
 							cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
 							cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
+							cb.setImageAlign(true);
+
+							final TextBox response = new TextBox();
+							captcha.setOwnTextBox(response);
+
+							Scheduler.get().scheduleDeferred(new Command() {
+								@Override
+								public void execute() {
+									response.setFocus(true);
+								}
+							});
+
+							response.addKeyDownHandler(new KeyDownHandler() {
+								@Override
+								public void onKeyDown(KeyDownEvent event) {
+									if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+										cb.click();
+									}
+								}
+							});
+
 							cb.addClickHandler(new ClickHandler() {
 								@Override
 								public void onClick(ClickEvent clickEvent) {
-									VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), new JsonCallbackEvents(){
+									VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents(){
 										public void onFinished(JavaScriptObject jso) {
 
 											BasicOverlayType bt = jso.cast();
@@ -335,14 +356,11 @@ public class ApplicationFormGui implements EntryPoint {
 												request.retrieveData();
 
 											} else {
-
 												// wrong captcha answer
-												Confirm c = new Confirm(ApplicationMessages.INSTANCE.captchaErrorHeader(), new HTML(ApplicationMessages.INSTANCE.captchaErrorMessage()),true);
-												c.show();
-
+												UiElements.generateAlert(ApplicationMessages.INSTANCE.captchaErrorHeader(), ApplicationMessages.INSTANCE.captchaErrorMessage());
 											}
 										}
-									});
+									}));
 									req.retrieveData();
 								}
 							});
@@ -364,8 +382,22 @@ public class ApplicationFormGui implements EntryPoint {
 							ft.setHTML(row, 0, ApplicationMessages.INSTANCE.captchaDescription());
 							ft.setWidget(row+1, 0, captcha);
 							ft.getFlexCellFormatter().setHorizontalAlignment(row+1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-							ft.setWidget(row+2, 0, cb);
-							ft.getFlexCellFormatter().setHorizontalAlignment(row+2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(row + 1, 0, HasVerticalAlignment.ALIGN_BOTTOM);
+
+
+							FlexTable sendFt = new FlexTable();
+							sendFt.setStyleName("inputFormFlexTable");
+
+							sendFt.setWidget(0, 0, response);
+							sendFt.setWidget(0, 1, cb);
+
+							ft.setWidget(row+2, 0, sendFt);
+							ft.getFlexCellFormatter().setHorizontalAlignment(row + 2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(row + 2, 0, HasVerticalAlignment.ALIGN_TOP);
+
+							ft.setHeight("100%");
+							ft.getFlexCellFormatter().setHeight(row, 0, "50%");
+							ft.getFlexCellFormatter().setHeight(row+2, 0, "50%");
 
 
 							// finish loading GUI
@@ -431,14 +463,14 @@ public class ApplicationFormGui implements EntryPoint {
 									// USER IS NOT MEMBER OF GROUP
 									prepareGui(PerunEntity.GROUP, "INITIAL");
 								}
-							@Override
-							public void onError(PerunError error) {
+								@Override
+								public void onError(PerunError error) {
 
-								RootLayoutPanel panel = RootLayoutPanel.get();
-								panel.clear();
-								panel.add(getErrorWidget(error));
+									RootLayoutPanel panel = RootLayoutPanel.get();
+									panel.clear();
+									panel.add(getErrorWidget(error));
 
-							}
+								}
 							});
 							call.retrieveData();
 
@@ -453,32 +485,32 @@ public class ApplicationFormGui implements EntryPoint {
 					}
 				}
 
-			public void onError(PerunError error) {
+				public void onError(PerunError error) {
 
-				// not member of VO - load initial
-				if (error.getName().equalsIgnoreCase("MemberNotExistsException")) {
-					if (groupName != null && !groupName.isEmpty()) {
+					// not member of VO - load initial
+					if (error.getName().equalsIgnoreCase("MemberNotExistsException")) {
+						if (groupName != null && !groupName.isEmpty()) {
 
-						// load application to group for NOT vo members
-						prepareGui(PerunEntity.GROUP, "INITIAL");
+							// load application to group for NOT vo members
+							prepareGui(PerunEntity.GROUP, "INITIAL");
 
-						// Do NOT display application to Group if not member of VO
-						//RootLayoutPanel panel = RootLayoutPanel.get();
-						//panel.clear();
-						//panel.add(getCustomErrorWidget(error, ApplicationMessages.INSTANCE.mustBeVoMemberFirst()));
+							// Do NOT display application to Group if not member of VO
+							//RootLayoutPanel panel = RootLayoutPanel.get();
+							//panel.clear();
+							//panel.add(getCustomErrorWidget(error, ApplicationMessages.INSTANCE.mustBeVoMemberFirst()));
 
+						} else {
+							prepareGui(PerunEntity.VIRTUAL_ORGANIZATION, "INITIAL");
+						}
 					} else {
-						prepareGui(PerunEntity.VIRTUAL_ORGANIZATION, "INITIAL");
-					}
-				} else {
 
-					RootLayoutPanel panel = RootLayoutPanel.get();
-					panel.clear();
-					panel.add(getErrorWidget(error));
+						RootLayoutPanel panel = RootLayoutPanel.get();
+						panel.clear();
+						panel.add(getErrorWidget(error));
+
+					}
 
 				}
-
-			}
 
 			});
 			req.setHidden(true);
@@ -525,36 +557,36 @@ public class ApplicationFormGui implements EntryPoint {
 						verifContent.clear();
 						verifContent.add(new AjaxLoaderImage());
 					}
-				@Override
-				public void onFinished(JavaScriptObject jso) {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
 
-					BasicOverlayType obj = jso.cast();
-					if (obj.getBoolean()==true) {
+						BasicOverlayType obj = jso.cast();
+						if (obj.getBoolean()==true) {
 
-						verifContent.clear();
-						FlexTable ft = new FlexTable();
-						ft.setSize("100%", "300px");
-						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ApplicationMessages.INSTANCE.emailValidationSuccess()+"</h2>");
-						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-						verifContent.add(ft);
+							verifContent.clear();
+							FlexTable ft = new FlexTable();
+							ft.setSize("100%", "300px");
+							ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ApplicationMessages.INSTANCE.emailValidationSuccess()+"</h2>");
+							ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+							verifContent.add(ft);
 
-					} else {
+						} else {
 
-						verifContent.clear();
-						FlexTable ft = new FlexTable();
-						ft.setSize("100%", "300px");
-						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>"+ApplicationMessages.INSTANCE.emailValidationFail()+"</h2>");
-						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-						verifContent.add(ft);
+							verifContent.clear();
+							FlexTable ft = new FlexTable();
+							ft.setSize("100%", "300px");
+							ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>"+ApplicationMessages.INSTANCE.emailValidationFail()+"</h2>");
+							ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+							verifContent.add(ft);
 
+						}
 					}
-				}
-				@Override
-				public void onError(PerunError error) {
-					((AjaxLoaderImage)verifContent.getWidget()).loadingError(error);
-				}
+					@Override
+					public void onError(PerunError error) {
+						((AjaxLoaderImage)verifContent.getWidget()).loadingError(error);
+					}
 				});
 				request.retrieveData();
 
@@ -562,9 +594,9 @@ public class ApplicationFormGui implements EntryPoint {
 
 				return;
 
-					}
+			}
 
-				}
+		}
 
 		// group and extension is not allowed
 		if (group != null && applicationType.equalsIgnoreCase("EXTENSION")) {
@@ -710,6 +742,5 @@ public class ApplicationFormGui implements EntryPoint {
 	public static Group getGroup() {
 		return group;
 	}
-
 
 }
