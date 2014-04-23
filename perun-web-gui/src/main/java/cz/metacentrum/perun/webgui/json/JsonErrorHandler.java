@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -176,6 +177,10 @@ public class JsonErrorHandler {
 		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
 			return "IDP doesn't provide required data (" + error.getErrorId() + ")";
+
+		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
+
+			return ApplicationMessages.INSTANCE.errorWhileCreatingApplication()+"(" + error.getErrorId() + ")";
 
 		}
 
@@ -353,6 +358,10 @@ public class JsonErrorHandler {
 
 			// FIXME - core always uses extensions of this exception
 			return error.getErrorInfo();
+
+		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
+
+			return ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage();
 
 		} else if ("CandidateNotExistsException".equalsIgnoreCase(errorName)) {
 
