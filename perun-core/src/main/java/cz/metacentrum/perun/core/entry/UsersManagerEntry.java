@@ -803,22 +803,20 @@ public class UsersManagerEntry implements UsersManager {
 						 throw new PrivilegeException(sess, "deletePassword");
 					 }
 
-					 // Check if the login is already occupied == reserved, if not throw an exception.
-					 // We cannot delete password for the users who have not reserved login in perun DB and in registrar DB as well.
-
-					 // FIXME Now we allow only password delete for users who are not in Perun already, so they have only reserved logins
-					 //if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
 					 if (getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-						 getUsersManagerBl().deletePassword(sess, userLogin, loginNamespace);
+						 // NOT RESERVED BY ATTRIBUTE OR REGISTRAR
+						 throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
 					 } else {
-						 //This part of code try to check if login is reserved in registrar table of reserved logins, if yes, so its not in perun yet.
-						 boolean reservedInPerun = true;
+						 // RESERVED BY ATTRIBUTE OR REGISTRAR
 						 try {
 							 getPerunBl().getUsersManagerBl().checkReservedLogins(sess, loginNamespace, userLogin);
+							 // RESERVED BY ATTRIBUTE ONLY - we don't want to delete logins in use
+							 throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " can't be delete, because it's already in use.");
 						 } catch (AlreadyReservedLoginException ex) {
-							 reservedInPerun = false;
+							 // RESERVED BY REGISTRAR AND MAYBE BY ATTRIBUTE
+							 // reservation by both should not occur
+							 getUsersManagerBl().deletePassword(sess, userLogin, loginNamespace);
 						 }
-						 if(reservedInPerun) throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
 					 }
 					 }
 
