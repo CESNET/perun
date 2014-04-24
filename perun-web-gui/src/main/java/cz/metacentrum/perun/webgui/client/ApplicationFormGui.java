@@ -98,6 +98,7 @@ public class ApplicationFormGui implements EntryPoint {
 		}
 
 		// WEB PAGE SPLITTER
+		bodySplitter.getElement().setId("appFormGUI");
 		body.add(bodySplitter);
 
 		// left menu

@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.webgui.client.applicationresources.pages;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
@@ -119,10 +121,10 @@ public class ApplicationFormPage extends ApplicationPage {
 						Window.Location.replace(builder.buildString());
 
 					}}, new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							// on CANCEL
-						}
-					}, true);
+					public void onClick(ClickEvent event) {
+						// on CANCEL
+					}
+				}, true);
 				conf.setNonScrollable(true);
 				conf.show();
 			}
@@ -137,10 +139,10 @@ public class ApplicationFormPage extends ApplicationPage {
 						Window.Location.replace(builder.buildString());
 
 					}}, new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							// on CANCEL
-						}
-					}, true);
+					public void onClick(ClickEvent event) {
+						// on CANCEL
+					}
+				}, true);
 				conf.setNonScrollable(true);
 				conf.show();
 			}
@@ -205,11 +207,23 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		formContent.add(header);
 
+		JsonCallbackEvents jqueryEvent = new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				Scheduler.get().scheduleDeferred(new Command() {
+					@Override
+					public void execute() {
+						positionLinker();
+					}
+				});
+			}
+		};
+
 		final GetFormItemsWithPrefilledValues fitems;
 		if (group != null) {
-			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.GROUP, group.getId());
+			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.GROUP, group.getId(), jqueryEvent);
 		} else {
-			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId());
+			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), jqueryEvent);
 		}
 
 		// pass valid app type in URL or use default
@@ -290,16 +304,16 @@ public class ApplicationFormPage extends ApplicationPage {
 				// show loading box
 				loadingBox.show();
 			}
-		@Override
-		public void onFinished(JavaScriptObject jso) {
-			loadingBox.hide();
-			formOk(jso);
-		}
-		@Override
-		public void onError(PerunError err) {
-			loadingBox.hide();
-			formError(err);
-		}
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				loadingBox.hide();
+				formOk(jso);
+			}
+			@Override
+			public void onError(PerunError err) {
+				loadingBox.hide();
+				formError(err);
+			}
 		}));
 
 		// Send the request
@@ -594,5 +608,21 @@ public class ApplicationFormPage extends ApplicationPage {
 		confirm.show();
 
 	}
+
+	private final native void positionLinker() /*-{
+
+        var linker = $wnd.jQuery("#cesnet_linker_placeholder");
+
+		if (linker != null) {
+
+            $wnd.jQuery("#cesnet_linker_placeholder").remove();
+            $wnd.jQuery("body").append(linker);
+            $wnd.jQuery("#appFormGUI").parent().parent().css({"position":"absolute" , "left":"0px" , "top":"40px" , "right":"0px" , "bottom":"0px"});
+			//$wnd.jQuery("#appFormGUI").css({"position":"absolute" , "left":"0px" , "top":"40px" , "right":"0px" , "bottom":"0px"});
+            $wnd.jQuery("body").append("<script src=\"https://linker.cesnet.cz/linker.js\" async type=\"text/javascript\">");
+
+        }
+
+    }-*/;
 
 }

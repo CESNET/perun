@@ -2,6 +2,10 @@ body, table td, select, button, .gwt-TextBox, .gwt-PasswordTextBox{
 	font-size:100% !important;
 }
 
+body {
+    margin: 0px !important;
+}
+
 .mainPanel {
     padding-left: 10px !important;
     padding-right: 10px !important;
@@ -406,6 +410,21 @@ input[type=text], input[type=password] {
     visibility:hidden !important;
     background:blue !important;
 }
+
+#cesnet_linker_placeholder {
+    height: 44px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    margin: 0px !important;
+    padding: 0px !important;
+    max-height: 100% !important;
+}
+div.logo-cesnet img {
+    vertical-align: middle;
+}
+
 
 /* Suggest box scrollable suggestion */
 .suggestPopupScroll {
