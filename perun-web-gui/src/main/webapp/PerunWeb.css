@@ -1116,3 +1116,14 @@ h3 {
 .scroll-max-height {
     max-height: 500px;
 }
+
+/* Suggest box scrollable suggestion */
+.suggestPopupScroll {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+.suggestPopupScrollMargin {
+    /* do not hide items below scrollbar */
+    padding-right: 10px;
+}
