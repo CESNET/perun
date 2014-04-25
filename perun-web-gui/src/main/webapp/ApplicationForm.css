@@ -393,3 +393,14 @@ input[type=text], input[type=password] {
     visibility:hidden !important;
     background:blue !important;
 }
+
+/* Suggest box scrollable suggestion */
+.suggestPopupScroll {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+.suggestPopupScrollMargin {
+    /* do not hide items below scrollbar */
+    padding-right: 10px;
+}
