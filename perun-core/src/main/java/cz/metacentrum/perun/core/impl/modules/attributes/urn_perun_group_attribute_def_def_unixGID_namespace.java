@@ -208,12 +208,12 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		return dependencies;
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setFriendlyName("unixGID-namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Unix GID namespace.");
 		return attr;
-	}
+	}*/
 }

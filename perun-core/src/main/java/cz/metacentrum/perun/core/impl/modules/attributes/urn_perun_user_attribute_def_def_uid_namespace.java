@@ -153,12 +153,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		return dependencies;
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("uid-namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Uid namespace.");
 		return attr;
-	}
+	}*/
 }
