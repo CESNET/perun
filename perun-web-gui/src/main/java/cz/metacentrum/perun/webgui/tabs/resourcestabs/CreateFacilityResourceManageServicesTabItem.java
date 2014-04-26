@@ -102,7 +102,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 
 	public Widget draw() {
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign and configure services");
+		this.titleWidget.setText("Create resource: Assign and configure services");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

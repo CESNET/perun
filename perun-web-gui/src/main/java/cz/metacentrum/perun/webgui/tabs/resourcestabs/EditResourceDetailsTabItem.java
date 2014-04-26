@@ -66,7 +66,7 @@ public class EditResourceDetailsTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(resource.getName()));
+		titleWidget = new Label("Edit resource");
 
 		VerticalPanel vp = new VerticalPanel();
 

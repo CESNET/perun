@@ -105,7 +105,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 	@Override
 	public Widget draw() {
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": add member to resource");
+		this.titleWidget.setText("Add member(s) to resource");
 
 		final TabItem tab = this;
 
@@ -249,6 +249,8 @@ public class AddMemberToResourceTabItem implements TabItem  {
 						tab.draw();
 					}
 				}));
+			} else {
+				this.titleWidget.setText("Add member to resource");
 			}
 
 			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CONTINUE, "", new ClickHandler() {
@@ -469,12 +471,14 @@ public class AddMemberToResourceTabItem implements TabItem  {
 				}
 			}));
 
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.FINISH, "Close the tab", new ClickHandler() {
+			CustomButton finish = TabMenu.getPredefinedButton(ButtonType.FINISH, "Close the tab", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().closeTab(tab, false);
 				}
-			}));
+			});
+			finish.setImageAlign(true);
+			menu.addWidget(finish);
 
 			menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
 			menu.addWidget(new HTML("<strong>Please select group in which you wish to add members to."));

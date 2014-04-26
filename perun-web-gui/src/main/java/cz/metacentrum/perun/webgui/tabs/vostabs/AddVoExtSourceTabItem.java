@@ -95,7 +95,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": add ext. source");
+		titleWidget.setText("Add external source");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

@@ -152,9 +152,6 @@ public class CreateVoResourceTagTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

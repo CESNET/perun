@@ -82,7 +82,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + " (" + facility.getType() + "): create resource");
+		titleWidget.setText("Create resource");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -133,14 +133,14 @@ public class CreateFacilityResourceTabItem implements TabItem {
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
 		// Add some standard form options
-		layout.setHTML(0, 0, "Name:");
-		layout.setWidget(0, 1, nameTextBox);
-		layout.setHTML(1, 0, "Description:");
-		layout.setWidget(1, 1, descriptionTextBox);
-		layout.setHTML(2, 0, "VO:");
-		layout.setWidget(2, 1, vosDropDown);
-		layout.setHTML(3, 0, "Facility:");
-		layout.setHTML(3, 1, facility.getName()+" ("+facility.getType()+")");
+		layout.setHTML(0, 0, "On facility:");
+		layout.setHTML(0, 1, facility.getName()+" ("+facility.getType()+")");
+		layout.setHTML(1, 0, "For VO:");
+		layout.setWidget(1, 1, vosDropDown);
+		layout.setHTML(2, 0, "Name:");
+		layout.setWidget(2, 1, nameTextBox);
+		layout.setHTML(3, 0, "Description:");
+		layout.setWidget(3, 1, descriptionTextBox);
 
 		for (int i=0; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");

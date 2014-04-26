@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +27,7 @@ import java.util.Comparator;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  *
  */
-public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackTable<AttributeDefinition> {
+public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackTable<AttributeDefinition>, JsonCallbackOracle<AttributeDefinition> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -42,6 +43,9 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Loader
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+	// oracle support
+	private ArrayList<AttributeDefinition> fullBackup = new ArrayList<AttributeDefinition>();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
 	/**
 	 * Creates a new callback
@@ -222,6 +226,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	 */
 	public void addToTable(AttributeDefinition object) {
 		list.add(object);
+		oracle.add(object.getFriendlyName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -245,6 +250,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		loaderImage.loadingStart();
 		list.clear();
 		selectionModel.clear();
+		oracle.clear();
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -295,6 +301,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 
 	public void insertToTable(int index, AttributeDefinition object) {
 		list.add(index, object);
+		oracle.add(object.getFriendlyName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -310,6 +317,9 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	public void setList(ArrayList<AttributeDefinition> list) {
 		clearTable();
 		this.list.addAll(list);
+		for (AttributeDefinition def : list) {
+			oracle.add(def.getFriendlyName());
+		}
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -329,4 +339,48 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		return newString;
 	}
 
+	@Override
+	public void filterTable(String filter) {
+
+		// store list only for first time
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
+
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
+
+		if (filter.equalsIgnoreCase("")) {
+			list.addAll(fullBackup);
+		} else {
+			for (AttributeDefinition attr : fullBackup){
+				// store facility by filter
+				if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
+					list.add(attr);
+				}
+			}
+		}
+
+		if (list.isEmpty() && !filter.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No required attribute matching '"+filter+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("No required attribute found.");
+		}
+
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+
+	}
+
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return this.oracle;
+	}
+
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 }

@@ -2,27 +2,28 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.rtMessagesManager.SendMessageToRt;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
  * Inner tab item for quota change
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlámal <256627@mail.muni.cz>
  */
-
 public class RequestQuotaChangeTabItem implements TabItem {
 
 	static private final String RT_SUBJECT = "QUOTA: Change request";
@@ -78,8 +79,8 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		//String quotaStr = getQuotaTypeAsString();
 
 		// new quota input
-		final TextBox newQuota = new TextBox();
-		final TextBox reason = new TextBox();
+		final ExtendedTextBox newQuota = new ExtendedTextBox();
+		final ExtendedTextArea reason = new ExtendedTextArea();
 		final ListBox units = new ListBox();
 		units.addItem("M");
 		units.addItem("G");
@@ -107,19 +108,6 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		final CustomButton requestQuotaButton = new CustomButton("Send request", "Send quota change request", SmallIcons.INSTANCE.emailIcon());
 		requestQuotaButton.setEnabled(false);
 
-		KeyUpHandler handler = new KeyUpHandler() {
-			@Override
-			public void onKeyUp(KeyUpEvent keyUpEvent) {
-				if (!newQuota.getText().isEmpty() && !reason.getText().isEmpty()) {
-					requestQuotaButton.setEnabled(true);
-				} else {
-					requestQuotaButton.setEnabled(false);
-				}
-			}
-		};
-		newQuota.addKeyUpHandler(handler);
-		reason.addKeyUpHandler(handler);
-
 		if (this.quotaType.equals(QuotaType.DATA)) {
 			ft.setWidget(2, 2, units);
 			ft.getFlexCellFormatter().setColSpan(4, 0, 3);
@@ -127,13 +115,45 @@ public class RequestQuotaChangeTabItem implements TabItem {
 			ft.getFlexCellFormatter().setColSpan(4, 0, 2);
 		}
 
+		final ExtendedTextBox.TextBoxValidator quotaValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (newQuota.getTextBox().getValue().trim().isEmpty()) {
+					newQuota.setError("You must enter requested quota!");
+				} else if (!JsonUtils.checkParseInt(newQuota.getTextBox().getValue().trim())) {
+					newQuota.setError("Requested quota must be a number!");
+				} else {
+					newQuota.setOk();
+					return true;
+				}
+				return false;
+			}
+		};
+		newQuota.setValidator(quotaValidator);
+
+		final ExtendedTextArea.TextAreaValidator reasonValidator = new ExtendedTextArea.TextAreaValidator() {
+			@Override
+			public boolean validateTextArea() {
+				if (reason.getTextArea().getValue().trim().isEmpty()) {
+					reason.setError("You must specify reason for quota change!");
+					return false;
+				}
+				reason.setOk();
+				return true;
+			}
+		};
+		reason.setValidator(reasonValidator);
+
 		requestQuotaButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+
+				if (!quotaValidator.validateTextBox() && !reasonValidator.validateTextArea()) return;
+
 				if (quotaType.equals(QuotaType.DATA)) {
-					requestQuotaChange(newQuota.getText()+units.getItemText(units.getSelectedIndex()), reason.getText());
+					requestQuotaChange(newQuota.getTextBox().getValue().trim()+units.getItemText(units.getSelectedIndex()), reason.getTextArea().getText());
 				} else {
-					requestQuotaChange(newQuota.getText(), reason.getText());
+					requestQuotaChange(newQuota.getTextBox().getValue().trim(), reason.getTextArea().getText());
 				}
 			}
 		});
@@ -210,9 +230,6 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

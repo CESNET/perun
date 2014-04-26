@@ -96,7 +96,7 @@ public class AddVoManagerTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": add manager");
+		titleWidget.setText("Add manager");
 
 		final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 

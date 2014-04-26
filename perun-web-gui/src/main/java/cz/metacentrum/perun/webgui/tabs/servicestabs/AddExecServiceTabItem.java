@@ -74,7 +74,7 @@ public class AddExecServiceTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": create exec service");
+		titleWidget.setText("Create exec service");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
@@ -168,6 +168,9 @@ public class AddExecServiceTabItem implements TabItem {
 			}
 		};
 		scriptPath.setValidator(scriptValidator);
+
+		// put default path
+		scriptPath.getTextBox().setValue("./"+service.getName());
 
 		// layout
 		layout.setHTML(0, 0, "Service:");
