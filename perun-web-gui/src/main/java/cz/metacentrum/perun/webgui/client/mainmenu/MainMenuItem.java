@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
+import cz.metacentrum.perun.webgui.tabs.ServicesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 
@@ -128,6 +129,19 @@ public class MainMenuItem {
 			if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=")) {
 				this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=");
 			}
+
+			// hack for services tabs
+			if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
+					((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
+					((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"))
+					) {
+
+				this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
+						((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
+						((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"));
+
+			}
+
 		} else {
 			this.active = false;
 		}

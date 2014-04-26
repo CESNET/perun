@@ -204,7 +204,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 	}
 
 	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
 		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL);
 	}
 

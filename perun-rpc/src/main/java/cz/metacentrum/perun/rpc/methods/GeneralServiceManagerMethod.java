@@ -113,9 +113,10 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * @param execService ExecService JSON object
 	 */
 	updateExecService {
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().updateExecService(ac.getSession(), parms.read("execService", ExecService.class));
-			return null;
+		public ExecService call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ExecService es = parms.read("execService", ExecService.class);
+			ac.getGeneralServiceManager().updateExecService(ac.getSession(), es);
+			return ac.getGeneralServiceManager().getExecService(ac.getSession(), es.getId());
 		}
 	},
 
