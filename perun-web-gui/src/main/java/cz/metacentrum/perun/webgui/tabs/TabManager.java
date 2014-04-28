@@ -446,7 +446,10 @@ public class TabManager {
 		final Widget title = tab.getTitle();
 		title.addStyleName("tab-overlay-title");
 
-		title.getElement().setAttribute("style", "max-width: 330px;");
+		if (!overlay.getWidget(0).getStyleName().contains("tab-overlay-large")) {
+			// shorten title only for small tabs
+			title.getElement().setAttribute("style", "max-width: 330px;");
+		}
 
 		if (overlay.getWidget(0).getElement().hasChildNodes()) {
 			overlay.getWidget(0).getElement().getFirstChildElement().removeFromParent();

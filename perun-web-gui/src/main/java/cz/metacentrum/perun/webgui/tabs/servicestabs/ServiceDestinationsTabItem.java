@@ -99,7 +99,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": destinations");
+		this.titleWidget.setText("Service destinations");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

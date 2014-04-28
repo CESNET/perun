@@ -66,7 +66,7 @@ public class EditFacilityDetailsTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(facility.getName()));
+		titleWidget = new Label("Edit facility");
 
 		VerticalPanel vp = new VerticalPanel();
 

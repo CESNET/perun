@@ -41,7 +41,7 @@ import java.util.Map;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
+public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -62,7 +62,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 	private Group group;
 	//data
 	private int groupId;
-
+	private int selectedIndex = 3;
 
 	/**
 	 * Creates a tab instance
@@ -223,12 +223,13 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl{
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
-		stateListBox.setSelectedIndex(3);
+		stateListBox.setSelectedIndex(selectedIndex);
 		menu.addWidget(stateListBox);
 
 		stateListBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent changeEvent) {
+				selectedIndex = stateListBox.getSelectedIndex();
 				applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 				applicationsRequest.clearTable();
 				applicationsRequest.retrieveData();
