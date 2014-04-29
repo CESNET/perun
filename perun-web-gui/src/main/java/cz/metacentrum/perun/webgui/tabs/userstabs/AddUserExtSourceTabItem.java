@@ -92,7 +92,7 @@ public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": add ext. identity");
+		titleWidget.setText("Add ext. identity");
 
 		VerticalPanel vp = new VerticalPanel();
 

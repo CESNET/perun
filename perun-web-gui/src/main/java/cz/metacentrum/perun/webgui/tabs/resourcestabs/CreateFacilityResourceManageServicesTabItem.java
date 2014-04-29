@@ -8,10 +8,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -20,15 +18,16 @@ import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
 import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveService;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServices;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * FACILITY ADMINISTRATOR - create Resource wizard - page 2
@@ -61,6 +60,9 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 	private Resource resource;
 	private int resourceId;
 	private int facilityId;
+
+	private ArrayList<Service> alreadyAddedList = new ArrayList<Service>();
+	private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
 	 * Create new instance
@@ -102,7 +104,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 
 	public Widget draw() {
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign and configure services");
+		this.titleWidget.setText("Create resource: Assign and configure services");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -110,30 +112,31 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
+		vp.add(alreadyAdded);
+		vp.add(new HTML("<hr>"));
 
 		// buttons
-		final CustomButton assignButton = new CustomButton("Assign selected", SmallIcons.INSTANCE.addIcon());
-		assignButton.setTitle("Assign selected service to resource (if already assigned - nothing happens)");
-		final CustomButton removeButton = new CustomButton("Remove selected", SmallIcons.INSTANCE.deleteIcon());
-		removeButton.setTitle("Remove selected service from resource (if already removed - nothing happens)");
-		CustomButton finishButton = new CustomButton("Finish assigning", SmallIcons.INSTANCE.acceptIcon());
-		finishButton.setTitle("Finishes services assigning and configuration");
+		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Assign selected service to resource");
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove selected service from resource");
+		CustomButton finishButton = TabMenu.getPredefinedButton(ButtonType.FINISH, "Finishes services assigning and configuration");
+		finishButton.setImageAlign(true);
 		// listbox with services
 		final ListBoxWithObjects<Service> servicesListbox = new ListBoxWithObjects<Service>();
 		// checkbox to swith offered services
-		final CheckBox switchBox = new CheckBox("Show already assigned", false);
-		switchBox.setTitle("Switching between 'all' and 'already assigned' services in menu");
+		final CheckBox switchBox = new CheckBox("Show assigned", false);
+		switchBox.setTitle("Switching between 'all' and 'already assigned' services in menu.");
 
 		// fill menu
-		menu.addWidget(finishButton);
-		menu.addWidget(assignButton);
-		menu.addWidget(removeButton);
 		menu.addWidget(new HTML("<strong>Selected&nbsp;service: </strong>"));
 		menu.addWidget(servicesListbox);
 		menu.addWidget(switchBox);
+		menu.addWidget(assignButton);
+		menu.addWidget(removeButton);
+		menu.addWidget(finishButton);
 
 		// fill listbox with services (used for both callbacks)
 		JsonCallbackEvents fillEvents = new JsonCallbackEvents(){
+			@Override
 			public void onFinished(JavaScriptObject jso){
 				ArrayList<Service> services = JsonUtils.jsoAsList(jso);
 				services = new TableSorter<Service>().sortByName(services);
@@ -143,13 +146,23 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 				}
 				if (servicesListbox.isEmpty()) {
 					servicesListbox.addItem("No service assigned");
-					if (vp.getWidgetCount() > 2)  { vp.remove(2); vp.remove(1); }
+					if (vp.getWidgetCount() > 3)  { vp.remove(3);}
 					return;
 				}
-				if (vp.getWidgetCount() > 2) { vp.remove(2); vp.remove(1); }
-				vp.add(new HTML("<hr>"));
+				if (vp.getWidgetCount() > 3) { vp.remove(3); }
+
 				vp.add(new ResourceSettingsTabItem(resource, servicesListbox.getSelectedObject()).draw());
-				vp.setCellHeight(vp.getWidget(2), "100%");
+				vp.setCellHeight(vp.getWidget(3), "100%");
+			}
+			@Override
+			public void onError(PerunError error) {
+				servicesListbox.clear();
+				servicesListbox.addItem("Error while loading");
+			}
+			@Override
+			public void onLoadingStart() {
+				servicesListbox.clear();
+				servicesListbox.addItem("Loading...");
 			}
 		};
 
@@ -162,11 +175,10 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		servicesListbox.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
 				// remove attributes management if there was
-				if (vp.getWidgetCount() > 2)  { vp.remove(2); vp.remove(1); }
+				if (vp.getWidgetCount() > 3)  { vp.remove(3); }
 				// add attributes management
-				vp.add(new HTML("<hr>"));
 				vp.add(new ResourceSettingsTabItem(resource, servicesListbox.getSelectedObject()).draw());
-				vp.setCellHeight(vp.getWidget(2), "100%");
+				vp.setCellHeight(vp.getWidget(3), "100%");
 			}
 		});
 
@@ -187,22 +199,40 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		assignButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (servicesListbox.isEmpty()) {
-					Confirm c = new Confirm("No Service selected", new Label("You must select a service first."), true);
-					c.show();
+					UiElements.generateInfo("No Service selected", "You must select a service first.");
 					return;
 				}
-				AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton));
-				request.assignService(servicesListbox.getSelectedObject().getId(), resource.getId());
+				final Service service = servicesListbox.getSelectedObject();
+				AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						alreadyAddedList.add(service);
+						rebuildAlreadyAddedWidget();
+					}
+				}));
+				request.assignService(service.getId(), resource.getId());
 			}
 		});
 		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (servicesListbox.isEmpty()) {
-					Confirm c = new Confirm("No Service selected", new Label("You must select a service first."), true);
-					c.show();
+					UiElements.generateInfo("No Service selected", "You must select a service first.");
 					return;
 				}
-				RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeButton));
+				final Service service = servicesListbox.getSelectedObject();
+				RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						Iterator<Service> iter = alreadyAddedList.iterator();
+						while (iter.hasNext()) {
+							Service s = iter.next();
+							if (s.getId() == service.getId()) {
+								iter.remove();
+							}
+						}
+						rebuildAlreadyAddedWidget();
+					}
+				}));
 				request.removeService(servicesListbox.getSelectedObject().getId(), resource.getId());
 			}
 		});
@@ -217,7 +247,23 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 
 		this.contentWidget.setWidget(vp);
 
+		rebuildAlreadyAddedWidget();
+
 		return getWidget();
+	}
+
+	/**
+	 * Rebuild already added widget based on already added ext sources
+	 */
+	private void rebuildAlreadyAddedWidget() {
+
+		alreadyAdded.setStyleName("alreadyAdded");
+		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+		alreadyAdded.setWidget(new HTML("<strong>Already assigned: </strong>"));
+		for (int i=0; i<alreadyAddedList.size(); i++) {
+			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
+		}
+
 	}
 
 	public Widget getWidget() {

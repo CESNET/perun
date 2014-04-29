@@ -100,7 +100,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": add member");
+		titleWidget.setText("Add member(s)");
 
 		// draw the main tab
 		final VerticalPanel mainTab = new VerticalPanel();

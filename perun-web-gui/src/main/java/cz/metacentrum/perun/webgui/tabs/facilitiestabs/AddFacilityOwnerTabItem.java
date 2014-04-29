@@ -69,7 +69,7 @@ public class AddFacilityOwnerTabItem implements TabItem {
 	public Widget draw() {
 
 		// TITLE
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add owner");
+		titleWidget.setText("Add owner");
 
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();

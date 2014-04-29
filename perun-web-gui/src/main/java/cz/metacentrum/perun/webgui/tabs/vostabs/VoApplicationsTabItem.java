@@ -63,6 +63,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 	private VirtualOrganization vo;
 	//data
 	private int voId;
+	private int selectedIndex = 3;
 
 
 	/**
@@ -226,12 +227,13 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
-		stateListBox.setSelectedIndex(3);
+		stateListBox.setSelectedIndex(selectedIndex);
 		menu.addWidget(stateListBox);
 
 		stateListBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent changeEvent) {
+				selectedIndex = stateListBox.getSelectedIndex();
 				applicationsRequest.setState(stateListBox.getValue(stateListBox.getSelectedIndex()));
 				applicationsRequest.clearTable();
 				applicationsRequest.retrieveData();

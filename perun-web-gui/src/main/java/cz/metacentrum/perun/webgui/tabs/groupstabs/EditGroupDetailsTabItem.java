@@ -66,7 +66,7 @@ public class EditGroupDetailsTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(group.getName()));
+		titleWidget = new Label("Edit group");
 
 		VerticalPanel vp = new VerticalPanel();
 

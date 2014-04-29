@@ -84,7 +84,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": add required attributes");
+		titleWidget.setText("Add required attributes");
 
 		VerticalPanel mainTab = new VerticalPanel();
 		mainTab.setSize("100%","100%");
@@ -103,6 +103,9 @@ public class AddRequiredAttributesTabItem implements TabItem {
 			@Override
 			public void searchFor(String text) {
 				attrDefs.filterTable(text);
+				if (attrDefs.getList().size() == 1) {
+					attrDefs.getSelectionModel().setSelected(attrDefs.getList().get(0), true);
+				}
 			}
 		}, ButtonTranslation.INSTANCE.filterAttributeDefinition());
 

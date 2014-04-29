@@ -521,7 +521,7 @@ public class EditFormItemTabItem implements TabItem{
 
 		this.tab = this;
 
-		this.titleWidget.setText("Application form item: "+item.getShortname());
+		this.titleWidget.setText("Edit form item: "+item.getShortname());
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();

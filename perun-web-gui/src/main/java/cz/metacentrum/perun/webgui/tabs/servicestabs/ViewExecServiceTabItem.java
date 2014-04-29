@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.webgui.tabs.servicestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
@@ -10,10 +13,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -89,43 +89,119 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		// TITLE
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(execService.getService().getName()) + " ("+execService.getType()+")");
+		this.titleWidget.setText("Exec of "+Utils.getStrippedStringWithEllipsis(execService.getService().getName()) + " ("+execService.getType()+")");
 
 		// CONTENT
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");
 
-		// MAIN MENU
-		TabMenu menu = new TabMenu();
+		AbsolutePanel dp = new AbsolutePanel();
+		final FlexTable menu = new FlexTable();
+		menu.setCellSpacing(5);
 
-		// ExecService info
-		DecoratorPanel dp = new DecoratorPanel();
-		FlexTable ft = new FlexTable();
-		ft.setStyleName("inputFormFlexTable");
+		// Add service information
+		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.trafficLightsIcon()));
+		Label serviceName = new Label();
+		serviceName.setText("Exec of "+Utils.getStrippedStringWithEllipsis(execService.getService().getName(), 40));
+		serviceName.setStyleName("now-managing");
+		serviceName.setTitle(execService.getService().getName());
+		menu.setWidget(0, 1, serviceName);
 
-		ft.setHTML(0, 0, "ExecService ID: </strong>");
-		ft.setHTML(1, 0, "ExecService name: </strong>");
-		ft.setHTML(2, 0, "Type:");
-		ft.setHTML(3, 0, "Enabled: ");
-		ft.setHTML(0, 2, "Script path:");
-		ft.setHTML(1, 2, "Default delay:");
+		menu.setHTML(0, 2, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-		ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-		ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-		ft.getFlexCellFormatter().setStyleName(2, 0, "itemName");
-		ft.getFlexCellFormatter().setStyleName(3, 0, "itemName");
-		ft.getFlexCellFormatter().setStyleName(0, 2, "itemName");
-		ft.getFlexCellFormatter().setStyleName(1, 2, "itemName");
+		int column = 3;
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
 
-		ft.setHTML(0, 1, String.valueOf(execServiceId));
-		ft.setHTML(1, 1, execService.getService().getName());
-		ft.setHTML(2, 1, execService.getType());
-		ft.setHTML(3, 1, String.valueOf(execService.isEnabled()));
-		ft.setHTML(0, 3, execService.getScriptPath());
-		ft.setHTML(1, 3, String.valueOf(execService.getDefaultDelay()));
+		menu.setHTML(0, column, "<strong>Type:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getType()+"</span>");
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
 
-		dp.add(ft);
+		menu.setHTML(0, column, "<strong>Enabled:</strong><br/><span class=\"inputFormInlineComment\">"+execService.isEnabled()+"</span>");
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
+		menu.setHTML(0, column, "<strong>Script path:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getScriptPath()+"</span>");
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
+		menu.setHTML(0, column, "<strong>Delay:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getDefaultDelay()+"</span>");
+
+		// TODO - waiting for time, when service will have description param
+		//menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
+
+		CustomButton cb = new CustomButton("", "Edit exec service", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new EditExecServiceTabItem(execService, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						execService = jso.cast();
+						open();
+						draw();
+					}
+				}));
+			}
+		});
+		dp.add(cb);
+		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+
+		dp.add(menu);
 		vp.add(dp);
+		vp.setCellHeight(dp, "30px");
+
+		// tab panel
+		TabLayoutPanel tabPanel = new TabLayoutPanel(33, Style.Unit.PX);
+		tabPanel.addStyleName("smallTabPanel");
+		final TabItem tab = this;
+		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+			public void onSelection(SelectionEvent<Integer> event) {
+				UiElements.runResizeCommands(tab);
+			}
+		});
+
+		final SimplePanel sp0 = new SimplePanel(); // information overview
+		sp0.setWidget(getDependencyContent());
+
+		session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
+
+		tabPanel.add(sp0, "Dependencies");
+
+		session.getUiElements().resizePerunTable(tabPanel, 100, this);
+
+		// add tabs to the main panel
+		vp.add(tabPanel);
+
+		this.contentWidget.setWidget(vp);
+
+		return getWidget();
+
+	}
+
+	public void setExecService(ExecService exec) {
+		this.execService = exec;
+		this.execServiceId = exec.getId();
+	}
+
+	public VerticalPanel getDependencyContent() {
+
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
+
+		// MAIN MENU
+		TabMenu tabMenu = new TabMenu();
 
 		// callback
 		final ListExecServicesThisExecServiceDependsOn callback = new ListExecServicesThisExecServiceDependsOn(execServiceId);
@@ -134,7 +210,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
 		// add button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDependantExecService(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddDependencyTabItem(execService));
@@ -142,7 +218,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		}));
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDependantExecServices());
-		menu.addWidget(removeButton);
+		tabMenu.addWidget(removeButton);
 		removeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -165,11 +241,8 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-		HTML title = new HTML("<h3>Depends on: </h3>");
-		vp.add(title);
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
-		vp.setCellHeight(title, "20px");
+		vp.add(tabMenu);
+		vp.setCellHeight(tabMenu, "30px");
 
 		// get table
 		CellTable<ExecService> table = callback.getTable();
@@ -188,10 +261,8 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 		session.getUiElements().resizePerunTable(sp, 250, this);
 
+		return vp;
 
-		this.contentWidget.setWidget(vp);
-
-		return getWidget();
 	}
 
 	public Widget getWidget() {
@@ -234,7 +305,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 	public void open()
 	{
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN);
+		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
 		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + ServicesTabItem.URL, execService.getService().getName(), ServicesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+ServiceDetailTabItem.URL+"?id="+ execService.getService().getId());
 	}
 

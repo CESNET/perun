@@ -79,7 +79,7 @@ public class AssignTagTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign tag");
+		titleWidget.setText("Add tag");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

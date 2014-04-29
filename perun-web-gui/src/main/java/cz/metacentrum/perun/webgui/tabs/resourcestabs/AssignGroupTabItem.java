@@ -84,7 +84,7 @@ public class AssignGroupTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign group");
+		titleWidget.setText("Assign group");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

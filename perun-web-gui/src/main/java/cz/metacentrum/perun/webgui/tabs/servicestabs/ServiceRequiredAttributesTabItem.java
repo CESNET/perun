@@ -9,10 +9,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -25,6 +22,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
@@ -135,6 +133,14 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		});
 
 		menu.addWidget(removeButton);
+
+		final ExtendedSuggestBox box = new ExtendedSuggestBox(servReqAttr.getOracle());
+		menu.addFilterWidget(box, new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				servReqAttr.filterTable(text);
+			}
+		}, "Filter required attributes by name");
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");

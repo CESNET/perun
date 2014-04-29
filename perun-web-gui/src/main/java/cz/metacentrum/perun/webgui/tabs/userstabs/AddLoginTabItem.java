@@ -99,7 +99,7 @@ public class AddLoginTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullName())+": Add login");
+		titleWidget.setText("Add login");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
