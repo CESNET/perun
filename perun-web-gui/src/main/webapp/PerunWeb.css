@@ -274,7 +274,7 @@ table.perun-tabPanelItem{
     top: -10000px;
     z-index: 10;
     /* free space around tab contents */
-    padding: 45px 15px 10px 15px;
+    padding: 0px 15px 10px 15px;
     max-width: 92%;
     max-height:980px;
     border: 1px solid #CCC;
@@ -282,6 +282,18 @@ table.perun-tabPanelItem{
     border-radius: 0px 0px 5px 5px;
     box-shadow: 0px 0px 19px #414141;
 }
+
+/* overlay tab */
+.tab-overlay-shield {
+    position: relative;
+    left: 0;
+    top: -10000px;
+    z-index: 9;
+    height: 100%;
+    width: 100%;
+    max-height:980px;
+}
+
 /* different size for large tabs */
 .tab-overlay-large{
     width: 90% !important;
@@ -290,11 +302,15 @@ table.perun-tabPanelItem{
 
 /* overlay tab title */
 .tab-overlay-title {
-    position:absolute;
+    position:relative;
     top:5px;
     font-size: 1.35em;
-    left:5px;
-    margin: 10px;
+    left: 0;
+    right: 30px;
+    margin: 10px 35px 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* overlay tab top close button */
@@ -316,7 +332,7 @@ table.perun-tabPanelItem{
     font-weight: bolder;
     text-wrap: avoid;
     vertical-align: text-top;
-    /*line-height: 27px;*/
+    line-height: 27px;
     padding-right: 10px;
 }
 

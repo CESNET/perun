@@ -95,7 +95,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": create service member");
+		titleWidget.setText("Create service member");
 
 		final TabItem tab = this;
 

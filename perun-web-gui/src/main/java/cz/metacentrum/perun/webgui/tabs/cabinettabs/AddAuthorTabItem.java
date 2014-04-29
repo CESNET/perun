@@ -101,7 +101,7 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(publication.getTitle()) + ": add author");
+		titleWidget.setText("Add author");
 
 		this.users = new FindCompleteRichUsers("", null);
 

@@ -271,11 +271,9 @@ public class JsonPostClient {
 		} else {
 			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
 			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
-			if (!hidden) {
-				JsonErrorHandler.alertBox(e);
-			}
+			JsonErrorHandler.alertBox(e);
+			events.onError(null);
 		}
-		events.onError(null);
 
 	}
 

@@ -96,7 +96,7 @@ public class AddGroupManagerTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+ ": add manager");
+		titleWidget.setText("Add manager");
 
 		// MAIN PANEL
 		VerticalPanel vp = new VerticalPanel();

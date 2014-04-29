@@ -57,7 +57,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	/**
 	 * Title widget
 	 */
-	private Label titleWidget = new Label("Application notifications");
+	private Label titleWidget = new Label("Email notifications");
 
 	// data
 	private VirtualOrganization vo;
@@ -148,7 +148,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			entityId = vo.getId();
 			mailsRequest = new GetApplicationMails(entity, vo.getId());
 		}
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(title)+": "+"application notifications");
+		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(title)+": "+"Email notifications");
 
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();

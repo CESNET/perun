@@ -67,7 +67,7 @@ public class EditUserDetailsTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget = new Label("Edit: "+ Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles()));
+		titleWidget = new Label("Edit user");
 
 		VerticalPanel vp = new VerticalPanel();
 

@@ -56,6 +56,8 @@ public class AssignGroupTabItem implements TabItem {
 	private Group group;
 	private int groupId;
 	private ArrayList<RichResource> resources;
+	private ArrayList<RichResource> alreadyAddedList = new ArrayList<RichResource>();
+	private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
 	 * Creates a tab instance
@@ -99,6 +101,17 @@ public class AssignGroupTabItem implements TabItem {
 		// close tab event
 		final TabItem tab = this;
 
+		// filter box
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+			public void searchFor(String text) {
+				callback.filterTable(text);
+				// if single group, select
+				if (callback.getList().size() == 1) {
+					callback.getSelectionModel().setSelected(callback.getList().get(0), true);
+				}
+			}
+		}, ButtonTranslation.INSTANCE.filterResources());
+
 		// buttton
 		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToSelectedResources());
 		assignButton.addClickHandler(new ClickHandler(){
@@ -106,26 +119,28 @@ public class AssignGroupTabItem implements TabItem {
 			public void onClick(ClickEvent event) {
 				final ArrayList<RichResource> toAssign = callback.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(toAssign)) {
-					AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+					AssignGroupToResources request = new AssignGroupToResources(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+							alreadyAddedList.addAll(toAssign);
+							for (RichResource r : toAssign) {
+								callback.getSelectionModel().setSelected(r, false);
+							}
+							rebuildAlreadyAddedWidget();
+						}
+					}));
 					request.assignGroupToResources(group, toAssign);
 				}
 			}
 		});
 		menu.addWidget(assignButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().closeTab(tab, false);
 			}
 		}));
-
-		// filter box
-		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-			public void searchFor(String text) {
-				callback.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterResources());
 
 		assignButton.setEnabled(false);
 		JsonUtils.addTableManagedButton(callback, table, assignButton);
@@ -139,11 +154,29 @@ public class AssignGroupTabItem implements TabItem {
 
 		mainTab.add(menu);
 		mainTab.setCellHeight(menu, "30px");
+
+		rebuildAlreadyAddedWidget();
+		mainTab.add(alreadyAdded);
+
 		mainTab.add(sp);
 
 		this.contentWidget.setWidget(mainTab);
 
 		return getWidget();
+	}
+
+	/**
+	 * Rebuild already added widget based on already added members
+	 */
+	private void rebuildAlreadyAddedWidget() {
+
+		alreadyAdded.setStyleName("alreadyAdded");
+		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+		alreadyAdded.setWidget(new HTML("<strong>Already assigned to resources: </strong>"));
+		for (int i=0; i<alreadyAddedList.size(); i++) {
+			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + alreadyAddedList.get(i).getName());
+		}
+
 	}
 
 	public Widget getWidget() {
@@ -166,9 +199,6 @@ public class AssignGroupTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

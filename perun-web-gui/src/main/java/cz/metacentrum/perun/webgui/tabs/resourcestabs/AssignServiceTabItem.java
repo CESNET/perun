@@ -82,7 +82,7 @@ public class AssignServiceTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": assign service");
+		titleWidget.setText("Assign service");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

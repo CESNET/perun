@@ -24,6 +24,7 @@ import java.util.Map;
  * Manager for the tabs in the main tab panel
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlámal
  */
 public class TabManager {
 
@@ -57,7 +58,7 @@ public class TabManager {
 	 * Tab overlays
 	 * KEY = unique tab id, VALUE = tab overlay simple panel
 	 */
-	private Map<Integer, SimplePanel> tabOverlays = new HashMap<Integer, SimplePanel>();
+	private Map<Integer, AbsolutePanel> tabOverlays = new HashMap<Integer, AbsolutePanel>();
 
 	/**
 	 * Child tabs - parent tabs
@@ -65,22 +66,24 @@ public class TabManager {
 	 */
 	private Map<TabItem, TabItem> tabOverlaysTabItems = new HashMap<TabItem, TabItem>();
 
-	public TabManager() {}
+	public TabManager() {
+	}
 
 	/**
 	 * Adds a new tab into the panel.
 	 * If already exists, it only selects it.
+	 *
 	 * @param tab
 	 * @return
 	 */
-	public boolean addTab(TabItem tab)
-	{
+	public boolean addTab(TabItem tab) {
 		return addTab(tab, true);
 	}
 
 	/**
 	 * Adds a new tab into the panel.
 	 * If already exists, it only selects it.
+	 *
 	 * @param tab
 	 * @param open Whether the tab should be opened after adding.
 	 * @return
@@ -88,29 +91,20 @@ public class TabManager {
 	public boolean addTab(final TabItem tab, final boolean open) {
 
 		// already created?
-		if(!tab.multipleInstancesEnabled() && this.tabs.containsKey(tab))
-		{
-			if(open)
-			{
+		if (!tab.multipleInstancesEnabled() && this.tabs.containsKey(tab)) {
+			if (open) {
 				int tabId = this.tabs.get(tab);
 				session.getUiElements().openTab(tabId);
 			}
 			return false;
 		}
 
-		//if(tab.isPrepared()){
-		//addTabWhenPrepared(tab, open);
-		//return true;
-		//}
-
 		Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
 			public boolean execute() {
-				if(tab.isPrepared()){
-					//session.getUiElements().setLogText("Tab is prepared, adding tab.");
+				if (tab.isPrepared()) {
 					addTabWhenPrepared(tab, open);
 					return false;
 				}
-				//session.getUiElements().setLogText("Tab not prepared, waiting.");
 				return true;
 			}
 		}, CHECK_TAB_PREPARED_INTERVAL);
@@ -119,13 +113,13 @@ public class TabManager {
 
 	/**
 	 * Adding a tab
-	 * With this method, the autorization must be already granted
+	 * With this method, the authorization must be already granted
 	 *
 	 * @param tab
 	 * @param open
 	 * @return
 	 */
-	private boolean addTabWhenPrepared(TabItem tab, boolean open){
+	private boolean addTabWhenPrepared(TabItem tab, boolean open) {
 
 		// store place
 		final Widget widget;
@@ -134,6 +128,12 @@ public class TabManager {
 		// overlay tab
 		final SimplePanel overlayTab = new SimplePanel();
 		overlayTab.addStyleName("tab-overlay");
+
+		final AbsolutePanel overlayShield = new AbsolutePanel();
+		overlayShield.addStyleName("tab-overlay-shield");
+
+		overlayShield.add(overlayTab);
+		overlayTab.getElement().getStyle().setLeft(5, Unit.PCT);
 
 		// authorization when not already opened
 		if (tab.isAuthorized() == true) {
@@ -150,8 +150,8 @@ public class TabManager {
 		// panel with overlay and widget contents
 		final AbsolutePanel ap = new AbsolutePanel();
 		ap.add(widget, 5, 5);
-		ap.add(overlayTab, 0, -2000);
-		overlayTab.getElement().getStyle().setLeft(5, Unit.PCT);
+		ap.add(overlayShield, 0, -2000);
+		//overlayShield.getElement().getStyle().setLeft(5, Unit.PCT);
 
 		// set sizes
 		ap.setSize("100%", "100%");
@@ -162,29 +162,27 @@ public class TabManager {
 			public void execute() {
 
 				// empty
-				if(overlayTab.getWidget() == null){
+				if (overlayTab.getWidget() == null) {
 					return;
 				}
 
-
-				int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ?  Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
+				int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
 
 				// if small, then fixed size in the center
-				if(!overlayTab.getStyleName().contains("tab-overlay-large"))
-		{
-			int overlayWidth = overlayTab.getElement().getClientWidth();
+				if (!overlayTab.getStyleName().contains("tab-overlay-large")) {
+					int overlayWidth = overlayTab.getElement().getOffsetWidth();
 
-			// main menu width
-			int left = (clientWidth - MainMenu.MENU_WIDTH - overlayWidth) / 2;
-			ap.setWidgetPosition(overlayTab, left, ap.getWidgetTop(overlayTab));
-			return;
-		}
+					// main menu width
+					int left = (clientWidth - MainMenu.MENU_WIDTH - overlayWidth) / 2;
+					overlayShield.setWidgetPosition(overlayTab, left, overlayShield.getWidgetTop(overlayTab));
+
+					return;
+				}
 			}
 		}, tab);
 
-
 		// has a help widget?
-		if(tab instanceof TabItemWithHelp){
+		if (tab instanceof TabItemWithHelp) {
 
 			helpCounter++;
 			final String helpWrapperId = "helpWidgetWrapper-" + helpCounter;
@@ -221,8 +219,6 @@ public class TabManager {
 			helpWidgetWrapper.add(helpWidgetInnerWrapper, 0, 0);
 			/*helpWidgetInnerWrapper.setSize("100%", "100%");*/
 
-
-
 			// open help widget button
 			PushButton helpWidgetButton = new PushButton(new Image(HELP_WIDGET_BUTTON_IMAGE));
 			final SimplePanel helpWidgetButtonWrapper = new SimplePanel(helpWidgetButton);
@@ -239,14 +235,14 @@ public class TabManager {
 				public void execute() {
 
 					int helpWidgetWidth = 400;
-					int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ?  Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
+					int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
 					//int clientHeight = (Window.getClientHeight() > WebGui.MIN_CLIENT_HEIGHT) ?  Window.getClientHeight() : WebGui.MIN_CLIENT_HEIGHT;
 
 					clientWidth -= MainMenu.MENU_WIDTH;
 
 					int newLeft = clientWidth;
 
-					if(isHelpOpened(helpWrapperId)){
+					if (isHelpOpened(helpWrapperId)) {
 						newLeft -= helpWidgetWidth;
 
 					}
@@ -263,14 +259,12 @@ public class TabManager {
 			});
 		}
 
-
 		// add
 		int tabId = session.getUiElements().contentAddTab(ap, tab.getTitle(), open, tabIcon);
 
 		// add to current map
 		this.tabs.put(tab, tabId);
-		if(open)
-		{
+		if (open) {
 			activeTab = tab;
 			// call the event
 			if (tab.isAuthorized()) {
@@ -281,7 +275,7 @@ public class TabManager {
 			//session.getUiElements().getMenu().updateLinks();
 		}
 
-		tabOverlays.put(tabId, overlayTab);
+		tabOverlays.put(tabId, overlayShield);
 
 		// refresh URL
 		refreshUrl();
@@ -291,70 +285,68 @@ public class TabManager {
 
 	/**
 	 * Returns the active tab
+	 *
 	 * @return
 	 */
-	public TabItem getActiveTab()
-	{
+	public TabItem getActiveTab() {
 		return this.activeTab;
-
 	}
 
 	/**
 	 * Clear active tabs
 	 */
-	public void clearActiveTabs()
-	{
+	public void clearActiveTabs() {
 		this.activeTab = null;
 		this.activeOverlayTab = null;
 	}
 
 	/**
 	 * Returns the active overlay tab
+	 *
 	 * @return
 	 */
-	public TabItem getActiveOverlayTab()
-	{
+	public TabItem getActiveOverlayTab() {
 		return this.activeOverlayTab;
 
 	}
 
 	/**
 	 * Opens and closes the help panel
+	 *
 	 * @param id TabItemWithHelp panel ID
 	 */
 	static private native void toggleHelp(String id) /*-{
-				var helpWidgetWidth = 400;
-		var helpWidgetWrapper = $wnd.jQuery("." + id);
-		var left = parseInt($wnd.jQuery(helpWidgetWrapper).css("left"), 10);
-				if($wnd.jQuery(helpWidgetWrapper).hasClass("opened")){
-		$wnd.jQuery(helpWidgetWrapper).removeClass("opened");
-		$wnd.jQuery(helpWidgetWrapper).animate({ left : left + helpWidgetWidth + "px" }, 500);
-				}else{
-		$wnd.jQuery(helpWidgetWrapper).addClass("opened");
-		$wnd.jQuery(helpWidgetWrapper).animate({ left : left - helpWidgetWidth + "px" }, 500);
-				}
-			}-*/;
+        var helpWidgetWidth = 400;
+        var helpWidgetWrapper = $wnd.jQuery("." + id);
+        var left = parseInt($wnd.jQuery(helpWidgetWrapper).css("left"), 10);
+        if ($wnd.jQuery(helpWidgetWrapper).hasClass("opened")) {
+            $wnd.jQuery(helpWidgetWrapper).removeClass("opened");
+            $wnd.jQuery(helpWidgetWrapper).animate({ left: left + helpWidgetWidth + "px" }, 500);
+        } else {
+            $wnd.jQuery(helpWidgetWrapper).addClass("opened");
+            $wnd.jQuery(helpWidgetWrapper).animate({ left: left - helpWidgetWidth + "px" }, 500);
+        }
+    }-*/;
 
-		/**
-		 * Whether is the help opened
-		 *
-		 * @param id TabItemWithHelp panel ID
-		 * @return
-		 */
-		static private native boolean isHelpOpened(String id) /*-{
-			return $wnd.jQuery("." + id).hasClass("opened");
-		}-*/;
+	/**
+	 * Whether is the help opened
+	 *
+	 * @param id TabItemWithHelp panel ID
+	 * @return
+	 */
+	static private native boolean isHelpOpened(String id) /*-{
+        return $wnd.jQuery("." + id).hasClass("opened");
+    }-*/;
 
-		/**
-		 * Adds a "small tab" as overlay to current tab
-		 *
-		 * @param tab
-		 * @return
-		 */
-		public boolean addTabToCurrentTab(final TabItem tab)
-		{
-			return addTabToCurrentTab(tab, false);
-		}
+	/**
+	 * Adds a "small tab" as overlay to current tab
+	 *
+	 * @param tab
+	 * @return
+	 */
+	public boolean addTabToCurrentTab(final TabItem tab) {
+		return addTabToCurrentTab(tab, false);
+	}
 
 	/**
 	 * Adds tab as overlay to current tab
@@ -363,11 +355,11 @@ public class TabManager {
 	 * @param large Whether the tab should fill all the parent
 	 * @return
 	 */
-	public boolean addTabToCurrentTab(final TabItem tab, final boolean large)
-	{
+	public boolean addTabToCurrentTab(final TabItem tab, final boolean large) {
+
 		Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
 			public boolean execute() {
-				if(tab.isPrepared()){
+				if (tab.isPrepared()) {
 					session.getUiElements().setLogText("Tab is prepared, adding tab.");
 
 					addTabToCurrentTabAuthorized(tab, large);
@@ -392,16 +384,15 @@ public class TabManager {
 		final int selectedTabUniqueId = session.getUiElements().getSelectedTabUniqueId();
 
 		// find overlay
-		final SimplePanel overlay = tabOverlays.get(selectedTabUniqueId);
-		if(overlay == null)
-		{
+		final AbsolutePanel overlay = tabOverlays.get(selectedTabUniqueId);
+		if (overlay == null) {
 			return;
 		}
 
-		if(large) {
-			overlay.addStyleName("tab-overlay-large");
+		if (large) {
+			overlay.getWidget(0).addStyleName("tab-overlay-large");
 		} else {
-			overlay.removeStyleName("tab-overlay-large");
+			overlay.getWidget(0).removeStyleName("tab-overlay-large");
 		}
 
 	}
@@ -413,21 +404,20 @@ public class TabManager {
 	 * @param large whether tab large
 	 * @return
 	 */
-	private boolean addTabToCurrentTabAuthorized(TabItem tab, boolean large){
+	private boolean addTabToCurrentTabAuthorized(TabItem tab, boolean large) {
 
 		final int selectedTabUniqueId = session.getUiElements().getSelectedTabUniqueId();
 
 		// find overlay
-		final SimplePanel overlay = tabOverlays.get(selectedTabUniqueId);
-		if(overlay == null)
-		{
+		final AbsolutePanel overlay = tabOverlays.get(selectedTabUniqueId);
+		if (overlay == null) {
 			return false;
 		}
 
-		if(large) {
-			overlay.addStyleName("tab-overlay-large");
+		if (large) {
+			overlay.getWidget(0).addStyleName("tab-overlay-large");
 		} else {
-			overlay.removeStyleName("tab-overlay-large");
+			overlay.getWidget(0).removeStyleName("tab-overlay-large");
 		}
 
 		// find parent
@@ -438,7 +428,6 @@ public class TabManager {
 
 		// authorization when not already opened
 		if (tab.isAuthorized() == true) {
-
 			// widget itself
 			widget = tab.getWidget();
 			tab.draw();  // load page content
@@ -450,18 +439,30 @@ public class TabManager {
 		Button closeTabButton = new Button("X");
 		closeTabButton.addStyleName("tabPanelCloseButton");
 		closeTabButton.addStyleName("tab-overlay-close-button");
-		closeTabButton.getElement().setAttribute("onclick", "jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").animate({ top : \"-1000px\" }, 'fast', function(){ jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").hide(''); }); jQuery(\"#tab-" + selectedTabUniqueId + " .tab-content\").fadeTo('fast', 1.0);");
+		closeTabButton.getElement().setAttribute("onclick", "jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay-shield\").animate({ top : \"-1000px\" }, 'fast', function(){ jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay-shield\").hide(''); }); jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").animate({ top : \"-1000px\" }, 'fast', function(){ jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").hide(''); }); jQuery(\"#tab-" + selectedTabUniqueId + " .tab-content\").fadeTo('fast', 1.0);");
 		closeTabButton.setTitle(WidgetTranslation.INSTANCE.closeThisTab());
 
-		widget.getElement().appendChild(closeTabButton.getElement());
-
 		// title
-		Widget title = tab.getTitle();
+		final Widget title = tab.getTitle();
 		title.addStyleName("tab-overlay-title");
-		widget.getElement().appendChild(title.getElement());
+
+		if (!overlay.getWidget(0).getStyleName().contains("tab-overlay-large")) {
+			// shorten title only for small tabs
+			title.getElement().setAttribute("style", "max-width: 330px;");
+		}
+
+		if (overlay.getWidget(0).getElement().hasChildNodes()) {
+			overlay.getWidget(0).getElement().getFirstChildElement().removeFromParent();
+		}
+		if (overlay.getWidget(0).getElement().hasChildNodes()) {
+			overlay.getWidget(0).getElement().getFirstChildElement().removeFromParent();
+		}
+
+		overlay.getWidget(0).getElement().appendChild(title.getElement());
+		overlay.getWidget(0).getElement().appendChild(closeTabButton.getElement());
 
 		// add
-		overlay.setWidget(widget);
+		((SimplePanel) overlay.getWidget(0)).setWidget(widget);
 
 		// shows the tab
 		setTabOverlayVisible(selectedTabUniqueId, true);
@@ -498,66 +499,70 @@ public class TabManager {
 	 * @param visible
 	 */
 	private native final void setTabOverlayVisible(int tabId, boolean visible) /*-{
-				var overlay = "#tab-" + tabId + " .tab-overlay";
-		var content = "#tab-" + tabId + " .tab-content";
-				var height = 1000;
-		var topSpace = 0;
-				if(visible)
-		{
-		$wnd.jQuery(overlay).show();
-		$wnd.jQuery(overlay).animate({ top : topSpace + "px"}, 200);
-		$wnd.jQuery(content).fadeTo("slow", 0.4);
-		}
-		else
-		{
-		$wnd.jQuery(content).fadeTo("slow", 1);
-		$wnd.jQuery(overlay).animate({ top : (- height + topSpace) + "px" }, 'fast', function(){ $wnd.jQuery(overlay).hide(); });
-						}
-	}-*/;
+        var overlay = "#tab-" + tabId + " .tab-overlay";
+        var shield = "#tab-" + tabId + " .tab-overlay-shield";
+        var content = "#tab-" + tabId + " .tab-content";
+        var height = 1000;
+        var topSpace = 0;
+
+        if (visible) {
+            $wnd.jQuery(overlay).show();
+            $wnd.jQuery(overlay).animate({ top: topSpace + "px"}, 200);
+
+            $wnd.jQuery(shield).show();
+            $wnd.jQuery(shield).animate({ top: topSpace + "px"}, 200);
+
+            $wnd.jQuery(content).fadeTo("slow", 0.4);
+        } else {
+            $wnd.jQuery(content).fadeTo("slow", 1);
+            $wnd.jQuery(overlay).animate({ top: (-height + topSpace) + "px" }, 'fast', function () {
+                $wnd.jQuery(overlay).hide();
+            });
+            $wnd.jQuery(shield).animate({ top: (-height + topSpace) + "px" }, 'fast', function () {
+                $wnd.jQuery(shield).hide();
+            });
+        }
+
+    }-*/;
 
 
+	/**
+	 * Refreshes URL
+	 */
+	private void refreshUrl() {
 
+		// LOCKING GUI FOR URL CHANGE
+		this.changePageEventLocked = true;
 
-		/**
-		 * Refreshes URL
-		 */
-		private void refreshUrl() {
+		String url = "";
+		String urlWithNoActive = "";
+		String urlWithActive = "";
 
-			// LOCKING GUI FOR URL CHANGE
-			this.changePageEventLocked = true;
-
-			String url = "";
-			String urlWithNoActive = "";
-			String urlWithActive = "";
-
-			for(Map.Entry<TabItem, Integer> entry : tabs.entrySet())
-			{
-				TabItem tabItem = entry.getKey();
-				if(tabItem instanceof TabItemWithUrl)
-				{
-					TabItemWithUrl tab = (TabItemWithUrl) tabItem;
-					String thisUrl = tab.getUrlWithParameters();
-					urlWithNoActive += thisUrl + UrlMapper.TAB_SEPARATOR;
-					if(tab == activeTab){
-						thisUrl = updateUrlToActive(thisUrl);
-					}
-					urlWithActive += thisUrl + UrlMapper.TAB_SEPARATOR;
-
-					url += thisUrl + UrlMapper.TAB_SEPARATOR;
+		for (Map.Entry<TabItem, Integer> entry : tabs.entrySet()) {
+			TabItem tabItem = entry.getKey();
+			if (tabItem instanceof TabItemWithUrl) {
+				TabItemWithUrl tab = (TabItemWithUrl) tabItem;
+				String thisUrl = tab.getUrlWithParameters();
+				urlWithNoActive += thisUrl + UrlMapper.TAB_SEPARATOR;
+				if (tab == activeTab) {
+					thisUrl = updateUrlToActive(thisUrl);
 				}
+				urlWithActive += thisUrl + UrlMapper.TAB_SEPARATOR;
+
+				url += thisUrl + UrlMapper.TAB_SEPARATOR;
 			}
-
-			this.currentUrlWithNoActive = urlWithNoActive;
-			this.currentUrlWithActive = urlWithActive;
-
-			// changing url
-			History.newItem(url, false);
-
-			// REMOVING LOCK
-			this.changePageEventLocked = false;
-
 		}
 
+		this.currentUrlWithNoActive = urlWithNoActive;
+		this.currentUrlWithActive = urlWithActive;
+
+		// changing url
+		History.newItem(url, false);
+
+		// REMOVING LOCK
+		this.changePageEventLocked = false;
+
+	}
 
 
 	/**
@@ -566,11 +571,10 @@ public class TabManager {
 	 * @param tabId
 	 * @return
 	 */
-	public boolean reloadTab(int tabId)
-	{
+	public boolean reloadTab(int tabId) {
 		TabItem tabToReload = getTabItemByUniqueId(tabId);
 
-		if(tabToReload == null){
+		if (tabToReload == null) {
 			return false;
 		}
 
@@ -584,7 +588,7 @@ public class TabManager {
 
 	/**
 	 * Returns the tab item by the id.
-	 *
+	 * <p/>
 	 * TODO/FIXME: Can't process overlay tabs since they do not have Unique ID !!
 	 *
 	 * @param uniqueTabId Unique tab ID
@@ -592,8 +596,8 @@ public class TabManager {
 	 */
 	private TabItem getTabItemByUniqueId(int uniqueTabId) {
 		TabItem tabToReload = null;
-		for(Map.Entry<TabItem, Integer> entry : this.tabs.entrySet()) {
-			if(uniqueTabId == entry.getValue()){
+		for (Map.Entry<TabItem, Integer> entry : this.tabs.entrySet()) {
+			if (uniqueTabId == entry.getValue()) {
 				tabToReload = entry.getKey();
 				break;
 			}
@@ -607,11 +611,9 @@ public class TabManager {
 	 * @param tab Tab to reload content for
 	 * @return true if reloaded, false if not
 	 */
-	public boolean reloadTab(TabItem tab)
-	{
-		for(TabItem key : this.tabs.keySet())
-		{
-			if(key.equals(tab)){
+	public boolean reloadTab(TabItem tab) {
+		for (TabItem key : this.tabs.keySet()) {
+			if (key.equals(tab)) {
 				key.draw(); // load page content
 				if (key.isAuthorized()) {
 					key.open(); // sets page context to the rest of GUI (show proper menu, set breadcrumbs)
@@ -620,9 +622,8 @@ public class TabManager {
 			}
 		}
 		// reload also overlay tabs (key is child tab = content of overlay tab)
-		for(TabItem key : this.tabOverlaysTabItems.keySet())
-		{
-			if(key.equals(tab)){
+		for (TabItem key : this.tabOverlaysTabItems.keySet()) {
+			if (key.equals(tab)) {
 				key.draw();
 				if (key.isAuthorized()) {
 					key.open();
@@ -640,11 +641,9 @@ public class TabManager {
 	 * @param tabId
 	 * @return
 	 */
-	public boolean removeTab(int tabId)
-	{
-		for(Map.Entry<TabItem, Integer> entry : this.tabs.entrySet())
-		{
-			if(tabId == entry.getValue()){
+	public boolean removeTab(int tabId) {
+		for (Map.Entry<TabItem, Integer> entry : this.tabs.entrySet()) {
+			if (tabId == entry.getValue()) {
 				this.tabs.remove(entry.getKey());
 				refreshUrl();
 				return true;
@@ -671,10 +670,9 @@ public class TabManager {
 	 */
 	public void closeTab(TabItem tabItem, boolean refreshParent) {
 
-		if(!this.tabs.containsKey(tabItem))
-		{
+		if (!this.tabs.containsKey(tabItem)) {
 			// if not in regular tabs, try child tabs
-			if(!this.tabOverlaysTabItems.containsKey(tabItem)){
+			if (!this.tabOverlaysTabItems.containsKey(tabItem)) {
 				return;
 			}
 
@@ -689,8 +687,7 @@ public class TabManager {
 			this.activeOverlayTab = null;
 
 			// refresh
-			if(refreshParent)
-			{
+			if (refreshParent) {
 				parent.draw();
 			}
 			return;
@@ -708,16 +705,17 @@ public class TabManager {
 
 	/**
 	 * Whether can browser change the page
+	 *
 	 * @return
 	 */
-	public boolean isChangePageEventLocked()
-	{
+	public boolean isChangePageEventLocked() {
 		return changePageEventLocked;
 	}
 
 
 	/**
 	 * Locks the page chaning
+	 *
 	 * @param changePageEventLocked
 	 */
 	public void setChangePageEventLocked(boolean changePageEventLocked) {
@@ -726,34 +724,35 @@ public class TabManager {
 
 	/**
 	 * Returns the link for the TAB, which includes the current state
+	 *
 	 * @param tabItem
 	 * @return
 	 */
-	public String getLinkForTab(TabItemWithUrl tabItem)
-	{
+	public String getLinkForTab(TabItemWithUrl tabItem) {
 		return this.currentUrlWithNoActive + updateUrlToActive(tabItem.getUrlWithParameters());
 	}
 
 	/**
 	 * Returns the link for the TAB, without current state
+	 *
 	 * @param tabItem
 	 * @return
 	 */
-	public String getLinkOnlyForTab(TabItemWithUrl tabItem)
-	{
+	public String getLinkOnlyForTab(TabItemWithUrl tabItem) {
 		return updateUrlToActive(tabItem.getUrlWithParameters());
 	}
 
 
 	/**
 	 * Sets the tab to opened state
+	 *
 	 * @param uniqueTabId
 	 * @return whether tab found and opened
 	 */
 	public boolean openTab(int uniqueTabId) {
 
 		TabItem tabOpen = getTabItemByUniqueId(uniqueTabId);
-		if(tabOpen == null){
+		if (tabOpen == null) {
 			return false;
 		}
 
@@ -766,10 +765,8 @@ public class TabManager {
 		UiElements.runResizeCommands(activeTab);
 
 		// find and resize overlay tab
-		for(Map.Entry<TabItem, TabItem> entry : tabOverlaysTabItems.entrySet())
-		{
-			if(entry.getValue() == tabOpen)
-			{
+		for (Map.Entry<TabItem, TabItem> entry : tabOverlaysTabItems.entrySet()) {
+			if (entry.getValue() == tabOpen) {
 				this.activeOverlayTab = entry.getKey();
 				UiElements.runResizeCommands(activeOverlayTab);
 				break;
@@ -789,11 +786,10 @@ public class TabManager {
 	 * @param url
 	 * @return
 	 */
-	private String updateUrlToActive(String url)
-	{
-		if(url.contains("?")){
+	private String updateUrlToActive(String url) {
+		if (url.contains("?")) {
 			return url + "&" + ACTIVE_TOKEN;
-		}else{
+		} else {
 			return url + "?" + ACTIVE_TOKEN;
 
 		}
@@ -801,10 +797,10 @@ public class TabManager {
 
 	/**
 	 * Returns current browser URL
+	 *
 	 * @return
 	 */
-	public String getCurrentUrl()
-	{
+	public String getCurrentUrl() {
 		return getCurrentUrl(false);
 	}
 
@@ -814,12 +810,10 @@ public class TabManager {
 	 * @param active Whether to include &active=1 to the selected tab
 	 * @return
 	 */
-	public String getCurrentUrl(boolean active)
-	{
-		if(!active)
-		{
+	public String getCurrentUrl(boolean active) {
+		if (!active) {
 			return this.currentUrlWithNoActive;
-		}else{
+		} else {
 			return this.currentUrlWithActive;
 		}
 	}

@@ -81,7 +81,7 @@ public class AddDependencyTabItem implements TabItem {
 	public Widget draw() {
 
 		// TITLE
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(execService.getService().getName()) + ": add dependency");
+		titleWidget.setText("Add dependency");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%","100%");

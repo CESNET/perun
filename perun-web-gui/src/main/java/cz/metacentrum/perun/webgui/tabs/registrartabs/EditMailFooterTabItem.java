@@ -45,7 +45,7 @@ public class EditMailFooterTabItem implements TabItem {
 	/**
 	 * Title widget
 	 */
-	private Label titleWidget = new Label("Set mail footer");
+	private Label titleWidget = new Label("Edit mail footer");
 
 	/**
 	 * Entity ID to set

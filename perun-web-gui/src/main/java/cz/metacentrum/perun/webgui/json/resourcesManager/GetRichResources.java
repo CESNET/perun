@@ -357,4 +357,8 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		this.events = events;
 	}
 
+	public MultiSelectionModel<RichResource> getSelectionModel() {
+		return this.selectionModel;
+	}
+
 }

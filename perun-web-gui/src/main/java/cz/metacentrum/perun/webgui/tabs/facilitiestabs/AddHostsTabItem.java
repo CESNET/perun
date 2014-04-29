@@ -129,7 +129,7 @@ public class AddHostsTabItem implements TabItem {
 		}));
 
 		// layout
-		FlexTable layout = new FlexTable();
+		final FlexTable layout = new FlexTable();
 		layout.setWidth("350px");
 		layout.setStyleName("inputFormFlexTable");
 		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();

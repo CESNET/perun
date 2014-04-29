@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.DeleteExecService;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.ListExecServices;
+import cz.metacentrum.perun.webgui.json.generalServiceManager.UpdateExecService;
 import cz.metacentrum.perun.webgui.model.ExecService;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.ServicesTabs;
@@ -146,8 +147,74 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
+		final CustomButton enable = TabMenu.getPredefinedButton(ButtonType.ENABLE, "Enable selected exec service(s)");
+		final CustomButton disable = TabMenu.getPredefinedButton(ButtonType.DISABLE, "Disable selected exec service(s)");
+
+		menu.addWidget(enable);
+		menu.addWidget(disable);
+
+		enable.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				ArrayList<ExecService> list = callback.getTableSelectedList();
+				for (int i=0; i<list.size(); i++) {
+
+					ExecService e = list.get(i);
+					if (i<list.size()-1) {
+						// any call
+						if (!e.isEnabled()) {
+							UpdateExecService request = new UpdateExecService(JsonCallbackEvents.disableButtonEvents(enable));
+							e.setEnabled(true);
+							request.updateExecService(e);
+						}
+					} else {
+						// last call
+						if (!e.isEnabled()) {
+							UpdateExecService request = new UpdateExecService(JsonCallbackEvents.disableButtonEvents(enable, events));
+							e.setEnabled(true);
+							request.updateExecService(e);
+						}
+
+					}
+				}
+			}
+		});
+
+		disable.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				ArrayList<ExecService> list = callback.getTableSelectedList();
+				for (int i=0; i<list.size(); i++) {
+
+					ExecService e = list.get(i);
+					if (i<list.size()-1) {
+						// any call
+						if (e.isEnabled()) {
+							UpdateExecService request = new UpdateExecService(JsonCallbackEvents.disableButtonEvents(disable));
+							e.setEnabled(false);
+							request.updateExecService(e);
+						}
+					} else {
+						// last call
+						if (e.isEnabled()) {
+							UpdateExecService request = new UpdateExecService(JsonCallbackEvents.disableButtonEvents(disable, events));
+							e.setEnabled(false);
+							request.updateExecService(e);
+						}
+
+					}
+				}
+			}
+		});
+
 		deleteButton.setEnabled(false);
+		enable.setEnabled(false);
+		disable.setEnabled(false);
 		JsonUtils.addTableManagedButton(callback, table, deleteButton);
+		JsonUtils.addTableManagedButton(callback, table, enable);
+		JsonUtils.addTableManagedButton(callback, table, disable);
 
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
@@ -218,13 +285,11 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
 	}
 
-	static public ServiceExecServicesTabItem load(Map<String, String> parameters)
-	{
+	static public ServiceExecServicesTabItem load(Map<String, String> parameters) {
 		int id = Integer.parseInt(parameters.get("id"));
 		return new ServiceExecServicesTabItem(id);
 	}

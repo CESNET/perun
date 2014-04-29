@@ -39,7 +39,7 @@ public class CreateFormItemTabItem implements TabItem{
 	/**
 	 * Title widget
 	 */
-	private Label titleWidget = new Label("Create new application form item");
+	private Label titleWidget = new Label("Add form item");
 
 	/**
 	 * List with inputs

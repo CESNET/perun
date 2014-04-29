@@ -76,7 +76,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): add destination");
+		titleWidget.setText("Add destination");
 
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");

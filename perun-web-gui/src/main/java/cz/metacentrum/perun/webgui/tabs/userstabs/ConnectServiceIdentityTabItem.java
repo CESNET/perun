@@ -87,7 +87,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": connect identity");
+		titleWidget.setText("Connect identity");
 
 		VerticalPanel content = new VerticalPanel();
 		content.setSize("100%", "100%");

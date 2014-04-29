@@ -347,7 +347,7 @@ public class CreateMailTabItem implements TabItem {
 			entity = PerunEntity.VIRTUAL_ORGANIZATION;
 			entityId = voId;
 		}
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(title) + ": add email notification");
+		this.titleWidget.setText("Add email notification");
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();

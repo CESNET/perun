@@ -101,7 +101,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": add member");
+		titleWidget.setText("Add member(s)");
 
 		// MAIN PANEL
 		final VerticalPanel firstTabPanel = new VerticalPanel();
