@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import java.util.ArrayList;
 import java.util.List;
@@ -618,6 +619,23 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 			return ac.getGroupsManager().getMemberGroups(ac.getSession(),
 					ac.getMemberById(parms.readInt("member")));
+		}
+	},
+	
+	/*#
+	 * Returns groups with specific attribute for a member.
+	 * 
+	 * @param member int Member ID
+	 * @param 
+	 * return List<Group> Groups of the member
+	 */
+	getMemberGroupsByAttribute {
+		
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException{
+			
+			return ac.getGroupsManager().getMemberGroupsByAttribute(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")),parms.read("attribute", Attribute.class));
 		}
 	},
 
