@@ -31,21 +31,17 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 	 * Calls checkAttribute on u:login-namespace:[login-namespace]
 	 */
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Login can't be null");
-
-		// Get the login
 		try  {
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-
 			Attribute loginAttribute = null;
 			if (loginNamespaceAttribute.getValue() != null) {
-				// Get the u:login-namespace[loginNamespaceAttribute]
-				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
-
+				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,
+						user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
+				if(attribute.getValue() == null) throw new WrongAttributeValueException(loginAttribute, "Login can't be null");
 				loginAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, loginAttribute);
 			} else {
-				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute, user, facility, "Facility need to have nonempty login-namespace attribute.");
+				throw new WrongAttributeValueException(loginNamespaceAttribute, user, facility, "Login-namespace for facility can not be empty.");
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);
