@@ -1343,6 +1343,16 @@ public interface AttributesManagerBl {
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
 
+	/**
+	 * Get resource attributes which are required by selected services.
+	 * 
+	 * @param sess perun session
+	 * @param resource you get attributes for this resource
+	 * @param services
+	 * @return list of resource attributes which are required by selected services.
+	 * @throws InternalErrorException 
+	 */
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Service> services) throws InternalErrorException;
 
 	/**
 	 * Get resource attributes which are required by services which is related to this resource.
