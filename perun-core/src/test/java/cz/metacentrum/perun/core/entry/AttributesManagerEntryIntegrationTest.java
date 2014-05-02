@@ -4233,6 +4233,25 @@ public void getResourceRequiredMemberResourceAttributes() throws Exception {
 
 }
 
+@Test
+public void getServiceRequiredResourceAttributes() throws Exception {
+	System.out.println("attributesManager.getServiceRequiredResourceAttributes");
+
+	vo = setUpVo();
+	facility = setUpFacility();
+	resource = setUpResource();
+	service = setUpService();
+	attributes = setUpRequiredAttributes();
+	perun.getResourcesManager().assignService(sess, resource, service);
+	List<Service> serviceList = new ArrayList<>();
+	serviceList.add(service);
+	
+	List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, serviceList, resource);
+	assertNotNull("unable to get required resource attributes for its services",reqAttr);
+	assertTrue("should have only 1 req resource attribute",reqAttr.size() == 1);
+
+}
+
 @Test (expected=ResourceNotExistsException.class)
 	public void getResourceRequiredMemberResourceAttributesWhenResourceNotExists() throws Exception {
 		System.out.println("attributesManager.getResourceRequiredMemberResourceAttributesWhenResourceNotExists");
