@@ -164,23 +164,23 @@ public class JsonErrorHandler {
 
 		} else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong attribute assignment (" + error.getErrorId() + ")";
+			return "Wrong attribute assignment";
 
 		} else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong attribute value (" + error.getErrorId() + ")";
+			return "Wrong attribute value";
 
 		} else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
 
-			return "Wrong value of related attributes (" + error.getErrorId() + ")";
+			return "Wrong value of related attributes";
 
 		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
-			return "IDP doesn't provide required data (" + error.getErrorId() + ")";
+			return "IDP doesn't provide required data";
 
 		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
 
-			return ApplicationMessages.INSTANCE.errorWhileCreatingApplication()+"(" + error.getErrorId() + ")";
+			return ApplicationMessages.INSTANCE.errorWhileCreatingApplication();
 
 		}
 
