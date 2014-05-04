@@ -138,6 +138,19 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			groupsManager.createGroup(sess, new Group(), new Group("GroupsManagerTestGroup2","testovaci2"));
 
 		}
+	
+	@Test (expected=GroupExistsException.class)
+		public void createGroupWhenTheSameWithTheSameParentGroupExists() throws Exception {
+			System.out.println("GroupsManager.createGroupWhenTheSameWithTheSameParentGroupExists");
+
+			vo = setUpVo();
+			Group parentG = new Group("TestingParentGroup01", "testingParentGroup01");
+			groupsManager.createGroup(sess, vo, parentG);
+			Group g1 = new Group("TestingChildGroup01","TestingChildGroup01");
+			Group g2 = new Group("TestingChildGroup01","TestingChildGroup02");
+			groupsManager.createGroup(sess, parentG, g1);
+			groupsManager.createGroup(sess, parentG, g2);
+		}
 
 	@Test (expected=VoNotExistsException.class)
 		public void createGroupWhenVoNotExist() throws Exception {
