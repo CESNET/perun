@@ -1652,6 +1652,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, facility, user);
 	}
 
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Service> services) throws InternalErrorException {
+		Set<Attribute> requiredAttributes = new HashSet<>();
+		for(Service service: services) {
+			requiredAttributes.addAll(this.getRequiredAttributes(sess, service, resource));
+		}
+		return new ArrayList<Attribute>(requiredAttributes);
+	}
+	
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		return this.getResourceRequiredAttributes(sess, resource, resource);
 	}
