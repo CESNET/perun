@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable); 
+
+sub help {
+return qq{
+Prints list of all related NotifRegexes to NotifTemplate. NotifTemplate id is required field.
+---------------------------------------
+Available options:
+ --NotifTemplateId | -i id of NotifTemplate
+ --orderByNote     | -n order by note 
+ --orderById       | -d order by id (default)
+ --batch           | -b batch
+ --help            | -h prints this help
+ 
+};
+}
+
+my ($id, $sortingFunction);
+our $batch;
+GetOptions ("NotifTemplateId|i=i" => \$id, "help|h" => sub { print help; exit 0;} ,"batch|b" => \$batch, "orderById|d" => sub { $sortingFunction = getSortingFunction('getId') },"orderByNote|n" => sub {$sortingFunction = getSortingFunction("getNote", 1); } ) || die help; 
+
+unless (defined($id)) { die "ERROR: NotifTemplate: Id is required \n";}
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+my @objects = $notifAgent->getRelatedRegexesForTemplate(templateId => $id);
+unless(@objects) { printMessage "No NotifRegexes found for Template id $id", $batch;  exit 0;}
+
+printTable($sortingFunction, @objects);

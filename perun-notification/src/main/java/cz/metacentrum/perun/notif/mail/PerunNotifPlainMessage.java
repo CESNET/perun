@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.notif.mail;
 
 /**
- * User: tomastunkl
- * Date: 14.10.12
- * Time: 0:18
+ * User: tomastunkl Date: 14.10.12 Time: 0:18
  */
 public class PerunNotifPlainMessage extends MessagePreparator implements EmailMessage {
 

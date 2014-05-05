@@ -24,9 +24,7 @@ import java.util.Set;
 /**
  * Sender handles sending message to group of users
  *
- * User: tomastunkl
- * Date: 23.11.12
- * Time: 23:35
+ * User: tomastunkl Date: 23.11.12 Time: 23:35
  */
 public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
@@ -82,7 +80,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 							PerunNotifEmailMessageToSendDto memberEmailDto = new PerunNotifEmailMessageToSendDto();
 							memberEmailDto.setMessage(messageDto.getMessageToSend());
 							memberEmailDto.setSubject(messageDto.getSubject());
-							memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, member, "urn:perun:user:attribute-def:def:preferredMail").getValue());
+							memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, perun.getUsersManager().getUserByMember(session, member), "urn:perun:user:attribute-def:def:preferredMail").getValue());
 							memberEmailDto.setSender(groupSender);
 
 							messagesToSend.add(memberEmailDto);

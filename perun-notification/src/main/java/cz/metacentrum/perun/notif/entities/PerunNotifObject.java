@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Object which can be found in regex from auditer. Contains properties,
- * which holds functions, these functions can be used to get neccessary
- * informations about real object using java reflection, one object has unique name across other
- * objects.
+ * Object which can be found in regex from auditer. Contains properties, which
+ * holds functions, these functions can be used to get neccessary informations
+ * about real object using java reflection, one object has unique name across
+ * other objects.
  *
  * Table pn_object
  *
@@ -24,8 +24,7 @@ public class PerunNotifObject {
 	/**
 	 * Unique id of object
 	 *
-	 * Column id
-	 * Sequence pn_object_id_seq
+	 * Column id Sequence pn_object_id_seq
 	 */
 	private Integer id;
 
@@ -96,8 +95,8 @@ public class PerunNotifObject {
 	}
 
 	/**
-	 * RowMapper to load entity from db row
-	 * Uses java reflection to resolve class
+	 * RowMapper to load entity from db row Uses java reflection to resolve
+	 * class
 	 */
 	public static final RowMapper<PerunNotifObject> PERUN_NOTIF_OBJECT = new RowMapper<PerunNotifObject>() {
 
@@ -128,6 +127,7 @@ public class PerunNotifObject {
 
 	/**
 	 * Parses row to set of properties
+	 *
 	 * @param row
 	 * @return
 	 */
@@ -149,12 +149,13 @@ public class PerunNotifObject {
 
 	/**
 	 * Serialize properties to string
+	 *
 	 * @return
 	 */
 	public String getSerializedProperties() {
 
 		StringBuilder builder = new StringBuilder();
-		for (Iterator<String> iter = properties.iterator(); iter.hasNext(); ) {
+		for (Iterator<String> iter = properties.iterator(); iter.hasNext();) {
 			String temp = iter.next();
 			builder.append(temp);
 			if (iter.hasNext()) {
@@ -166,11 +167,20 @@ public class PerunNotifObject {
 	}
 
 	@Override
+	public String toString() {
+		return "id: " + getId() + " name: " + getName() + " properties: " + getProperties() + " object class: " + getObjectClass();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 
-		if ( this == obj ) return true;
+		if (this == obj) {
+			return true;
+		}
 
-		if ( !(obj instanceof PerunNotifObject) ) return false;
+		if (!(obj instanceof PerunNotifObject)) {
+			return false;
+		}
 
 		PerunNotifObject perunObject = (PerunNotifObject) obj;
 
@@ -179,6 +189,7 @@ public class PerunNotifObject {
 
 	/**
 	 * Method updates basic parameters
+	 *
 	 * @param newObject
 	 */
 	public void update(PerunNotifObject newObject) {

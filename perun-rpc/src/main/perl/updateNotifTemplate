@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Updates a NotifTemplate. Id of the updated Template is required field.
+--------------------------------------
+Available options:
+ --id                  | -i id of the updated NotifTemplate
+ --name                | -n name
+ --primaryProperty     | -p primary property (key and value divide by '=', more properties allowed)
+ --notifyTrigger       | -t notify trigger (ALL_REGEX_IDS / STREAM)
+ --oldestMessageTime   | -o oldest message time in millis
+ --youngestMessageTime | -y youngest message time in millis
+ --locale              | -l locale
+ --sender              | -s sender
+ --batch               | -b batch
+ --help                | -h prints this help
+
+};
+}
+
+our $batch;
+my ($id, $name, @properties, $notifyTrigger, $oldestMessageTime, $youngestMessageTime, $sender);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, "id|i=i" => \$id,
+ "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "notifyTrigger|t=s" => \$notifyTrigger,
+ "oldestMessageTime|o=i" => \$oldestMessageTime, "youngestMessageTime|y=i" => \$youngestMessageTime,
+ "sender|s=s" => \$sender) || die help(); 
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+
+if (!defined($id)) {die "ERROR: id is required."}
+
+my $object = $notifAgent->getPerunNotifTemplateById(id => $id);
+
+if (defined($name)) {
+   $object->setName($name);
+}
+
+if (defined($notifyTrigger)) {
+    if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
+    $object->setNotifyTrigger($notifyTrigger);
+}
+
+if (defined($oldestMessageTime)) {
+    $object->setOldestMessageTime($oldestMessageTime);
+}
+
+if (defined($youngestMessageTime)) {
+    $object->setYoungestMessageTime($youngestMessageTime);
+}
+
+if (defined($sender)) {
+    $object->setSender($sender);
+}
+
+if (@properties) {
+    my (%hashedProperties, @list, @values);
+
+    foreach (@properties) {
+        @list = split('=', $_);
+        $values[0] = $list[1];
+        $hashedProperties{$list[0]} = \@values;
+    }
+
+    $object->setPrimaryProperties(%hashedProperties);
+}
+
+$object = $notifAgent->updatePerunNotifTemplate(template => $object);
+
+printMessage("NotifTemplate Id:".$id." successfully updated", $batch);

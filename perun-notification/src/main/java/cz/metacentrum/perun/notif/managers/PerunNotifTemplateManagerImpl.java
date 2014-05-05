@@ -19,17 +19,18 @@ import freemarker.cache.MruCacheStorage;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PostConstruct;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("perunNotifTemplateManager")
 public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager {
@@ -87,7 +88,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		//Initialization of freemarker
 		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
 		for (PerunNotifTemplate template : templates) {
-
 			for (PerunNotifTemplateMessage pattern : template.getPerunNotifTemplateMessages()) {
 				insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, pattern);
 			}
@@ -116,29 +116,33 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		String templateName = createTemplateName(templateMessage);
 		String subjectTemplateName = createSubjectTemplateName(templateMessage);
 
+		if (templateLoader.findTemplateSource(templateName) == null) {
+ 			templateLoader.removeTemplate(templateName);
+ 		}
+
 		templateLoader.putTemplate(templateName, templateMessage.getMessage());
 		templateLoader.putTemplate(subjectTemplateName, templateMessage.getSubject());
 	}
 
 	private String createTemplateName(PerunNotifTemplateMessage templateMessage) {
-		return templateMessage.getTemplateId() + "_" + templateMessage.getLocale().getKey();
+		return templateMessage.getTemplateId() + "_" + templateMessage.getLocale().getLanguage();
 	}
 
 	private String createSubjectTemplateName(PerunNotifTemplateMessage templateMessage) {
-		return templateMessage.getTemplateId() + "-subject_" + templateMessage.getLocale().getKey();
+		return templateMessage.getTemplateId() + "-subject_" + templateMessage.getLocale().getLanguage();
 	}
 
 	@Override
 	public List<PerunNotifPoolMessage> getPerunNotifPoolMessagesForRegexIds(Set<Integer> regexIds, PerunNotifAuditMessage perunAuditMessage, PerunSession session)
-	throws InternalErrorException {
+		throws InternalErrorException {
 
-	Map<Integer, List<PerunNotifTemplate>> templates = new HashMap<Integer, List<PerunNotifTemplate>>();
+		Map<Integer, List<PerunNotifTemplate>> templates = new HashMap<Integer, List<PerunNotifTemplate>>();
 
-	for (Integer regexId : regexIds) {
-		templates.put(regexId, allTemplatesByRegexId.get(regexId));
-	}
+		for (Integer regexId : regexIds) {
+			templates.put(regexId, allTemplatesByRegexId.get(regexId));
+		}
 
-	return perunNotifPoolMessageManager.createPerunNotifPoolMessagesForTemplates(templates, perunAuditMessage);
+		return perunNotifPoolMessageManager.createPerunNotifPoolMessagesForTemplates(templates, perunAuditMessage);
 	}
 
 	@Override
@@ -168,14 +172,14 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 					for (PerunNotifRegex regex : template.getMatchingRegexs()) {
 						if (!foundRegexIds.contains(regex.getId())) {
 							logger.info("Not all regexes found for templateId: " + templateId + ", and keyAttributes: " + dto.getKeyAttributes() + " missing:"
-									+ regex.getId());
+								+ regex.getId());
 							allRegexes = false;
 						}
 					}
 
 					if (allRegexes) {
 						logger.info("All regexes found for templateId: " + templateId + " and keyAttribute: " + dto.getKeyAttributes()
-								+ " starting to create message.");
+							+ " starting to create message.");
 						try {
 							messageDtoList.addAll(createMessageToSend(template, dto));
 						} catch (Exception ex) {
@@ -201,6 +205,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 							// We have reached longest wait time, we take everything
 							// we have and send it
 							try {
+								logger.debug("Oldest message is older than oldest time for template id " + template.getId() + " message will be sent.");
 								messageDtoList.addAll(createMessageToSend(template, parentDto));
 							} catch (Exception ex) {
 								logger.error("Error during creating of messages to send.", ex);
@@ -212,10 +217,31 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 							if (youngestPoolMessage.getCreated().compareTo(youngestTime) < 0) {
 								// Youngest message is older
 								try {
+									logger.debug("Youngest message is older than youngest time for template id " + template.getId() + " message will be sent.");
 									messageDtoList.addAll(createMessageToSend(template, parentDto));
 								} catch (Exception ex) {
 									logger.error("Error during creating of messages to send.", ex);
 								}
+							} else {
+								Period oldestPeriod = new Period(oldestPoolMessage.getCreated().getMillis() - oldestTime.getMillis());
+								Period youngestPeriod = new Period(youngestPoolMessage.getCreated().getMillis() - youngestTime.getMillis());
+								Period period = oldestPeriod.getMillis() < youngestPeriod.getMillis() ? oldestPeriod : youngestPeriod;
+								String remainingTime = "";
+								if (period.getDays() > 0) {
+									remainingTime += period.getDays() + " days ";
+								}
+								if (period.getHours() > 0) {
+									remainingTime += period.getHours() + " hours ";
+								}
+								if (period.getMinutes() > 0) {
+									remainingTime += period.getMinutes()+ " minutes ";
+								}
+								if (period.getSeconds()> 0) {
+									remainingTime += period.getSeconds()+ " sec.";
+								}
+								logger.debug("The time limits for messages are greater that messages creation time for template id " + template.getId() + ", the message will not be sent yet. "
+								+ "Provided no messages is created, the notification will be sent in " + remainingTime);
+
 							}
 						}
 					}
@@ -262,12 +288,13 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	/**
 	 * Creates message which can be send using different ways defined in
 	 * typeOfReceiver Every typeOfReceiver creates own Instance of
-	 * PerunNotifMessageToSendDto, so the messages can be later send in batch
+	 * PerunNotifMessageToSendDto, so the messages can be later send in
+	 * batch
 	 * <p/>
 	 * Allowed syntax of variables in text -
 	 * #{cz.metacentrum.perun.core.api.Destination.getId#} - #{for(regexId)
-	 * "repeatable message ${cz.metacentrum.perun.core.api.Destination.getId$}"
-	 * #}
+	 * "repeatable message
+	 * ${cz.metacentrum.perun.core.api.Destination.getId$}" #}
 	 *
 	 * @param template
 	 * @param dto
@@ -291,9 +318,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		container.put("perunSession", session);
 		container.put("perun", perun);
 
-		String messageContent = compileTemplate(Integer.valueOf(template.getId()).toString(), dto.getLocale(), container);
-		String subjectContent = compileTemplate(Integer.valueOf(template.getId()).toString() + "-subject", dto.getLocale(), container);
-
 		// We get all used pool ids so we can erase them later
 		Set<Integer> usedPoolIds = new HashSet<Integer>();
 		for (PerunNotifPoolMessage message : dto.getList()) {
@@ -304,6 +328,8 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		List<PerunNotifMessageDto> result = new ArrayList<PerunNotifMessageDto>();
 		for (PerunNotifReceiver receiver : template.getReceivers()) {
 			PerunNotifMessageDto messageDto = new PerunNotifMessageDto();
+			String messageContent = compileTemplate(Integer.toString(template.getId()), receiver.getLocale(), container);
+			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject", receiver.getLocale(), container);
 			messageDto.setMessageToSend(messageContent);
 			messageDto.setPoolMessage(dto);
 			messageDto.setUsedPoolIds(usedPoolIds);
@@ -321,7 +347,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		StringWriter stringWriter = new StringWriter(4096);
 
-		Template freeMarkerTemplate = this.configuration.getTemplate(templateName, locale);
+		Template freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
 
 		freeMarkerTemplate.process(container, stringWriter);
 
@@ -336,15 +362,21 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) {
+	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException {
 
-		return allTemplatesById.get(id);
+		return perunNotifTemplateDao.getPerunNotifTemplateById(id);
 	}
 
 	@Override
 	public PerunNotifTemplate getPerunNotifTemplateByIdFromDb(int id) throws InternalErrorException {
 
 		return perunNotifTemplateDao.getPerunNotifTemplateById(id);
+	}
+
+	@Override
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException {
+
+		return perunNotifTemplateDao.getAllPerunNotifTemplates();
 	}
 
 	private String resolveName(String command) {
@@ -413,9 +445,14 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
+		return perunNotifTemplateDao.getAllPerunNotifReceivers();
+	}
 
-		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.savePerunNotifReceiver(receiver);
+	@Override
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+
+		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
 
 		//Propagating new receiver to template
 		PerunNotifTemplate template = allTemplatesById.get(receiver.getTemplateId());
@@ -432,7 +469,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		if (!oldReceiver.getTemplateId().equals(newReceiver.getTemplateId())) {
 			//WE remove old relation between receiver and template
 			PerunNotifTemplate oldTemplate = allTemplatesById.get(oldReceiver.getTemplateId());
-			for (Iterator<PerunNotifReceiver> iter = oldTemplate.getReceivers().iterator(); iter.hasNext(); ) {
+			for (Iterator<PerunNotifReceiver> iter = oldTemplate.getReceivers().iterator(); iter.hasNext();) {
 				PerunNotifReceiver templateOldReceiver = iter.next();
 				if (templateOldReceiver.getId().equals(oldReceiver.getId())) {
 					iter.remove();
@@ -459,7 +496,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
 
 		PerunNotifTemplate perunNotifTemplate = perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
 
@@ -467,14 +504,14 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			for (PerunNotifRegex regex : template.getMatchingRegexs()) {
 				if (regex.getId() != null) {
 					//We update relation between template and regex
-					perunNotifRegexManager.saveRegexRelation(template.getId(), regex.getId());
+					perunNotifRegexManager.saveTemplateRegexRelation(template.getId(), regex.getId());
 				}
 			}
 		}
 
 		if (template.getReceivers() != null) {
 			for (PerunNotifReceiver receiver : template.getReceivers()) {
-				savePerunNotifReceiver(receiver);
+				createPerunNotifReceiver(receiver);
 			}
 		}
 
@@ -494,41 +531,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		PerunNotifTemplate oldTemplate = getPerunNotifTemplateById(template.getId());
 		perunNotifTemplateDao.updatePerunNotifTemplateData(template);
-
-		Set<PerunNotifRegex> oldRegexes = new HashSet<PerunNotifRegex>(oldTemplate.getMatchingRegexs());
-		for (PerunNotifRegex regex : template.getMatchingRegexs()) {
-			if (!oldRegexes.remove(regex)) {
-				//Regex was not in old regexes
-				//We update relation between template and regex
-				perunNotifRegexManager.saveRegexRelation(template.getId(), regex.getId());
-			}
-		}
-
-		for (PerunNotifRegex regexToRemove : oldRegexes) {
-			perunNotifRegexManager.removePerunNotifTemplateRegexRelation(template.getId(), regexToRemove.getId());
-			List<PerunNotifTemplate> listOfTemplates = allTemplatesByRegexId.get(regexToRemove.getId());
-			for (Iterator<PerunNotifTemplate> iter = listOfTemplates.iterator(); iter.hasNext(); ) {
-				PerunNotifTemplate myTemplate = iter.next();
-				if (myTemplate.getId() == template.getId()) {
-					iter.remove();
-				}
-			}
-		}
-
-		Set<PerunNotifReceiver> oldReceivers = new HashSet<PerunNotifReceiver>(oldTemplate.getReceivers());
-		for (PerunNotifReceiver receiver : template.getReceivers()) {
-			oldReceivers.remove(receiver);
-			//Receiver is not in db
-			if (receiver.getId() == null) {
-				savePerunNotifReceiver(receiver);
-			} else {
-				updatePerunNotifReceiver(receiver);
-			}
-		}
-
-		for (PerunNotifReceiver receiversToRemove : oldReceivers) {
-			removePerunNotifReceiverById(receiversToRemove.getId());
-		}
 
 		PerunNotifTemplate updatedTemplate = getPerunNotifTemplateById(template.getId());
 
@@ -565,7 +567,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		perunNotifTemplateDao.removePerunNotifReceiverById(id);
 
 		PerunNotifTemplate template = allTemplatesById.get(receiverToRemove.getTemplateId());
-		for (Iterator<PerunNotifReceiver> iter = template.getReceivers().iterator(); iter.hasNext(); ) {
+		for (Iterator<PerunNotifReceiver> iter = template.getReceivers().iterator(); iter.hasNext();) {
 			PerunNotifReceiver myReceiver = iter.next();
 			if (myReceiver.getId().equals(receiverToRemove.getId())) {
 				iter.remove();
@@ -583,9 +585,14 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
+		return perunNotifTemplateDao.getAllPerunNotifTemplateMessages();
+	}
 
-		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.savePerunNotifTemplateMessage(message);
+	@Override
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+
+		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.createPerunNotifTemplateMessage(message);
 
 		PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
 		template.addPerunNotifTemplateMessage(message);
@@ -602,13 +609,25 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		PerunNotifTemplateMessage oldMessage = perunNotifTemplateDao.getPerunNotifTemplateMessageById(message.getId());
 		PerunNotifTemplateMessage newMessage = perunNotifTemplateDao.updatePerunNotifTemplateMessage(message);
 
-		if (oldMessage.getId() != newMessage.getId()) {
+		if (oldMessage.getTemplateId() != newMessage.getTemplateId()) {
 			//Template message has changed template
 			PerunNotifTemplate oldTemplate = allTemplatesById.get(oldMessage.getTemplateId());
 			oldTemplate.getPerunNotifTemplateMessages().remove(oldMessage);
 
 			PerunNotifTemplate newTemplate = allTemplatesById.get(newMessage.getTemplateId());
 			newTemplate.addPerunNotifTemplateMessage(newMessage);
+
+			for (List<PerunNotifTemplate> templateList : allTemplatesByRegexId.values()) {
+ 				for (PerunNotifTemplate template : templateList) {
+ 					if (template.getId() == oldTemplate.getId()) {
+ 						template.getPerunNotifTemplateMessages().remove(oldMessage);
+ 					}
+ 					if (template.getId() == newTemplate.getId()) {
+ 						template.addPerunNotifTemplateMessage(newMessage);
+ 					}
+ 				}
+ 			}
+
 		} else {
 			//We only update templateMessage
 			PerunNotifTemplate template = allTemplatesById.get(newMessage.getTemplateId());
@@ -617,13 +636,12 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				if (myMessage.getId() == newMessage.getId()) {
 
 					myMessage.update(newMessage);
-					return newMessage;
 				}
 			}
 		}
 
 		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
-		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
+		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, newMessage);
 
 		configuration.clearTemplateCache();
 
@@ -658,13 +676,45 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		allTemplatesById.remove(id);
 		for (PerunNotifRegex regex : template.getMatchingRegexs()) {
 			List<PerunNotifTemplate> templatestInRegex = allTemplatesByRegexId.get(regex.getId());
-			for (Iterator<PerunNotifTemplate> iter = templatestInRegex.iterator(); iter.hasNext(); ) {
+			for (Iterator<PerunNotifTemplate> iter = templatestInRegex.iterator(); iter.hasNext();) {
 				PerunNotifTemplate myTemplate = iter.next();
 				if (myTemplate.getId() == id) {
 					iter.remove();
 				}
 			}
 		}
+	}
+
+	@Override
+	public void assignTemplateToRegex(int regexId, PerunNotifTemplate template) {
+		List<PerunNotifTemplate> templates = allTemplatesByRegexId.get(regexId);
+		if (templates == null) {
+			templates = new ArrayList<>();
+			templates.add(template);
+			allTemplatesByRegexId.put(regexId, templates);
+		} else {
+			templates.add(template);
+		}
+	}
+
+	@Override
+	public void removeTemplateFromRegex(int regexId, int templateId) throws InternalErrorException {
+		List<PerunNotifTemplate> templates = allTemplatesByRegexId.get(regexId);
+		if (templates == null) {
+			throw new InternalErrorException("The regex id " + regexId + " has no templates in the cache, therefore template id " + templateId + " cannot be removed.");
+		}
+
+		for (Iterator<PerunNotifTemplate> iter = templates.iterator(); iter.hasNext();) {
+			PerunNotifTemplate myTemplate = iter.next();
+			if (myTemplate.getId() == templateId) {
+				iter.remove();
+				if (templates.isEmpty()) {
+					allTemplatesByRegexId.remove(regexId);
+				}
+				return;
+			}
+		}
+		throw new InternalErrorException("The regex id " + regexId + " doesn't relate to template id " + templateId + " in the cache, removing failed.");
 	}
 
 	@Override

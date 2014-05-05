@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Updates a NotifTemplateMessage. Id is required field.
+--------------------------------------
+Available options:
+ --NotifTemplateMessageId        | -i NotifTemplateMessage id
+ --templateId                    | -t template id
+ --locale                        | -l locale
+ --message                       | -m message
+ --subject                       | -s subject
+ --batch                         | -b batch
+ --help                          | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($id, $templateId, $locale, $message, $subject);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, "NotifTemplateMessageId|i=i" => \$id,
+ "templateId|t=i" => \$templateId, "locale|l=s" => \$locale, "message|m=s" => \$message, "subject|s=s" => \$subject) || die help(); 
+
+unless (defined($id)) {die "ERROR: NotifTemplateMessage: id is required\n"}
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+
+my $object = $notifAgent->getPerunNotifTemplateMessageById(id => $id);
+
+if (defined($templateId)) {
+    $object->setTemplateId($templateId);
+}
+
+if (defined($message)) {
+    $object->setMessage($message);
+}
+
+if (defined($subject)) {
+    $object->setSubject($subject);
+}
+
+$object = $notifAgent->updatePerunNotifTemplateMessage(message => $object);
+
+printMessage("NotifTemplateMessage Id:".$id." successfully updates", $batch);

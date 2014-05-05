@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printTable getSortingFunction);
+
+sub help {
+return qq{
+Find NotifTemplate by id. Id is required field.
+------------------------
+Available options:
+ --NotifTemplateId      | -i NotifTemplate id
+ --batch                | -b batch
+ --help                 | -h prints this help
+
+};
+}
+
+our $batch;
+my $objectId;
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "NotifTemplateId|i=i" => \$objectId)|| die help();
+
+# Check options
+unless (defined($objectId)) { die "ERROR: NotifTemplate: Id is required \n";}
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent();
+
+my $object = $notifAgent->getPerunNotifTemplateById(id => $objectId);
+#output
+if (defined($object->getId)) {
+	my $sortingFunction = getSortingFunction("getName", 1);
+	printTable($sortingFunction, $object);
+} else { die "NotifTemplate with id $objectId does not exist \n";}

@@ -28,10 +28,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Listener for auditor messages
- * Handles receive of auditer message, storing to db to ensure processing
- * Then starts processing ending in creation of poolMessage
- * If process is finished than auditer message is removed from db
+ * Listener for auditor messages Handles receive of auditer message, storing to
+ * db to ensure processing Then starts processing ending in creation of
+ * poolMessage If process is finished than auditer message is removed from db
  *
  * @author tomas.tunkl
  */
@@ -85,26 +84,37 @@ public class NotificationListener implements DisposableBean {
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(new ProcessOldPerunNotifAuditMessagesRunnable(), 0, 300, TimeUnit.SECONDS);
+		scheduler.scheduleAtFixedRate(new ProcessPerunAuditMessagesRunnable(), 150, 300, TimeUnit.SECONDS);
 	}
 
 	private class ProcessOldPerunNotifAuditMessagesRunnable implements Runnable {
 
 		@Override
 		public void run() {
-
 			try {
 				processOldPerunNotifAuditMessages();
 			} catch (Exception ex) {
 				logger.error("Processing of old perunNotifAuditMessages has failed.", ex);
-				return;
 			}
 		}
 	}
 
-	public void start() {
+	private class ProcessPerunAuditMessagesRunnable implements Runnable {
 
-		while (running) {
-			oldProcessLock.lock();
+		@Override
+		public void run() {
+			try {
+				processPerunAuditMessages();
+			} catch (Exception ex) {
+				logger.error("Processing of perun AuditMessages has failed.", ex);
+			}
+		}
+	}
+
+	public void processPerunAuditMessages() {
+		logger.debug("Processing perun AuditMessages");
+		oldProcessLock.lock();
+		try {
 			readLock.lock();
 			List<PerunNotifAuditMessage> perunNotifAuditMessages = new ArrayList<PerunNotifAuditMessage>();
 			try {
@@ -125,12 +135,14 @@ public class NotificationListener implements DisposableBean {
 			for (PerunNotifAuditMessage perunAuditMessage : perunNotifAuditMessages) {
 				processPerunNotifAuditMessage(perunAuditMessage, session);
 			}
+		} finally {
 			oldProcessLock.unlock();
 		}
 	}
 
 	/**
-	 * Handles processing of auditer message and in case of success removes auditer message from db
+	 * Handles processing of auditer message and in case of success removes
+	 * auditer message from db
 	 *
 	 * @param perunAuditMessage
 	 * @param session
@@ -152,7 +164,8 @@ public class NotificationListener implements DisposableBean {
 			Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
 			logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds + "; now getting templateIds.");
 			if (regexIds == null || regexIds.isEmpty()) {
-				logger.info("Message is not recognized: " + perunAuditMessage.getMessage());
+				logger.info("Message is not recognized, will be deleted: " + perunAuditMessage.getMessage());
+				perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
 				return;
 			}
 			List<PerunNotifPoolMessage> perunNotifPoolMessages = null;
@@ -177,7 +190,7 @@ public class NotificationListener implements DisposableBean {
 			logger.info("Removing saved perunMessage with id=" + perunAuditMessage.getId());
 			perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
 		} catch (Exception ex) {
-			logger.error("Error during process of perun notif audit message: {}", perunAuditMessage.getId(), ex);
+			logger.error("Error during process of perun notif audit message: " + perunAuditMessage.getId(), ex);
 		} finally {
 			processSemaphore.release();
 		}

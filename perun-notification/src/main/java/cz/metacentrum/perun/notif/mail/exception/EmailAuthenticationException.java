@@ -5,14 +5,12 @@ package cz.metacentrum.perun.notif.mail.exception;
  */
 public class EmailAuthenticationException extends EmailException {
 
-
 	private static final long serialVersionUID = -3518304048940117166L;
 
 	/**
 	 * Constructor for EmailAuthenticationException.
 	 *
-	 * @param msg
-	 *            message
+	 * @param msg message
 	 */
 	public EmailAuthenticationException(String msg) {
 		super(msg);
@@ -21,10 +19,8 @@ public class EmailAuthenticationException extends EmailException {
 	/**
 	 * Constructor for EmailAuthenticationException.
 	 *
-	 * @param msg
-	 *            the detail message
-	 * @param cause
-	 *            the root cause from the mail API in use
+	 * @param msg the detail message
+	 * @param cause the root cause from the mail API in use
 	 */
 	public EmailAuthenticationException(String msg, Throwable cause) {
 		super(msg, cause);
@@ -33,8 +29,7 @@ public class EmailAuthenticationException extends EmailException {
 	/**
 	 * Constructor for EmailAuthenticationException.
 	 *
-	 * @param cause
-	 *            the root cause from the mail API in use
+	 * @param cause the root cause from the mail API in use
 	 */
 	public EmailAuthenticationException(Throwable cause) {
 		super("Authentication failed", cause);

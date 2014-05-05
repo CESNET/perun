@@ -22,7 +22,7 @@ public class PerunNotifAuditMessageManagerImpl implements PerunNotifAuditMessage
 	private PerunNotifAuditMessageDao perunNotifAuditMessageDao;
 
 	public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String message,
-			PerunSession session) throws InternalErrorException {
+		PerunSession session) throws InternalErrorException {
 
 		return perunNotifAuditMessageDao.save(message);
 	}

@@ -13,11 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manager for rpc
- * User: tomastunkl
- * Date: 14.10.12
- * Time: 21:29
- * To change this template use File | Settings | File Templates.
+ * Manager for rpc User: tomastunkl Date: 14.10.12 Time: 21:29 To change this
+ * template use File | Settings | File Templates.
  */
 @Service("perunNotifNotificationManager")
 public class PerunNotifNotificationManagerImpl implements PerunNotifNotificationManager {
@@ -32,15 +29,21 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	private PerunNotifObjectManager perunNotifObjectManager;
 
 	@Override
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException{
+	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException {
 
 		return perunNotifObjectManager.getPerunNotifObjectById(id);
 	}
 
 	@Override
-	public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public List<PerunNotifObject> getAllPerunNotifObjects() {
 
-		return perunNotifObjectManager.savePerunNotifObject(object);
+		return perunNotifObjectManager.getAllPerunNotifObjects();
+	}
+
+	@Override
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+
+		return perunNotifObjectManager.createPerunNotifObject(object);
 	}
 
 	@Override
@@ -61,9 +64,14 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
+		return perunNotifTemplateManager.getAllPerunNotifReceivers();
+	}
 
-		return perunNotifTemplateManager.savePerunNotifReceiver(receiver);
+	@Override
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+
+		return perunNotifTemplateManager.createPerunNotifReceiver(receiver);
 	}
 
 	@Override
@@ -84,8 +92,13 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
-		return perunNotifRegexManager.savePerunNotifRegex(regex);
+	public List<PerunNotifRegex> getAllPerunNotifRegexes() {
+		return perunNotifRegexManager.getAllPerunNotifRegexes();
+	}
+
+	@Override
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+		return perunNotifRegexManager.createPerunNotifRegex(regex);
 	}
 
 	@Override
@@ -106,9 +119,14 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
+		return perunNotifTemplateManager.getAllPerunNotifTemplateMessages();
+	}
 
-		return perunNotifTemplateManager.savePerunNotifTemplate(template);
+	@Override
+	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+
+		return perunNotifTemplateManager.createPerunNotifTemplate(template);
 	}
 
 	@Override
@@ -124,8 +142,13 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
-		return perunNotifTemplateManager.savePerunNotifTemplateMessage(message);
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException {
+		return perunNotifTemplateManager.getAllPerunNotifTemplates();
+	}
+
+	@Override
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+		return perunNotifTemplateManager.createPerunNotifTemplateMessage(message);
 	}
 
 	@Override
@@ -150,8 +173,23 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+		perunNotifRegexManager.saveTemplateRegexRelation(templateId, regexId);
+	}
+
+	@Override
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) throws InternalErrorException {
+		return perunNotifRegexManager.getRelatedRegexesForTemplate(templateId);
+	}
+
+	@Override
 	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) throws InternalErrorException {
 		perunNotifRegexManager.removePerunNotifTemplateRegexRelation(templateId, regexId);
+	}
+
+	@Override
+	public void saveObjectRegexRelation(int regexId, int objectId) throws InternalErrorException {
+		perunNotifObjectManager.saveObjectRegexRelation(regexId, objectId);
 	}
 
 	@Override

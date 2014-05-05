@@ -17,9 +17,7 @@ import java.util.List;
 /**
  * Jdbc implementation of PerunNotifObjectDao
  *
- * User: tomastunkl
- * Date: 01.11.12
- * Time: 22:57
+ * User: tomastunkl Date: 01.11.12 Time: 22:57
  */
 @Repository("perunNotifObjectDao")
 public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNotifObjectDao {
@@ -27,7 +25,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectDao.class);
 
 	@Override
-	public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
 		logger.debug("Saving PerunNotifObject: {} to db.", object);
 		int newPerunNotifObjectId = Utils.getNewId(this.getJdbcTemplate(), "pn_object_id_seq");
@@ -42,7 +40,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
 		logger.debug("Updating object in db: {}", object);
-		this.getJdbcTemplate().update("update pn_object set properties = ?, name = ?, class_name = ? where id = ?", object.getSerializedProperties(), object.getName(), object.getObjectClass().toString(), object.getId());
+		this.getJdbcTemplate().update("update pn_object set properties = ?, name = ?, class_name = ? where id = ?", object.getSerializedProperties(), object.getName(), object.getObjectClass().getName(), object.getId());
 
 		PerunNotifObject result = getPerunNotifObjectById(object.getId());
 		logger.debug("PerunNotifObject updated in db, returning object: {}", result);

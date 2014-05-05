@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Removes relation between NotifTemplate and NotifRegex by id. Both Id are required.
+------------------------------------
+Available options:
+ --NotifTemplateId   | -t id of the NotifTemplate
+ --NotifRegexId      | -r id of the NotifRegex
+ --batch             | -b batch
+ --help              | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($templateId, $regexId);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, 
+ "NotifTemplateId|t=i" => \$templateId, "NotifRegexId|r=i" => \$regexId) || die help(); 
+
+# Check options
+unless (defined($templateId)) {die "ERROR: NotifTemplate: id is required\n";}
+unless (defined($regexId)) {die "ERROR: NotifRegex: id is required\n";}
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+
+
+$notifAgent->removePerunNotifTemplateRegexRelation(templateId => $templateId, regexId => $regexId);
+
+printMessage("Successfully removed relation between NotifTemplate Id:$templateId and NotifRegex Id:$regexId", $batch);

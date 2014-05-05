@@ -22,7 +22,7 @@ public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements Per
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifAuditMessageDao.class);
 
-	public PerunNotifAuditMessage save(String message) throws InternalErrorException{
+	public PerunNotifAuditMessage save(String message) throws InternalErrorException {
 
 		logger.debug("Saving perunNotifAuditMessage to db: message = {}", message);
 

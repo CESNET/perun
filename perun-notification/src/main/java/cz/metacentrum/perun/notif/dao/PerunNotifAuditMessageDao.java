@@ -15,6 +15,7 @@ public interface PerunNotifAuditMessageDao {
 
 	/**
 	 * Saves message to db and creates perunNotifAuditMessage
+	 *
 	 * @param message
 	 * @return
 	 */
@@ -22,6 +23,7 @@ public interface PerunNotifAuditMessageDao {
 
 	/**
 	 * Removes perunNotifAuditMessage using id of perunNotifAuditMessage
+	 *
 	 * @param id
 	 */
 	public void remove(long id);
@@ -29,6 +31,7 @@ public interface PerunNotifAuditMessageDao {
 	/**
 	 * Gets all perun messages from db, these messages were not processed
 	 * This can happen for example during restart of server
+	 *
 	 * @return
 	 */
 	public List<PerunNotifAuditMessage> getAll();

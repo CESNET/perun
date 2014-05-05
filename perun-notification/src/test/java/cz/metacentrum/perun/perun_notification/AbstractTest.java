@@ -22,7 +22,7 @@ import java.sql.Statement;
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-jdbc-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml" })
+@ContextConfiguration(locations = {"classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-jdbc-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml"})
 public class AbstractTest {
 
 	protected static ApplicationContext springCtx;
@@ -62,7 +62,7 @@ public class AbstractTest {
 			// FIXME - we must initialize manually without other notification beans, since they can't be
 			// FIXME - instantiated in @BeforeClass (they select from DB which is empty)
 			springCtx = new ClassPathXmlApplicationContext("classpath:perun-notification-applicationcontext-jdbc-test.xml");
-			dataSource2 = ((BasicDataSource)springCtx.getBean("dataSource2"));
+			dataSource2 = ((BasicDataSource) springCtx.getBean("dataSource2"));
 
 			Connection conn = dataSource2.getConnection();
 			Statement st = conn.createStatement();

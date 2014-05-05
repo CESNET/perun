@@ -33,6 +33,7 @@ public class MessagePreparator implements MimeMessagePreparator {
 	 * Email type
 	 */
 	public static enum EmailType {
+
 		PLAIN, HTML;
 	}
 
@@ -121,7 +122,6 @@ public class MessagePreparator implements MimeMessagePreparator {
 		logger.debug("Message is prepared to send");
 	}
 
-
 	/**
 	 * Creates plain text message from freemarker template
 	 *
@@ -137,7 +137,6 @@ public class MessagePreparator implements MimeMessagePreparator {
 
 		return textPart;
 	}
-
 
 	/**
 	 * Creates HTML message from freemarker template
@@ -159,7 +158,6 @@ public class MessagePreparator implements MimeMessagePreparator {
 
 		return htmlPart;
 	}
-
 
 	/**
 	 * Creates attachment from filename
@@ -184,9 +182,9 @@ public class MessagePreparator implements MimeMessagePreparator {
 		return attachBodypart;
 	}
 
-
 	/**
 	 * Creates datahandler for both plain text and HTML messages
+	 *
 	 * @param stringBytes
 	 * @param contentType
 	 * @return
@@ -198,16 +196,13 @@ public class MessagePreparator implements MimeMessagePreparator {
 				return new BufferedInputStream(new ByteArrayInputStream(stringBytes));
 			}
 
-
 			public OutputStream getOutputStream() throws IOException {
 				throw new IOException("Read-only data");
 			}
 
-
 			public String getContentType() {
 				return contentType;
 			}
-
 
 			public String getName() {
 				return "main";
@@ -215,42 +210,41 @@ public class MessagePreparator implements MimeMessagePreparator {
 		});
 	}
 
-
 	/**
 	 * Add atachment filename
+	 *
 	 * @param filename
 	 */
 	public void addFileName(String filename) {
 		this.fileNames.add(filename);
 	}
 
-
 	/**
 	 * Add recipient bcc
+	 *
 	 * @param recipientBcc
 	 */
 	public void addRecipientBcc(String recipientBcc) {
 		this.bcc.add(recipientBcc);
 	}
 
-
 	/**
 	 * Add recipient cc
+	 *
 	 * @param recipientCc
 	 */
 	public void addRecipientCc(String recipientCc) {
 		this.cc.add(recipientCc);
 	}
 
-
 	/**
 	 * Add recipient to
+	 *
 	 * @param recipientTo
 	 */
 	public void addRecipientTo(String recipientTo) {
 		this.to.add(recipientTo);
 	}
-
 
 	/**
 	 * Clear recipient bcc
@@ -259,14 +253,12 @@ public class MessagePreparator implements MimeMessagePreparator {
 		this.bcc.clear();
 	}
 
-
 	/**
 	 * Clear recipient cc
 	 */
 	public void clearRecipientCc() {
 		this.cc.clear();
 	}
-
 
 	/**
 	 * Clear filename
@@ -275,7 +267,6 @@ public class MessagePreparator implements MimeMessagePreparator {
 		this.fileNames.clear();
 	}
 
-
 	/**
 	 * Clear recipient to
 	 */
@@ -283,16 +274,13 @@ public class MessagePreparator implements MimeMessagePreparator {
 		this.to.clear();
 	}
 
-
 	public List<String> getTo() {
 		return to;
 	}
 
-
 	public List<String> getCc() {
 		return cc;
 	}
-
 
 	public List<String> getBcc() {
 		return bcc;
@@ -302,38 +290,29 @@ public class MessagePreparator implements MimeMessagePreparator {
 		return configuration;
 	}
 
-
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}
-
 
 	public String getFrom() {
 		return from;
 	}
 
-
 	public String getSubject() {
 		return subject;
 	}
-
 
 	public List<String> getFileNames() {
 		return fileNames;
 	}
 
-
 	public EmailType getEmailType() {
 		return mailType;
 	}
 
-
-
 	public String getFromText() {
 		return fromText;
 	}
-
-
 
 	public void setFromText(String fromText) {
 		this.fromText = fromText;

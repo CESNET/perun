@@ -22,10 +22,8 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
- * Sender handles sending message to jabber of user
- * User: tomastunkl
- * Date: 24.11.12
- * Time: 0:13
+ * Sender handles sending message to jabber of user User: tomastunkl Date:
+ * 24.11.12 Time: 0:13
  */
 public class PerunNotifJabberSender implements PerunNotifSender {
 
@@ -48,7 +46,7 @@ public class PerunNotifJabberSender implements PerunNotifSender {
 	@PostConstruct
 	public void init() throws Exception {
 		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-		this.jabberServer = (String)  propertiesBean.get("notif.jabber.jabberServer");
+		this.jabberServer = (String) propertiesBean.get("notif.jabber.jabberServer");
 		this.port = Integer.valueOf((String) propertiesBean.get("notif.jabber.port"));
 		this.serviceName = (String) propertiesBean.get("notif.jabber.serviceName");
 		this.username = (String) propertiesBean.get("notif.jabber.username");

@@ -3,10 +3,8 @@ package cz.metacentrum.perun.notif.exceptions;
 import java.util.List;
 
 /**
- * Exception is thrown when regex is tried to remove but is still referenced from templates
- * User: tomastunkl
- * Date: 21.10.12
- * Time: 15:14
+ * Exception is thrown when regex is tried to remove but is still referenced
+ * from templates User: tomastunkl Date: 21.10.12 Time: 15:14
  */
 public class PerunNotifRegexUsedException extends Exception {
 

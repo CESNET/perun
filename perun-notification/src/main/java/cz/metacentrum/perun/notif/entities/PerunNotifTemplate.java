@@ -1,12 +1,8 @@
 package cz.metacentrum.perun.notif.entities;
 
-import cz.metacentrum.perun.notif.enums.PerunNotifLocale;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -24,8 +20,7 @@ public class PerunNotifTemplate {
 	/**
 	 * Unique identifier of template
 	 *
-	 * Column id
-	 * Sequence pn_template_id_seq
+	 * Column id Sequence pn_template_id_seq
 	 */
 	private int id;
 
@@ -35,8 +30,9 @@ public class PerunNotifTemplate {
 	private String name;
 
 	/**
-	 * Regexes to recognize affiliation to this template, if notifyTrigger waits for
-	 * all regexes to execute notify, the regexes are taken from here.
+	 * Regexes to recognize affiliation to this template, if notifyTrigger
+	 * waits for all regexes to execute notify, the regexes are taken from
+	 * here.
 	 *
 	 * Relation saved in pn_template_regex
 	 */
@@ -50,10 +46,11 @@ public class PerunNotifTemplate {
 	private Set<PerunNotifReceiver> receivers;
 
 	/**
-	 * Holds primary properties which are parsed from message
-	 * These properties are same for every auditerMessage which we collect
+	 * Holds primary properties which are parsed from message These
+	 * properties are same for every auditerMessage which we collect
 	 * Example: User is same in every message but content is different
-	 * Properties are key which is className of object and values, which are properties retrievable from class
+	 * Properties are key which is className of object and values, which are
+	 * properties retrievable from class
 	 *
 	 * Column primary_properties
 	 */
@@ -67,36 +64,31 @@ public class PerunNotifTemplate {
 	private PerunNotifNotifyTrigger notifyTrigger;
 
 	/**
-	 * Contains freemarker templates which are used to create content of result message
+	 * Contains freemarker templates which are used to create content of
+	 * result message
 	 *
 	 */
 	private List<PerunNotifTemplateMessage> perunNotifTemplateMessages;
 
 	/**
-	 * Defines millis of oldest message waiting to be sent. If message is older
-	 * messages is always sent. Can be disabled, based on notifyTrigger
+	 * Defines millis of oldest message waiting to be sent. If message is
+	 * older messages is always sent. Can be disabled, based on
+	 * notifyTrigger
 	 *
 	 * Column oldest_message_time
 	 */
 	private Long oldestMessageTime;
 
 	/**
-	 * Time to the youngest message, if message is younger we expect another message soon and we wait
-	 * so we can aggregate
+	 * Time to the youngest message, if message is younger we expect another
+	 * message soon and we wait so we can aggregate
 	 *
 	 * Column youngest_message_time
 	 */
 	private Long youngestMessageTime;
 
 	/**
-	 * Defines method which returns locale which will be used to localize message
-	 *
-	 * Column locale
-	 */
-	private String locale;
-
-	/**
-	 * String value which is used  as sender of message
+	 * String value which is used as sender of message
 	 *
 	 * Column sender
 	 */
@@ -188,14 +180,6 @@ public class PerunNotifTemplate {
 		this.perunNotifTemplateMessages = perunNotifTemplateMessages;
 	}
 
-	public String getLocale() {
-		return locale;
-	}
-
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
-
 	public String getSender() {
 		return sender;
 	}
@@ -242,7 +226,6 @@ public class PerunNotifTemplate {
 			template.setNotifyTrigger(PerunNotifNotifyTrigger.resolve(rs.getString("notify_trigger")));
 			template.setYoungestMessageTime(rs.getLong("youngest_message_time"));
 			template.setOldestMessageTime(rs.getLong("oldest_message_time"));
-			template.setLocale(rs.getString("locale"));
 			template.setSender(rs.getString("sender"));
 
 			return template;
@@ -254,42 +237,24 @@ public class PerunNotifTemplate {
 
 	private static Map<String, List<String>> parseMapWithList(String row) {
 
-		if (row == null) {
+		if ((row == null) || (row.isEmpty())) {
 			return null;
 		}
 
 		Map<String, List<String>> result = new HashMap<String, List<String>>();
 
-		String[] splittedValue = row.split(PerunNotifTemplate.MAP_DELIMITER);
-		for (String entry : splittedValue) {
-			String key = entry.substring(0, entry.indexOf("="));
-			String values = entry.substring(entry.indexOf("=") + 1);
-			String[] parsedValues = values.split(PerunNotifTemplate.LIST_DELIMITER);
+		try {
+			String[] splittedValue = row.split(PerunNotifTemplate.MAP_DELIMITER);
+			for (String entry : splittedValue) {
+				String key = entry.substring(0, entry.indexOf("="));
+				String values = entry.substring(entry.indexOf("=") + 1);
+				String[] parsedValues = values.split(PerunNotifTemplate.LIST_DELIMITER);
 
-			result.put(key, Arrays.asList(parsedValues));
-		}
-
-		return result;
-	}
-
-	private static Map<PerunNotifLocale, String> parseMapWithLocale(String row) throws UnsupportedEncodingException {
-
-		if (row == null) {
+				result.put(key, Arrays.asList(parsedValues));
+			}
+		} catch (StringIndexOutOfBoundsException ex) {
 			return null;
 		}
-
-		Map<PerunNotifLocale, String> result = new HashMap<PerunNotifLocale, String>();
-
-		String[] splittedValue = row.split(PerunNotifTemplate.MAP_DELIMITER);
-		for (String entry : splittedValue) {
-			String key = entry.substring(0, entry.indexOf("="));
-			String value = entry.substring(entry.indexOf("=") + 1);
-
-			PerunNotifLocale locale = PerunNotifLocale.resolvePerunNotifLocale(key);
-
-			result.put(locale, URLDecoder.decode(value, "utf-8"));
-		}
-
 		return result;
 	}
 
@@ -301,11 +266,11 @@ public class PerunNotifTemplate {
 	private String serializePropertiesMap(Map<String, List<String>> map) {
 
 		StringBuilder builder = new StringBuilder();
-		for (Iterator<String> keyIterator = map.keySet().iterator(); keyIterator.hasNext(); ) {
+		for (Iterator<String> keyIterator = map.keySet().iterator(); keyIterator.hasNext();) {
 			String key = keyIterator.next();
 			builder.append(key + "=");
 			List<String> list = map.get(key);
-			for (Iterator<String> listIter = list.iterator(); listIter.hasNext(); ) {
+			for (Iterator<String> listIter = list.iterator(); listIter.hasNext();) {
 				String listItem = listIter.next();
 				builder.append(listItem);
 				if (listIter.hasNext()) {
@@ -320,29 +285,27 @@ public class PerunNotifTemplate {
 		return builder.toString();
 	}
 
-	private String serializeSubjectMap(Map<PerunNotifLocale, String> subjectMap) throws UnsupportedEncodingException {
-
-		StringBuilder builder = new StringBuilder();
-		for (Iterator<PerunNotifLocale> keyIterator = subjectMap.keySet().iterator(); keyIterator.hasNext(); ) {
-			PerunNotifLocale key = keyIterator.next();
-			builder.append(key.getKey() + "=");
-			builder.append(URLEncoder.encode(subjectMap.get(key), "utf-8"));
-			if (keyIterator.hasNext()) {
-				builder.append(MAP_DELIMITER);
-			}
-		}
-
-		return builder.toString();
+	@Override
+	public String toString() {
+		return "id: " + getId() + " primary properties: " + getSerializedPrimaryProperties() + " notify trigger: " + getNotifyTrigger()
+			+ " youngest message time: " + getYoungestMessageTime() + " oldest message time: " + getOldestMessageTime()
+			+ " sender: " + getSender() + " name: " + getName();
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof PerunNotifTemplate)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof PerunNotifTemplate)) {
+			return false;
+		}
 
 		PerunNotifTemplate that = (PerunNotifTemplate) o;
 
-		if (id != that.id) return false;
+		if (id != that.id) {
+			return false;
+		}
 
 		return true;
 	}
@@ -357,7 +320,6 @@ public class PerunNotifTemplate {
 		result = 31 * result + (perunNotifTemplateMessages != null ? perunNotifTemplateMessages.hashCode() : 0);
 		result = 31 * result + (oldestMessageTime != null ? oldestMessageTime.hashCode() : 0);
 		result = 31 * result + (youngestMessageTime != null ? youngestMessageTime.hashCode() : 0);
-		result = 31 * result + (locale != null ? locale.hashCode() : 0);
 		return result;
 	}
 
@@ -370,7 +332,6 @@ public class PerunNotifTemplate {
 		this.perunNotifTemplateMessages = updatedTemplate.getPerunNotifTemplateMessages();
 		this.oldestMessageTime = updatedTemplate.getOldestMessageTime();
 		this.youngestMessageTime = updatedTemplate.getYoungestMessageTime();
-		this.locale = updatedTemplate.getLocale();
 		this.sender = updatedTemplate.getSender();
 	}
 }

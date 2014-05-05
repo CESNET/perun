@@ -8,6 +8,7 @@ import java.util.*;
 
 /**
  * Holds every regex which can be used to recognize type of message
+ *
  * @author tomas.tunkl
  *
  * Table pn_regex
@@ -17,8 +18,7 @@ public class PerunNotifRegex {
 	/**
 	 * Unique identifier
 	 *
-	 * Column id
-	 * Sequence pn_regex_id_seq
+	 * Column id Sequence pn_regex_id_seq
 	 */
 	private int id;
 
@@ -109,13 +109,24 @@ public class PerunNotifRegex {
 	}
 
 	@Override
+	public String toString() {
+		return "id: " + getId() + " regex: " + getRegex() + " note: " + getNote();
+	}
+
+	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof PerunNotifRegex)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof PerunNotifRegex)) {
+			return false;
+		}
 
 		PerunNotifRegex regex1 = (PerunNotifRegex) o;
 
-		if (id != regex1.id) return false;
+		if (id != regex1.id) {
+			return false;
+		}
 
 		return true;
 	}

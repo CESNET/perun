@@ -30,11 +30,12 @@ use Perun::GeneralServiceAgent;
 use Perun::AuditMessagesAgent;
 use Perun::PropagationStatsReaderAgent;
 use Perun::CabinetAgent;
+use Perun::NotificationsAgent;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -322,4 +323,15 @@ sub getCabinetAgent {
 
 	return $self->{_cabinetAgent};
 }
+
+sub getNotificationsAgent {
+	my $self = shift;
+
+	if (!$self->{_notificationsAgent}) {
+		$self->{_notificationsAgent} = Perun::NotificationsAgent->new($self);
+
+	return $self->{_notificationsAgent};
+	}
+}
+
 1;

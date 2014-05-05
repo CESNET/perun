@@ -4,11 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Holds information about tag which we already gone through
- * User: tomastunkl
- * Date: 29.09.12
- * Time: 23:46
- * To change this template use File | Settings | File Templates.
+ * Holds information about tag which we already gone through User: tomastunkl
+ * Date: 29.09.12 Time: 23:46 To change this template use File | Settings | File
+ * Templates.
  */
 public class TagHolder {
 

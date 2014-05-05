@@ -1,17 +1,14 @@
 package cz.metacentrum.perun.notif.entities;
 
-import cz.metacentrum.perun.notif.enums.PerunNotifLocale;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.util.Locale;
 /**
  * Localized freemarker template
  *
- * User: tomastunkl
- * Date: 10.10.12
- * Time: 22:33
+ * User: tomastunkl Date: 10.10.12 Time: 22:33
  *
  * Table pn_template_message
  */
@@ -20,8 +17,7 @@ public class PerunNotifTemplateMessage {
 	/**
 	 * Unique identifier
 	 *
-	 * Column id
-	 * Sequence pn_pattern_id_seq
+	 * Column id Sequence pn_pattern_id_seq
 	 */
 	private int id;
 
@@ -37,7 +33,7 @@ public class PerunNotifTemplateMessage {
 	 *
 	 * Column locale
 	 */
-	private PerunNotifLocale locale;
+	private Locale locale;
 
 	/**
 	 * Holds freemarker template
@@ -65,11 +61,11 @@ public class PerunNotifTemplateMessage {
 		this.templateId = templateId;
 	}
 
-	public PerunNotifLocale getLocale() {
+	public Locale getLocale() {
 		return locale;
 	}
 
-	public void setLocale(PerunNotifLocale locale) {
+	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
@@ -93,6 +89,7 @@ public class PerunNotifTemplateMessage {
 
 		this.setLocale(messageFromDb.getLocale());
 		this.setMessage(messageFromDb.getMessage());
+		this.setSubject(messageFromDb.getSubject());
 	}
 
 	public static final RowMapper<PerunNotifTemplateMessage> PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER = new RowMapper<PerunNotifTemplateMessage>() {
@@ -102,7 +99,7 @@ public class PerunNotifTemplateMessage {
 			PerunNotifTemplateMessage result = new PerunNotifTemplateMessage();
 			result.setId(rs.getInt("id"));
 			result.setTemplateId(rs.getInt("template_id"));
-			result.setLocale(PerunNotifLocale.resolvePerunNotifLocale(rs.getString("locale")));
+			result.setLocale((rs.getString("locale") == null) ? null : new Locale(rs.getString("locale")));
 			result.setMessage(rs.getString("message"));
 			result.setSubject(rs.getString("subject"));
 
@@ -111,13 +108,25 @@ public class PerunNotifTemplateMessage {
 	};
 
 	@Override
+	public String toString() {
+		return "id: " + getId() + " template id: " + getTemplateId() + " locale: " + getLocale().getLanguage()
+			+ " message: " + getMessage() + " subject: " + getSubject();
+	}
+
+	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof PerunNotifTemplateMessage)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof PerunNotifTemplateMessage)) {
+			return false;
+		}
 
 		PerunNotifTemplateMessage that = (PerunNotifTemplateMessage) o;
 
-		if (id != that.id) return false;
+		if (id != that.id) {
+			return false;
+		}
 		return true;
 	}
 
@@ -127,6 +136,7 @@ public class PerunNotifTemplateMessage {
 		result = 31 * result + templateId;
 		result = 31 * result + (locale != null ? locale.hashCode() : 0);
 		result = 31 * result + (message != null ? message.hashCode() : 0);
+		result = 31 * result + (locale != null ? locale.hashCode() : 0);
 		return result;
 	}
 }

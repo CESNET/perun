@@ -25,7 +25,7 @@ import java.util.Set;
  */
 @Repository("perunNotifRegexDao")
 public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
-PerunNotifRegexDao {
+	PerunNotifRegexDao {
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifRegexDao.class);
 
@@ -34,7 +34,7 @@ PerunNotifRegexDao {
 
 		logger.debug("Getting all PerunNotifRegexes from db.");
 		List<PerunNotifRegex> result = this.getJdbcTemplate().query("SELECT * from pn_regex ",
-				PerunNotifRegex.PERUN_NOTIF_REGEX);
+			PerunNotifRegex.PERUN_NOTIF_REGEX);
 
 		logger.debug("Regexes loaded from db: {}, loading objects.", result);
 		for (PerunNotifRegex regex : result) {
@@ -137,7 +137,7 @@ PerunNotifRegexDao {
 	}
 
 	@Override
-	public void saveRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
 
 		logger.debug("Saving relation between template: {} and regex: {}", Arrays.asList(templateId, regexId));
 		int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_regex_seq");

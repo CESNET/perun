@@ -21,9 +21,8 @@ import java.util.Properties;
  * @author Tomáš Tunkl
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-notification-applicationcontext-jabber-test.xml"})
+@ContextConfiguration(locations = {"classpath:perun-notification-applicationcontext-jabber-test.xml"})
 public class JabberTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(JabberTest.class);
@@ -35,7 +34,8 @@ public class JabberTest {
 		this.propertiesBean = propertiesBean;
 	}
 
-	public JabberTest() {}
+	public JabberTest() {
+	}
 
 	@Test
 	public void testJabberTest() throws Exception {
@@ -50,7 +50,6 @@ public class JabberTest {
 			String pass = propertiesBean.getProperty("notif.jabber.password");
 
 			String sendTo = propertiesBean.getProperty("notif.jabber.test.sendTo");
-
 
 			ConnectionConfiguration config = new ConnectionConfiguration(serverName, Integer.parseInt(port), serviceName);
 			XMPPConnection connection = new XMPPConnection(config);
