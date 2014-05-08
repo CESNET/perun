@@ -253,6 +253,7 @@ case "${SERVICE}" in
 	'openvpn')   . ${SCRIPTS_DIR}/process-openvpn.sh ;;
 	'pbs_publication_fairshare')   . ${SCRIPTS_DIR}/process-pbs_publication_fairshare.sh ;;
 	'gridmap')   . ${SCRIPTS_DIR}/process-gridmap.sh ;;
+	'ldap')   . ${SCRIPTS_DIR}/process-ldap.sh ;;
 	*) log_msg E_UNSUPPORTED_SERVICE;;
 esac
 
