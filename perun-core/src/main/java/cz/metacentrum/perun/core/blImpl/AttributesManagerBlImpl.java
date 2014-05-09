@@ -5182,6 +5182,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting) {
+		//if attributeToConverting has already null value, return it
+		if(attributeToConverting.getValue() == null) return attributeToConverting;
 		String testAttributeType = attributeToConverting.getType();
 		if (testAttributeType.equals(String.class.getName()) && attributeToConverting.getValue().equals("")) {
 			attributeToConverting.setValue(null);
