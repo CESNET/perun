@@ -2911,4 +2911,12 @@ public interface AttributesManagerBl {
 	 * @throws ModuleNotExistsException
 	 */
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+	
+	/**
+	* Method returns attribute with null value if attribute has empty string;
+	* 
+	* @param attributeToConverting 
+	* @return 
+	*/
+	Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting);
 }
