@@ -61,7 +61,22 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		assertTrue("id must be greater than zero", newVo.getId() > 0);
 	}
-
+	
+	@Test
+	public void createAndUpdateVoWithLongShortName() throws Exception {
+		System.out.println(VOS_MANAGER_ENTRY + "createAndUpdateVoWithLongShortName()");
+		String longName = "1234567890123456789";
+		String longerName = "12345678901234567890123456789012";
+		Vo voWithLongShortname = new Vo(0, longName, longName);
+		
+		Vo newVo = vosManagerEntry.createVo(sess, voWithLongShortname);
+		assertTrue("id must be greater than zero", newVo.getId() > 0);
+		
+		newVo.setShortName(longerName);
+		newVo = vosManagerEntry.updateVo(sess, newVo);
+		assertTrue("newVo shortName has 32 characters length", newVo.getShortName().length() == 32);
+	}
+	
 	@Test(expected = VoExistsException.class)
 		public void createVoWhichAlreadyExists() throws Exception {
 			System.out.println(VOS_MANAGER_ENTRY + "createVoWhichAlreadyExists()");
