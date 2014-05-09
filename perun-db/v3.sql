@@ -147,8 +147,9 @@ create table destinations (
     modified_at date default sysdate not null,
     modified_by varchar2(1024) default user not null,
     status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer,
+    propagation_type varchar2(10) default 'PARALLEL'
 );
 
 create table facility_owners (
@@ -907,9 +908,8 @@ create table pn_pool_message (
     key_attributes varchar2(4000) NOT NULL,
     created date default sysdate NOT NULL,
     notif_message varchar2(1000) NOT NULL,
-    locale varchar2(5),
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table pn_receiver (
@@ -917,8 +917,9 @@ create table pn_receiver (
     target varchar2(256) NOT NULL,
     type_of_receiver varchar2(256) NOT NULL,
     template_id integer NOT NULL,
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer,
+    locale varchar2(512)
 );
 
 create table pn_regex (
@@ -937,9 +938,8 @@ create table pn_template (
     oldest_message_time integer,
     name varchar2(512),
     sender varchar2(4000),
-    locale varchar2(512),
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table pn_template_message (
