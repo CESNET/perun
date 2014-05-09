@@ -64,7 +64,7 @@ public class CreateVoTabItem implements TabItem {
 		final ExtendedTextBox shortNameTextBox = new ExtendedTextBox();
 
 		nameTextBox.getTextBox().setMaxLength(128);
-		shortNameTextBox.getTextBox().setMaxLength(16);
+		shortNameTextBox.getTextBox().setMaxLength(32);
 
 		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
