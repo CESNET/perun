@@ -618,10 +618,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, group, AttributesManager.NS_GROUP_ATTR_OPT + ":group_test_uniqueattribute");
 
-		for(Attribute a: retAttr) {
-			System.out.println(a);
-		}
-
 		assertNotNull("unable to get group attributes", retAttr);
 
 
