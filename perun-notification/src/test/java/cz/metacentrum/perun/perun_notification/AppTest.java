@@ -3,7 +3,6 @@ package cz.metacentrum.perun.perun_notification;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.entities.*;
-import cz.metacentrum.perun.notif.enums.PerunNotifLocale;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
@@ -57,12 +56,12 @@ public class AppTest extends AbstractTest {
 		}
 
 		springCtx = new ClassPathXmlApplicationContext(
-				"perun-beans.xml",
-				"perun-datasources.xml",
-				"perun-notification-applicationcontext-jdbc-test.xml",
-				"perun-notification-applicationcontext-test.xml",
-				"perun-notification-applicationcontext-scheduling-test.xml"
-				);
+			"perun-beans.xml",
+			"perun-datasources.xml",
+			"perun-notification-applicationcontext-jdbc-test.xml",
+			"perun-notification-applicationcontext-test.xml",
+			"perun-notification-applicationcontext-scheduling-test.xml"
+		);
 
 		NotificationListener notificationListener = springCtx.getBean("notificationListener", NotificationListener.class);
 
@@ -103,14 +102,13 @@ public class AppTest extends AbstractTest {
 	public void testPerunNotifNotificationManager() throws InternalErrorException, PerunNotifRegexUsedException {
 
 		ApplicationContext springCtx = new ClassPathXmlApplicationContext("perun-beans.xml",
-				"perun-datasources.xml",
-				"perun-notification-applicationcontext-jdbc-test.xml",
-				"perun-notification-applicationcontext-test.xml");
+			"perun-datasources.xml",
+			"perun-notification-applicationcontext-jdbc-test.xml",
+			"perun-notification-applicationcontext-test.xml");
 
 		PerunNotifNotificationManager manager = springCtx.getBean("perunNotifNotificationManager", PerunNotifNotificationManagerImpl.class);
 
 		PerunNotifTemplate template = new PerunNotifTemplate();
-		template.setLocale("cs");
 		template.setNotifyTrigger(PerunNotifNotifyTrigger.STREAM);
 		template.setOldestMessageTime(1L);
 		Map<String, List<String>> primaryProperties = new HashMap<String, List<String>>();
@@ -121,12 +119,11 @@ public class AppTest extends AbstractTest {
 		template.setYoungestMessageTime(0L);
 		template.setSender("sender");
 
-		manager.savePerunNotifTemplate(template);
+		manager.createPerunNotifTemplate(template);
 
 		PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(template.getId());
 		assertNotNull(templateFromDb);
 		assertEquals(template, templateFromDb);
-		assertEquals(template.getLocale(), templateFromDb.getLocale());
 		assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
 		assertEquals(template.getOldestMessageTime(), templateFromDb.getOldestMessageTime());
 		assertEquals(template.getPrimaryProperties(), templateFromDb.getPrimaryProperties());
@@ -139,7 +136,7 @@ public class AppTest extends AbstractTest {
 		properties.add("testProperty");
 		object.setProperties(properties);
 		object.setObjectClass(Member.class);
-		manager.savePerunNotifObject(object);
+		manager.createPerunNotifObject(object);
 
 		PerunNotifObject objectFromDb = manager.getPerunNotifObjectById(object.getId());
 		assertNotNull(objectFromDb);
@@ -154,7 +151,7 @@ public class AppTest extends AbstractTest {
 		Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
 		regexObjects.add(objectFromDb);
 		regex.setObjects(regexObjects);
-		manager.savePerunNotifRegex(regex);
+		manager.createPerunNotifRegex(regex);
 
 		PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(regex.getId());
 		assertNotNull(regexFromDb);
@@ -168,7 +165,7 @@ public class AppTest extends AbstractTest {
 		receiver.setTemplateId(template.getId());
 		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
 
-		manager.savePerunNotifReceiver(receiver);
+		manager.createPerunNotifReceiver(receiver);
 		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(receiver.getId());
 		assertNotNull(receiverFromDb);
 		assertEquals(receiver, receiverFromDb);
@@ -177,12 +174,12 @@ public class AppTest extends AbstractTest {
 		assertEquals(receiver.getTypeOfReceiver(), receiverFromDb.getTypeOfReceiver());
 
 		PerunNotifTemplateMessage templateMessage = new PerunNotifTemplateMessage();
-		templateMessage.setLocale(PerunNotifLocale.cs);
+		templateMessage.setLocale(new Locale("cs"));
 		templateMessage.setMessage("message");
 		templateMessage.setTemplateId(template.getId());
 		templateMessage.setSubject("cesky subject");
 
-		manager.savePerunNotifTemplateMessage(templateMessage);
+		manager.createPerunNotifTemplateMessage(templateMessage);
 		PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(templateMessage.getId());
 		assertNotNull(templateMessageFromDb);
 		assertEquals(templateMessage, templateMessageFromDb);
@@ -202,7 +199,6 @@ public class AppTest extends AbstractTest {
 		assertNotNull(templateFromDbForTest.getMatchingRegexs());
 		assertNotNull(templateFromDbForTest.getOldestMessageTime());
 		assertNotNull(templateFromDbForTest.getYoungestMessageTime());
-		assertNotNull(templateFromDbForTest.getLocale());
 		assertNotNull(templateFromDbForTest.getNotifyTrigger());
 		assertNotNull(templateFromDbForTest.getPrimaryProperties());
 		assertNotNull(templateFromDbForTest.getReceivers());

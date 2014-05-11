@@ -20,8 +20,10 @@ import cz.metacentrum.perun.notif.dao.PerunNotifRegexDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
+import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
+import java.util.ArrayList;
 
 @Service
 public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
@@ -88,7 +90,12 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 		return perunNotifRegexDao.getPerunNotifRegexById(id);
 	}
 
-	public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+	@Override
+	public List<PerunNotifRegex> getAllPerunNotifRegexes() {
+		return perunNotifRegexDao.getAll();
+	}
+
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
 
 		PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
 
@@ -158,20 +165,35 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public void saveRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
 
 		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
 			//Relation exists
 			return;
 		} else {
-			perunNotifRegexDao.saveRegexRelation(templateId, regexId);
+			perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
+			PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
+			template.addPerunNotifRegex(getPerunNotifRegexById(regexId));
+			perunNotifTemplateManager.assignTemplateToRegex(regexId, template);
 		}
+	}
+
+	@Override
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) throws InternalErrorException {
+		return new ArrayList<>(perunNotifRegexDao.getPerunNotifRegexForTemplateId(templateId));
 	}
 
 	@Override
 	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) throws InternalErrorException {
 
-		perunNotifRegexDao.removePerunNotifTemplateRegexRelation(templateId, regexId);
+		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
+			perunNotifRegexDao.removePerunNotifTemplateRegexRelation(templateId, regexId);
+			PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
+			template.getMatchingRegexs().remove(getPerunNotifRegexById(regexId));
+			perunNotifTemplateManager.removeTemplateFromRegex(regexId, templateId);
+		} else {
+			throw new InternalErrorException("Template - Regex relation cannot be removed, because does not exist.");
+		}
 	}
 
 	@Override
@@ -201,7 +223,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	public void removePerunNotifObjectFromCache(PerunNotifObject objectToRemove) {
 
 		boolean removed = false;
-		for (Iterator<PerunNotifObject> iter = allObjects.iterator(); iter.hasNext(); ) {
+		for (Iterator<PerunNotifObject> iter = allObjects.iterator(); iter.hasNext();) {
 			PerunNotifObject objectFromCache = iter.next();
 			if (objectFromCache.getId().equals(objectToRemove.getId())) {
 				iter.remove();

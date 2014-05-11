@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable); 
+
+sub help {
+return qq{
+Prints list of all Notif Receivers.
+---------------------------------------
+Available options:
+ --orderByTarget | -t order by target
+ --orderById     | -i order by id (default)
+ --batch         | -b batch
+ --help          | -h prints this help
+ 
+};
+}
+
+my $sortingFunction;
+our $batch;
+GetOptions ("help|h" => sub { print help; exit 0;} ,"batch|b" => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },"orderByTarget|t" => sub {$sortingFunction = getSortingFunction("getTarget", 1); } ) || die help; 
+
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+my @objects = $notifAgent->getAllPerunNotifReceivers;
+unless(@objects) { printMessage "No NotifReceivers found", $batch;  exit 0;}
+
+printTable($sortingFunction, @objects);

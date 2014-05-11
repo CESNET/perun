@@ -8,7 +8,9 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Holds PerunNotifPoolMessages aggregated for user and templateId, and same keyAttributes
+ * Holds PerunNotifPoolMessages aggregated for user and templateId, and same
+ * keyAttributes
+ *
  * @author tomas.tunkl
  *
  */
@@ -25,14 +27,10 @@ public class PoolMessage {
 	private Map<String, String> keyAttributes;
 
 	/**
-	 * PerunNotifPoolMessages from db, which has common keyAttributes and templateIds
+	 * PerunNotifPoolMessages from db, which has common keyAttributes and
+	 * templateIds
 	 */
 	private List<PerunNotifPoolMessage> list;
-
-	/**
-	 * Locale common for all messages, used for main language of result message
-	 */
-	private Locale locale;
 
 	public Integer getTemplateId() {
 		return templateId;
@@ -54,14 +52,6 @@ public class PoolMessage {
 		return list;
 	}
 
-	public Locale getLocale() {
-		return locale;
-	}
-
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
-
 	public void addToList(PerunNotifPoolMessage message) {
 		if (list == null) {
 			list = new ArrayList<PerunNotifPoolMessage>();
@@ -69,4 +59,11 @@ public class PoolMessage {
 
 		list.add(message);
 	}
+
+	@Override
+	public String toString() {
+		return "PoolMessage{" + "templateId=" + templateId + ", keyAttributes=" + keyAttributes + ", list=" + list + '}';
+	}
+
+	
 }

@@ -12,18 +12,16 @@ import java.util.Map;
 
 /**
  * Manager defines methods for work with objects used in notification system
- * User: tomastunkl
- * Date: 14.10.12
- * Time: 21:20
+ * User: tomastunkl Date: 14.10.12 Time: 21:20
  */
 public interface PerunNotifNotificationManager {
 
 	/*
 	 * Methods for perunNotifObject
 	 */
-
 	/**
 	 * Method returns PerunNotifObject from db with given id.
+	 *
 	 * @param id
 	 * @return
 	 * @throws InternalErrorException
@@ -31,15 +29,24 @@ public interface PerunNotifNotificationManager {
 	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException;
 
 	/**
+	 * Returns all PerunNotifObjects.
+	 *
+	 * @return list of all objects
+	 */
+	public List<PerunNotifObject> getAllPerunNotifObjects();
+
+	/**
 	 * Saves PerunNotifObject to db and creates id
+	 *
 	 * @param object
 	 * @return perunNotifObject with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException;
 
 	/**
 	 * Updates perunNotifObject in db
+	 *
 	 * @param object
 	 * @return
 	 * @throws InternalErrorException
@@ -48,13 +55,24 @@ public interface PerunNotifNotificationManager {
 
 	/**
 	 * Removes object and relations to object with regex from db
+	 *
 	 * @param id
 	 * @throws InternalErrorException
 	 */
 	public void removePerunNotifObjectById(int id) throws InternalErrorException;
 
 	/**
+	 * Saves relation between object and regex if not exists
+	 *
+	 * @param regexId
+	 * @param objectId
+	 * @throws InternalErrorException
+	 */
+	public void saveObjectRegexRelation(int regexId, int objectId) throws InternalErrorException;
+
+	/**
 	 * Removes relation between object and regex
+	 *
 	 * @param regexId
 	 * @param objectId
 	 * @throws InternalErrorException
@@ -64,14 +82,21 @@ public interface PerunNotifNotificationManager {
 	/*
 	 * Methods for PerunNotifReceiver
 	 */
-
 	/**
 	 * Return PerunNotifReceiver with given id from db
+	 *
 	 * @param id
 	 * @return
 	 * @throws InternalErrorException
 	 */
 	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws InternalErrorException;
+
+	/**
+	 * Returns all PerunNotifReceivers from db.
+	 *
+	 * @return list of all PerunNotifReceivers
+	 */
+	public List<PerunNotifReceiver> getAllPerunNotifReceivers();
 
 	/**
 	 * Saves PerunNotifReceiver to db and crates id
@@ -80,10 +105,11 @@ public interface PerunNotifNotificationManager {
 	 * @return perunNotifReceiver with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifReceiver savePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
 
 	/**
 	 * Updates receiver in db
+	 *
 	 * @param receiver
 	 * @return
 	 * @throws InternalErrorException
@@ -92,6 +118,7 @@ public interface PerunNotifNotificationManager {
 
 	/**
 	 * Removes PerunNotifReceiver from db
+	 *
 	 * @param id
 	 * @throws InternalErrorException
 	 */
@@ -100,9 +127,9 @@ public interface PerunNotifNotificationManager {
 	/*
 	 * Methods for perunNotifRegex
 	 */
-
 	/**
 	 * Returns PerunNotifRegex by id, returns also object related to regex
+	 *
 	 * @param id
 	 * @return
 	 * @throws InternalErrorException
@@ -110,15 +137,26 @@ public interface PerunNotifNotificationManager {
 	public PerunNotifRegex getPerunNotifRegexById(int id) throws InternalErrorException;
 
 	/**
-	 * Saves perunNotifRegex to db and creates id, also saves relation between regex and object
+	 * Returns all PerunNotifRegexes.
+	 *
+	 * @return list of all PerunNotifRegexes
+	 */
+	public List<PerunNotifRegex> getAllPerunNotifRegexes();
+
+	/**
+	 * Saves perunNotifRegex to db and creates id, also saves relation
+	 * between regex and object
+	 *
 	 * @param regex
 	 * @return perunNotifRegex with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifRegex savePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
 
 	/**
-	 * Updates PerunNotifRegex in db, also updates relation between regex and objects
+	 * Updates PerunNotifRegex in db, also updates relation between regex
+	 * and objects
+	 *
 	 * @param regex
 	 * @return
 	 * @throws InternalErrorException
@@ -126,8 +164,9 @@ public interface PerunNotifNotificationManager {
 	public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
 
 	/**
-	 * Removes PerunNotifRegex from db, if regex is referenced from template exception is thrown
-	 * Also removes relation between regex and objects
+	 * Removes PerunNotifRegex from db, if regex is referenced from template
+	 * exception is thrown Also removes relation between regex and objects
+	 *
 	 * @param id
 	 * @throws InternalErrorException
 	 * @throws PerunNotifRegexUsedException
@@ -135,7 +174,26 @@ public interface PerunNotifNotificationManager {
 	public void removePerunNotifRegexById(int id) throws InternalErrorException, PerunNotifRegexUsedException;
 
 	/**
+	 * Save relation between template and regex if not exists yet.
+	 *
+	 * @param templateId
+	 * @param regexId
+	 * @throws InternalErrorException
+	 */
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException;
+
+	/**
+	 * Returns all regexes related to given template.
+	 *
+	 * @param templateId
+	 * @return list of regexes
+	 * @throws InternalErrorException
+	 */
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) throws InternalErrorException;
+
+	/**
 	 * Removes relation between PerunNotifRegex and PerunNotifTemplate
+	 *
 	 * @param templateId
 	 * @param regexId
 	 * @throws InternalErrorException
@@ -145,9 +203,9 @@ public interface PerunNotifNotificationManager {
 	/*
 	 * Methods for perunNotifTemplateMessage
 	 */
-
 	/**
 	 * Gets PerunNotifTemplateMessage from db
+	 *
 	 * @param id
 	 * @return
 	 * @throws InternalErrorException
@@ -155,15 +213,24 @@ public interface PerunNotifNotificationManager {
 	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException;
 
 	/**
+	 * Returns all PerunNotifTemplateMessages.
+	 *
+	 * @return list of all PerunNotifTemplateMessages
+	 */
+	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages();
+
+	/**
 	 * Saves perunNotifTemplateMessage to db and creates id
+	 *
 	 * @param message
 	 * @return perunNotifTemplateMessage with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifTemplateMessage savePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db.
+	 *
 	 * @param message
 	 * @return
 	 * @throws InternalErrorException
@@ -172,6 +239,7 @@ public interface PerunNotifNotificationManager {
 
 	/**
 	 * Removes PerunNotifTemplateMessage from db.
+	 *
 	 * @param id
 	 * @throws InternalErrorException
 	 */
@@ -180,9 +248,9 @@ public interface PerunNotifNotificationManager {
 	/*
 	 * Methods for perunNotifTemplate
 	 */
-
 	/**
 	 * Return perunNotifTemplate from db, return also filled all collections
+	 *
 	 * @param id
 	 * @return
 	 * @throws InternalErrorException
@@ -190,15 +258,26 @@ public interface PerunNotifNotificationManager {
 	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException;
 
 	/**
+	 * Returns all PerunNotifTemplates.
+	 *
+	 * @throws InternalErrorException
+	 * @return list of all PerunNotifTemplates
+	 */
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException;
+
+	/**
 	 * Saves PerunNotifTemplate to db and saves all relations to db
+	 *
 	 * @param template
 	 * @return perunNotifTemplate with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifTemplate savePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
+	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException;
 
 	/**
-	 * Method will update perunNotifTemplate, also update relations, but not deletes them
+	 * Method will update perunNotifTemplate, also update relations, but not
+	 * deletes them
+	 *
 	 * @param template
 	 * @return
 	 * @throws InternalErrorException
@@ -207,13 +286,16 @@ public interface PerunNotifNotificationManager {
 
 	/**
 	 * Removes perunNotifTemplate from db
+	 *
 	 * @param id
 	 * @throws InternalErrorException
 	 */
 	public void removePerunNotifTemplateById(int id) throws InternalErrorException;
 
 	/**
-	 * Method allows to test freeMarkerTemplate, list of beans is provided to method
+	 * Method allows to test freeMarkerTemplate, list of beans is provided
+	 * to method
+	 *
 	 * @param template
 	 * @param regexIdsPerunBeans
 	 * @return

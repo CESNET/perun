@@ -5,12 +5,14 @@ import java.util.List;
 
 /**
  * Used for parsing methods
+ *
  * @author tomas.tunkl
  *
  */
 public class ParsedMethod {
 
 	public enum MethodType {
+
 		METHOD, STRING_PARAM, CLASS, INTEGER_PARAM
 	}
 

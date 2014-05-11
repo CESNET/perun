@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.notif.entities;
 
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Represents one receiver of message, is defined in template
@@ -31,7 +31,8 @@ public class PerunNotifReceiver {
 	private PerunNotifTypeOfReceiver typeOfReceiver;
 
 	/**
-	 * Defines target of receiver, usually contains function to get email or jabber number...
+	 * Defines target of receiver, usually contains function to get email or
+	 * jabber number...
 	 *
 	 * Column target
 	 */
@@ -43,6 +44,13 @@ public class PerunNotifReceiver {
 	 * Column template_id
 	 */
 	private Integer templateId;
+
+	/**
+	 * Locale of receiver - determines a language, which is used for sending messages
+	 *
+	 * Column locale
+	 */
+	private Locale locale;
 
 	public PerunNotifTypeOfReceiver getTypeOfReceiver() {
 		return typeOfReceiver;
@@ -76,6 +84,15 @@ public class PerunNotifReceiver {
 		this.id = id;
 	}
 
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+
 	public static final RowMapper<PerunNotifReceiver> PERUN_NOTIF_RECEIVER = new RowMapper<PerunNotifReceiver>() {
 
 		public PerunNotifReceiver mapRow(ResultSet rs, int i) throws SQLException {
@@ -84,6 +101,7 @@ public class PerunNotifReceiver {
 			receiver.setTarget(rs.getString("target"));
 			receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.resolve(rs.getString("type_of_receiver")));
 			receiver.setTemplateId(rs.getInt("template_id"));
+			receiver.setLocale((rs.getString("locale") == null) ? null : new Locale(rs.getString("locale")));
 			receiver.setId(rs.getInt("id"));
 
 			return receiver;
@@ -93,16 +111,28 @@ public class PerunNotifReceiver {
 	public void update(PerunNotifReceiver newReceiver) {
 		this.setTarget(newReceiver.getTarget());
 		this.setTypeOfReceiver(newReceiver.getTypeOfReceiver());
+		this.setLocale(newReceiver.getLocale());
+	}
+
+	@Override
+	public String toString() {
+		return "id: " + getId() + " target: " + getTarget() + " type_of_receiver: " + getTypeOfReceiver() + " template id: " + getTemplateId() + " locale: " + getLocale().getLanguage();
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof PerunNotifReceiver)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof PerunNotifReceiver)) {
+			return false;
+		}
 
 		PerunNotifReceiver receiver = (PerunNotifReceiver) o;
 
-		if (id != null ? !id.equals(receiver.id) : receiver.id != null) return false;
+		if (id != null ? !id.equals(receiver.id) : receiver.id != null) {
+			return false;
+		}
 
 		return true;
 	}
@@ -113,6 +143,7 @@ public class PerunNotifReceiver {
 		result = 31 * result + (typeOfReceiver != null ? typeOfReceiver.hashCode() : 0);
 		result = 31 * result + (target != null ? target.hashCode() : 0);
 		result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
+		result = 31 * result + (locale != null ? locale.hashCode() : 0);
 		return result;
 	}
 }

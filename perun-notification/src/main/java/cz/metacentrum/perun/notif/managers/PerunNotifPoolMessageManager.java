@@ -22,6 +22,7 @@ public interface PerunNotifPoolMessageManager {
 
 	/**
 	 * Creates new perunNotifPoolMessages for templates and perunMessage
+	 *
 	 * @param templates
 	 * @param perunAuditMessage
 	 * @return
@@ -30,8 +31,9 @@ public interface PerunNotifPoolMessageManager {
 	public List<PerunNotifPoolMessage> createPerunNotifPoolMessagesForTemplates(Map<Integer, List<PerunNotifTemplate>> templates, PerunNotifAuditMessage perunAuditMessage) throws InternalErrorException;
 
 	/**
-	 * Process poolMessages from db. Orders them by templateId and keyAttributes and checks conditionals
-	 * set in templates whether sent notification or not. Procesed messages are removed from db.
+	 * Process poolMessages from db. Orders them by templateId and
+	 * keyAttributes and checks conditionals set in templates whether sent
+	 * notification or not. Procesed messages are removed from db.
 	 */
 	public void processPerunNotifPoolMessagesFromDb();
 }

@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Scheduling manager for firing sending emails from db to users. Main method is doNotification.
+ * Scheduling manager for firing sending emails from db to users. Main method is
+ * doNotification.
  *
  * @author tomas.tunkl
  *
@@ -22,7 +23,8 @@ public class SchedulingManagerImpl {
 	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
 
 	/**
-	 * Method starts processing poolMessages from db and starts sending notifications to users.
+	 * Method starts processing poolMessages from db and starts sending
+	 * notifications to users.
 	 */
 	public void doNotification() {
 		logger.info("Starting doNotification");

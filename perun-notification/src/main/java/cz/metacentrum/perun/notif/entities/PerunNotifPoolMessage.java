@@ -13,9 +13,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Represents message in pool waiting to be sent. This message can be send based on
- * conditions which has to be met. These messages are aggregated together with messages
- * which has same keyAttributes, templateId.
+ * Represents message in pool waiting to be sent. This message can be send based
+ * on conditions which has to be met. These messages are aggregated together
+ * with messages which has same keyAttributes, templateId.
  *
  * Table pn_pool_message
  *
@@ -31,8 +31,7 @@ public class PerunNotifPoolMessage {
 	/**
 	 * Unique generated Id attribute of message
 	 *
-	 * Sequence pn_pool_message_id_seq
-	 * Column name id
+	 * Sequence pn_pool_message_id_seq Column name id
 	 */
 	private Integer id;
 
@@ -51,35 +50,28 @@ public class PerunNotifPoolMessage {
 	private Integer templateId;
 
 	/**
-	 * Key attributes which are used to recognize two messages for same user,
-	 * templateId must be same, and keyAttributes must be same
+	 * Key attributes which are used to recognize two messages for same
+	 * user, templateId must be same, and keyAttributes must be same
 	 *
 	 * Column key_attributes
 	 */
 	private Map<String, String> keyAttributes;
 
 	/**
-	 * Date of creation of pool message, this attribute can be reset
-	 * after application restart
+	 * Date of creation of pool message, this attribute can be reset after
+	 * application restart
 	 *
 	 * Column name created
 	 */
 	private DateTime created;
 
 	/**
-	 * Holds creating auditer message which was used for creation
-	 * Will be used for parsing to retrieve of list of perun beans
+	 * Holds creating auditer message which was used for creation Will be
+	 * used for parsing to retrieve of list of perun beans
 	 *
 	 * Column name notif_message
 	 */
 	private String notifMessage;
-
-	/**
-	 * Holds locale which will be used for creating of content
-	 *
-	 * Column name locale
-	 */
-	private Locale locale;
 
 	public Integer getId() {
 		return id;
@@ -134,17 +126,10 @@ public class PerunNotifPoolMessage {
 		this.notifMessage = notifMessage;
 	}
 
-	public Locale getLocale() {
-		return locale;
-	}
-
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
-
 	/**
 	 * extracts from result all perunNotifPoolMessages which are in format:
-	 * Integer is templateId, perunNotifPoolMessageProcessDto holds messages with same templateId and keyAttributes
+	 * Integer is templateId, perunNotifPoolMessageProcessDto holds messages
+	 * with same templateId and keyAttributes
 	 *
 	 * @author tomas.tunkl
 	 */
@@ -164,11 +149,10 @@ public class PerunNotifPoolMessage {
 					throw new SQLException("Unsupported encoding during decode of map.", ex);
 				}
 				poolMessage.setId(rs.getInt("id"));
-				poolMessage.setCreated(new DateTime(rs.getDate("created")));
+				poolMessage.setCreated(new DateTime(rs.getTimestamp("created")));
 				poolMessage.setRegexId(rs.getInt("regex_id"));
 				poolMessage.setTemplateId(rs.getInt("template_id"));
 				poolMessage.setNotifMessage(rs.getString("notif_message"));
-				poolMessage.setLocale(new Locale(rs.getString("locale")));
 
 				if (keyMap.get(rs.getString("key_attributes")) != null) {
 					keyMap.get(rs.getString("key_attributes")).add(poolMessage);
@@ -192,7 +176,6 @@ public class PerunNotifPoolMessage {
 						messageDto.setKeyAttributes(message.getKeyAttributes());
 						messageDto.setTemplateId(message.getTemplateId());
 						messageDto.addToList(message);
-						messageDto.setLocale(message.getLocale());
 					} else {
 						if (messageDto.getTemplateId().equals(message.getTemplateId())) {
 							//If we have same templateId we add to dto
@@ -262,4 +245,18 @@ public class PerunNotifPoolMessage {
 
 		return serializedKeyAttributes.toString();
 	}
+
+	@Override
+	public String toString() {
+		try {
+			return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId()
+				+ " key attributes:" + getSerializedKeyAttributes() + " created: " + getCreated()
+				+ " notif message: " + getNotifMessage();
+		} catch (UnsupportedEncodingException ex) {
+			return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId()
+				+ " key attributes: CANNOT SERIALIZE !" + " created: " + getCreated()
+				+ " notif message: " + getNotifMessage();
+		}
+	}
+
 }

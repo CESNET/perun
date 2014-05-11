@@ -2,6 +2,7 @@ package cz.metacentrum.perun.notif.mail.exception;
 
 /**
  * Abstract class for Mail exception.
+ *
  * @author tomas.tunkl
  *
  */
@@ -11,6 +12,7 @@ public abstract class EmailException extends RuntimeException {
 
 	/**
 	 * Constructor for EmailException.
+	 *
 	 * @param msg the detail message
 	 */
 	public EmailException(String msg) {
@@ -19,6 +21,7 @@ public abstract class EmailException extends RuntimeException {
 
 	/**
 	 * Constructor for EmailException.
+	 *
 	 * @param msg the detail message
 	 * @param cause the root cause from the mail API in use
 	 */

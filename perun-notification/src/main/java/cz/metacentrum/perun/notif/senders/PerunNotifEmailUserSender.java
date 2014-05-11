@@ -22,9 +22,7 @@ import java.util.*;
 /**
  * Sender handles sending message using email to user
  *
- * User: tomastunkl
- * Date: 23.11.12
- * Time: 23:10
+ * User: tomastunkl Date: 23.11.12 Time: 23:10
  */
 public class PerunNotifEmailUserSender implements PerunNotifSender {
 

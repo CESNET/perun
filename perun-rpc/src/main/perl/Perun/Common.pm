@@ -38,6 +38,10 @@ use Perun::beans::Authorship;
 use Perun::beans::Category;
 use Perun::beans::RichUser;
 use Perun::beans::Status;
+use Perun::beans::NotifReceiver;
+use Perun::beans::NotifRegex;
+use Perun::beans::NotifTemplateMessage;
+use Perun::beans::NotifTemplate;
 
 sub newEmptyBean
 {

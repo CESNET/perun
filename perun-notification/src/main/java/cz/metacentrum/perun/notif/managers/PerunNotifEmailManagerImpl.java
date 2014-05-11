@@ -24,7 +24,9 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	@Autowired
 	private Properties propertiesBean;
 
-	/** The default protocol: 'smtp' */
+	/**
+	 * The default protocol: 'smtp'
+	 */
 	public static final String DEFAULT_PROTOCOL = "smtp";
 	private String protocol = DEFAULT_PROTOCOL;
 
@@ -52,20 +54,20 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		System.setProperty("client.encoding", "utf-8");
 
 		// Load properties file notif.properties
-		this.mailSmtpAuth = (String)  propertiesBean.get("notif.mailSmtpAuth");
-		this.username = (String)  propertiesBean.get("notif.username");
-		this.password = (String)  propertiesBean.get("notif.password");
-		this.smtpHost = (String)  propertiesBean.get("notif.smtpHost");
+		this.mailSmtpAuth = (String) propertiesBean.get("notif.mailSmtpAuth");
+		this.username = (String) propertiesBean.get("notif.username");
+		this.password = (String) propertiesBean.get("notif.password");
+		this.smtpHost = (String) propertiesBean.get("notif.smtpHost");
 		try {
-			this.port = Integer.parseInt((String)  propertiesBean.get("notif.port"));
+			this.port = Integer.parseInt((String) propertiesBean.get("notif.port"));
 		} catch (NumberFormatException e) {
 			this.port = 25;
 		}
-		this.emailFrom = (String)  propertiesBean.get("notif.emailFrom");
-		this.fromText = (String)  propertiesBean.get("notif.fromText");
-		this.emailFrom = (String)  propertiesBean.get("notif.emailFrom");
-		this.sendMessages = ((String)  propertiesBean.get("notif.sendMessages")).equals("true") ? true : false;
-		this.startTls = ((String)  propertiesBean.get("notif.starttls")).equals("true") ? true : false;
+		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
+		this.fromText = (String) propertiesBean.get("notif.fromText");
+		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
+		this.sendMessages = ((String) propertiesBean.get("notif.sendMessages")).equals("true") ? true : false;
+		this.startTls = ((String) propertiesBean.get("notif.starttls")).equals("true") ? true : false;
 
 		createSession();
 	}
@@ -112,7 +114,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 
 		for (PerunNotifPlainMessage emailMessage : messageList) {
 			logger.debug("SENDING PLAIN MESSAGE ; to: " + emailMessage.getTo() + " ; cc: " + emailMessage.getCc() + " ; bcc: "
-					+ emailMessage.getBcc());
+				+ emailMessage.getBcc());
 
 			MimeMessage mimeMessage = createMimeMessage();
 			try {
@@ -130,7 +132,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 			if (failedMessages != null && !failedMessages.isEmpty()) {
 				for (Object key : failedMessages.keySet()) {
 					try {
-						MimeMessage message = (MimeMessage)key;
+						MimeMessage message = (MimeMessage) key;
 						ByteArrayOutputStream out = new ByteArrayOutputStream();
 						message.writeTo(out);
 						byte[] charData = out.toByteArray();
@@ -150,12 +152,10 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	/**
 	 * Actually send the given array of MimeMessages via JavaMail.
 	 *
-	 * @param mimeMessages
-	 *            MimeMessage objects to send
-	 * @throws EmailAuthenticationException
-	 *             in case of authentication failure
-	 * @throws EmailSendException
-	 *             in case of failure when sending a message
+	 * @param mimeMessages MimeMessage objects to send
+	 * @throws EmailAuthenticationException in case of authentication
+	 * failure
+	 * @throws EmailSendException in case of failure when sending a message
 	 */
 	protected void doSend(MimeMessage[] mimeMessages) throws EmailException {
 		Map<Object, Exception> failedMessages = new LinkedHashMap<Object, Exception>();
@@ -211,9 +211,11 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	}
 
 	/**
-	 * Obtain a Transport object from the given JavaMail Session, using the configured protocol.
+	 * Obtain a Transport object from the given JavaMail Session, using the
+	 * configured protocol.
 	 * <p>
-	 * Can be overridden in subclasses, e.g. to return a mock Transport object.
+	 * Can be overridden in subclasses, e.g. to return a mock Transport
+	 * object.
 	 *
 	 * @see javax.mail.Session#getTransport(String)
 	 * @see #getProtocol()

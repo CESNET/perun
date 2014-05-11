@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates a NotifReceiver. Target, typeOfReceiver and templateId are required field. 
+--------------------------------------
+Available options:
+ --target            | -r target
+ --typeOfReceiver    | -t type of receiver (EMAIL_USER / EMAIL_GROUP / JABBER)
+ --templateId        | -i template id (template has to exist in db)
+ --locale 	     | -l locale
+ --batch             | -b batch
+ --help              | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($target, $type, $templateId, $locale);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+ "target|r=s" => \$target,"typeOfReceiver|t=s" => \$type, "templateId|i=i" => \$templateId, "locale|l=s" => \$locale) || die help(); 
+
+unless (defined($type)) {die "ERROR: typeOfReceiver is required\n"}
+unless ($target !~ /^\s*$/) { die "ERROR: target cannot be empty string\n";}
+if (($type !~ /^EMAIL_USER$/) and ($type !~ /^EMAIL_GROUP$/) and ($type !~ /^JABBER$/)) { die "ERROR: allowed typeOfReceiver values are only 'EMAIL_USER', 'EMAIL_GROUP' and 'JABBER'\n";}
+unless (defined($templateId)) {die "ERROR: templateId is required\n"}
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+
+my $receiver= Perun::beans::NotifReceiver->new;
+$receiver->setTarget($target);
+$receiver->setType($type);
+$receiver->setTemplateId($templateId);
+$receiver->setLocale($locale);
+
+$receiver = $notifAgent->createPerunNotifReceiver(receiver => $receiver);
+
+printMessage("NotifReceiver Id:".$receiver->getId." successfully created", $batch);

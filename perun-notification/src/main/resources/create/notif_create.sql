@@ -76,14 +76,14 @@ CREATE TABLE pn_object
   properties character varying(4000),
   CONSTRAINT pn_object_id PRIMARY KEY (id )
 );
-
+  
 CREATE SEQUENCE pn_object_id_seq
   INCREMENT 1
   MINVALUE 1
   MAXVALUE 9223372036854775807
   START 1
   CACHE 1;
-
+  
 CREATE TABLE pn_reciever
 (
   id bigint NOT NULL,
@@ -102,7 +102,7 @@ CREATE SEQUENCE pn_reciever_id_seq
   MAXVALUE 9223372036854775807
   START 1
   CACHE 1;
-
+  
 CREATE TABLE pn_template_regex
 (
   regex_id bigint NOT NULL,

@@ -10,8 +10,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * This entity represents one message from auditer.
- * Is used to backup messages during process of processing the message.
+ * This entity represents one message from auditer. Is used to backup messages
+ * during process of processing the message.
  *
  * @author tomas.tunkl
  *
@@ -20,8 +20,7 @@ import java.util.List;
 public class PerunNotifAuditMessage {
 
 	/**
-	 * Column id
-	 * Sequence pn_audit_message_id_seq
+	 * Column id Sequence pn_audit_message_id_seq
 	 *
 	 * Unique id of message
 	 */
@@ -39,7 +38,8 @@ public class PerunNotifAuditMessage {
 	 */
 	private List<PerunBean> perunBeanList;
 
-	public PerunNotifAuditMessage() {}
+	public PerunNotifAuditMessage() {
+	}
 
 	public PerunNotifAuditMessage(long id, String message) {
 		this.id = id;
@@ -62,9 +62,14 @@ public class PerunNotifAuditMessage {
 		this.message = message;
 	}
 
+	@Override
+	public String toString() {
+		return "id: " + getId() + " message: " + getMessage();
+	}
+
 	/**
-	 * Parses message from auditer to list of perunBeans,
-	 * this parsing is done only once
+	 * Parses message from auditer to list of perunBeans, this parsing is
+	 * done only once
 	 *
 	 * @return
 	 * @throws InternalErrorException

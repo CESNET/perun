@@ -6,10 +6,8 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import java.util.Set;
 
 /**
- * Dto holds data for messages which are going to be sent using type specified in PerunNotifReceiver.
- * User: tomastunkl
- * Date: 23.11.12
- * Time: 22:37
+ * Dto holds data for messages which are going to be sent using type specified
+ * in PerunNotifReceiver. User: tomastunkl Date: 23.11.12 Time: 22:37
  */
 public class PerunNotifMessageDto {
 

@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage); 
+
+sub help {
+return qq{
+Creates a NotifTemplateMessage. TemplateId, locale and subject are required fields.
+--------------------------------------
+Available options:
+ --templateId        | -t template id
+ --locale            | -l locale
+ --message           | -m message
+ --subject           | -s subject
+ --batch             | -b batch
+ --help              | -h prints this help
+ 
+};
+}
+
+our $batch;
+my ($templateId, $locale, $message, $subject);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "templateId|t=i" => \$templateId, "locale|l=s" => \$locale, "message|m=s" => \$message, "subject|s=s" => \$subject) || die help(); 
+
+unless (defined($templateId)) {die "ERROR: templateId is required\n"}
+unless (defined($locale)) {die "ERROR: locale is required\n"}
+unless (defined($subject)) {die "ERROR: subject is required\n"}
+
+my $agent = Perun::Agent->new();
+my $notifAgent = $agent->getNotificationsAgent;
+
+my $object = Perun::beans::NotifTemplateMessage->new;
+$object->setTemplateId($templateId);
+$object->setLocale($locale);
+$object->setMessage($message);
+$object->setSubject($subject);
+
+$object = $notifAgent->createPerunNotifTemplateMessage(message => $object);
+
+printMessage("NotifTemplateMessage Id:".$object->getId." successfully created", $batch);

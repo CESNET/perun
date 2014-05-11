@@ -2,6 +2,7 @@ package cz.metacentrum.perun.notif.mail;
 
 /**
  * Exception is thrown when error occurs during preparing of mail from template
+ *
  * @author tomas.tunkl
  *
  */

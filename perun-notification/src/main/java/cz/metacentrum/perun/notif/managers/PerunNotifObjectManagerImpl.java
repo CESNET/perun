@@ -4,15 +4,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.dao.PerunNotifObjectDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * User: tomastunkl
- * Date: 03.11.12
- * Time: 16:18
+ * User: tomastunkl Date: 03.11.12 Time: 16:18
  */
 @Service("perunNotifObjectManager")
 public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
@@ -73,12 +72,18 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 	}
 
 	@Override
-	public PerunNotifObject savePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException {
 
-		PerunNotifObject perunNotifObject = perunNotifObjectDao.savePerunNotifObject(object);
+		PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
 
 		perunNotifRegexManager.addObjectToCache(object);
 
 		return perunNotifObject;
 	}
+
+	@Override
+	public List<PerunNotifObject> getAllPerunNotifObjects() {
+		return perunNotifObjectDao.getAll();
+	}
+
 }
