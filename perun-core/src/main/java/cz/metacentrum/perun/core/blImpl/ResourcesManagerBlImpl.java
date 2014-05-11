@@ -413,8 +413,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 			// call check of facility's resource's member's user's attributes
 			Facility facility = getFacility(sess, resource);
-			attributesManagerBl.checkAttributesValue(sess, facility, attributesManagerBl.getAttributes(sess, facility));
-			attributesManagerBl.checkAttributesValue(sess, resource, attributesManagerBl.getAttributes(sess, resource));
+			attributesManagerBl.checkAttributesValue(sess, facility, attributesManagerBl.getRequiredAttributes(sess, facility));
+			attributesManagerBl.checkAttributesValue(sess, resource, attributesManagerBl.getRequiredAttributes(sess, resource));
 			List<Member> members = getAllowedMembers(sess, resource);
 			for(Member member : members) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
