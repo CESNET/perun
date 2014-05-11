@@ -40,6 +40,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUID extends Ent
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setFriendlyName("namespace_maxUID");
+		attr.setDisplayName("Max UID in namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Maximal value of User ID.");
 		return attr;

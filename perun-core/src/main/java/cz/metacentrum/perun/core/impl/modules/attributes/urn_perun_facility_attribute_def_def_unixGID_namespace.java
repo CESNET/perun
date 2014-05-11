@@ -42,6 +42,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("unixGID-namespace");
+		attr.setDisplayName("GID namespace");
 		attr.setType(String.class.getName());
 		attr.setDescription("Namespace of UnixGID.");
 		return attr;

@@ -61,6 +61,7 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("defaultFilesQuota");
+		attr.setDisplayName("Default files quota");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Soft quota for number of files.");
 		return attr;

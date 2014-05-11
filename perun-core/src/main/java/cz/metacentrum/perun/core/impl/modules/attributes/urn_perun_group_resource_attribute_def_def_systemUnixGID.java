@@ -97,6 +97,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("systemUnixGID");
+		attr.setDisplayName("GID of system unix group");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("GID of the system unix group.");
 		return attr;

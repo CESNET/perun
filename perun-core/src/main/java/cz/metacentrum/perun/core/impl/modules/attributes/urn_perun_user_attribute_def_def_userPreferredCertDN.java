@@ -81,6 +81,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("userPreferredCertDN");
+		attr.setDisplayName("DN of preferred certificate");
 		attr.setType(String.class.getName());
 		attr.setDescription("One preferredUser Certificate DN without certificate Authority.");
 		return attr;

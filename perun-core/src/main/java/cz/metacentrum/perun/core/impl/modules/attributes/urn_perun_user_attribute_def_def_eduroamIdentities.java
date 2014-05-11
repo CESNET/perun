@@ -50,6 +50,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("eduroamIdentities");
+		attr.setDisplayName("EDUROAM identity");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("List of eduroam identities.");
 		return attr;

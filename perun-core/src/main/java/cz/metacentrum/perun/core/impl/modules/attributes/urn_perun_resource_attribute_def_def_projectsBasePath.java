@@ -40,6 +40,7 @@ public class urn_perun_resource_attribute_def_def_projectsBasePath extends Resou
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectsBasePath");
+		attr.setDisplayName("Projects base path");
 		attr.setType(String.class.getName());
 		attr.setDescription("Path to base directory of projects.");
 		return attr;

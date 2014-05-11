@@ -42,6 +42,7 @@ public class urn_perun_facility_attribute_def_def_unixGroupName_namespace extend
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("unixGroupName-namespace");
+		attr.setDisplayName("Unix group name namespace");
 		attr.setType(String.class.getName());
 		attr.setDescription("Namespace of UnixGroupName.");
 		return attr;

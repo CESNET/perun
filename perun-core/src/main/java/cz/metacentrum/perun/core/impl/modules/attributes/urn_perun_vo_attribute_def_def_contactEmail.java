@@ -46,6 +46,7 @@ public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesMod
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("contactEmail");
+		attr.setDisplayName("Contact e-mails");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("VO contact email");
 		return attr;

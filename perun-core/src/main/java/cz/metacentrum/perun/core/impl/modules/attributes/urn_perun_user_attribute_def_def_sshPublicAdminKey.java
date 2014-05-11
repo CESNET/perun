@@ -30,6 +30,7 @@ public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttr
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("sshPublicAdminKey");
+		attr.setDisplayName("Public ssh admin key");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("User's SSH public keys used from root access.");
 		return attr;

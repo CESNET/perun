@@ -91,6 +91,7 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("filesQuota");
+		attr.setDisplayName("Files quota");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Soft quota for number of files.");
 		return attr;

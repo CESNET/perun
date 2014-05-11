@@ -96,6 +96,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("defaultHomeMountPoint");
+		attr.setDisplayName("Default home mount point");
 		attr.setType(String.class.getName());
 		attr.setDescription("Default home mount point for all members on this resource.");
 		return attr;

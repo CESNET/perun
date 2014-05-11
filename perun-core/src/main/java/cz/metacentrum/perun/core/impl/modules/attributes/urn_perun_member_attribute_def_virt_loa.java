@@ -58,6 +58,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
 		attr.setFriendlyName("loa");
+		attr.setDisplayName("Level of assurance");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("The highest value of LoA from all member's userExtSources.");
 		return attr;

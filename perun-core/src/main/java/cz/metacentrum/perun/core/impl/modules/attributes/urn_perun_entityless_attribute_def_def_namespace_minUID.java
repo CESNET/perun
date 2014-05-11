@@ -40,6 +40,7 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends En
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setFriendlyName("namespace_minUID");
+		attr.setDisplayName("Min UID in namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Minimal value of User ID.");
 		return attr;

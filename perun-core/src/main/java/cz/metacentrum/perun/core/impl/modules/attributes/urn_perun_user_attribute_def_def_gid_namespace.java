@@ -94,6 +94,7 @@ public class urn_perun_user_attribute_def_def_gid_namespace extends UserAttribut
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("gid-namespace");
+		attr.setDisplayName("GID namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Gid namespace.");
 		return attr;

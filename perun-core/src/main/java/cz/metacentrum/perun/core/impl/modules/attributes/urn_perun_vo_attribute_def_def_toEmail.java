@@ -45,6 +45,7 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("toEmail");
+		attr.setDisplayName("\"To\" email addresses");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Email addresses (of VO managers) used as \"to\" in mail notifications");
 		return attr;

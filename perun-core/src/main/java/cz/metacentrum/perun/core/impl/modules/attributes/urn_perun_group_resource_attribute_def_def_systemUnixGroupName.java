@@ -94,6 +94,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("systemUnixGroupName");
+		attr.setDisplayName("Name of system unix group");
 		attr.setType(String.class.getName());
 		attr.setDescription("Name of the system unix group.");
 		return attr;

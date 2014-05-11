@@ -592,6 +592,7 @@ public class urn_perun_user_attribute_def_def_timezone extends UserAttributesMod
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("timezone");
+		attr.setDisplayName("Timezone");
 		attr.setType(String.class.getName());
 		attr.setDescription("User's timezone described by ±[hh] (ISO 8601).");
 		return attr;

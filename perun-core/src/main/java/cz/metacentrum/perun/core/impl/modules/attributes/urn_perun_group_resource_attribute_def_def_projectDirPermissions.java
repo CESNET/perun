@@ -44,6 +44,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDirPermissions ex
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectDirPermissions");
+		attr.setDisplayName("Project directory permission");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric format.");
 		return attr;

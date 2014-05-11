@@ -50,6 +50,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("pbsServer");
+		attr.setDisplayName("PBS server");
 		attr.setType(String.class.getName());
 		attr.setDescription("PBS server which controls this facility.");
 		return attr;

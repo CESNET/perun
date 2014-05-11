@@ -132,6 +132,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("userCertDNs");
+		attr.setDisplayName("DN of certificates");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Hash map for all users certificates DN included userExtsources type of X509.");
 		return attr;

@@ -91,6 +91,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("filesLimit");
+		attr.setDisplayName("Files limit");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Hard quota for number of files.");
 		return attr;

@@ -138,6 +138,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("defaultUnixGID");
+		attr.setDisplayName("Default unix GID");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Default Unix Group ID.");
 		return attr;

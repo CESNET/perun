@@ -143,6 +143,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);
 		attr.setFriendlyName("unixGroupName");
+		attr.setDisplayName("Unix group name");
 		attr.setType(String.class.getName());
 		attr.setDescription("Unix group name");
 		return attr;

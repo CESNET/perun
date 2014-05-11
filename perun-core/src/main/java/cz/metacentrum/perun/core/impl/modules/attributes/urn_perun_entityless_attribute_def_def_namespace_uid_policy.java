@@ -32,6 +32,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_uid_policy extends
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setFriendlyName("namespace-uid-policy");
+		attr.setDisplayName("UID namespace policy");
 		attr.setType(String.class.getName());
 		attr.setDescription("Policy for generating new UID number. recycle - use first available UID, increment - add 1 to last used UID (maximal one)");
 		return attr;
