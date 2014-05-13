@@ -4,7 +4,7 @@
 create table "vos" (
    id integer not null,
    name varchar(128) not null,   -- full name of VO
-   short_name varchar(20) not null, -- commonly used name
+   short_name varchar(32) not null, -- commonly used name
    created_at timestamp  default now() not null,
    created_by varchar(1024) default user not null,
    modified_at timestamp default now() not null,

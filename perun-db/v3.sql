@@ -11,7 +11,7 @@ connect perunv3
 create table vos (
    id integer not null,
    name varchar2(128) not null,
-   short_name varchar2(20) not null,
+   short_name varchar2(32) not null,
    created_at date  default sysdate not null,
    created_by varchar2(1024) default user not null,
    modified_at date default sysdate not null,
@@ -330,7 +330,7 @@ create table hosts (
 create table host_attr_values (
     host_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -522,7 +522,7 @@ create table application_data (
     app_id integer not null,
     item_id integer,
     shortname varchar2(128),
-    value varchar2(4000),
+    value varchar2(4000 char),
     assurance_level varchar2(128),
    created_by_uid integer,
    modified_by_uid integer
@@ -573,7 +573,7 @@ create table facility_service_destinations (
 create table entityless_attr_values (
     subject varchar2(256) not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -587,7 +587,7 @@ create table entityless_attr_values (
 create table facility_attr_values (
     facility_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -601,7 +601,7 @@ create table facility_attr_values (
 create table group_attr_values (
     group_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -615,7 +615,7 @@ create table group_attr_values (
 create table resource_attr_values (
     resource_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -630,7 +630,7 @@ create table group_resource_attr_values (
     group_id integer not null,
     resource_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -670,7 +670,7 @@ create table groups_resources (
 create table member_attr_values (
     member_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -685,7 +685,7 @@ create table member_resource_attr_values (
     member_id integer not null,
     resource_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -699,7 +699,7 @@ create table member_resource_attr_values (
 create table user_attr_values (
     user_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -714,7 +714,7 @@ create table user_facility_attr_values (
     user_id integer not null,
     facility_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -728,7 +728,7 @@ create table user_facility_attr_values (
 create table vo_attr_values (
     vo_id integer not null,
     attr_id integer not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -755,7 +755,7 @@ create table ext_sources (
 create table ext_sources_attributes (
     ext_sources_id integer not null,
     attr_name varchar2(128) not null,
-    attr_value varchar2(4000),
+    attr_value varchar2(4000 char)
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
