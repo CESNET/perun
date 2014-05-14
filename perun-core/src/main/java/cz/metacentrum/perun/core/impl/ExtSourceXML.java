@@ -52,7 +52,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private HttpURLConnection con = null;
 	
 	//Pattern for looking replacement in regex string
-	private Pattern pattern = Pattern.compile("([^/](//)*/[^/])|(^(//)*/[^/])|([^/](//)*/$)|(^(//)*/$)");
+	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
 
 
 	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
