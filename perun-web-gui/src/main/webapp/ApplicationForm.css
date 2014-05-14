@@ -243,6 +243,19 @@ input[type=text], input[type=password] {
     width: calc(100% - 10px) !important;
 }
 
+.formContentTable {
+
+    /* Firefox */
+    width: -moz-calc(100% - 10px) !important;
+    /* WebKit */
+    width: -webkit-calc(100% - 10px) !important;
+    /* Opera */
+    width: -o-calc(100% - 10px) !important;
+    /* Standard */
+    width: calc(100% - 10px) !important;
+
+}
+
 /* ======== TAB MENU 2 ========== */
 
 /* Buttons position */

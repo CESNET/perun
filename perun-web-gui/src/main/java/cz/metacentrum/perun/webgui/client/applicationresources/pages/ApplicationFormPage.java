@@ -154,7 +154,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	protected void prepareVoForm() {
 
 		bodyContents.setWidget(formContent);
-		formContent.setWidth("100%");
+		formContent.setStyleName("formContentTable");
 		submittedOrError = false;
 
 		// try to get user for initial application if not found
