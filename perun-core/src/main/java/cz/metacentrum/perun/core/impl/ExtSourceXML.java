@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.HttpURLConnection;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -75,14 +76,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		query = query.replaceAll("\\?", searchString);
 		
 		//Get file or uri of xml
-		file = (String) getAttributes().get("file");
-		if(file == null || file.isEmpty()) {
-			file = null;
-			uri = (String) getAttributes().get("uri");
-			if(uri == null || uri.isEmpty()) {
-				throw new InternalErrorException("File and uri are both empty, one must exists!.");
-			}
-		}
+		prepareEnviroment();
 
 		return xpathParsing(query, maxResults);
 	}
@@ -104,14 +98,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		query = query.replaceAll("\\?", login);
 		
 		//Get file or uri of xml
-		file = (String) getAttributes().get("file");
-		if(file == null || file.isEmpty()) {
-			file = null;
-			uri = (String) getAttributes().get("uri");
-			if(uri == null || uri.isEmpty()) {
-				throw new InternalErrorException("File and uri are both empty, one must exists!.");
-			}
-		}
+		prepareEnviroment();
 
 		List<Map<String, String>> subjects = this.xpathParsing(query, 0);
 
@@ -127,9 +114,30 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+		// Get the query for the group subjects
+		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		
+		//If there is no query for group, throw exception
+		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		
+		//Get file or uri of xml
+		prepareEnviroment();
+		
+		return xpathParsing(queryForGroup, 0);
 	}
-
+	
+	private void prepareEnviroment() throws InternalErrorException {
+		//Get file or uri of xml
+		file = (String) getAttributes().get("file");
+		if(file == null || file.isEmpty()) {
+			file = null;
+			uri = (String) getAttributes().get("uri");
+			if(uri == null || uri.isEmpty()) {
+				throw new InternalErrorException("File and uri are both empty, one must exists!.");
+			}
+		}
+	}
+	
 	/**
 	 * Get query and maxResults.
 	 * Prepare document and xpathExpression by query.
