@@ -791,7 +791,20 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	private Widget loadCertificatesLoginsPasswords()
 	{
 		// set content
+
 		final VerticalPanel attributesTable = new VerticalPanel();
+
+		final TabMenu menu = new TabMenu();
+		attributesTable.add(menu);
+
+		attributesTable.setWidth("100%");
+
+		final ScrollPanel sp = new ScrollPanel();
+
+		sp.setStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+		sp.setWidth("100%");
+
 		//attributesTable.setStyleName("userDetailTable");
 
 		// clear logins when page refreshed
@@ -804,6 +817,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		// attribute table
 		final PerunAttributeTableWidget table = new PerunAttributeTableWidget(ids);
 		table.setDescriptionShown(true);
+		table.setDisplaySaveButton(false);
 
 		// load data
 		GetListOfAttributes attributes = new GetListOfAttributes(new JsonCallbackEvents(){
@@ -826,16 +840,19 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				// build attr table
 				table.build();
 
+				menu.addWidget(table.getSaveButton());
+
 				// content
 				VerticalPanel vpContent = new VerticalPanel();
 				vpContent.add(table.asWidget());
 
 				FlexTable innerTable = new FlexTable();
-				innerTable.setCellPadding(10);
+				innerTable.setCellPadding(5);
 				vpContent.add(innerTable);
 
 				// set content to page
-				attributesTable.add(vpContent);
+				sp.add(vpContent);
+				attributesTable.add(sp);
 
 				int rowCount = 0;
 
@@ -850,7 +867,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 								CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 									public void onClick(ClickEvent event) {
-										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
+										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 									}
 								});
 								innerTable.setWidget(rowCount, 2, cb);
