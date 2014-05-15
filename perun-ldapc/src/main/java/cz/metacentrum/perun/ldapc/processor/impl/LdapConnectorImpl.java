@@ -283,9 +283,9 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Add attributes
 		attributes.put(objClasses);
 		attributes.put("entryStatus", "active");
-		if(user.getLastName() != null) attributes.put("sn", user.getLastName());
+		if(user.getLastName() != null && !user.getLastName().isEmpty()) attributes.put("sn", user.getLastName());
 		attributes.put("cn", user.getFirstName() + " " + user.getLastName());
-		if(user.getFirstName() != null) attributes.put("givenName", user.getFirstName());
+		if(user.getFirstName() != null && !user.getFirstName().isEmpty()) attributes.put("givenName", user.getFirstName());
 		attributes.put("perunUserId", String.valueOf(user.getId()));
 		if(user.isServiceUser()) attributes.put("isServiceUser", "1");
 		else attributes.put("isServiceUser", "0");
