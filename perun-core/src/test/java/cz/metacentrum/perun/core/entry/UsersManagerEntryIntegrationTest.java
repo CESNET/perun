@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
@@ -281,6 +282,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		User updatedUser = usersManager.updateUser(sess, user);
 		assertNotNull(updatedUser);
 		assertEquals("users should be the same after update in DB",user,updatedUser);
+		
+		User gettingUser = usersManager.getUserById(sess, updatedUser.getId());
+		assertEquals("users should be the same after updated in DB and getting from DB",gettingUser,updatedUser);
 
 	}
 
@@ -291,7 +295,31 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			usersManager.updateUser(sess, new User());
 
 		}
-
+	
+	@Test
+		public void updateUserWithNullValues() throws Exception {
+			System.out.println("UsersManager.updateUserWithNullValues");
+		
+			user.setFirstName(null);
+			user.setLastName(Long.toHexString(Double.doubleToLongBits(Math.random())));
+			user.setMiddleName(null);
+			user.setTitleBefore(null);
+			user.setTitleAfter(null);
+			User updatedUser = usersManager.updateUser(sess, user);
+			User gettingUser = usersManager.getUserById(sess, updatedUser.getId());
+			assertNotNull(updatedUser);
+			assertEquals("users should be the same after update in DB", gettingUser, updatedUser);
+		}
+	
+	@Test (expected=InternalErrorException.class)
+		public void updateUserWithNullValueInLastName() throws Exception {
+			System.out.println("UsersManager.updateUserWithNullValueInLastName");
+			
+			user.setFirstName(null);
+			user.setLastName(null);
+			User updateUser = usersManager.updateUser(sess, user);
+	}
+	
 	@Test (expected=UserNotExistsException.class)
 		public void deleteUser() throws Exception {
 			System.out.println("UsersManager.deleteUser");
