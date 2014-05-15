@@ -311,7 +311,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			assertEquals("users should be the same after update in DB", gettingUser, updatedUser);
 		}
 	
-	@Test (expected=InternalErrorException.class)
+	@Test (expected=cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException.class)
 		public void updateUserWithNullValueInLastName() throws Exception {
 			System.out.println("UsersManager.updateUserWithNullValueInLastName");
 			

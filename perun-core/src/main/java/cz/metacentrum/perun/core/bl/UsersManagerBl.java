@@ -285,8 +285,9 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @return updated user
 	 * @throws InternalErrorException
+	 * @throws UserNotExistsException if user not exists when method trying to update him
 	 */
-	User updateUser(PerunSession perunSession, User user) throws InternalErrorException;
+	User updateUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 *  Updates titles before/after users name.
@@ -299,8 +300,9 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @return updated user with new titles before/after name
 	 * @throws InternalErrorException
+	 * @throws UserNotExistsException if user not exists when method trying to update him
 	 */
-	User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException;
+	User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 *  Updates user's userExtSource in DB.
