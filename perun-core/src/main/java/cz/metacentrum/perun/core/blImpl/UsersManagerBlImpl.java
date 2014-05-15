@@ -373,17 +373,23 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", user);
 	}
 
-	public User updateUser(PerunSession sess, User user) throws InternalErrorException {
-		user = getUsersManagerImpl().updateUser(sess, user);
-		getPerunBl().getAuditer().log(sess, "{} updated.", user);
-		return user;
+	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
+		User afterUpdatingUser = getUsersManagerImpl().updateUser(sess, user);
+		
+		//Log only when something is changed
+		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
+		return afterUpdatingUser;
 	}
 
-	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException {
+	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
+		User afterUpdatingUser = getUsersManagerImpl().updateNameTitles(sess, user);
+		
+		//Log only when something is changed		
 		// must audit like update user since it changes same object
-		user = getUsersManagerImpl().updateNameTitles(sess, user);
-		getPerunBl().getAuditer().log(sess, "{} updated.", user);
-		return user;
+		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
+		return afterUpdatingUser;
 	}
 
 	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {

@@ -315,6 +315,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
+		if(user.getLastName() == null || user.getLastName().isEmpty()) throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("User lastName can't be null. It's required attribute.");
 
 		return getUsersManagerBl().updateUser(sess, user);
 	}
