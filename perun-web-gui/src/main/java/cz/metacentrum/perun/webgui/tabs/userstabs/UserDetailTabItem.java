@@ -243,6 +243,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
+				user = jso.cast();
 				tab.draw();
 			}
 		};
