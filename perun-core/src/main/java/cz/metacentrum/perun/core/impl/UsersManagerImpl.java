@@ -335,29 +335,49 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (userDb == null) {
 				throw new ConsistencyErrorException("Updating non existing user");
 			}
-
-			if (user.getFirstName() != null && !user.getFirstName().equals(userDb.getFirstName())) {
+			
+			boolean userChanged = false;
+			//Last name can't be null
+			if (user.getLastName() == null) throw new InternalErrorException("Last name in updated user can't be null " + user);
+			
+			if ((user.getFirstName() != null && !user.getFirstName().equals(userDb.getFirstName())) ||
+							(user.getFirstName() == null && userDb.getFirstName() != null)) {
 				jdbc.update("update users set first_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getFirstName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				userDb.setFirstName(user.getFirstName());
+				userChanged = true;
 			}
 			if (user.getLastName() != null && !user.getLastName().equals(userDb.getLastName())) {
 				jdbc.update("update users set last_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getLastName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				userDb.setLastName(user.getLastName());
+				userChanged = true;
 			}
-			if (user.getMiddleName() != null && !user.getMiddleName().equals(userDb.getMiddleName())) {
+			if ((user.getMiddleName() != null && !user.getMiddleName().equals(userDb.getMiddleName())) ||
+							(user.getMiddleName() == null && userDb.getMiddleName() != null)) {
 				jdbc.update("update users set middle_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getMiddleName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				userDb.setMiddleName(user.getMiddleName());
+				userChanged = true;
 			}
-			if (user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) {
+			if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) || 
+							(user.getTitleBefore() == null && userDb.getTitleBefore() != null)) {
 				jdbc.update("update users set title_before=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getTitleBefore(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				userDb.setTitleBefore(user.getTitleBefore());
+				userChanged = true;
 			}
-			if (user.getTitleAfter() != null && !user.getTitleAfter().equals(userDb.getTitleAfter())) {
+			if ((user.getTitleAfter() != null && !user.getTitleAfter().equals(userDb.getTitleAfter())) ||
+							(user.getTitleAfter() == null && userDb.getTitleAfter() != null)) {
 				jdbc.update("update users set title_after=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				userDb.setTitleAfter(user.getTitleAfter());
+				userChanged = true;
 			}
+			
+			if (!userChanged) throw new InternalErrorException("There is nothing to change for " + userDb);
 
-			return user;
+			return userDb;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -372,19 +392,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			}
 
 			// changed condition to updateUser case to handle: fill, change and remove
-
+			boolean userChanged = false;
+			
 			if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) ||
 					(user.getTitleBefore() == null && userDb.getTitleBefore() != null)) {
 				jdbc.update("update users set title_before=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getTitleBefore(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
-					}
+				userDb.setTitleBefore(user.getTitleBefore());
+				userChanged = true;
+			}
 			if ((user.getTitleAfter() != null && !user.getTitleAfter().equals(userDb.getTitleAfter())) ||
 					((user.getTitleAfter() == null && userDb.getTitleAfter() != null))) {
 				jdbc.update("update users set title_after=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
-					}
+				userDb.setTitleAfter(user.getTitleAfter());
+				userChanged = true;
+			}
 
-			return user;
+			if (!userChanged) throw new InternalErrorException("There is nothing to change for " + userDb);
+			
+			return userDb;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
