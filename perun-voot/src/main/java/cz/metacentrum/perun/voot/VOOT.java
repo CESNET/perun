@@ -113,7 +113,6 @@ public class VOOT {
 		response = new Response();
 		this.parameters = parseParameters(restOfPath);
 		setParamters();
-		checkParametersField();
 
 		if(checkMethod(path, GET_PERSON_PATTERN)) {
 			VOOTPerson vootPerson = new VOOTPerson(user, getEmails(user));
@@ -857,42 +856,6 @@ public class VOOT {
 		}
 	}
 
-	//allowed parameters field for collections
-	private final Set<String> allowedParamatersField(){
-		Set<String> allowedParameters= new HashSet<String>();
-
-		allowedParameters.add(FORMAT.toLowerCase());
-		allowedParameters.add(START_INDEX.toLowerCase());
-		allowedParameters.add(COUNT.toLowerCase());
-		allowedParameters.add(FILTER_BY.toLowerCase());
-		allowedParameters.add(FILTER_OP.toLowerCase());
-		allowedParameters.add(FILTER_VALUE.toLowerCase());
-		allowedParameters.add(SORT_BY.toLowerCase());
-		allowedParameters.add(SORT_ORDER.toLowerCase());
-
-		return allowedParameters;
-	}
-
-	//Check allowed parameters fields from request.
-	private void checkParametersField() throws VOOTException{
-
-		final Set<String> allowedParameters = allowedParamatersField();
-
-		for(String key : parameters.keySet()){
-
-			boolean isAllowedParm = false;
-
-			for(String allowedParameter : allowedParameters){
-				if(allowedParameter.equals(key)){
-					isAllowedParm = true;
-					break;
-				}
-			}
-
-			if(isAllowedParm == false) throw new VOOTException("internal_server_error", "parameter field is not allowed");
-		}
-	}
-
 	//Set request parameters.
 	private void setParamters() throws VOOTException{
 
@@ -900,8 +863,8 @@ public class VOOT {
 
 		if(keys.contains(FORMAT.toLowerCase())){
 			String format = parameters.get(FORMAT.toLowerCase());
-			if(!format.equals(JSON)){
-				throw new VOOTException("internal_server_error","bad data format");
+			if(format.equalsIgnoreCase(JSON)){
+				formatValue = JSON;
 			}
 		}
 
