@@ -31,6 +31,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceSql.class);
 	private static Map<String, String> attributeNameMapping;
 	private Connection con;
+	private boolean isOracle = false;
 
 	public ExtSourceSql() {
 		attributeNameMapping = new HashMap<String, String>();
@@ -94,6 +95,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
 		if (getAttributes().get("url") == null) {
 			throw new InternalErrorException("url attribute is required");
 		}
+		
 		//log.debug("Searching for '{}' using query {} in external source 'url:{}'", new Object[] {searchString, query, (String) getAttributes().get("url")});
 		log.debug("Searching for '{}' in external source 'url:{}'", new Object[] {searchString, (String) getAttributes().get("url")});
 
@@ -107,13 +109,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
 		}
 
 		try {
-			if (this.con == null || (Compatibility.isOracle() && !this.con.isValid(0))) {
-				if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
-					this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"),
-								(String) getAttributes().get("user"), (String) getAttributes().get("password"))).createConnection();
-				} else {
-					this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), null)).createConnection();
-				}
+		  // Check if we have existing connection. In case of Oracle also checks the connection validity
+		  if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
+					this.createConnection();
 			}
 
 			st = this.con.prepareStatement(query);
@@ -228,6 +226,24 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
 		}
 	}
 
+	protected void createConnection() throws SQLException {
+    try {   
+      if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
+        this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"),
+            (String) getAttributes().get("user"), (String) getAttributes().get("password"))).createConnection();
+      } else {
+        this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), null)).createConnection();
+      }
+      
+      if (this.con.getMetaData().getDriverName().toLowerCase().contains("oracle")) {
+        this.isOracle = true;
+      }
+    } catch (SQLException e) {
+      log.error("SQL exception during creating the connection to URL", (String) getAttributes().get("url"));
+      throw new InternalErrorRuntimeException(e);
+    }
+  }
+	
 	public void close() throws InternalErrorException {
 		if (this.con != null) {
 			try {
