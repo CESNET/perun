@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -24,42 +23,30 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MessageParsingFailException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.AuditerConsumer;
-import cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
 import cz.metacentrum.perun.rpclib.Rpc;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import org.springframework.ldap.core.LdapAttribute;
 
 public class EventProcessorImpl implements EventProcessor, Runnable {
 
@@ -587,7 +574,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
 				replaceList.add(new Pair("sn",this.user.getLastName()));
 				replaceList.add(new Pair("cn", this.user.getFirstName() + " " + this.user.getLastName()));
-				replaceList.add(new Pair("givenName", this.user.getFirstName()));
+				// IF firstName is null, remove it first, then continue with process of updating user
+				if(this.user.getFirstName() == null || this.user.getFirstName().isEmpty()) updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				else replaceList.add(new Pair("givenName", this.user.getFirstName()));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateUserAttributes(attributes, this.user);
 				// 11.4) REMOVE ALL USER ATTRIBUTES
