@@ -320,7 +320,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			return ac.getUsersManager().updateNameTitles(ac.getSession(),
+			return ac.getUsersManager().updateUser(ac.getSession(),
 					parms.read("user", User.class));
 		}
 	},
