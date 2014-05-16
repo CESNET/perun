@@ -171,7 +171,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 		tabPanel.add(vosTab, "VO settings");
 
 		tabPanel.add(new SelfResourcesSettingsTabItem(user), "Resources settings");
-		tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentications");
+		tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentication");
 
 		if (!user.isServiceUser()) {
 			tabPanel.add(new UsersPublicationsTabItem(user), "Publications");
