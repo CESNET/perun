@@ -1355,7 +1355,7 @@ alter table service_service_packages add constraint srvpkg_srv_fk foreign key(se
 alter table service_service_packages add constraint srvpkg_pkg_fk foreign key(package_id) references service_packages(id);
 
 alter table groups add constraint grp_pk primary key (id);
-alter table groups add constraint grp_nam_vo_u unique (name,vo_id);
+alter table groups add constraint grn_nam_vo_parentg_u unique (name,vo_id,parent_group_id);
 alter table groups add constraint grp_vos_fk foreign key (vo_id) references vos(id);
 alter table groups add constraint grp_grp_fk foreign key (parent_group_id) references groups(id);
 

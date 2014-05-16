@@ -1304,7 +1304,7 @@ constraint SRVPKG_PKG_FK foreign key(package_id) references service_packages(id)
 );
 alter table groups add (
 constraint GRP_PK primary key (id),
-constraint GRP_NAM_VO_U unique (name,vo_id),
+constraint GRP_NAM_VO_PARENTG_U unique (name,vo_id,parent_group_id),
 constraint GRP_VOS_FK foreign key (vo_id) references vos(id),
 constraint GRP_GRP_FK foreign key (parent_group_id) references groups(id)
 );
