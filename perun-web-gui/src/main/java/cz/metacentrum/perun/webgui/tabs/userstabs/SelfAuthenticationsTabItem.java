@@ -81,7 +81,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Authentications");
+		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Authentication");
 
 		final String notSet = "<i>N/A</i>";
 
@@ -308,7 +308,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 	public void open() {
 		session.setActiveUser(user);
 		session.getUiElements().getMenu().openMenu(MainMenu.USER);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Authentications", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId, "Authentication", getUrlWithParameters());
 	}
 
 	public boolean isAuthorized() {
