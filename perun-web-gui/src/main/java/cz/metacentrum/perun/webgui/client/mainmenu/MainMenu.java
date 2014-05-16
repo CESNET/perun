@@ -531,7 +531,7 @@ public class MainMenu {
 		menu.addItem(new MainMenuItem((user != null) ? user.getFullNameWithTitles() : "My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
 		menu.addItem(new MainMenuItem("VO settings", settings, SmallIcons.INSTANCE.buildingIcon()));
 		menu.addItem(new MainMenuItem("Resources settings", resources, SmallIcons.INSTANCE.settingToolsIcon()));
-		menu.addItem(new MainMenuItem("Authentications", authentications, SmallIcons.INSTANCE.keyIcon()));
+		menu.addItem(new MainMenuItem("Authentication", authentications, SmallIcons.INSTANCE.keyIcon()));
 		menu.addItem(new MainMenuItem("Publications", publications, SmallIcons.INSTANCE.booksIcon()));
 		menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
 
