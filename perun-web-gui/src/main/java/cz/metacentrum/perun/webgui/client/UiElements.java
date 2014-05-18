@@ -934,17 +934,21 @@ public class UiElements {
 		a.setTarget("_blank");
 		Anchor mail = new Anchor(Utils.perunReportEmailAddress(), "mailto:" + Utils.perunReportEmailAddress());
 
-		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;Support: </strong>" + mail);
+		Anchor lnk = new Anchor("Online help", "https://wiki.metacentrum.cz/wiki/Perun");
+		lnk.setTarget("_blank");
+
+		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;Support: </strong>" + mail+", "+lnk);
 		ft.setWidget(0, 0, foot);
 
 		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
 		ft.setWidget(0, 2, new HTML("<strong>" + ButtonTranslation.INSTANCE.settingsButton() + ": </strong>"));
 
 		ftf.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
-		ftf.setWidth(0, 0, "30%");
-		ftf.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
-		ftf.setWidth(0, 1, "40%");
+		//ftf.setWidth(0, 0, "40%");
+		ftf.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		//ftf.setWidth(0, 1, "35%");
 		ftf.setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_RIGHT);
+		ftf.setWidth(0, 2, "15%");
 
 		// toggle languages
 		//ft.setWidget(0, 3, getToggleLanguageButton());
