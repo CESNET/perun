@@ -66,6 +66,10 @@
     width:100%;
 }
 
+.perunFooter td {
+    overflow: hidden;
+}
+
 /* MAIN CONTENT TAB PANEL*/
 
 .mainTabPanel{
