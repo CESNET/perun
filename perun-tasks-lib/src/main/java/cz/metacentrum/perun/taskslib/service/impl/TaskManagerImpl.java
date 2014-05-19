@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.dao.TaskDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
@@ -34,6 +35,11 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
+	public void insertTask(Task task, int engineID) throws InternalErrorException {
+		taskDao.insertTask(task, engineID);
+	}
+
+	@Override
 	public Task getTask(ExecService execService, Facility facility, int engineID) {
 		return taskDao.getTask(execService, facility);
 	}
@@ -51,6 +57,11 @@ public class TaskManagerImpl implements TaskManager {
 	@Override
 	public List<Task> listAllTasks(int engineID) {
 		return taskDao.listAllTasks(engineID);
+	}
+
+	@Override
+	public List<Pair<Task, Integer>> listAllTasksAndClients() {
+		return taskDao.listAllTasksAndClients();
 	}
 
 	@Override
