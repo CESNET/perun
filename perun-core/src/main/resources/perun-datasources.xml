@@ -9,8 +9,27 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
     <!-- later location overwrite previous -->
+    <!-- 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="${perun.jdbc}, file:${perun.conf.custom}/jdbc.properties"/>
-
+ 	-->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    	<property name="ignoreResourceNotFound" value="true"/>
+    	<property name="locations">
+        	<list>
+            	<value>${perun.jdbc}</value>
+				<value>file:${perun.conf.custom}/jdbc.properties</value>
+        	</list>
+    	</property>
+    	<property name="properties">
+    		<props>
+    			<prop key="jdbc.driver"></prop>
+    			<prop key="jdbc.url"></prop>
+    			<prop key="jdbc.username"></prop>
+    			<prop key="jdbc.password"></prop>
+    		</props>
+    	</property>
+	</bean>
+ 	
     <!-- DataSource implementation -->
     <bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc.driver}"/>
