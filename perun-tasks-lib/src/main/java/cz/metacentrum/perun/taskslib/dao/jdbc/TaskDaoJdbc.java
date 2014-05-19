@@ -126,6 +126,22 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 		return 0;
 	}
+	
+	@Override
+	public int insertTask(Task task, int engineID) throws InternalErrorException {
+		int newTaskId = 0;
+		try {
+			newTaskId = task.getId();
+			this.getJdbcTemplate().update(
+					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+			return newTaskId;
+		} catch (DataIntegrityViolationException ex) {
+			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+		}
+		return 0;
+	}
 
 	@Override
 	public Task getTask(ExecService execService, Facility facility) {
