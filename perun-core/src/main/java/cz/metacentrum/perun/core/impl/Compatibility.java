@@ -34,6 +34,8 @@ public class Compatibility {
 			return "sysdate";
 		} else if (dbType.equals("postgresql")) {
 			return "'now'";
+		} else if (dbType.equals("hsqldb")) {
+			return "current_date";
 		} else {
 			throw new InternalErrorException("unknown DB type");
 		}
