@@ -62,6 +62,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public final static int ADMINSGROUP = 2;
 	public final static int SUBGROUP = 3;
 
+/* M.V.: Original version, could not make it to work with hsqldb:
 	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, " +
 		"groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, " +
 		"groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, "+
@@ -77,6 +78,22 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		") " +
 		") " +
 		"select name"+Compatibility.castToVarchar()+" from temp where temp.id = groups.id ) as groups_name ";
+*/
+	
+	protected final static String groupQNameSelectQuery = Compatibility.getWithClause() + " temp (id,name,parent_group_id) as ( " + "select id, name" + Compatibility.castToVarchar() + ", parent_group_id " + "from Groups "
+			+ "where parent_group_id is null " + "union all " + "select Groups.id, concat(temp.name" + Compatibility.castToVarchar() + ",concat(':',Groups.name" + Compatibility.castToVarchar() + "))" + Compatibility.castToVarchar()
+			+ " , Groups.parent_group_id " + "from Groups " + "inner join temp " + "    on temp.id = Groups.parent_group_id " + " " + ") ";
+
+	protected final static String groupQNameJoinQuery = "  join (" + groupQNameSelectQuery + " select * from temp ) as qn_groups on groups.id = qn_groups.id ";
+	
+	protected final static String groupMappingSelectQuery_compat = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, "
+			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
+			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, qn_groups.name as groups_name ";
+
+	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, "
+			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
+			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, " + "(" + groupQNameSelectQuery + "select name" + Compatibility.castToVarchar() + " from temp where temp.id = groups.id"
+			+ ") as groups_name ";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private SimpleJdbcTemplate jdbc;
@@ -322,8 +339,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
+			return jdbc.query("select " + groupMappingSelectQuery_compat + " from groups join " +
 					"groups_resources on groups.id=groups_resources.group_id "+
+					groupQNameJoinQuery +
 					"where groups_resources.resource_id=?",
 					GROUP_MAPPER, resource.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -375,7 +393,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, InternalErrorException {
 		try {
-			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.name=? and groups.vo_id=?",
+			return jdbc.queryForObject("select " + groupMappingSelectQuery_compat + " from groups " + groupQNameJoinQuery + " where groups.name=? and groups.vo_id=?",
 					GROUP_MAPPER, name, vo.getId());
 		} catch (EmptyResultDataAccessException err) {
 			throw new GroupNotExistsException("Group name=" + name + ", vo id=" + vo.getId());
