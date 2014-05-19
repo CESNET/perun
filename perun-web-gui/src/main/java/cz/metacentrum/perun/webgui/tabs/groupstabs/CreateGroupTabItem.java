@@ -124,6 +124,10 @@ public class CreateGroupTabItem implements TabItem {
 				} else {
 					createButton.setEnabled(true);
 				}
+				// call finished when user changed his mind
+				if (!asSubGroup.getValue()) {
+					createButton.setEnabled(true);
+				}
 			}
 			public void onLoadingStart(){
 				vosGroups.clear();
@@ -133,6 +137,9 @@ public class CreateGroupTabItem implements TabItem {
 			public void onError(PerunError error) {
 				vosGroups.clear();
 				vosGroups.addItem("Error while loading");
+				if (!asSubGroup.getValue()) {
+					createButton.setEnabled(true);
+				}
 			}
 		});
 
@@ -164,6 +171,7 @@ public class CreateGroupTabItem implements TabItem {
 					vosGroups.setVisible(false);
 					parentGroupText.setVisible(false);
 					createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
+					createButton.setEnabled(true);
 				}
 			}
 		});
