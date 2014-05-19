@@ -9,6 +9,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -209,7 +210,7 @@ public class CreateGroupTabItem implements TabItem {
 					if (vosGroups.getSelectedObject() != null) {
 						cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());
 					} else {
-						new Confirm("No parent group selected", new HTML("You checked create this group as sub-group, but no parent group is selected. Please select parent group."),true).show();
+						UiElements.generateInfo("No parent group selected", "You checked create this group as sub-group, but no parent group is selected. Please select parent group.");
 					}
 				} else {
 					cg.createGroupInVo(voId, groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());

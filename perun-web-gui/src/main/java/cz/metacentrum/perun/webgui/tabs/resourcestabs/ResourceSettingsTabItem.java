@@ -279,7 +279,9 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) setNewAttributeButton.setEnabled(false);
-		menu.addWidget(setNewAttributeButton);
+		if (service == null) {
+			menu.addWidget(setNewAttributeButton);
+		}
 
 		// fill button
 		final CustomButton fillDefaultButton = TabMenu.getPredefinedButton(ButtonType.FILL, ButtonTranslation.INSTANCE.fillResourceAttributes());
