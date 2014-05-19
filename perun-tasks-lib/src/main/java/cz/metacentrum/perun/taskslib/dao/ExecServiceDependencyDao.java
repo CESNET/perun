@@ -2,6 +2,7 @@ package cz.metacentrum.perun.taskslib.dao;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
@@ -11,6 +12,23 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
  * @author Michal Karm Babacek
  */
 public interface ExecServiceDependencyDao {
+
+	/**
+	 * Constants that define scope of the dependency relation:
+	 * 	- SERVICE means that dependent ExecService may be propagated only
+	 * 	  after all destinations of the dependant were updated
+	 * 	- DESTINATION allows for per-destination dependency updates (if propagation of
+	 *	  dependant ExecService succeeds on a destination, dependent ExecService may proceed
+	 *	  without waiting for other destinations to complete 	 
+	 * 
+	 * @author michal
+	 *
+	 */
+	public enum DependencyScope {
+		SERVICE, DESTINATION
+	}
+	
+
 	/**
 	 * Create dependency
 	 * The execService can not be executed if any of the execServices it depends
@@ -70,4 +88,12 @@ public interface ExecServiceDependencyDao {
 	 * @return
 	 */
 	public List<ExecService> listExecServicesThisExecServiceDependsOn(int dependantExecServiceId, ExecServiceType execServiceType);
+
+	/**
+	 * List execServices this execService depends on together with the dependency scope
+	 * @param dependantExecServiceId
+	 * @return A list of Pair<ExecService, DependencyScope> execServices and scopes
+	 */
+	public List<Pair<ExecService, DependencyScope>> listExecServicesAndScopeThisExecServiceDependsOn(
+			int dependantExecServiceId);
 }
