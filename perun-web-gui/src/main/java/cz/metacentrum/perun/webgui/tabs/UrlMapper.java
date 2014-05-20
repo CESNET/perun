@@ -47,6 +47,17 @@ public class UrlMapper {
 
 		String[] parts = url.split(TAB_SEPARATOR);
 
+		// if url leads to tabs without any "active", add it to first of them
+		if (parts.length >= 1 && !url.contains("active=1")) {
+
+			if (parts[0].contains("?")) {
+				parts[0] = parts[0]+"&active=1";
+			} else {
+				parts[0] = parts[0]+"?active=1";
+			}
+
+		}
+
 		for(String tabString : parts) {
 			parseTab(tabString);
 		}
