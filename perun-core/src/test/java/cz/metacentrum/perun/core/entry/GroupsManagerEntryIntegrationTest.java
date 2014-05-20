@@ -185,7 +185,43 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			// shouldn't find group
 
 		}
+	
+	@Test
+	public void deletesGroups() throws Exception {
+		System.out.println("GroupsManager.deletesGroups");
+		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
+		newVo = perun.getVosManagerBl().createVo(sess, newVo);
+		List<Group> groups = setUpGroupsWithSubgroups(newVo);
+		
+		this.groupsManager.deleteGroups(sess, groups, false);
+	}
 
+	@Test (expected=RelationExistsException.class)
+	public void deleteGroupsWithSubgroupAndNoForceDelete() throws Exception {
+		System.out.println("GroupsManager.deleteGroupsWithSubgroupAndNoForceDelete");
+		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
+		newVo = perun.getVosManagerBl().createVo(sess, newVo);
+		List<Group> groups = setUpGroupsWithSubgroups(newVo);
+	
+		Group subgroup = new Group("Test", "test");
+		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
+		
+		this.groupsManager.deleteGroups(sess, groups, false);
+	}
+	
+	@Test
+	public void deleteGroupsWithSubgroupAndForceDelete() throws Exception {
+		System.out.println("GroupsManager.deleteGroupsWithSubgroupAndForceDelete");
+		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
+		newVo = perun.getVosManagerBl().createVo(sess, newVo);
+		List<Group> groups = setUpGroupsWithSubgroups(newVo);
+	
+		Group subgroup = new Group("Test", "test");
+		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
+		
+		this.groupsManager.deleteGroups(sess, groups, true);
+	}
+	
 	@Test (expected=GroupNotExistsException.class)
 		public void deleteGroupWhenGroupNotExists() throws Exception {
 			System.out.println("GroupsManager.deleteGroupWhenGroupNotExists");
@@ -1249,6 +1285,38 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("unable to create a group",returnedGroup);
 		assertEquals("created group should be same as returned group",group,returnedGroup);
 
+	}
+	
+	private List<Group> setUpGroupsWithSubgroups(Vo vo) throws Exception {
+		Group groupA = new Group("A", "A");
+		Group groupB = new Group("B", "B");
+		Group groupC = new Group("C", "C");
+		Group groupD = new Group("D", "D");
+		Group groupE = new Group("E", "E");
+		Group groupF = new Group("F", "F");
+		Group groupG = new Group("G", "G");
+		
+		groupA = this.groupsManagerBl.createGroup(sess, vo, groupA);
+		groupD = this.groupsManagerBl.createGroup(sess, vo, groupD);
+		
+		groupB = this.groupsManagerBl.createGroup(sess, groupA, groupB);
+		groupG = this.groupsManagerBl.createGroup(sess, groupB, groupG);
+		
+		groupC = this.groupsManagerBl.createGroup(sess, groupD, groupC);
+		groupE = this.groupsManagerBl.createGroup(sess, groupC, groupE);
+		
+		groupF = this.groupsManagerBl.createGroup(sess, groupE, groupF);
+		
+		List<Group> groups = new ArrayList<>();
+		groups.add(groupC);
+		groups.add(groupA);
+		groups.add(groupF);
+		groups.add(groupG);
+		groups.add(groupB);
+		groups.add(groupD);
+		groups.add(groupE);
+		
+		return groups;
 	}
 
 	private Member setUpMemberWithDifferentParam(Vo vo, int i) throws Exception {
