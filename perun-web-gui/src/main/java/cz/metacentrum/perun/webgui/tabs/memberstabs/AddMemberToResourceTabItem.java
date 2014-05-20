@@ -27,6 +27,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Dialog for adding member to specific resource.
@@ -294,18 +295,19 @@ public class AddMemberToResourceTabItem implements TabItem  {
 				@Override
 				public void onFinished(JavaScriptObject jso){
 					// list of VO facilities filled by loaded resources
-					HashSet<Facility> facilities = new HashSet<Facility>();
+					ArrayList<Facility> facs = new ArrayList<Facility>();
 					ArrayList<RichResource> resList = JsonUtils.jsoAsList(jso);
 					resList = new TableSorter<RichResource>().sortByName(resList);
+					Set<String> unificator = new HashSet<String>();
 					for (RichResource r : resList){
 						allResources.add(r);
 						resourcesListbox.addItem(r);
-						if (r.getFacility() != null) {
-							facilities.add(r.getFacility());
+						if (r.getFacility() != null && !unificator.contains(r.getFacility().getName())) {
+							unificator.add(r.getFacility().getName());
+							facs.add(r.getFacility());
 						}
 					}
 					// sort and fill facilities
-					ArrayList<Facility> facs = new JsonUtils().setToList(facilities);
 					facs = new TableSorter<Facility>().sortByName(facs);
 					facilitiesListbox.addAllItems(facs);
 					// initial setup
@@ -507,7 +509,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			VerticalPanel vp = new VerticalPanel();
 
 			// form inputs
-			final TextBox groupNameTextBox = new TextBox();
+			final ExtendedTextBox groupNameTextBox = new ExtendedTextBox();
 			final TextBox groupDescriptionTextBox  = new TextBox();
 			final ListBoxWithObjects<Group> vosGroups = new ListBoxWithObjects<Group>();
 			vosGroups.setVisible(false);
@@ -517,6 +519,22 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			final CustomButton cancelButton = TabMenu.getPredefinedButton(ButtonType.CANCEL, "");
 			final HTML parentGroupText = new HTML("Parent group:");
 			parentGroupText.setVisible(false);
+
+			final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+				@Override
+				public boolean validateTextBox() {
+					if (groupNameTextBox.getTextBox().getText().trim().isEmpty()) {
+						groupNameTextBox.setError("Name can't be empty.");
+					} else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
+						groupNameTextBox.setError("Name can contain only letters, numbers, spaces, dots, '_' and '-'.");
+					} else {
+						groupNameTextBox.setOk();
+						return true;
+					}
+					return false;
+				}
+			};
+			groupNameTextBox.setValidator(validator);
 
 			final GetAllGroups groupsCall = new GetAllGroups(voId, new JsonCallbackEvents(){
 				public void onFinished(JavaScriptObject jso){
@@ -530,9 +548,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 						}
 						vosGroups.addItem(g);
 					}
-					if (!groupNameTextBox.getText().isEmpty() && !groupDescriptionTextBox.getText().isEmpty()) {
-						createButton.setEnabled(true);
-					}
+					createButton.setEnabled(true);
 				}
 				public void onLoadingStart(){
 					vosGroups.clear();
@@ -542,7 +558,11 @@ public class AddMemberToResourceTabItem implements TabItem  {
 				public void onError(PerunError error) {
 					vosGroups.clear();
 					vosGroups.addItem("Error while loading");
-					createButton.setEnabled(false);
+					if (asSubGroup.getValue()) {
+						createButton.setEnabled(false);
+					} else {
+						createButton.setEnabled(true);
+					}
 				}
 			});
 
@@ -556,6 +576,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 						groupsCall.retrieveData();
 						createButton.setTitle(ButtonTranslation.INSTANCE.createSubGroup());
 					} else {
+						createButton.setEnabled(true);
 						vosGroups.setVisible(false);
 						parentGroupText.setVisible(false);
 						createButton.setTitle(ButtonTranslation.INSTANCE.createGroup());
@@ -571,6 +592,8 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			// send button
 			createButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
+
+					if (!validator.validateTextBox()) return;
 
 					// redirect event
 					final JsonCallbackEvents redirectEvent = new JsonCallbackEvents(){
@@ -598,12 +621,12 @@ public class AddMemberToResourceTabItem implements TabItem  {
 					CreateGroup cg = new CreateGroup(JsonCallbackEvents.disableButtonEvents(createButton, assignEvent));
 					if (asSubGroup.getValue()) {
 						if (vosGroups.getSelectedObject() != null) {
-							cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getText(), groupDescriptionTextBox.getText());
+							cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText());
 						} else {
-							new Confirm("No parent group selected", new HTML("You checked create this group as sub-group, but no parent group is selected. Please select parent group."),true).show();
+							UiElements.generateInfo("No parent group selected", "You checked create this group as sub-group, but no parent group is selected. Please select parent group.");
 						}
 					} else {
-						cg.createGroupInVo(voId, groupNameTextBox.getText(), groupDescriptionTextBox.getText());
+						cg.createGroupInVo(voId, groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText());
 					}
 				}
 			});
@@ -633,20 +656,6 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			for (int i=0; i<layout.getRowCount(); i++) {
 				cellFormatter.addStyleName(i, 0, "itemName");
 			}
-
-			createButton.setEnabled(false);
-			KeyUpHandler handler = new KeyUpHandler() {
-				@Override
-				public void onKeyUp(KeyUpEvent event) {
-					if (!groupNameTextBox.getText().isEmpty() && !groupDescriptionTextBox.getText().isEmpty()) {
-						createButton.setEnabled(true);
-					} else {
-						createButton.setEnabled(false);
-					}
-				}
-			};
-			groupNameTextBox.addKeyUpHandler(handler);
-			groupDescriptionTextBox.addKeyUpHandler(handler);
 
 			// button align
 			menu.addWidget(createButton);
