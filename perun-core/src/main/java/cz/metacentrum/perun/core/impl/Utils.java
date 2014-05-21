@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -26,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -41,6 +43,7 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -348,13 +351,17 @@ public class Utils {
 		String dbType = getPropertyFromConfiguration("perun.db.type");
 
 		String url = "";
-	
+		Connection c;
+		
 		// try to deduce database type from jdbc connection metadata
 		try {
 			if (jdbc instanceof JdbcTemplate) {
-				url = ((JdbcTemplate)jdbc).getDataSource().getConnection().getMetaData().getURL();
+				c = ((JdbcTemplate)jdbc).getDataSource().getConnection();
+				url = c.getMetaData().getURL();
+				c.close();
 			}
 		} catch (SQLException e) {
+			c.close();
 		}
 		if(url.matches("hsqldb")) {
 			dbType = "hsqldb";
