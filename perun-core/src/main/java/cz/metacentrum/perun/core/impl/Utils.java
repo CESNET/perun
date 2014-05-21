@@ -351,17 +351,15 @@ public class Utils {
 		String dbType = getPropertyFromConfiguration("perun.db.type");
 
 		String url = "";
-		Connection c;
 		
 		// try to deduce database type from jdbc connection metadata
 		try {
 			if (jdbc instanceof JdbcTemplate) {
-				c = ((JdbcTemplate)jdbc).getDataSource().getConnection();
+				Connection c = ((JdbcTemplate)jdbc).getDataSource().getConnection();
 				url = c.getMetaData().getURL();
 				c.close();
 			}
 		} catch (SQLException e) {
-			c.close();
 		}
 		if(url.matches("hsqldb")) {
 			dbType = "hsqldb";
