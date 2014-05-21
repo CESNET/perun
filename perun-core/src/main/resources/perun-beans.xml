@@ -278,6 +278,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="ignoreResourceNotFound">
             <value>true</value>
         </property>
+        <property name="ignoreUnresolvable">
+            <value>true</value>
+        </property>
         <property name="properties">
             <props>
             	<prop key="perun.admins">perunTests, perunController, perunEngine, perunRegistrar, perunSynchronizer, perunCabinet</prop>
