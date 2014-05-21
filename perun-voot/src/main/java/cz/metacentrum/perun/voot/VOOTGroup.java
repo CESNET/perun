@@ -1,12 +1,18 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 
 /**
  * Class defines group encoded according to the OpenSocial Social Data Specification.
- * Attributes that are not part of specification have namespace prefix 'voot_'.
+ * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
  *
  * @author Martin Malik <374128@mail.muni.cz>
+ * @version $Id: $
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Group">Social-Data-Group</a>
  */
 public class VOOTGroup implements Comparable<VOOTGroup>{
@@ -22,7 +28,7 @@ public class VOOTGroup implements Comparable<VOOTGroup>{
 	 *
 	 * @param group                   group
 	 * @param voShortName             short name of vo
-	 * @param voot_membership_role    membership role of person in group
+	 * @param voot_membership_role    membershiú role of person in group
 	 */
 	public VOOTGroup(Group group, String voShortName, String voot_membership_role) throws VOOTException{
 
@@ -77,60 +83,60 @@ public class VOOTGroup implements Comparable<VOOTGroup>{
 	}
 
 	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 23;
-		result = prime * result + (id != null ? id.hashCode() : 0);
-		result = prime * result + (title != null ? title.hashCode() : 0);
-		result = prime * result + (description != null ? description.hashCode() : 0);
-		result = prime * result + (voot_membership_role != null ? voot_membership_role.hashCode() : 0);
+		public int hashCode(){
+			final int prime = 31;
+			int result = 23;
+			result = prime * result + (id != null ? id.hashCode() : 0);
+			result = prime * result + (title != null ? title.hashCode() : 0);
+			result = prime * result + (description != null ? description.hashCode() : 0);
+			result = prime * result + (voot_membership_role != null ? voot_membership_role.hashCode() : 0);
 
-		return result;
-	}
+			return result;
+		}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
 
-		final VOOTGroup other = (VOOTGroup) obj;
+			final VOOTGroup other = (VOOTGroup) obj;
 
-		if ((id == null) ? (other.id != null) : !id.equals(other.id)) {
-			return false;
+			if ((id == null) ? (other.id != null) : !id.equals(other.id)) {
+				return false;
+			}
+
+			if ((title == null) ? (other.title != null) : !title.equals(other.title)) {
+				return false;
+			}
+
+			if ((description == null) ? (other.description != null) : !description.equals(other.description)) {
+				return false;
+			}
+
+			if ((voot_membership_role == null) ? (other.voot_membership_role != null) : !voot_membership_role.equals(other.voot_membership_role)) {
+				return false;
+			}
+
+			return true;
 		}
-
-		if ((title == null) ? (other.title != null) : !title.equals(other.title)) {
-			return false;
-		}
-
-		if ((description == null) ? (other.description != null) : !description.equals(other.description)) {
-			return false;
-		}
-
-		if ((voot_membership_role == null) ? (other.voot_membership_role != null) : !voot_membership_role.equals(other.voot_membership_role)) {
-			return false;
-		}
-
-		return true;
-	}
 
 	@Override
-	public int compareTo(VOOTGroup other) {
-		if(id.compareTo(other.getId()) > 0){
-			return 1;
-		}else if(id.compareTo(other.getId()) == 0){
-			return 0;
-		}else{
-			return -1;
+		public int compareTo(VOOTGroup other) {
+			if(id.compareTo(other.getId()) > 0){
+				return 1;
+			}else if(id.compareTo(other.getId()) == 0){
+				return 0;
+			}else{
+				return -1;
+			}
 		}
-	}
 
 	@Override
-	public String toString(){
-		return "VOOTGroup:[id='" + id + "', title='" + title + "',description='" + description + "', voot_membership_role='" + voot_membership_role + "']";
-	}
+		public String toString(){
+			return "VOOTGroup:[id='" + id + "', title='" + title + "',description='" + description + "', voot_membership_role='" + voot_membership_role + "']";
+		}
 }

@@ -1,19 +1,55 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package cz.metacentrum.perun.voot;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.*;
-import cz.metacentrum.perun.voot.comparators.vootmembercomparator.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupDefaultDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupDescriptionAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupDescriptionDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupIdAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupIdDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupMembershipRoleAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupMembershipRoleDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupTitleAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupTitleDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberDefaultDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberDisplayNameAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberDisplayNameDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberIdAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberIdDescComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberMembershipRoleAscComparator;
+import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberMembershipRoleDescComparator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * VOOT protocol
@@ -22,11 +58,12 @@ import java.util.regex.Pattern;
  * and members of specific group, in which user is member of.
  *
  * @author Martin Malik <374128@mail.muni.cz>
+ * @version $Id: $
  */
 public class VOOT {
 
 	@Autowired
-	private PerunBl perun;
+		private PerunBl perun;
 
 	private PerunSession session;
 	private PerunPrincipal perunPrincipal;
@@ -330,7 +367,7 @@ public class VOOT {
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}catch(VoNotExistsException ex){
-			throw new VOOTException("internal_server_error", "vo not exists");
+			throw new VOOTException("internal_server_error", "vo is not exists");
 		}
 
 		Group group = null;
@@ -338,7 +375,7 @@ public class VOOT {
 		try{
 			group = perun.getGroupsManagerBl().getGroupByName(session, vo, groupNames[groupNames.length - 1]);
 		}catch(GroupNotExistsException ex){
-			throw new VOOTException("internal_server_error", "group not exists");
+			throw new VOOTException("internal_server_error", "group is not exist");
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}
@@ -357,6 +394,8 @@ public class VOOT {
 		List<Member> members = new ArrayList<Member>();
 
 		try{
+			//if user is not member of group cannot read members of
+			if (!perun.getGroupsManagerBl().isUserMemberOfGroup(session, user, group)) throw new VOOTException("not_a_member");
 			members = perun.getGroupsManagerBl().getGroupMembers(session, group);
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
