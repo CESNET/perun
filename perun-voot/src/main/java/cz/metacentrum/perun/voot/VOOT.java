@@ -370,7 +370,7 @@ public class VOOT {
 		try{
 			group = perun.getGroupsManagerBl().getGroupByName(session, vo, groupNames[groupNames.length - 1]);
 		}catch(GroupNotExistsException ex){
-			throw new VOOTException("internal_server_error", "group not exist");
+			throw new VOOTException("internal_server_error", "group not exists");
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}
