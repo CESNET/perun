@@ -25,6 +25,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -32,6 +34,7 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.sql.DataSource;
 
 /**
  * Utilities.
@@ -116,7 +119,7 @@ public class Utils {
 			
 			Utils.properties = properties;
 		}
-		String property = properties.getProperty(propertyName);
+		String property = Utils.properties.getProperty(propertyName);
 		if (property == null) {
 			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
 		}
@@ -339,9 +342,12 @@ public class Utils {
 		// try to deduce database type from jdbc connection metadata
 		try {
 			if (jdbc instanceof JdbcTemplate) {
-				url = ((JdbcTemplate)jdbc).getDataSource().getConnection().getMetaData().getURL();
+				DataSource ds = ((JdbcTemplate)jdbc).getDataSource();
+				if(ds instanceof BasicDataSource)
+				url = ((BasicDataSource)ds).getUrl();
+				// c.close();
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 		}
 		if(url.matches("hsqldb")) {
 			dbType = "hsqldb";
