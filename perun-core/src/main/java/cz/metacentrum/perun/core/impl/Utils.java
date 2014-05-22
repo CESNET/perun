@@ -34,6 +34,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+
 import cz.metacentrum.perun.core.api.exceptions.DiacriticNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
@@ -49,6 +51,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.sql.DataSource;
 /**
  * Utilities.
  */
@@ -58,7 +61,7 @@ public class Utils {
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
-	
+
 	/**
 	 * Replaces dangerous characters.
 	 * Replaces : with - and spaces with _.
@@ -129,10 +132,9 @@ public class Utils {
 			} catch (IOException e) {
 				throw new InternalErrorException("Cannot read perun.properties file", e);
 			}
-			
 			Utils.properties = properties;
 		}
-		String property = properties.getProperty(propertyName);
+		String property = Utils.properties.getProperty(propertyName);
 		if (property == null) {
 			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
 		}
@@ -355,11 +357,12 @@ public class Utils {
 		// try to deduce database type from jdbc connection metadata
 		try {
 			if (jdbc instanceof JdbcTemplate) {
-				Connection c = ((JdbcTemplate)jdbc).getDataSource().getConnection();
-				url = c.getMetaData().getURL();
-				c.close();
+				DataSource ds = ((JdbcTemplate)jdbc).getDataSource();
+				if(ds instanceof BasicDataSource)
+				url = ((BasicDataSource)ds).getUrl();
+				// c.close();
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 		}
 		if(url.matches("hsqldb")) {
 			dbType = "hsqldb";
@@ -375,24 +378,26 @@ public class Utils {
 		} else if (dbType.equals("postgresql")) {
 			query = "select nextval('" + sequenceName + "')";
  		} else if (dbType.equals("hsqldb")) {
- 			query = "call next value for " + sequenceName + ";";
- 		} else {
+	    	query = "call next value for " + sequenceName + ";";
+		} else {
 			throw new InternalErrorException("Unsupported DB type");
 		}
 
-		// Decide which type of the JdbcTemplate is provided
-		try {
-			if (jdbc instanceof SimpleJdbcTemplate) {
-				return ((SimpleJdbcTemplate) jdbc).queryForInt(query);
-			} else if (jdbc instanceof JdbcTemplate) {
-				return ((JdbcTemplate) jdbc).queryForInt(query);
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
+    
+    	// Decide which type of the JdbcTemplate is provided
+    	try {
+    	  if (jdbc instanceof SimpleJdbcTemplate) {
+    	    return ((SimpleJdbcTemplate) jdbc).queryForInt(query);
+    	  } else if (jdbc instanceof JdbcTemplate) {
+    	    return ((JdbcTemplate) jdbc).queryForInt(query);
+    	  }
+    	} catch (RuntimeException e) {
+    	  throw new InternalErrorException(e);
+    	}
+    
+	    // Shouldn't ever happened
+    	throw new InternalErrorException("Unsupported DB type");
 
-		// Shouldn't ever happened
-		throw new InternalErrorException("Unsupported DB type");
 	}
 
 	/**
