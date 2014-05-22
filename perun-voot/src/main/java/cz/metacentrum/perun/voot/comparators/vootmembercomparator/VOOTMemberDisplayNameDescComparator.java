@@ -4,7 +4,7 @@ import cz.metacentrum.perun.voot.VOOTMember;
 import java.util.Comparator;
 
 /**
- * Comparator for members, which compare descending by dispalay name.
+ * Comparator for members, which compare descending by display name.
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
