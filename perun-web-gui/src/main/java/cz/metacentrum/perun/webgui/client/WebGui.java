@@ -237,11 +237,14 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 								@Override
 								public void onError(PerunError error){
 									checkPending = false;
-									connected = false;
-									if (!c.isShowing()) {
-										c.show();
+									// connection lost only IF TIMEOUT
+									if (error == null) {
+										connected = false;
+										if (!c.isShowing()) {
+											c.show();
+										}
+										layout.setVisible(true);
 									}
-									layout.setVisible(true);
 								}
 								}));
 								call.retrieveData();
@@ -585,10 +588,13 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 				@Override
 				public void onError(PerunError error) {
 					checkPending = false;
-					if (!c.isShowing()) {
-						c.show();
+					if (error == null) {
+						// connection lost only IF TIMEOUT
+						if (!c.isShowing()) {
+							c.show();
+						}
+						connected = false;
 					}
-					connected = false;
 				}
 				});
 				if (!checkPending && perunLoaded && connected) {
