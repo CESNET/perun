@@ -204,7 +204,7 @@ public class MailManagerImpl implements MailManager {
 	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
 
 		// update sending (enabled / disabled)
-		jdbc.update("update application_mails set send=? where id=?", mail.getSend(), mail.getId());
+		jdbc.update("update application_mails set send=? where id=?", mail.getSend() ? "1" : "0", mail.getId());
 
 		// update texts (easy way = delete and new insert)
 		jdbc.update("delete from application_mail_texts where mail_id=?", mail.getId());
