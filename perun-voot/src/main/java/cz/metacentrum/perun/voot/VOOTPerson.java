@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.User;
@@ -11,7 +7,6 @@ import cz.metacentrum.perun.core.api.User;
  * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
  *
  * @author Martin Malik <374128@mail.muni.cz>
- * @version $Id: $
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Person">Social-Data-Person</a>
  */
 public class VOOTPerson implements Comparable<VOOTPerson>{
@@ -61,63 +56,63 @@ public class VOOTPerson implements Comparable<VOOTPerson>{
 	}
 
 	@Override
-		public int hashCode(){
-			final int prime = 31;
-			int result = 23;
-			result = prime * result + (id != null ? id.hashCode() : 0);
-			result = prime * result + (displayName != null ? displayName.hashCode() : 0);
+	public int hashCode(){
+		final int prime = 31;
+		int result = 23;
+		result = prime * result + (id != null ? id.hashCode() : 0);
+		result = prime * result + (displayName != null ? displayName.hashCode() : 0);
 
-			return result;
-		}
-
-	@Override
-		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-
-			final VOOTPerson other = (VOOTPerson) obj;
-
-			if ((id == null) ? (other.id != null) : !id.equals(other.id)) {
-				return false;
-			}
-
-			if ((displayName == null) ? (other.displayName != null) : !displayName.equals(other.displayName)) {
-				return false;
-			}
-
-			return true;
-		}
+		return result;
+	}
 
 	@Override
-		public int compareTo(VOOTPerson other) {
-			if(id.compareTo(other.getId()) > 0){
-				return 1;
-			}else if(id.compareTo(other.getId()) == 0){
-				return 0;
-			}else{
-				return -1;
-			}
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
 		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		final VOOTPerson other = (VOOTPerson) obj;
+
+		if ((id == null) ? (other.id != null) : !id.equals(other.id)) {
+			return false;
+		}
+
+		if ((displayName == null) ? (other.displayName != null) : !displayName.equals(other.displayName)) {
+			return false;
+		}
+
+		return true;
+	}
 
 	@Override
-		public String toString(){
-			StringBuilder sb = new StringBuilder();
-
-			sb.append("VOOTPerson:[id='" + id + "', displayName='" + displayName +"', emails=['");
-
-			if(emails != null){
-				for(int i=0;i<emails.length;i++){
-					sb.append(emails[i] + ", ");
-				}
-			}
-
-			sb.deleteCharAt(sb.length() - 2);
-			sb.append("']]");
-
-			return sb.toString();
+	public int compareTo(VOOTPerson other) {
+		if(id.compareTo(other.getId()) > 0){
+			return 1;
+		}else if(id.compareTo(other.getId()) == 0){
+			return 0;
+		}else{
+			return -1;
 		}
+	}
+
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("VOOTPerson:[id='" + id + "', displayName='" + displayName +"', emails=['");
+
+		if(emails != null){
+			for(int i=0;i<emails.length;i++){
+				sb.append(emails[i] + ", ");
+			}
+		}
+
+		sb.deleteCharAt(sb.length() - 2);
+		sb.append("']]");
+
+		return sb.toString();
+	}
 }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -10,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * Checked version of VOOTException.
  *
  * @author Martin Malik <374128@mail.muni.cz>
- * @version $Id: $
  */
 public class VOOTException extends PerunException{
 	static final long serialVersionUID = 0;
@@ -46,11 +41,11 @@ public class VOOTException extends PerunException{
 	}
 
 	@Override
-		public String toString(){
-			if(error_description != null){
-				return "error: " + error + ",error_description: " + error_description;
-			}else{
-				return "error: " + error;
-			}
+	public String toString(){
+		if(error_description != null){
+			return "error: " + error + ",error_description: " + error_description;
+		}else{
+			return "error: " + error;
 		}
+	}
 }

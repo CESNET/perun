@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -58,12 +54,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  * and members of specific group, in which user is member of.
  *
  * @author Martin Malik <374128@mail.muni.cz>
- * @version $Id: $
  */
 public class VOOT {
 
 	@Autowired
-		private PerunBl perun;
+	private PerunBl perun;
 
 	private PerunSession session;
 	private PerunPrincipal perunPrincipal;

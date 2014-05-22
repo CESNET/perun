@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.metacentrum.perun.voot;
 
 /**
@@ -9,7 +5,6 @@ package cz.metacentrum.perun.voot;
  * Results are items, e.g. array of members or groups.
  *
  * @author Martin Malik <374128@mail.muni.cz>
- * @version $Id: $
  */
 public class Response {
 
@@ -106,17 +101,17 @@ public class Response {
 	}
 
 	@Override
-		public String toString(){
-			StringBuilder sb = new StringBuilder("Response:[startIndex='" + startIndex + ", totalResults='" + totalResults + ", itemsPerPage='" + itemsPerPage + ", entry=['");
+	public String toString(){
+		StringBuilder sb = new StringBuilder("Response:[startIndex='" + startIndex + ", totalResults='" + totalResults + ", itemsPerPage='" + itemsPerPage + ", entry=['");
 
-			for(int i=0;i<entry.length;i++){
-				sb.append(entry[i] + ", ");
-			}
-
-			sb.deleteCharAt(sb.length() - 2);
-			sb.append("']");
-
-			return sb.toString();
+		for(int i=0;i<entry.length;i++){
+			sb.append(entry[i] + ", ");
 		}
+
+		sb.deleteCharAt(sb.length() - 2);
+		sb.append("']");
+
+		return sb.toString();
+	}
 
 }

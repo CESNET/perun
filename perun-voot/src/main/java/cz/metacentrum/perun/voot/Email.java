@@ -16,7 +16,7 @@ public class Email {
 	/**
 	 * Return value of email, e.g. 374128@mail.muni.cz.
 	 *
-	 * @return	value of email
+	 * @return value of email
 	 */
 	public String getValue() {
 		return value;
@@ -34,7 +34,7 @@ public class Email {
 	/**
 	 * Return type of email, e.g. 'mail'.
 	 *
-	 * @return	  type of email
+	 * @return type of email
 	 */
 	public String getType() {
 		return type;
@@ -50,37 +50,37 @@ public class Email {
 	}
 
 	@Override
-		public int hashCode(){
-			final int prime = 31;
-			int result = 23;
-			result = prime * result + (type != null ? type.hashCode() : 0);
-			result = prime * result + (value != null ? value.hashCode() : 0);
-			return result;
-		}
+	public int hashCode(){
+		final int prime = 31;
+		int result = 23;
+		result = prime * result + (type != null ? type.hashCode() : 0);
+		result = prime * result + (value != null ? value.hashCode() : 0);
+		return result;
+	}
 
 	@Override
-		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-
-			final Email other = (Email) obj;
-
-			if ((type == null) ? (other.type != null) : !type.equals(other.type)) {
-				return false;
-			}
-			if ((value == null) ? (other.value != null) : !value.equals(other.value)) {
-				return false;
-			}
-
-			return true;
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
 		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		final Email other = (Email) obj;
+
+		if ((type == null) ? (other.type != null) : !type.equals(other.type)) {
+			return false;
+		}
+		if ((value == null) ? (other.value != null) : !value.equals(other.value)) {
+			return false;
+		}
+
+		return true;
+	}
 
 	@Override
-		public String toString(){
-			return "Email:[type='" + type + "', value='" + value + "']";
-		}
+	public String toString(){
+		return "Email:[type='" + type + "', value='" + value + "']";
+	}
 }
