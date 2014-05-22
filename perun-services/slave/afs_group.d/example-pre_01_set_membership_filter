@@ -1,0 +1,3 @@
+#!/bin/sh
+# By default Filter is empty, can be something like "@meta$" etc. use for filtering mambers from afs
+#AFS_MEMBERSHIP_FILTER=""
