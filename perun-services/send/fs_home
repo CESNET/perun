@@ -1,0 +1,5 @@
+#!/bin/bash 
+
+SERVICE_NAME="fs_home"
+
+. generic_send
