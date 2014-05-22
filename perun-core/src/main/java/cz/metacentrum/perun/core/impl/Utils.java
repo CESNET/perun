@@ -384,19 +384,19 @@ public class Utils {
 		}
 
     
-    	// Decide which type of the JdbcTemplate is provided
-    	try {
-    	  if (jdbc instanceof SimpleJdbcTemplate) {
-    	    return ((SimpleJdbcTemplate) jdbc).queryForInt(query);
-    	  } else if (jdbc instanceof JdbcTemplate) {
-    	    return ((JdbcTemplate) jdbc).queryForInt(query);
-    	  }
-    	} catch (RuntimeException e) {
-    	  throw new InternalErrorException(e);
-    	}
+		// Decide which type of the JdbcTemplate is provided
+		try {
+			if (jdbc instanceof SimpleJdbcTemplate) {
+				return ((SimpleJdbcTemplate) jdbc).queryForInt(query);
+			} else if (jdbc instanceof JdbcTemplate) {
+				return ((JdbcTemplate) jdbc).queryForInt(query);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
     
-	    // Shouldn't ever happened
-    	throw new InternalErrorException("Unsupported DB type");
+		// Shouldn't ever happened
+		throw new InternalErrorException("Unsupported DB type");
 
 	}
 
