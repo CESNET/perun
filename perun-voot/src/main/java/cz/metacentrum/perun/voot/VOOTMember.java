@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.User;
 
 /**
  * Class defines person with membership encoded according to the OpenSocial Social Data Specification.
- * Attributes that are not part of specification have namespace prefix 'voot_'.
+ * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
  *
  * @author Martin Malik<374128@mail.muni.cz>
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Person">Social-Data-Person</a>

@@ -16,7 +16,7 @@ public class Email {
 	/**
 	 * Return value of email, e.g. 374128@mail.muni.cz.
 	 *
-	 * @return  value of email
+	 * @return value of email
 	 */
 	public String getValue() {
 		return value;
@@ -34,7 +34,7 @@ public class Email {
 	/**
 	 * Return type of email, e.g. 'mail'.
 	 *
-	 * @return    type of email
+	 * @return type of email
 	 */
 	public String getType() {
 		return type;
@@ -43,7 +43,7 @@ public class Email {
 	/**
 	 * Set type of email, e.g. 'mail'.
 	 *
-	 * @param type    type of email
+	 * @param type	  type of email
 	 */
 	public void setType(String type) {
 		this.type = type;

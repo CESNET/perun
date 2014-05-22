@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.voot.comparators.vootmembercomparator;
 
 import cz.metacentrum.perun.voot.VOOTMember;
-
 import java.util.Comparator;
 
 /**

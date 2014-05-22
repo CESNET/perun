@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.User;
 
 /**
  * Class defines Person encoded according to the OpenSocial Social Data Specification.
- * Attributes that are not part of specification have namespace prefix 'voot_'.
+ * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
  *
  * @author Martin Malik <374128@mail.muni.cz>
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Person">Social-Data-Person</a>
@@ -20,7 +20,7 @@ public class VOOTPerson implements Comparable<VOOTPerson>{
 	 * VOOTPerson represents person encoded according to the OpenSocial Social Data Specification using in VOOT protocol.
 	 *
 	 * @param user      user
-	 * @param emails    email adresses of user
+	 * @param emails    email adressrs of user
 	 */
 	public VOOTPerson(User user, Email[] emails){
 		this.id = Integer.toString(user.getId());

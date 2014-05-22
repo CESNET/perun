@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 
 /**
  * Class defines group encoded according to the OpenSocial Social Data Specification.
- * Attributes that are not part of specification have namespace prefix 'voot_'.
+ * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
  *
  * @author Martin Malik <374128@mail.muni.cz>
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Group">Social-Data-Group</a>

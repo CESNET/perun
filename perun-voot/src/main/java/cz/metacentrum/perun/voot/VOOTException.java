@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
-public class VOOTException extends PerunException {
+public class VOOTException extends PerunException{
 	static final long serialVersionUID = 0;
 
 	String error;
