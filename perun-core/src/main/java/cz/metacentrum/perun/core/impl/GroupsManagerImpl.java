@@ -84,7 +84,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "where parent_group_id is null " + "union all " + "select Groups.id, concat(temp.name" + Compatibility.castToVarchar() + ",concat(':',Groups.name" + Compatibility.castToVarchar() + "))" + Compatibility.castToVarchar()
 			+ " , Groups.parent_group_id " + "from Groups " + "inner join temp " + "    on temp.id = Groups.parent_group_id " + " " + ") ";
 
-	protected final static String groupQNameJoinQuery = "  join (" + groupQNameSelectQuery + " select * from temp ) as qn_groups on groups.id = qn_groups.id ";
+	protected final static String groupQNameJoinQuery = "  join (" + groupQNameSelectQuery + " select * from temp ) qn_groups on groups.id = qn_groups.id ";
 	
 	protected final static String groupMappingSelectQuery_compat = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, "
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
