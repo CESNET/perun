@@ -13,33 +13,33 @@ Creates a NotifTemplate. Notify trigger and at least one primary property are re
 Available options:
  --name                | -n name
  --primaryProperty     | -p primary property (key and value divide by '=', more properties allowed)
- --notifyTrigger       | -t notify trigger (ALL_REGEX_IDS / STREAM)
- --oldestMessageTime   | -o oldest message time in millis
- --youngestMessageTime | -y youngest message time in millis
  --sender              | -s sender
  --batch               | -b batch
  --help                | -h prints this help
 };
 }
 
-our $batch;
-my ($name, @properties, $notifyTrigger, $oldestMessageTime, $youngestMessageTime, $sender);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "notifyTrigger|t=s" => \$notifyTrigger,
-"oldestMessageTime|o=i" => \$oldestMessageTime, "youngestMessageTime|y=i" => \$youngestMessageTime,
-"sender|s=s" => \$sender) || die help(); 
+# for stream mode
+# --notifyTrigger       | -t notify trigger (ALL_REGEX_IDS / STREAM)
+# --oldestMessageTime   | -o oldest message time in millis
+# --youngestMessageTime | -y youngest message time in millis
 
-unless (defined($notifyTrigger)) {die "ERROR: PerunNotifTemplate: notifyTrigger is required\n"}
-if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
+our $batch;
+my ($name, @properties, $sender);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+ "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender) || die help(); 
+
+# unless (defined($notifyTrigger)) {die "ERROR: PerunNotifTemplate: notifyTrigger is required\n"}
+#if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
 my $object = Perun::beans::NotifTemplate->new;
 $object->setName($name);
-$object->setNotifyTrigger($notifyTrigger);
-$object->setOldestMessageTime($oldestMessageTime);
-$object->setYoungestMessageTime($youngestMessageTime);
+$object->setNotifyTrigger("ALL_REGEX_IDS");
+$object->setOldestMessageTime(0);
+$object->setYoungestMessageTime(0);
 $object->setSender($sender);
 
 my (%hashedProperties, @list, @values);

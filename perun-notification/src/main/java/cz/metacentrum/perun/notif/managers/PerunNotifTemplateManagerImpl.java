@@ -188,6 +188,10 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 					}
 				}
 				break;
+			// Not fully supported yet !
+			// TODO - create reliable workflow with regexes in the STREAM mode.
+			//      - need to work with more than one msg of the same regex
+			//      - need to ensure delivery of all the msgs required by the template message
 			case STREAM:
 
 				DateTime now = new DateTime();

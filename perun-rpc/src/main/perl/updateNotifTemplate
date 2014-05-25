@@ -14,9 +14,6 @@ Available options:
  --id                  | -i id of the updated NotifTemplate
  --name                | -n name
  --primaryProperty     | -p primary property (key and value divide by '=', more properties allowed)
- --notifyTrigger       | -t notify trigger (ALL_REGEX_IDS / STREAM)
- --oldestMessageTime   | -o oldest message time in millis
- --youngestMessageTime | -y youngest message time in millis
  --locale              | -l locale
  --sender              | -s sender
  --batch               | -b batch
@@ -25,12 +22,15 @@ Available options:
 };
 }
 
+# for stream mode
+# --notifyTrigger       | -t notify trigger (ALL_REGEX_IDS / STREAM)
+# --oldestMessageTime   | -o oldest message time in millis
+# --youngestMessageTime | -y youngest message time in millis
+
 our $batch;
-my ($id, $name, @properties, $notifyTrigger, $oldestMessageTime, $youngestMessageTime, $sender);
+my ($id, $name, @properties, $sender);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, "id|i=i" => \$id,
- "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "notifyTrigger|t=s" => \$notifyTrigger,
- "oldestMessageTime|o=i" => \$oldestMessageTime, "youngestMessageTime|y=i" => \$youngestMessageTime,
- "sender|s=s" => \$sender) || die help(); 
+ "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender) || die help(); 
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
@@ -43,18 +43,18 @@ if (defined($name)) {
    $object->setName($name);
 }
 
-if (defined($notifyTrigger)) {
-    if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
-    $object->setNotifyTrigger($notifyTrigger);
-}
+# if (defined($notifyTrigger)) {
+#    if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
+#   $object->setNotifyTrigger($notifyTrigger);
+#}
 
-if (defined($oldestMessageTime)) {
-    $object->setOldestMessageTime($oldestMessageTime);
-}
+#if (defined($oldestMessageTime)) {
+#    $object->setOldestMessageTime($oldestMessageTime);
+#}
 
-if (defined($youngestMessageTime)) {
-    $object->setYoungestMessageTime($youngestMessageTime);
-}
+#if (defined($youngestMessageTime)) {
+#    $object->setYoungestMessageTime($youngestMessageTime);
+#}
 
 if (defined($sender)) {
     $object->setSender($sender);
