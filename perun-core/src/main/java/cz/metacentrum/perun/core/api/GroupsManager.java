@@ -728,4 +728,37 @@ public interface GroupsManager {
 	 * @throws MemberNotExistsException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+	
+	/**
+	 * Return all RichGroups containing selected attributes
+	 * 
+	 * @param sess
+	 * @param vo
+	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException
+	 * @throws VoNotExistsException
+	 */
+	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException, VoNotExistsException;
+	/**
+	 * Return all RichSubGroups containing selected attributes
+	 * @param sess
+	 * @param parentGroup
+	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 */
+	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException, GroupNotExistsException;
+	/**
+	 * Return selected RichGroup containing selected attributes
+	 * 
+	 * @param sess
+	 * @param groupId
+	 * @param attrNames if attrNames is null mothod will return RichGroup containing all attributes
+	 * @return RichGroup
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 */
+	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException;
 }

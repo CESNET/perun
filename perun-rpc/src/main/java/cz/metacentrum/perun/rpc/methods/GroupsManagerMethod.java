@@ -8,6 +8,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
@@ -668,6 +669,60 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Return all RichGroups containing selected attributes
+	 *
+	 * @param vo
+	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getAllRichGroupsWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getAllRichGroupsWithAttributesByNames(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Return all RichGroups containing selected attributes
+	 *
+	 * @param group
+	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getRichSubGroupsWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getRichSubGroupsWithAttributesByNames(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Return RichGroup containing selected attributes
+	 *
+	 * @param groupId
+	 * @param attrNames if attrNames is null mothod will return RichGroup containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getRichGroupsWithAttributesByNames {
+
+		@Override
+		public RichGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getRichGroupByIdWithAttributesByNames(ac.getSession(),
+					parms.readInt("groupId"),
+					parms.readList("attrNames", String.class));
+		}
+	},
+	
 	getAllMemberGroups {
 
 		@Override

@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -878,5 +879,20 @@ public class GroupsManagerEntry implements GroupsManager {
 				}
 
 		return getGroupsManagerBl().getAllMemberGroups(sess, member);
+	}
+	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException, VoNotExistsException{
+		Utils.checkPerunSession(sess);
+		this.getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		return this.getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames);
+	}
+	public List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{
+		Utils.checkPerunSession(sess);
+		this.getGroupsManagerBl().checkGroupExists(sess, parentGroup);
+		return this.getGroupsManagerBl().getRichSubGroupsWithAttributesByNames(sess, parentGroup, attrNames);
+	}
+	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{
+		Utils.checkPerunSession(sess);
+		this.getGroupsManagerBl().checkGroupExists(sess, this.getGroupsManagerBl().getGroupById(sess, groupId));
+		return this.getGroupsManagerBl().getRichGroupByIdWithAttributesByNames(sess, groupId, attrNames);
 	}
 }
