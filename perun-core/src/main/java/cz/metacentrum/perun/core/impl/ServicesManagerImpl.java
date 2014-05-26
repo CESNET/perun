@@ -68,7 +68,8 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
 		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid";
 
-
+	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_destinations_propagation_type ";
+			
 	public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
 		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
@@ -130,9 +131,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			destination.setCreatedBy(rs.getString("destinations_created_by"));
 			destination.setModifiedAt(rs.getString("destinations_modified_at"));
 			destination.setModifiedBy(rs.getString("destinations_modified_by"));
-			if(rs.getString("destinations_propagation_type").equals(Destination.PROPAGATIONTYPE_SERIAL)) {
-				destination.setPropagationType(Destination.PROPAGATIONTYPE_SERIAL);
-			} else {
+			try { // do not mind if the column is not in the results
+				if(rs.getString("f_s_destinations_propagation_type").equals(Destination.PROPAGATIONTYPE_SERIAL)) {
+					destination.setPropagationType(Destination.PROPAGATIONTYPE_SERIAL);
+				} else {
+					destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
+				}
+			} catch (SQLException e) {
 				destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 			}
 			if(rs.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
@@ -493,7 +498,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + destinationMappingSelectQuery + " from facility_service_destinations join destinations on destinations.id=facility_service_destinations.destination_id " +
+			return jdbc.query("select " + facilityDestinationMappingSelectQuery + " from facility_service_destinations join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"where service_id=? and facility_id=? order by destinations.destination", DESTINATION_MAPPER, service.getId(), facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
