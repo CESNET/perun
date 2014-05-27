@@ -1,0 +1,11 @@
+##
+# CONFIG FILE FOR LDAP PASSWORD MANAGER
+#
+# Replace "login-namespace" in filename with respective login/password namespace used by LDAP
+#
+# Replace whole file content like following and do not keep any whitespace / empty lines / comments etc.:
+#
+# 1st line - LDAP server location like: "ldap://address:port" or "localhost:port" (port is optional)
+# 2nd line - login for LDAP admin access
+# 3rd line - pass for LDAP admin access
+# 4th line - base DN like: ou=authz,dc=perun,dc=domain,dc=com
