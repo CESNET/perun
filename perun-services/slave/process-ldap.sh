@@ -20,8 +20,12 @@ function process {
 	INFILE="${WORK_DIR}/ldap.ldif"
 	ACFILE="${WORK_DIR}/actual.ldif"
 
+	# sorted work files
 	SINFILE="${WORK_DIR}/sorted-new.ldif"
 	SACFILE="${WORK_DIR}/sorted-actual.ldif"
+
+	# diff file used to modify ldap
+	MODFILE="${WORK_DIR}/mod"
 
 	BASE_DN=`head -n 1 "${WORK_DIR}/baseDN"`
 
@@ -44,10 +48,10 @@ function process {
 		$LDIFSORT -k dn $INFILE >$SINFILE
 
 		# DIFF LDIFs
-		$LDIFDIFF -k dn $SINFILE $SACFILE | sed '/^[^ ].*/N; s/\n //g' > mod
+		$LDIFDIFF -k dn $SINFILE $SACFILE | sed '/^[^ ].*/N; s/\n //g' > MODFILE
 
 		# Update LDAP based on changes
-		catch_error E_WHEN_UPDATING_LDAP ldapmodify -x -H "$LDAP_URL" -D "$LDAP_LOGIN" -w "$LDAP_PASSWORD" -c < mod
+		catch_error E_WHEN_UPDATING_LDAP ldapmodify -x -H "$LDAP_URL" -D "$LDAP_LOGIN" -w "$LDAP_PASSWORD" -c < MODFILE
 
 	else
 	# LDAP is empty under base DN

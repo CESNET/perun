@@ -54,14 +54,14 @@ my @resourcesData = $data->getChildElements;
 
 # FOR EACH RESOURCE
 foreach my $rData (@resourcesData) {
-    my %rAttributes = attributesToHash $rData->getAttributes;
-    my $voShortName = $rAttributes{$A_R_VO_SHORT_NAME};
-    # process members
+	my %rAttributes = attributesToHash $rData->getAttributes;
+	my $voShortName = $rAttributes{$A_R_VO_SHORT_NAME};
+	# process members
 	my @membersData = ($rData->getChildElements)[1]->getChildElements;
 
 	# FOR EACH MEMBER ON RESOURCE
-    foreach my $mData (@membersData) {
-        my %mAttributes = attributesToHash $mData->getAttributes;
+	foreach my $mData (@membersData) {
+		my %mAttributes = attributesToHash $mData->getAttributes;
 		my $login = $mAttributes{$A_USER_LOGIN};
 
 		# Store member in VOs structure (use MEMBER attributes)
@@ -86,15 +86,15 @@ foreach my $rData (@resourcesData) {
 
 		# Store same member in flat structure (use USER attributes)
 		$users->{$login}->{$A_DISPLAY_NAME} = $mAttributes{$A_DISPLAY_NAME};
-        $users->{$login}->{$A_FIRST_NAME} = $mAttributes{$A_FIRST_NAME};
-        $users->{$login}->{$A_LAST_NAME} = $mAttributes{$A_LAST_NAME};
-        $users->{$login}->{$A_ORGANIZATION} = $mAttributes{$A_ORGANIZATION};
-        $users->{$login}->{$A_MAIL} = $mAttributes{$A_MAIL};
+		$users->{$login}->{$A_FIRST_NAME} = $mAttributes{$A_FIRST_NAME};
+		$users->{$login}->{$A_LAST_NAME} = $mAttributes{$A_LAST_NAME};
+		$users->{$login}->{$A_ORGANIZATION} = $mAttributes{$A_ORGANIZATION};
+		$users->{$login}->{$A_MAIL} = $mAttributes{$A_MAIL};
 
-    }
+	}
 
 	my @groupsToProcess = ($rData->getChildElements)[0]->getChildElements;
-    processGroupMembership( @groupsToProcess , $voShortName );
+	processGroupMembership( @groupsToProcess , $voShortName );
 
 }
 
@@ -122,25 +122,25 @@ print FILE "\n";
 for my $login (sort keys %$users) {
 
 	# print attributes, which are never empty
-    print FILE "dn: uid=" . $login . ",ou=people," . $facilityAttributes{$A_F_BASE_DN} . "\n";
-    print FILE "uid: " . $login . "\n";
-    print FILE "cn: " . $users->{$login}->{$A_DISPLAY_NAME} . "\n";
-    print FILE "sn: " . $users->{$login}->{$A_LAST_NAME} . "\n";
+	print FILE "dn: uid=" . $login . ",ou=people," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print FILE "uid: " . $login . "\n";
+	print FILE "cn: " . $users->{$login}->{$A_DISPLAY_NAME} . "\n";
+	print FILE "sn: " . $users->{$login}->{$A_LAST_NAME} . "\n";
 
-    # skip attributes which are empty and LDAP can't handle it (FIRST_NAME, ORGANIZATION, EMAIL)
-    my $givenName = $users->{$login}->{$A_FIRST_NAME};
-    my $organization = $users->{$login}->{$A_ORGANIZATION};
-    my $mail = $users->{$login}->{$A_MAIL};
+	# skip attributes which are empty and LDAP can't handle it (FIRST_NAME, ORGANIZATION, EMAIL)
+	my $givenName = $users->{$login}->{$A_FIRST_NAME};
+	my $organization = $users->{$login}->{$A_ORGANIZATION};
+	my $mail = $users->{$login}->{$A_MAIL};
 
-    if (defined $givenName and length $givenName) {
-        print FILE "givenName: " . $givenName . "\n";
-    }
-    if (defined $organization and length $organization) {
-        print FILE "o: " . $organization . "\n";
-    }
+	if (defined $givenName and length $givenName) {
+		print FILE "givenName: " . $givenName . "\n";
+	}
+	if (defined $organization and length $organization) {
+		print FILE "o: " . $organization . "\n";
+	}
 	if (defined $mail and length $mail) {
-        print FILE "mail: " . $mail . "\n";
-    }
+		print FILE "mail: " . $mail . "\n";
+	}
 
 	# print group membership information
 	my @gs = keys %{$groups->{$login}};
@@ -149,9 +149,9 @@ for my $login (sort keys %$users) {
 	}
 
 	# print classes
-    print FILE "objectclass: top\n";
-    print FILE "objectclass: inetOrgPerson\n";
-    print FILE "objectclass: perunEduroamUser\n";
+	print FILE "objectclass: top\n";
+	print FILE "objectclass: inetOrgPerson\n";
+	print FILE "objectclass: perunEduroamUser\n";
 
 	# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
 	print FILE "\n";
@@ -164,53 +164,53 @@ for my $login (sort keys %$users) {
 for my $voShortName (sort keys %$usersByVo) {
 
 	# PRINT VO entry (create voShortName group in LDAP if not exists)
-    print FILE "dn: ou=" . $voShortName . "," . $facilityAttributes{$A_F_BASE_DN} . "\n";
-    print FILE "ou: " . $voShortName. "\n";
-    print FILE "description: Virtual organization " . $voShortName . " contains all it's members, which are propagated from Perun to this LDAP\n";
-    print FILE "objectclass: organizationalunit\n";
+	print FILE "dn: ou=" . $voShortName . "," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print FILE "ou: " . $voShortName. "\n";
+	print FILE "description: Virtual organization " . $voShortName . " contains all it's members, which are propagated from Perun to this LDAP\n";
+	print FILE "objectclass: organizationalunit\n";
 
-    # There MUST be an empty line after each entry, so entry sorting and diff works on slave part
-    print FILE "\n";
+	# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+	print FILE "\n";
 
-    # PRINT USERs entries
-    my $voUsers = $usersByVo->{$voShortName};
+	# PRINT USERs entries
+	my $voUsers = $usersByVo->{$voShortName};
 	for my $login (sort keys %$voUsers) {
 
 		# HIERARCHICAL structure is stored in ou=voShortName
 		print FILE "dn: uid=" . $login . ",ou=".$voShortName."," . $facilityAttributes{$A_F_BASE_DN} . "\n";
 		print FILE "uid: " . $login . "\n";
-        print FILE "cn: " . $voUsers->{$login}->{$A_DISPLAY_NAME} . "\n";
-        print FILE "sn: " . $voUsers->{$login}->{$A_LAST_NAME} . "\n";
+		print FILE "cn: " . $voUsers->{$login}->{$A_DISPLAY_NAME} . "\n";
+		print FILE "sn: " . $voUsers->{$login}->{$A_LAST_NAME} . "\n";
 
-        # skip attributes which are empty and LDAP can't handle it (FIRST_NAME, ORGANIZATION, EMAIL)
-        # fallback to user variant is done in aggregation part of the script !!
-        my $givenName = $voUsers->{$login}->{$A_FIRST_NAME};
-        my $organization = $voUsers->{$login}->{$A_M_ORGANIZATION};
-        my $mail = $voUsers->{$login}->{$A_M_MAIL};
+		# skip attributes which are empty and LDAP can't handle it (FIRST_NAME, ORGANIZATION, EMAIL)
+		# fallback to user variant is done in aggregation part of the script !!
+		my $givenName = $voUsers->{$login}->{$A_FIRST_NAME};
+		my $organization = $voUsers->{$login}->{$A_M_ORGANIZATION};
+		my $mail = $voUsers->{$login}->{$A_M_MAIL};
 
-        if (defined $givenName and length $givenName) {
-            print FILE "givenName: " . $givenName . "\n";
-        }
-        if (defined $organization and length $organization) {
-            print FILE "o: " . $organization . "\n";
-        }
-        if (defined $mail and length $mail) {
-            print FILE "mail: " . $mail . "\n";
-        }
+		if (defined $givenName and length $givenName) {
+			print FILE "givenName: " . $givenName . "\n";
+		}
+		if (defined $organization and length $organization) {
+			print FILE "o: " . $organization . "\n";
+		}
+		if (defined $mail and length $mail) {
+			print FILE "mail: " . $mail . "\n";
+		}
 
 		# print group membership information
 		my @gs = keys %{$groupsByVo->{$login}->{$voShortName}};
-        for my $g (@gs) {
-            print FILE "memberOfPerunGroups: " . $g . "\n";
-        }
+		for my $g (@gs) {
+			print FILE "memberOfPerunGroups: " . $g . "\n";
+		}
 
 		# print classes
-        print FILE "objectclass: top\n";
-        print FILE "objectclass: inetOrgPerson\n";
-        print FILE "objectclass: perunEduroamUser\n";
+		print FILE "objectclass: top\n";
+		print FILE "objectclass: inetOrgPerson\n";
+		print FILE "objectclass: perunEduroamUser\n";
 
-        # There MUST be an empty line after each entry, so entry sorting and diff works on slave part
-        print FILE "\n";
+		# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+		print FILE "\n";
 
 	}
 
@@ -238,22 +238,22 @@ sub processGroupMembership {
 
 		# get group name as attribute
 		my %gAttributes = attributesToHash $group->getAttributes;
-        my $groupName = $gAttributes{$A_G_NAME};
+		my $groupName = $gAttributes{$A_G_NAME};
 
 		# process member data for each group
 		my @membersData = ($group->getChildElements)[1]->getChildElements;
 		# for each member, push groupName to storage
 		foreach my $mData (@membersData) {
 			# get login
-            my %mAttributes = attributesToHash $mData->getAttributes;
-            my $login = $mAttributes{$A_USER_LOGIN};
+			my %mAttributes = attributesToHash $mData->getAttributes;
+			my $login = $mAttributes{$A_USER_LOGIN};
 			# store groupName
 			$groupsByVo->{$login}->{$voShortName}->{$voShortName . ":" . $groupName} = 1;
 			$groups->{$login}->{$voShortName . ":" . $groupName} = 1;
 
-        }
+		}
 
-        # process recursively for each sub-group in this group
+		# process recursively for each sub-group in this group
 		processGroupMembership(($group->getChildElements)[0]->getChildElements , $voShortName);
 
 	}
