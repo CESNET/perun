@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroup;
+import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
@@ -122,16 +122,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 				UiElements.showDeleteConfirm(groupsToDelete, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<groupsToDelete.size(); i++ ) {
-							DeleteGroup request;
-							if(i == groupsToDelete.size() - 1) {
-								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							} else {
-								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteGroup(groupsToDelete.get(i).getId());
-						}
+						DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+						request.deleteGroups(groupsToDelete);
 					}
 				});
 			}
