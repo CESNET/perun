@@ -41,6 +41,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
@@ -95,6 +96,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		this.deleteAnyGroup(sess, group, forceDelete);
+	}
+	
+	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
+		//Use sorting by group names reverse order (frist name A:B:c then A:B etc.)
+		Collections.sort(groups, Collections.reverseOrder(
+				new Comparator<Group>() {
+					@Override
+					public int compare(Group groupToCompare,Group groupToCompareWith) {
+						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
+					}
+				}));
+		
+		for(Group group: groups) {
+			this.deleteGroup(perunSession, group, forceDelete);
+		}
 	}
 
 	public void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {

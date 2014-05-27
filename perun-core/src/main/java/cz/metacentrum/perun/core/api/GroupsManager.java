@@ -122,6 +122,31 @@ public interface GroupsManager {
 	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
+	 * Delete all groups in list from perun. (Except members group)
+	 * 
+	 * If forceDelete is false, delete groups only if none of them (IN MOMENT OF DELETING) has subgroups and members, in other case throw exception.
+	 * if forceDelete is true, delete groups with all subgroups and members.
+	 * 
+	 * Groups are deleted in order: from longest name to the shortest
+	 *	- ex: Group A:b:c will be deleted sooner than Group A:b etc.
+	 *	- reason for this: with group are deleted its subgroups too
+	 * 
+	 * Important: Groups can be from different VOs.
+	 * 
+	 * @param perunSession 
+	 * @param groups list of groups to deleted
+	 * @param forceDelete if forceDelete is false, delete groups only if all of them have no subgroups and no members, if is true, delete anyway with all connections
+	 * 
+	 * @throws GroupNotExistsException If any group not exists in perun
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException if user has no right to call delete operation on any of these groups
+	 * @throws GroupAlreadyRemovedException if any groups is already deleted
+	 * @throws RelationExistsException raise if group has subgroups or member (forceDelete is false)
+	 * @throws GroupAlreadyRemovedFromResourceException  if any group is already removed from resource
+	 */
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException;
+
+	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
 	 *
 	 * @param perunSession

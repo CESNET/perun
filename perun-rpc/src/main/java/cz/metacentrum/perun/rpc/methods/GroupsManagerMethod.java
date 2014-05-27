@@ -81,6 +81,33 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+	
+	/*#
+	 * Delete groups (force).
+	 *
+	 * @param groups list of groups
+	 * @param forceDelete int 
+	 */
+	deleteGroups {
+		
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			
+			//TODO: optimalizovat?
+			int[] ids = parms.readArrayOfInts("groups");
+			List<Group> groups = new ArrayList<>(ids.length);
+			for (int i : ids) {
+				groups.add(ac.getGroupById(i));
+			}
+			
+			ac.getGroupsManager().deleteGroups(ac.getSession(),
+					groups,
+					parms.readInt("forceDelete") == 1);
+			return null;
+		}
+	},
+	
 	/*#
 	 * Updates a group.
 	 *

@@ -136,6 +136,22 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getGroupsManagerBl().deleteAllGroups(sess, vo);
 	}
+	
+	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(groups, "groups");
+		
+		//Test if all groups exists and user has right to delete all of them
+		for(Group group: groups) {
+			getGroupsManagerBl().checkGroupExists(perunSession, group);
+			//test of privilages on group
+			if(!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+				throw new PrivilegeException(perunSession, "deleteGroups");
+			}
+		}
+		
+		getGroupsManagerBl().deleteGroups(perunSession, groups, forceDelete);
+	}
 
 	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
