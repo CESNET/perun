@@ -148,8 +148,7 @@ create table destinations (
     modified_by varchar2(1024) default user not null,
     status char(1) default '0' not null,
     created_by_uid integer,
-    modified_by_uid integer,
-    propagation_type varchar2(10) default 'PARALLEL'
+    modified_by_uid integer
 );
 
 create table facility_owners (
@@ -440,7 +439,7 @@ create table service_dependencies (
     status char(1) default '0' not null,
     created_by_uid integer,
     modified_by_uid integer,
-    type varchar2(16) not null default 'SERVICE'
+    type varchar2(16) default 'SERVICE' not null
 );
 
 create table resource_services (
@@ -566,8 +565,9 @@ create table facility_service_destinations (
     modified_at date default sysdate not null,
     modified_by varchar2(1024) default user not null,
     status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer,
+    propagation_type varchar2(10) default 'PARALLEL'
 );
 
 create table entityless_attr_values (
