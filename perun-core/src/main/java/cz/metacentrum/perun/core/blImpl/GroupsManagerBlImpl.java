@@ -99,14 +99,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 	
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
-		//Use sorting by group names reverse (frist name A:B:c then A:B etc.)
-		Collections.sort(groups, 
+		//Use sorting by group names reverse order (frist name A:B:c then A:B etc.)
+		Collections.sort(groups, Collections.reverseOrder(
 				new Comparator<Group>() {
+					@Override
 					public int compare(Group groupToCompare,Group groupToCompareWith) {
-						//reverse comparing by name of group
-						return (groupToCompare.getName().compareTo(groupToCompareWith.getName()) * -1);
+						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
 					}
-				});
+				}));
 		
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
