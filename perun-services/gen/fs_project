@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+ 
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+
+our $SERVICE_NAME = basename($0);
+our $PROTOCOL_VERSION = "3.0.0";
+our $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_F_GROUP_NAME_NAMESPACE; *A_F_GROUP_NAME_NAMESPACE = \'urn:perun:resource:attribute-def:def:unixGroupName-namespace';
+our $A_R_PROJECTS_BASE_PATH;   *A_R_PROJECTS_BASE_PATH   = \'urn:perun:resource:attribute-def:def:projectsBasePath';
+our $A_GR_PROJECT_NAME;        *A_GR_PROJECT_NAME        = \'urn:perun:group_resource:attribute-def:def:projectName';
+our $A_GR_PROJECT_DIR_PERMS;   *A_GR_PROJECT_DIR_PERMS   = \'urn:perun:group_resource:attribute-def:def:projectDirPermissions';
+our $A_GR_PROJECT_OWNER_LOGIN; *A_GR_PROJECT_OWNER_LOGIN = \'urn:perun:group_resource:attribute-def:def:projectOwnerLogin';
+our $A_V_GR_UNIX_GROUP_NAME;   *A_V_GR_UNIX_GROUP_NAME   = \'urn:perun:group_resource:attribute-def:virt:unixGroupName';
+
+my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+#####################################
+
+####### output file ######################
+open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+
+my @resourcesData = $data->getChildElements;
+
+foreach my $rData (@resourcesData) {
+	my %resourceAttributes = attributesToHash $rData->getAttributes;
+	my @groupsData = ($rData->getChildElements)[0]->getChildElements;
+
+	foreach my $gData (@groupsData) {
+		my %groupAttributes = attributesToHash $gData->getAttributes;
+
+		if( !defined($groupAttributes{$A_GR_PROJECT_NAME}) ) { next; }
+		if( !defined($groupAttributes{$A_V_GR_UNIX_GROUP_NAME}) ) { next; }
+		# Print attributes
+		print SERVICE_FILE $resourceAttributes{$A_R_PROJECTS_BASE_PATH} . "\t";
+		print SERVICE_FILE $groupAttributes{$A_GR_PROJECT_NAME} . "\t";
+		print SERVICE_FILE defined($groupAttributes{$A_GR_PROJECT_DIR_PERMS}) ? $groupAttributes{$A_GR_PROJECT_DIR_PERMS} . "\t" : "750\t";
+		print SERVICE_FILE defined($groupAttributes{$A_GR_PROJECT_OWNER_LOGIN}) ? $groupAttributes{$A_GR_PROJECT_OWNER_LOGIN} . "\t" : "nobody\t";
+		print SERVICE_FILE $groupAttributes{$A_V_GR_UNIX_GROUP_NAME} . "\n";
+	}
+}
+close(SERVICE_FILE);
+#####################################################
+perunServicesInit::finalize;

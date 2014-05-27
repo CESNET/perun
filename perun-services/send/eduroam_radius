@@ -1,0 +1,4 @@
+#!/bin/bash
+SERVICE_NAME="eduroam_radius"
+
+. generic_send

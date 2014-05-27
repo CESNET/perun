@@ -1,0 +1,113 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Perun::Agent;
+use JSON::XS;
+
+our $SERVICE_NAME = "metacloud_export";
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+#forward declaration
+sub processGroupData; 
+sub processMembersData; 
+sub processResourceData;
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_USER_MAIL;                  *A_USER_MAIL =                 \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_LOGIN;                 *A_USER_LOGIN =                \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_SSH_KEY;               *A_USER_SSH_KEY =              \'urn:perun:user:attribute-def:def:sshPublicAdminKey';
+our $A_USER_DISPLAY_NAME;          *A_USER_DISPLAY_NAME =         \'urn:perun:user:attribute-def:core:displayName';
+our $A_U_CERT_DNS;                 *A_U_CERT_DNS  =               \'urn:perun:user:attribute-def:virt:userCertDNs';
+our $A_RESOURCE_UNIX_GROUP_NAME;   *A_RESOURCE_UNIX_GROUP_NAME =  \'urn:perun:resource:attribute-def:virt:unixGroupName';
+our $A_GROUP_UNIX_GROUP_NAME;      *A_GROUP_UNIX_GROUP_NAME =     \'urn:perun:group_resource:attribute-def:virt:unixGroupName';
+our $A_M_STATUS;                   *A_M_STATUS =                  \'urn:perun:member:attribute-def:core:status';
+
+my $dataByUser = {};
+my %allCerts;
+
+foreach my $resourceData ($data->getChildElements) {
+	processResourceData $resourceData;
+
+	foreach my $groupData (($resourceData->getChildElements)[0]->getChildElements) {
+		my $groupMembersLogins = processGroupData $groupData;
+	}
+}
+
+my @outStruc = values %$dataByUser;
+
+#convert groups from hash to array. Sort by priority (groups from resource are prioretized before group from perun groups)
+$_->{"groups"} = [ sort { $_->{"groups"}->{$b} <=> $_->{"groups"}->{$a}} keys %{$_->{"groups"}} ] foreach @outStruc;
+
+my $fileName = "$DIRECTORY/$SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+print FILE JSON::XS->new->utf8->pretty->encode(\@outStruc);
+close FILE;
+
+perunServicesInit::finalize;
+
+##############################################################################
+#   Only subs definitions down there
+##############################################################################
+
+# input: resource serviceAttributes
+# stores resource memers logins into $groupStruc structure
+sub processResourceData {
+	my $resourceData = shift;
+
+	my %resourceAttrs = attributesToHash $resourceData->getAttributes;
+	my $groupName = $resourceAttrs{$A_RESOURCE_UNIX_GROUP_NAME};
+
+	my $membersElement = ($resourceData->getChildElements)[1]; 
+	processMembersData $membersElement, $groupName, 1;
+}
+
+# input: groups serviceAttributes
+# stores groups memers logins into $groupStruc structure
+sub processGroupData {
+	my $groupData = shift;
+	my $membersElement = ($groupData->getChildElements)[1];
+	my %groupAttributes = attributesToHash $groupData->getAttributes;
+
+	my $groupName = $groupAttributes{$A_GROUP_UNIX_GROUP_NAME};
+	processMembersData $membersElement, $groupName;
+}
+
+# input: (members serviceAttributes, groupName)
+# stores memers logins into $groupStruc structure
+sub processMembersData {
+	my ($membersElement, $groupName, $fromResource) = @_;
+	for my $memberData ($membersElement->getChildElements) {
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+
+		next if($memberAttributes{$A_M_STATUS} ne 'VALID');
+		my $login = $memberAttributes{$A_USER_LOGIN};
+
+		unless(exists $dataByUser->{$login}) {
+			my @certs =  (keys %{$memberAttributes{$A_U_CERT_DNS}}, '/C=CZ/O=CESNET/CN=' . $login . '@meta.cesnet.cz');
+
+			#check for certificates duplicities
+			for my $cert (@certs) {
+				if($allCerts{$cert}++) { die "Duplicate certificate found $cert for $login" ; }
+			}
+
+			$dataByUser->{$login}->{"login"} = $login;
+			$dataByUser->{$login}->{"krb_principals"} = [ $login . '@META' ];
+			$dataByUser->{$login}->{"cert_dns"} = \@certs;
+			$dataByUser->{$login}->{"ssh_keys"} = $memberAttributes{$A_USER_SSH_KEY} || [];
+			$dataByUser->{$login}->{"mail"} = $memberAttributes{$A_USER_MAIL};
+			$dataByUser->{$login}->{"full_name"} = $memberAttributes{$A_USER_DISPLAY_NAME};
+		}
+
+		if($groupName) {
+			$dataByUser->{$login}->{"groups"}->{$groupName} = $fromResource ? 2 : 1;
+		}
+	}
+}

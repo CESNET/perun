@@ -1,0 +1,113 @@
+#!/usr/bin/perl
+ 
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+
+our $SERVICE_NAME = basename($0);
+our $PROTOCOL_VERSION = "3.4.0";
+our $SCRIPT_VERSION = "3.0.1";
+
+sub mergeQuotas {
+	my ($sumQuota, $resourceQuota, $memberQuota) = @_;
+	if($sumQuota ~~ 0 || $resourceQuota ~~ 0 || $memberQuota ~~ 0) { return 0; }
+
+	$resourceQuota = quotaToKb $resourceQuota;
+	$memberQuota = defined $memberQuota ? quotaToKb $memberQuota : 0;
+
+	return ($sumQuota || 0) + ($memberQuota > $resourceQuota ? $memberQuota : $resourceQuota);
+}
+
+sub mergeStatuses {
+	my ($finalStatus, $memberStatus) = @_;
+	unless(defined $finalStatus) { return $memberStatus; }
+
+	# SUSPENDED state has priority, then it is enough to have at least one member status == VALID
+	if ($memberStatus eq "SUSPENDED" || $finalStatus eq "SUSPENDED") { 
+		return "SUSPENDED";
+	} elsif ($memberStatus eq "VALID" || $finalStatus eq "VALID") { 
+		return "VALID";
+	} elsif ($memberStatus eq "EXPIRED" || $finalStatus eq "EXPIRED") { 
+		return "EXPIRED";
+	} elsif ($memberStatus eq "DISABLED" || $finalStatus eq "DISABLED") { 
+		return "DISABLED";
+	} 
+}
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_LOGIN;                *A_USER_LOGIN =                \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_SCRATCH_MOUNTPOINT;        *A_SCRATCH_MOUNTPOINT =        \'urn:perun:facility:attribute-def:def:fsScratchMountPoint';
+our $A_GID;                       *A_GID =                       \'urn:perun:user_facility:attribute-def:def:defaultUnixGID';
+our $A_UID;                       *A_UID =                       \'urn:perun:user_facility:attribute-def:virt:UID';
+our $A_R_SOFT_QUOTA_DATA;         *A_R_SOFT_QUOTA_DATA =         \'urn:perun:resource:attribute-def:def:defaultDataQuota';
+our $A_R_SOFT_QUOTA_FILE;         *A_R_SOFT_QUOTA_FILE =         \'urn:perun:resource:attribute-def:def:defaultFilesQuota';
+our $A_R_HARD_QUOTA_DATA;         *A_R_HARD_QUOTA_DATA =         \'urn:perun:resource:attribute-def:def:defaultDataLimit';
+our $A_R_HARD_QUOTA_FILE;         *A_R_HARD_QUOTA_FILE =         \'urn:perun:resource:attribute-def:def:defaultFilesLimit';
+our $A_MR_DATALIMIT;              *A_MR_DATALIMIT =              \'urn:perun:member_resource:attribute-def:def:dataLimit';
+our $A_MR_DATAQUOTA;              *A_MR_DATAQUOTA =              \'urn:perun:member_resource:attribute-def:def:dataQuota';
+our $A_MR_FILESLIMIT;             *A_MR_FILESLIMIT =             \'urn:perun:member_resource:attribute-def:def:filesLimit';
+our $A_MR_FILESQUOTA;             *A_MR_FILESQUOTA =             \'urn:perun:member_resource:attribute-def:def:filesQuota';
+our $A_USER_STATUS;               *A_USER_STATUS =               \'urn:perun:member:attribute-def:core:status';
+our $A_F_SCRATCH_DIR_PERMISSIONS; *A_F_SCRATCH_DIR_PERMISSIONS = \'urn:perun:facility:attribute-def:def:scratchDirPermissions';
+
+my $memberAttributesByLogin= {};
+
+my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
+my $permissionsFileName = "$DIRECTORY/umask";
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+#####################################
+open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %resourceAttributes = attributesToHash $rData->getAttributes;
+	my @membersData = $rData->getChildElements;
+	foreach my $mData (@membersData) {
+		my %memberAttributes = attributesToHash $mData->getAttributes;
+				
+		$memberAttributes{$A_SCRATCH_MOUNTPOINT} = $facilityAttributes{$A_SCRATCH_MOUNTPOINT};
+		$memberAttributes{$A_USER_STATUS} = mergeStatuses $memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}}->{$A_USER_STATUS}, $memberAttributes{$A_USER_STATUS};
+
+		#FIXME 
+		$memberAttributes{$A_MR_DATAQUOTA}  = 0;
+		$memberAttributes{$A_MR_DATALIMIT}  = 0;
+		$memberAttributes{$A_MR_FILESQUOTA} = 0;
+		$memberAttributes{$A_MR_FILESLIMIT} = 0;
+		#$memberAttributes{$A_MR_DATAQUOTA}  = mergeQuotas $memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}}->{$A_MR_DATAQUOTA},  $resourceAttributes{$A_R_SOFT_QUOTA_DATA}, $memberAttributes{$A_MR_DATAQUOTA};
+		#$memberAttributes{$A_MR_DATALIMIT}  = mergeQuotas $memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}}->{$A_MR_DATALIMIT},  $resourceAttributes{$A_R_HARD_QUOTA_DATA}, $memberAttributes{$A_MR_DATALIMIT};
+		#$memberAttributes{$A_MR_FILESQUOTA} = mergeQuotas $memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}}->{$A_MR_FILESQUOTA}, $resourceAttributes{$A_R_SOFT_QUOTA_FILE}, $memberAttributes{$A_MR_FILESQUOTA};
+		#$memberAttributes{$A_MR_FILESLIMIT} = mergeQuotas $memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}}->{$A_MR_FILESLIMIT}, $resourceAttributes{$A_R_HARD_QUOTA_FILE}, $memberAttributes{$A_MR_FILESLIMIT};
+
+		#store to global structure
+		$memberAttributesByLogin->{$memberAttributes{$A_USER_LOGIN}} = \%memberAttributes;
+	}
+}
+
+for my $userAttributes (values %$memberAttributesByLogin) {
+	print SERVICE_FILE $userAttributes->{$A_SCRATCH_MOUNTPOINT} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_USER_LOGIN} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_UID} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_GID} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_MR_DATAQUOTA} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_MR_DATALIMIT} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_MR_FILESQUOTA} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_MR_FILESLIMIT} . "\t";
+	print SERVICE_FILE $userAttributes->{$A_USER_STATUS} . "\n";
+}
+
+close(SERVICE_FILE);
+
+if(defined $facilityAttributes{$A_F_SCRATCH_DIR_PERMISSIONS}) {
+	open PERM_FH, ">$permissionsFileName" or die "Cannot open $permissionsFileName: $!\n";
+	print PERM_FH $facilityAttributes{$A_F_SCRATCH_DIR_PERMISSIONS}, "\n";
+	close PERM_FH;
+}
+#####################################################
+perunServicesInit::finalize;

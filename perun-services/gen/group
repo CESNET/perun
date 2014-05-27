@@ -1,0 +1,159 @@
+#!/usr/bin/perl
+
+##############################################
+#   Known issues                             #
+#--------------------------------------------#
+# Script don't check for duplicities in GIDs #
+##############################################
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+#forward declaration
+sub processGroupData; 
+sub processMembersData; 
+sub processResourceData;
+
+our $SERVICE_NAME = "group";
+our $PROTOCOL_VERSION = "3.1.0";
+my $SCRIPT_VERSION = "3.1.1";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_RESOURCE_UNIX_GROUP_NAME;     *A_RESOURCE_UNIX_GROUP_NAME =     \'urn:perun:resource:attribute-def:virt:unixGroupName';
+our $A_RESOURCE_UNIX_GID;            *A_RESOURCE_UNIX_GID =            \'urn:perun:resource:attribute-def:virt:unixGID';
+our $A_GROUP_UNIX_GROUP_NAME;        *A_GROUP_UNIX_GROUP_NAME =        \'urn:perun:group_resource:attribute-def:virt:unixGroupName';
+our $A_GROUP_UNIX_GID;               *A_GROUP_UNIX_GID =               \'urn:perun:group_resource:attribute-def:virt:unixGID';
+our $A_MEMBER_LOGIN;                 *A_MEMBER_LOGIN =                 \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_GROUP_IS_SYSTEM_UNIX_GROUP;   *A_GROUP_IS_SYSTEM_UNIX_GROUP =   \'urn:perun:group_resource:attribute-def:def:isSystemUnixGroup';
+our $A_GROUP_SYSTEM_UNIX_GID_SYSTEM; *A_GROUP_SYSTEM_UNIX_GID_SYSTEM = \'urn:perun:group_resource:attribute-def:def:systemUnixGID';
+our $A_GROUP_SYSTEM_UNIX_GROUP_NAME; *A_GROUP_SYSTEM_UNIX_GROUP_NAME = \'urn:perun:group_resource:attribute-def:def:systemUnixGroupName';
+our $A_FACILITY_MIN_GID;             *A_FACILITY_MIN_GID =             \'urn:perun:facility:attribute-def:virt:minGID';
+our $A_FACILITY_MAX_GID;             *A_FACILITY_MAX_GID =             \'urn:perun:facility:attribute-def:virt:maxGID';
+
+#Global data structure
+our $STRUC_GID;          *STRUC_GID = \0;
+our $STRUC_USERS;        *STRUC_USERS = \1;
+our $STRUC_SYSTEM;       *STRUC_SYSTEM = \2;
+our $groupStruc = {};     #$groupStruc->{$groupName}->{$STRUC_GID} = $gid;         # gid of group $groupname
+													#$groupStruc->{$groupName}->{$STRUC_USERS}->{$login} = 1;  #this mean user exists in group
+													#$groupStruc->{$groupName}->{$STRUC_SYSTEM} = 1;         # group is system group
+
+foreach my $resourceData ($data->getChildElements) {
+	processResourceData $resourceData;
+
+	foreach my $groupData (($resourceData->getChildElements)[0]->getChildElements) {
+		my $groupMembersLogins = processGroupData $groupData;
+	}
+}
+
+my $group_file_name = "$DIRECTORY/$::SERVICE_NAME";
+my $min_gid_file_name = "$DIRECTORY/min_gid";
+my $max_gid_file_name = "$DIRECTORY/max_gid";
+
+open FILE,">$group_file_name" or die "Cannot open $group_file_name: $! \n";
+open MIN_GID,">$min_gid_file_name" or die "Cannot open $min_gid_file_name: $! \n";
+open MAX_GID,">$max_gid_file_name" or die "Cannot open $max_gid_file_name: $! \n";
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+print MIN_GID $facilityAttributes{$A_FACILITY_MIN_GID}, "\n";
+print MAX_GID $facilityAttributes{$A_FACILITY_MAX_GID}, "\n";
+close MIN_GID;
+close MAX_GID;
+
+local $" = ',';
+foreach my $groupName (sort keys %$groupStruc) {
+	my @groupMembers = keys %{$groupStruc->{$groupName}->{$STRUC_USERS}};
+	print FILE $groupName, ":x:", $groupStruc->{$groupName}->{$STRUC_GID}, ":", "@groupMembers" ,"\n";
+}
+close (FILE);
+perunServicesInit::finalize;
+
+##############################################################################
+#   Only subs definitions down there
+##############################################################################
+
+# input: resource serviceAttributes
+# stores resource memers logins into $groupStruc structure
+sub processResourceData {
+	my $resourceData = shift;
+
+	my %resourceAttrs = attributesToHash $resourceData->getAttributes;
+	my $groupName = $resourceAttrs{$A_RESOURCE_UNIX_GROUP_NAME};
+	my $gid = $resourceAttrs{$A_RESOURCE_UNIX_GID};
+	unless(exists $groupStruc->{$groupName}) {
+		$groupStruc->{$groupName} = {};
+		$groupStruc->{$groupName}->{$STRUC_GID} = $gid;
+		$groupStruc->{$groupName}->{$STRUC_USERS} = {};
+	} else {
+		if($groupStruc->{$groupName}->{$STRUC_GID} != $gid) { die "Consistency error! Two resources or groups which represents same unix group have different GID"; }
+	}
+
+	my $membersElement = ($resourceData->getChildElements)[1];
+
+	processMembersData $membersElement, $groupName;
+}
+
+# input: groups serviceAttributes
+# stores groups memers logins into $groupStruc structure
+sub processGroupData {
+	my $groupData = shift;
+	my $subGroupsElement = ($groupData->getChildElements)[0];
+	my $membersElement = ($groupData->getChildElements)[1];
+	my %groupAttributes = attributesToHash $groupData->getAttributes;
+
+	# XXX We don't want to process subgroups which are not assigned directly.
+	#
+	#for my $subGroupData ($subGroupsElement->getChildElements) {
+	#  processGroupData $subGroupData;
+	#}
+
+	#check if this group is flagged as unix group
+	if($groupAttributes{$A_GROUP_UNIX_GROUP_NAME}) {
+		my $groupName = $groupAttributes{$A_GROUP_UNIX_GROUP_NAME};
+		my $gid = $groupAttributes{$A_GROUP_UNIX_GID};
+
+		if(exists $groupStruc->{$groupName}) { 
+			if($groupStruc->{$groupName}->{$STRUC_SYSTEM}) {
+				die "Error: System group and regular group (or resource) have the same name. Name= $groupName";
+			} elsif($groupStruc->{$groupName}->{$STRUC_GID} != $gid) {
+				die "Consistency error! Two resources or groups with the same name and differents GIDs. Name=" . $groupName ." GID=" . $groupStruc->{$groupName}->{$STRUC_GID} . ", " . $gid;
+			}
+		}
+		$groupStruc->{$groupName}->{$STRUC_GID} = $gid;
+
+		processMembersData $membersElement, $groupName;
+
+		#process system unix groups
+	} elsif($groupAttributes{$A_GROUP_IS_SYSTEM_UNIX_GROUP}) {
+		my $groupName = $groupAttributes{$A_GROUP_SYSTEM_UNIX_GROUP_NAME};
+		my $gid = $groupAttributes{$A_GROUP_SYSTEM_UNIX_GID_SYSTEM};
+
+		if(exists $groupStruc->{$groupName}) { 
+			if(!$groupStruc->{$groupName}->{$STRUC_SYSTEM}) {
+				die "Error: System group and regular group (or resource) have the same name. Name= $groupName";
+			} elsif($groupStruc->{$groupName}->{$STRUC_GID} != $gid) {
+				die "Consistency error! Two system groups with the same name. Name=" . $groupName ." GID=" . $groupStruc->{$groupName}->{$STRUC_GID} . ", " . $gid;
+			}
+		}
+		$groupStruc->{$groupName}->{$STRUC_GID} = $gid;
+		$groupStruc->{$groupName}->{$STRUC_SYSTEM} = 1;
+
+		processMembersData $membersElement, $groupName;
+	}
+}
+
+# input: (members serviceAttributes, groupName)
+# stores memers logins into $groupStruc structure
+sub processMembersData {
+	my ($membersElement, $groupName) = @_;
+	for my $memberData ($membersElement->getChildElements) {
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+		$groupStruc->{$groupName}->{$STRUC_USERS}->{$memberAttributes{$A_MEMBER_LOGIN}} = 1;
+	}
+}

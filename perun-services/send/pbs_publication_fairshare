@@ -1,0 +1,4 @@
+#!/bin/bash
+SERVICE_NAME="pbs_publication_fairshare"
+
+. generic_send
