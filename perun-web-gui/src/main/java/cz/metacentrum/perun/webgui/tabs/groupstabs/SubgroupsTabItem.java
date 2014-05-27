@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroup;
+import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetSubGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
@@ -133,19 +133,10 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<itemsToRemove.size(); i++) {
-							DeleteGroup request;
-							if (i == itemsToRemove.size()-1) {
-								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							} else {
-								request = new DeleteGroup(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteGroup(itemsToRemove.get(i).getId());
-						}
+						DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+						request.deleteGroups(itemsToRemove);
 					}
 				});
-
 			}
 		});
 		menu.addWidget(removeButton);
