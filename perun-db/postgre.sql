@@ -153,8 +153,7 @@ create table "destinations" (
     modified_by varchar(1024) default user not null,
     status char(1) default '0' not null,
     created_by_uid integer,
-    modified_by_uid integer,
-    propagation_type varchar(10) default 'PARALLEL'
+    modified_by_uid integer
 );
 
 -- FACILITY_OWNERS - one or more institutions which own the facility
@@ -469,7 +468,7 @@ create table "service_dependencies" (
     status char(1) default '0' not null,
     created_by_uid integer,
     modified_by_uid integer,
-    type varchar(16) not null default 'SERVICE'  --type of dependency (SERVICE/DESTINATION)
+    type varchar(16) default 'SERVICE' not null --type of dependency (SERVICE/DESTINATION)
 );
 
 -- RESOURCE_SERVICES - services assigned to resource
@@ -607,7 +606,8 @@ create table "facility_service_destinations" (
     modified_by varchar(1024) default user not null,
     status char(1) default '0' not null,
     created_by_uid integer,
-    modified_by_uid integer
+    modified_by_uid integer,
+    propagation_type varchar(10) default 'PARALLEL'
 );
 
 -- ENTITYLESS_ATTR_VALUES - value of attributes which are not assigned to any entity
