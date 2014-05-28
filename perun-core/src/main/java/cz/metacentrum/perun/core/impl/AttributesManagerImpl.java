@@ -4161,13 +4161,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setFriendlyName("name");
 		attributes.add(attr);
 
-		//Facility.type
-		attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
-		attr.setType(String.class.getName());
-		attr.setFriendlyName("type");
-		attributes.add(attr);
-
 		//Resource.id
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);

@@ -590,8 +590,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to get facility attributes", retAttr);
 
 		assertTrue("our atttribute not returned",retAttr.contains(attributes.get(0)));
-		assertTrue("returned less than 4 attributes",retAttr.size() >= 4);
-		// 3 core + 1 opt
+		assertTrue("returned less than 4 attributes",retAttr.size() >= 3);
+		// 2 core + 1 opt
 
 	}
 
