@@ -126,17 +126,17 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 		Column<RichResource, String> facilityColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<RichResource, String>() {
 					public String getValue(RichResource object) {
-						return object.getFacility().getName() + " - " + object.getFacility().getType();
+						return object.getFacility().getName();
 					}
 				}, tableFieldUpdater);
 
 		facilityColumn.setSortable(true);
 		columnSortHandler.setComparator(facilityColumn, new Comparator<RichResource>(){
 			public int compare(RichResource arg0, RichResource arg1) {
-				return (arg0.getFacility().getName() + " - " + arg0.getFacility().getType()).compareToIgnoreCase(arg1.getFacility().getName() + " - " + arg1.getFacility().getType());
+				return (arg0.getFacility().getName()).compareToIgnoreCase(arg1.getFacility().getName());
 			}
 		});
-		table.addColumn(facilityColumn, "Facility - Type");
+		table.addColumn(facilityColumn, "Facility");
 
 		// TAGS COLUMN
 		Column<RichResource, String> tagsColumn = JsonUtils.addColumn(

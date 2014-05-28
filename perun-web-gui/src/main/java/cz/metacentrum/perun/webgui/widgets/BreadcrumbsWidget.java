@@ -137,8 +137,8 @@ public class BreadcrumbsWidget extends Composite {
 		HTML text = new HTML();
 		text.setStyleName("now-managing");
 
-		String innerHtml = "<a title=\""+facility.getName()+" ("+facility.getType()+")"+"\" style=\"now-managing\" href=\"#"+ FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail" + "?id=" + facility.getId()+"&active=1;\" >";
-		innerHtml += Utils.getStrippedStringWithEllipsis(facility.getName(), 40)+" ("+facility.getType()+")";
+		String innerHtml = "<a title=\""+facility.getName()+"\" style=\"now-managing\" href=\"#"+ FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail" + "?id=" + facility.getId()+"&active=1;\" >";
+		innerHtml += Utils.getStrippedStringWithEllipsis(facility.getName(), 40);
 		innerHtml += "</a>";
 
 		if (subSection != null && !subSection.isEmpty()) {

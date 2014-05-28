@@ -93,7 +93,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 	public Widget draw() {
 
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Allowed Groups");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Allowed Groups");
 
 		final ListBoxWithObjects<VirtualOrganization> vosListbox = new ListBoxWithObjects<VirtualOrganization>();
 		final ListBoxWithObjects<Service> servicesListbox = new ListBoxWithObjects<Service>();

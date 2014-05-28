@@ -110,7 +110,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Service settings");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Service settings");
 
 		// content
 		VerticalPanel vp = new VerticalPanel();
