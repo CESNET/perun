@@ -26,14 +26,6 @@ public class Facility extends JavaScriptObject {
 			this.name = newName;
 		}-*/;
 
-		public final native String getType() /*-{
-			return this.type;
-		}-*/;
-
-		public final native void setType(String type) /*-{
-			this.type = type;
-		}-*/;
-
 		/**
 		 * !! FOR RICH FACILITY ONLY !!
 		 * Return list of facility owners

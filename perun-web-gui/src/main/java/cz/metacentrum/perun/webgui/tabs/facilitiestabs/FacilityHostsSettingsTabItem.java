@@ -100,7 +100,7 @@ public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+" ("+facility.getType()+"): Hosts settings");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Hosts settings");
 
 		// main panel
 		VerticalPanel firstTabPanel = new VerticalPanel();
