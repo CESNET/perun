@@ -16,7 +16,6 @@ sub help {
 	--userId       | -u  user identifier
 	--facilityId   | -f  facility identifier
 	--facilityName | -F  facility name
->>>>>>> Remove facility_type from perun
 	--orderById    | -i  order by numeric id
 	--orderByName  | -n  order by short name (default)
 	--batch        | -b  batch
