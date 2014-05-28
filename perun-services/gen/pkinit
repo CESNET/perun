@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+
+local $::SERVICE_NAME = "pkinit";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_KERBEROS_LOGINS;     *A_USER_KERBEROS_LOGINS =       \'urn:perun:user:attribute-def:def:kerberosLogins';
+our $A_USER_CERT_DNS;   *A_USER_CERT_DNS =     \'urn:perun:user:attribute-def:def:userCertDNs';
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+
+my @membersAttributes;
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+		my @membersData = $rData->getChildElements;
+		push @membersAttributes, dataToAttributesHashes @membersData;
+}
+
+# Create structure $realm->{$kerberosLogin, $userCertDN}
+my %realms;
+
+# realm
+# kerberosLogin:DN uzivatele
+foreach my $memberAttributes (@membersAttributes) {
+	foreach my $kerberosLogin (@{$memberAttributes->{$A_USER_KERBEROS_LOGINS}}) {
+		# Get realm from the kerberosLogins
+		my ($login, $realm) = split('@', $kerberosLogin);
+		foreach my $caDN (keys %{$memberAttributes->{$A_USER_CERT_DNS}}) {
+			chomp $memberAttributes->{$A_USER_CERT_DNS}{$caDN};
+			my @entry = ($kerberosLogin, convertNonAsciiToEscapedUtf8Form $caDN);
+			push(@{$realms{$realm}}, \@entry);
+		}
+	}
+}
+
+foreach my $realm (keys %realms) {
+	open FILE,">$fileName." . lc($realm) or die "Cannot open $fileName.$realm: $! \n";
+	# Name of the realm on the first line
+	print FILE $realm . "\n";
+	foreach my $entry (@{$realms{$realm}}) {
+		# kerberosPrincipal:userCertDN
+		print FILE $$entry[0] . ":" . $$entry[1] . "\n";
+	}
+	close (FILE);
+}
+
+perunServicesInit::finalize;

@@ -1,0 +1,4 @@
+#!/bin/bash
+SERVICE_NAME="gridmap"
+
+. generic_send

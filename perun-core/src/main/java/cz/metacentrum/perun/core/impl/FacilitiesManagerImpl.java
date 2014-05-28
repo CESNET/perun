@@ -57,7 +57,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	private static JdbcTemplate temp;
 
 	// Part of the SQL script used for getting the Facility object
-	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, facilities.type as facilities_type,"
+	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, "
 		+ "facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.created_by_uid as facilities_created_by_uid, facilities.modified_by_uid as facilities_modified_by_uid";
 
@@ -67,25 +67,19 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
 		public Facility mapRow(ResultSet rs, int i) throws SQLException {
+			Facility facility = new Facility();
 
-			try {
-				Facility facility = new Facility();
-
-				facility.setId(rs.getInt("facilities_id"));
-				facility.setName(rs.getString("facilities_name"));
-				facility.setType(rs.getString("facilities_type"));
-				facility.setCreatedAt(rs.getString("facilities_created_at"));
-				facility.setCreatedBy(rs.getString("facilities_created_by"));
-				facility.setModifiedAt(rs.getString("facilities_modified_at"));
-				facility.setModifiedBy(rs.getString("facilities_modified_by"));
-				if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-				else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-				if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-				else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-				return facility;
-			} catch (Exception e) {
-				throw new InternalErrorRuntimeException("Unknown facility type: " +  rs.getString("type"), e);
-			}
+			facility.setId(rs.getInt("facilities_id"));
+			facility.setName(rs.getString("facilities_name"));
+			facility.setCreatedAt(rs.getString("facilities_created_at"));
+			facility.setCreatedBy(rs.getString("facilities_created_by"));
+			facility.setModifiedAt(rs.getString("facilities_modified_at"));
+			facility.setModifiedBy(rs.getString("facilities_modified_by"));
+			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
+			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
+			return facility;
 		}
 	};
 
@@ -114,16 +108,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException {
 		Utils.notNull(facility.getName(), "facility.getName()");
-		Utils.notNull(facility.getType(), "facility.getType()");
-
-		//TODO check if facility type is correct
 
 		try {
 			int newId = Utils.getNewId(jdbc, "facilities_id_seq");
 
-			jdbc.update("insert into facilities(id,name,type,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId,
-					facility.getName(), facility.getType(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			jdbc.update("insert into facilities(id,name,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId,
+					facility.getName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			facility.setId(newId);
 
 			log.info("Facility {} created", facility);
@@ -196,20 +187,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	@Deprecated
-	public Facility getFacilityByName(PerunSession sess, String name, String type) throws InternalErrorException, FacilityNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where name=? and type=?", FACILITY_MAPPER, name, type);
-		} catch (EmptyResultDataAccessException ex) {
-			Facility fac = new Facility();
-			fac.setName(name);
-			fac.setType(type);
-			throw new FacilityNotExistsException(fac);
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
 	public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where name=?", FACILITY_MAPPER, name);
@@ -239,25 +216,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Facility> getFacilities(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities", FACILITY_MAPPER);
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Deprecated
-	public List<Facility> getFacilitiesByType(PerunSession sess, String type) throws InternalErrorException {
-		try {
-			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities where facilities.type=?", FACILITY_MAPPER, type);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<Facility>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	public int getFacilitiesCountByType(PerunSession sess, String type) throws InternalErrorException {
-		try {
-			return jdbc.queryForInt("select count(*) from facilities where type=?", type);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

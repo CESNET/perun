@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+
+our $SERVICE_NAME = basename($0);
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_LOGIN;                      *A_USER_LOGIN =                     \'urn:perun:user:attribute-def:def:login-namespace:einfra';
+our $A_USER_DISPLAY_NAME;               *A_USER_DISPLAY_NAME =              \'urn:perun:user:attribute-def:core:displayName';
+our $A_USER_ORG;                        *A_USER_ORG =                       \'urn:perun:user:attribute-def:def:organization';
+our $A_USER_STATUS;                     *A_USER_STATUS =                    \'urn:perun:member:attribute-def:core:status';
+our $A_R_VO_SHORT_NAME;                 *A_R_VO_SHORT_NAME =                \'urn:perun:resource:attribute-def:virt:voShortName';
+
+our $STATUS_SUSPENDED;                  *STATUS_SUSPENDED =                 \'SUSPENDED';
+our $STATUS_VALID;                      *STATUS_VALID =                     \'VALID';
+
+my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+#####################################
+
+####### output file ######################
+open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+binmode SERVICE_FILE,":utf8";
+
+# CVS header
+print SERVICE_FILE "# voName, login, displayName, organization\n";
+
+# Sort by name
+my $sortingFunction = getAttributeSorting $A_USER_LOGIN, 1;
+
+my @membersAttributes;
+my @resourcesData = $data->getChildElements;
+for my $rData (@resourcesData) {
+	my %resourcesAttributes = attributesToHash $rData->getAttributes;
+	for my $mData ($rData->getChildElements) {
+		my %mAttrs = attributesToHash $mData->getAttributes;
+		$mAttrs{$A_R_VO_SHORT_NAME} = $resourcesAttributes{$A_R_VO_SHORT_NAME};
+		push @membersAttributes, \%mAttrs;
+	}
+}
+
+foreach my $memberAttributes (sort $sortingFunction @membersAttributes) {
+	if ($memberAttributes->{$A_USER_STATUS} eq $STATUS_VALID || $memberAttributes->{$A_USER_STATUS} eq $STATUS_SUSPENDED) {
+		# Print attributes
+		print SERVICE_FILE $memberAttributes->{$A_R_VO_SHORT_NAME} . ',';
+		print SERVICE_FILE $memberAttributes->{$A_USER_LOGIN} . ',';
+		print SERVICE_FILE $memberAttributes->{$A_USER_DISPLAY_NAME} . ',';
+		print SERVICE_FILE $memberAttributes->{$A_USER_ORG} . "\n";
+	}
+}
+close(SERVICE_FILE);
+#####################################################
+perunServicesInit::finalize;

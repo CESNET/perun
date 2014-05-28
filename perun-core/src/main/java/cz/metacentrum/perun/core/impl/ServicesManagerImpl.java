@@ -73,7 +73,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
 		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid, " +
-		"facilities.id as facilities_id, facilities.name as facilities_name, facilities.type as facilities_type, " +
+		"facilities.id as facilities_id, facilities.name as facilities_name, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		"services.id as services_id, services.name as services_name, " +
@@ -156,7 +156,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			Facility facility = new Facility();
 			facility.setId(rs.getInt("facilities_id"));
 			facility.setName(rs.getString("facilities_name"));
-			facility.setType(rs.getString("facilities_type"));
 			facility.setCreatedAt(rs.getString("facilities_created_at"));
 			facility.setCreatedBy(rs.getString("facilities_created_by"));
 			facility.setModifiedAt(rs.getString("facilities_modified_at"));

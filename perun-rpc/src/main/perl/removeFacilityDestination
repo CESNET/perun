@@ -13,7 +13,6 @@ sub help {
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -p facility type
 	--serviceId    | -s service id
 	--destination  | -D destination
 	--type         | -t destination type
@@ -23,16 +22,15 @@ sub help {
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $serviceId, $destination, $typ, $batch);
+my ($facilityId, $facilityName, $serviceId, $destination, $typ, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId, "serviceId|s=i" => \$serviceId,
  "facilityName|F=s" => \$facilityName,
- "facilityType|p=s" => \$facilityType,
  "destination|D=s" => \$destination,
  "type|t=s" => \$typ) || die help();
 
 # Check options
-unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
 unless (defined($destination)) { die "ERROR: destination is required \n";}
 unless (defined($typ)) { die "ERROR: destination type is required \n";}
@@ -42,7 +40,7 @@ my $agent = Perun::Agent->new();
 
 unless($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId=$facility->getId;
 }
 

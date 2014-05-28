@@ -346,7 +346,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
 		Facility facility = new Facility();
 		facility.setName("TestForGetSubgroups");
-		facility.setType("Testing");
 		perun.getFacilitiesManager().createFacility(sess, facility);
 		Resource resource = new Resource();
 		resource.setName("TestForGetSubgroups");
@@ -378,7 +377,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
 		Facility facility = new Facility();
 		facility.setName("TestForGetSubgroups");
-		facility.setType("Testing");
 		perun.getFacilitiesManager().createFacility(sess, facility);
 		Resource resource = new Resource();
 		resource.setName("TestForGetSubgroups");
@@ -742,7 +740,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertTrue(groups.size() == 1);
 		assertTrue(groups.contains(createdGroup21));
-
+		
 	}
 
 	@Test
@@ -826,7 +824,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	@Test (expected=AlreadyAdminException.class)
 		public void addAdminWhenAlreadyAdmin() throws Exception {
 			System.out.println("GroupsManager.addAdminWhenAlreadyAdmin");
-
+			
 			vo = setUpVo();
 			setUpGroup(vo);
 

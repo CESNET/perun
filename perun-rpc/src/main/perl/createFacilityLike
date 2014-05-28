@@ -12,9 +12,7 @@ sub help {
 	------------------------------------------------------
 	Available options:
 	--likeFacility  | -l name of 'like' facility
-	--likeFacType   | -p type of 'like' facility
 	--facilityName  | -F facility name
-	--facilityType  | -t facility type
 	--nodeName      | -n name of node
 	--fromNumber    | -o numbering of nodes starts from
 	--toNumber      | -d numbering of nodes ends to
@@ -24,20 +22,18 @@ sub help {
 	};
 }
 
-my ($facilityName, $facilityType, $batch,$likeFacility,$likeFacType,$nodeName,$fromNumber,$toNumber);
+my ($facilityName,$batch,$likeFacility,$nodeName,$fromNumber,$toNumber);
 my %usedServices;
 
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "likeFacility|l=s" => \$likeFacility, "likeFacType|p=s" => \$likeFacType,
  "nodeName|n=s" => \$nodeName,
  "fromNumber|o=i" => \$fromNumber,"toNumber|d=i" => \$toNumber,
- "facilityName|F=s" => \$facilityName,"facilityType|t=s" => \$facilityType) || die help();
+ "facilityName|F=s" => \$facilityName) || die help();
 
 # Check options
 unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
-unless (defined($facilityType)) { die "ERROR: facilityType is required \n";}
 unless (defined($likeFacility)) { die "ERROR: likeFacility is required \n";}
-unless (defined($likeFacType))  { die "ERROR: likeFacTyp is required \n";}
 
 unless (defined($nodeName)) {$nodeName=$facilityName;}
 
@@ -45,13 +41,12 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 # zjisteni id likeFacility
-my $facilityO = $facilitiesAgent->getFacilityByName(name => $likeFacility, type => $likeFacType);
+my $facilityO = $facilitiesAgent->getFacilityByName(name => $likeFacility);
 my $facilityIdO = $facilityO->getId;
 
 # vytvoreni facility
 my $facility=Perun::beans::Facility->new;
 $facility->setName($facilityName);
-$facility->setType($facilityType);
 
 $facility = $facilitiesAgent->createFacility(facility => $facility);
 my $facilityId = $facility->getId;

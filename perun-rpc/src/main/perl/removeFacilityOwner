@@ -21,22 +21,21 @@ sub help {
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $ownerId, $batch);
+my ($facilityId, $facilityName, $ownerId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
- "facilityType|t=s" => \$facilityType,
  "ownerId|o=i" => \$ownerId) || die help();
 
 # Check options
-unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or name+type is required \n";}
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or name is required \n";}
 unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId = $facility->getId;
 }
 

@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+local $::SERVICE_NAME = "mailaliases";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.1";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_LOGIN;      *A_USER_LOGIN =        \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_MAIL;       *A_USER_MAIL =         \'urn:perun:user:attribute-def:def:preferredMail';
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+my $sortingFunction = getAttributeSorting $A_USER_LOGIN, 1;
+
+my %mailByLogin;
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my @membersData = $rData->getChildElements;
+	for my $memberAttributes (dataToAttributesHashes @membersData) {
+		$mailByLogin{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL};
+	}
+}
+
+foreach my $login (sort keys %mailByLogin) {
+	print FILE $login . ": ";
+	print FILE $mailByLogin{$login};
+	print FILE "\n";
+}
+
+close (FILE);
+perunServicesInit::finalize;

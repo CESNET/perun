@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Perun::Agent;
+use Perun::Common qw(getSortingFunction);
+
+
+our $SERVICE_NAME = "pbs_phys_cluster";
+our $PROTOCOL_VERSION = "3.1.0";
+my $SCRIPT_VERSION = "3.1.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+
+#Constants
+our $A_FACILITY_NAME;             *A_FACILITY_NAME =         \'urn:perun:facility:attribute-def:core:name';
+our $A_FACILITY_PBS_SERVER;       *A_FACILITY_PBS_SERVER =   \'urn:perun:facility:attribute-def:def:pbsServer';
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $servicesAgent = $agent->getServicesAgent;
+my $service = $servicesAgent->getServiceByName(name => $SERVICE_NAME);
+
+my $pbsServer = $agent->getAttributesAgent->getAttribute(attributeName => $A_FACILITY_PBS_SERVER, facility => perunServicesInit::getFacility->getId)->getValue;
+
+if($pbsServer ne perunServicesInit::getFacility->getName) {
+	my $pbsServerFacility;
+	$pbsServerFacility = $facilitiesAgent->getFacilityByName(name => $pbsServer);
+
+	$agent->getGeneralServicesAgent->forceServicePropagation(service => $service->getId, facility => $pbsServerFacility->getId);
+	exit 0;
+}
+
+my @facilities = $facilitiesAgent->getAssignedFacilities(service => $service->getId);
+
+
+my @outputLines;
+
+my $sortingFunction = getSortingFunction("getName", 1);
+foreach my $facility (sort $sortingFunction @facilities) {
+
+	my $data = $servicesAgent->getHierarchicalData(service => $service->getId, facility => $facility->getId);
+	my %facilityAttributes = attributesToHash $data->getAttributes;
+
+	if($facilityAttributes{$A_FACILITY_PBS_SERVER} ne $pbsServer) { next; }
+
+	my @hosts = $facilitiesAgent->getHosts(facility => $facility->getId);
+
+	push @outputLines,  map { $_->getHostname . ":" . $facilityAttributes{$A_FACILITY_NAME} } @hosts;
+}
+
+#output
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+local $\ = "\n";
+print FILE foreach sort @outputLines;
+
+close (FILE);
+perunServicesInit::finalize;

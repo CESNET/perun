@@ -14,7 +14,6 @@ sub help {
 	Available options:
 	--facilityId   | -f  facility identifier
 	--facilityName | -F  facility name
-	--facilityType | -t  facility type
 	--orderById    | -i  order by numeric Id
 	--orderByName  | -n  order by name (default)
 	--batch        | -b  batch
@@ -22,37 +21,36 @@ sub help {
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $batch, $sortingFunction);
+my ($facilityId, $facilityName, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-	"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-					 "facilityType|t=s" => \$facilityType,
-				 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-				 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-				 "batch|b" => \$batch) || die help;
+					"facilityId|f=i" => \$facilityId,
+					"facilityName|F=s" => \$facilityName,
+					"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+					"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+					"batch|b" => \$batch) || die help;
 
 #options check
-		 unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId  or facilityName+facilityType is required\n";}
-		 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+			 unless(defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId  or facilityName is required\n";}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
-		 my $agent = Perun::Agent->new();
-		 my $facAgent = $agent->getFacilitiesAgent;
-		 my $resourceAgent = $agent->getResourcesAgent;
+			 my $agent = Perun::Agent->new();
+			 my $facAgent = $agent->getFacilitiesAgent;
+			 my $resourceAgent = $agent->getResourcesAgent;
 
-		 unless($facilityId) {
-			 my $facility = $facAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-			 $facilityId = $facility->getId;
-		 }
+			 unless($facilityId) {
+				 my $facility = $facAgent->getFacilityByName(name => $facilityName);
+				 $facilityId = $facility->getId;
+			 }
 
-		 my @resources = $facAgent->getAssignedResources(facility => $facilityId);
-		 unless(@resources) { printMessage "No Resources assigned", $batch; exit 0; }
+			 my @resources = $facAgent->getAssignedResources(facility => $facilityId);
+			 unless(@resources) { printMessage "No Resources assigned", $batch; exit 0; }
 
 #output
-		 my $table = Text::ASCIITable->new();
-		 $table->setCols('ID','Name');
+			 my $table = Text::ASCIITable->new();
+			 $table->setCols('ID','Name');
 
-		 foreach my $resource (sort $sortingFunction @resources) {
-			 $table->addRow($resource->getId, $resource->getName);
-		 }
+			 foreach my $resource (sort $sortingFunction @resources) {
+				 $table->addRow($resource->getId, $resource->getName);
+			 }
 
-		 print tableToPrint($table, $batch);
+			 print tableToPrint($table, $batch);

@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+######################################
+# Generates owners of a mailing list #
+######################################
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+use POSIX qw/strftime/; 
+
+local $::SERVICE_NAME = "mailman_owners";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_MAIL;                        *A_USER_MAIL =                       \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_STATUS;                      *A_USER_STATUS =                     \'urn:perun:member:attribute-def:core:status';
+
+our $A_RESOURCE_MAILING_LIST_NAME;       *A_RESOURCE_MAILING_LIST_NAME =      \'urn:perun:resource:attribute-def:def:mailingListName';
+our $A_RESOURCE_MAILING_LIST_VARIANTS;   *A_RESOURCE_MAILING_LIST_VARIANTS =  \'urn:perun:resource:attribute-def:def:mailingListUsesLangVariants'; # true for -cs and -en variants
+
+my $mailinglistsDirectory = "$DIRECTORY/mailman_owners";
+mkdir $mailinglistsDirectory or die "Can't mkdir $mailinglistsDirectory: $!";
+
+
+my @membersAttributes;
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %resourceAttributes  = attributesToHash $rData->getAttributes;
+	local *FILE;
+
+	my @membersData = $rData->getChildElements;
+	my $useLangVariants = (defined($resourceAttributes{$A_RESOURCE_MAILING_LIST_VARIANTS}) && ($resourceAttributes{$A_RESOURCE_MAILING_LIST_VARIANTS} eq "true") );
+
+	my $listName = "$resourceAttributes{$A_RESOURCE_MAILING_LIST_NAME}";
+	my $fileName = "$mailinglistsDirectory/$listName";
+	if($useLangVariants) {
+		# uses separate lists for czech and English
+		my $fileNameCs = "$fileName-cs";
+		my $fileNameEn = "$fileName-en";
+		open FILECS,">$fileNameCs" or die "Cannot open $fileNameCs: $! \n";
+		open FILEEN,">$fileNameEn" or die "Cannot open $fileNameEn: $! \n";
+	} else {
+		# just one list
+		open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+	}
+
+	foreach my $memberAttributes (dataToAttributesHashes @membersData) {
+		#list only VALID owners
+		next unless($memberAttributes->{$A_USER_STATUS} eq "VALID");
+
+		if($useLangVariants) {
+			print FILECS "", $memberAttributes->{$A_USER_MAIL}, "\n";
+			print FILEEN "", $memberAttributes->{$A_USER_MAIL}, "\n";
+		} else {
+			print FILE "", $memberAttributes->{$A_USER_MAIL}, "\n";
+		}
+	}
+
+	if($useLangVariants) {
+		close FILECS or die $!;
+		close FILEEN or die $!;
+	} else {
+		close FILE or die $!;
+	}
+}
+
+perunServicesInit::finalize;

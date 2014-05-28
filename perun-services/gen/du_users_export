@@ -1,0 +1,184 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Perun::Agent;
+use JSON::XS;
+use Tie::IxHash;
+
+our $SERVICE_NAME = "du_users_export";
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_USER_MAIL;                *A_USER_MAIL =                \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_LOGIN_EINFRA;        *A_USER_LOGIN_EINFRA =        \'urn:perun:user:attribute-def:def:login-namespace:einfra';
+our $A_RESOURCE_NAME;            *A_RESOURCE_NAME =            \'urn:perun:resource:attribute-def:core:name';
+our $A_R_VO_NAME;                *A_R_VO_NAME =                \'urn:perun:resource:attribute-def:virt:voShortName';
+
+our $A_USER_FACILITY_UID;        *A_USER_FACILITY_UID =        \'urn:perun:user_facility:attribute-def:virt:UID';
+our $A_R_SOFT_QUOTA_DATA;        *A_R_SOFT_QUOTA_DATA =        \'urn:perun:resource:attribute-def:def:defaultDataQuota';
+our $A_R_SOFT_QUOTA_FILE;        *A_R_SOFT_QUOTA_FILE =        \'urn:perun:resource:attribute-def:def:defaultFilesQuota';
+our $A_R_HARD_QUOTA_DATA;        *A_R_HARD_QUOTA_DATA =        \'urn:perun:resource:attribute-def:def:defaultDataLimit';
+our $A_R_HARD_QUOTA_FILE;        *A_R_HARD_QUOTA_FILE =        \'urn:perun:resource:attribute-def:def:defaultFilesLimit';
+our $A_MR_DATALIMIT;             *A_MR_DATALIMIT =             \'urn:perun:member_resource:attribute-def:def:dataLimit';
+our $A_MR_DATAQUOTA;             *A_MR_DATAQUOTA =             \'urn:perun:member_resource:attribute-def:def:dataQuota';
+our $A_MR_FILESLIMIT;            *A_MR_FILESLIMIT =            \'urn:perun:member_resource:attribute-def:def:filesLimit';
+our $A_MR_FILESQUOTA;            *A_MR_FILESQUOTA =            \'urn:perun:member_resource:attribute-def:def:filesQuota';
+
+our $A_U_KERBEROS_LOGINS;        *A_U_KERBEROS_LOGINS =        \'urn:perun:user:attribute-def:virt:kerberosLogins';
+our $A_U_SHIBBOLETH_EXT_SOURCES; *A_U_SHIBBOLETH_EXT_SOURCES = \'urn:perun:user:attribute-def:virt:shibbolethExtSources';
+
+our $A_RESOURCE_UNIX_GROUP_NAME; *A_RESOURCE_UNIX_GROUP_NAME = \'urn:perun:resource:attribute-def:virt:unixGroupName';
+our $A_RESOURCE_UNIX_GID;        *A_RESOURCE_UNIX_GID =        \'urn:perun:resource:attribute-def:virt:unixGID';
+our $A_GROUP_UNIX_GROUP_NAME;    *A_GROUP_UNIX_GROUP_NAME =    \'urn:perun:group_resource:attribute-def:virt:unixGroupName';
+our $A_GROUP_UNIX_GID;           *A_GROUP_UNIX_GID =           \'urn:perun:group_resource:attribute-def:virt:unixGID';
+our $A_GROUP_NAME;               *A_GROUP_NAME =               \'urn:perun:group:attribute-def:core:name';
+
+our $A_RESOURCE_ID;              *A_RESOURCE_ID =              \'urn:perun:resource:attribute-def:core:id';
+our $A_RESOURCE_VO_ID;           *A_RESOURCE_VO_ID =           \'urn:perun:resource:attribute-def:core:voId';
+our $A_M_STATUS;                 *A_M_STATUS =                 \'urn:perun:member:attribute-def:core:status';
+our $A_USER_ID;                  *A_USER_ID =                  \'urn:perun:user:attribute-def:core:id';
+
+my %attributesByLogin;
+my %attributesByVo;
+
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %resourcesAttributes = attributesToHash $rData->getAttributes;
+	my @membersData = ($rData->getChildElements)[1]->getChildElements;
+	foreach my $mData (@membersData) {
+		my %memberAttributes = attributesToHash $mData->getAttributes;
+		unless(defined $attributesByLogin{$memberAttributes{$A_USER_LOGIN_EINFRA}}) {
+
+			#prepare kerberos logins in required format
+			my @kerberosLogins = ();
+			for my $kerberosLogin (@{$memberAttributes{$A_U_KERBEROS_LOGINS}}) {
+				my $realm = $kerberosLogin;
+				$realm =~ s/^.*@//;
+				push @kerberosLogins, { "src" => $realm, 
+																"id"  => $kerberosLogin, 
+															};
+			}
+
+			my @shibbolethLogins = ();
+			for my $idpIdentifier (keys %{$memberAttributes{$A_U_SHIBBOLETH_EXT_SOURCES}}) {
+				push @shibbolethLogins, { "src" => $idpIdentifier, 
+																	"id"  => $memberAttributes{$A_U_SHIBBOLETH_EXT_SOURCES}->{$idpIdentifier},
+																};
+			}			
+
+			#prepare shibboleth logins in required format
+
+			$attributesByLogin{$memberAttributes{$A_USER_LOGIN_EINFRA}} = 
+								{
+									"LoginInEINFRA"  => $memberAttributes{$A_USER_LOGIN_EINFRA},
+									"PreferredMail"  => $memberAttributes{$A_USER_MAIL},
+									"Kerberos"       => \@kerberosLogins,
+									"Shibboleth"     => \@shibbolethLogins,
+									"PerunUserID"    => $memberAttributes{$A_USER_ID},
+								};
+
+		}
+
+		push @{$attributesByLogin{$memberAttributes{$A_USER_LOGIN_EINFRA}}->{"Resources"}}, 
+							{ 
+								"Name"              => $resourcesAttributes{$A_RESOURCE_NAME},
+								"PerunResourceID"   => $resourcesAttributes{$A_RESOURCE_ID},
+								"UID"               => $memberAttributes{$A_USER_FACILITY_UID},
+								"Login"             => $memberAttributes{$A_USER_LOGIN_EINFRA},
+								"DataLimit"         => defined $memberAttributes{$A_MR_DATALIMIT} ? $memberAttributes{$A_MR_DATALIMIT} : $resourcesAttributes{$A_R_HARD_QUOTA_DATA},
+								"DataQuota"         => defined $memberAttributes{$A_MR_DATAQUOTA} ? $memberAttributes{$A_MR_DATAQUOTA} : $resourcesAttributes{$A_R_SOFT_QUOTA_DATA},
+								"FilesLimit"        => defined $memberAttributes{$A_MR_FILESLIMIT} ? $memberAttributes{$A_MR_FILESLIMIT} : $resourcesAttributes{$A_R_HARD_QUOTA_FILE},
+								"FilesQuota"        => defined $memberAttributes{$A_MR_FILESQUOTA} ? $memberAttributes{$A_MR_FILESQUOTA} : $resourcesAttributes{$A_R_SOFT_QUOTA_FILE},
+								"Status"            => $memberAttributes{$A_M_STATUS},
+							};
+	}
+
+	my @unixGroups = ( { "UnixGroupName"  => $resourcesAttributes{$A_RESOURCE_UNIX_GROUP_NAME},
+											 "UnixGID"        => $resourcesAttributes{$A_RESOURCE_UNIX_GID},
+										 }
+									 );
+
+	my @groupsData = ($rData->getChildElements)[0]->getChildElements;
+	foreach my $gData (@groupsData) {
+		my %groupAttributes = attributesToHash $gData->getAttributes;
+
+		if($groupAttributes{$A_GROUP_UNIX_GROUP_NAME}) {
+			push @unixGroups, 
+						{ 
+							"UnixGroupName" => $groupAttributes{$A_GROUP_UNIX_GROUP_NAME},
+							"UnixGID"       => $groupAttributes{$A_GROUP_UNIX_GID},
+						};
+		}
+
+	unless($attributesByVo{$resourcesAttributes{$A_R_VO_NAME}}->{"Groups"}->{$groupAttributes{$A_GROUP_NAME}}) {
+		my @logins;
+		foreach my $groupMembersData (($gData->getChildElements)[1]->getChildElements) {
+			my %groupMemberAttributes = attributesToHash $groupMembersData->getAttributes;
+			push @logins, { "LoginInEINFRA"  => $groupMemberAttributes{$A_USER_LOGIN_EINFRA} };
+		}
+		$attributesByVo{$resourcesAttributes{$A_R_VO_NAME}}->{"Groups"}->{$groupAttributes{$A_GROUP_NAME}}->{"Members"} = \@logins;
+	}
+	$attributesByVo{$resourcesAttributes{$A_R_VO_NAME}}->{"Groups"}->{$groupAttributes{$A_GROUP_NAME}}->{"Resources"}->{$resourcesAttributes{$A_RESOURCE_NAME}} = 1;
+
+	}
+
+	$attributesByVo{$resourcesAttributes{$A_R_VO_NAME}}->{"PerunVOID"} = $resourcesAttributes{$A_RESOURCE_VO_ID};
+
+	push @{$attributesByVo{$resourcesAttributes{$A_R_VO_NAME}}->{"Resources"}}, 
+					{
+						"Name"              => $resourcesAttributes{$A_RESOURCE_NAME},
+						"PerunResourceID"   => $resourcesAttributes{$A_RESOURCE_ID},
+						"DefaultDataLimit"  => $resourcesAttributes{$A_R_HARD_QUOTA_DATA},
+						"DefaultDataQuota"  => $resourcesAttributes{$A_R_SOFT_QUOTA_DATA},
+						"DefaultFilesLimit" => $resourcesAttributes{$A_R_HARD_QUOTA_FILE},
+						"DefaultFilesQuota" => $resourcesAttributes{$A_R_SOFT_QUOTA_FILE},
+						"UnixGroups"        => \@unixGroups,
+					};
+}
+
+my $struc = {};
+$struc->{"FileType"} = "du_users_export";
+my @users = values %attributesByLogin;
+$struc->{"Users"} = \@users;
+
+my $dirName = "$DIRECTORY/data";
+mkdir $dirName or die "Cannot create $dirName";
+
+my $fileName = "$DIRECTORY/data/$SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+print FILE JSON::XS->new->utf8->pretty->encode($struc);
+close FILE;
+
+for my $vo (keys %attributesByVo) {
+	my @groups = ();
+	for my $groupName (keys %{$attributesByVo{$vo}->{"Groups"}}) {
+		push @groups,
+			 { 
+				 "Name"      => $groupName,
+				 "Members"   => $attributesByVo{$vo}->{"Groups"}->{$groupName}->{"Members"},
+				 #"Resources" => \@resources,
+				 "Resources" => [ keys %{$attributesByVo{$vo}->{"Groups"}->{$groupName}->{"Resources"}} ],
+			 }
+	}
+
+	my $voStruc = {};
+	$voStruc->{"FileType"} = "du_vo_export";
+	$voStruc->{"Name"} = $vo;
+	$voStruc->{"PerunVOID"} = $attributesByVo{$vo}->{"PerunVOID"};
+	$voStruc->{"Resources"} = $attributesByVo{$vo}->{"Resources"};
+	$voStruc->{"Groups"} = \@groups;
+
+	my $fileName = "$DIRECTORY/data/$vo";
+	open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+	print FILE JSON::XS->new->utf8->pretty->encode($voStruc);
+	close FILE;
+}
+
+perunServicesInit::finalize;

@@ -14,7 +14,6 @@ sub help {
 	Available options:
 	--facilityId   | -f  facility idetifier
 	--facilityName | -F  facility name
-	--facilityType | -t  facility type
 	--orderById    | -i  order by numeric ID
 	--orderByName  | -n  order by name
 	--batch        | -b  batch
@@ -25,27 +24,26 @@ sub help {
 our $batch;
 my ($facilityId, $facilityName, $facilityType, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
-	"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-					 "facilityType|t=s" => \$facilityType,
-				 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-				 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-				 "batch|b" => \$batch) || die help;
+					"facilityId|f=i" => \$facilityId,
+					"facilityName|F=s" => \$facilityName,
+					"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+					"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
+					"batch|b" => \$batch) || die help;
 
 #options check
-		 unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType is required\n";}
-		 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+			 unless(defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId or facilityName is required\n";}
+			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
-		 my $agent = Perun::Agent->new();
-		 my $facilitiesAgent = $agent->getFacilitiesAgent;
+			 my $agent = Perun::Agent->new();
+			 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-		 unless($facilityId) {
-			 my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
-			 $facilityId = $facility->getId;
-		 }
+			 unless($facilityId) {
+				 my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+				 $facilityId = $facility->getId;
+			 }
 
-		 my @owners = $facilitiesAgent->getOwners(facility => $facilityId);
-		 unless(@owners) { printMessage "No owner found", $batch; exit 0;}
+			 my @owners = $facilitiesAgent->getOwners(facility => $facilityId);
+			 unless(@owners) { printMessage "No owner found", $batch; exit 0;}
 
 
-		 printTable $sortingFunction, @owners;
+			 printTable $sortingFunction, @owners;
