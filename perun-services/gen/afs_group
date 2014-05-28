@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+#forward declaration
+sub processGroupData; 
+sub processMembersData; 
+sub processResourceData;
+
+our $SERVICE_NAME = "afs_group";
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_GROUP_AFS_GROUP_NAME;      *A_GROUP_AFS_GROUP_NAME =   \'urn:perun:group_resource:attribute-def:def:afsGroupName';
+our $A_USER_KERBEROS_LOGINS;      *A_USER_KERBEROS_LOGINS =   \'urn:perun:user:attribute-def:virt:kerberosLogins';
+our $A_USER_LOGIN;                *A_USER_LOGIN =             \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_R_DEFAULT_USERS_REALM;     *A_R_DEFAULT_USERS_REALM =  \'urn:perun:resource:attribute-def:def:afsDefaultUsersRealm';
+
+#Global data structure
+our $groupStruc = {};     #$groupStruc->{$groupName}->{$login} = 1;
+
+foreach my $resourceData ($data->getChildElements) {
+	my %resourceAttrs = attributesToHash $resourceData->getAttributes;
+
+	foreach my $groupData (($resourceData->getChildElements)[0]->getChildElements) {
+		my $groupMembersLogins = processGroupData $groupData, $resourceAttrs{$A_R_DEFAULT_USERS_REALM};
+	}
+}
+
+my $groupsDirName = "$DIRECTORY/groups";
+mkdir $groupsDirName or die "Cannot mkdir $groupsDirName: $!";
+
+foreach my $groupName (keys %$groupStruc) {
+	my $fileName = $groupsDirName . "/" . $groupName;
+	open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+	my @groupMembers = keys %{$groupStruc->{$groupName}};
+	print FILE join "\n", @groupMembers;
+	close FILE or die "Cannot close file: $!";
+}
+perunServicesInit::finalize;
+
+##############################################################################
+#   Only subs definitions down there
+##############################################################################
+
+sub processGroupData {
+	my $groupData = shift;
+	my $defaultUserRealm = shift;
+	my $membersElement = ($groupData->getChildElements)[1];
+	my %groupAttributes = attributesToHash $groupData->getAttributes;
+
+	my $groupName = $groupAttributes{$A_GROUP_AFS_GROUP_NAME};
+
+	if(defined $groupName) {
+		processMembersData $membersElement, $groupName, $defaultUserRealm;
+	}
+}
+
+# input: (members serviceAttributes, groupName)
+# stores memers logins into $groupStruc structure
+sub processMembersData {
+	my ($membersElement, $groupName, $defaultUserRealm) = @_;
+	for my $memberData ($membersElement->getChildElements) {
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+		my $login = $memberAttributes{$A_USER_LOGIN} . '@' . $defaultUserRealm;
+		$groupStruc->{$groupName}->{$login} = 1;
+	}
+}

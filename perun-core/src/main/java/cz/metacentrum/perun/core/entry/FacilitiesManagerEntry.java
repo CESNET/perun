@@ -94,23 +94,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facility;
 	}
 
-	@Deprecated
-	public Facility getFacilityByName(PerunSession sess, String name, String type) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-		Utils.notNull(name, "name");
-
-		Facility facility = getFacilitiesManagerBl().getFacilityByName(sess, name, type);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
-				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
-			throw new PrivilegeException(sess, "getFacilityByName");
-				}
-
-		return facility;
-	}
-
 	public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(name, "name");
@@ -126,7 +109,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		return facility;
 	}
-
+	
 	public List<RichFacility> getRichFacilities(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -145,7 +128,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "getRichFacilities");
 		}
 	}
-
+	
 	public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(destination, "destination");
@@ -159,32 +142,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				}
 
 		return facilities;
-	}
-
-	@Deprecated
-	public List<Facility> getFacilitiesByType(PerunSession sess, String type) throws InternalErrorException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-		Utils.notNull(type, "type");
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getFacilitiesByType");
-		}
-
-		return getFacilitiesManagerBl().getFacilitiesByType(sess, type);
-	}
-
-	@Deprecated
-	public int getFacilitiesCountByType(PerunSession sess, String type) throws InternalErrorException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-		Utils.notNull(type, "type");
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getFacilitiesCountByType");
-		}
-
-		return getFacilitiesManagerBl().getFacilitiesCountByType(sess, type);
 	}
 
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
@@ -268,7 +225,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "removeOwner");
 		}
-
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
 

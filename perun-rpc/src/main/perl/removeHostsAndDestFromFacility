@@ -8,30 +8,28 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes selected hosts and destinations from the facility. Facility id (or name and type) and one or more host name are required fields.
+	Removes selected hosts and destinations from the facility. Facility id (or name) and one or more host name are required fields.
 	------------------------------------
 	Available options:
 	--hosts        | -H list Of Host names
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -t facility type
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my (@hosts, $facilityId, $facilityName, $facilityType, $batch);
+my (@hosts, $facilityId, $facilityName, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
 	"batch|b" => \$batch,
 'hosts|H=s@{1,}' => \@hosts,
 "facilityId|f=i" => \$facilityId,
-"facilityType|t=s" => \$facilityType,
 "facilityName|F=s" => \$facilityName) || die help();
 
 # Check options
 unless (@hosts) { die "ERROR: hosts are required \n";}
-unless(defined $facilityId or (defined $facilityName and defined $facilityType)) { die "ERROR: facilityId or facilityName+facilityType is required\n";}
+unless(defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId or facilityName is required\n";}
 
 my $agent = Perun::Agent->new();
 my $hostsAgent = $agent->getHostsAgent;
@@ -39,7 +37,7 @@ my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $servicesAgent = $agent->getServicesAgent;
 
 unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId = $facility->getId;
 }
 

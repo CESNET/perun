@@ -505,22 +505,6 @@ public interface ServicesManager {
 	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, DestinationAlreadyAssignedException;
 
 	/**
-	 * Defines service destination for all cluster hosts using theirs hostnames.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @return list of added destinations
-	 * @throws PrivilegeException
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
-	 * @throws FacilityNotExistsException
-	 * @throws DestinationAlreadyAssignedException
-	 * @throws ClusterNotExistsException
-	 */
-	List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, ClusterNotExistsException;
-
-	/**
 	 * Defines service destination for all hosts using theirs hostnames.
 	 *
 	 * @param perunSession

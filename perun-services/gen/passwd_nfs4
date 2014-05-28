@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+
+our $SERVICE_NAME = "passwd_nfs4";
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_FACILITY_MIN_UID;                *A_FACILITY_MIN_UID =                      \'urn:perun:facility:attribute-def:virt:minUID';
+our $A_FACILITY_MAX_UID;                *A_FACILITY_MAX_UID =                      \'urn:perun:facility:attribute-def:virt:maxUID';
+our $A_MEMBER_KERBEROS_LOGINS;          *A_MEMBER_KERBEROS_LOGINS =                \'urn:perun:user:attribute-def:def:kerberosLogins';
+our $A_MEMBER_UID;                      *A_MEMBER_UID =                            \'urn:perun:user_facility:attribute-def:virt:UID';
+our $A_MEMBER_GID;                      *A_MEMBER_GID =                            \'urn:perun:user_facility:attribute-def:def:defaultUnixGID';
+
+my $passwd_file_name = "$DIRECTORY/$::SERVICE_NAME";
+my $min_uid_file_name = "$DIRECTORY/min_uid";
+my $max_uid_file_name = "$DIRECTORY/max_uid";
+
+###### min_uid and max_uid file #####
+open MIN_UID,">$min_uid_file_name" or die "Cannot open $min_uid_file_name: $! \n";
+open MAX_UID,">$max_uid_file_name" or die "Cannot open $max_uid_file_name: $! \n";
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+print MIN_UID $facilityAttributes{$A_FACILITY_MIN_UID}, "\n";
+print MAX_UID $facilityAttributes{$A_FACILITY_MAX_UID}, "\n";
+close MIN_UID;
+close MAX_UID;
+#####################################
+
+####### passswd file ######################
+my %lines;
+
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %values;
+	my @membersData = $rData->getChildElements;
+	foreach my $mData (@membersData) {
+		my %memberAttributes = attributesToHash $mData->getAttributes;
+
+		foreach my $kerberosLogin (@{$memberAttributes{$A_MEMBER_KERBEROS_LOGINS}}) {
+			my $passwdLine = $kerberosLogin . ":x:" . $memberAttributes{$A_MEMBER_UID} . ":" . $memberAttributes{$A_MEMBER_GID};
+			$lines{$passwdLine} = 1;
+		}
+	}
+}
+
+open PASSWD,">$passwd_file_name" or die "Cannot open $passwd_file_name: $! \n";
+for my $passwdLine (keys %lines) {
+	print PASSWD $passwdLine, "\n";
+	print PASSWD "nfs/", $passwdLine, "\n";
+}
+close(PASSWD);
+
+#####################################################
+perunServicesInit::finalize;

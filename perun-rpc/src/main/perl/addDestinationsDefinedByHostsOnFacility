@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Adds facility destination. Facility and service are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--facilityName | -F facility name
+	--serviceId    | -s service id
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+our $batch;
+my ($facilityId, $facilityName, $serviceId );
+
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"facilityId|f=i" => \$facilityId,
+"facilityName|F=s" => \$facilityName,
+"serviceId|s=i" => \$serviceId
+) || die help();
+
+# Check options
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
+unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
+
+my $agent = Perun::Agent->new();
+
+unless($facilityId) {
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+	$facilityId=$facility->getId;
+}
+
+my $servicesAgent = $agent->getServicesAgent;
+
+my $facilitiesAgent= $agent->getFacilitiesAgent;
+
+$servicesAgent->addDestinationsForAllServicesOnFacility(service => $serviceId, facility => $facilityId);
+
+printMessage("Destinations successfully added for the service Id:$serviceId on the facility Id:$facilityId", $batch);

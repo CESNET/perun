@@ -205,7 +205,7 @@ public class ApiCaller {
 		}
 		return vootManager;
 	}
-
+	
 	public Vo getVoById(int id) throws PerunException {
 		return getVosManager().getVoById(rpcSession, id);
 	}
@@ -238,8 +238,8 @@ public class ApiCaller {
 		return getFacilitiesManager().getFacilityById(rpcSession, id);
 	}
 
-	public Facility getFacilityByName(String name, String type) throws PerunException {
-		return getFacilitiesManager().getFacilityByName(rpcSession, name, type);
+	public Facility getFacilityByName(String name) throws PerunException {
+		return getFacilitiesManager().getFacilityByName(rpcSession, name);
 	}
 
 	public Resource getResourceById(int id) throws PerunException {

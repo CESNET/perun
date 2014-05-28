@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+use perunServicesInit;
+
+local $::SERVICE_NAME = basename($0);
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+our $A_U_UID;                     *A_U_UID =                      \'urn:perun:user_facility:attribute-def:virt:UID';
+our $A_R_VO_SHORT_NAME;           *A_R_VO_SHORT_NAME =            \'urn:perun:resource:attribute-def:virt:voShortName';
+our $A_R_OWNCLOUD_ADMIN_RESOURCE; *A_R_OWNCLOUD_ADMIN_RESOURCE =  \'urn:perun:resource:attribute-def:def:owncloudAdminResource';
+
+my $uidsVoMapping;
+our $ADMINS;   *ADMINS  = \" ADMINS ";  # key to %uidsVoMapping  - these people should be propagated to all VOs
+$uidsVoMapping->{$ADMINS} = [];
+
+my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
+####### output file ######################
+open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %values;
+	my %resourceAttributes = attributesToHash $rData->getAttributes;
+	my @membersData = $rData->getChildElements;
+	foreach my $mData (@membersData) {
+		my %memberAttributes = attributesToHash $mData->getAttributes;
+
+		my $voName = $resourceAttributes{$A_R_OWNCLOUD_ADMIN_RESOURCE} ?  $ADMINS : $resourceAttributes{$A_R_VO_SHORT_NAME};
+		push @{$uidsVoMapping->{$voName}}, $memberAttributes{$A_U_UID};
+	}
+}
+
+for my $voShortName (keys %$uidsVoMapping) {
+	next if $voShortName eq $ADMINS;  # skip this special VO - its members should be in all others VO instead
+	my @list = (@{$uidsVoMapping->{$ADMINS}}, @{$uidsVoMapping->{$voShortName}}); # merge "admins" to all VOs
+	print SERVICE_FILE $voShortName, ' ', join(';', sort {$a <=> $b} uniqList(@list) ), "\n";
+}
+
+close(SERVICE_FILE);
+perunServicesInit::finalize;

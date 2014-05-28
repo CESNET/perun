@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+
+local $::SERVICE_NAME = "voms";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_R_VO_SHORT_NAME; *A_R_VO_SHORT_NAME =   \'urn:perun:resource:attribute-def:virt:voShortName';
+our $A_USER_MAIL;       *A_USER_MAIL =         \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_CERT_DNS;   *A_USER_CERT_DNS =     \'urn:perun:user:attribute-def:virt:userCertDNs';
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+my @membersAttributes;
+my @resourcesData = $data->getChildElements;
+for my $rData (@resourcesData) {
+	my %resourcesAttributes = attributesToHash $rData->getAttributes;
+	for my $mData ($rData->getChildElements) {
+		my %mAttrs = attributesToHash $mData->getAttributes;
+		$mAttrs{$A_R_VO_SHORT_NAME} = $resourcesAttributes{$A_R_VO_SHORT_NAME};
+		push @membersAttributes, \%mAttrs;
+	}
+}
+
+foreach my $memberAttributes (@membersAttributes) {
+	foreach my $caDN (keys %{$memberAttributes->{$A_USER_CERT_DNS}}) {
+		chomp $memberAttributes->{$A_USER_CERT_DNS}{$caDN};
+		print FILE $memberAttributes->{$A_R_VO_SHORT_NAME} . "\t" . $caDN . "\t" . $memberAttributes->{$A_USER_CERT_DNS}{$caDN} . "\t";
+		print FILE $memberAttributes->{$A_USER_MAIL}."\n";
+	}
+}
+
+close (FILE);
+perunServicesInit::finalize;

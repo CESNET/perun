@@ -92,11 +92,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		return getFacilitiesManagerImpl().getFacilityById(sess, id);
 	}
 
-	@Deprecated
-	public Facility getFacilityByName(PerunSession sess, String name, String type) throws InternalErrorException, FacilityNotExistsException {
-		return getFacilitiesManagerImpl().getFacilityByName(sess, name, type);
-	}
-
 	public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException {
 		return getFacilitiesManagerImpl().getFacilityByName(sess, name);
 	}
@@ -130,18 +125,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		Collections.sort(facilities);
 
 		return facilities;
-	}
-
-	@Deprecated
-	public List<Facility> getFacilitiesByType(PerunSession sess, String type) throws InternalErrorException {
-		List<Facility> facilities = getFacilitiesManagerImpl().getFacilitiesByType(sess, type);
-		Collections.sort(facilities);
-		return facilities;
-	}
-
-	@Deprecated
-	public int getFacilitiesCountByType(PerunSession sess, String type) throws InternalErrorException {
-		return getFacilitiesManagerImpl().getFacilitiesCountByType(sess, type);
 	}
 
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException {
@@ -285,19 +268,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new FacilityExistsException(facility);
 		} catch(FacilityNotExistsException ex) { /* OK */ }
 
-		Utils.notNull(facility.getType(), "facility.getType()");
-
 		// create facility
 		facility = getFacilitiesManagerImpl().createFacility(sess, facility);
 		getPerunBl().getAuditer().log(sess, "Facility created {}.", facility);
-
-		// if facility is type host/vhost create single host in the DB
-		//if the cluster is type host or vhost return the host which has hostname similar to cluster(facility).name
-		if (facility.getType().equals(FacilitiesManager.HOSTTYPE) || facility.getType().equals(FacilitiesManager.VIRTUALHOSTTYPE)) {
-			Host host = new Host();
-			host.setHostname(facility.getName());
-			this.addHost(sess, host, facility);
-		}
 
 		//set creator as Facility manager
 		if(sess.getPerunPrincipal().getUser() != null) {
@@ -314,23 +287,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
-		Utils.notNull(facility.getType(), "facility.getType()");
-
-		// if the facility type is cluster or host(=cluster with one node), then delete the hosts
-		if(facility.getType().equals(FacilitiesManager.CLUSTERTYPE)
-				|| facility.getType().equals(FacilitiesManager.VIRTUALCLUSTERTYPE)
-				|| facility.getType().equals(FacilitiesManager.HOSTTYPE)
-				|| facility.getType().equals(FacilitiesManager.VIRTUALHOSTTYPE)) {
-
-			List<Host> hosts = this.getHosts(sess, facility);
-			for (Host host: hosts) {
-				this.removeHost(sess, host);
-			}
-				}
-
-		//if host still exist
 		List<Host> hosts = this.getHosts(sess, facility);
-		if(!hosts.isEmpty()) throw new RelationExistsException("There are still some hosts on the facility.");
+		for (Host host: hosts) {
+			this.removeHost(sess, host);
+		}
 
 		if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
 			throw new RelationExistsException("Facility is still used as a resource");
@@ -463,21 +423,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostExistsException {
 		//check if hosts not exist in cluster
-		List<Host> alreadyAssignedHosts = getHosts(sess, facility);
-
-		//Facility.type (v)host can have only one Host
-		if(facility.getType().equals(FacilitiesManager.HOSTTYPE) || facility.getType().equals(FacilitiesManager.VIRTUALHOSTTYPE)) {
-			if(hosts.size() > 1) throw new HostExistsException("Facility of type (v)host can have only one host");
-			switch(alreadyAssignedHosts.size()) {
-				case 0: break;
-				case 1:
-								if(!hosts.isEmpty()) throw new HostExistsException("Facility of type (v)host can have only one host");
-								break;
-				default:
-								throw new ConsistencyErrorException("Facility of type (v)host can have only one host. " + facility + " now have " + alreadyAssignedHosts.size() + "hosts: " + alreadyAssignedHosts);
-			}
-		}
-
+		List<Host> alreadyAssignedHosts = getHosts(sess, facility);	
+		
 		Set<String> alreadyAssignedHostnames = new HashSet<String>();
 		Set<String> newHostnames = new HashSet<String>();
 		for(Host h : alreadyAssignedHosts) alreadyAssignedHostnames.add(h.getHostname());
@@ -541,7 +488,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
-
+		
 		AuthzResolverBlImpl.addAdmin(sess, facility, group);
 		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, facility);
 	}
@@ -555,7 +502,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
-
+		
 		AuthzResolverBlImpl.removeAdmin(sess, facility, group);
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, facility);
 	}
@@ -577,7 +524,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getPerunBl().getUsersManagerBl().convertUsersToRichUsers(sess, this.getAdmins(sess, facility));
 	}
-
+	
 	public List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getPerunBl().getUsersManagerBl().convertUsersToRichUsers(sess, this.getDirectAdmins(sess, facility));
 	}

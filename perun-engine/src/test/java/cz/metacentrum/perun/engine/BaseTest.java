@@ -114,19 +114,16 @@ public abstract class BaseTest {
 		// Test Facility #1
 		facility1 = new Facility();
 		facility1.setName("Facility 1-" + Long.toHexString(System.currentTimeMillis()));
-		facility1.setType(FacilitiesManager.CLUSTERTYPE);
 		facility1 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility1);
 
 		// Test Facility #2
 		facility2 = new Facility();
 		facility2.setName("Facility 2-" + Long.toHexString(System.currentTimeMillis()));
-		facility2.setType(FacilitiesManager.CLUSTERTYPE);
 		facility2 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility2);
 
 		// Test Facility #3
 		facility3 = new Facility();
 		facility3.setName("Facility 3-" + Long.toHexString(System.currentTimeMillis()));
-		facility3.setType(FacilitiesManager.CLUSTERTYPE);
 		facility3 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility3);
 
 		/*servicePasswd = new Service();
@@ -161,7 +158,6 @@ public abstract class BaseTest {
 		facility1195 = new Facility();
 		facility1195.setId(1195);
 		facility1195.setName("falcon");
-		facility1195.setType("cluster");
 
 		destinationA = new Destination();
 		destinationA.setId(8307);

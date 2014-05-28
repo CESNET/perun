@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+
+our $SERVICE_NAME = basename($0);
+our $PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_SSHKEYS;                      *A_SSHKEYS =                     \'urn:perun:user:attribute-def:def:sshPublicKey';
+
+my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
+
+my @sshKeys;
+
+my %facilityAttributes = attributesToHash $data->getAttributes;
+#####################################
+
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my %values;
+	my @membersData = $rData->getChildElements;
+	foreach my $mData (@membersData) {
+		my %memberAttributes = attributesToHash $mData->getAttributes;
+
+		push @sshKeys, @{$memberAttributes{$A_SSHKEYS}} if defined $memberAttributes{$A_SSHKEYS};
+	}
+}
+
+####### output file ######################
+open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+print SERVICE_FILE join "\n", uniqList @sshKeys; 
+close(SERVICE_FILE);
+#####################################################
+perunServicesInit::finalize;

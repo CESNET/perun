@@ -241,9 +241,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getGroupsManagerBl().addMember(sess, group2InVo2, member2OfUser3);
 
 		//Create Facility
-		facility1 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility1", "test"));
-		facility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility2", "test"));
-		facility3 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility3", "test"));
+		facility1 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility1"));
+		facility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility2"));
+		facility3 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility3"));
 
 		//Create Host on Facilities
 		host1OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility1"), facility1);
@@ -7201,7 +7201,6 @@ private Facility setUpFacility() throws Exception {
 
 	facility = new Facility();
 	facility.setName("AttributesManagerTestFacility");
-	facility.setType("Testing");
 	assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 	return facility;
 
@@ -7259,7 +7258,6 @@ private List<Host> setUpHost() throws Exception {
 	// create cluster type facility
 	facility = new Facility();
 	facility.setName("AttrTestFacility");
-	facility.setType("cluster");
 	facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 	hosts = perun.getFacilitiesManager().addHosts(sess, hosts, facility);

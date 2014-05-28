@@ -38,7 +38,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilityByName(parms.readString("name"), parms.readString("type"));
+			return ac.getFacilityByName(parms.readString("name"));
 		}
 	},
 
@@ -95,32 +95,6 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getFacilities(ac.getSession());
-		}
-	},
-
-	/*#
-	 * Searches for the Facilities by their type.
-	 *
-	 * @param type String Facility type
-	 * @return List<Facility> Found facilities
-	 */
-	getFacilitiesByType {
-		@Override
-		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilitiesManager().getFacilitiesByType(ac.getSession(), parms.readString("type"));
-		}
-	},
-
-	/*#
-	 * Get count of facilities of specified type.
-	 *
-	 * @param type String Facility type
-	 * @return int Facilities count
-	 */
-	getFacilitiesCountByType {
-		@Override
-		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilitiesManager().getFacilitiesCountByType(ac.getSession(), parms.readString("type"));
 		}
 	},
 

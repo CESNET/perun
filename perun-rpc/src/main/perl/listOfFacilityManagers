@@ -14,7 +14,6 @@ sub help {
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -t facility type
 	--orderById    | -i order by Manager's identifier
 	--orderByName  | -n  order by Manager's name
 	--batch        | -b batch
@@ -22,24 +21,23 @@ sub help {
 	};
 }
 
-my ($facilityId, $userId, $facilityName, $facilityType, $sortingFunction, $batch);
+my ($facilityId, $userId, $facilityName, $sortingFunction, $batch);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 	"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
- "facilityType|t=s" => \$facilityType,
- "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
- "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getLastName", 1) },
- "batch|b" => \$batch) || die help;
+	"facilityName|F=s" => \$facilityName,
+	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getLastName", 1) },
+	"batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 #options check
 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
-unless (defined($facilityId) or (defined($facilityName) and (defined($facilityType)))) { die "ERROR: facilityId or facilityName is required \n";}
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 
 unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId = $facility->getId;
 }
 

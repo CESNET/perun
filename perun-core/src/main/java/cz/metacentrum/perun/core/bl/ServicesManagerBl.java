@@ -243,7 +243,6 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	public void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
-
 	/**
 	 * Remove Service from Services Package
 	 *
@@ -357,18 +356,6 @@ public interface ServicesManagerBl {
 	 * @throws DestinationAlreadyAssignedException
 	 */
 	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
-
-	/**
-	 * Defines service destination for all cluster hosts.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @return list of added destinations
-	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyAssignedException
-	 */
-	List<Destination> addDestinationsDefinedByHostsOnCluster(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
 
 	/**
 	 * Defines service destination for all hosts using theirs hostnames.

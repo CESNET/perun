@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+local $::SERVICE_NAME = "apache_ssl";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+my $dir = "$DIRECTORY/$::SERVICE_NAME";
+mkdir $dir or die "Can't create dir $dir: $!";
+
+#Constants
+our $A_U_CERT_DNS;            *A_U_CERT_DNS =              \'urn:perun:user:attribute-def:virt:userCertDNs';
+our $A_R_APACHE_AUTHZ_FILE;   *A_R_APACHE_AUTHZ_FILE =     \'urn:perun:resource:attribute-def:def:apacheAuthzFile';
+
+my $i = 0;
+
+my %allApacheAuthzFilesNames;
+
+foreach my $rData ($data->getChildElements) {
+	my %resourceAttributes = attributesToHash $rData->getAttributes;
+
+	# Check if there are not two same apacheAuthzFiles 
+	if(defined $allApacheAuthzFilesNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}}) {
+		die "Duplicate apacheAuthzFileName detected: $resourceAttributes{$A_R_APACHE_AUTHZ_FILE}";
+	} else {
+		$allApacheAuthzFilesNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}} = 1;
+	}
+
+	$i++;
+	my $authzFileDir = "$dir/$i";
+
+	mkdir $authzFileDir or die "Can't create dir $authzFileDir: $!";
+
+	my $pathFile = "$authzFileDir/path";
+
+	open FILE,">$pathFile" or die "Cannot open $pathFile: $!";
+	print FILE $resourceAttributes{$A_R_APACHE_AUTHZ_FILE};
+	close FILE or die "Cannot close $pathFile: $!";
+
+	my $authzFile = "$authzFileDir/authz";
+	open FILE,">$authzFile" or die "Cannot open $authzFile: $!";
+
+	my @output = ();
+	foreach my $memberAttributes (dataToAttributesHashes $rData->getChildElements) {
+		foreach my $caDN (keys %{$memberAttributes->{$A_U_CERT_DNS}}) {
+			push @output, '( %{SSL_CLIENT_I_DN} == "' . $memberAttributes->{$A_U_CERT_DNS}->{$caDN} .'" && %{SSL_CLIENT_S_DN} == "' .  $caDN . '" )';
+		}
+	}
+
+	if(@output) {
+		@output = map { convertNonAsciiToEscapedUtf8Form $_ }  @output;
+		s/\\x/\\\\x/g foreach @output;  #replace \x with \\x  (escape unicode chars)
+		print FILE "SSLRequire \\\n";
+		print FILE join " \\\n|| ", @output;
+	}
+
+	close(FILE) or die "Cannot close $authzFile: $!";
+}
+
+perunServicesInit::finalize;

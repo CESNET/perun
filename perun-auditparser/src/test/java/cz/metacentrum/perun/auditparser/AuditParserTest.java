@@ -63,7 +63,7 @@ public class AuditParserTest {
 	private final UserExtSource userExtSource1 = new UserExtSource(12, extSource, textMismatch, user.getId(), 133);
 	private final UserExtSource userExtSource2 = new UserExtSource(15, extSource, textMismatch, user.getId(), 156);
 	private final Vo vo = new Vo(15, textMismatch, textMismatch);
-	private final Facility facility = new Facility(13, textMismatch, textMismatch);
+	private final Facility facility = new Facility(13, textMismatch);
 	private final Resource resource = new Resource(19, textMismatch, textMismatch, facility.getId(), vo.getId());
 	private final Group group = new Group(35, textMismatch, textMismatch);
 	private Member member = new Member(13, user.getId(), vo.getId(), Status.VALID);
@@ -268,7 +268,7 @@ public class AuditParserTest {
 		assertEquals(vo.getName(), ((Vo) voInList.get(0)).getName());
 
 		//FOR FACILITY
-		Facility facility = new Facility(15, null, textMismatch);
+		Facility facility = new Facility(15, null);
 		List<PerunBean> facilityInList = AuditParser.parseLog(facility.serializeToString());
 		assertEquals(facility.toString(), ((Facility) facilityInList.get(0)).toString());
 		assertEquals(facility.getName(), ((Facility) facility).getName());

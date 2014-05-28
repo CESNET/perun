@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+#
+# Generates members of a mailing list
+#
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+use JSON::XS;
+
+#forward declaration
+sub processGroupData; 
+sub processResourceData;
+sub processResourceMembersData;
+sub processGroupsMembersData;
+
+local $::SERVICE_NAME = "docdb";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_USER_NAME;                        *A_USER_NAME =                       \'urn:perun:user:attribute-def:core:displayName';
+our $A_USER_LOGIN;                       *A_USER_LOGIN =                      \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_MAIL;                        *A_USER_MAIL =                       \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_GROUP_NAME;                       *A_GROUP_NAME =                      \'urn:perun:group:attribute-def:core:name';
+our $A_GROUP_DESCRIPTION;                *A_GROUP_DESCRIPTION =               \'urn:perun:group:attribute-def:core:description';
+our $A_RESOURCE_VO_NAME;                 *A_RESOURCE_VO_NAME =                \'urn:perun:resource:attribute-def:virt:voShortName';
+
+my $outputData = {
+						 groups => [],
+						 members => [],
+					 };
+
+foreach my $resourceData ($data->getChildElements) {
+	processResourceData $resourceData;
+
+	foreach my $groupData (($resourceData->getChildElements)[0]->getChildElements) {
+		my $groupMembersLogins = processGroupData $groupData;
+	}
+}
+
+
+
+my $out_file_name = "$DIRECTORY/$::SERVICE_NAME";
+
+open FILE,">$out_file_name" or die "Cannot open $out_file_name: $! \n";
+print FILE JSON::XS->new->utf8->pretty->encode($outputData);
+close (FILE);
+perunServicesInit::finalize;
+
+##############################################################################
+#   Only subs definitions down there
+##############################################################################
+
+sub processResourceData {
+	my $resourceData = shift;
+	my $membersElement = ($resourceData->getChildElements)[1];
+	processResourceMembersData $membersElement;
+}
+
+sub processGroupData {
+	my $groupData = shift;
+	my $membersElement = ($groupData->getChildElements)[1];
+	my %groupAttributes = attributesToHash $groupData->getAttributes;
+
+	my $group = {
+								cn          => $groupAttributes{$A_GROUP_NAME},
+								description => $groupAttributes{$A_GROUP_DESCRIPTION},
+								memberuids  => processGroupsMembersData $membersElement, $groupAttributes{$A_GROUP_NAME},
+							};
+
+	push @{$outputData->{'groups'}}, $group;
+
+}
+
+sub processResourceMembersData {
+	my $membersElement = shift;
+	for my $memberData ($membersElement->getChildElements) {
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+
+		my $member = {
+										mail   => $memberAttributes{$A_USER_MAIL},
+										uid    => $memberAttributes{$A_USER_LOGIN},
+										cn     => unidecode $memberAttributes{$A_USER_NAME},
+								 };
+
+		push @{$outputData->{'members'}}, $member;
+	}
+}
+
+sub processGroupsMembersData {
+	my ($membersElement, $groupName) = @_;
+	my @groupMembers = ();
+	for my $memberData ($membersElement->getChildElements) {
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+		push @groupMembers, $memberAttributes{$A_USER_LOGIN};
+	}
+	return \@groupMembers;
+}

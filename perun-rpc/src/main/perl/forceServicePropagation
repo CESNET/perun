@@ -15,7 +15,6 @@ sub help {
 	--serviceName  | -S service name
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -t facility type
 	--batch        | -b batch
 	--help         | -h prints this help
 
@@ -26,7 +25,6 @@ my ($facilityId, $facilityName, $facilityType, $serviceId, $serviceName, $schedu
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
- "facilityType|t=s" => \$facilityType,
  "serviceId|s=i" => \$serviceId,
  "serviceName|S=s" => \$serviceName) || die help();
 
@@ -43,10 +41,10 @@ unless($serviceId) {
 
 my %params = (service => $serviceId);
 
-if(defined($facilityId) or (defined($facilityName) and defined($facilityType))) {
+if(defined($facilityId) or (defined($facilityName))) {
 	unless($facilityId) {
 		my $facilitiesAgent = $agent->getFacilitiesAgent;
-		my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+		my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 		$facilityId=$facility->getId;
 	}
 

@@ -232,7 +232,6 @@ assertTrue("Auditer and Consumer should contain same messages!",messagesFromCons
 	private void setUpFacility() throws Exception {
 
 		facility = new Facility(0,"AuditorTestFacility");
-		facility.setType("testovaciAuditer");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 	}

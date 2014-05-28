@@ -586,7 +586,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Facility facility = new Facility();
 		facility.setName("UsersManagerTestFacility");
-		facility.setType("Testing");
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 
 		Owner owner = new Owner();

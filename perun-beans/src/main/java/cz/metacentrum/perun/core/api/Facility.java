@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 public class Facility extends Auditable implements Comparable<Facility> {
 
 	private String name;
-	private String type = "general";
 	// TODO kontakty na spravce facility
 
 	public Facility() {
@@ -23,15 +22,9 @@ public class Facility extends Auditable implements Comparable<Facility> {
 		this.name = name;
 	}
 
-	public Facility(int id, String name, String type) {
-		this(id, name);
-		this.type = type;
-	}
-
-	public Facility(int id, String name, String type, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+	public Facility(int id, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.name = name;
-		this.type = type;
 	}
 
 	public String getName() {
@@ -42,36 +35,17 @@ public class Facility extends Auditable implements Comparable<Facility> {
 		this.name = name;
 	}
 
-	/**
-	 * Gets the type for this instance.
-	 *
-	 * @return The type.
-	 */
-	public String getType() {
-		return this.type;
-	}
-
-	/**
-	 * Sets the type for this instance.
-	 *
-	 * @param type The type.
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	@Override
 	public String serializeToString() {
 		return this.getClass().getSimpleName() +":[" +
 			"id=<" + getId() + ">" +
 			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
 			']';
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + name + "', type='" + type + "']";
+		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + name + "']";
 	}
 
 	@Override

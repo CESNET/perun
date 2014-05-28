@@ -594,7 +594,6 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		facility = new Facility();
 		facility.setName("AttributesManagerTestFacility");
-		facility.setType("Testing");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 		return facility;
 

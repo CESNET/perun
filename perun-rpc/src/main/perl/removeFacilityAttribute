@@ -13,7 +13,6 @@ sub help {
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -t facility type
 	--attributeId  | -a attribute id
 	--batch        | -b batch
 	--help         | -h prints this help
@@ -21,22 +20,21 @@ sub help {
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $attributeId, $batch);
+my ($facilityId, $facilityName, $attributeId, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
  "facilityName|F=s" => \$facilityName,
- "facilityType|t=s" => \$facilityType,
  "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
-unless (defined($facilityId) or (defined($facilityName) and defined($facilityType))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 
 my $agent = Perun::Agent->new();
 
 unless($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName, type => $facilityType);
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId=$facility->getId;
 }
 
