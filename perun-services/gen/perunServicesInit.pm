@@ -46,10 +46,10 @@ sub init {
 	$service = $servicesAgent->getServiceByName( name => $::SERVICE_NAME);
 	$facility = $facilitiesAgent->getFacilityById( id => $facilityId);
 
-	$directory = "spool/" . $facility->getName . "-" . $facility->getType . "/" . $service->getName."/";
-	$tmp_directory = "spool/tmp/" . $facility->getName . "-" . $facility->getType . "/" . $service->getName."/";
+	$directory = "spool/" . $facility->getName . "/" . $service->getName."/";
+	$tmp_directory = "spool/tmp/" . $facility->getName . "/" . $service->getName."/";
 	$tmp_directory_destination = $tmp_directory . "/_destination/";
-	$getData_directory = "spool/tmp/getData/" . $facility->getName . "-" . $facility->getType . "/" . $service->getName."/";
+	$getData_directory = "spool/tmp/getData/" . $facility->getName . "/" . $service->getName."/";
 
 	my $err;
 	rmtree($tmp_directory,  { error => \$err } );
@@ -60,7 +60,7 @@ sub init {
 	if(@$err) { die "Can't mkpath( $tmp_directory_destination  )" };
 	createVersionFile();
 	createServicesFile();
-	createFacilityNameFile($facility->getName . "-" . $facility->getType);
+	createFacilityNameFile($facility->getName);
 
 	rmtree($getData_directory);
 	if(@$err) { die "Can't rmtree( $getData_directory  )" };
