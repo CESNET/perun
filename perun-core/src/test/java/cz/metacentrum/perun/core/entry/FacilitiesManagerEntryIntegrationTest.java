@@ -92,7 +92,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		emptyFac = new Facility();
 
 		vo = new Vo(0, "facilityTestVo001", "facilityTestVo001");
-		perun.getVosManagerBl().createVo(sess, vo);
+		vo = perun.getVosManagerBl().createVo(sess, vo);
 	}
 
 	@Test
