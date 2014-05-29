@@ -15,12 +15,19 @@ my $DIRECTORY = perunServicesInit::getDirectory;
 my $data = perunServicesInit::getDataWithGroups;
 
 #Constants
-our $A_F_GROUP_NAME_NAMESPACE; *A_F_GROUP_NAME_NAMESPACE = \'urn:perun:resource:attribute-def:def:unixGroupName-namespace';
 our $A_R_PROJECTS_BASE_PATH;   *A_R_PROJECTS_BASE_PATH   = \'urn:perun:resource:attribute-def:def:projectsBasePath';
 our $A_GR_PROJECT_NAME;        *A_GR_PROJECT_NAME        = \'urn:perun:group_resource:attribute-def:def:projectName';
 our $A_GR_PROJECT_DIR_PERMS;   *A_GR_PROJECT_DIR_PERMS   = \'urn:perun:group_resource:attribute-def:def:projectDirPermissions';
 our $A_GR_PROJECT_OWNER_LOGIN; *A_GR_PROJECT_OWNER_LOGIN = \'urn:perun:group_resource:attribute-def:def:projectOwnerLogin';
 our $A_V_GR_UNIX_GROUP_NAME;   *A_V_GR_UNIX_GROUP_NAME   = \'urn:perun:group_resource:attribute-def:virt:unixGroupName';
+our $A_V_GR_GID;               *A_V_GR_GID               = \'urn:perun:group_resource:attribute-def:virt:unixGID';
+our $A_GR_SOFT_QUOTA_DATA;     *A_GR_SOFT_QUOTA_DATA     = \'urn:perun:group_resource:attribute-def:def:projectDataQuota';
+our $A_GR_HARD_QUOTA_DATA;     *A_GR_HARD_QUOTA_DATA     = \'urn:perun:group_resource:attribute-def:def:projectDataLimit';
+our $A_F_QUOTA_ENABLED;        *A_F_QUOTA_ENABLED        = \'urn:perun:facility:attribute-def:def:quotaEnabled';
+
+
+our $PROJECT_FILE_QUOTA; *PROJECT_FILE_QUOTA = \'0';
+our $PROJECT_FILE_LIMIT;  *PROJECT_FILE_LIMIT = \'0';
 
 my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
 
@@ -46,7 +53,13 @@ foreach my $rData (@resourcesData) {
 		print SERVICE_FILE $groupAttributes{$A_GR_PROJECT_NAME} . "\t";
 		print SERVICE_FILE defined($groupAttributes{$A_GR_PROJECT_DIR_PERMS}) ? $groupAttributes{$A_GR_PROJECT_DIR_PERMS} . "\t" : "750\t";
 		print SERVICE_FILE defined($groupAttributes{$A_GR_PROJECT_OWNER_LOGIN}) ? $groupAttributes{$A_GR_PROJECT_OWNER_LOGIN} . "\t" : "nobody\t";
-		print SERVICE_FILE $groupAttributes{$A_V_GR_UNIX_GROUP_NAME} . "\n";
+		print SERVICE_FILE $groupAttributes{$A_V_GR_UNIX_GROUP_NAME} . "\t";
+		print SERVICE_FILE $groupAttributes{$A_V_GR_GID} . "\t";
+		print SERVICE_FILE quotaToKb($groupAttributes{$A_GR_SOFT_QUOTA_DATA}) . "\t";
+		print SERVICE_FILE quotaToKb($groupAttributes{$A_GR_HARD_QUOTA_DATA}) . "\t";
+		print SERVICE_FILE $PROJECT_FILE_QUOTA . "\t";
+		print SERVICE_FILE $PROJECT_FILE_LIMIT . "\t";
+		print SERVICE_FILE defined($facilityAttributes{$A_F_QUOTA_ENABLED}) ? $facilityAttributes{$A_F_QUOTA_ENABLED} . "\n" : "0\n";
 	}
 }
 close(SERVICE_FILE);
