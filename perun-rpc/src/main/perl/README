@@ -4,6 +4,7 @@ V prostredi MetaCentra staci nahrat modul perunv3. Nasledne staci spustit prikaz
 
 Pro jina prostredi je nutne nastavit:
 - Enviromentalni promennou PERUN_URL: Adresa serveru se servletem perun-rpc
+- Enviromentalni promennou PERUN_RPC_TYPE: "Kerberos META", když chybí, tak použije "Perun RPC" (Musí odpovídat položce AuthName z konfigurace Apache pro danou PERUN_URL).
 - Pokud nepouzivame GSSAPI, pak je nutne nastavit PERUN_USER - login/pass
 - Knihovny (adresar lib) zahrnout do cest s perlovymi moduly (napr. pridanim cesty do enviromentalni promenne PERL5LIB nebo zkopirovani do adresare, kde se perlove moduly hledaji).
 - Skripty (adresar bin) zahrnout do enviromentalni promenne PATH.
