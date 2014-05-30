@@ -54,6 +54,12 @@ sub new {
 	# Extract login/password from ENV if available
 	my ($login,$pass) = split '/',$ENV{PERUN_USER} if $ENV{PERUN_USER};
 
+	# Extrat RPC type from ENV (if not defined, use "Perun RPC")
+	my $rpcType = "Perun RPC";
+	if (defined($ENV{PERUN_RPC_TYPE})) {
+		$rpcType = $ENV{PERUN_RPC_TYPE};
+	}
+
 	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion");
 	# Enable cookies if the HOME env is available
 	if (defined($ENV{HOME})) {
@@ -67,7 +73,7 @@ sub new {
 	if (defined($login)) {
 		my $uri = URI->new($self->{_url});
 		my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
-		$self->{_lwpUserAgent}->credentials($uri->host.":".$port, 'Kerberos META', $login => $pass);
+		$self->{_lwpUserAgent}->credentials($uri->host.":".$port, $rpcType, $login => $pass);
 	}
 
 	# Connect to the Perun server
