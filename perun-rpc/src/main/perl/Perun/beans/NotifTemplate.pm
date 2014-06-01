@@ -193,7 +193,7 @@ sub getCommonArrayRepresentation {
 
   my $hashInString = "";
   for (keys $object->getPrimaryProperties) {
-      $hashInString = $hashInString . $_ . "=" . ${${$object->getPrimaryProperties}{$_}}[0] . ";";
+      $hashInString = $hashInString . $_ . "=" . join("/", @{${$object->getPrimaryProperties}{$_}}) . "; ";
   }
 
   return ($object->getId, $object->getName, $hashInString, $object->getNotifyTrigger, 
