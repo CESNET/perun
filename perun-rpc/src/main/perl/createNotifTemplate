@@ -12,7 +12,7 @@ Creates a NotifTemplate. Notify trigger and at least one primary property are re
 --------------------------------------
 Available options:
  --name                | -n name
- --primaryProperty     | -p primary property (key and value divide by '=', more properties allowed)
+ --primaryProperty     | -p primary property (key and value divide by '=', values divide by '/', more properties allowed)
  --sender              | -s sender
  --batch               | -b batch
  --help                | -h prints this help
@@ -42,11 +42,11 @@ $object->setOldestMessageTime(0);
 $object->setYoungestMessageTime(0);
 $object->setSender($sender);
 
-my (%hashedProperties, @list, @values);
+my (%hashedProperties, @list);
 
 foreach (@properties) {
     @list = split('=', $_);
-    $values[0] = $list[1];
+    my @values = split('/', $list[1]);
     $hashedProperties{$list[0]} = \@values;
 }
 

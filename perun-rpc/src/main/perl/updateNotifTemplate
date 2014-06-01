@@ -13,7 +13,7 @@ Updates a NotifTemplate. Id of the updated Template is required field.
 Available options:
  --id                  | -i id of the updated NotifTemplate
  --name                | -n name
- --primaryProperty     | -p primary property (key and value divide by '=', more properties allowed)
+ --primaryProperty     | -p primary property (key and value divide by '=', values divide by '/', more properties allowed)
  --locale              | -l locale
  --sender              | -s sender
  --batch               | -b batch
@@ -61,11 +61,11 @@ if (defined($sender)) {
 }
 
 if (@properties) {
-    my (%hashedProperties, @list, @values);
+    my (%hashedProperties, @list);
 
     foreach (@properties) {
         @list = split('=', $_);
-        $values[0] = $list[1];
+        my @values = split('/', $list[1]);
         $hashedProperties{$list[0]} = \@values;
     }
 
