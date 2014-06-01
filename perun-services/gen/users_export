@@ -55,7 +55,8 @@ foreach my $memberAttributes (sort $sortingFunction @membersAttributes) {
 		print SERVICE_FILE $memberAttributes->{$A_R_VO_SHORT_NAME} . ',';
 		print SERVICE_FILE $memberAttributes->{$A_USER_LOGIN} . ',';
 		print SERVICE_FILE $memberAttributes->{$A_USER_DISPLAY_NAME} . ',';
-		print SERVICE_FILE $memberAttributes->{$A_USER_ORG} . "\n";
+		if (defined $memberAttributes->{$A_USER_ORG}) { print SERVICE_FILE $memberAttributes->{$A_USER_ORG} . "\n"; }
+		else { print SERVICE_FILE "N/A\n"; };
 	}
 }
 close(SERVICE_FILE);

@@ -21,16 +21,16 @@ our $A_R_APACHE_AUTHZ_FILE;   *A_R_APACHE_AUTHZ_FILE =     \'urn:perun:resource:
 
 my $i = 0;
 
-my %allApacheAuthzFilesNames;
+my %allApacheAuthzDirNames;
 
 foreach my $rData ($data->getChildElements) {
 	my %resourceAttributes = attributesToHash $rData->getAttributes;
 
-	# Check if there are not two same apacheAuthzFiles 
-	if(defined $allApacheAuthzFilesNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}}) {
-		die "Duplicate apacheAuthzFileName detected: $resourceAttributes{$A_R_APACHE_AUTHZ_FILE}";
+	# Check if there are not two same apacheAuthzDirs
+	if(defined $allApacheAuthzDirNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}}) {
+		die "Duplicate apacheAuthzFile detected: $resourceAttributes{$A_R_APACHE_AUTHZ_FILE}";
 	} else {
-		$allApacheAuthzFilesNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}} = 1;
+		$allApacheAuthzDirNames{$resourceAttributes{$A_R_APACHE_AUTHZ_FILE}} = 1;
 	}
 
 	$i++;

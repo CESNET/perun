@@ -20,6 +20,7 @@ our $A_USER_MAIL;                *A_USER_MAIL =                \'urn:perun:user:
 our $A_USER_LOGIN_EINFRA;        *A_USER_LOGIN_EINFRA =        \'urn:perun:user:attribute-def:def:login-namespace:einfra';
 our $A_RESOURCE_NAME;            *A_RESOURCE_NAME =            \'urn:perun:resource:attribute-def:core:name';
 our $A_R_VO_NAME;                *A_R_VO_NAME =                \'urn:perun:resource:attribute-def:virt:voShortName';
+our $A_F_NAME;                   *A_F_NAME =                   \'urn:perun:facility:attribute-def:core:name';
 
 our $A_USER_FACILITY_UID;        *A_USER_FACILITY_UID =        \'urn:perun:user_facility:attribute-def:virt:UID';
 our $A_R_SOFT_QUOTA_DATA;        *A_R_SOFT_QUOTA_DATA =        \'urn:perun:resource:attribute-def:def:defaultDataQuota';
@@ -151,7 +152,7 @@ $struc->{"Users"} = \@users;
 my $dirName = "$DIRECTORY/data";
 mkdir $dirName or die "Cannot create $dirName";
 
-my $fileName = "$DIRECTORY/data/$SERVICE_NAME";
+my $fileName = "$DIRECTORY/data/$facilityName-$SERVICE_NAME";
 open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
 print FILE JSON::XS->new->utf8->pretty->encode($struc);
 close FILE;
@@ -175,9 +176,11 @@ for my $vo (keys %attributesByVo) {
 	$voStruc->{"Resources"} = $attributesByVo{$vo}->{"Resources"};
 	$voStruc->{"Groups"} = \@groups;
 
-	my $fileName = "$DIRECTORY/data/$vo";
+	my $fileName = "$DIRECTORY/data/$facilityName-$vo";
 	open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
 	print FILE JSON::XS->new->utf8->pretty->encode($voStruc);
+	print FILE JSON::XS->new->utf8->pretty->encode($voStruc);
+	close FILE;
 	close FILE;
 }
 

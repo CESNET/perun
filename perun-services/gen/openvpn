@@ -15,7 +15,7 @@ my $DIRECTORY = perunServicesInit::getDirectory;
 my $data = perunServicesInit::getHierarchicalData;
 
 #Constants
-our $A_USER_CERT_DNS;   *A_USER_CERT_DNS =     \'urn:perun:user:attribute-def:def:userCertDNs';
+our $A_USER_CERT_DNS;   *A_USER_CERT_DNS =     \'urn:perun:user:attribute-def:virt:userCertDNs';
 
 my $fileName = "$DIRECTORY/$::SERVICE_NAME";
 open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
@@ -26,12 +26,10 @@ for my $rData (@resourcesData) {
 	my %resourcesAttributes = attributesToHash $rData->getAttributes;
 	for my $mData ($rData->getChildElements) {
 		my %mAttrs = attributesToHash $mData->getAttributes;
-		$mAttrs{$A_R_VO_SHORT_NAME} = $resourcesAttributes{$A_R_VO_SHORT_NAME};
 		push @membersAttributes, \%mAttrs;
 	}
 }
 
-# user's DN
 foreach my $memberAttributes (@membersAttributes) {
 	foreach my $caDN (keys %{$memberAttributes->{$A_USER_CERT_DNS}}) {
 		chomp $memberAttributes->{$A_USER_CERT_DNS}{$caDN};
