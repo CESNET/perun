@@ -1475,7 +1475,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		Set<String> emails = new HashSet<String>();
 
 		try {
-			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredEmail");
+			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
 			if (a != null && a.getValue() != null) {
 				emails.add((String)a.getValue());
 			}
