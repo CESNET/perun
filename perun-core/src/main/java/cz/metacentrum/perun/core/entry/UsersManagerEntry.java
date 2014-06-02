@@ -72,7 +72,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getUserById");
-				}
+		}
 
 		return user;
 
@@ -137,7 +137,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getUserByMember");
-				}
+		}
 
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -152,7 +152,7 @@ public class UsersManagerEntry implements UsersManager {
 		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getUserByExtSourceNameAndExtLogin");
-				}
+		}
 
 		return user;
 	}
@@ -165,7 +165,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
 			throw new PrivilegeException(sess, "getUser");
-				}
+		}
 
 		return getUsersManagerBl().getUsers(sess);
 	}
@@ -181,7 +181,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getRichUser");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUser(sess, user));
 	}
@@ -197,7 +197,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getRichUserWithAttributes");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUserWithAttributes(sess, user));
 	}
@@ -210,7 +210,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getAllRichUsers");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsers(sess, includedServiceUsers));
 	}
@@ -223,7 +223,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedServiceUsers));
 	}
@@ -242,7 +242,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, users));
 	}
@@ -261,7 +261,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, users));
 	}
@@ -357,7 +357,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getUserExtSources");
-				}
+		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
 
@@ -373,7 +373,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "addUserExtSourceById");
-				}
+		}
 
 		return getUsersManagerBl().getUserExtSourceById(sess, id);
 	}
@@ -426,7 +426,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "findUserExtSourceByExtLogin");
-				}
+		}
 
 		Utils.notNull(extLogin, "extLogin");
 		getPerunBl().getExtSourcesManagerBl().checkExtSourceExists(sess, source);
@@ -551,7 +551,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue)
-		throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -565,7 +565,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue)
-		throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -642,63 +642,63 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-				 PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+		Utils.checkPerunSession(sess);
 
-					 getUsersManagerBl().checkUserExists(sess, user);
+		getUsersManagerBl().checkUserExists(sess, user);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-						 throw new PrivilegeException(sess, "changePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "changePassword");
+		}
 
-					 // Check if the login-namesapce already exists and the user has a login in the login-namespace
-					 // Create attribute name
-					 String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+		// Check if the login-namesapce already exists and the user has a login in the login-namespace
+		// Create attribute name
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
 
-					 try {
-						 getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new LoginNotExistsException(e);
-					 }
+		try {
+			getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new LoginNotExistsException(e);
+		}
 
-					 getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
+		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
 	}
 
 	@Deprecated
 	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-						 throw new PrivilegeException(sess, "createPassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "createPassword");
+		}
 
-					 // Check if the login is already occupied == reserved, if not throw an exception.
-					 // We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-					 if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-						 getUsersManagerBl().createPassword(sess, userLogin, loginNamespace, password);
-					 } else {
-						 throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-					 }
+		// Check if the login is already occupied == reserved, if not throw an exception.
+		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
+		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
+			getUsersManagerBl().createPassword(sess, userLogin, loginNamespace, password);
+		} else {
+			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
+		}
 	}
 
 	@Deprecated
 	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) && (!(AuthzResolver.isAuthorized(sess, Role.VOADMIN) && user.isServiceUser()))) {
-						 throw new PrivilegeException(sess, "createPassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) && (!(AuthzResolver.isAuthorized(sess, Role.VOADMIN) && user.isServiceUser()))) {
+			throw new PrivilegeException(sess, "createPassword");
+		}
 
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-					 getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
+		getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
 	}
 
 	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
@@ -714,53 +714,53 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-						 throw new PrivilegeException(sess, "reservePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "reservePassword");
+		}
 
-					 // Check if the login is already occupied == reserved, if not throw an exception.
-					 // We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-					 if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-						 getUsersManagerBl().reservePassword(sess, userLogin, loginNamespace, password);
-					 } else {
-						 throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-					 }
+		// Check if the login is already occupied == reserved, if not throw an exception.
+		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
+		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
+			getUsersManagerBl().reservePassword(sess, userLogin, loginNamespace, password);
+		} else {
+			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
+		}
 	}
 
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) && (!(AuthzResolver.isAuthorized(sess, Role.VOADMIN) && user.isServiceUser()))) {
-						 throw new PrivilegeException(sess, "reservePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) && (!(AuthzResolver.isAuthorized(sess, Role.VOADMIN) && user.isServiceUser()))) {
+			throw new PrivilegeException(sess, "reservePassword");
+		}
 
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-					 getUsersManagerBl().reservePassword(sess, user, loginNamespace, password);
+		getUsersManagerBl().reservePassword(sess, user, loginNamespace, password);
 	}
 
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-						 throw new PrivilegeException(sess, "validatePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "validatePassword");
+		}
 
-					 // Check if the login is already occupied == reserved, if not throw an exception.
-					 // We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-					 if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-						 getUsersManagerBl().validatePassword(sess, userLogin, loginNamespace);
-					 } else {
-						 throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-					 }
+		// Check if the login is already occupied == reserved, if not throw an exception.
+		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
+		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
+			getUsersManagerBl().validatePassword(sess, userLogin, loginNamespace);
+		} else {
+			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
+		}
 	}
 
 	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -781,201 +781,212 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
-				 PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-						 throw new PrivilegeException(sess, "validatePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "validatePassword");
+		}
 
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-					 getUsersManagerBl().validatePassword(sess, user, loginNamespace);
+		getUsersManagerBl().validatePassword(sess, user, loginNamespace);
 	}
 
 
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-				 PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException {
-					 Utils.checkPerunSession(sess);
+			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-						 throw new PrivilegeException(sess, "deletePassword");
-					 }
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "deletePassword");
+		}
 
-					 if (getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-						 // NOT RESERVED BY ATTRIBUTE OR REGISTRAR
-						 throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-					 } else {
-						 // RESERVED BY ATTRIBUTE OR REGISTRAR
-						 try {
-							 getPerunBl().getUsersManagerBl().checkReservedLogins(sess, loginNamespace, userLogin);
-							 // RESERVED BY ATTRIBUTE ONLY - we don't want to delete logins in use
-							 throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " can't be delete, because it's already in use.");
-						 } catch (AlreadyReservedLoginException ex) {
-							 // RESERVED BY REGISTRAR AND MAYBE BY ATTRIBUTE
-							 // reservation by both should not occur
-							 getUsersManagerBl().deletePassword(sess, userLogin, loginNamespace);
-						 }
-					 }
-					 }
+		if (getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
+			// NOT RESERVED BY ATTRIBUTE OR REGISTRAR
+			throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
+		} else {
+			// RESERVED BY ATTRIBUTE OR REGISTRAR
+			try {
+				getPerunBl().getUsersManagerBl().checkReservedLogins(sess, loginNamespace, userLogin);
+				// RESERVED BY ATTRIBUTE ONLY - we don't want to delete logins in use
+				throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " can't be delete, because it's already in use.");
+			} catch (AlreadyReservedLoginException ex) {
+				// RESERVED BY REGISTRAR AND MAYBE BY ATTRIBUTE
+				// reservation by both should not occur
+				getUsersManagerBl().deletePassword(sess, userLogin, loginNamespace);
+			}
+		}
+	}
 
-				 /**
-					* Gets the usersManagerBl for this instance.
-					*
-					* @return The usersManagerBl.
-					*/
-				 public UsersManagerBl getUsersManagerBl() {
-					 return this.usersManagerBl;
-				 }
+	/**
+	 * Gets the usersManagerBl for this instance.
+	 *
+	 * @return The usersManagerBl.
+	 */
+	public UsersManagerBl getUsersManagerBl() {
+		return this.usersManagerBl;
+	}
 
-				 /**
-					* Sets the perunBl for this instance.
-					*
-					* @param perunBl The perunBl.
-					*/
-				 public void setPerunBl(PerunBl perunBl)
-				 {
-					 this.perunBl = perunBl;
-				 }
+	/**
+	 * Sets the perunBl for this instance.
+	 *
+	 * @param perunBl The perunBl.
+	 */
+	public void setPerunBl(PerunBl perunBl)
+	{
+		this.perunBl = perunBl;
+	}
 
-				 /**
-					* Sets the usersManagerBl for this instance.
-					*
-					* @param usersManagerBl The usersManagerBl.
-					*/
-				 public void setUsersManagerBl(UsersManagerBl usersManagerBl)
-				 {
-					 this.usersManagerBl = usersManagerBl;
-				 }
+	/**
+	 * Sets the usersManagerBl for this instance.
+	 *
+	 * @param usersManagerBl The usersManagerBl.
+	 */
+	public void setUsersManagerBl(UsersManagerBl usersManagerBl)
+	{
+		this.usersManagerBl = usersManagerBl;
+	}
 
-				 public PerunBl getPerunBl() {
-					 return this.perunBl;
-				 }
+	public PerunBl getPerunBl() {
+		return this.perunBl;
+	}
 
-				 public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers, List<String> attrsNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
-					 Utils.checkPerunSession(sess);
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers, List<String> attrsNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
 
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-							 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
-						 throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
-							 }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
+		}
 
-					 return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedServiceUsers, attrsNames));
-
-				 }
-
-				 public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
-					 Utils.checkPerunSession(sess);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-							 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.SELF)) {
-						 throw new PrivilegeException(sess, "findRichUsersWithAttributes");
-							 }
-
-					 return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
-
-				 }
-
-				 public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException{
-					 Utils.checkPerunSession(sess);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-							 !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
-						 throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVOWithAttributes");
-							 }
-
-					 return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithoutSpecificVoWithAttributes(sess, vo, searchString, attrsName));
-				 }
-
-				 public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException{
-					 Utils.checkPerunSession(sess);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-						 throw new PrivilegeException(sess, "getRichUsersWithoutVOWithAttributes");
-					 }
-
-					 return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoWithAttributes(sess, attrsName));
-				 }
-
-				 public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException {
-
-					 // checks
-					 Utils.checkPerunSession(sess);
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isServiceUser()) {
-						 throw new PrivilegeException(sess, "setLogin");
-					 }
-
-					 if (getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, login)) {
-
-						 getPerunBl().getUsersManagerBl().setLogin(sess, user, loginNamespace, login);
-
-					 } else {
-						 throw new LoginExistsException("Login: "+login+" in namespace: "+loginNamespace+" is already in use.");
-					 }
-
-				 }
-
-				 public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException {
-
-					 Utils.checkPerunSession(sess);
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-						 throw new PrivilegeException(sess, "requestPreferredEmailChange");
-					 }
-
-					 getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email);
-
-				 }
-
-				 public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-
-					 Utils.checkPerunSession(sess);
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-						 throw new PrivilegeException(sess, "validatePreferredEmailChange");
-					 }
-
-					 // check change verification parameters
-
-					 if (m.equals(Utils.getMessageAuthenticationCode(i))) {
-						 return getPerunBl().getUsersManagerBl().validatePreferredEmailChange(sess, user, i, m);
-					 }
-
-					 throw new InternalErrorException("Can't validate preferred email change. Verification parameters doesn't match.");
-
-				 }
-
-				 public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
-
-					 Utils.checkPerunSession(sess);
-					 getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-						 throw new PrivilegeException(sess, "getPendingPreferredEmailChanges");
-					 }
-
-					 return getPerunBl().getUsersManagerBl().getPendingPreferredEmailChanges(sess, user);
-
-				 }
-
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedServiceUsers, attrsNames));
 
 	}
+
+	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+			throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
+
+	}
+
+	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException{
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+			throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVOWithAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithoutSpecificVoWithAttributes(sess, vo, searchString, attrsName));
+	}
+
+	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException{
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getRichUsersWithoutVOWithAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoWithAttributes(sess, attrsName));
+	}
+
+	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException {
+
+		// checks
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isServiceUser()) {
+			throw new PrivilegeException(sess, "setLogin");
+		}
+
+		if (getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, login)) {
+
+			getPerunBl().getUsersManagerBl().setLogin(sess, user, loginNamespace, login);
+
+		} else {
+			throw new LoginExistsException("Login: "+login+" in namespace: "+loginNamespace+" is already in use.");
+		}
+
+	}
+
+	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "requestPreferredEmailChange");
+		}
+
+		getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email);
+
+	}
+
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "validatePreferredEmailChange");
+		}
+
+		// check change verification parameters
+
+		if (m.equals(Utils.getMessageAuthenticationCode(i))) {
+			return getPerunBl().getUsersManagerBl().validatePreferredEmailChange(sess, user, i, m);
+		}
+
+		throw new InternalErrorException("Can't validate preferred email change. Verification parameters doesn't match.");
+
+	}
+
+	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "getPendingPreferredEmailChanges");
+		}
+
+		return getPerunBl().getUsersManagerBl().getPendingPreferredEmailChanges(sess, user);
+
+	}
+
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+
+		Utils.checkPerunSession(sess);
+
+		int userId = Integer.parseInt(Utils.cipherInput(i,true));
+		// this will make also "if exists check"
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password);
+
+	}
+}
