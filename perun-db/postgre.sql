@@ -116,7 +116,6 @@ create table "cabinet_thanks" (
 create table "facilities" (
     id integer not null,
     name varchar(128) not null, --unique name of facility 
-    type varchar(32) not null,  -- ready for deleting
     created_at timestamp  default now() not null,
     created_by varchar(1024) default user not null,
     modified_at timestamp default now() not null,
@@ -1292,7 +1291,7 @@ alter table owners add constraint ow_pk primary key (id);
 alter table owners add constraint ow_u unique (name);
 
 alter table facilities add constraint fac_pk primary key(id);
-alter table facilities add constraint fac_u unique (name,type);
+alter table facilities add constraint fac_name_u unique (name);
 
 alter table hosts add constraint host_pk primary key (id);
 alter table hosts add constraint host_fac_fk foreign key(facility_id) references facilities(id);
