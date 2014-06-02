@@ -122,11 +122,6 @@ public class PublicationServiceImpl implements IPublicationService {
 			filter.setPublicationSystemId(p.getPublicationSystemId());
 			return publicationDao.findPublicationsByFilter(filter).size() >= 1;
 		}
-		if (p.getIsbn() != null && p.getIsbn() != "") {
-			Publication filter = new Publication();
-			filter.setIsbn(p.getIsbn());
-			return publicationDao.findPublicationsByFilter(filter).size() >= 1;
-		}
 		return false;
 	}
 
