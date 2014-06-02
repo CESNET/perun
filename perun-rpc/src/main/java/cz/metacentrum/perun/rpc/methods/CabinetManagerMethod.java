@@ -441,16 +441,11 @@ public enum CabinetManagerMethod implements ManagerMethod {
 					// externalId and publicationSystemId are unique and checked before so we can safely return first and only publication.
 					return ac.getCabinetManager().findRichPublicationsByFilter(filter, null).get(0);
 					// for internal pubs
-				} else {
-					filter.setIsbn(pub.getIsbn());
-					// isbn is unique and checked before so we can safely return first and only publication
-					return ac.getCabinetManager().findRichPublicationsByFilter(filter, null).get(0);
 				}
-			} else {
-				// else create one
-				int id = ac.getCabinetManager().createPublication(ac.getSession(), parms.read("publication", Publication.class));
-				return ac.getCabinetManager().findRichPublicationById(id);
 			}
+			// else create one
+			int id = ac.getCabinetManager().createPublication(ac.getSession(), parms.read("publication", Publication.class));
+			return ac.getCabinetManager().findRichPublicationById(id);
 		}
 	},
 
