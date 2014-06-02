@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -813,7 +814,7 @@ public class Utils {
 			link.append("://");
 			link.append(urlObject.getHost());
 			// reset link uses non-authz
-			link.append("/non/");
+			link.append("/non/pwd-reset/");
 			link.append("?i=");
 			link.append(URLEncoder.encode(i, "UTF-8"));
 			link.append("&m=");
@@ -897,8 +898,17 @@ public class Utils {
 			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
 			c.init((decrypt) ? Cipher.DECRYPT_MODE : Cipher.ENCRYPT_MODE, k, new IvParameterSpec(initVector.getBytes("UTF-8")));
 
-			byte[] res = c.doFinal(plainText.getBytes("UTF-8"));
-			return new String(res, "UTF-8");
+			if (decrypt) {
+
+				byte[] bytes = Base64.decodeBase64(plainText.getBytes("UTF-8"));
+				return new String(c.doFinal(bytes), "UTF-8");
+
+			} else {
+
+				byte[] bytes = Base64.encodeBase64(c.doFinal(plainText.getBytes("UTF-8")));
+				return new String(bytes, "UTF-8");
+
+			}
 
 		} catch (Exception ex) {
 

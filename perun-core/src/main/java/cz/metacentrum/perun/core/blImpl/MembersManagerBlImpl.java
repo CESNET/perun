@@ -1477,7 +1477,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		String email = "";
 		try {
-			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredEmail");
+			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
 			if (a != null && a.getValue() != null) {
 				email = (String)a.getValue();
 			}

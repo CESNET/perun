@@ -84,7 +84,7 @@ public class ChangePassword {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Changing password for failed.");
+				session.getUiElements().setLogErrorText("Changing password failed.");
 				events.onError(error); // custom events
 			};
 
