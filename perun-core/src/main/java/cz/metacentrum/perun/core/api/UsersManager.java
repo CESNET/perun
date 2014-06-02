@@ -637,6 +637,22 @@ public interface UsersManager {
 		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
 
 	/**
+	 * Changes user password in defined login-namespace using encrypted parameters.
+	 *
+	 * @param sess
+	 * @param i
+	 * @param m
+	 * @param password
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password)
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+
+
+	/**
 	 * Creates the password in external system. User must not exists.
 	 *
 	 * @param sess

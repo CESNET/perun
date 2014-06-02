@@ -766,6 +766,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
+		* Changes user's password in namespace based on encrypted parameters
+		*
+		* @param i String first encrypted parameter
+		* @param m String second encrypted parameter
+		* @param password String new password
+		* @param checkOldPassword int checkOldPassword must be 1
+		*/
+	changeNonAuthzPassword {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"));
+
+			return null;
+		}
+	},
+	/*#
 		* Creates a password.
 		*
 		* @param login String Login

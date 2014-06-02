@@ -3,20 +3,7 @@ package cz.metacentrum.perun.core.api;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
-import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 /**
  * MembersManager can find members.
@@ -801,4 +788,19 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException
 	 */
 	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Send mail to user's preferred email address with link for non-authz password reset.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace namespace to change password in (member must have login in)
+	 * @param url base URL of Perun instance
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException If not VO admin of member
+	 * @throws MemberNotExistsException If member not exists
+	 */
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
 }

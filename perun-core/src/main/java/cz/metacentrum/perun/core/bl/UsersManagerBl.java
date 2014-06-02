@@ -971,4 +971,20 @@ public interface UsersManagerBl {
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
+	/**
+	 * Changes user password in defined login-namespace using encrypted parameters.
+	 *
+	 * @param sess PerunSession
+	 * @param user user to change password for
+	 * @param m encrypted parameter
+	 * @param password password to set
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password)
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+
+
 }

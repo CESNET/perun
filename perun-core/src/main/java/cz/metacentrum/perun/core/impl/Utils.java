@@ -4,7 +4,6 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,26 +25,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import cz.metacentrum.perun.core.api.exceptions.DiacriticNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
-import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
-import cz.metacentrum.perun.core.api.exceptions.NumberNotInRangeException;
-import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
 /**
  * Utilities.
  */
@@ -737,7 +731,7 @@ public class Utils {
 		try {
 
 			// !! There is a hard-requirement for Perun instance
-			// to host GUI on same server as RPC like: "serverUrl/perun-gui/"
+			// to host GUI on same server as RPC like: "serverUrl/gui/"
 
 			URL urlObject = new URL(url);
 
@@ -765,8 +759,8 @@ public class Utils {
 			link.append("&u=" + user.getId());
 
 			// Build message
-			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+
-				".\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
+			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
+				"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
 				"Message is automatically generated." +
 				"\n----------------------------------------------------------------" +
 				"\nPerun - User and Resource Management System";
@@ -779,6 +773,137 @@ public class Utils {
 			throw new InternalErrorException("Unable to encode validation URL for mail change.", ex);
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+		}
+
+	}
+
+	/**
+	 * Sends email with link to non-authz password reset GUI where user
+	 * can reset forgotten password
+	 *
+	 * @param user user to send notification for
+	 * @param email user's email to send notification to
+	 * @param namespace namespace to reset password in
+	 * @param url base URL of Perun instance
+	 * @throws InternalErrorException
+	 */
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url) throws InternalErrorException {
+
+		// create mail sender
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		mailSender.setHost("localhost");
+
+		// create message
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(email);
+		message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		// get validation link params
+		String i = cipherInput(String.valueOf(user.getId()), false);
+		String m = cipherInput(namespace, false);
+
+		try {
+
+			URL urlObject = new URL(url);
+
+			StringBuilder link = new StringBuilder();
+
+			link.append(urlObject.getProtocol());
+			link.append("://");
+			link.append(urlObject.getHost());
+			// reset link uses non-authz
+			link.append("/non/");
+			link.append("?i=");
+			link.append(URLEncoder.encode(i, "UTF-8"));
+			link.append("&m=");
+			link.append(URLEncoder.encode(m, "UTF-8"));
+
+			// Build message
+			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to reset your password in namespace \""+namespace+"\"."+
+					"\n\nPlease visit the link below, where you can set new password:\n\n"+link+"\n\n" +
+					"Message is automatically generated." +
+					"\n----------------------------------------------------------------" +
+					"\nPerun - User and Resource Management System";
+
+			message.setText(text);
+
+			mailSender.send(message);
+
+		} catch (UnsupportedEncodingException ex) {
+			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
+		} catch (MalformedURLException ex) {
+			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+		}
+
+	}
+
+	/**
+	 * Sends email to user confirming his password was changed.
+	 *
+	 * @param user user to send notification for
+	 * @param email user's email to send notification to
+	 * @param namespace namespace the password was re-set
+	 * @throws InternalErrorException
+	 */
+	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace) throws InternalErrorException {
+
+		// create mail sender
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		mailSender.setHost("localhost");
+
+		// create message
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(email);
+		message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		// get validation link params
+		String i = cipherInput(String.valueOf(user.getId()), false);
+		String m = cipherInput(namespace, false);
+
+			// Build message
+			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
+					"\n\nThis message is automatically sent to all your email addresses registered in Perun in order to prevent malicious password reset without your knowledge.\n\n" +
+					"If you didn't request / perform password reset, please notify your VO administrator and support at "+getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
+					"Message is automatically generated." +
+					"\n----------------------------------------------------------------" +
+					"\nPerun - User and Resource Management System";
+
+			message.setText(text);
+
+			mailSender.send(message);
+
+	}
+
+	/**
+	 * Return en/decrypted version of input using AES/CBC/PKCS5PADDING cipher.
+	 * Perun's internal secretKey and initVector are used (you can configure them in
+	 * perun.properties file).
+	 *
+	 * @param plainText text to en/decrypt
+	 * @param decrypt TRUE = decrypt input / FALSE = encrypt input
+	 * @return en/decrypted text
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException if anything fails
+	 */
+	public static String cipherInput(String plainText, boolean decrypt) throws InternalErrorException {
+
+		try {
+
+			String encryptionKey = getPropertyFromConfiguration("perun.pwreset.secretKey");
+			String initVector = getPropertyFromConfiguration("perun.pwreset.initVector");
+
+			Cipher c = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+			c.init((decrypt) ? Cipher.DECRYPT_MODE : Cipher.ENCRYPT_MODE, k, new IvParameterSpec(initVector.getBytes("UTF-8")));
+
+			byte[] res = c.doFinal(plainText.getBytes("UTF-8"));
+			return new String(res, "UTF-8");
+
+		} catch (Exception ex) {
+
+			throw new InternalErrorException("Error when encrypting message", ex);
+
 		}
 
 	}

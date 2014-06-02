@@ -1430,4 +1430,60 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+
+		String namespace = Utils.cipherInput(m, true);
+
+		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
+		boolean found = false;
+		for (Attribute a : logins) {
+			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
+		}
+		if (!found) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
+
+		// reset password without checking old
+		try {
+			changePassword(sess, user, namespace, "", password, false);
+		} catch (PasswordDoesntMatchException ex) {
+			// shouldn't happen
+			throw new InternalErrorException(ex);
+		}
+
+		// was changed - send notification to all member's emails
+		Set<String> emails = new HashSet<String>();
+
+		try {
+			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredEmail");
+			if (a != null && a.getValue() != null) {
+				emails.add((String)a.getValue());
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member member : members) {
+
+			try {
+				Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF+":mail");
+				if (a != null && a.getValue() != null) {
+					emails.add((String)a.getValue());
+				}
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+
+		}
+
+		for (String email : emails) {
+			Utils.sendPasswordResetConfirmationEmail(user, email, namespace);
+		}
+
+	}
+
 }
