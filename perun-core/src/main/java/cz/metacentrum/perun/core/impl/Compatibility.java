@@ -140,5 +140,21 @@ public class Compatibility {
 		}
 
 	}
-
+	
+	public static String toDate(String value, String format) {
+		try {
+			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			if (dbType.equals("oracle")) {
+				return "to_date("+value + ", " + format +")";
+			} else if (dbType.equals("postgresql")) {
+				return "to_timestamp("+value + ", " + format +")";
+			} else {
+				return "to_date("+value + ", " + format +")";
+			}
+		} catch (InternalErrorException ex) {
+			return "to_date("+value + ", " + format +")";
+		}
+			
+	}
+	
 }

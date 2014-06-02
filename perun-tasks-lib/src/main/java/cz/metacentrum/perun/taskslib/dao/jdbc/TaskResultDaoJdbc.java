@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
@@ -95,7 +96,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					"std_message, " +
 					"return_code, " +
 					"timestamp, " +
-					"engine_id) values (?,?,?,?,?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?)",
+					"engine_id) values (?,?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " ,?)",
 					newTaskResultId,
 					taskResult.getTaskId(),
 					taskResult.getDestinationId(),
