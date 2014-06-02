@@ -885,8 +885,8 @@ create table "tasks" (
     recurrence integer not null,        --number of repeating of task in case of error
     delay integer not null,             --delay after next executing in case of error
     status varchar(16) not null,        --state of task
-    start_time date,                    --real start time of task
-    end_time date,                      --real end time of task
+    start_time timestamp,                    --real start time of task
+    end_time timestamp,                      --real end time of task
     engine_id integer not null, --identifier of engine which executing the task (engines.id)
     created_at timestamp  default now() not null,
     err_message varchar(4000),          --return message in case of error
@@ -903,7 +903,7 @@ create table "tasks_results" (
     err_message varchar(4000),        --return message in case of error
     std_message varchar(4000),        --return message in case of success
     return_code integer,              --returned value
-    timestamp date,                   --real time of executing
+    timestamp timestamp,                   --real time of executing
     engine_id integer not null,       --identifier of executing engine (engines.id)
     created_at timestamp  default now() not null,
     created_by varchar(1024) default user not null,
