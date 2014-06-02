@@ -977,5 +977,16 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
 
+		Utils.checkPerunSession(sess);
+
+		int userId = Integer.parseInt(Utils.cipherInput(i,true));
+		// this will make also "if exists check"
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password);
+
+	}
 }

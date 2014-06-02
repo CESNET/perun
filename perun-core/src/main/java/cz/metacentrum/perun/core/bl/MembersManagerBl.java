@@ -886,4 +886,17 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers) throws InternalErrorException;
+
+	/**
+	 * Send mail to user's preferred email address with link for non-authz password reset.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace Namespace to reset password in (member must have login in)
+	 * @param url base URL of Perun instance
+	 * @throws InternalErrorException
+	 */
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException;
+
 }
