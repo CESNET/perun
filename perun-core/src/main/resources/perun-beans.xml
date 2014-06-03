@@ -68,7 +68,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
              	(creates another bean, that is never used)
              	The point is to stop Utils from complaining about non-existent /etc/perun/perun.properties.
 	-->
-	<bean class="cz.metacentrum.perun.core.impl.Utils" factory-method="setProperties" scope="singleton">
+	<bean id="utilsProperties" class="cz.metacentrum.perun.core.impl.Utils" factory-method="setProperties" scope="singleton">
 	    <constructor-arg ref="coreProperties" />        
 	</bean>
 
@@ -253,7 +253,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <constructor-arg ref="dataSource" />
     </bean>
 
-    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize">
+    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize" depends-on="utilsProperties">
         <property name="perunPool" ref="dataSource"/>
     </bean>
 
@@ -275,9 +275,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
                 <value>file:${perun.conf.custom}/perun.properties</value>
             </list>
         </property>
-        <property name="ignoreResourceNotFound">
-            <value>true</value>
-        </property>
+        <property name="ignoreResourceNotFound" value="true" />
         <property name="properties">
             <props>
             	<prop key="perun.admins">perunTests, perunController, perunEngine, perunRegistrar, perunSynchronizer, perunCabinet</prop>
