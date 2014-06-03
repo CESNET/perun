@@ -49,6 +49,8 @@ public class Compatibility {
 				return "with";
 			} else if (dbType.equals("postgresql")) {
 				return "with recursive";
+			} else if (dbType.equals("hsqldb")) {
+				return "with recursive";
 			} else {
 				return "with";
 			}
