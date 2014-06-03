@@ -51,7 +51,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 		if(attribute.getValue() != null) {
 			Matcher testMatcher = testingPattern.matcher((String) attribute.getValue());
 			if(!testMatcher.find()) throw new WrongAttributeValueException("Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
-		} else return;
+		}
 
 		//Get DefaultDataLimit attribute
 		try {
