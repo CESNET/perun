@@ -49,6 +49,9 @@ our $A_USER_ID;                  *A_USER_ID =                  \'urn:perun:user:
 my %attributesByLogin;
 my %attributesByVo;
 
+my %facilityAttributes = attributesToHash $data->getAttributes;
+my $facilityName = $facilityAttributes{$A_F_NAME};
+
 my @resourcesData = $data->getChildElements;
 foreach my $rData (@resourcesData) {
 	my %resourcesAttributes = attributesToHash $rData->getAttributes;
