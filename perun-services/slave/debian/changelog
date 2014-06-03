@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.71) stable; urgency=low
+
+   * new afs_group service synchronize users in groups between afs and perun.
+     There can be set filter for filtering specific members. This filter
+     can be set only by prescript. Default means no filter use.
+
+ -- Michal Stava <stavamichal@gmail.com>  Tue, 03 Jun 2014 15:00:00 +0100
+
 perun-slave (3.0.0-0.0.70) stable; urgency=low
 
    * fs_scratch* services creates scratch dir with umask read from pre sript
