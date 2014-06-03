@@ -13,11 +13,27 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import java.util.List;
 
 /**
  * @author Jakub Peschel <jakubpeschel@gmail.com>
  */
 public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+
+	@Override
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		//Null in value is ok here
+		if(attribute.getValue() == null) return;
+		
+		//Testing if some ssh key contains new line character
+		List<String> sshKeys = (ArrayList<String>) attribute.getValue();
+		for(String sshKey: sshKeys) {
+			if(sshKey != null) {
+				if(sshKey.contains("\n")) throw new WrongAttributeValueException(attribute, user, "One of keys in attribute contains new line character. New line character is not allowed here.");
+			}
+		}
+	}
+	
 
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
