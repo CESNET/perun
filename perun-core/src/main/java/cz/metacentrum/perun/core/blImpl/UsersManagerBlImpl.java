@@ -374,6 +374,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		//Convert user to version with no empty strings in object attributes (null instead)
+		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
+		
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateUser(sess, user);
 		
@@ -383,6 +386,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		//Convert user to version with no empty strings in object attributes (null instead)
+		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
+		
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateNameTitles(sess, user);
 		
@@ -1430,4 +1436,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
+		//if user is null, return it back without change
+		if(user == null) return user;
+		
+		//convert all empty strings to null
+		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
+		if(user.getMiddleName() != null && user.getMiddleName().isEmpty()) user.setMiddleName(null);
+		if(user.getLastName() != null && user.getLastName().isEmpty()) user.setLastName(null);
+		
+		if(user.getTitleBefore() != null && user.getTitleBefore().isEmpty()) user.setTitleBefore(null);
+		if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
+		
+		return user;
+	}
 }

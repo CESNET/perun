@@ -971,4 +971,21 @@ public interface UsersManagerBl {
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
+	/**
+	 * Get user and convert values of his object attributes: 
+	 *  - firstName
+	 *  - lastName
+	 *  - middleName
+	 *  - titleBefore
+	 *  - titleAfter
+	 * from emptyString (like "") to null.
+	 * 
+	 * If these values are not empty strings, do not change them.
+	 * If user is null, return null.
+	 * 
+	 * @param user user to converting
+	 * 
+	 * @return converted user
+	 */
+	User convertUserEmptyStringsInObjectAttributesIntoNull(User user);
 }
