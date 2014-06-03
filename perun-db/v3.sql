@@ -113,7 +113,6 @@ create table cabinet_thanks (
 create table facilities (
     id integer not null,
     name varchar2(128) not null,
-    type varchar2(32) not null,
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -1261,7 +1260,7 @@ constraint ATTFULLNAM_U unique (friendly_name,namespace),
 constraint ATTNAM_ATTNAM_FK foreign key (default_attr_id) references attr_names(id)
 );
 alter table facilities add (constraint FAC_PK primary key(id),
-constraint FAC_U unique (name,type)
+constraint FAC_NAME_U UNIQUE (name)
 );
 alter table resources add (
 constraint RSRC_PK primary key (id),
