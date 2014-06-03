@@ -48,9 +48,9 @@ public class Task implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Task other = (Task) obj;
-		if (execService != other.execService)
+		if (!execService.equals(other.execService))
 			return false;
-		if (facility != other.facility)
+		if (!facility.equals(other.facility))
 			return false;
 		if (id != other.id)
 			return false;
