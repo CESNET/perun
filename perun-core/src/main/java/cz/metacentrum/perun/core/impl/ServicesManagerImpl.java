@@ -64,7 +64,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"service_packages.modified_by_uid as s_packages_modified_by_uid, service_packages.created_by_uid as s_packages_created_by_uid";
 
 	public final static String destinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
-		"destinations.type as destinations_type, destinations.propagation_type as destinations_propagation_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
+		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
 		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid";
 
