@@ -153,6 +153,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("dataLimit");
+		attr.setDisplayName("Data limit");
 		attr.setType(String.class.getName());
 		attr.setDescription("Hard quota including units (M, G, T, ...), G is default.");
 		return attr;

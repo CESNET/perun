@@ -84,6 +84,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("shell");
+		attr.setDisplayName("Shell");
 		attr.setType(String.class.getName());
 		attr.setDescription("Shell.");
 		return attr;

@@ -95,6 +95,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("defaultShell");
+		attr.setDisplayName("Default shell");
 		attr.setType(String.class.getName());
 		attr.setDescription("Default shell for all members on this resource.");
 		return attr;

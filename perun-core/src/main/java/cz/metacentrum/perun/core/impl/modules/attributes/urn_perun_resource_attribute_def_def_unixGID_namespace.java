@@ -176,12 +176,12 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 		return dependencies;
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("unixGID-namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Unix GID namespace.");
 		return attr;
-	}
+	}*/
 }

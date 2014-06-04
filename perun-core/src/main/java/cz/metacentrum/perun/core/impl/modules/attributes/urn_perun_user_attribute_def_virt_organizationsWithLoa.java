@@ -177,7 +177,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 		mapOfExtSourcesNames.put("https://login.ics.muni.cz/idp/shibboleth", new Pair("MetaCentrum", "MetaCentrum"));
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		return null;
-	}
+	}*/
 }

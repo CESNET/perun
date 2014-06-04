@@ -51,6 +51,7 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("shibbolethExtSources");
+		attr.setDisplayName("Shibboleth external sources");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Pairs of IdP indentificator and user's EPPN.");
 		return attr;

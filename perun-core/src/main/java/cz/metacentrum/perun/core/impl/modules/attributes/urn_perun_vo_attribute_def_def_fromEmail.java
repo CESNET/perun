@@ -37,6 +37,7 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("fromEmail");
+		attr.setDisplayName("\"From\" email address");
 		attr.setType(String.class.getName());
 		attr.setDescription("Email address used as \"from\" in mail notifications");
 		return attr;

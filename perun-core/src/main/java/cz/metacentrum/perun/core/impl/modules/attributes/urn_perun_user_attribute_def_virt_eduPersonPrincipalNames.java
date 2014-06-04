@@ -51,6 +51,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("eduPersonPrincipalNames");
+		attr.setDisplayName("EPPN");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Extsource logins from IDP.");
 		return attr;

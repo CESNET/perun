@@ -37,6 +37,7 @@ public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttribu
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("kerberosLogins");
+		attr.setDisplayName("KERBEROS principals");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Logins in kerberos (including realm).");
 		return attr;

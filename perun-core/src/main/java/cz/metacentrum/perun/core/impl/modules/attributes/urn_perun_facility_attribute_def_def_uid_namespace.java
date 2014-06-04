@@ -49,8 +49,9 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("uid-namespace");
+		attr.setDisplayName("UID namespace");
 		attr.setType(String.class.getName());
-		attr.setDescription("UID in namespace perun"); //FIXME
+		attr.setDescription("Namespace for UIDs which can be used at specific facility.");
 		return attr;
 	}
 

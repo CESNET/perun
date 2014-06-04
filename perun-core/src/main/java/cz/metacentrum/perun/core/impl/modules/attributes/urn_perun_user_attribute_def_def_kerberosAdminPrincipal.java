@@ -37,6 +37,7 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("kerberosAdminPrincipal");
+		attr.setDisplayName("KERBEROS admin principal");
 		attr.setType(String.class.getName());
 		attr.setDescription("Kerberos pricipal used for root access.");
 		return attr;

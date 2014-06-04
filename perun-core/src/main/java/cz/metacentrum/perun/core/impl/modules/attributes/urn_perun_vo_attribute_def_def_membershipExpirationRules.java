@@ -132,6 +132,7 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Vo
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("membershipExpirationRules");
+		attr.setDisplayName("Membership expiration rules");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Rules which define how the membership is extended.");
 		return attr;

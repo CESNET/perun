@@ -40,6 +40,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxGID extends Ent
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setFriendlyName("namespace_maxGID");
+		attr.setDisplayName("Max GID in namespace");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Maximal value of Group ID.");
 		return attr;

@@ -143,6 +143,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
 		attr.setFriendlyName("unixGID");
+		attr.setDisplayName("GID");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Unix GID. It is applied only if isUnixGroup is set.");
 		return attr;

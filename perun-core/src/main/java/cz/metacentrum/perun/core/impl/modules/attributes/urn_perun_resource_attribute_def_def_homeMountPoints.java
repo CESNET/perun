@@ -102,6 +102,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("homeMountPoints");
+		attr.setDisplayName("Home mount points");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("All available home mount points.");
 		return attr;

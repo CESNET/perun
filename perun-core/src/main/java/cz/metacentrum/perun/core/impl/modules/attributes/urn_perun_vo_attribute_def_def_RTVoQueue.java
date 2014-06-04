@@ -40,6 +40,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("RTVoQueue");
+		attr.setDisplayName("RT queue for VO");
 		attr.setType(String.class.getName());
 		attr.setDescription("Definition of Queue for specific Vo.");
 		return attr;

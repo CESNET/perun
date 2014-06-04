@@ -39,11 +39,11 @@ public class urn_perun_facility_attribute_def_def_accountExpirationTime extends 
 		return new Attribute(attribute);
 	}
 
-	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("accountExpirationTime");
+		attr.setDisplayName("Account expiration.");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Account expiration.");
 		return attr;

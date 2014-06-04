@@ -74,6 +74,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectOwnerLogin");
+		attr.setDisplayName("Project owner login");
 		attr.setType(String.class.getName());
 		attr.setDescription("Login of user, who is owner of project directory.");
 		return attr;

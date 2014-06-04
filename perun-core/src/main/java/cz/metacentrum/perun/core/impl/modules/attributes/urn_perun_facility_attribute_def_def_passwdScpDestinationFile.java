@@ -50,13 +50,12 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
-
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("passwd_scp_destination_file");
+		attr.setDisplayName("Destination file for passwd_scp");
 		attr.setType(String.class.getName());
 		attr.setDescription("Path where passwd file (for passwd_scp service) is stored. (Typicaly: /etc/passwd)");
 		return attr;
 	}
-
 }

@@ -57,6 +57,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPoints extends Facili
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("homeMountPoints");
+		attr.setDisplayName("Home mount points");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("All available home mount points.");
 		return attr;

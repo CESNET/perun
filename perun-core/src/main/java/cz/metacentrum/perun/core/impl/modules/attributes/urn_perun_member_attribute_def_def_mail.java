@@ -121,6 +121,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
 		attr.setFriendlyName("mail");
+		attr.setDisplayName("Mail");
 		attr.setType(String.class.getName());
 		attr.setDescription("Member's trusted mail.");
 		return attr;

@@ -80,6 +80,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("isSystemUnixGroup");
+		attr.setDisplayName("Is system unix group");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("The group is system unix group.");
 		return attr;

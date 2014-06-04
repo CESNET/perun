@@ -49,8 +49,9 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("login_namespace");
+		attr.setDisplayName("Login namespace");
 		attr.setType(String.class.getName());
-		attr.setDescription("All available home mount points.");
+		attr.setDescription("Namespace for logins which can use specific facility.");
 		return attr;
 	}
 }

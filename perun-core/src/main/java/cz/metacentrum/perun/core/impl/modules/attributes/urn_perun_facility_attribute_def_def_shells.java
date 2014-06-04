@@ -60,6 +60,7 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("shells");
+		attr.setDisplayName("Available shells");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("All available shells");
 		return attr;

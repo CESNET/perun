@@ -63,12 +63,12 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		return new Attribute(attribute);
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("login-namespace");
 		attr.setType(String.class.getName());
 		attr.setDescription("Login namespace.");
 		return attr;
-	}
+	}*/
 }

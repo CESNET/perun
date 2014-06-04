@@ -94,6 +94,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("homeMountPoint");
+		attr.setDisplayName("Home mount point");
 		attr.setType(String.class.getName());
 		attr.setDescription("Home mount point.");
 		return attr;

@@ -78,6 +78,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("accountExpirationTime");
+		attr.setDisplayName("Account expiration");
 		attr.setType(String.class.getName());
 		attr.setDescription("Account expiration.");
 		return attr;

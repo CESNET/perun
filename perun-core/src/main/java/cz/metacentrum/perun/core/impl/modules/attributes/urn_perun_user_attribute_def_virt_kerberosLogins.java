@@ -72,6 +72,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("krbPrincipalName");
+		attr.setDisplayName("KERBEROS principals (full)");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Logins in kerberos (including realm and kerberos UserExtSources)");
 		return attr;

@@ -101,6 +101,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("shell");
+		attr.setDisplayName("shell");
 		attr.setType(String.class.getName());
 		attr.setDescription("Computed shell from user preferences");
 		return attr;

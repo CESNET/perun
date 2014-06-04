@@ -60,6 +60,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("accountExpirationTime");
+		attr.setDisplayName("Account expiration time.");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Unix account expiration time.");
 		return attr;

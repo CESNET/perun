@@ -28,6 +28,7 @@ public class urn_perun_resource_attribute_def_def_mailingListManagerEmail {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("mailingListManagerEmail");
+		attr.setDisplayName("Mailing list manager email.");
 		attr.setType(String.class.getName());
 		attr.setDescription("Email of owner of mailing list");
 		return attr;

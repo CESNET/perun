@@ -156,12 +156,12 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 		}
 	}
 
-	public AttributeDefinition getAttributeDefinition() {
+	/*public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setFriendlyName("unixGroupName-namespace");
 		attr.setType(String.class.getName());
 		attr.setDescription("Unix Group Name namespace.");
 		return attr;
-	}
+	}*/
 }

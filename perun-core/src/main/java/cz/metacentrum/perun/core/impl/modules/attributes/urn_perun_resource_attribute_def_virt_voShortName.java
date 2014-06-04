@@ -49,6 +49,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);
 		attr.setFriendlyName("voShortName");
+		attr.setDisplayName("Short name of VO");
 		attr.setType(String.class.getName());
 		attr.setDescription("Short name of VO where this resource is assigned");
 		return attr;

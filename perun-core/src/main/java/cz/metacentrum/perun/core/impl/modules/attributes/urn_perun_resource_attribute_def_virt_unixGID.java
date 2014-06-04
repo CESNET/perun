@@ -141,6 +141,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);
 		attr.setFriendlyName("unixGID");
+		attr.setDisplayName("Unix GID");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Unix GID");
 		return attr;

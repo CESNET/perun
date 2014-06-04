@@ -162,6 +162,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Resou
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("dataQuota");
+		attr.setDisplayName("Data quota");
 		attr.setType(String.class.getName());
 		attr.setDescription("Soft quota including units (M, G, T, ...), G is default.");
 		return attr;

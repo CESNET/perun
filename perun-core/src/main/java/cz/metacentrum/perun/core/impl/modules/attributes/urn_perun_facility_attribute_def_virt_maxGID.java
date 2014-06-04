@@ -98,6 +98,7 @@ public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtua
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("maxGID");
+		attr.setDisplayName("Max GID");
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Maximal unix GID allowed.");
 		return attr;

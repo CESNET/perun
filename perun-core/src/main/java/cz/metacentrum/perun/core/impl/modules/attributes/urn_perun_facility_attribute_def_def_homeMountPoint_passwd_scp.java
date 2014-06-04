@@ -36,9 +36,9 @@ public class urn_perun_facility_attribute_def_def_homeMountPoint_passwd_scp exte
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("homeMountPoint_passwd-scp");
+		attr.setDisplayName("Home mount point for passwd_scp");
 		attr.setType(String.class.getName());
-		//TODO attr.setDescription("TODO");
+		attr.setDescription("Home mount point for service passwd_scp.");
 		return attr;
 	}
-
 }

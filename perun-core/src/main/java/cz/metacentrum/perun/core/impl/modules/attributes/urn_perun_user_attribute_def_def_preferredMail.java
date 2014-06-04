@@ -103,6 +103,7 @@ public AttributeDefinition getAttributeDefinition() {
 	AttributeDefinition attr = new AttributeDefinition();
 	attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 	attr.setFriendlyName("preferredMail");
+	attr.setDisplayName("Preferred mail");
 	attr.setType(String.class.getName());
 	attr.setDescription("User's preferred mail");
 	return attr;

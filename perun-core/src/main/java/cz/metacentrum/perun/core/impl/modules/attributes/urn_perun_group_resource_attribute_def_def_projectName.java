@@ -122,6 +122,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectName");
+		attr.setDisplayName("Project name");
 		attr.setType(String.class.getName());
 		attr.setDescription("Name of project, directory where the project exists.");
 		return attr;

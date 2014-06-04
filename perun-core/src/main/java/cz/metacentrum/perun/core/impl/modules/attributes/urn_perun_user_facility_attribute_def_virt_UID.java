@@ -153,6 +153,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("UID");
+		attr.setDisplayName("UID");
 		attr.setType(String.class.getName());
 		attr.setDescription("UID if is set.");
 		return attr;

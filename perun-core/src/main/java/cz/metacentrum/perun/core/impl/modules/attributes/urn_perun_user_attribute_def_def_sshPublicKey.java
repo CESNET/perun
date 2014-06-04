@@ -23,6 +23,7 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("sshPublicKey");
+		attr.setDisplayName("Public ssh key");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("User's SSH public keys.");
 		return attr;
