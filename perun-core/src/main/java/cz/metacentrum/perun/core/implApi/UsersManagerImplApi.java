@@ -591,4 +591,27 @@ public interface UsersManagerImplApi {
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException;
 
+	/**
+	 * Return only valid password reset requests for selected user and request ID.
+	 * Validity is determined by time since request creation and actual usage (only once).
+	 *
+	 * If no valid entry is found, then empty string is returned. Entry is invalidated once loaded.
+	 *
+	 * @param user user to get requests for
+	 * @param request request ID to get
+	 * @return namespace where user wants to reset password in or empty string
+	 * @throws InternalErrorException
+	 */
+	String loadPasswordResetRequest(User user, int request) throws InternalErrorException;
+
+	/**
+	 * Removes all password reset requests associated with user.
+	 * This is used when deleting user from Perun.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to remove all pwdreset requests
+	 * @throws InternalErrorException
+	 */
+	void removeAllPasswordResetRequests(PerunSession sess, User user) throws InternalErrorException;
+
 }

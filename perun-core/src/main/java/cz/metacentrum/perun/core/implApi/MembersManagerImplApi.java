@@ -179,4 +179,16 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+
+	/**
+	 * Store information about password reset request.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to reset password for
+	 * @param namespace namespace to reset password in
+	 * @return ID of request to be used for validation
+	 * @throws InternalErrorException
+	 */
+	int storePasswordResetRequest(PerunSession sess, User user, String namespace) throws InternalErrorException;
+
 }

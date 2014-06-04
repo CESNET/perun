@@ -7,20 +7,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -786,9 +778,10 @@ public class Utils {
 	 * @param email user's email to send notification to
 	 * @param namespace namespace to reset password in
 	 * @param url base URL of Perun instance
+	 * @param id ID of pwd reset request
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetEmail(User user, String email, String namespace, String url) throws InternalErrorException {
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id) throws InternalErrorException {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -802,7 +795,7 @@ public class Utils {
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
-		String m = cipherInput(namespace, false);
+		String m = cipherInput(String.valueOf(id), false);
 
 		try {
 
@@ -891,8 +884,8 @@ public class Utils {
 
 		try {
 
-			String encryptionKey = getPropertyFromConfiguration("perun.pwreset.secretKey");
-			String initVector = getPropertyFromConfiguration("perun.pwreset.initVector");
+			String encryptionKey = getPropertyFromConfiguration("perun.pwdreset.secretKey");
+			String initVector = getPropertyFromConfiguration("perun.pwdreset.initVector");
 
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");

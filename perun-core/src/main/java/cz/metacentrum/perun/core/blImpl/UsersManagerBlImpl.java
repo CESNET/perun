@@ -6,13 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -304,6 +299,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// delete all mailchange request related to user
 		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
+
+		// delete all pwdreset request related to user
+		getUsersManagerImpl().removeAllPasswordResetRequests(sess, user);
 
 		// get all reserved logins of user
 		List<Pair<String,String>> logins = getUsersManagerImpl().getUsersReservedLogins(user);
@@ -1454,7 +1452,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
 
-		String namespace = Utils.cipherInput(m, true);
+		String requestId = Utils.cipherInput(m, true);
+		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
+
+		if (namespace.isEmpty()) throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all.");
 
 		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
 		boolean found = false;
