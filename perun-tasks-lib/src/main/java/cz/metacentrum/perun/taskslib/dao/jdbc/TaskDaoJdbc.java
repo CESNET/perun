@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.FacilitiesManagerImpl;
 import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.taskslib.dao.TaskDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -88,7 +89,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		try {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
 			this.getJdbcTemplate().update(
-					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
 					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
@@ -227,7 +228,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.schedule >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.schedule < to_date(?,'DD-MM-YYYY HH24:MI:SS') ",
+				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
@@ -237,7 +238,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.schedule >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.schedule < to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.engine_id = ? ",
+				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ? ",
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
@@ -247,7 +248,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.start_time >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.start_time < to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.engine_id = ?",
+				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ?",
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
@@ -257,7 +258,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.start_time >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.start_time < to_date(?,'DD-MM-YYYY HH24:MI:SS')",
+				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
@@ -267,7 +268,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.end_time >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.end_time < to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.engine_id = ?",
+				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ?",
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
@@ -277,7 +278,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.end_time >= to_date(?,'DD-MM-YYYY HH24:MI:SS') and tasks.end_time < to_date(?,'DD-MM-YYYY HH24:MI:SS')",
+				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
 				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
@@ -297,8 +298,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		this.getJdbcTemplate().update(
-				"update tasks set exec_service_id = ?, facility_id = ?, schedule = to_date(?,'DD-MM-YYYY HH24:MI:SS'), recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = to_date(?,'DD-MM-YYYY HH24:MI:SS'), end_time = to_date(?,'DD-MM-YYYY HH24:MI:SS') where id = ? and engine_id = ?", task.getExecServiceId(),
+				"update tasks set exec_service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
+				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ? and engine_id = ?", task.getExecServiceId(),
 				task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId(),
 				engineID);
 	}
@@ -319,8 +320,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		this.getJdbcTemplate().update(
-				"update tasks set exec_service_id = ?, facility_id = ?, schedule = to_date(?,'DD-MM-YYYY HH24:MI:SS'), recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = to_date(?,'DD-MM-YYYY HH24:MI:SS'), end_time = to_date(?,'DD-MM-YYYY HH24:MI:SS') where id = ?", task.getExecServiceId(),
+				"update tasks set exec_service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
+				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ?", task.getExecServiceId(),
 				task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId());
 	}
 
