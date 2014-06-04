@@ -99,10 +99,10 @@ public class ExecServiceDenialDaoTest {
 
 		// Testing Destination #1
 		testDestinationId1 = Utils.getNewId(jdbcTemplate, "destinations_id_seq");
-		jdbcTemplate.update("insert into destinations(id, destination) values (?,?)", testDestinationId1, "test.destination." + testDestinationId1);
+		jdbcTemplate.update("insert into destinations(id, destination, type) values (?,?,'host')", testDestinationId1, "test.destination." + testDestinationId1);
 		// Testing Destination #2
 		testDestinationId2 = Utils.getNewId(jdbcTemplate, "destinations_id_seq");
-		jdbcTemplate.update("insert into destinations(id, destination) values (?,?)", testDestinationId2, "test.destination." + testDestinationId2);
+		jdbcTemplate.update("insert into destinations(id, destination, type) values (?,?,'host')", testDestinationId2, "test.destination." + testDestinationId2);
 		// Testing Facility #1
 		testFacilityId1 = Utils.getNewId(jdbcTemplate, "facilities_id_seq");
 		jdbcTemplate.update("insert into facilities(id, name, type) values (?,?,?)", testFacilityId1, "Cluster_" + testFacilityId1, "api.facilities.Cluster");
