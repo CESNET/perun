@@ -67,36 +67,48 @@ public class Utils {
 	 */
 	public static String getIdentityConsolidatorLink(boolean target) {
 
-		// always use URL of machine, where GUI runs
-		String baseUrl = Window.Location.getProtocol()+"//"+ Window.Location.getHost();
+		String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getIdentityConsolidatorUrl");
 
-		// FIXME - production consolidator is still using old URL scheme
-		final String URL_KRB = baseUrl+"/perun-identity-consolidator-krb/";
-		final String URL_FED = baseUrl+"/perun-identity-consolidator-fed/";
-		final String URL_CERT = baseUrl+"/perun-identity-consolidator-cert/";
-		String rpc = "";
-		String link = "";
+		if (value != null && !value.isEmpty()) {
 
-		if (PerunWebSession.getInstance().getRpcServer() != null) {
-			rpc = PerunWebSession.getInstance().getRpcServer();
-		}
+			if (target) {
+				value += "?target=" + Window.Location.getHref();
+			}
+			return value;
 
-		if (rpc.equalsIgnoreCase("krb")) {
-			link = URL_KRB;
-		} else if (rpc.equalsIgnoreCase("fed")) {
-			link = URL_FED;
-		} else if (rpc.equalsIgnoreCase("cert")) {
-			link = URL_CERT;
 		} else {
-			// KRB AS BACKUP - "default"
-			link = URL_KRB;
-		}
 
-		if (target) {
-			link += "?target="+Window.Location.getHref();
-		}
+			// always use URL of machine, where GUI runs
+			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-		return link;
+			// FIXME - production consolidator is still using old URL scheme
+			final String URL_KRB = baseUrl + "/perun-identity-consolidator-krb/";
+			final String URL_FED = baseUrl + "/perun-identity-consolidator-fed/";
+			final String URL_CERT = baseUrl + "/perun-identity-consolidator-cert/";
+			String rpc = "";
+			String link = "";
+
+			if (PerunWebSession.getInstance().getRpcServer() != null) {
+				rpc = PerunWebSession.getInstance().getRpcServer();
+			}
+
+			if (rpc.equalsIgnoreCase("krb")) {
+				link = URL_KRB;
+			} else if (rpc.equalsIgnoreCase("fed")) {
+				link = URL_FED;
+			} else if (rpc.equalsIgnoreCase("cert")) {
+				link = URL_CERT;
+			} else {
+				// KRB AS BACKUP - "default"
+				link = URL_KRB;
+			}
+
+			if (target) {
+				link += "?target=" + Window.Location.getHref();
+			}
+
+			return link;
+		}
 
 	}
 
