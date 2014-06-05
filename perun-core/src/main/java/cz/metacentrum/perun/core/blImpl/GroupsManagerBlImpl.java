@@ -725,6 +725,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException,InternalErrorException {
+		List<Group> memberGroups = this.getAllMemberGroups(sess, member);
+		memberGroups.retainAll(this.getGroupsByAttribute(sess, attribute));
+		return memberGroups;
+	}
+		
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		return new ArrayList<Group>(new HashSet<Group>(getGroupsManagerImpl().getAllMemberGroups(sess, member)));
 	}
