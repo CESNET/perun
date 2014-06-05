@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import java.util.ArrayList;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -163,6 +164,28 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 			resourcesManager.deleteAllResources(sess, new Vo());
 
 		}
+	
+	@Test
+	public void deleteResourceWithGroupResourceAttributes() throws Exception {
+		System.out.println("ResourcesManager.deleteAllResourcesWhenVoNotExists");
+		
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		List<Attribute> attributes = setUpGroupResourceAttribute(group, resource);
+		
+		List<Attribute> retAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, false);
+		assertEquals("Only one group resource attribute is set.",retAttributes.size(), 1);
+		assertEquals("Not the correct attribute returned", attributes.get(0), retAttributes.get(0));
+		
+		perun.getResourcesManagerBl().deleteResource(sess, resource);
+		retAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, false);
+		assertEquals("There is still group resource attribute after deleting resource", retAttributes.size(), 0);
+	}
 
 	@Test
 	public void getFacility() throws Exception {
@@ -1159,5 +1182,21 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value for third attribute");
 		return attribute;
+	}
+	
+	private List<Attribute> setUpGroupResourceAttribute(Group group, Resource resource) throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+		attrDef.setDescription("Test Group resource attribute desc");
+		attrDef.setFriendlyName("testingAttributeGR");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("super string value");
+		perun.getAttributesManagerBl().setAttribute(sess, resource, group, attribute);
+		attribute = perun.getAttributesManagerBl().getAttribute(sess, resource, group, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":" + attrDef.getFriendlyName());
+		List<Attribute> attributes = new ArrayList<>();
+		attributes.add(attribute);
+		return attributes;
 	}
 }

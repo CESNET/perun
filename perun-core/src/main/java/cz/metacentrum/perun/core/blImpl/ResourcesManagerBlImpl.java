@@ -96,9 +96,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		List<Group> groups = getAssignedGroups(sess, resource);
 		for (Group group: groups){
-			getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
-			//IMPORTANT: If removeGroupFromResource called from BlImpl, this logging must be deleted
-			getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
+			try {
+				removeGroupFromResource(sess, group, resource);
+			} catch (GroupNotDefinedOnResourceException ex) {
+				throw new GroupAlreadyRemovedFromResourceException(ex);
+			}
 		}
 
 		// Remove attr values for the resource
