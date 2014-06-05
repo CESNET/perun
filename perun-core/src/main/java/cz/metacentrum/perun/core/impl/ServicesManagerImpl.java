@@ -68,7 +68,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
 		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid";
 
-	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_destinations_propagation_type ";
+	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 			
 	public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
 		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
@@ -132,7 +132,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			destination.setModifiedAt(rs.getString("destinations_modified_at"));
 			destination.setModifiedBy(rs.getString("destinations_modified_by"));
 			try { // do not mind if the column is not in the results
-				if(rs.getString("f_s_destinations_propagation_type").equals(Destination.PROPAGATIONTYPE_SERIAL)) {
+				if(rs.getString("f_s_des_propagation_type").equals(Destination.PROPAGATIONTYPE_SERIAL)) {
 					destination.setPropagationType(Destination.PROPAGATIONTYPE_SERIAL);
 				} else {
 					destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
