@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -818,12 +819,36 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 		
-	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException,InternalErrorException, VoNotExistsException {
+	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException,InternalErrorException, VoNotExistsException, MemberNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
-		for(Group group: this.getAllGroups(sess, this.getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId())))
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) throw new PrivilegeException(sess, "Actor hasn't right to read attribute.");
-		if(!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) throw new WrongAttributeAssignmentException(attribute);
-		return this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, new AttributeDefinition(attribute));
+		
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+		
+		//Only group attributes are allowed
+		if(!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) {
+			throw new WrongAttributeAssignmentException(attribute);
+		}
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "getMemberGroupsByAttribute for " + member);
+		}
+		
+		List<Group> groups = this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
+		
+		//If actor has no right to read attribute for group, throw exception
+		for(Group group: groups) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
+					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
+				}
+		}
+		
+		return groups;
 	}
 	
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {

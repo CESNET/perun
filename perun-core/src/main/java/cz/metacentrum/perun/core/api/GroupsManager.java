@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -696,18 +697,22 @@ public interface GroupsManager {
 	List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
 
 	/**
-	 * Method return list of groups with selected member and with attribute
+	 * Method return list of groups for selected member which (groups) has set specific attribute.
+	 * Attribute can be only from namespace "GROUP"
 	 * 
-	 * @param sess sess must have actor in session
-	 * @param member
-	 * @param attribute
+	 * @param sess sess
+	 * @param member memer
+	 * @param attribute attribute from "GROUP" namespace
+	 * 
 	 * @return list of groups which contain member and have attribute with same value
 	 * @throws InternalErrorException 
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws VoNotExistsException 
+	 * @throws MemberNotExistsException
+	 * @throws AttributeNotExistsException
 	 */
-	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException ;
+	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
 	
 	/**
 	 * Return all member's groups. Included members groups.

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -361,6 +362,61 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("Expected this group is contained in list.",groupsList.remove(parentGroup));
 		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroupOfSubgroup1));
 		assertTrue(groupsList.isEmpty());
+	}
+	
+	@Test
+	public void getMemberGroupsByAttribute() throws Exception {
+		System.out.println("GroupsManager.getMemberGroupsByAttribute");
+		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123456", "testik123456"));
+		Member member = setUpMember(createdVo);
+		
+		Group group1 = new Group("Group1Test", "Group1Test");
+		Group group2 = new Group("Group2Test", "Group2Test");
+		Group group3 = new Group("Group3Test", "Group3Test");
+		Group group4 = new Group("Group4Test", "Group4Test");
+		
+		group1 = groupsManagerBl.createGroup(sess, createdVo, group1);
+		group2 = groupsManagerBl.createGroup(sess, createdVo, group2);
+		group3 = groupsManagerBl.createGroup(sess, createdVo, group3);
+		group4 = groupsManagerBl.createGroup(sess, createdVo, group4);
+		groupsManagerBl.addMember(sess, group1, member);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group3, member);
+		groupsManagerBl.addMember(sess, group4, member);
+		
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManagerEntry.NS_GROUP_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		
+		perun.getAttributesManagerBl().setAttribute(sess, group1, attribute);
+		perun.getAttributesManagerBl().setAttribute(sess, group3, attribute);
+		
+		AttributeDefinition attrDefBad = new AttributeDefinition();
+		attrDefBad.setNamespace(AttributesManagerEntry.NS_GROUP_ATTR_DEF);
+		attrDefBad.setDescription("Test attribute description 2");
+		attrDefBad.setFriendlyName("testingAttribute2");
+		attrDefBad.setType(String.class.getName());
+		attrDefBad = perun.getAttributesManagerBl().createAttribute(sess, attrDefBad);
+		Attribute attributeBad = new Attribute(attrDefBad);
+		attributeBad.setValue("Testing value");
+		
+		perun.getAttributesManagerBl().setAttribute(sess, group2, attributeBad);
+		perun.getAttributesManagerBl().setAttribute(sess, group4, attributeBad);
+		
+		List<Group> groups1 = perun.getGroupsManager().getMemberGroupsByAttribute(sess, member, attribute);
+		List<Group> groups2 = perun.getGroupsManager().getMemberGroupsByAttribute(sess, member, attributeBad);
+		
+		assertEquals("groups must have only 2 mambers", 2, groups1.size());
+		assertEquals("groups must have only 2 mambers", 2, groups2.size());
+		assertTrue("list of groups must containt this group", groups1.contains(group1));
+		assertTrue("list of groups must containt this group", groups1.contains(group3));
+		assertTrue("list of groups must containt this group", groups2.contains(group2));
+		assertTrue("list of groups must containt this group", groups2.contains(group4));
 	}
 
 	@Test
