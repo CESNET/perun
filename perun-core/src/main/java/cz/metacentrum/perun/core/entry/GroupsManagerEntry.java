@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -25,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -36,6 +41,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
@@ -812,6 +818,39 @@ public class GroupsManagerEntry implements GroupsManager {
 		return groups;
 	}
 
+		
+	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException,InternalErrorException, VoNotExistsException, MemberNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, new AttributeDefinition(attribute));
+		
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+		
+		//Only group attributes are allowed
+		if(!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) {
+			throw new WrongAttributeAssignmentException(attribute);
+		}
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "getMemberGroupsByAttribute for " + member);
+		}
+		
+		List<Group> groups = this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
+		
+		//If actor has no right to read attribute for group, throw exception
+		for(Group group: groups) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
+					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
+				}
+		}
+		
+		return groups;
+	}
+	
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);

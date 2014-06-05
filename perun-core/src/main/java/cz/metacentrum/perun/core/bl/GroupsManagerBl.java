@@ -734,6 +734,21 @@ public interface GroupsManagerBl {
 	List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
+	 * Method return list of groups for selected member which (groups) has set specific attribute.
+	 * Attribute can be only from namespace "GROUP"
+	 * 
+	 * @param sess sess
+	 * @param member member
+	 * @param attribute attribute from "GROUP" namespace
+	 * 
+	 * @return list of groups which contain member and have attribute with same value
+	 * 
+	 * @throws InternalErrorException 
+	 * @throws WrongAttributeAssignmentException
+	 */
+	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, InternalErrorException;
+
+	/**
 	 * Return all member's groups. Included members and administrators groups.
 	 *
 	 * @param sess
