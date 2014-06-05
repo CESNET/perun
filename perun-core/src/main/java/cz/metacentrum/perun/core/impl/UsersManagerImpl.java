@@ -955,6 +955,56 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	}
 
+	public String loadPasswordResetRequest(User user, int requestId) throws InternalErrorException {
+
+		int validWindow = VALIDATION_ALLOWED_HOURS;
+		try {
+			validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.pwdreset.validationWindow"));
+		} catch (Exception ex) {
+			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
+		}
+
+		String result = "";
+		try {
+			if (Compatibility.isPostgreSql()) {
+
+				result = jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))", new RowMapper<String>() {
+					@Override
+					public String mapRow(ResultSet resultSet, int i) throws SQLException {
+						return resultSet.getString("namespace");
+					}
+				}, user.getId(), requestId);
+
+			} else {
+
+				result =  jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", new RowMapper<String>() {
+					@Override
+					public String mapRow(ResultSet resultSet, int i) throws SQLException {
+						return resultSet.getString("namespace");
+					}
+				}, user.getId(), requestId);
+
+			}
+
+			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
+			return result;
+
+		} catch (EmptyResultDataAccessException ex) {
+			return result;
+		}
+
+	}
+
+	public void removeAllPasswordResetRequests(PerunSession sess, User user) throws InternalErrorException {
+
+		try {
+			jdbc.update("delete from pwdreset where user_id=?", user.getId());
+		} catch (Exception ex) {
+			throw new InternalErrorException("Unable to remove password reset requests for user: "+user, ex);
+		}
+
+	}
+
 	public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
 	}

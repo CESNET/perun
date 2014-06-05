@@ -797,6 +797,20 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().getNewExtendMembership(sess, member);
 	}
 
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+
+		Utils.checkPerunSession(sess);
+		getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+			throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
+		}
+
+		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url);
+
+	}
+
 	/**
 	 * Gets the membersManagerBl for this instance.
 	 *

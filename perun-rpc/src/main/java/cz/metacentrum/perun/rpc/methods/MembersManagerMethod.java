@@ -657,5 +657,18 @@ public enum MembersManagerMethod implements ManagerMethod {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "member, user, vo");
 			}
 		}
+	},
+
+	sendPasswordResetLinkEmail {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString());
+
+			return null;
+
+		}
 	};
 }

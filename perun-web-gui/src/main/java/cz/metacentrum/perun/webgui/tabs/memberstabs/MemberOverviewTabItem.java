@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -9,7 +11,6 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
-import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.MembershipExpirationWidget;
 import cz.metacentrum.perun.webgui.widgets.PerunStatusWidget;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,6 +151,20 @@ public class MemberOverviewTabItem implements TabItem {
 		memberLayout.setHTML(5, 1, member.getId()+"");
 		memberLayout.setHTML(6, 0, "User ID:");
 		memberLayout.setHTML(6, 1, member.getUser().getId()+"");
+
+		if (session.isVoAdmin(member.getVoId())) {
+
+			CustomButton resetButton = new CustomButton("Send password reset request", "", SmallIcons.INSTANCE.keyIcon(), new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new SendPasswordResetRequestTabItem(member));
+				}
+			});
+
+			memberLayout.setHTML(7, 0, "Password reset");
+			memberLayout.setWidget(7, 1, resetButton);
+
+		}
 
 		// style member table
 		for (int i=0; i<memberLayout.getRowCount(); i++) {

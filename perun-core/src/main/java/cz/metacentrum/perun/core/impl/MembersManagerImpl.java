@@ -240,4 +240,17 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	public int storePasswordResetRequest(PerunSession sess, User user, String namespace) throws InternalErrorException {
+
+		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
+
+		jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
+						+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
+				newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+
+		return newId;
+
+	}
+
 }

@@ -38,9 +38,9 @@ public interface UsersManagerBl {
 	/**
 	 * Get all the users who have given type of the ExtSource and login.
 	 *
-	 * @param perunSession perun session
+	 * @param perunSession  perun session
 	 * @param extSourceType type of the user extSource
-	 * @param login login of the user
+	 * @param login         login of the user
 	 * @return all users with given parameters
 	 * @throws InternalErrorException
 	 */
@@ -91,11 +91,11 @@ public interface UsersManagerBl {
 	 * Only disable ownership of user and serviceUser
 	 *
 	 * @param sess
-	 * @param user the user
+	 * @param user        the user
 	 * @param serviceUser the serviceUser
 	 * @throws InternalErrorException
-	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws ServiceUserMustHaveOwnerException if there is the last user to remove
+	 * @throws RelationNotExistsException                                                       if there is no such user (the user) to remove
+	 * @throws ServiceUserMustHaveOwnerException                                                if there is the last user to remove
 	 * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
 	void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException;
@@ -106,7 +106,7 @@ public interface UsersManagerBl {
 	 * If exists, only enable ownership for user and serviceUser
 	 *
 	 * @param sess
-	 * @param user the user
+	 * @param user        the user
 	 * @param serviceUser the serviceUser
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException If there is such user (the user) who try to add
@@ -116,7 +116,7 @@ public interface UsersManagerBl {
 	/**
 	 * Return true if ownership of user and serviceUser already exists.
 	 * Return false if not.
-	 *
+	 * <p/>
 	 * Looking for enabled and also for disabled ownership.
 	 *
 	 * @param sess
@@ -161,6 +161,7 @@ public interface UsersManagerBl {
 
 	/**
 	 * Get User to RichUser without attributes.
+	 *
 	 * @param sess
 	 * @param user
 	 * @return
@@ -171,6 +172,7 @@ public interface UsersManagerBl {
 
 	/**
 	 * Get User to RichUser with attributes.
+	 *
 	 * @param sess
 	 * @param user
 	 * @return
@@ -196,7 +198,7 @@ public interface UsersManagerBl {
 	 * Get All richUsers with or without serviceUsers.
 	 * If includedServiceUsers is true, you got all Users included serviceUsers
 	 * If includedServiceUsers is false, you get all Users without serviceUsers
-	 *
+	 * <p/>
 	 * This method get all RichUsers included Attributes.
 	 *
 	 * @param sess
@@ -240,10 +242,10 @@ public interface UsersManagerBl {
 	 * @return list of RichUsers with specific attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
+	List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef) throws InternalErrorException;
 
 	/**
-	 *  Inserts user into DB.
+	 * Inserts user into DB.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -252,34 +254,34 @@ public interface UsersManagerBl {
 	User createUser(PerunSession perunSession, User user) throws InternalErrorException;
 
 	/**
-	 *  Deletes user.
+	 * Deletes user.
 	 *
 	 * @param perunSession
 	 * @param user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException if user has some members assigned
-	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
+	 * @throws RelationExistsException            if user has some members assigned
+	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
 	 * @throws ServiceUserAlreadyRemovedException if there are no rows affected by deleting serviceUser in DB
 	 */
 	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException;
 
 	/**
-	 *  Deletes user. If forceDelete is true, then removes also associated members.
+	 * Deletes user. If forceDelete is true, then removes also associated members.
 	 *
 	 * @param perunSession
 	 * @param user
-	 * @param forceDelete if true, deletes also all members if they are assigned to the user
+	 * @param forceDelete  if true, deletes also all members if they are assigned to the user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException if forceDelete is false and the user has some members assigned
-	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
+	 * @throws RelationExistsException            if forceDelete is false and the user has some members assigned
+	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
 	 * @throws ServiceUserAlreadyRemovedException if there are no rows affected by deleting serviceUser in DB
 	 */
 	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException;
 
 	/**
-	 *  Updates users data in DB.
+	 * Updates users data in DB.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -290,11 +292,11 @@ public interface UsersManagerBl {
 	User updateUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
-	 *  Updates titles before/after users name.
-	 *
-	 *  New titles must be set inside User object.
-	 *  Setting any title to null will remove title from name.
-	 *  Other user's properties are ignored.
+	 * Updates titles before/after users name.
+	 * <p/>
+	 * New titles must be set inside User object.
+	 * Setting any title to null will remove title from name.
+	 * Other user's properties are ignored.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -305,7 +307,7 @@ public interface UsersManagerBl {
 	User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
-	 *  Updates user's userExtSource in DB.
+	 * Updates user's userExtSource in DB.
 	 *
 	 * @param perunSession
 	 * @param userExtSource
@@ -315,7 +317,7 @@ public interface UsersManagerBl {
 	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
-	 *  Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
 	 *
 	 * @param perunSession
 	 * @param userExtSource
@@ -361,7 +363,7 @@ public interface UsersManagerBl {
 	 * @param perunSession
 	 * @param user
 	 * @param userExtSource
-	 * @return      user external auth object with newly generated ID
+	 * @return user external auth object with newly generated ID
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceExistsException
 	 */
@@ -426,7 +428,6 @@ public interface UsersManagerBl {
 	 * @param facility
 	 * @param user
 	 * @return list of resources which have the user access on
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
@@ -438,7 +439,6 @@ public interface UsersManagerBl {
 	 * @param facility
 	 * @param user
 	 * @return list of resources which have the user access on
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
@@ -449,7 +449,6 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of resources which have the user access on
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException;
@@ -460,7 +459,6 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of resources which have the user access on
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException;
@@ -471,7 +469,6 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of rich resources which have the user access on
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException;
@@ -571,7 +568,7 @@ public interface UsersManagerBl {
 	 *
 	 * @param sess
 	 * @param loginNamespace in which the login will be checked (provide only the name of the namespace, not the whole attribute name)
-	 * @param login to be checked
+	 * @param login          to be checked
 	 * @return true if login available, false otherwise
 	 * @throws InternalErrorException
 	 */
@@ -628,7 +625,7 @@ public interface UsersManagerBl {
 
 	/**
 	 * !!! Not Complete yet, need to implement all perunBeans !!!
-	 *
+	 * <p/>
 	 * Get perunBean and try to find all connected Users
 	 *
 	 * @param sess
@@ -642,7 +639,7 @@ public interface UsersManagerBl {
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct. user must exists.
 	 *
 	 * @param sess
-	 * @param user user object which is used to get userLogin from the loginNamespace
+	 * @param user             user object which is used to get userLogin from the loginNamespace
 	 * @param oldPassword
 	 * @param newPassword
 	 * @param checkOldPassword
@@ -653,13 +650,13 @@ public interface UsersManagerBl {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
 
 	/**
 	 * Creates the password in external system. User must not exists.
 	 *
 	 * @param sess
-	 * @param userLogin string representation of the userLogin
+	 * @param userLogin      string representation of the userLogin
 	 * @param loginNamespace
 	 * @param password
 	 * @throws InternalErrorException
@@ -667,7 +664,7 @@ public interface UsersManagerBl {
 	 */
 	@Deprecated
 	void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-	throws InternalErrorException, PasswordCreationFailedException;
+			throws InternalErrorException, PasswordCreationFailedException;
 
 	/**
 	 * Creates the password in external system. User must exists.
@@ -682,7 +679,7 @@ public interface UsersManagerBl {
 	 */
 	@Deprecated
 	void createPassword(PerunSession sess, User user, String loginNamespace, String password)
-	throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
 
 	/**
 	 * Reserves random password in external system. User must exists.
@@ -700,14 +697,14 @@ public interface UsersManagerBl {
 	 * Reserves the password in external system. User must not exists.
 	 *
 	 * @param sess
-	 * @param userLogin string representation of the userLogin
+	 * @param userLogin      string representation of the userLogin
 	 * @param loginNamespace
 	 * @param password
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException;
+			throws InternalErrorException, PasswordCreationFailedException;
 
 	/**
 	 * Reserves the password in external system. User must exists.
@@ -721,19 +718,19 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
 
 	/**
 	 * Validates the password in external system. User must not exists.
 	 *
 	 * @param sess
-	 * @param userLogin string representation of the userLogin
+	 * @param userLogin      string representation of the userLogin
 	 * @param loginNamespace
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 */
 	void validatePassword(PerunSession sess, String userLogin, String loginNamespace)
-		throws InternalErrorException, PasswordCreationFailedException;
+			throws InternalErrorException, PasswordCreationFailedException;
 
 	/**
 	 * Validates the password in external system. User must exists.
@@ -746,7 +743,7 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException
 	 */
 	void validatePassword(PerunSession sess, User user, String loginNamespace)
-		throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
 
 	/**
 	 * Validates the password in external system and set user extSources and extSource related attributes. User must exists.
@@ -755,7 +752,6 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @param userLogin
 	 * @param loginNamespace
-	 *
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException
@@ -776,13 +772,14 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
-		throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException;
+
 	/**
 	 * Check if login in specified namespace exists.
 	 *
 	 * @param sess
 	 * @param namespace namespace for login
-	 * @param login login to check
+	 * @param login     login to check
 	 * @throws InternalErrorException
 	 * @throws AlreadyReservedLoginException throw this exception if login already exist in table of reserved logins
 	 */
@@ -813,7 +810,7 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws InternalErrorException, UserNotExistsException;
+	List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * From List of Users make list of RichUsers (with attributes by names)
@@ -886,6 +883,7 @@ public interface UsersManagerBl {
 
 	/**
 	 * Get User to RichUser with attributes.
+	 *
 	 * @param sess
 	 * @param includedServiceUsers
 	 * @param attrsNames
@@ -921,11 +919,10 @@ public interface UsersManagerBl {
 	 * address is verified by link in email notice.
 	 * (urn:perun:user:attribute-def:def:preferredEmail)
 	 *
-	 * @param sess PerunSession
-	 * @param url base URL of running perun instance passed from RPC.
-	 * @param user User to request preferred email change for
+	 * @param sess  PerunSession
+	 * @param url   base URL of running perun instance passed from RPC.
+	 * @param user  User to request preferred email change for
 	 * @param email new email address
-	 *
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
@@ -938,15 +935,14 @@ public interface UsersManagerBl {
 	 *
 	 * @param sess PerunSession
 	 * @param user User to validate email address for
-	 * @param i decrypted parameter
-	 * @param m encrypted parameter
+	 * @param i    decrypted parameter
+	 * @param m    encrypted parameter
 	 * @return String return new preferred email
-	 *
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException When user from session is null
-	 * @throws WrongAttributeValueException If new email address is in wrong format
+	 * @throws UserNotExistsException                When user from session is null
+	 * @throws WrongAttributeValueException          If new email address is in wrong format
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException If user:preferredEmail attribute doesn't exists.
+	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
@@ -955,37 +951,50 @@ public interface UsersManagerBl {
 	 * Return list of email addresses of user, which are
 	 * awaiting validation and are inside time window
 	 * for validation.
-	 *
+	 * <p/>
 	 * If there is no preferred email change request pending
 	 * or requests are outside time window for validation,
 	 * returns empty list.
 	 *
 	 * @param sess PerunSession
 	 * @param user User to check pending request for
-	 *
+	 * @return List<String> user's email addresses pending validation
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
-	 *
-	 * @return List<String> user's email addresses pending validation
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
-	 * Get user and convert values of his object attributes: 
-	 *  - firstName
-	 *  - lastName
-	 *  - middleName
-	 *  - titleBefore
-	 *  - titleAfter
+	 * Get user and convert values of his object attributes:
+	 * - firstName
+	 * - lastName
+	 * - middleName
+	 * - titleBefore
+	 * - titleAfter
 	 * from emptyString (like "") to null.
-	 * 
+	 * <p/>
 	 * If these values are not empty strings, do not change them.
 	 * If user is null, return null.
-	 * 
+	 *
 	 * @param user user to converting
-	 * 
 	 * @return converted user
 	 */
 	User convertUserEmptyStringsInObjectAttributesIntoNull(User user);
+
+	/**
+	 * Changes user password in defined login-namespace using encrypted parameters.
+	 *
+	 * @param sess     PerunSession
+	 * @param user     user to change password for
+	 * @param m        encrypted parameter
+	 * @param password password to set
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password)
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+
 }

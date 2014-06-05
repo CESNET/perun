@@ -1464,6 +1464,34 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return new Pair<Boolean, Date>(true, calendar.getTime());
 	}
 
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException {
+
+		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+
+		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
+		boolean found = false;
+		for (Attribute a : logins) {
+			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
+		}
+		if (!found) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
+
+		String email = "";
+		try {
+			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
+			if (a != null && a.getValue() != null) {
+				email = (String)a.getValue();
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace);
+		Utils.sendPasswordResetEmail(user, email, namespace, url, id);
+
+	}
+
 	/**
 	 * Take list of members and set them all the same type.
 	 *

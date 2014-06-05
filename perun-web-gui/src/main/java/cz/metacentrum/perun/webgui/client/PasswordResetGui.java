@@ -2,19 +2,30 @@ package cz.metacentrum.perun.webgui.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CustomButton;
+import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetFormPage;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetLeftMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
+import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationsForUser;
+import cz.metacentrum.perun.webgui.json.registrarManager.VerifyCaptcha;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
-import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
+import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.recaptcha.RecaptchaWidget;
 
 /**
  * The main Password Reset GUI class. It's GWT Entry point.
@@ -122,10 +133,115 @@ public class PasswordResetGui implements EntryPoint {
 						// hides the loading box
 						loadingBox.hide();
 
-						// add menu item and load content
-						contentPanel.setWidget(new PasswordResetFormPage().getContent());
-						//Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
-						//a.fireEvent(new ClickEvent(){});
+						if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+
+							// CHALLENGE WITH CAPTCHA
+
+							FlexTable ft = new FlexTable();
+							ft.setSize("100%", "500px");
+
+							// captcha with public key
+							String key = Utils.getReCaptchaPublicKey();
+							if (key == null) {
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("0");
+								error.setName("Missing public key");
+								error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
+								error.setRequestURL("");
+								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
+								loadingBox.hide();
+								return;
+							}
+
+							final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
+
+							final cz.metacentrum.perun.webgui.widgets.CustomButton cb = new cz.metacentrum.perun.webgui.widgets.CustomButton();
+							cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
+							cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
+							cb.setImageAlign(true);
+
+							final TextBox response = new TextBox();
+							captcha.setOwnTextBox(response);
+
+							Scheduler.get().scheduleDeferred(new Command() {
+								@Override
+								public void execute() {
+									response.setFocus(true);
+								}
+							});
+
+							response.addKeyDownHandler(new KeyDownHandler() {
+								@Override
+								public void onKeyDown(KeyDownEvent event) {
+									if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+										cb.click();
+									}
+								}
+							});
+
+							cb.addClickHandler(new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent clickEvent) {
+									VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents() {
+										public void onFinished(JavaScriptObject jso) {
+
+											BasicOverlayType bt = jso.cast();
+											if (bt.getBoolean()) {
+
+												// OK captcha answer - load GUI
+
+												// add menu item and load content
+												contentPanel.setWidget(new PasswordResetFormPage().getContent());
+												//Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
+												//a.fireEvent(new ClickEvent(){});
+
+											} else {
+												// wrong captcha answer
+												UiElements.generateAlert(ApplicationMessages.INSTANCE.captchaErrorHeader(), ApplicationMessages.INSTANCE.captchaErrorMessage());
+											}
+										}
+									}));
+									req.retrieveData();
+								}
+							});
+
+							// set layout
+
+							int row = 0;
+
+							ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+							ft.setHTML(row, 0, "<h2>In order to continue to the password reset page, please, retype words below.</h2>");
+							ft.setWidget(row + 1, 0, captcha);
+							ft.getFlexCellFormatter().setHorizontalAlignment(row + 1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(row + 1, 0, HasVerticalAlignment.ALIGN_BOTTOM);
+
+							FlexTable sendFt = new FlexTable();
+							sendFt.setStyleName("inputFormFlexTable");
+
+							sendFt.setWidget(0, 0, response);
+							sendFt.setWidget(0, 1, cb);
+
+							ft.setWidget(row + 2, 0, sendFt);
+							ft.getFlexCellFormatter().setHorizontalAlignment(row + 2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+							ft.getFlexCellFormatter().setVerticalAlignment(row + 2, 0, HasVerticalAlignment.ALIGN_TOP);
+
+							ft.setHeight("100%");
+							ft.getFlexCellFormatter().setHeight(row, 0, "50%");
+							ft.getFlexCellFormatter().setHeight(row + 2, 0, "50%");
+
+							// finish loading GUI
+							loadingBox.hide();
+							contentPanel.setWidget(ft);
+
+						} else {
+
+							// add menu item and load content
+							contentPanel.setWidget(new PasswordResetFormPage().getContent());
+							//Anchor a = leftMenu.addMenuContents("Password reset", SmallIcons.INSTANCE.keyIcon(), new PasswordResetFormPage().getContent());
+							//a.fireEvent(new ClickEvent(){});
+
+						}
 
 					}
 				@Override
