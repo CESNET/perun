@@ -139,11 +139,10 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 				new JsonUtils.GetValue<User, String>() {
 					public String getValue(User object) {
 						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
-						String value = "";
-						if (at != null) {
-							value = at.getValue();
+						if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+							return at.getValue();
 						}
-						return value;
+						return "";
 					}
 				}, this.tableFieldUpdater);
 
@@ -151,18 +150,11 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 		Column<User, String> emailColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<User, String>() {
 					public String getValue(User object) {
-
 						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-
-						String value = "";
-
-						if (at != null) {
-							value = at.getValue();
-							// replace "," to " " in emails
-							value = value.replace(",", " ");
+						if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+							return at.getValue().replace(",", " ");
 						}
-
-						return value;
+						return "";
 					}
 				}, this.tableFieldUpdater);
 

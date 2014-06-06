@@ -189,34 +189,28 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 			}  else if (attrName.equalsIgnoreCase("organization")) {
 
 				Attribute at = object.getAttribute("urn:perun:member:attribute-def:def:organization");
-				if (at == null || at.getValue().equalsIgnoreCase("null")) {
+				if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+					return at.getValue();
+				} else {
 					at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
+					if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+						return at.getValue();
+					}
 				}
-				String value = "";
-
-				if (at != null) {
-					value = at.getValue();
-				}
-				if (value.equalsIgnoreCase("null")) {
-					return "";
-				}
-				return value;
+				return "";
 
 			} else if (attrName.equalsIgnoreCase("email")) {
 
 				Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-				if (at == null || at.getValue().equalsIgnoreCase("null")) {
+				if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+					return at.getValue().replace(",", " ");
+				} else {
 					at = object.getAttribute("urn:perun:member:attribute-def:def:mail");
+					if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+						return at.getValue().replace(",", " ");
+					}
 				}
-				String value = "";
-
-				if (at != null) {
-					value = at.getValue();
-					// replace "," to " " in emails
-					value = value.replace(",", " ");
-				}
-
-				return value;
+				return "";
 
 			}  else if (attrName.equalsIgnoreCase("logins")) {
 				return object.getUserLogins();
