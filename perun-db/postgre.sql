@@ -1,4 +1,4 @@
--- database version 3.1.1.
+-- database version 3.1.10.
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1087,6 +1087,16 @@ created_by varchar(1024) default user not null,
 created_by_uid integer
 );
 
+--PWDRESET - allows to user to change passwd
+create table "pwdreset" (
+id integer not null,
+namespace text not null,
+user_id integer not null,
+created_at timestamp default now() not null,
+created_by varchar(1024) default user not null,
+created_by_uid integer
+);
+
 create sequence "attr_names_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_consumers_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_log_id_seq" maxvalue 9223372036854775807;
@@ -1133,6 +1143,7 @@ create sequence "pn_regex_object_seq" maxvalue 9223372036854775807;
 create sequence "action_types_seq" maxvalue 9223372036854775807;
 create sequence "res_tags_seq" maxvalue 9223372036854775807;
 create sequence "mailchange_id_seq" maxvalue 9223372036854775807;
+create sequence "pwdreset_id_seq" maxvalue 9223372036854775807;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_members_user_id on members(user_id);
@@ -1263,6 +1274,7 @@ create index idx_fk_restags_vos on res_tags(vo_id);
 create index idx_fk_tags_res_tags on tags_resources(tag_id);
 create index idx_fk_tags_res_res on tags_resources(resource_id);
 create index idx_fk_mailchange_user_id on mailchange(user_id);
+create index idx_fk_pwdreset_user_id on pwdreset(user_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1561,6 +1573,8 @@ alter table configurations add constraint config_pk primary key (property);
 alter table configurations add constraint config_prop_chk check (property in ('DATABASE VERSION'));
 alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
+alter table pwdreset add constraint pwdreset_pk primary key (id);
+alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
 
 grant all on users to perun;
 grant all on vos to perun;
@@ -1644,3 +1658,4 @@ grant all on res_tags to perun;
 grant all on tags_resources to perun;
 grant all on configurations to perun;
 grant all on mailchange to perun;
+grant all on pwdreset to perun;

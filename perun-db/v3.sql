@@ -1008,6 +1008,14 @@ created_by varchar(1024) default user not null,
 created_by_uid integer
 );
 
+create table pwdreset (
+id integer not null,
+namespace varchar2(512) not null,
+user_id integer not null,
+created_at date default sysdate not null,
+created_by varchar(1024) default user not null,
+created_by_uid integer
+);
 
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28;
@@ -1067,7 +1075,7 @@ create sequence PN_REGEX_OBJECT_SEQ maxvalue 1.0000E+28;
 create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28;
 create sequence RES_TAGS_SEQ maxvalue 1.0000E+28;
 create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28;
-
+create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_members_user_id on members(user_id);
@@ -1195,7 +1203,7 @@ create index IDX_FK_RESTAGS_VOS on res_tags(vo_id);
 create index IDX_FK_TAGS_RES_TAGS on tags_resources(tag_id);
 create index IDX_FK_TAGS_RES_RES on tags_resources(resource_id);
 create index IDX_FK_MAILCHANGE_USER_ID on mailchange(user_id);
-
+create index IDX_FK_PWDRESET_USER_ID on pwdreset(user_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1606,4 +1614,9 @@ constraint CONFIG_PROP_CHK check (property in ('DATABASE VERSION'))
 alter table mailchange add (
 constraint mailchange_pk primary key (id),
 constraint mailchange_u_fk foreign key (user_id) references users(id)
+);
+
+alter table pwdreset add (
+constraint pwdreset_pk primary key (id),
+constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
