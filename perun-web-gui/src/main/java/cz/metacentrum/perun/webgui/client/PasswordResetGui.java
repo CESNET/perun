@@ -109,7 +109,7 @@ public class PasswordResetGui implements EntryPoint {
 				session.setPerunPrincipal(pp);
 
 				// check if user exists
-				if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {
+				if (session.getUser() != null && !pp.getRoles().hasAnyRole() && !session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 					// if not and no role, redraw page body
 					RootLayoutPanel body = RootLayoutPanel.get();
 					loadingBox.hide();
@@ -118,11 +118,15 @@ public class PasswordResetGui implements EntryPoint {
 					return;
 				}
 
-				// store users roles and editable entities into session
-				session.setRoles(pp.getRoles());
+				if (session.getUser() != null && !pp.getRoles().hasAnyRole()) {
 
-				// display logged user
-				session.getUiElements().setLoggedUserInfo(pp);
+					// store users roles and editable entities into session
+					session.setRoles(pp.getRoles());
+
+					// display logged user
+					session.getUiElements().setLoggedUserInfo(pp);
+
+				}
 
 				GetGuiConfiguration getConf = new GetGuiConfiguration(new JsonCallbackEvents(){
 					@Override
