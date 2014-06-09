@@ -10,7 +10,7 @@ sub processGroupMembership;
 
 local $::SERVICE_NAME = "ldap";
 local $::PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.1";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -109,6 +109,36 @@ close(FILE);
 # PRINT LDIF FILE
 #
 open FILE,">:encoding(UTF-8)","$fileName" or die "Cannot open $fileName: $! \n";
+
+# print base entry
+
+print FILE "dn: " . $facilityAttributes{$A_F_BASE_DN} . "\n";
+# IF base start with dc=[something]
+if ($facilityAttributes{$A_F_BASE_DN} =~ m/^dc=/) {
+
+	my $position = index($facilityAttributes{$A_F_BASE_DN}, ",");
+	print $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print $position . "\n";
+	my $dc = undef;
+	if ($position > 0) {
+		$dc = substr $facilityAttributes{$A_F_BASE_DN}, 3, $position-3;
+	}
+	print FILE "dc: " . $dc . "\n";
+	print FILE "objectclass: dcObject\n";
+}
+# IF base start with ou=[something]
+if ($facilityAttributes{$A_F_BASE_DN} =~ m/^ou=/) {
+
+	my $position = index($facilityAttributes{$A_F_BASE_DN}, ",");
+	my $ou = undef;
+	if ($position > 0) {
+		$ou = substr($facilityAttributes{$A_F_BASE_DN}, 3, $position-3);
+	}
+	print FILE "ou: " . $ou . "\n";
+	print FILE "objectclass: organizationalunit\n"
+}
+
+print FILE "\n";
 
 # PRINT ou=people entry
 print FILE "dn: ou=people," . $facilityAttributes{$A_F_BASE_DN} . "\n";
