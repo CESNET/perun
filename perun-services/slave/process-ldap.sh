@@ -5,7 +5,7 @@
 # 2011-08-10 generification of script
 # 2013-06-20 prevent concurrent run
 
-PROTOCOL_VERSION='3.0.0'
+PROTOCOL_VERSION='3.0.1'
 
 function process {
 
