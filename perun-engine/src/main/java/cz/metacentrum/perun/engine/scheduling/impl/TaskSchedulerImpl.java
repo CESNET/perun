@@ -56,6 +56,13 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	public void propagateService(ExecService execService, Date time, Facility facility) throws InternalErrorException {
 		log.debug("Facility to be processed: " + facility.getId() + ", ExecService to be processed: " + execService.getId());
 
+		if(facility.getName().equals("alcor.ics.muni.cz") ||
+				facility.getName().equals("aldor.ics.muni.cz") ||
+				facility.getName().equals("ascor.ics.muni.cz")) {
+			log.info("IGNORE facility " + facility.getName());
+			return;
+		}	
+
 		// TODO: EDIT: Denials are to be resolved in TaskExecutorEngine class as well (for each destination)
 
 		Task previousTask = null;
