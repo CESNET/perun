@@ -111,6 +111,14 @@ public class EventProcessorImpl implements EventProcessor {
 				log.debug("\t Resolved ExecServices[" + resultTest.getLeft() + "]");
 
 				if (resultTest != null && resultTest.getLeft() != null && resultTest.getRight() != null) {
+					if(resultTest.getRight().getName().equals("alcor.ics.muni.cz") ||
+							resultTest.getRight().getName().equals("aldor.ics.muni.cz") ||
+							resultTest.getRight().getName().equals("torque.ics.muni.cz") ||
+							resultTest.getRight().getName().equals("nympha-cloud.zcu.cz") ||
+							resultTest.getRight().getName().equals("ascor.ics.muni.cz")) {
+						log.info("IGNORE:  Facility[" + resultTest.getRight() + "]");
+						continue;
+					}
 					for (ExecService execService : resultTest.getLeft()) {
 						log.debug("ADD to POOL: ExecService[" + execService.getId() + "] : Facility[" + resultTest.getRight() + "]");
 						schedulingPool.addToPool(new Pair<ExecService, Facility>(execService, resultTest.getRight()));

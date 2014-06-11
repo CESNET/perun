@@ -126,6 +126,14 @@ public class EngineManagerImpl implements EngineManager {
 				String[] data = line.split(" ");
 				ExecService execService = Rpc.GeneralServiceManager.getExecService(getRpcCaller(), Integer.parseInt(data[1]));
 				Facility facility = Rpc.FacilitiesManager.getFacilityById(getRpcCaller(), Integer.parseInt(data[2]));
+				if(facility.getName().equals("alcor.ics.muni.cz") ||
+						facility.getName().equals("aldor.ics.muni.cz") ||
+						facility.getName().equals("torque.ics.muni.cz") ||
+						facility.getName().equals("nympha-cloud.zcu.cz") ||
+						facility.getName().equals("ascor.ics.muni.cz")) {
+					log.info("IGNORE facility " + facility.getName());
+					continue;
+				}	
 				schedulingPool.addToPool(new Pair<ExecService, Facility>(execService, facility));
 			}
 		} catch (IOException e) {
