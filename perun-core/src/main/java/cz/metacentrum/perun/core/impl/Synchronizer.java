@@ -59,6 +59,7 @@ public class Synchronizer {
 				}
 			} catch (InternalErrorException e) {
 				log.error("Cannot synchronize groups:", e);
+				synchronizeGroupsRunning.set(false);
 			}
 		} else {
 			log.debug("Synchronizer: group synchronization currently running.");
