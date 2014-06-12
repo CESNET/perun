@@ -92,6 +92,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
+	 * Returns chosen Group attributes.
+	 * Method ignore badly writen URN
+	 * @param group int Group ID
+	 * @param attrNames[] List<String> Attribute names if attrNames is empty method return empty list
+	 * @return List<Attribute> Attributes
+	 */
+	/*#
 	 * Returns Host attributes.
 	 * @param host int Host ID
 	 * @return List<Attribute> Attributes
@@ -167,8 +174,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getUserById(parms.readInt("user")));
 				}
 			} else if (parms.contains("group")) {
-				return ac.getAttributesManager().getAttributes(ac.getSession(),
+				if (parms.contains("attrNames[]")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+							ac.getGroupById(parms.readInt("Group")),
+							parms.readList("attrNames", String.class));
+				} else {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")));
+				}
 			} else if (parms.contains("host")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")));
