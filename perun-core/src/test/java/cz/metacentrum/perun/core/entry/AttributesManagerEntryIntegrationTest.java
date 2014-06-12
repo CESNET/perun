@@ -4240,16 +4240,26 @@ public void getServiceRequiredResourceAttributes() throws Exception {
 	vo = setUpVo();
 	facility = setUpFacility();
 	resource = setUpResource();
+	
 	service = setUpService();
 	attributes = setUpRequiredAttributes();
 	perun.getResourcesManager().assignService(sess, resource, service);
+	
+	Service service2 = setUpService2();
+	Attribute attr = setUpResourceRequiredAttributeForService(service2);
+	perun.getResourcesManager().assignService(sess, resource, service2);
+	
 	List<Service> serviceList = new ArrayList<>();
 	serviceList.add(service);
 	
 	List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, serviceList, resource);
 	assertNotNull("unable to get required resource attributes for its services",reqAttr);
 	assertTrue("should have only 1 req resource attribute",reqAttr.size() == 1);
-
+	
+	serviceList.add(service2);
+	reqAttr = attributesManager.getRequiredAttributes(sess, serviceList, resource);
+	assertNotNull("unable to get required resource attributes for its services",reqAttr);
+	assertTrue("should have only 1 req resource attribute",reqAttr.size() == 2);
 }
 
 @Test (expected=ResourceNotExistsException.class)
@@ -7249,6 +7259,21 @@ private Service setUpService() throws Exception {
 
 }
 
+private Service setUpService2() throws Exception {
+	Service service = new Service();
+	service.setName("AttributesManagerTestService2");
+
+	Owner owner = new Owner();
+	owner.setName("AttrManagerTestServiceOwner2");
+	owner.setContact("AttrManagTestContact2");
+	owner.setType(OwnerType.technical);
+
+	perun.getOwnersManager().createOwner(sess, owner);
+	perun.getServicesManager().createService(sess, service, owner);
+
+	return service;
+}
+
 private Group setUpGroup() throws Exception {
 
 	Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("AttrTestGroup","AttrTestGroupDescription"));
@@ -7302,6 +7327,24 @@ private List<Attribute> setUpRequiredAttributes() throws Exception {
 
 	return attrList;
 
+}
+
+private Attribute setUpResourceRequiredAttributeForService(Service service) throws Exception {
+
+	Attribute attribute = new Attribute();
+	List<Attribute> listOfAttrs = new ArrayList<>();
+
+	attribute.setNamespace("urn:perun:resource:attribute-def:opt");
+	attribute.setFriendlyName("resource_test_attribute_2");
+	attribute.setType(String.class.getName());
+	attribute.setValue("ResourceAttribute");
+	assertNotNull("unable to create resource attribute",attributesManager.createAttribute(sess, attribute));
+	
+	listOfAttrs.add(attribute);
+	
+	perun.getServicesManager().addRequiredAttributes(sess, service, listOfAttrs);
+
+	return attribute;
 }
 
 private List<Attribute> setUpFacilityUserAttribute() throws Exception {
