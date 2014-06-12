@@ -1466,24 +1466,16 @@ public class AttributesManagerEntry implements AttributesManager {
 	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
-		Set<Attribute> attributes = new HashSet<Attribute>();
-		// TODO & FIXME: there should be a proper select in BL & Impl
-		for (Service s : services) {
-			getPerunBl().getServicesManagerBl().checkServiceExists(sess, s);
-			attributes.addAll(getAttributesManagerBl().getRequiredAttributes(sess, s, resource));
-		}
-		List<Attribute> result = new ArrayList<Attribute>();
+		for (Service s : services) getPerunBl().getServicesManagerBl().checkServiceExists(sess, s);
+		List<Attribute> attributes = attributesManagerBl.getRequiredAttributes(sess, services, resource);
 		Iterator<Attribute> attrIter = attributes.iterator();
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, null)) {
-				// if allowed to read, add it to result
-				attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, null));
-				result.add(attrNext);
-			}
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, null)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, null));
 		}
-		return result;
+		return attributes;
 	}
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, HostNotExistsException {
