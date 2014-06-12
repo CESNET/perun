@@ -2867,6 +2867,33 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+	
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException {
+		try {
+			List<String> namespace = new ArrayList();
+			namespace.add(AttributesManager.NS_RESOURCE_ATTR_DEF);
+			namespace.add(AttributesManager.NS_RESOURCE_ATTR_CORE);
+			namespace.add(AttributesManager.NS_RESOURCE_ATTR_OPT);
+			namespace.add(AttributesManager.NS_RESOURCE_ATTR_VIRT);
+			
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("serviceIds", serviceIds);
+			parameters.addValue("resourceId", resource.getId());
+			parameters.addValue("namespace", namespace);
+			
+			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
+					+ "join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) "
+					+ "left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=:resourceId "
+					+ "where namespace in (:namespace)",
+					parameters, new AttributeRowMapper(sess, this, resource));
+
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("None required attributes found for resource: {} and services with id {} ", resource, serviceIds);
+			return new ArrayList<Attribute>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException {
 		try {
