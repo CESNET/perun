@@ -74,7 +74,9 @@ public class NotificationListener implements DisposableBean {
 	private final static Logger logger = LoggerFactory.getLogger(NotificationListener.class);
 
 	/**
-	 * Method starts processing of unresolved auditer messages
+	 * Method starts processing of unresolved auditer messages and sets scheduler, so as
+	 * the module saves the perun audit messages every five minutes and parse them also every five minutes.
+	 *
 	 */
 	@PostConstruct
 	public void init() throws InternalErrorException {
@@ -83,7 +85,9 @@ public class NotificationListener implements DisposableBean {
 		this.auditerConsumer = new AuditerConsumer(dispatcherName, dataSource);
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		// the method for parsing PerunNotifAudit messages will run every five minutes
 		scheduler.scheduleAtFixedRate(new ProcessOldPerunNotifAuditMessagesRunnable(), 0, 300, TimeUnit.SECONDS);
+		// the method for saving PerunNotifAudit messages from audit messages from perun will run every five minutes
 		scheduler.scheduleAtFixedRate(new ProcessPerunAuditMessagesRunnable(), 150, 300, TimeUnit.SECONDS);
 	}
 
@@ -111,6 +115,9 @@ public class NotificationListener implements DisposableBean {
 		}
 	}
 
+	/**
+	 * The method loads perun audit messages from the database and saves them as PerunNotifAudiMessages.
+	 */
 	public void processPerunAuditMessages() {
 		logger.debug("Processing perun AuditMessages");
 		oldProcessLock.lock();
@@ -142,7 +149,9 @@ public class NotificationListener implements DisposableBean {
 
 	/**
 	 * Handles processing of auditer message and in case of success removes
-	 * auditer message from db
+	 * auditer message from db. To accomplish a success, the message have to be well-formed, so that the
+	 * object can be parsed, there have to be matching notifRegex in the db. If the message is recognized and
+	 * the matching regex is assigned to the template,  PerunNotifPoolMessage is created.
 	 *
 	 * @param perunAuditMessage
 	 * @param session
@@ -197,7 +206,8 @@ public class NotificationListener implements DisposableBean {
 	}
 
 	/**
-	 * Loads old messages from db restart their processing
+	 * Loads old messages from db restart their processing.
+	 * Call processing of one perunAuditMessage for each gotten msg.
 	 *
 	 * @throws InternalErrorException
 	 */
