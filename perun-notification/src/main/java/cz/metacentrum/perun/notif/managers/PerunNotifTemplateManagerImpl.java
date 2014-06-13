@@ -54,7 +54,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	private PerunSession session;
 
+	// cache for quick search of templates sorted by regex id
 	private Map<Integer, List<PerunNotifTemplate>> allTemplatesByRegexId = new ConcurrentHashMap<Integer, List<PerunNotifTemplate>>();
+	// cache for quick search of templates sorted by id
 	private Map<Integer, PerunNotifTemplate> allTemplatesById = new ConcurrentHashMap<Integer, PerunNotifTemplate>();
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifTemplateManager.class);
@@ -111,6 +113,12 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		return newConfiguration;
 	}
 
+	/**
+	 * Inserts subject and content of PerunNotifMessage into FreeMaker loader.
+	 *
+	 * @param templateLoader
+	 * @param templateMessage
+	 */
 	private void insertPerunNotifTemplateMessageToLoader(StringTemplateLoader templateLoader, PerunNotifTemplateMessage templateMessage) {
 
 		String templateName = createTemplateName(templateMessage);
@@ -124,6 +132,12 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		templateLoader.putTemplate(subjectTemplateName, templateMessage.getSubject());
 	}
 
+	/**
+	 * The FreeMaker template name is created with id of the notifTemplate and locale.
+	 *
+	 * @param templateMessage
+	 * @return
+	 */
 	private String createTemplateName(PerunNotifTemplateMessage templateMessage) {
 		return templateMessage.getTemplateId() + "_" + templateMessage.getLocale().getLanguage();
 	}
