@@ -192,7 +192,7 @@ sub getCommonArrayRepresentation {
   my $object = shift;
 
   my $hashInString = "";
-  for (keys $object->getPrimaryProperties) {
+  for (keys %{$object->getPrimaryProperties}) {
       $hashInString = $hashInString . $_ . "=" . join("/", @{${$object->getPrimaryProperties}{$_}}) . "; ";
   }
 
