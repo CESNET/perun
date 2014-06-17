@@ -2477,17 +2477,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
 											ps.setInt(1, attribute.getId());
-											try {
-												ps.setString(2, BeansUtils.attributeValueToString(attribute));
-											} catch (InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
+											ps.setString(2, key);
 											ps.setInt(3, attribute.getId());
-											try {
-												ps.setString(4, BeansUtils.attributeValueToString(attribute));
-											} catch (InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
+											ps.setString(4, key);
+											
 											try {
 												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
 												ps.setString(6, sess.getPerunPrincipal().getActor());
