@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -19,7 +20,11 @@ public interface TaskDao {
 
 	Task getTask(ExecService execService, Facility facility);
 
+	int insertTask(Task task, int engineID) throws InternalErrorException;
+
 	List<Task> listAllTasks();
+	
+	List<Pair<Task, Integer>> listAllTasksAndClients(); 
 
 	/**
 	 * Returns all tasks associated with selected facility

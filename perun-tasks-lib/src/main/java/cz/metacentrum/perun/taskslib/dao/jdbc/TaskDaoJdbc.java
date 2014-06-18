@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.FacilitiesManagerImpl;
 import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
@@ -38,7 +39,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public static final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
-		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time ";
+		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.engine_id as tasks_engine_id ";
 
 	public static final RowMapper<Task> TASK_ROWMAPPER = new RowMapper<Task>() {
 
@@ -83,6 +84,17 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 
 	};
 
+	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = new RowMapper<Pair<Task, Integer>>() {
+	
+		public Pair<Task, Integer> mapRow(ResultSet rs, int i) throws SQLException {
+		
+			Task task = TASK_ROWMAPPER.mapRow(rs, i);
+			
+			return new Pair<Task, Integer>(task, rs.getInt("tasks_engine_id"));
+		}
+			
+	};	
+	
 	@Override
 	public int scheduleNewTask(Task task, int engineID) throws InternalErrorException {
 		int newTaskId = 0;
@@ -90,6 +102,54 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
 			this.getJdbcTemplate().update(
 					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+			return newTaskId;
+		} catch (DataIntegrityViolationException ex) {
+			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+		}
+		return 0;
+	}
+	
+	@Override
+	public int insertTask(Task task, int engineID) throws InternalErrorException {
+		int newTaskId = 0;
+		try {
+			newTaskId = task.getId();
+			this.getJdbcTemplate().update(
+					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+			return newTaskId;
+		} catch (DataIntegrityViolationException ex) {
+			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+		}
+		return 0;
+	}
+	
+	@Override
+	public int insertTask(Task task, int engineID) throws InternalErrorException {
+		int newTaskId = 0;
+		try {
+			newTaskId = task.getId();
+			this.getJdbcTemplate().update(
+					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+			return newTaskId;
+		} catch (DataIntegrityViolationException ex) {
+			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+		}
+		return 0;
+	}
+	
+	@Override
+	public int insertTask(Task task, int engineID) throws InternalErrorException {
+		int newTaskId = 0;
+		try {
+			newTaskId = task.getId();
+			this.getJdbcTemplate().update(
+					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
 					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
@@ -195,6 +255,13 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				new Integer[] { engineID }, TASK_ROWMAPPER);
 	}
 
+	@Override
+	public List<Pair<Task, Integer>> listAllTasksAndClients() {
+		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
+				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
+				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id", TASK_CLIENT_ROWMAPPER);
+	}
+	
 	@Override
 	public List<Task> listAllTasksInState(Task.TaskStatus state) {
 		String textState = state.toString().toUpperCase();

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -25,6 +26,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -32,6 +35,7 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.sql.DataSource;
 
 /**
  * Utilities.
@@ -41,7 +45,8 @@ public class Utils {
 	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	public final static String configurationsLocations = "/etc/perun/";
-
+	private static Properties properties;
+	
 	/**
 	 * Replaces dangerous characters.
 	 * Replaces : with - and spaces with _.
@@ -99,24 +104,27 @@ public class Utils {
 		log.trace("Entering getPropertyFromConfiguration: propertyName='" +  propertyName + "'");
 		notNull(propertyName, "propertyName");
 
-		// Load properties file with configuration
-		Properties properties = new Properties();
-		try {
-			// Get the path to the perun.properties file
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + "perun.properties"));
-			properties.load(is);
-			is.close();
-
-			String property = properties.getProperty(propertyName);
-			if (property == null) {
-				throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
+		if(Utils.properties == null) {
+			// Load properties file with configuration
+			Properties properties = new Properties();
+			try {
+				// Get the path to the perun.properties file
+				BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + "perun.properties"));
+				properties.load(is);
+				is.close();
+			} catch (FileNotFoundException e) {
+				throw new InternalErrorException("Cannot find perun.properties file", e);
+			} catch (IOException e) {
+				throw new InternalErrorException("Cannot read perun.properties file", e);
 			}
-			return property;
-		} catch (FileNotFoundException e) {
-			throw new InternalErrorException("Cannot find perun.properties file", e);
-		} catch (IOException e) {
-			throw new InternalErrorException("Cannot read perun.properties file", e);
+			
+			Utils.properties = properties;
 		}
+		String property = Utils.properties.getProperty(propertyName);
+		if (property == null) {
+			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
+		}
+		return property;
 	}
 
 	/**
@@ -330,12 +338,34 @@ public class Utils {
 	public static int getNewId(Object jdbc, String sequenceName) throws InternalErrorException {
 		String dbType = getPropertyFromConfiguration("perun.db.type");
 
+		String url = "";
+	
+		// try to deduce database type from jdbc connection metadata
+		try {
+			if (jdbc instanceof JdbcTemplate) {
+				DataSource ds = ((JdbcTemplate)jdbc).getDataSource();
+				if(ds instanceof BasicDataSource)
+				url = ((BasicDataSource)ds).getUrl();
+				// c.close();
+			}
+		} catch (Exception e) {
+		}
+		if(url.matches("hsqldb")) {
+			dbType = "hsqldb";
+		} else if(url.matches("oracle")) {
+			dbType = "oracle";
+		} else if(url.matches("postgresql")) {
+			dbType = "postgresql";
+		}	
+
 		String query = "";
 		if (dbType.equals("oracle")) {
 			query = "select " + sequenceName + ".nextval from dual";
 		} else if (dbType.equals("postgresql")) {
 			query = "select nextval('" + sequenceName + "')";
-		} else {
+ 		} else if (dbType.equals("hsqldb")) {
+ 			query = "call next value for " + sequenceName + ";";
+ 		} else {
 			throw new InternalErrorException("Unsupported DB type");
 		}
 
@@ -909,6 +939,17 @@ public class Utils {
 
 		}
 
+	}
+
+	/**
+	 * Set already filled-in properties (used by Spring container to inject properties bean)
+	 * 
+	 * @param properties
+	 * @return
+	 */
+	public static Properties setProperties(Properties properties) {
+		Utils.properties = properties;
+		return Utils.properties;
 	}
 
 }

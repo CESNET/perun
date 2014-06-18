@@ -34,6 +34,8 @@ public class Compatibility {
 			return "sysdate";
 		} else if (dbType.equals("postgresql")) {
 			return "'now'";
+		} else if (dbType.equals("hsqldb")) {
+			return "current_date";
 		} else {
 			throw new InternalErrorException("unknown DB type");
 		}
@@ -46,6 +48,8 @@ public class Compatibility {
 			if (dbType.equals("oracle")) {
 				return "with";
 			} else if (dbType.equals("postgresql")) {
+				return "with recursive";
+			} else if (dbType.equals("hsqldb")) {
 				return "with recursive";
 			} else {
 				return "with";

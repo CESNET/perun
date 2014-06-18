@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -450,6 +451,8 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 					}
 				}
 			}
+		} catch (FileNotFoundException e) {
+			log.warn("No external source configuration file found.");
 		} catch (Exception e) {
 			log.error("Cannot initialize ExtSourceManager.");
 			throw new InternalErrorRuntimeException(e);

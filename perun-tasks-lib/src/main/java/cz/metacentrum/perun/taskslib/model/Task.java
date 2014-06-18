@@ -2,7 +2,9 @@ package cz.metacentrum.perun.taskslib.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 
 /**
@@ -26,6 +28,7 @@ public class Task implements Serializable {
 	private Date endTime;
 	private ExecService execService;
 	private Facility facility;
+	private List<Destination> destinations;
 	private TaskStatus status;
 
 	@Override
@@ -45,9 +48,9 @@ public class Task implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Task other = (Task) obj;
-		if (execService != other.execService)
+		if (!execService.equals(other.execService))
 			return false;
-		if (facility != other.facility)
+		if (!facility.equals(other.facility))
 			return false;
 		if (id != other.id)
 			return false;
@@ -134,6 +137,14 @@ public class Task implements Serializable {
 		this.facility = facility;
 	}
 
+	public List<Destination> getDestinations() {
+		return destinations;
+	}
+	
+	public void setDestinations(List<Destination> destinations) {
+		this.destinations = destinations;
+	}
+	
 	public TaskStatus getStatus() {
 		return status;
 	}
@@ -149,6 +160,6 @@ public class Task implements Serializable {
 	@Override
 	public String toString() {
 		return "Task [id=" + id + ", delay=" + delay + ", recurrence=" + recurrence + ", startTime=" + startTime + ", schedule=" + schedule + ", endTime=" + endTime + ", execService="
-			+ execService + ", facility=" + facility + ", status=" + status + "]";
+			+ execService + ", facility=" + facility + ", destinations=" + destinations + ", status=" + status + "]";
 	}
 }
