@@ -1,5 +1,5 @@
-# database version 3.1.1.
-create user perunv3 identified by biedrs;
+# database version 3.1.10.
+create user perunv3 identified by password;
 grant create session to perunv3;
 grant create sequence to perunv3;
 grant create table to perunv3;
