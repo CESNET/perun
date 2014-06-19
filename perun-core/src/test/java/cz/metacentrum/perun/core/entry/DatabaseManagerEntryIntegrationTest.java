@@ -30,9 +30,23 @@ public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getCurrentDBVersion() throws Exception {
-		System.out.println("FacilitiesManager.getCurrentDBVersion");
+		System.out.println("DatabaseManager.getCurrentDBVersion");
 		String dbVersion = perun.getDatabaseManager().getCurrentDatabaseVersion(sess);
 		Matcher versionMatcher = versionPatter.matcher(dbVersion);
 		assertTrue("DbVersion must match to something like '1.0.0'", versionMatcher.matches());
+	}
+	
+	@Test
+	public void getDatabaseDriverInformation() throws Exception {
+		System.out.println("DatabaseManager.getDatabaseDriverInformation");
+		String driverInfo = perun.getDatabaseManager().getDatabaseDriverInformation(sess);
+		assertTrue("DB driver info can't be empty", !driverInfo.isEmpty());
+	}
+	
+	@Test
+	public void getDatabaseInformation() throws Exception {
+		System.out.println("DatabaseManager.getDatabaseDriverInformation");
+		String dbInfo = perun.getDatabaseManager().getDatabaseInformation(sess);
+		assertTrue("DB info can't be empty", !dbInfo.isEmpty());
 	}
 }

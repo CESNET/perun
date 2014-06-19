@@ -42,6 +42,8 @@ import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
+import java.util.Date;
+import java.sql.Timestamp;
 
 @SuppressWarnings("serial")
 /**
@@ -58,6 +60,7 @@ public class Api extends HttpServlet {
 	private final static String APICALLER = "apiCaller";
 	private final static String PERUNREQUESTS = "perunRequests";
 	private final static String PERUNREQUESTSURL = "getPendingRequests";
+	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
 
@@ -294,7 +297,7 @@ public class Api extends HttpServlet {
 			}
 			out.close();
 			return;
-		}
+		} 
 
 		try {
 			String[] fcm; //[0] format, [1] class, [2] method
@@ -387,6 +390,24 @@ public class Api extends HttpServlet {
 				out.close();
 				return;
 
+			} else if("utils".equals(manager) && PERUNSTATUS.equals(method)) {
+				perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
+				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+				Date date = new Date();
+				Timestamp timestamp = new Timestamp(date.getTime());
+				
+				List<String> perunStatus = new ArrayList<>();
+				perunStatus.add("Version of PerunDB: " + caller.call("databaseManager", "getCurrentDatabaseVersion", des));
+				perunStatus.add("Version of Servlet: " + getServletContext().getServerInfo());
+				perunStatus.add("Version of DB-driver: " + caller.call("databaseManager", "getDatabaseDriverInformation", des));
+				perunStatus.add("Version of DB: " + caller.call("databaseManager", "getDatabaseInformation", des));
+				perunStatus.add("Version of Java platform: " + System.getProperty("java.version"));
+				perunStatus.add("Timestamp: " + timestamp);
+
+				ser.write(perunStatus);
+								
+				out.close();
+				return;
 			}
 
 			// In case of GET requests (read ones) set changing state to false

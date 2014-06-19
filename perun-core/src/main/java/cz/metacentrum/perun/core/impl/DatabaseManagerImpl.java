@@ -5,7 +5,9 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
+import java.sql.Connection;
 import javax.sql.DataSource;
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -33,6 +35,30 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		} catch(EmptyResultDataAccessException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+	
+	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException {
+		try {
+			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			String driverVersion = con.getMetaData().getDriverVersion();
+			String driverName = con.getMetaData().getDriverName();
+			con.close();
+			return driverName + "-" + driverVersion;
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+	
+	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException {
+		try {
+			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			String dbName = con.getMetaData().getDatabaseProductName();
+			String dbVersion = con.getMetaData().getDatabaseProductVersion();
+			con.close();
+			return dbName + "-" + dbVersion;
+		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
