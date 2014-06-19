@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -58,6 +59,12 @@ public interface PerunBl extends Perun {
 	 */
 	public FacilitiesManager getFacilitiesManager();
 
+	/**
+	 * Gets a database manager.
+	 * @return database manager
+	 */
+	public DatabaseManager getDatabaseManager();
+	
 	/**
 	 * Gets a users manager.
 	 * @return users manager
@@ -142,6 +149,12 @@ public interface PerunBl extends Perun {
 	 */
 	public FacilitiesManagerBl getFacilitiesManagerBl();
 
+	/**
+	 * Gets a database manager buisness logic.
+	 * @return database manager
+	 */
+	public DatabaseManagerBl getDatabaseManagerBl();
+	
 	/**
 	 * Gets a users manager buisness logic.
 	 * @return users manager

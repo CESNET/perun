@@ -7,6 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -30,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -57,6 +59,7 @@ public class PerunBlImpl implements PerunBl {
 	private MembersManager membersManager = null;
 	private GroupsManager groupsManager = null;
 	private FacilitiesManager facilitiesManager = null;
+	private DatabaseManager databaseManager = null;
 	private ResourcesManager resourcesManager = null;
 	private ExtSourcesManager extSourcesManager = null;
 	private AttributesManager attributesManager = null;
@@ -72,6 +75,7 @@ public class PerunBlImpl implements PerunBl {
 	private MembersManagerBl membersManagerBl = null;
 	private GroupsManagerBl groupsManagerBl = null;
 	private FacilitiesManagerBl facilitiesManagerBl = null;
+	private DatabaseManagerBl databaseManagerBl = null;
 	private ResourcesManagerBl resourcesManagerBl = null;
 	private ExtSourcesManagerBl extSourcesManagerBl = null;
 	private AttributesManagerBl attributesManagerBl = null;
@@ -141,6 +145,10 @@ public class PerunBlImpl implements PerunBl {
 	public FacilitiesManager getFacilitiesManager() {
 		return facilitiesManager;
 	}
+	
+	public DatabaseManager getDatabaseManager() {
+		return databaseManager;
+	}
 
 	public UsersManager getUsersManager() {
 		return usersManager;
@@ -188,6 +196,10 @@ public class PerunBlImpl implements PerunBl {
 
 	public void setFacilitiesManager(FacilitiesManager facilitiesManager) {
 		this.facilitiesManager = facilitiesManager;
+	}
+	
+	public void setDatabaseManager(DatabaseManager databaseManager) {
+		this.databaseManager = databaseManager;
 	}
 
 	public void setMembersManager(MembersManager membersManager) {
@@ -300,6 +312,14 @@ public class PerunBlImpl implements PerunBl {
 
 	public void setFacilitiesManagerBl(FacilitiesManagerBl facilitiesManagerBl) {
 		this.facilitiesManagerBl = facilitiesManagerBl;
+	}
+	
+	public DatabaseManagerBl getDatabaseManagerBl() {
+		return databaseManagerBl;
+	}
+
+	public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
+		this.databaseManagerBl = databaseManagerBl;
 	}
 
 	public ResourcesManagerBl getResourcesManagerBl() {
@@ -427,6 +447,7 @@ public class PerunBlImpl implements PerunBl {
 			"membersManager='" + membersManager + "', " +
 			"groupsManager='" + groupsManager + "', " +
 			"facilitiesManager='" + facilitiesManager + "', " +
+			"databaseManager='" + databaseManager + "', " +
 			"auditMessagesManager=" + auditMessagesManager + ", " +
 			"resourcesManager='" + resourcesManager + "', " +
 			"extSourcesManager='" + extSourcesManager + "', " +
