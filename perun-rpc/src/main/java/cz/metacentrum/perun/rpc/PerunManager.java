@@ -65,6 +65,12 @@ public enum PerunManager {
 								 return FacilitiesManagerMethod.valueOf(methodName);
 							 }
 						 },
+						 databaseManager {
+							 @Override
+							 public ManagerMethod getMethod(String methodName) {
+								 return DatabaseManagerMethod.valueOf(methodName);
+							 }
+						 },
 						 resourcesManager {
 							 @Override
 							 public ManagerMethod getMethod(String methodName) {

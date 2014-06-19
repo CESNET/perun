@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -71,6 +72,7 @@ public class ApiCaller {
 	private ExtSourcesManager extSourcesManager = null;
 	private ServicesManager servicesManager = null;
 	private FacilitiesManager facilitiesManager = null;
+	private DatabaseManager databaseManager = null;
 	private ResourcesManager resourcesManager = null;
 	private AttributesManager attributesManager = null;
 	private OwnersManager ownersManager = null;
@@ -158,6 +160,13 @@ public class ApiCaller {
 		return facilitiesManager;
 	}
 
+	public DatabaseManager getDatabaseManager() {
+		if (databaseManager == null) {
+			databaseManager = rpcSession.getPerun().getDatabaseManager();
+		}
+		return databaseManager;
+	}
+	
 	public ResourcesManager getResourcesManager() {
 		if (resourcesManager == null) {
 			resourcesManager = rpcSession.getPerun().getResourcesManager();

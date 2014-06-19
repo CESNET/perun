@@ -32,6 +32,12 @@ public interface Perun {
 	 * @return resource manager
 	 */
 	public FacilitiesManager getFacilitiesManager();
+	
+	/**
+	 * Gets a database manager.
+	 * @return database manager
+	 */
+	public DatabaseManager getDatabaseManager();
 
 	/**
 	 * Gets a users manager.
