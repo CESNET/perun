@@ -285,6 +285,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getEntitylessKeys(sess, attributeDefinition);
 	}
 
+	public Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException {
+		AttributeDefinition attrDef = this.getAttributeDefinition(sess, attrName);
+		Attribute attr = new Attribute(attrDef);
+		
+		String value = getAttributesManagerImpl().getEntitylessAttrValueForUpdate(sess, attrDef.getId(), key);
+
+		if(value != null) {
+			attr.setValue(BeansUtils.stringToAttributeValue(value, attr.getType()));
+		}
+		
+		return attr;
+	}
+	
 	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		if(isCoreAttribute(sess, attributeDefinition) || isVirtAttribute(sess, attributeDefinition) || isCoreManagedAttribute(sess, attributeDefinition)) throw new WrongAttributeAssignmentException(attributeDefinition);
 

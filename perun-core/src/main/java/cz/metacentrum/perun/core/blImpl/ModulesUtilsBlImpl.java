@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final String A_R_unixGroupName_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace";
 	public static final String A_F_unixGID_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
 	public static final String A_F_unixGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
+	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup");
 
@@ -233,23 +235,25 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if(maxGidAttribute.getValue() == null) return 0;
 		Integer maxGid = (Integer) maxGidAttribute.getValue();
 
-		List<Object> allGids = new ArrayList<Object>();
-		if(attribute.getNamespace().equals(AttributesManager.NS_GROUP_ATTR_DEF)) {
-			allGids.addAll(sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, attribute));
-			AttributeDefinition resourceUnixGid = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + ":" + gidNamespace);
-			allGids.addAll(sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, resourceUnixGid));
-		} else {
-			allGids.addAll(sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, attribute));
-			AttributeDefinition groupUnixGid = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGID_namespace + ":" + gidNamespace);
-			allGids.addAll(sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, groupUnixGid));
-		}
+		List<Integer> allGids = new ArrayList<>();
+		Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
 
+		if(usedGids.getValue() == null) return minGid;
+		else {
+			Map<String,String> usedGidsValue = (Map<String, String>) usedGids.getValue();
+			Set<String> keys = usedGidsValue.keySet();
+			
+			for(String key: keys) {
+				allGids.add(Integer.parseInt(usedGidsValue.get(key)));
+			}
+		}
+		
 		for(int i = minGid; i < maxGid; i++) {
 			if(!allGids.contains(i)) {
 				return i;
 			}
 		}
-
+		
 		return null;
 	}
 

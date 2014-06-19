@@ -265,6 +265,23 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException;
 
 	/**
+	 * Return value of entityless attribute by attr_id and key (subject).
+	 * Value is in the format from DB.
+	 * IMPORTANT: return only values in String (special format for Map or List)!
+	 * 
+	 * If value is null, return null.
+	 * 
+	 * @param sess
+	 * @param attrId
+	 * @param key
+	 * @return attr_value in string
+	 * 
+	 * @throws InternalErrorException if runtime error exception has been thrown
+	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
+	 */
+	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException;
+	
+	/**
 	 * Returns list of Keys which fits the attributeDefinition.
 	 *
 	 * @param sess

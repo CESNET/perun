@@ -341,6 +341,25 @@ public interface AttributesManagerBl {
 	List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
 	/**
+	 * Return entityless attribute by attr_id and key (subject) for update!
+	 * 
+	 * For update - means lock row with attr_values in DB (entityless_attr_values with specific subject and attr_id) 
+	 *
+	 * Not lock row in attr_names!
+	 * 
+	 * IMPORTANT: This method use "select for update" and locks row for transaction. Use clever.
+	 * 
+	 * @param sess
+	 * @param attrId
+	 * @param key
+	 * @return attr_value in string
+	 * 
+	 * @throws InternalErrorException if runtime error exception has been thrown
+	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
+	 */
+	Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException;
+	
+	/**
 	 * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
 	 * @param sess perun session

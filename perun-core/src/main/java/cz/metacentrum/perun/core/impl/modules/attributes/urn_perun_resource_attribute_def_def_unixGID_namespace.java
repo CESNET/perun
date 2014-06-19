@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,7 +37,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	private static final String A_G_unixGID_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace";
 	private static final String A_R_unixGroupName_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
-
+	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
@@ -101,10 +103,24 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			String gidNamespace = attribute.getFriendlyNameParameter();
 
 			//Special behaviour if gid is null
+			Integer attrValue = null;
 			if(attribute.getValue() == null) {
 				throw new WrongAttributeValueException(attribute, resource, "Unix GID must be set");
+			} else {
+				attrValue = (Integer) attribute.getValue();
 			}
 
+			//check if gid is not already depleted
+			Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
+			//null in value means there is no depleted or used gids
+			if(usedGids.getValue() != null) {
+				Map<String, String> usedGidsValue = (Map<String,String>) usedGids.getValue();
+				//Dx, where x is GID means depleted value for GID x
+				if(usedGidsValue.containsKey("D" + attrValue.toString())) {
+					throw new WrongReferenceAttributeValueException(attribute, usedGids, resource, null, gidNamespace, null, "This GID is already depleted.");
+				}
+			}
+			
 			//Prepare lists for all groups and resources with same GID in the same namespace
 			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<Group>();
 			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<Resource>();
@@ -169,10 +185,65 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	}
 
 	@Override
+	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		String gidNamespace = attribute.getFriendlyNameParameter();
+		
+		//get attribute with usedGids for update
+		//IMPORTANT: for update lock row in table of attr values, be careful when using
+		Attribute usedGids;
+		try {
+			usedGids = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, gidNamespace, A_E_usedGids);
+		} catch (AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+		
+		//Get Map of gids (if there is no value, use empty map
+		Map<String, String> usedGidsValue = new LinkedHashMap<>();
+		if(usedGids.getValue() != null) usedGidsValue = (Map<String,String>) usedGids.getValue();
+		
+		//initial settings
+		String key = "R" + resource.getId();
+		String oldGid = usedGidsValue.get(key);
+		
+		//for removing gid
+		if(attribute.getValue() == null) {			
+			//remove record from map
+			if(oldGid != null) {
+				usedGidsValue.remove(key);
+				//looking for another oldGid value, if not exists, add depleted record
+				if(!usedGidsValue.containsValue(oldGid)) {
+					usedGidsValue.put("D" + oldGid, oldGid);
+				}
+			}
+		//for setting gid
+		} else {
+			String newUnixGid = ((Integer) attribute.getValue()).toString();
+			//add new record to map
+			usedGidsValue.put(key, newUnixGid);
+			//looking for another oldGid value, if not exists, add depleted record
+			if(oldGid != null && !usedGidsValue.containsValue(oldGid)) {
+				usedGidsValue.put("D" + oldGid, oldGid);
+			}
+		}
+		
+		//set new attribute value for usedGids
+		usedGids.setValue(usedGidsValue);
+		try {
+			session.getPerunBl().getAttributesManagerBl().setAttribute(session, gidNamespace, usedGids);
+		} catch (WrongAttributeValueException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, usedGids, ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<String>();
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
+		//Temporary disallowed for performance reason
+		//dependencies.add(A_E_usedGids);
 		return dependencies;
 	}
 

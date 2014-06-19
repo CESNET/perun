@@ -729,7 +729,53 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertEquals("We expected 1 and we get "+retAttr.size(), 1, retAttr.size());
 
 	}
+	
+	@Test
+	public void getEntitylessAttributeForUpdateWithListValue() throws Exception {
+		System.out.println("attributesManager.getEntitylessAttributeForUpdate");
 
+		List<Attribute> attributes = setUpEntitylessAttributeWithListValue();
+		perun.getAttributesManagerBl().setAttribute(sess, "test1", attributes.get(0));
+		perun.getAttributesManagerBl().setAttribute(sess, "test2", attributes.get(0));
+		
+		Attribute attr1 = perun.getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, "test1", attributes.get(0).getName());
+		Attribute attr2 = perun.getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, "test2", attributes.get(0).getName());
+		
+		List<String> attr1Value = (List<String>) attr1.getValue();
+		List<String> attr2Value = (List<String>) attr2.getValue();
+		
+		assertTrue("Values must be equals", attr1Value.equals(attributes.get(0).getValue()));
+		assertTrue("Values must be equals", attr2Value.equals(attributes.get(0).getValue()));
+		assertTrue("Attributes are the same", attr1.equals(attr2));
+		assertTrue("Attributes are the same", attr1.equals(attributes.get(0)));
+		assertTrue("Attributes are the same", attr2.equals(attributes.get(0)));
+	}
+	
+	@Test
+	public void getEntitylessAttributeForUpdateWithMapValue() throws Exception {
+		System.out.println("attributesManager.getEntitylessAttributeForUpdate");
+
+		List<Attribute> attributes = setUpEntitylessAttributeWithMapValue();
+		
+		perun.getAttributesManagerBl().setAttribute(sess, "test1", attributes.get(0));
+		perun.getAttributesManagerBl().setAttribute(sess, "test2", attributes.get(0));
+		
+		Attribute testAttr1 = perun.getAttributesManagerBl().getAttribute(sess, "test1", attributes.get(0).getName());
+		Attribute testAttr2 = perun.getAttributesManagerBl().getAttribute(sess, "test2", attributes.get(0).getName());
+		
+		Attribute attr1 = perun.getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, "test1", attributes.get(0).getName());
+		Attribute attr2 = perun.getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, "test2", attributes.get(0).getName());
+		
+		Map<String, String> attr1Value = (Map<String, String>) attr1.getValue();
+		Map<String, String> attr2Value = (Map<String, String>) attr2.getValue();
+		
+		assertTrue("Values must be equals", attr1Value.equals(attributes.get(0).getValue()));
+		assertTrue("Values must be equals", attr2Value.equals(attributes.get(0).getValue()));
+		assertTrue("Attributes are the same", attr1.equals(attr2));
+		assertTrue("Attributes are the same", attr1.equals(attributes.get(0)));
+		assertTrue("Attributes are the same", attr2.equals(attributes.get(0)));
+	}
+	
 	@Test
 	public void getEntitylessKeys() throws Exception {
 		System.out.println("attributesManager.getEntitylessKeys");
@@ -7649,6 +7695,41 @@ private List<Attribute> setUpHostAttribute() throws Exception {
 
 	return attributes;
 
+}
+
+private List<Attribute> setUpEntitylessAttributeWithListValue() throws Exception {
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:entityless:attribute-def:opt");
+	attr.setFriendlyName("listEntitylessAttributeForTest");
+	attr.setType(ArrayList.class.getName());
+	List<String> listOfTestStrings = new ArrayList<>();
+	listOfTestStrings.add("first");
+	listOfTestStrings.add("second");
+	attr.setValue(listOfTestStrings);
+	assertNotNull("unable to create host attribute",attributesManager.createAttribute(sess, attr));
+	
+	List<Attribute> attributes = new ArrayList<>();
+	attributes.add(attr);
+	
+	return attributes;
+}
+
+private List<Attribute> setUpEntitylessAttributeWithMapValue() throws Exception {
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:entityless:attribute-def:opt");
+	attr.setFriendlyName("mapEntitylessAttributeForTest");
+	attr.setType(LinkedHashMap.class.getName());
+	Map<String, String> mapOfTestStrings = new LinkedHashMap<>();
+	mapOfTestStrings.put("G11", "20005");
+	mapOfTestStrings.put("R27", "11113");
+	mapOfTestStrings.put("N23658", "23658");
+	attr.setValue(mapOfTestStrings);
+	assertNotNull("unable to create host attribute",attributesManager.createAttribute(sess, attr));
+	
+	List<Attribute> attributes = new ArrayList<>();
+	attributes.add(attr);
+	
+	return attributes;
 }
 
 private List<Attribute> setUpGroupResourceAttribute() throws Exception {

@@ -53,6 +53,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -99,6 +100,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
 import java.util.Iterator;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 /**
@@ -190,7 +192,45 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			else attribute.setCreatedByUid(rs.getInt("attr_names_created_by_uid"));
 			return attribute;
 		}
+	};
+	
+	/*
+	 * This rowMapper is only for getting attribute values (value and valueText)
+	 */
+	private static final RowMapper<String> ATTRIBUTE_VALUES_MAPPER = new RowMapper<String>() {
+		public String mapRow(ResultSet rs, int i) throws SQLException {
+			String value;
+			String valueText;
+			try {
+				//CLOB in oracle
+				if (Compatibility.isOracle()) {
+					Clob clob = rs.getClob("attr_value_text");
+					char[] cbuf = null;
+					if(clob == null) {
+						valueText = null;
+					} else {
+						try {
+							cbuf = new char[(int) clob.length()];
+							clob.getCharacterStream().read(cbuf);
+						} catch(IOException ex) {
+							throw new InternalErrorRuntimeException(ex);
+						}
+						valueText = new String(cbuf);
+					}
+				} else {
+					// POSTGRES READ CLOB AS STRING
+					valueText = rs.getString("attr_value_text");
+				}
+			} catch (InternalErrorException ex) {
+				// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+					valueText = rs.getString("attr_value_text");
+			}
+			
+			value = rs.getString("attr_value");
 
+			if(valueText != null) return valueText;
+			else return value;
+		}
 	};
 
 	protected static final RowMapper<Attribute> ATTRIBUTE_MAPPER = new RowMapper<Attribute>() {
@@ -934,7 +974,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-
+	
+	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", ATTRIBUTE_VALUES_MAPPER, key, attrId);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute id= \"" + attrId +"\"", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+	
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
