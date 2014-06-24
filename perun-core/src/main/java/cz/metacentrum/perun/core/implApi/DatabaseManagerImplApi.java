@@ -18,4 +18,24 @@ public interface DatabaseManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	String getCurrentDatabaseVersion(PerunSession perunSession) throws InternalErrorException;
+	
+	/**
+	 * Get DB driver information from datasource (name-version)
+	 * 
+	 * @param sess
+	 * @return string information about database driver
+	 * 
+	 * @throws InternalErrorException 
+	 */
+	String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException;
+	
+	/**
+	 * Get DB information from datasource (name-version)
+	 * 
+	 * @param sess
+	 * @return string information about database
+	 * 
+	 * @throws InternalErrorException 
+	 */
+	String getDatabaseInformation(PerunSession sess) throws InternalErrorException;
 }

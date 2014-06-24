@@ -19,5 +19,33 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 
 			return ac.getDatabaseManager().getCurrentDatabaseVersion(ac.getSession());
 		}
+	},
+	
+	/*#
+	 * Get current database driver name and version
+	 *
+	 * @return current database driver name and version
+	 */
+	getDatabaseDriverInformation {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getDatabaseManager().getDatabaseDriverInformation(ac.getSession());
+		}
+	},
+	
+	/*#
+	 * Get current database name and version
+	 *
+	 * @return current database name and version
+	 */
+	getDatabaseInformation {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getDatabaseManager().getDatabaseInformation(ac.getSession());
+		}
 	};
 }

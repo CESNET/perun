@@ -34,6 +34,24 @@ public class DatabaseManagerEntry implements DatabaseManager {
 		return getDatabaseManagerBl().getCurrentDatabaseVersion(sess);
 	}
 	
+	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseDriverInformation");
+		
+		return getDatabaseManagerBl().getDatabaseDriverInformation(sess);
+	}
+	
+	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseDriverInformation");
+		
+		return getDatabaseManagerBl().getDatabaseInformation(sess);
+	}
+	
 	public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
 		this.databaseManagerBl = databaseManagerBl;
 	}

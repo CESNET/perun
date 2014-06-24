@@ -27,6 +27,14 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		return getDatabaseManagerImpl().getCurrentDatabaseVersion(sess);
 	}
 	
+	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException {
+		return getDatabaseManagerImpl().getDatabaseDriverInformation(sess);
+	}
+	
+	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException {
+		return getDatabaseManagerImpl().getDatabaseInformation(sess);
+	}
+	
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
