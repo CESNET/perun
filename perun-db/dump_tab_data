@@ -90,6 +90,10 @@ while (@tabulky) {
 	 $tsel2=$tsel." where parent_group_id is not null order by id";
          $tsel=$tsel." where parent_group_id is null order by id";
       }
+      # zachovat poslednich 10 dni z auditer logu
+      if ($tbl eq "auditer_log") {
+         $tsel=$tsel." where created_at>sysdate-10 order by created_at";
+      }
 
 
 SEL:  my $colval = $dbh->prepare($tsel);
