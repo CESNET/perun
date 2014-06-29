@@ -61,6 +61,24 @@ function log_msg {
 	fi
 }
 
+function log_msg_without_exit {
+	CODE=`eval echo '${'$1'[0]}'`
+  TEXT=`eval echo '${'$1'[1]}'`
+  TEXT=`eval echo \"${TEXT}\"`  # expand variables in message
+  CODE=${CODE:=255}
+  TEXT=${TEXT:=Unknown error $1}
+
+  if [ "${CODE}" -eq 0 ]; then
+    MSG="Info: ${TEXT}"
+    echo "${MSG}"
+    logger -t "${NAME}" -p daemon.info "${SERVICE}: ${MSG}" &>/dev/null
+  else
+    MSG="Error $1 (code=${CODE}): ${TEXT}"
+    echo "${MSG}" >&2
+    logger -t "${NAME}" -p daemon.error "${SERVICE}: ${MSG}" &>/dev/null
+  fi
+}
+
 ### Log debug only if variable DEBUG exists and is the length of this variable is nonzero
 function log_debug {
 	MSG="$1"
