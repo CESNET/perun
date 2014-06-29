@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use File::Basename;
+
+local $::SERVICE_NAME = basename($0);
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $data = perunServicesInit::getHierarchicalData;
+my $agent = perunServicesInit::getAgent;
+my $DIRECTORY = perunServicesInit::getDirectory;
+
+
+our $A_PRINCIPAL;                     *A_PRINCIPAL =                        \'urn:perun:user:attribute-def:def:kerberosAdminPrincipal';
+our $A_USER_STATUS;                   *A_USER_STATUS =                      \'urn:perun:member:attribute-def:core:status';
+our $A_RESOURCE_K5LOGIN_TARGET_USER;  *A_RESOURCE_K5LOGIN_TARGET_USER =     \'urn:perun:resource:attribute-def:def:k5loginTargetUser';
+
+#my $sortingFunction = getAttributeSorting($A_PRINCIPAL, 1);
+my $k5loginDirectory = "$DIRECTORY/k5login";
+mkdir $k5loginDirectory or die "k5login directory can't be created: $!";
+
+#resource data
+my @resourcesData = $data->getChildElements;
+my $fileStructureWithData;
+#for each resource (k5login file)
+foreach my $resourceData (@resourcesData) {
+	#get resource attributes
+	my %resourceAttributes = attributesToHash $resourceData->getAttributes;
+	#get information about name of target user (file name for data)
+	my $fileName = $resourceAttributes{$A_RESOURCE_K5LOGIN_TARGET_USER};
+	#prepare hash of users principals on resource
+	my %userPrincipals;
+	foreach my $memberData ($resourceData->getChildElements) {
+		#get members attributes
+		my %memberAttributes = attributesToHash $memberData->getAttributes;
+		#if member is not valid, skip him
+		next if $memberAttributes{$A_USER_STATUS} ne 'VALID';
+		#if member is valid, add value to hash
+		$userPrincipals{$memberAttributes{$A_PRINCIPAL}} = ();
+	}
+
+	#add values from userPrincipals to hash structure
+	if (defined $fileStructureWithData->{$fileName}) {
+		foreach my $key (keys %userPrincipals) {
+			$fileStructureWithData->{$fileName}->{$key} = ();
+		}
+	} else {
+		$fileStructureWithData->{$fileName} = \%userPrincipals;
+	}
+}
+
+#generate file for all keys in data structure
+foreach my $file (keys %$fileStructureWithData) {
+	my $service_file_name = "$k5loginDirectory/$file";
+	my $principals = $fileStructureWithData->{$file};
+	open SERVICE_FILE,">$service_file_name" or die "Cannot open $service_file_name: $! \n";
+	#for each principal add one line
+	foreach my $principal (keys %$principals) {
+		print SERVICE_FILE $principal . "\n";
+	}
+	close(SERVICE_FILE);
+}
+
+perunServicesInit::finalize;

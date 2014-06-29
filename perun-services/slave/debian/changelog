@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.75) stable; urgency=low
+
+   * New service k5login_generic. It's used for managing ~/.k5login files on
+     service accounts (like www-data, tomcat or oneadmin). In other words this
+     service is extension of k5login_root to manage accounts other than root.
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 12 Aug 2014 11:50:00 +0200
+
 perun-slave (3.0.0-0.0.74) stable; urgency=low
 
    * Fix permissions check in service fs_home, k5login and passwd_scp
