@@ -1011,6 +1011,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					// free reserved logins so they can be set as attributes
 					jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
+					if (app.getUser() == null) {
+
+						// application for group doesn't have user set, but it can exists in perun (joined identities after submission)
+						User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+
+						// put user back to application
+						app.setUser(u);
+						// store user_id in DB
+						int result2 = jdbc.update("update application set user_id=? where id=?", u.getId(), appId);
+						if (result2 == 0) {
+							throw new RegistrarException("Application with ID="+appId+" not found.");
+						} else if (result2 > 1) {
+							throw new ConsistencyErrorException("More than one application is stored under ID="+appId+".");
+						}
+
+					}
+
 					// add new member of VO as member of group (for group applications)
 					// !! MUST BE MEMBER OF VO !!
 					member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
