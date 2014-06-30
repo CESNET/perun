@@ -11,6 +11,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <context:annotation-config />
 
     <import resource="classpath:perun-datasources.xml"/>
+    <import resource="classpath:perun-beans.xml"/>
 
     <context:component-scan base-package="cz.metacentrum.perun.notif" />
 
