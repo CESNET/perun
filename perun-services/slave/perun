@@ -220,42 +220,10 @@ if [ "${#SERVICE_BLACKLIST[@]}" -gt 0  ]; then
 	fi
 fi
 
-case "${SERVICE}" in
-	'passwd') . ${SCRIPTS_DIR}/process-passwd.sh ;;
-	'group') . ${SCRIPTS_DIR}/process-group.sh ;;
-	'mailaliases') . ${SCRIPTS_DIR}/process-mailaliases.sh ;;
-	'fs_scratch')   . ${SCRIPTS_DIR}/process-fs_scratch.sh ;;
-	'fs_scratch_local')   . ${SCRIPTS_DIR}/process-fs_scratch_local.sh ;;
-	'fs_scratch_global')   . ${SCRIPTS_DIR}/process-fs_scratch_global.sh ;;
-	'fs_home')      . ${SCRIPTS_DIR}/process-fs_home.sh ;;
-	'pbs_pre')      . ${SCRIPTS_DIR}/process-pbs_pre.sh ;;
-	'k5login')      . ${SCRIPTS_DIR}/process-k5login.sh ;;
-	'k5login_root') . ${SCRIPTS_DIR}/process-k5login_root.sh ;;
-	'samba')        . ${SCRIPTS_DIR}/process-samba.sh ;;
-	'group_nfs4')   . ${SCRIPTS_DIR}/process-group_nfs4.sh ;;
-	'passwd_nfs4')  . ${SCRIPTS_DIR}/process-passwd_nfs4.sh ;;
-	'passwd_scp')   . ${SCRIPTS_DIR}/process-passwd_scp.sh ;;
-	'eduroam_radius')   . ${SCRIPTS_DIR}/process-eduroam_radius.sh ;;
-	'pbs_pre')   . ${SCRIPTS_DIR}/process-pbs_pre.sh ;;
-	'pbs_phys_cluster')   . ${SCRIPTS_DIR}/process-pbs_phys_cluster.sh ;;
-	'voms')   . ${SCRIPTS_DIR}/process-voms.sh ;;
-	'sshkeys')   . ${SCRIPTS_DIR}/process-sshkeys.sh ;;
-	'sshkeys_root')   . ${SCRIPTS_DIR}/process-sshkeys_root.sh ;;
-	'pkinit')   . ${SCRIPTS_DIR}/process-pkinit.sh ;;
-	'pbsmon_json')   . ${SCRIPTS_DIR}/process-pbsmon_json.sh ;;
-	'pbsmon_users')   . ${SCRIPTS_DIR}/process-pbsmon_users.sh ;;
-	'mailman_meta')   . ${SCRIPTS_DIR}/process-mailman_meta.sh ;;
-	'mailman_owners')   . ${SCRIPTS_DIR}/process-mailman_owners.sh ;;
-	'docdb')   . ${SCRIPTS_DIR}/process-docdb.sh ;;
-	'afs')   . ${SCRIPTS_DIR}/process-afs.sh ;;
-	'apache_ssl')   . ${SCRIPTS_DIR}/process-apache_ssl.sh ;;
-	'apache_basic_auth')   . ${SCRIPTS_DIR}/process-apache_basic_auth.sh ;;
-	'openvpn')   . ${SCRIPTS_DIR}/process-openvpn.sh ;;
-	'pbs_publication_fairshare')   . ${SCRIPTS_DIR}/process-pbs_publication_fairshare.sh ;;
-	'gridmap')   . ${SCRIPTS_DIR}/process-gridmap.sh ;;
-	'ldap')   . ${SCRIPTS_DIR}/process-ldap.sh ;;
-	*) log_msg E_UNSUPPORTED_SERVICE;;
-esac
+SERVICE_PROCESS_FILE="${SCRIPTS_DIR}/process-${SERVICE}.sh";
+catch_error E_UNSUPPORTED_SERVICE [ -r "$SERVICE_PROCESS_FILE" ] 
+
+. "$SERVICE_PROCESS_FILE"
 
 version_check        #check the received version with version from slave script
 

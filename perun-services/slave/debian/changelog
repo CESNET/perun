@@ -1,3 +1,12 @@
+perun-slave (3.0.0-0.0.72) stable; urgency=low
+
+   * bugfix of 3.0.0-0.0.71 - afs_group was not in list of supported services
+     in script "perun"
+   * remove list of supported services - supported services are determined by
+     existence of process-$SERVICE_NAME.sh script
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 01 Jul 2014 16:00:00 +0200
+
 perun-slave (3.0.0-0.0.71) stable; urgency=low
 
    * new afs_group service synchronize users in groups between afs and perun.
