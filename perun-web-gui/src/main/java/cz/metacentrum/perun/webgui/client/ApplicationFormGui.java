@@ -1,15 +1,13 @@
 package cz.metacentrum.perun.webgui.client;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.*;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.applicationresources.ApplicationFormLeftMenu;
@@ -79,6 +77,20 @@ public class ApplicationFormGui implements EntryPoint {
 	 * Main class
 	 */
 	public void onModuleLoad() {
+
+		ScriptInjector.fromUrl("https://www.google.com/recaptcha/api/js/recaptcha_ajax.js").setCallback(
+				new Callback<Void, Exception>() {
+					public void onFailure(Exception reason) {
+						Window.alert("Script load failed.");
+					}
+
+					public void onSuccess(Void result) {
+						loadModule();
+					}
+				}).setWindow(ScriptInjector.TOP_WINDOW).inject();
+	}
+
+	private void loadModule() {
 
 		// basic settings
 		session.setUiElements(new UiElements(null));
