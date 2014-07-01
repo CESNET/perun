@@ -189,6 +189,9 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Join identity")
 	String joinIdentity();
 
+	@DefaultMessage("No, thanks")
+	String notJoinIdentity();
+
 	@DefaultMessage("Created date")
 	String createdDate();
 

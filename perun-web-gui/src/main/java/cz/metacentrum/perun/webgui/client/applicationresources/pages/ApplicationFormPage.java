@@ -605,6 +605,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		confirm.setOkButtonText(ApplicationMessages.INSTANCE.joinIdentity());
 		confirm.setOkIcon(SmallIcons.INSTANCE.userGreenIcon());
+		confirm.setCancelButtonText(ApplicationMessages.INSTANCE.notJoinIdentity());
 		confirm.show();
 
 	}
@@ -613,7 +614,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
         var linker = $wnd.jQuery("#cesnet_linker_placeholder");
 
-		if (linker != null) {
+        if (!$('#cesnet_linker_placeholder').is(':empty')){
 
             $wnd.jQuery("#cesnet_linker_placeholder").remove();
             $wnd.jQuery("body").append(linker);
