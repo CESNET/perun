@@ -309,7 +309,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+		    !AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getAssignedResources");
 		}
 
