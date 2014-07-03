@@ -5,6 +5,11 @@ LOCK_DIR=${LOCK_DIR:=/var/lock}
 SERVICE_BLACKLIST=()	# syntax: (item1 item2 item3)
 SERVICE_WHITELIST=()
 
+# accept configuration only if it was send to one of these hostnames
+# prevent someone to configure perun to send malicious configuration via dns alias or ip address
+DNS_ALIAS_WHITELIST=( `hostname -f` )
+FACILITY_WHITELIST=()        # from which facilities this host accept configuration
+
 if [ -f "/etc/${NAME}.conf" ]; then
 	. "/etc/${NAME}.conf"
 fi
@@ -25,6 +30,7 @@ E_IO=(5 'IO operation failed')
 E_CONCURRENT_PROCESS=(6 'Concurrent process is running right now')
 E_LOCK_DELETE=(7 'Lock file cannot be deleted')
 E_LOCK_PIDFILE=(8 'Lock pid file cannot be created')
+E_DNS_ALIAS_NOT_WHITELISTED=(9 'Perun send configuration to this host via dns alias which was not whitelisted.')
 E_PROTOCOL_VERSION=(200 'Wrong version of received files - (local=${PROTOCOL_VERSION},remote=${RECEIVED_PROTOCOL_VERSION})')
 E_PROTOCOL_VERSION_FILE=(201 'Remote protocol version file missing')
 E_PROTOCOL_VERSION_VARIABLE=(202 'PROTOCOL_VERSION variable not set')
@@ -200,8 +206,29 @@ trap 'rm -r -f "${WORK_DIR}"' EXIT
 ### Receive and process data
 catch_error E_TAR_FILES tar --no-same-owner --no-same-permissions -x -C "${WORK_DIR}" <&0
 SERVICE=`head -n 1 "${WORK_DIR}/SERVICE"`
+SEND_TO_HOSTNAME=`head -n 1 "${WORK_DIR}/HOSTNAME"`
+FACILITY=`head -n 1 "${WORK_DIR}/FACILITY"`
 LOCK_FILE="${LOCK_DIR}/${NAME}-${SERVICE}.lock"
 LOCK_PIDFILE="$LOCK_FILE/pid"
+
+
+DNS_ALIAS_OK=0
+# check if perun send via allowed hostname 
+if [ "${#DNS_ALIAS_WHITELIST[@]}" -gt 0  ]; then
+	if in_array "${SEND_TO_HOSTNAME}" "${DNS_ALIAS_WHITELIST[@]}"; then
+		DNS_ALIAS_OK=1
+	fi
+fi
+
+if [ "${#FACILITY_WHITELIST[@]}" -gt 0  ]; then
+	if in_array "${FACILITY}" "${FACILITY_WHITELIST[@]}"; then
+		DNS_ALIAS_OK=1
+	fi
+fi
+
+[ "$DNS_ALIAS_OK" -ne 1 ] && log_msg E_DNS_ALIAS_NOT_WHITELISTED
+
+
 
 # check if the service is not disabled
 if [ "${#SERVICE_WHITELIST[@]}" -gt 0  ]; then

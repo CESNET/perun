@@ -1,3 +1,21 @@
+perun-slave (3.0.0-0.0.73) stable; urgency=critical
+
+   * Fix security issue with propagation to DNS alias
+     Facility manager can create destination to any free hostname (or IP
+     adress). The "free" means that name is not used on other facilty as a
+     destination or host's name. Exception from this is when the manager is
+     also facility manager on such facility.
+     Therefore any facility manger could create destination to any machine
+     (using IP address on other alias) and create resources with any services
+     (like sshkeys_root or k5login_root) and Perun will propagate there the
+     configuration.
+     Perun-slave now contains two variables DNS_ALIAS_WHITELIST and
+     FACILITY_WHITELIST which contains from which destinations or
+     which facilities the perun-slave accepts new configuration.
+     By default slave only accepts configuration from `hostname -f`.
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 01 Jul 2014 16:00:00 +0200
+
 perun-slave (3.0.0-0.0.72) stable; urgency=low
 
    * bugfix of 3.0.0-0.0.71 - afs_group was not in list of supported services
