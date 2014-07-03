@@ -61,6 +61,14 @@ function log_msg {
 	fi
 }
 
+### Log debug only if variable DEBUG exists and is the length of this variable is nonzero
+function log_debug {
+	MSG="$1"
+	if [ -n "${DEBUG}" ]; then
+		logger -t "${NAME}" -p daemon.debug "${SERVICE}: ${MSG}" &>/dev/null
+	fi
+}
+
 function catch_error {
 	ERROR_NAME="$1"
 	shift

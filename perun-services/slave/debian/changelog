@@ -13,8 +13,9 @@ perun-slave (3.0.0-0.0.73) stable; urgency=critical
      FACILITY_WHITELIST which contains from which destinations or
      which facilities the perun-slave accepts new configuration.
      By default slave only accepts configuration from `hostname -f`.
+   * Add log_debug function to perun script
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 01 Jul 2014 16:00:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 08 Jul 2014 10:30:00 +0200
 
 perun-slave (3.0.0-0.0.72) stable; urgency=low
 
