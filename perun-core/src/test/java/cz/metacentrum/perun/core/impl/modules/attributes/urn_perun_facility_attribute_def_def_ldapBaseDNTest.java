@@ -13,41 +13,41 @@ import org.junit.Test;
  */
 public class urn_perun_facility_attribute_def_def_ldapBaseDNTest {
 
-    FacilityAttributesModuleImplApi module = new urn_perun_facility_attribute_def_def_ldapBaseDN();
+	FacilityAttributesModuleImplApi module = new urn_perun_facility_attribute_def_def_ldapBaseDN();
 
-    @Test
-    public void testCheckAttributeValue() throws Exception {
-        Attribute attribute = new Attribute(module.getAttributeDefinition());
-        attribute.setValue("dc=example,dc=domain");
+	@Test
+	public void testCheckAttributeValue() throws Exception {
+		Attribute attribute = new Attribute(module.getAttributeDefinition());
+		attribute.setValue("dc=example,dc=domain");
 
-        module.checkAttributeValue(null, null, attribute);
+		module.checkAttributeValue(null, null, attribute);
 
-        attribute.setValue("ou=example,dc=domain");
+		attribute.setValue("ou=example,dc=domain");
 
-        module.checkAttributeValue(null, new Facility(), attribute);
-    }
+		module.checkAttributeValue(null, new Facility(), attribute);
+	}
 
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueEmptyString() throws Exception {
-        Attribute attribute = new Attribute(module.getAttributeDefinition());
-        attribute.setValue("");
+	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckAttributeValueEmptyString() throws Exception {
+		Attribute attribute = new Attribute(module.getAttributeDefinition());
+		attribute.setValue("");
 
-        module.checkAttributeValue(null, new Facility(), attribute);
-    }
+		module.checkAttributeValue(null, new Facility(), attribute);
+	}
 
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueFailsLessChars() throws Exception {
-        Attribute attribute = new Attribute(module.getAttributeDefinition());
-        attribute.setValue("ou");
+	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckAttributeValueFailsLessChars() throws Exception {
+		Attribute attribute = new Attribute(module.getAttributeDefinition());
+		attribute.setValue("ou");
 
-        module.checkAttributeValue(null, new Facility(), attribute);
-    }
+		module.checkAttributeValue(null, new Facility(), attribute);
+	}
 
-    @Test(expected = WrongAttributeValueException.class)
-    public void testCheckAttributeValueWrongChars() throws Exception {
-        Attribute attribute = new Attribute(module.getAttributeDefinition());
-        attribute.setValue("cn=example,dc=domain");
+	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckAttributeValueWrongChars() throws Exception {
+		Attribute attribute = new Attribute(module.getAttributeDefinition());
+		attribute.setValue("cn=example,dc=domain");
 
-        module.checkAttributeValue(null, new Facility(), attribute);
-    }
+		module.checkAttributeValue(null, new Facility(), attribute);
+	}
 }

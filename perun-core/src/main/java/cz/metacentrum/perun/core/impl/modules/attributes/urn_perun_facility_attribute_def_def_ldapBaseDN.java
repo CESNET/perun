@@ -16,33 +16,33 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-    @Override
-    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	@Override
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-        if (attribute.getValue() == null) {
-            throw new WrongAttributeValueException(attribute, facility, "attribute is null");
-        }
+		if (attribute.getValue() == null) {
+			throw new WrongAttributeValueException(attribute, facility, "attribute is null");
+		}
 
-        String value = (String) attribute.getValue();
-        if (value.length() < 3) {
-            throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
-        }
+		String value = (String) attribute.getValue();
+		if (value.length() < 3) {
+			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+		}
 
-        String sub = value.substring(0,3);
+		String sub = value.substring(0,3);
 
-        if ( !(sub.equals("ou=") || sub.equals("dc=")) ) {
-            throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
-        }
-    }
+		if ( !(sub.equals("ou=") || sub.equals("dc=")) ) {
+			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+		}
+	}
 
-    @Override
-    public AttributeDefinition getAttributeDefinition() {
-        AttributeDefinition attr = new AttributeDefinition();
-        attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-        attr.setFriendlyName("ldapBaseDN");
-        attr.setDisplayName("LDAP base DN");
-        attr.setType(String.class.getName());
-        attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"dc=example,dc=domain\" (without quotes)");
-        return attr;
-    }
+	@Override
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName("ldapBaseDN");
+		attr.setDisplayName("LDAP base DN");
+		attr.setType(String.class.getName());
+		attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"dc=example,dc=domain\" (without quotes)");
+		return attr;
+	}
 }
