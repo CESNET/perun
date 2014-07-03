@@ -1,0 +1,48 @@
+package cz.metacentrum.perun.core.impl.modules.attributes;
+
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
+
+/**
+ * Created by Oliver Mrázik on 3. 7. 2014.
+ * author: Oliver Mrázik
+ * version: 2014-07-03
+ */
+public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+
+    @Override
+    public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+
+        if (attribute.getValue() == null) {
+            throw new WrongAttributeValueException(attribute, facility, "attribute is null");
+        }
+
+        String value = (String) attribute.getValue();
+        if (value.length() < 3) {
+            throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+        }
+
+        String sub = value.substring(0,3);
+
+        if ( !(sub.equals("ou=") || sub.equals("dc=")) ) {
+            throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+        }
+    }
+
+    @Override
+    public AttributeDefinition getAttributeDefinition() {
+        AttributeDefinition attr = new AttributeDefinition();
+        attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+        attr.setFriendlyName("ldapBaseDN");
+        attr.setDisplayName("LDAP base DN");
+        attr.setType(String.class.getName());
+        attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"dc=example,dc=domain\" (without quotes)");
+        return attr;
+    }
+}
