@@ -240,7 +240,7 @@ public class Utils {
 	/**
 	 * Returns URL of Perun`s logo
 	 *
-	 * if not set, use default: "img/logo11.png"
+	 * if not set, use default: "img/logo.png"
 	 *
 	 * @return URL of Perun`s logo
 	 */
@@ -252,7 +252,7 @@ public class Utils {
 				return value;
 			}
 		}
-		return "img/logo11.png";
+		return "img/logo.png";
 
 	}
 
