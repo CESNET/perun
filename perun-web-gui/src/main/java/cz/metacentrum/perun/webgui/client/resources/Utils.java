@@ -274,6 +274,23 @@ public class Utils {
 	}
 
 	/**
+	 * Returns name of Perun Instance if present in config or "UNKNOWN INSTANCE" if not present.
+	 *
+	 * @return name of Perun Instance as string
+	 */
+	public static String perunInstanceName() {
+
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("perunInstanceName");
+			if (value != null && !value.isEmpty()) {
+				return value;
+			}
+		}
+		return "UNKNOWN INSTANCE";
+
+	}
+
+	/**
 	 * Returns default RT queue for errors reporting
 	 *
 	 * @return default RT queue for errors reporting as string

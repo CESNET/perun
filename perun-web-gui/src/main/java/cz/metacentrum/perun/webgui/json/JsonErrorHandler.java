@@ -85,6 +85,7 @@ public class JsonErrorHandler {
 
 				String text = error.getErrorId() + " - " + error.getName() + "\n";
 				text += error.getErrorInfo() + "\n\n";
+				text += Utils.perunInstanceName()+ "\n";
 				text += "Request: " + error.getRequestURL() + "\n";
 				if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
 				text += "Application state: " + status + "\n\n";
