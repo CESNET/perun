@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -160,7 +161,22 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
-
+	/**
+	 * Generates the list of attributes per each member associated with the resources and groups.
+	 *
+	 * @param perunSession
+	 * @param service attributes required by this service you will get
+	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @return attributes in special structure. Facility is in the root, facility children are resources.
+	 *         Resource first child is abstract structure which children are groups.
+	 *         Resource  second chi is abstract structure which children are members.
+	 *         Group first child is abstract structure which children are groups.
+	 *         Group second chi is abstract structure which children are members.
+	 *
+	 * @throws InternalErrorException
+	 * @throws VoNotExistsException
+	 */
+	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, VoNotExistsException;
 
 	/**
 	 * List packages

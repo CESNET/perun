@@ -1425,6 +1425,21 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws PrivilegeException, InternalErrorException, VoNotExistsException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, service, vo);
+		Iterator<Attribute> attrIter = attributes.iterator();
+		//Choose to which attributes has the principal access
+		while(attrIter.hasNext()) {
+			Attribute attrNext = attrIter.next();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, vo, null)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, vo, null));
+		}
+		return attributes;
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);

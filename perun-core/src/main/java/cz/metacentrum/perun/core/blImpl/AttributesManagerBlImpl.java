@@ -1749,6 +1749,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility);
 	}
 
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredAttributes(sess, service, vo);
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource);
 	}

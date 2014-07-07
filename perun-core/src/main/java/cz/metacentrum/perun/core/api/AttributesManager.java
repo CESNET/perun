@@ -1797,6 +1797,23 @@ public interface AttributesManager {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException;
 
 	/**
+	 * Get vo attributes which are required by the service.
+	 *
+	 * PRIVILEGE: Get only those required attributes principal has access to.
+	 *
+	 * @param sess perun session
+	 * @param vo you get attributes for this vo
+	 * @param service attribute required by this service you'll get
+	 * @return list of vo attributes which are required by the service
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws VoNotExistsException if the vo wasn't created from this resource
+	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
+	 */
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws PrivilegeException, InternalErrorException, VoNotExistsException, ServiceNotExistsException;
+	
+	/**
 	 * Get facility attributes which are required by the services.
 	 *
 	 * PRIVILEGE: Get only those required attributes principal has access to.

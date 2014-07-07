@@ -278,6 +278,91 @@ public interface ServicesManager {
 		ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
+	 * Generates the list of attributes per each member associated with the resources and groups in vos.
+	 * 
+	 * @param perunSession
+	 * @param service attributes required by this service you will get
+	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
+	 * @return attributes in special structure. 
+	 *        Facility is in the root, facility children are vos.
+	 *        Vo first child is abstract structure which children are resources.
+	 *        Resource first child is abstract structure which children are groups.
+	 *        Resource  second chi is abstract structure which children are members.
+	 *        Group first child is abstract structure which children are groups.
+	 *        Group second chi is abstract structure which children are members.
+	 <pre>
+	 Facility
+	 +---Attrs                              
+	 +---ChildNodes               
+	        +-----Vo
+	        |      +---Attrs
+	        |      +---ChildNodes
+	        |             +-------Resource
+	        |             |       +---Attrs               |-------------------------------------------------.
+	        |             |       +---ChildNodes          |                                                 .
+	        |             |              +------()        V                                                 .
+	        |             |              |       +------Group                                               .
+	        |             |              |       |        +-------Attrs                                     .
+	        |             |              |       |        +-------ChildNodes                                .
+	        |             |              |       |                   +-------()                             .
+	        |             |              |       |                   |        +---ChildNodes                .
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +...
+	        |             |              |       |                   +-------()
+	        |             |              |       |                            +---ChildNodes
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +...
+	        |             |              |       |
+	        |             |              |       +------Group
+	        |             |              |       |        +-------Attrs
+	        |             |              |       |        +-------ChildNodes
+	        |             |              |       |                   +-------()
+	        |             |              |       |                   |        +---ChildNodes
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +...
+	        |             |              |       |                   +-------()
+	        |             |              |       |                            +---ChildNodes
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +...
+	        |             |              |       |
+	        |             |              |       +...
+	        |             |              |
+	        |             |              +------()
+	        |             |                      +------Member
+	        |             |                      |         +----Attrs
+	        |             |                      |
+	        |             |                      +------Member
+	        |             |                      |         +----Attrs
+	        |             |                      +...
+	        |             |
+	        |             +------Resource
+	        |             |       +---Attrs
+	        |             |       +---ChildNodes
+	        |             |              +------()
+	        |             |              |       +...
+	        |             |              |       +...
+	        |             |              |
+	        |             |              +------()
+	        |             |                      +...
+	        +-----Vo ....
+	</pre>
+	 * @throws InternalErrorException
+	 * @throws FacilityNotExistsException
+	 * @throws ServiceNotExistsException
+	 * @throws PrivilegeException 
+	 * @throws VoNotExistsException
+	 */
+	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+
+	/**
 	 * List packages
 	 *
 	 * @param perunSession

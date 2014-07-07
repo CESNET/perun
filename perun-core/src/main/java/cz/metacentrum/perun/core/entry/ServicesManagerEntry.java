@@ -205,13 +205,27 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
-			throw new PrivilegeException(sess, "getFlatData");
+			throw new PrivilegeException(sess, "getDataWithGroups");
 		}
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
+	}
+
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+			throw new PrivilegeException(sess, "getDataWithVos");
+		}
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		return getServicesManagerBl().getDataWithVos(sess, service, facility);
 	}
 
 	public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException, PrivilegeException {

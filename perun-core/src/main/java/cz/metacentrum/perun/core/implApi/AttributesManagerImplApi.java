@@ -990,6 +990,18 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Get vo attributes which are required by the service.
+	 *
+	 * @param sess perun session
+	 * @param vo you get attributes for this vo
+	 * @param service attribute required by this service you'll get
+	 * @return list of vo attributes which are required by the service
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException;
+	
+	/**
 	 * Get resource attributes which are required by the service.
 	 *
 	 * @param sess perun session
