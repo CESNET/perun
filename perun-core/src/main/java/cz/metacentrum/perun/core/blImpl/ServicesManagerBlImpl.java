@@ -45,11 +45,14 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -168,6 +171,18 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return resourceServiceAttributes;
 	}
 
+	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources) throws InternalErrorException {
+		ServiceAttributes voServiceAttributes = new ServiceAttributes();
+		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
+		
+		for(Resource resource: resources) {
+			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
+			voServiceAttributes.addChildElement(resourceServiceAttributes);
+		}
+		
+		return voServiceAttributes;
+	}
+
 	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes) throws InternalErrorException {
 		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
 		try {
@@ -262,6 +277,35 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return serviceAttributes;
 
 
+	}
+
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, VoNotExistsException {
+		ServiceAttributes serviceAttributes = new ServiceAttributes();
+		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
+		
+		//Get resources only for facility and service
+		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		resources.retainAll(getAssignedResources(sess, service));
+		
+		//Get all vos for these resources
+		Set<Integer> vosIds = new HashSet<>();
+		for(Resource resource: resources) {
+			vosIds.add(resource.getVoId());
+		}
+
+		List<Vo> vos = new ArrayList<>();
+		for(Integer voId: vosIds) {
+			vos.add(getPerunBl().getVosManagerBl().getVoById(sess, voId));
+		}
+
+		for(Vo vo: vos) {
+			List<Resource> voResources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			voResources.retainAll(resources);
+			ServiceAttributes voServiceAttributes = getDataWithVo(sess, service, facility, vo, voResources);
+			serviceAttributes.addChildElement(voServiceAttributes);
+		}
+		
+		return serviceAttributes;
 	}
 
 	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException {

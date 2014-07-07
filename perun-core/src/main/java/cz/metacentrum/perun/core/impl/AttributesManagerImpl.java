@@ -2845,6 +2845,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names " +
+					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
+					"left join vo_attr_values on id=vo_attr_values.attr_id and vo_id=? " +
+					"where namespace in (?,?,?,?)",
+					new AttributeRowMapper(sess, this, vo), service.getId(), vo.getId(), AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_OPT, AttributesManager.NS_VO_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("None required attributes found for vo: {} and service: {}.", vo, service);
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
