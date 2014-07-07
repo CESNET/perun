@@ -642,6 +642,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		//Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+		    !AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
 			throw new PrivilegeException(sess, "getAssignedServices");
 				}
