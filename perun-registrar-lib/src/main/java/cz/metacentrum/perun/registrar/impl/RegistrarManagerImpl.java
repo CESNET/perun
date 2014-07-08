@@ -2343,13 +2343,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
-	 * Get all group applications of user with auto-approval and approve them (even by user-ext-source) and try
+	 * Try to approve all group applications of user with auto-approval (even by user-ext-source)
+	 * in specified VO.
 	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
+	 * @param sess PerunSession
+	 * @param vo VO to approve group applications in
+	 * @param user user to approve applications for
 	 */
-
 	private void autoApproveUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
 
 		List<UserExtSource> ues = usersManager.getUserExtSources(registrarSession, user);
@@ -2358,14 +2358,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// get apps based on user
 
-		List<Application> apps = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id not null and a.state=?" +
+		List<Application> apps = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
 				" and a.user_id=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), user.getId());
 
 		if (apps != null) applications.addAll(apps);
 
 		for (UserExtSource ue : ues) {
 
-			List<Application> apps2 = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id not null and a.state=?" +
+			List<Application> apps2 = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
 					" and a.created_by=? and a.extsourcename=? and a.extsourcetype=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
 
 			if (apps2 != null) applications.addAll(apps2);
@@ -2373,11 +2373,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		for (Application a : applications) {
-			// if new => verify it's safe
-			if (a.getState().equals(AppState.NEW)) {
-				a = verifyApplication(sess, a.getId());
+			// if new => skipp user will approve automatically by verifying email
+			if (a.getState().equals(AppState.NEW)) continue;
+
+			try {
+				registrarManager.approveApplicationInternal(sess, a.getId());
+			} catch (RegistrarException ex) {
+				// case when user have UNVERIFIED group application
+				// will be approved when user verify his email
+				log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception: {}", ex);
 			}
-			registrarManager.approveApplicationInternal(sess, a.getId());
+
 		}
 
 	}
