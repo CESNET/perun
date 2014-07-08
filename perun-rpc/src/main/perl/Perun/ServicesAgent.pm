@@ -72,6 +72,12 @@ sub getDataWithGroups
 	return Perun::Common::callManagerMethod('getDataWithGroups', 'ServiceAttributes', @_);
 }
 
+#(service => $serviceId, facility => $facilityId)
+sub getDataWithVos
+{
+	return Perun::Common::callManagerMethod('getDataWithVos', 'ServiceAttributes', @_);
+}
+
 #bez parametru
 sub getServicesPackages
 {

@@ -3,7 +3,7 @@ package perunServicesInit;
 
 use Exporter 'import';
 @EXPORT_OK = qw(init);
-@EXPORT= qw(getDirectory getDestinationDirectory getHierarchicalData getDataWithGroups);
+@EXPORT= qw(getDirectory getDestinationDirectory getHierarchicalData getDataWithGroups getDataWithVos);
 
 use strict;
 use warnings;
@@ -112,6 +112,12 @@ sub getFlatData {
 sub getDataWithGroups {
 	my $data = $servicesAgent->getDataWithGroups(service => $service->getId, facility => $facility->getId);
 	logData $data, 'dataWithGroups';
+	return $data;
+}
+
+sub getDataWithVos {
+	my $data = $servicesAgent->getDataWithVos(service => $service->getId, facility => $facility->getId);
+	logData $data, 'dataWithVos';
 	return $data;
 }
 
