@@ -85,8 +85,8 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		if(dataLimitNumber != null) limitNumber = new BigDecimal(dataLimitNumber.replace(',', '.').toString());
 		else limitNumber = new BigDecimal("0");
 
-		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) == -1) {
-			throw new WrongAttributeValueException(attribute, attribute + " cant be less than 0.");
+		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongAttributeValueException(attribute, resource, member, attribute + " cant be less than 0.");
 		}
 
 		//Get dataQuota value
@@ -118,14 +118,14 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		if(dataQuotaNumber != null) quotaNumber = new BigDecimal(dataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
-		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) == -1) {
-			throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, attrDataQuota + " cant be less than 0.");
+		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, resource, member, resource, null,  attrDataQuota + " cant be less than 0.");
 		}
 
 		//Compare dataLimit with dataQuota
 		if (quotaNumber == null || quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
 			if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, "Try to set limited limit, but there is still set unlimited Quota.");
+				throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, resource, member, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
 		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
 			if(dataLimitLetter.equals("K")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));
@@ -142,8 +142,8 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 			else if(dataQuotaLetter.equals("E")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
 			else quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
 
-			if (limitNumber.compareTo(quotaNumber) == -1) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, attribute + " must be more than or equals to " + attrDataQuota);
+			if (limitNumber.compareTo(quotaNumber) < 0) {
+				throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, resource, member, resource, null, attribute + " must be more than or equals to " + attrDataQuota);
 			}
 		}
 	}
