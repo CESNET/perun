@@ -420,6 +420,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getUserExtSourceById(sess, id);
 	}
 
+	public List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException {
+		return getUsersManagerImpl().getAllUserExtSourcesByTypeAndLogin(sess, extType, extLogin);
+	}
+
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		// Check if the userExtSource already exists
 		try {
@@ -427,6 +431,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new UserExtSourceExistsException("UserExtSource " + userExtSource + " already exists.");
 		} catch (UserExtSourceNotExistsException e) {
 			// this is OK
+		}
+
+		// Check if userExtsource is type of IDP (special testing behavior)
+		if (userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+			// If extSource of this userExtSource is type of IDP, test uniqueness of login in this extSource type for all users
+			String login = userExtSource.getLogin();
+			List<UserExtSource> userExtSources = getAllUserExtSourcesByTypeAndLogin(sess, ExtSourcesManager.EXTSOURCE_IDP, login);
+			if(userExtSources.size() == 1) throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+			else if(userExtSources.size() > 1) throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
 		}
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);

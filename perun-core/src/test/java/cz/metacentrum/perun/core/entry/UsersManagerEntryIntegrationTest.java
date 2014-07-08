@@ -338,6 +338,24 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			// shouldn't find user
 		}
 
+	@Test (expected=InternalErrorException.class)
+	public void addIDPExtSourcesWithSameLogin() throws Exception {
+		System.out.println("UsersManager.addIDPExtSourcesWithSameLogin");
+
+		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ExtSource ext2 = new ExtSource("test2", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1);
+		ext2 = perun.getExtSourcesManagerBl().createExtSource(sess, ext2);
+
+		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
+		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
+
+
+		ues1 = usersManager.addUserExtSource(sess, user, ues1);
+		ues2 = usersManager.addUserExtSource(sess, user, ues2);
+	}
+
 	@Test
 	public void addUserExtSource() throws Exception {
 		System.out.println("UsersManager.addUserExtSource");
