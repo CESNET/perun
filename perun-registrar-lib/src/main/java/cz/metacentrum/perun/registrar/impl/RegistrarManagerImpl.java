@@ -1928,6 +1928,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (allValidated) {
 			// mark VERIFIED
 			markApplicationVerified(app.getId());
+			app.setState(AppState.VERIFIED);
 			// try to APPROVE if auto approve
 			tryToAutoApproveApplication(sess, app);
 		} else {
@@ -1997,10 +1998,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		String appState = jdbc.queryForObject("select state from application where id=?", String.class, app.getId());
-
 		try {
-			if (AppState.VERIFIED.toString().equals(appState)) {
+			if (AppState.VERIFIED.equals(app.getState())) {
 				// with registrar session, since only VO admin can approve application
 				approveApplication(registrarSession, app.getId());
 			}
