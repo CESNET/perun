@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.registrar.impl;
 
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
@@ -32,24 +33,6 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UsersManager;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -932,9 +915,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
 		} catch (MemberNotExistsException ex) {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+		} catch (UserNotExistsException ex) {
+			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		}
 
 		Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
+
+		// get user's group apps with auto-approve and approve them
+		autoApproveUsersGroupApplications(sess, app.getVo(), app.getUser());
 
 		try {
 			// validate member async when all changes are commited
@@ -1940,6 +1928,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (allValidated) {
 			// mark VERIFIED
 			markApplicationVerified(app.getId());
+			app.setState(AppState.VERIFIED);
 			// try to APPROVE if auto approve
 			tryToAutoApproveApplication(sess, app);
 		} else {
@@ -1993,10 +1982,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) return;
 		if (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) return;
 
-		String appState = jdbc.queryForObject("select state from application where id=?", String.class, app.getId());
+		// do not auto-approve Group applications, if user is not member of VO
+		if (app.getGroup() != null && app.getVo() != null) {
+
+			try {
+				User u = null;
+				if (app.getUser() == null) {
+					u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+				}
+				membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+			} catch (MemberNotExistsException ex) {
+				return;
+			} catch (UserNotExistsException ex) {
+				return;
+			}
+		}
 
 		try {
-			if (AppState.VERIFIED.toString().equals(appState)) {
+			if (AppState.VERIFIED.equals(app.getState())) {
 				// with registrar session, since only VO admin can approve application
 				approveApplication(registrarSession, app.getId());
 			}
@@ -2338,6 +2341,51 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	/**
+	 * Try to approve all group applications of user with auto-approval (even by user-ext-source)
+	 * in specified VO.
+	 *
+	 * @param sess PerunSession
+	 * @param vo VO to approve group applications in
+	 * @param user user to approve applications for
+	 */
+	private void autoApproveUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
+
+		List<UserExtSource> ues = usersManager.getUserExtSources(registrarSession, user);
+
+		List<Application> applications = new ArrayList<Application>();
+
+		// get apps based on user
+
+		List<Application> apps = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
+				" and a.user_id=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), user.getId());
+
+		if (apps != null) applications.addAll(apps);
+
+		for (UserExtSource ue : ues) {
+
+			List<Application> apps2 = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
+					" and a.created_by=? and a.extsourcename=? and a.extsourcetype=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
+
+			if (apps2 != null) applications.addAll(apps2);
+
+		}
+
+		for (Application a : applications) {
+			// if new => skipp user will approve automatically by verifying email
+			if (a.getState().equals(AppState.NEW)) continue;
+
+			try {
+				registrarManager.approveApplicationInternal(sess, a.getId());
+			} catch (RegistrarException ex) {
+				// case when user have UNVERIFIED group application
+				// will be approved when user verify his email
+				log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception: {}", ex);
+			}
+
+		}
+
+	}
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
