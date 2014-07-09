@@ -40,7 +40,7 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
 		if(attribute.getValue() != null) {
 			defaultFilesQuota = (Integer) attribute.getValue();
 		}
-		if(defaultFilesQuota != null && defaultFilesQuota < 0) throw new WrongAttributeValueException(attribute, attribute + " cannot be less than 0.");
+		if(defaultFilesQuota != null && defaultFilesQuota < 0) throw new WrongAttributeValueException(attribute, resource, attribute + " cannot be less than 0.");
 
 		//Get defaultFilesLimit value
 		if(attrDefaultFilesLimit != null &&  attrDefaultFilesLimit.getValue() != null) {
@@ -50,9 +50,9 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
 
 		//Compare DefaultFilesQuota with DefaultFilesLimit
 		if(defaultFilesQuota == null || defaultFilesQuota == 0) {
-			if(defaultFilesLimit != null && defaultFilesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, "Try to set unlimited quota, but limit is still " + defaultFilesLimit);
+			if(defaultFilesLimit != null && defaultFilesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, resource, null, resource, null, "Try to set unlimited quota, but limit is still " + defaultFilesLimit);
 		}else if(defaultFilesLimit != null && defaultFilesLimit != 0) {
-			if(defaultFilesLimit < defaultFilesQuota) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, attribute + " must be less than or equals " + attrDefaultFilesLimit);
+			if(defaultFilesLimit < defaultFilesQuota) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, resource, null, resource, null, attribute + " must be less than or equals " + attrDefaultFilesLimit);
 		}
 	}
 

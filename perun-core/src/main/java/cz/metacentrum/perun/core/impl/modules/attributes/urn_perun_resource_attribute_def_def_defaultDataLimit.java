@@ -26,7 +26,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 	private static final String A_R_defaultDataQuota = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataQuota";
 	Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
 	Pattern letterPattern = Pattern.compile("[A-Z]");
-	Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]*)?[KMGTPE]$");
+	Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
 	long K = 1024;
@@ -50,7 +50,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 		//Check if attribute value has the right exp pattern (can be null)
 		if(attribute.getValue() != null) {
 			Matcher testMatcher = testingPattern.matcher((String) attribute.getValue());
-			if(!testMatcher.find()) throw new WrongAttributeValueException("Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+			if(!testMatcher.find()) throw new WrongAttributeValueException(attribute, resource, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
 		} else return;
 
 		//Get DefaultDataQuota attribute
@@ -81,8 +81,8 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 		BigDecimal limitNumber;
 		if(defaultDataLimitNumber != null) limitNumber = new BigDecimal(defaultDataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
-		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) == -1) {
-			throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
+		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongAttributeValueException(attribute, resource, attribute + " can't be less than 0.");
 		}
 
 		//Get DefaultDataQuota value
@@ -107,14 +107,14 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 		if(defaultDataQuotaNumber != null) quotaNumber = new BigDecimal(defaultDataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
-		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) == -1) {
-			throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, attrDefaultDataQuota + " cant be less than 0.");
+		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, attrDefaultDataQuota + " cant be less than 0.");
 		}
 
 		//Compare DefaultDataLimit with DefaultDataQuota
 		if (quotaNumber == null || quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
 			if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, "Try to set limited limit, but there is still set unlimited Quota.");
+				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
 		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
 
@@ -132,8 +132,8 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 			else if(defaultDataQuotaLetter.equals("E")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
 			else quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
 
-			if (limitNumber.compareTo(quotaNumber) == -1) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, attribute + " must be more than or equals to " + attrDefaultDataQuota);
+			if (limitNumber.compareTo(quotaNumber) < 0) {
+				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, attribute + " must be more than or equals to " + attrDefaultDataQuota);
 			}
 		}
 	}
