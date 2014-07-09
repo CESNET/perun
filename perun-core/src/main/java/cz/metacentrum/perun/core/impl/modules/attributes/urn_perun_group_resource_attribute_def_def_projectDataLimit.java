@@ -143,7 +143,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectDataLimit");
 		attr.setDisplayName("Project soft data quota.");
 		attr.setType(String.class.getName());
