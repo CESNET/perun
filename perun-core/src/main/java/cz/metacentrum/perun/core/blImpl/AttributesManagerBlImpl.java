@@ -1591,7 +1591,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "{} deleted.", attribute);
+		getPerunBl().getAuditer().log(sess, "All authorization information were deleted for {}.", attribute);
 		getAttributesManagerImpl().deleteAllAttributeAuthz(sess, attribute);
 	}
 
