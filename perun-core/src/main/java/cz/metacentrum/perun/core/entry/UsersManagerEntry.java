@@ -380,6 +380,11 @@ public class UsersManagerEntry implements UsersManager {
 
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, PrivilegeException, UserExtSourceExistsException {
 		Utils.checkPerunSession(sess);
+		Utils.notNull(userExtSource, "userExtSource");
+		Utils.notNull(user, "user");
+		Utils.notNull(userExtSource.getExtSource(), "ExtSource in UserExtSource");
+		Utils.notNull(userExtSource.getLogin(), "Login in UserExtSource");
+		Utils.notNull(userExtSource.getExtSource().getType(), "Type of ExpSource in UserExtSource");
 
 		// Authorization
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
@@ -396,8 +401,6 @@ public class UsersManagerEntry implements UsersManager {
 		} catch (UserExtSourceNotExistsException e) {
 			// This is ok
 		}
-
-		Utils.notNull(userExtSource, "userExtSource");
 
 		return getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
 	}

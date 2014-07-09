@@ -262,6 +262,19 @@ public interface UsersManagerImplApi {
 	List<Integer> getUserExtSourcesIds(PerunSession perunSession, User user) throws InternalErrorException;
 
 	/**
+	 * Gets list of all users external sources by specific type and extLogin.
+	 *
+	 * @param sess
+	 * @param extType - type of extSource (ex. 'IDP')
+	 * @param extLogin - extLogin of userExtSource
+	 *
+	 * @return list of userExtSources with type and login, empty list if no such userExtSource exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException;
+
+	/**
 	 * Get the user ext source by its id.
 	 *
 	 * @param sess

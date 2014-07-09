@@ -327,6 +327,19 @@ public interface UsersManagerBl {
 	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
+	 * Gets list of all users external sources by specific type and extLogin.
+	 *
+	 * @param sess
+	 * @param extType - type of extSource (ex. 'IDP')
+	 * @param extLogin - extLogin of userExtSource
+	 *
+	 * @return list of userExtSources with type and login, empty list if no such userExtSource exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException;
+
+	/**
 	 * Gets list of all user's external sources of the user.
 	 *
 	 * @param perunSession
