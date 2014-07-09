@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
@@ -28,7 +26,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		jdbc = new JdbcTemplate(perunPool);
 	}
 	
-	public String getCurrentDatabaseVersion(PerunSession sess) throws InternalErrorException {
+	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		try {
 			return jdbc.queryForObject("select value from configurations where property=?", String.class, VERSION_PROPETY);
 		} catch(EmptyResultDataAccessException ex) {
@@ -38,7 +36,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 	
-	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException {
+	public String getDatabaseDriverInformation() throws InternalErrorException {
 		try {
 			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
 			String driverVersion = con.getMetaData().getDriverVersion();
@@ -50,7 +48,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 	
-	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException {
+	public String getDatabaseInformation() throws InternalErrorException {
 		try {
 			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
 			String dbName = con.getMetaData().getDatabaseProductName();

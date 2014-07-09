@@ -42,4 +42,16 @@ public interface DatabaseManager {
 	 * @throws PrivilegeException 
 	 */
 	String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Test if DB version is the last possible.
+	 * Use version of DB in DatabaseManager and version of DB in DB itself.
+	 *
+	 * @param sess
+	 * @return return true if DB is upToDate, false if not
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	boolean isDBVersionUpToDate(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }
