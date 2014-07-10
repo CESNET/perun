@@ -734,6 +734,16 @@ public interface GroupsManagerBl {
 	List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
+	 * Get all groups (except member groups) where member has direct membership.
+	 *
+	 * @param sess
+	 * @param member to get information about
+	 * @return list of groups where member is direct member (not members group), empty list if there is no such group
+	 * @throws InternalErrorException
+	 */
+	List<Group> getMemberDirectGroups(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
 	 * Method return list of groups for selected member which (groups) has set specific attribute.
 	 * Attribute can be only from namespace "GROUP"
 	 * 
