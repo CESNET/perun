@@ -37,6 +37,20 @@ public interface AuditMessagesManager {
 	List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException,WrongRangeOfCountException;
 
 	/**
+	 * Return less than count or equals to count messages from audit's logs.
+	 *
+	 * Important: This variant do not guarantee returning just count of messages!
+	 *						Return messages by Id from max_id to max_id-count (can be less then count messages)
+	 *
+	 * @param perunSession
+	 * @param count Count of returned messages
+	 * @return list of audit's messages
+	 * @throws InternalErrorException
+	 * @throws WrongRangeOfCountException
+	 */
+	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException,WrongRangeOfCountException;
+
+	/**
 	 * Log auditer message
 	 *
 	 * @param sess

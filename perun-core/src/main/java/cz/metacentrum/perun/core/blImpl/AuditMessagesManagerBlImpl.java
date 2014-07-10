@@ -50,6 +50,11 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 		return perunBl.getAuditer().getMessages(count);
 	}
 
+	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException {
+
+		return perunBl.getAuditer().getMessagesByCount(count);
+	}
+
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 		perunBl.getAuditer().log(sess, message);
 	}

@@ -312,6 +312,16 @@ public class Auditer {
 		}
 	}
 
+	public List<AuditMessage> getMessagesByCount(int count) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?)", AUDITMESSAGE_MAPPER, count);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<AuditMessage>();
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
 	public int getLastMessageId() throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select max(id) from auditer_log");
