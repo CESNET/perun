@@ -1146,13 +1146,6 @@ create sequence "mailchange_id_seq" maxvalue 9223372036854775807;
 create sequence "pwdreset_id_seq" maxvalue 9223372036854775807;
 
 create index idx_namespace on attr_names(namespace);
-create index idx_members_user_id on members(user_id);
-create index idx_members_vo_id on members(vo_id);
-create index idx_groups_vo_id on groups(vo_id);
-create index idx_resources_facility_id on resources(facility_id);
-create index idx_tasks_facility_id on tasks(facility_id);
-create index idx_tasks_exec_service_id on tasks(exec_service_id);
-create index idx_tasks_results_task_id on tasks_results(task_id);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
 create index idx_fk_cabthank_pub on cabinet_thanks(publicationid);

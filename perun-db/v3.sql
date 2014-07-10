@@ -656,7 +656,7 @@ create table groups_members (
 
 create table groups_resources (
     group_id integer not null,
-    resource_id integer not null
+    resource_id integer not null,
     created_at  date default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at  date default sysdate not null,
@@ -754,7 +754,7 @@ create table ext_sources (
 create table ext_sources_attributes (
     ext_sources_id integer not null,
     attr_name varchar2(128) not null,
-    attr_value varchar2(4000 char)
+    attr_value varchar2(4000 char),
     created_at date  default sysdate not null,
     created_by varchar2(1024) default user not null,
     modified_at date default sysdate not null,
@@ -1078,13 +1078,6 @@ create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28;
 create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28;
 
 create index idx_namespace on attr_names(namespace);
-create index idx_members_user_id on members(user_id);
-create index idx_members_vo_id on members(vo_id);
-create index idx_groups_vo_id on groups(vo_id);
-create index idx_resources_facility_id on resources(facility_id);
-create index idx_tasks_facility_id on tasks(facility_id);
-create index idx_tasks_exec_service_id on tasks(exec_service_id);
-create index idx_tasks_results_task_id on tasks_results(task_id);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
 create index IDX_FK_CABTHANK_PUB on cabinet_thanks(publicationid);
@@ -1219,6 +1212,9 @@ alter table ext_sources add (
    constraint USRSRC_PK primary key(id),
    constraint USRSRC_U unique (name)
 );
+alter table facilities add (constraint FAC_PK primary key(id),
+constraint FAC_NAME_U UNIQUE (name)
+);
 alter table user_ext_sources add (
 constraint USREX_P primary key(id),
 constraint USREX_U unique (ext_sources_id,login_ext),
@@ -1267,13 +1263,10 @@ constraint ATTNAM_U unique (attr_name),
 constraint ATTFULLNAM_U unique (friendly_name,namespace),
 constraint ATTNAM_ATTNAM_FK foreign key (default_attr_id) references attr_names(id)
 );
-alter table facilities add (constraint FAC_PK primary key(id),
-constraint FAC_NAME_U UNIQUE (name)
-);
 alter table resources add (
 constraint RSRC_PK primary key (id),
 constraint RSRC_FAC_FK foreign key (facility_id) references facilities(id),
-constraint RSRC_VO_FK foreign key (vo_id) references vos(id),
+constraint RSRC_VO_FK foreign key (vo_id) references vos(id)
 );
 alter table resource_attr_values add (
 constraint RESATVAL_PK primary key (resource_id,attr_id),
@@ -1327,6 +1320,8 @@ constraint USRFACAV_FAC_FK foreign key (facility_id) references facilities(id),
 constraint USRFACAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
 constraint USRFACAV_U unique(user_id,facility_id,attr_id)
 );
+alter table engines add (constraint ENG_PK primary key (id)
+);
 alter table tasks add (
 constraint TASK_PK primary key (id),
 constraint TASK_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
@@ -1352,8 +1347,6 @@ constraint SRVDEP_EXSRV_FK foreign key (exec_service_id) references exec_service
 constraint SRVDEP_DEPEXSRV_FK foreign key (dependency_id) references exec_services(id),
 constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION'))
 );
-alter table engines add (constraint ENG_PK primary key (id),
-);
 alter table service_required_attrs add (
 constraint SRVREQATTR_PK primary key (service_id,attr_id),
 constraint SRVREQATTR_SRV_FK foreign key(service_id) references services(id),
@@ -1372,7 +1365,7 @@ constraint ENGRR_ENG_FK foreign key (engine_id) references engines(id),
 constraint ENGRR_RR_FK foreign key (routing_rule_id) references routing_rules(id)
 );
 alter table processing_rules add (
-constraint PROCRUL_PK primary key (id),
+constraint PROCRUL_PK primary key (id)
 );
 alter table service_processing_rule add (
 constraint SERVPR_SERV_FK foreign key (service_id) references services(id),
@@ -1400,7 +1393,7 @@ constraint HOSTAV_HOST_FK foreign key (host_id) references hosts(id),
 constraint HOSTAV_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 alter table entityless_attr_values add (
-constraint ENTLATVAL_PK primary key(key,attr_id),
+constraint ENTLATVAL_PK primary key(subject,attr_id),
 constraint ENTLATVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 
@@ -1457,7 +1450,9 @@ constraint GRRES_RES_FK foreign key (resource_id) references resources(id)
 alter table service_principals add (
 constraint SER_PRINC_PK primary key (id)
 );
-
+alter table membership_types add (
+constraint MEMTYPE_PK primary key (id)
+);
 alter table groups_members add (
 constraint GRPMEM_PK primary key (member_id,group_id, source_group_id),
 constraint GRPMEM_GR_FK foreign key (group_id) references groups(id),
@@ -1600,10 +1595,6 @@ alter table tags_resources add (
 constraint TAGS_RES_PK primary key (tag_id,resource_id),
 constraint TAGS_RES_TAGS_FK foreign key (tag_id) references res_tags(id),
 constraint TAGS_RES_RES_FK  foreign key (resource_id) references resources(id)
-);
-
-alter table membership_types add (
-constraint MEMTYPE_PK primary key (id)
 );
 
 alter table configurations add (
