@@ -123,7 +123,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// Remove member from all groups
-		List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
+		List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getMemberDirectGroups(sess, member);
 		for (Group group: memberGroups) {
 			// Member must be removed from the members group using separate method
 			if(group.getName().equals(VosManager.MEMBERS_GROUP)) continue;

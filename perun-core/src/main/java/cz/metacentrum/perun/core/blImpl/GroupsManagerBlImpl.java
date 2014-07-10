@@ -725,6 +725,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	public List<Group> getMemberDirectGroups(PerunSession sess, Member member) throws InternalErrorException {
+		List<Group> memberGroups = this.getMemberGroups(sess, member);
+
+		Iterator<Group> groupIterator = memberGroups.iterator();
+		while(groupIterator.hasNext()) {
+			if(!getGroupsManagerImpl().isDirectGroupMember(sess, groupIterator.next(), member)) {
+				groupIterator.remove();
+			}
+		}
+
+		return memberGroups;
+	}
+
 	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException,InternalErrorException {
 		List<Group> memberGroups = this.getAllMemberGroups(sess, member);
 		memberGroups.retainAll(this.getGroupsByAttribute(sess, attribute));
