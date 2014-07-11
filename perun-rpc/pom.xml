@@ -70,7 +70,7 @@
                 </configuration>
             </plugin>
 
-            <!-- use "mvn jetty:run" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
+            <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -178,7 +178,7 @@
 
         <!--
 
-        remove comment for local running of RPC with mvn jetty:run
+        remove comment for local running of RPC with mvn jetty:run-exploded
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -228,7 +228,7 @@
                         </configuration>
                     </plugin>
 
-                    <!-- use "mvn jetty:run" to start server and visit http://localhost:8081/perun-rpc/ -->
+                    <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc/ -->
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
