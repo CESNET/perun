@@ -1,4 +1,4 @@
--- database version 3.1.10.
+-- database version 3.1.11.
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1310,7 +1310,7 @@ alter table exec_services add constraint exsrv_srv_fk foreign key (service_id) r
 alter table exec_services add constraint exsrv_type_chk check (type in ('SEND','GENERATE'));
 
 alter table destinations add constraint dest_pk primary key (id);
-alter table destinations add constraint dest_u unique(name,type);
+alter table destinations add constraint dest_u unique(destination,type);
 
 alter table facility_service_destinations add constraint dest_srv_fk foreign key (service_id) references services(id);
 alter table facility_service_destinations add constraint dest_fac_fk foreign key (facility_id) references facilities(id);
