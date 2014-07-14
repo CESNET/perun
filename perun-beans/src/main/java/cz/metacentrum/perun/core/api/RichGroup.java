@@ -49,7 +49,7 @@ public class RichGroup extends Group {
 		ret.append(this.getDescription());
 		ret.append("', voId='");
 		ret.append(this.getVoId());
-		ret.append("', attributes='");
+		ret.append("', groupAttributes='");
 		ret.append(this.getAttributes());
 		ret.append("']");
 		return ret.toString();
@@ -76,7 +76,7 @@ public class RichGroup extends Group {
 				+ ", shortName=<" + (getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())) + ">"
 				+ ", description=<" + (getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())) + ">"
 				+ ", voId=<" + getVoId() + ">"
-				+ ", attributes=<" + nAttrs + ">"
+				+ ", groupAttributes=<" + sGroupAttrs + ">"
 				+ ']';
 	}
 
