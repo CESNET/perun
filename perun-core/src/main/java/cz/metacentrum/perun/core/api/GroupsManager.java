@@ -731,31 +731,34 @@ public interface GroupsManager {
 	 * 
 	 * @param sess
 	 * @param vo
-	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 */
-	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException, VoNotExistsException;
+	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException, VoNotExistsException;
+
 	/**
-	 * Return all RichSubGroups containing selected attributes
+	 * Return all RichSubGroups in parentGroup containing selected attributes
+	 *
 	 * @param sess
 	 * @param parentGroup
-	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException, GroupNotExistsException;
+	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
+
 	/**
-	 * Return selected RichGroup containing selected attributes
+	 * Return RichGroup selected by id containing selected attributes
 	 * 
 	 * @param sess
 	 * @param groupId
-	 * @param attrNames if attrNames is null mothod will return RichGroup containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException;
+	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 }

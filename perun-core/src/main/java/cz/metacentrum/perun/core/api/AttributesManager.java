@@ -300,6 +300,7 @@ public interface AttributesManager {
 	 * @throws MemberNotExistsException if the member doesn't have access to this resource
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
+
 	/**
 	 * Get all attributes associated with the group which have name in list attrNames (empty too).
 	 * Virtual attribute too.
@@ -313,7 +314,7 @@ public interface AttributesManager {
 	 *
 	 * @throws PrivilegeException if privileges are not given
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws GroupNotExistsException if the member doesn't have access to this resource
+	 * @throws GroupNotExistsException if the group doesn't have access to this resource
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws PrivilegeException, InternalErrorException, GroupNotExistsException;
 

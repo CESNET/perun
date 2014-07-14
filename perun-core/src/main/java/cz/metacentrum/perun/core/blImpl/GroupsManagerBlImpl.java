@@ -1443,7 +1443,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
-	public RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException{
+
+    public RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException{
 		return new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
 	}
 	public RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException{
@@ -1460,7 +1461,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
-			richGroups.add(new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames)));
+            richGroups.add(new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames)));
 		}
 		return richGroups;
 	}

@@ -5,27 +5,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -51,15 +40,19 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	final Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
 	final Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
 	private Vo vo;
+    private List<Attribute> attributesList = new ArrayList<>();
+
 	// exists before every method
 	private GroupsManager groupsManager;
 	private GroupsManagerBl groupsManagerBl;
+    private AttributesManager attributesManager;
 
 	@Before
 	public void setUpBeforeEveryMethod() throws Exception {
 
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();
+        attributesManager = perun.getAttributesManager();
 		// vo = setUpVo();
 		// setUpGroup(vo);
 		// moved to every method to save testing time
@@ -1279,6 +1272,85 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
 		}
 
+	@Test
+	public void convertGroupToRichGroupWithAttributesTest() throws Exception {
+		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributes");
+
+		vo = setUpVo();
+		attributesList = setUpGroupAttributes();
+		this.groupsManager.createGroup(sess, vo, group);
+		attributesManager.setAttributes(sess, group, attributesList);
+
+		Group myGroup = groupsManagerBl.getGroupByName(sess, vo, "GroupsManagerTestGroup1");
+		//System.out.println(attributesManager.getAttributes(sess, myGroup).toString());
+
+		RichGroup richGroup = new RichGroup(myGroup, attributesManager.getAttributes(sess, myGroup));
+		assertEquals("Both rich groups should be same", richGroup, groupsManagerBl.convertGroupToRichGroupWithAttributes(sess, myGroup));
+	}
+
+	@Test
+	public void convertGroupToRichGroupWithAttributesByNameTest() throws Exception {
+		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributesByName");
+
+		vo = setUpVo();
+		attributesList = setUpGroupAttributes();
+		this.groupsManager.createGroup(sess, vo, group);
+		attributesManager.setAttributes(sess, group, attributesList);
+		List<String> attrNames = new ArrayList<>();
+
+		//take names from this list of attributes
+		for (Attribute a : attributesList) {
+			attrNames.add(a.getName());
+		}
+
+		RichGroup richGroup = new RichGroup(group, attributesList);
+		assertEquals("Both rich groups should be same", richGroup, groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group, attrNames));
+	}
+
+	@Test
+	public void convertGroupsToRichGroupsWithAttributesTest() throws Exception {
+		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributes");
+
+		vo = setUpVo();
+		attributesList = setUpGroupAttributes();
+
+		this.groupsManager.createGroup(sess, vo, group);
+		attributesManager.setAttributes(sess, group, attributesList);
+
+		this.groupsManager.createGroup(sess, vo, group2);
+		attributesManager.setAttributes(sess, group2, attributesList);
+
+		RichGroup richGroup1 = new RichGroup(group, attributesManager.getAttributes(sess, group));
+		RichGroup richGroup2 = new RichGroup(group2, attributesManager.getAttributes(sess, group2));
+
+		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2)));
+	}
+
+	@Test
+	public void convertGroupsToRichGroupsWithAttributesWithListOfNamesTest() throws Exception {
+		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributes");
+
+		vo = setUpVo();
+		attributesList = setUpGroupAttributes();
+
+		this.groupsManager.createGroup(sess, vo, group);
+		attributesManager.setAttributes(sess, group, attributesList);
+
+		this.groupsManager.createGroup(sess, vo, group2);
+		attributesManager.setAttributes(sess, group2, attributesList);
+		List<String> attrNames = new ArrayList<>();
+
+		RichGroup richGroup1 = new RichGroup(group, attributesList);
+		RichGroup richGroup2 = new RichGroup(group2, attributesList);
+
+		//take names from this list of attributes
+		for (Attribute a : attributesList) {
+			attrNames.add(a.getName());
+		}
+
+		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2), attrNames));
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
@@ -1389,4 +1461,29 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	private List<Attribute> setUpGroupAttributes() throws Exception {
+
+		List<Attribute> attributes = new ArrayList<Attribute>();
+
+		// attribute1
+		Attribute attr = new Attribute();
+		String namespace = "group_test_uniqueattribute:specialNamespace";
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
+		attr.setFriendlyName(namespace + "1");
+		attr.setType(String.class.getName());
+		attr.setValue("GroupAttribute");
+		assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr));
+
+		attributes.add(attr);
+
+		// attribute2
+		Attribute attr2 = new Attribute(attr);
+		attr2.setFriendlyName(namespace + "2");
+		attr2.setValue("next2");
+		assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr2));
+
+		attributes.add(attr2);
+
+		return attributes;
+	}
 }

@@ -227,8 +227,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, group, attrNames);
 
 		//get also virtual attributes
-		List<Attribute> allMembersVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
-		for(Attribute a: allMembersVirtualAttributes) {
+		List<Attribute> allGroupsVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
+		for(Attribute a: allGroupsVirtualAttributes) {
 			if(attrNames.contains(a.getName())) attributes.add(a);
 		}
 

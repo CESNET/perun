@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
+ * Group with list of all its attributes.
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
 public class RichGroup extends Group {
@@ -46,7 +46,7 @@ public class RichGroup extends Group {
 		ret.append("', shortName='");
 		ret.append(this.getShortName());
 		ret.append("', description='");
-		ret.append(this.getShortName());
+		ret.append(this.getDescription());
 		ret.append("', voId='");
 		ret.append(this.getVoId());
 		ret.append("', attributes='");

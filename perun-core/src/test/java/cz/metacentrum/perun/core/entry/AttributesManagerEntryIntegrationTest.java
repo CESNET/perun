@@ -2338,6 +2338,25 @@ public void getGroupAttribute() throws Exception {
 
 }
 
+@Test
+public void getGroupAttributesFromList() throws Exception {
+	System.out.println("attributesManager.getAttributes");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	attributes = setUpGroupAttributes();
+	attributesManager.setAttributes(sess, group, attributes);
+
+	List<String> attNames = new ArrayList<>();
+	for (Attribute a : attributes) {
+		attNames.add(a.getName());
+	}
+
+	List<Attribute> retAttributes = attributesManager.getAttributes(sess, group, attNames);
+	assertNotNull("unable to get group attributes", retAttributes);
+	assertTrue("returned opt attributes are not correct", attributes.equals(retAttributes));
+}
+
 @Test (expected=GroupNotExistsException.class)
 	public void getGroupAttributeWhenGroupNotExists() throws Exception {
 		System.out.println("attributesManager.getGroupAttributeWhenGroupNotExists");

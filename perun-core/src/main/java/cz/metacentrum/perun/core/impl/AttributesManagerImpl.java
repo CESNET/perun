@@ -825,7 +825,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
-					"left join group_attr_values groupattr on id=groupattr.attr_id and groupattr_id=:gId " +
+					"left join group_attr_values groupattr on id=groupattr.attr_id and group_id=:gId " +
 					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new AttributeRowMapper(sess, this, group));
 		} catch(EmptyResultDataAccessException ex) {

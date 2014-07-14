@@ -668,10 +668,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return all RichGroups containing selected attributes
+	 * Returns all RichGroups containing selected attributes
 	 *
 	 * @param vo
-	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	getAllRichGroupsWithAttributesByNames {
@@ -686,10 +686,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return all RichGroups containing selected attributes
+	 * Returns all RichSubGroups from parent group containing selected attributes
 	 *
 	 * @param group
-	 * @param attrNames if attrNames is null mothod will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	getRichSubGroupsWithAttributesByNames {
@@ -704,13 +704,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return RichGroup containing selected attributes
+	 * Returns RichGroup selected by id containing selected attributes
 	 *
 	 * @param groupId
-	 * @param attrNames if attrNames is null mothod will return RichGroup containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
-	getRichGroupsWithAttributesByNames {
+	getRichGroupByIdWithAttributesByNames {
 
 		@Override
 		public RichGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
