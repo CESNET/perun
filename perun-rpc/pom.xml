@@ -74,19 +74,26 @@
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>7.6.15.v20140411</version>
+                <version>8.1.15.v20140411</version>
+
                 <configuration>
+                    <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
                     <stopPort>9999</stopPort>
                     <stopKey>stop</stopKey>
-                    <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>8081</port>
-                        </connector>
-                    </connectors>
                     <webAppConfig>
                         <contextPath>/perun-rpc-devel</contextPath>
                     </webAppConfig>
                 </configuration>
+
+                <!-- We must specify dependency to get AJP working -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-ajp</artifactId>
+                        <version>8.1.15.v20140411</version>
+                    </dependency>
+                </dependencies>
+
             </plugin>
 
         </plugins>
@@ -232,19 +239,25 @@
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>7.6.15.v20140411</version>
+                        <version>8.1.15.v20140411</version>
+
                         <configuration>
+                            <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
                             <stopPort>9999</stopPort>
                             <stopKey>stop</stopKey>
-                            <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                                    <port>8081</port>
-                                </connector>
-                            </connectors>
                             <webAppConfig>
                                 <contextPath>/perun-rpc</contextPath>
                             </webAppConfig>
                         </configuration>
+
+                        <!-- We must specify dependency to get AJP working -->
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.jetty</groupId>
+                                <artifactId>jetty-ajp</artifactId>
+                                <version>8.1.15.v20140411</version>
+                            </dependency></dependencies>
+
                     </plugin>
 
                 </plugins>
