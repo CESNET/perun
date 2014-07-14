@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import java.lang.String;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,22 +37,32 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 */
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
+		String[] unpermittedLogins = {"arraysvcs", "at", "backup", "bin", "daemon", "Debian-exim", "flexlm", "ftp", "games",
+		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
+		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
+		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
+		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat"};
+
 		String userLogin = (String) attribute.getValue();
-		if (userLogin == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
-		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
+		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be nugll");
+		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
+
+		foreach(String login: unpermittedLogins) {
+			if(userLogin.equals(login)) throw new WrongAttributeValueException(attribute, user, "Unpermitted login.");
+		}
 
 		// Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
 		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
 		usersWithSameLogin.remove(user); //remove self
 		if (!usersWithSameLogin.isEmpty()) {
 			if(usersWithSameLogin.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated Login detected." +  attribute + " " + usersWithSameLogin);
-			throw new WrongAttributeValueException(attribute, "This login " + attribute.getValue() + " is already occupied.");
+			throw new WrongAttributeValueException(attribute, user, "This login " + attribute.getValue() + " is already occupied.");
 		}
 
 		try {
 			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin);
 		} catch (AlreadyReservedLoginException ex) {
-			throw new WrongAttributeValueException(attribute, "Login in specific namespace already reserved.", ex);
+			throw new WrongAttributeValueException(attribute, user, "Login in specific namespace already reserved.", ex);
 		}
 	}
 
