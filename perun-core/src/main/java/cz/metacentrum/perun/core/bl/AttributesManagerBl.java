@@ -192,7 +192,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
-	/**
+
+    /**
 	 * Get all attributes associated with the group which have name in list attrNames (empty too).
 	 * Virtual attribute too.
 	 *

@@ -9,34 +9,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichGroup;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -46,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -1547,22 +1523,57 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return filteredMembers;
 	}
 
+	public RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException {
+		if(richGroup == null) throw new InternalErrorException("RichGroup can't be null.");
+
+		//Filtering richGroup attributes
+		if(richGroup.getAttributes() != null) {
+			List<Attribute> groupAttributes = richGroup.getAttributes();
+			List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
+			for(Attribute groupAttr : groupAttributes) {
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, null)) {
+					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, null));
+					allowedGroupAttributes.add(groupAttr);
+				}
+			}
+
+			richGroup.setAttributes(allowedGroupAttributes);
+		}
+		return richGroup;
+	}
+
+	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException {
+		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
+		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
+
+		for(RichGroup rg : richGroups) {
+			filteredRichGroups.add(this.filterOnlyAllowedAttributes(sess, rg));
+		}
+
+		return filteredRichGroups;
+	}
+
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
+
 	public RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException{
 		return new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
 	}
+
 	public RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException{
 		if (attrNames == null) return convertGroupToRichGroupWithAttributes(sess, group);
 		return new RichGroup(group,this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames));
 	}
+
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups) throws InternalErrorException {
 		List<RichGroup> richGroups = new ArrayList<>();
-		for(Group group: groups)
+		for(Group group: groups) {
 			richGroups.add(new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group)));
+		}
 		return richGroups;
 	}
+
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
@@ -1571,7 +1582,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		return richGroups;
 	}
-	
+
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException{
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllGroups(sess, vo), attrNames);
 	}
@@ -1583,6 +1594,4 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
 	}
-
-	
 }

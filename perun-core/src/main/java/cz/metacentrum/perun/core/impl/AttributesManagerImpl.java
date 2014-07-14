@@ -863,12 +863,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSC", AttributesManager.NS_GROUP_ATTR_CORE);
 		parameters.addValue("nSO", AttributesManager.NS_GROUP_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_GROUP_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_GROUP_ATTR_VIRT);
 		parameters.addValue("attrNames", attrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
-					"left join group_attr_values groupattr on id=groupattr.attr_id and groupattr_id=:gId " +
-					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name in ( :attrNames )",
+					"left join group_attr_values groupattr on id=groupattr.attr_id and group_id=:gId " +
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new AttributeRowMapper(sess, this, group));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();

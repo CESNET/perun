@@ -219,12 +219,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
 		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, group, attrNames);
 
-		//get also virtual attributes
-		List<Attribute> allMembersVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
-		for(Attribute a: allMembersVirtualAttributes) {
-			if(attrNames.contains(a.getName())) attributes.add(a);
-		}
-
 		return attributes;
 	}
 
