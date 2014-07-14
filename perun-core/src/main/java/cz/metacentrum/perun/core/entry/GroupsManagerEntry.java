@@ -90,7 +90,11 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getGroupsManagerBl().createGroup(sess, vo, group);
+		Group createdGroup = getGroupsManagerBl().createGroup(sess, vo, group);
+
+		//Refresh authz
+		AuthzResolver.refreshAuthz(sess);
+		return createdGroup;
 	}
 
 	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException {
@@ -110,7 +114,11 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "createGroup - subGroup");
 				}
 
-		return getGroupsManagerBl().createGroup(sess, parentGroup, group);
+		Group createdGroup = getGroupsManagerBl().createGroup(sess, parentGroup, group);
+
+		//Refresh authz
+		AuthzResolver.refreshAuthz(sess);
+		return createdGroup;
 	}
 
 	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
