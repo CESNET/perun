@@ -29,6 +29,24 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return less than count or equals to count messages from audit's logs.
+	 *
+	 * Important: This variant do not guarantee returning just count of messages!
+	 *						Return messages by Id from max_id to max_id-count (can be less then count messages)
+	 *
+	 * @param perunSession
+	 * @param count Count of returned messages
+	 * @return list of audit's messages
+	 */
+	getMessagesByCount {
+		@Override
+		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
+		}
+	},
+
+	/*#
 	 * Log an auditer message
 	 *
 	 * @param msg String Message to be logged
