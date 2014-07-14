@@ -47,7 +47,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be nugll");
 		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
 
-		foreach(String login: unpermittedLogins) {
+		for(String login: unpermittedLogins) {
 			if(userLogin.equals(login)) throw new WrongAttributeValueException(attribute, user, "Unpermitted login.");
 		}
 
