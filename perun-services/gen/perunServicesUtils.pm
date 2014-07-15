@@ -8,6 +8,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use feature qw(switch);
+no if $] >= 5.018, warnings => "experimental"; #supress warnings on experimetal features like "switch"
 
 #use Perun::Agent;
 
