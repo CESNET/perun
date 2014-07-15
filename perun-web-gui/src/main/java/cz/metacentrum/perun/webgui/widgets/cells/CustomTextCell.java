@@ -1,33 +1,31 @@
 package cz.metacentrum.perun.webgui.widgets.cells;
 
-import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.HTML;
-
 /**
- * Custom GWT cell, which is clickable and looks like an anchor.
+ * Custom GWT cell, which display simple text.
  *
- * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class CustomClickableTextCell extends ClickableTextCell
+public class CustomTextCell extends TextCell
 {
 	private String style;
 
 	/**
 	 * Creates a new Clickable text cell
 	 */
-	public CustomClickableTextCell()
+	public CustomTextCell()
 	{
 		super();
-		style = "customClickableTextCell";
+		style = "customTextCell";
 	}
 
 	/**
 	 * Renders the widget.
 	 */
 	@Override
-	protected void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
+	public void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
 		if (value != null) {
 			sb.appendHtmlConstant("<div class=\"" + style + "\">");
 			sb.appendHtmlConstant(value.asString().replaceAll("\n", "<br>"));

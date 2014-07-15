@@ -924,6 +924,12 @@ a.customClickableTextCell:hover {
     text-decoration: none;
 }
 
+td div.customTextCell {
+    text-wrap: normal;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
 /* header row cell */
 .GPBYFDEFD {
     padding-left: 15px !important;
