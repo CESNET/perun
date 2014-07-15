@@ -1021,33 +1021,21 @@ create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28;
 create sequence DESTINATIONS_ID_SEQ maxvalue 1.0000E+28;
-create sequence EXEC_SERVICES_ID_SEQ
-  start with 20 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
+create sequence EXEC_SERVICES_ID_SEQ maxvalue 1.0000E+28;
 create sequence EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28;
 create sequence FACILITIES_ID_SEQ maxvalue 1.0000E+28;
 create sequence GROUPS_ID_SEQ maxvalue 1.0000E+28;
 create sequence HOSTS_ID_SEQ maxvalue 1.0000E+28;
 create sequence MEMBERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence OWNERS_ID_SEQ maxvalue 1.0000E+28;
-create sequence PROCESSING_RULES_ID_SEQ
-  start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
+create sequence PROCESSING_RULES_ID_SEQ  maxvalue 1.0000E+28;
 create sequence RESOURCES_ID_SEQ maxvalue 1.0000E+28;
-create sequence ROUTING_RULES_ID_SEQ
-  start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
+create sequence ROUTING_RULES_ID_SEQ maxvalue 1.0000E+28;
 create sequence SERVICES_ID_SEQ maxvalue 1.0000E+28;
-create sequence SERVICE_DENIALS_ID_SEQ
-  start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
+create sequence SERVICE_DENIALS_ID_SEQ maxvalue 1.0000E+28;
 create sequence SERVICE_PACKAGES_ID_SEQ maxvalue 1.0000E+28;
-create sequence TASKS_ID_SEQ
-  start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
-create sequence TASKS_RESULTS_ID_SEQ
-  start with 10 increment by 1 maxvalue 1.0000E+28 nominvalue
-  noorder nocycle;
+create sequence TASKS_ID_SEQ maxvalue 1.0000E+28;
+create sequence TASKS_RESULTS_ID_SEQ maxvalue 1.0000E+28;
 create sequence USERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence USER_EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28;
 create sequence VOS_ID_SEQ maxvalue 1.0000E+28;
