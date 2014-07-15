@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.json.auditMessagesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -15,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.AuditMessage;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.cells.CustomTextCell;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -120,12 +122,14 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 		}
 
 		table.addIdColumn("Message ID", null, 120);
+
 		// MESSAGE COLUMN
-		TextColumn<AuditMessage> messageColumn = new TextColumn<AuditMessage>() {
-			public String getValue(AuditMessage msg) {
-				return msg.getActor() +": "+msg.getMessage();
-			}
-		};
+		Column<AuditMessage,String> messageColumn = JsonUtils.addColumn(new CustomTextCell(),
+				new JsonUtils.GetValue<AuditMessage, String>() {
+					public String getValue(AuditMessage msg) {
+						return msg.getActor() +": "+msg.getMessage();
+					}
+				}, null);
 
 		messageColumn.setSortable(true);
 		columnSortHandler.setComparator(messageColumn, new Comparator<AuditMessage>() {
