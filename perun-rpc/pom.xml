@@ -70,21 +70,30 @@
                 </configuration>
             </plugin>
 
-            <!-- use "mvn jetty:run" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
+            <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>7.6.11.v20130520</version>
+                <version>8.1.15.v20140411</version>
+
                 <configuration>
-                    <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>8081</port>
-                        </connector>
-                    </connectors>
+                    <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
+                    <stopPort>9999</stopPort>
+                    <stopKey>stop</stopKey>
                     <webAppConfig>
                         <contextPath>/perun-rpc-devel</contextPath>
                     </webAppConfig>
                 </configuration>
+
+                <!-- We must specify dependency to get AJP working -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-ajp</artifactId>
+                        <version>8.1.15.v20140411</version>
+                    </dependency>
+                </dependencies>
+
             </plugin>
 
         </plugins>
@@ -174,32 +183,30 @@
             <version>0.0.7</version>
         </dependency>
 
+        <!--
+
+        remove comment for local running of RPC with mvn jetty:run-exploded
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-dbcp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+         -->
+
     </dependencies>
 
     <profiles>
-
-        <!--
-        <dependencies>
-
-            remove comment for local running of RPC with mvn jetty:run
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tomcat-dbcp</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>com.oracle</groupId>
-                <artifactId>ojdbc5</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-            </dependency>
-
-        </dependencies>
-        -->
 
         <profile>
 
@@ -228,21 +235,29 @@
                         </configuration>
                     </plugin>
 
-                    <!-- use "mvn jetty:run" to start server and visit http://localhost:8081/perun-rpc/ -->
+                    <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc/ -->
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>7.6.11.v20130520</version>
+                        <version>8.1.15.v20140411</version>
+
                         <configuration>
-                            <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                                    <port>8081</port>
-                                </connector>
-                            </connectors>
+                            <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
+                            <stopPort>9999</stopPort>
+                            <stopKey>stop</stopKey>
                             <webAppConfig>
                                 <contextPath>/perun-rpc</contextPath>
                             </webAppConfig>
                         </configuration>
+
+                        <!-- We must specify dependency to get AJP working -->
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.jetty</groupId>
+                                <artifactId>jetty-ajp</artifactId>
+                                <version>8.1.15.v20140411</version>
+                            </dependency></dependencies>
+
                     </plugin>
 
                 </plugins>
