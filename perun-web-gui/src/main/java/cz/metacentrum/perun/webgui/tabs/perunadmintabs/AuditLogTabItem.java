@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.auditMessagesManager.GetAuditMessages;
+import cz.metacentrum.perun.webgui.json.auditMessagesManager.GetAuditMessagesByCount;
 import cz.metacentrum.perun.webgui.model.AuditMessage;
 import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -76,7 +76,7 @@ public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 		CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshAuditMessages());
 
 		// retrieve messages
-		final GetAuditMessages call = new GetAuditMessages(JsonCallbackEvents.disableButtonEvents(refreshButton));
+		final GetAuditMessagesByCount call = new GetAuditMessagesByCount(JsonCallbackEvents.disableButtonEvents(refreshButton));
 		call.setCount(count);
 		CellTable<AuditMessage> table = call.getTable();
 
