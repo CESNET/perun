@@ -1,4 +1,4 @@
-# database version 3.1.10.
+# database version 3.1.11
 create user perunv3 identified by password;
 grant create session to perunv3;
 grant create sequence to perunv3;
