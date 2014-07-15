@@ -62,6 +62,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private PerunBl perunBl;
 
 	private Map<Integer, GroupSynchronizerThread> groupSynchronizerThreads;
+	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
 
 	/**
 	 * Create new instance of this class.
@@ -1124,6 +1125,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
+			//Get information if this group is authoritative group
+			boolean thisGroupIsAuthoritativeGroup = false;
+			try {
+				Attribute authoritativeGroupAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_D_AUTHORITATIVE_GROUP);
+				if(authoritativeGroupAttr.getValue() != null) {
+					Integer authoritativeGroupValue = (Integer) authoritativeGroupAttr.getValue();
+					if(authoritativeGroupValue == 1) thisGroupIsAuthoritativeGroup = true;
+				}
+			} catch (AttributeNotExistsException ex) {
+				//Means that this group is not authoritative
+				log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			}
+
 			// Now remove members who is no longer member of the external group
 			for (RichMember member: membersToRemove) {
 				// Member is missing in the external group, so remove him from the perun group
@@ -1139,8 +1155,50 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid.", group, member.getId());
 						}
 					} else {
-						getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
-						log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
+
+						// START - mechanic for removing member from group which is not membersGroup
+
+						//If this group is authoritative group, check if this is last authoritative group of this member
+						//If Yes = deleteMember (from Vo), if No = only removeMember
+						if(thisGroupIsAuthoritativeGroup) {
+							List<Group> memberAuthoritativeGroups = null;
+							try {
+								memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, member);
+							} catch (AttributeNotExistsException ex) {
+								//This means that no authoriative group can exists without this attribute
+								log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
+							}
+
+							//If list of member authoritativeGroups is not null, attribute exists
+							if(memberAuthoritativeGroups != null) {
+								memberAuthoritativeGroups.remove(group);
+								if(memberAuthoritativeGroups.isEmpty()) {
+									//First try to disable member, if is invalid, delete him from Vo
+									try {
+										getPerunBl().getMembersManagerBl().disableMember(sess, member);
+										log.info("Group synchronization {}: Member id {} disabled beacause synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+									} catch(MemberNotValidYetException ex) {
+										//Member is still invalid in perun. We can delete him.
+										getPerunBl().getMembersManagerBl().deleteMember(sess, member);
+										log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+									}
+								} else {
+									//If there is still some other authoritative group for this member, only remove him from group
+									getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
+									log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
+								}
+							//If list of member authoritativeGroups is null, attribute not exists, only remove member from Group
+							} else {
+								getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
+								log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
+							}
+						} else {
+							getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
+							log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
+						}
+
+						// END - mechanic for removing member from group which is not membersGroup
+
 					}
 				} catch (NotGroupMemberException e) {
 					throw new ConsistencyErrorException("Trying to remove non-existing user");
@@ -1332,6 +1390,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		public long getStartTime() {
 			return startTime;
 		}
+	}
+
+	/**
+	 * Get all groups of member (except members group) where authoritativeGroup attribute is set to 1 (true)
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of groups with authoritativeAttribute set to 1
+	 *
+	 * @throws AttributeNotExistsException if authoritativeGroup attribute not exists
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAllAuthoritativeGroupsOfMember(PerunSession sess, Member member) throws AttributeNotExistsException, InternalErrorException {
+		//Get all member groups except membersGroup
+		List<Group> memberGroups = this.getMemberGroups(sess, member);
+		Iterator<Group> groupsIter = memberGroups.iterator();
+		//Iterate through all groups and remove those which have not authoritativeGroup attribute set to 1
+		while(groupsIter.hasNext()) {
+			Group group = groupsIter.next();
+			try {
+				boolean isThisGroupAuthoritative = false;
+				Attribute authoritativeGroup = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_D_AUTHORITATIVE_GROUP);
+				if(authoritativeGroup.getValue() != null) {
+					Integer attrValue = (Integer) authoritativeGroup.getValue();
+					if(attrValue == 1) isThisGroupAuthoritative = true;
+				}
+				//If group is not authoritative group, remove it from list of memberAuthoritativeGroups
+				if(!isThisGroupAuthoritative) groupsIter.remove();
+			} catch(WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+		
+		return memberGroups;
 	}
 
 	/**
