@@ -180,7 +180,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			//Local
 			if(execServiceDenialDao.isExecServiceDeniedOnFacility(es.getId(), facility.getId())) return false;
 		}
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
+		//Call log method out of transaction
+		sess.getPerun().getAuditer().logWithoutTransaction(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
 		return true;
 	}
 
@@ -190,7 +191,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			//Global
 			if(!es.isEnabled()) return false;
 		}
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On " + service.toString());
+		//Call log method out of transaction
+		sess.getPerun().getAuditer().logWithoutTransaction(sess, FORCE_PROPAGATION + "On {} ", service);
 		return true;
 	}
 
