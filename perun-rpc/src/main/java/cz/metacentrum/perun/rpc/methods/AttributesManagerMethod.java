@@ -227,8 +227,24 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sets the attributes.
 	 *
+	 * @param member int Member ID
+	 * @param resource int Resource ID
+	 * @param workWithUserAttributes int Must = 1
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/*#
+	 * Sets the attributes.
+	 *
 	 * @param group int Group ID
 	 * @param resoruce int Resource ID
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/*#
+	 * Sets the attributes.
+	 *
+	 * @param group int Group ID
+	 * @param resource int Resource ID
+	 * @param workWithGroupAttributes int Must = 1
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -254,20 +270,20 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets the attributes.
 	 *
 	 * @param user int User ID
-	 * @param attributes List<Attribute> List of attribbutes
+	 * @param attributes List<Attribute> List of attributes
 	 */
 
 	/*#
 	 * Sets the attributes.
 	 *
 	 * @param group int Group ID
-	 * @param attributes List<Attribute> List of attribbutes
+	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
 	 * @param host int Host ID
-	 * @param attributes List<Attribute> List of attribbutes
+	 * @param attributes List<Attribute> List of attributes
 	 */
 	setAttributes {
 
@@ -301,10 +317,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						parms.readList("attributes", Attribute.class));
 			} else if (parms.contains("resource")) {
 				if (parms.contains("member")) {
-					ac.getAttributesManager().setAttributes(ac.getSession(),
-							ac.getResourceById(parms.readInt("resource")),
-							ac.getMemberById(parms.readInt("member")),
-							parms.readList("attributes", Attribute.class));
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().setAttributes(ac.getSession(),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readList("attributes", Attribute.class),
+								parms.readInt("workWithUserAttributes") == 1);
+					} else {
+						ac.getAttributesManager().setAttributes(ac.getSession(),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readList("attributes", Attribute.class));
+					}
 				} else if (parms.contains("group")) {
 					if (parms.contains("workWithGroupAttributes")) {
 						ac.getAttributesManager().setAttributes(ac.getSession(),
@@ -994,6 +1018,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns required attributes.
 	 *
+	 * @param member int Member ID
+	 * @param service int Service ID
+	 * @param resource int Resource ID
+	 * @param workWithUserAttributes int Must = 1
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required attributes.
+	 *
 	 * @param group int Group ID
 	 * @param service int Service ID
 	 * @param resource int Resource ID
@@ -1087,10 +1120,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			if (parms.contains("service")) {
 				if (parms.contains("resource")) {
 					if (parms.contains("member")) {
-						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-								ac.getServiceById(parms.readInt("service")),
-								ac.getResourceById(parms.readInt("resource")),
-								ac.getMemberById(parms.readInt("member")));
+						if (parms.contains("workWithUserAttributes")) {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getMemberById(parms.readInt("member")),
+									parms.readInt("workWithUserAttributes") == 1);
+						} else {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getMemberById(parms.readInt("member")));
+						}
 					} else if (parms.contains("group")) {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 								ac.getServiceById(parms.readInt("service")),
