@@ -19,6 +19,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
       <!--<aop:advisor advice-ref="txAdviceAuditerTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.*.*(..))"/>-->
       <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>
       <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.flush(..))"/>
+      <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessageToDb(..))"/>
     </aop:config>
 
     <tx:advice id="txAdviceCommon" transaction-manager="perunTransactionManager">
