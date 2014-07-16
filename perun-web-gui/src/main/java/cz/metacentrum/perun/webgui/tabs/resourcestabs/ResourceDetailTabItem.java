@@ -190,6 +190,8 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		tabPanel.add(new ResourceAssignedGroupsTabItem(r), "Assigned groups");
 		tabPanel.add(new ResourceAssignedServicesTabItem(r), "Assigned services");
 		tabPanel.add(new ResourceSettingsTabItem(r, null), "Service settings");
+		tabPanel.add(new ResourceGroupSettingsTabItem(r), "Group settings");
+		tabPanel.add(new ResourceMemberSettingsTabItem(resource), "Member settings");
 		if (session.isVoAdmin(r.getVoId()) || session.isVoObserver(r.getVoId())) {
 			tabPanel.add(new ResourceTagsTabItem(r), "Tags");
 		}

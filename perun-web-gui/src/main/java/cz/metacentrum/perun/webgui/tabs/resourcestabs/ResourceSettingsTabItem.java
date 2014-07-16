@@ -243,12 +243,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		}
 
 		// refresh table event - refresh only on finished / on error keep selected
-		final JsonCallbackEvents refreshTable = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				resAttrs.clearTable();
-				resAttrs.retrieveData();
-			}
-		};
+		final JsonCallbackEvents refreshTable = JsonCallbackEvents.refreshTableEvents(resAttrs);
 
 		// add save changes to menu
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
