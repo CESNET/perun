@@ -24,6 +24,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.attributestabs.SetNewAttributeTabItem;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -110,6 +111,9 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 		final GetResourceRequiredAttributesV2 resReqAttrs = new GetResourceRequiredAttributesV2();
 		final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2(ids, JsonCallbackEvents.passDataToAnotherCallback(resReqAttrs));
 
+		// puts first table
+		final CellTable<Attribute> table = resReqAttrs.getEmptyTable();
+
 		// get assigned members
 		final GetAssignedRichMembers members = new GetAssignedRichMembers(resourceId, new JsonCallbackEvents(){
 			@Override
@@ -121,6 +125,8 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				if (grp == null || grp.isEmpty()) {
 					memberListBox.addItem("No members assigned");
 					lastSelectedMember = 0;
+					((AjaxLoaderImage)table.getEmptyTableWidget()).setEmptyResultMessage("No group or service assigned. Please assign them first to see member-resource setting.");
+					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
 					return;
 				}
 				memberListBox.addAllItems(grp);
@@ -182,6 +188,8 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				if (srv == null || srv.isEmpty()) {
 					serviceListBox.addItem("No services assigned");
 					lastSelectedService = 0;
+					((AjaxLoaderImage)table.getEmptyTableWidget()).setEmptyResultMessage("No group or service assigned. Please assign them first to see member-resource setting.");
+					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
 					return;
 				}
 				serviceListBox.addAllItems(srv);
@@ -285,9 +293,6 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 		final JsonCallbackEvents refreshTable = JsonCallbackEvents.refreshTableEvents(resReqAttrs);
 
 		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) resReqAttrs.setCheckable(false);
-
-		// puts first table
-		final CellTable<Attribute> table = resReqAttrs.getEmptyTable();
 
 		// add save changes to menu
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
