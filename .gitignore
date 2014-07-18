@@ -39,6 +39,7 @@ local.properties
 # Ignore NetBeans project files #
 
 nbproject/private/
+nbproject/
 build/
 nbbuild/
 dist/
