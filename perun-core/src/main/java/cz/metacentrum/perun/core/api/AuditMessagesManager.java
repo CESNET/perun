@@ -48,7 +48,56 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException
 	 * @throws WrongRangeOfCountException
 	 */
-	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException,WrongRangeOfCountException;
+	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException,WrongRangeOfCountException;
+
+	/**
+	 * Returns list of messages from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages
+	 * @throws InternalErrorException
+	 */
+	List<String> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Returns list of full messages from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of full messages
+	 * @throws InternalErrorException
+	 */
+	List<String> pollConsumerFullMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages for parser
+	 * @throws InternalErrorException
+	 */
+	 List<String> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Returns list of messages for parser like pair with id from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages for parser like pair with id
+	 * @throws InternalErrorException
+	 */
+	 List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Creates new auditer consumer with last processed id which equals auditer log max id.
+	 *
+	 * @param perunSession
+	 * @param consumerName new name for consumer
+	 * @throws InternalErrorException
+	 */
+	 void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Log auditer message

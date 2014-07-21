@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -43,6 +43,86 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
+		}
+	},
+
+	/*#
+	 * Returns list of messages from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages
+	 * @throws InternalErrorException
+	 */
+	pollConsumerMessages {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().pollConsumerMessages(ac.getSession(), parms.readString("consumerName"));
+		}
+	},
+
+	/*#
+	 * Returns list of full messages from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of full messages
+	 * @throws InternalErrorException
+	 */
+	pollConsumerFullMessages {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().pollConsumerFullMessages(ac.getSession(), parms.readString("consumerName"));
+		}
+	},
+
+	/*#
+	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages for parser
+	 * @throws InternalErrorException
+	 */
+	pollConsumerMessagesForParser {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().pollConsumerMessagesForParser(ac.getSession(), parms.readString("consumerName"));
+		}
+	},
+
+	/*#
+	 * Returns list of messages for parser like pair with id from audit's log which id is bigger than last processed id.
+	 *
+	 * @param perunSession
+	 * @param consumerName consumer to get messages for
+	 * @return list of messages for parser like pair with id
+	 * @throws InternalErrorException
+	 */
+	pollConsumerMessagesForParserLikePairWithId {
+		@Override
+		public List<Pair<String, Integer>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().pollConsumerMessagesForParserLikePairWithId(ac.getSession(), parms.readString("consumerName"));
+		}
+	},
+
+	/*#
+	 * Creates new auditer consumer with last processed id which equals auditer log max id.
+	 *
+	 * @param perunSession
+	 * @param consumerName new name for consumer
+	 * @throws InternalErrorException
+	 */
+	createAuditerConsumer {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
+			return null;
 		}
 	},
 

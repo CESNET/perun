@@ -121,18 +121,18 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 	 System.out.println("AuditerTest.auditerConsumerTest");
 
 //get all odl mesages and throw them away
-auditerConsumer.getMessages();
+auditerConsumer.pollConsumerMessages();
 
 // system event creates message in auditer (check it)
 setUpFacility();
-assertTrue("auditer should contain four messages, currently contains " + perun.getAuditer().getMessages().size(),perun.getAuditer().getMessages().size()==4);
+assertTrue("auditer should contain four messages, currently contains " + perun.getAuditer().pollConsumerMessages().size(),perun.getAuditer().pollConsumerMessages().size()==4);
 
 // save auditer messages and flush => process them with listener
-List<String> messagesFromAuditer = perun.getAuditer().getMessages();
+List<String> messagesFromAuditer = perun.getAuditer().pollConsumerMessages();
 perun.getAuditer().flush();
 
 // get messages from consumer
-List<String> messagesFromConsumer = auditerConsumer.getMessages();
+List<String> messagesFromConsumer = auditerConsumer.pollConsumerMessages();
 
 assertTrue("Auditer and Consumer should contain same messages!",messagesFromConsumer.containsAll(messagesFromAuditer));
 
@@ -174,14 +174,14 @@ assertTrue("Auditer and Consumer should contain same messages!",messagesFromCons
 		// register dummy listener
 
 		setUpFacility();
-		assertTrue("auditer should contain one message",perun.getAuditer().getMessages().size()==1);
+		assertTrue("auditer should contain one message",perun.getAuditer().pollConsumerMessages().size()==1);
 		// system event creates message in auditer (check it)
 
-		List<String> messagesFromAuditer = perun.getAuditer().getMessages();
+		List<String> messagesFromAuditer = perun.getAuditer().pollConsumerMessages();
 		perun.getAuditer().flush();
 		// save auditer messages and flush => process them with listener
 
-		List<String> messagesFromListener = listener.getMessages();
+		List<String> messagesFromListener = listener.pollConsumerMessages();
 		// get messages from listener
 
 		int counter = 0;
@@ -189,7 +189,7 @@ assertTrue("Auditer and Consumer should contain same messages!",messagesFromCons
 		counter++;
 		System.out.println("Waiting for Listeners thread to finis "+counter);
 		Thread.sleep(200);
-		messagesFromListener = listener.getMessages();
+		messagesFromListener = listener.pollConsumerMessages();
 		}
 		// waiting for listener to process messages before further testing and get them again
 

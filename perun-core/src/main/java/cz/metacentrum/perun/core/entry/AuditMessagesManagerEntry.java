@@ -5,7 +5,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -42,6 +42,56 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessages(perunSession, count);
+	}
+
+	@Override
+	public List<String> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerMessages");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerMessages(consumerName);
+	}
+
+	@Override
+	public List<String> pollConsumerFullMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerFullMessages");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerFullMessages(consumerName);
+	}
+
+	@Override
+	public List<String> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParser");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
+	}
+
+	@Override
+	public List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParserLikePairWithId");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerMessagesForParserLikePairWithId(consumerName);
+	}
+
+	@Override
+	public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "createAuditerConsumer");
+		}
+
+		getAuditMessagesManagerBl().createAuditerConsumer(consumerName);
 	}
 
 	public void log(PerunSession sess, String message) throws InternalErrorException, PrivilegeException {
