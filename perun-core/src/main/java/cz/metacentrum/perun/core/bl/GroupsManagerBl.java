@@ -827,7 +827,27 @@ public interface GroupsManagerBl {
 	 * @return filteredMembers list of members without duplicit after filtering
 	 */
 	List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException;
-	
+
+	/**
+	 * For richGroup filter all his group attributes and remove all which principal has no access to.
+	 *
+	 * @param sess
+	 * @param richGroup
+	 * @return richGroup with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException;
+
+	/**
+	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
+	 *
+	 * @param sess
+	 * @param richGroups
+	 * @return list of RichGroups with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException;
+
 	/**
 	 * This method takes group and creates RichGroup containing all attributes
 	 * 

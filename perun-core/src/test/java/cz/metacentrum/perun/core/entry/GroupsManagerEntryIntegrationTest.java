@@ -9,7 +9,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,19 +54,19 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	final Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
 	final Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
 	private Vo vo;
-    private List<Attribute> attributesList = new ArrayList<>();
+	private List<Attribute> attributesList = new ArrayList<>();
 
 	// exists before every method
 	private GroupsManager groupsManager;
 	private GroupsManagerBl groupsManagerBl;
-    private AttributesManager attributesManager;
+	private AttributesManager attributesManager;
 
 	@Before
 	public void setUpBeforeEveryMethod() throws Exception {
 
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();
-        attributesManager = perun.getAttributesManager();
+		attributesManager = perun.getAttributesManager();
 		// vo = setUpVo();
 		// setUpGroup(vo);
 		// moved to every method to save testing time
@@ -1278,14 +1292,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
-		this.groupsManager.createGroup(sess, vo, group);
+		setUpGroup(vo);
 		attributesManager.setAttributes(sess, group, attributesList);
 
-		Group myGroup = groupsManagerBl.getGroupByName(sess, vo, "GroupsManagerTestGroup1");
-		//System.out.println(attributesManager.getAttributes(sess, myGroup).toString());
-
-		RichGroup richGroup = new RichGroup(myGroup, attributesManager.getAttributes(sess, myGroup));
-		assertEquals("Both rich groups should be same", richGroup, groupsManagerBl.convertGroupToRichGroupWithAttributes(sess, myGroup));
+		RichGroup richGroup = new RichGroup(group, attributesManager.getAttributes(sess, group));
+		assertEquals("Both rich groups should be same", richGroup, groupsManagerBl.convertGroupToRichGroupWithAttributes(sess, group));
 	}
 
 	@Test
@@ -1328,7 +1339,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupsToRichGroupsWithAttributesWithListOfNamesTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributes");
+		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributesWithListOfNamesTest");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
