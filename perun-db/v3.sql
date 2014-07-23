@@ -1,9 +1,10 @@
-# database version 3.1.11
+# database version 3.1.11.
 create user perunv3 identified by password;
 grant create session to perunv3;
 grant create sequence to perunv3;
 grant create table to perunv3;
 grant create view to perunv3;
+grant unlimited tablespace to perunv3;
 
 
 connect perunv3
@@ -1414,6 +1415,10 @@ constraint ROLES_PK primary key (id),
 constraint ROLES_NAME_U unique (name)
 );
 
+alter table service_principals add (
+constraint SER_PRINC_PK primary key (id)
+);
+
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
@@ -1435,9 +1440,6 @@ constraint GRRES_GR_FK foreign key (group_id) references groups(id),
 constraint GRRES_RES_FK foreign key (resource_id) references resources(id)
 );
 
-alter table service_principals add (
-constraint SER_PRINC_PK primary key (id)
-);
 alter table membership_types add (
 constraint MEMTYPE_PK primary key (id)
 );
