@@ -979,7 +979,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", ATTRIBUTE_VALUES_MAPPER, key, attrId);
 		} catch(EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + attrId +"\"", ex);
+			//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
+			Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
+			this.setAttributeWithNullValue(sess, key, attr);
+			return null;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -2500,6 +2503,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				}
 			}
 		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Set entityless attribute with null value (for key and attribute)
+	 *
+	 * @param sess
+	 * @param key key for storing entityless attribute
+	 * @param attribute attribute to set
+	 *
+	 * @return true if insert is ok
+	 *
+	 * @throws InternalErrorException if runtimeException is thrown
+	 */
+	private boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException {
+		try {
+			jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
+									+ "values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, null, null,
+									sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			return true;
+		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

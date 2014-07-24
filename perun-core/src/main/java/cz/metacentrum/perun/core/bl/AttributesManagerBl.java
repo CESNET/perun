@@ -348,6 +348,8 @@ public interface AttributesManagerBl {
 	 * Not lock row in attr_names!
 	 * 
 	 * IMPORTANT: This method use "select for update" and locks row for transaction. Use clever.
+	 *
+	 * If attribute with subject=key not exists, create new one with null value and return it.
 	 * 
 	 * @param sess
 	 * @param attrId
