@@ -179,25 +179,6 @@
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>
-                                            org.apache.maven.plugins
-                                        </groupId>
-                                        <artifactId>
-                                            maven-antrun-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.7,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>run</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore></ignore>
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
                                             org.codehaus.gmaven
                                         </groupId>
                                         <artifactId>
@@ -428,11 +409,11 @@
     </dependencyManagement>
 
     <!-- Perun project info -->
-    <name>Perun</name>
+    <name>perun</name>
     <description>Identity and Access Management System</description>
 
     <organization>
-        <name>CESNET, z. s. p. o</name>
+        <name>CESNET, z.s.p.o.</name>
         <url>http://www.cesnet.cz/</url>
     </organization>
 
