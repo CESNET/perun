@@ -253,6 +253,25 @@
                                         <ignore></ignore>
                                     </action>
                                 </pluginExecution>
+                                <pluginExecution>
+                                	<pluginExecutionFilter>
+                                		<groupId>
+                                			eu.somatik.serviceloader-maven-plugin
+                                		</groupId>
+                                		<artifactId>
+                                			serviceloader-maven-plugin
+                                		</artifactId>
+                                		<versionRange>
+                                			[1.0.2,)
+                                		</versionRange>
+                                		<goals>
+                                			<goal>generate</goal>
+                                		</goals>
+                                	</pluginExecutionFilter>
+                                	<action>
+                                		<ignore></ignore>
+                                	</action>
+                                </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
