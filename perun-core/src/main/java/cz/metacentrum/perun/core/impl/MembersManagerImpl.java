@@ -15,7 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
@@ -40,7 +40,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
 		"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
-	private SimpleJdbcTemplate jdbc;
+	private JdbcTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	protected static final RowMapper<Member> MEMBER_MAPPER = new RowMapper<Member>() {
@@ -60,7 +60,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	 * Constructor
 	 */
 	public MembersManagerImpl(DataSource perunPool) {
-		this.jdbc = new SimpleJdbcTemplate(perunPool);
+		this.jdbc = new JdbcTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 

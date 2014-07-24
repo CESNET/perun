@@ -12,8 +12,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
@@ -26,7 +26,7 @@ public class AuditerConsumer {
 
 	private final static Logger log = LoggerFactory.getLogger(AuditerConsumer.class);
 
-	private SimpleJdbcTemplate jdbc;
+	private JdbcTemplate jdbc;
 	private int lastProcessedId = 0; //id of last processed message
 	private String consumerName;
 
@@ -62,7 +62,7 @@ public class AuditerConsumer {
 	};
 
 	public AuditerConsumer(String consumerName, DataSource perunPool) throws InternalErrorException {
-		this.jdbc = new SimpleJdbcTemplate(perunPool);
+		this.jdbc = new JdbcTemplate(perunPool);
 		this.consumerName = consumerName;
 		try {
 			this.lastProcessedId = jdbc.queryForInt("select last_processed_id from auditer_consumers where name=?", consumerName);

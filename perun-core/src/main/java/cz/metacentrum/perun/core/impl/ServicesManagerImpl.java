@@ -10,8 +10,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
@@ -47,10 +47,10 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerImpl.class);
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static SimpleJdbcTemplate jdbc;
+	private static JdbcTemplate jdbc;
 
 	public ServicesManagerImpl(DataSource perunPool) {
-		jdbc = new SimpleJdbcTemplate(perunPool);
+		jdbc = new JdbcTemplate(perunPool);
 	}
 
 	public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +

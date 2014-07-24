@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +13,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
@@ -28,10 +26,10 @@ public class SearcherImpl implements SearcherImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);
 
-	private static SimpleJdbcTemplate jdbc;
+	private static JdbcTemplate jdbc;
 
 	public SearcherImpl(DataSource perunPool) {
-		jdbc = new SimpleJdbcTemplate(perunPool);
+		jdbc = new JdbcTemplate(perunPool);
 	}
 
 	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
