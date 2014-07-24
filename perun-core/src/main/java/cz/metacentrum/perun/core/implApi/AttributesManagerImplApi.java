@@ -270,6 +270,7 @@ public interface AttributesManagerImplApi {
 	 * IMPORTANT: return only values in String (special format for Map or List)!
 	 * 
 	 * If value is null, return null.
+	 * If attribute with subject=key not exists, create new one with null value and return null.
 	 * 
 	 * @param sess
 	 * @param attrId
