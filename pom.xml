@@ -428,17 +428,17 @@
     </dependencyManagement>
 
     <!-- Perun project info -->
-    <name>perun</name>
-    <description>Users, Groups, Services and Resources Management System</description>
+    <name>Perun</name>
+    <description>Identity and Access Management System</description>
 
     <organization>
-        <name>MetaCentrum</name>
-        <url>http://www.metacentrum.cz/</url>
+        <name>CESNET, z. s. p. o</name>
+        <url>http://www.cesnet.cz/</url>
     </organization>
 
     <inceptionYear>2010</inceptionYear>
 
-    <url>https://projekty.ics.muni.cz/perunv3/trac</url>
+    <url>http://perun.cesnet.cz/web/</url>
 
     <scm>
         <connection>scm:git:https://github.com/CESNET/perun.git</connection>
