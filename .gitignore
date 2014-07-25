@@ -7,6 +7,7 @@
 # Ignore Maven target #
 
 **/target
+dependency-reduced-pom.xml
 
 # Ignore IntelliJ project files #
 
