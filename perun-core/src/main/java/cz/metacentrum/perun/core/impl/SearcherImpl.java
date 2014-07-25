@@ -13,9 +13,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
  * Searcher Class for searching objects by Map of Attributes
@@ -26,10 +26,10 @@ public class SearcherImpl implements SearcherImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);
 
-	private static JdbcTemplate jdbc;
+	private static NamedParameterJdbcTemplate jdbc;
 
 	public SearcherImpl(DataSource perunPool) {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new NamedParameterJdbcTemplate(perunPool);
 	}
 
 	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
@@ -119,9 +119,9 @@ public class SearcherImpl implements SearcherImplApi {
 
 		try {
 			if (Compatibility.isOracle()) {
-				return jdbc.query(query.toString(), UsersManagerImpl.USER_MAPPER, parameters);
+				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
 			} else if (Compatibility.isPostgreSql()) {
-				return jdbc.query(query.toString(), UsersManagerImpl.USER_MAPPER, parameters);
+				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
 				//throw new InternalErrorException("Unsupported postgreSQL type");
 			} else {
 				throw new InternalErrorException("Unsupported db type");

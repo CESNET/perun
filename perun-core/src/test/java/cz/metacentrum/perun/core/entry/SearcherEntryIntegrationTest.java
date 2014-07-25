@@ -111,9 +111,9 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
 		List<User> users = new ArrayList<User>();
 		users = searcherBl.getUsers(sess, attributesWithSearchingValues);
-		System.out.println(attr.getValue().toString());
-		System.out.println(attr.getType().toString());
-		System.out.println(users.toString());
+		//System.out.println(attr.getValue().toString());
+		//System.out.println(attr.getType().toString());
+		//System.out.println(users.toString());
 	}
 
 	@Test
