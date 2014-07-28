@@ -127,6 +127,34 @@ public class Auditer {
 		}
 	};
 
+	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = new RowMapper<String>() {
+		public String mapRow(ResultSet rs, int i) throws SQLException {
+			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
+			return auditMessage.getFullMessage();
+		}
+	};
+
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
+		public String mapRow(ResultSet rs, int i) throws SQLException {
+			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
+			return auditMessage.getMsg();
+		}
+	};
+
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = new RowMapper<String>() {
+		public String mapRow(ResultSet rs, int i) throws SQLException {
+			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
+			return auditMessage.getMsg();
+		}
+	};
+
+	protected static final RowMapper<Pair<String,Integer>> AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID = new RowMapper<Pair<String, Integer>>() {
+		public Pair<String, Integer> mapRow(ResultSet rs, int i) throws SQLException {
+			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
+			return new Pair(auditMessage.getMsg(), auditMessage.getId());
+		}
+	};
+
 	public Auditer() {
 	}
 
@@ -380,37 +408,6 @@ public class Auditer {
 			}
 		}
 	}
-//========================================================================================================================================================================
-	/**
-	 * Auditer log mapper
-	 */
-	private static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getFullMessage();
-		}
-	};
-
-	private static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
-	};
-
-	private static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
-	};
-
-	private static final RowMapper<Pair<String,Integer>> AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID = new RowMapper<Pair<String, Integer>>() {
-		public Pair<String, Integer> mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = Auditer.AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-			return new Pair(auditMessage.getMsg(), auditMessage.getId());
-		}
-	};
 
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
 		try {

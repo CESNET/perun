@@ -57,6 +57,7 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return list of messages
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	List<String> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
@@ -67,6 +68,7 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return list of full messages
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	List<String> pollConsumerFullMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
@@ -77,6 +79,7 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return list of messages for parser
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	 List<String> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
@@ -87,6 +90,7 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return list of messages for parser like pair with id
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	 List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
@@ -96,6 +100,7 @@ public interface AuditMessagesManager {
 	 * @param perunSession
 	 * @param consumerName new name for consumer
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	 void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 

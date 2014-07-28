@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import com.sun.prism.shader.Solid_ImagePattern_Loader;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -10,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.codehaus.groovy.transform.powerassert.SourceText;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,7 +56,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	}*/
 
 	/**
-	 * Check if method pollConsumerMessages(sess) return right number of messages
+	 * Check if method getMessages(sess) return right number of messages
 	 */
 	@Test
 	public void testGetFixedNumberOfMessages() throws Exception {
@@ -74,7 +72,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 	/**
-	 * Check if method pollConsumerMessages(sess, count) return right number of messages
+	 * Check if method getMessages(sess, count) return right number of messages
 	 */
 	@Test
 	public void testGetVariableNumberOfMessages() throws Exception {
@@ -89,7 +87,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 	/**
-	 * Check if method pollConsumerMessages(sess, count) return correct message, which was inserted manually
+	 * Check if method getMessages(sess, count) return correct message, which was inserted manually
 	 */
 	/* Temporary disabled
 		 @Test
@@ -102,7 +100,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		 if(i==9) perun.getAuditer().log(sess, HASH);
 		 else perun.getAuditer().log(sess, "Test cislo: "+ i);
 		 }
-		 List<AuditMessage> messages = perun.getAuditMessagesManager().pollConsumerMessages(sess, count);
+		 List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess, count);
 		 for (AuditMessage m:messages){
 		 if(m.getMsg().equals(HASH)) {
 		 return;
