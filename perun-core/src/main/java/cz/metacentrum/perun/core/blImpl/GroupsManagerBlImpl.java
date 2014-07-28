@@ -1176,7 +1176,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									//First try to disable member, if is invalid, delete him from Vo
 									try {
 										getPerunBl().getMembersManagerBl().disableMember(sess, member);
-										log.info("Group synchronization {}: Member id {} disabled beacause synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										log.info("Group synchronization {}: Member id {} disabled because synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
+										log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
 									} catch(MemberNotValidYetException ex) {
 										//Member is still invalid in perun. We can delete him.
 										getPerunBl().getMembersManagerBl().deleteMember(sess, member);
