@@ -2,8 +2,11 @@ package cz.metacentrum.perun.controller.service.impl;
 
 import java.util.*;
 
+import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.taskslib.service.TaskManager;
+import cz.metacentrum.perun.taskslib.service.impl.TaskManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
@@ -233,5 +236,36 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 		//FIXME check privileges, probably only some monitoring system can request these data
 		return getTaskResultDao().getTaskResultsForDestinations(destinationsNames);
+	}
+
+	@Override
+	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException {
+
+		TaskManager taskManager = new TaskManagerImpl();
+
+		List<Resource> resources = perun.getResourcesManager().getResources(session, vo);
+		List<ResourceState> resourceStateList = new ArrayList<ResourceState>();
+
+		for (Resource resource : resources) {
+			List<Task> taskList = taskManager.listAllTasksForFacility(resource.getFacilityId());
+
+			// filter SEND tasks
+			Iterator<Task> iterator = taskList.iterator();
+			while (iterator.hasNext()) {
+				if ( !(iterator.next().getExecService().getExecServiceType().name().equals("SEND")) ) {
+					iterator.remove();
+				}
+			}
+
+			// create new resourceState
+			ResourceState resourceState = new ResourceState();
+			resourceState.setResource(resource);
+			resourceState.setTaskList(taskList);
+
+			// add new created resourceState to List
+			resourceStateList.add(resourceState);
+		}
+
+		return resourceStateList;
 	}
 }
