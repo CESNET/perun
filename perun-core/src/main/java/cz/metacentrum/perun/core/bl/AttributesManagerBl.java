@@ -182,8 +182,7 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException;
 
 	/**
-	 * Get all attributes associated with the member which have name in list attrNames (empty too).
-	 * Virtual attribute too.
+	 * Get all attributes associated with the member which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session
 	 * @param member to get the attributes from
@@ -195,7 +194,7 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
 
 	/**
-	 * Get all attributes associated with the vo which have name in list attrNames (empty too).
+	 * Get all attributes associated with the vo which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session
 	 * @param vo to get the attributes from
@@ -207,8 +206,7 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
 
 	/**
-	 * Get all attributes associated with the user which have name in list attrNames (empty too).
-	 * Virtual attributes too.
+	 * Get all attributes associated with the user which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session
 	 * @param user to get the attributes from
