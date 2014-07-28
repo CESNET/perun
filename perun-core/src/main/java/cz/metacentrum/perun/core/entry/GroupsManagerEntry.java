@@ -879,14 +879,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getAllRichGroupsWithAttributesByNames");
 		}
 
-		List<RichGroup> richGroups = getGroupsManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames));
-
-		// Return all richGroups for VOADMIN and PERUNADMIN
-		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-		        || AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-		        || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
-			return richGroups;
-		}
+		List<RichGroup> richGroups = getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames);
 
 		// Check access rights for each richGroup for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
@@ -896,11 +889,9 @@ public class GroupsManagerEntry implements GroupsManager {
 					i.remove();
 				}
 			}
-			return richGroups;
 		}
 
-		//This shouldn't happen
-		throw new PrivilegeException(sess, "getAllRichGroupsWithAttributesByNames");
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
 	}
 
 	public List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
@@ -915,15 +906,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getRichSubGroupsWithAttributesByNames");
 		}
-
-		List<RichGroup> richGroups = getGroupsManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames));
-
-		// Return all richGroups for VOADMIN and PERUNADMIN
-		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-		        || AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-		        || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
-			return richGroups;
-		}
+		List<RichGroup> richGroups = getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames);
 
 		// Check access rights for each richGroup for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
@@ -933,11 +916,9 @@ public class GroupsManagerEntry implements GroupsManager {
 					i.remove();
 				}
 			}
-			return richGroups;
 		}
 
-		//This shouldn't happen
-		throw new PrivilegeException(sess, "getRichSubGroupsWithAttributesByNames");
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
 	}
 
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
