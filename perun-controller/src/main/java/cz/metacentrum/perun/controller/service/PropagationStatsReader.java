@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
+import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
@@ -106,9 +107,22 @@ public interface PropagationStatsReader {
 
 	/**
 	 * Returns task results for defined destinations (string representation).
+	 *
 	 * @param session
 	 * @param destinationsNames
 	 * @return list of tasks results
 	 */
 	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Returns list of ResourceStates for VO with tasks which have ExecServiceType SEND.
+	 *
+	 * @param session PerunSession
+	 * @param vo VirtualOrganization
+	 * @return list of ResourceStates
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 * @throws InternalErrorException
+	 */
+	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
 }
