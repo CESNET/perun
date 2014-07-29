@@ -212,15 +212,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException {
 		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
-		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, member, attrNames);
 
-		//get also virtual attributes
-		List<Attribute> allMembersVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, member);
-		for(Attribute a: allMembersVirtualAttributes) {
-			if(attrNames.contains(a.getName())) attributes.add(a);
-		}
-
-		return attributes;
+		return getAttributesManagerImpl().getAttributes(sess, member, attrNames);
 	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
@@ -326,15 +319,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
 		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
 
-		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, user, attrNames);
-
-		//get also virtual attributes
-		List<Attribute> allUsersVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, user);
-		for(Attribute a: allUsersVirtualAttributes) {
-			if(attrNames.contains(a.getName())) attributes.add(a);
-		}
-
-		return attributes;
+		return getAttributesManagerImpl().getAttributes(sess, user, attrNames);
 	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException {

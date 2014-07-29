@@ -778,12 +778,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSC", AttributesManager.NS_VO_ATTR_CORE);
 		parameters.addValue("nSO", AttributesManager.NS_VO_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_VO_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_VO_ATTR_VIRT);
 		parameters.addValue("attrNames", attrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("vot") + " from attr_names " +
 					"left join vo_attr_values vot on id=vot.attr_id and vo_id=:vId " +
-					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name in ( :attrNames )",
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new AttributeRowMapper(sess, this, vo));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
@@ -841,12 +842,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSC", AttributesManager.NS_MEMBER_ATTR_CORE);
 		parameters.addValue("nSO", AttributesManager.NS_MEMBER_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_MEMBER_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_MEMBER_ATTR_VIRT);
 		parameters.addValue("attrNames", attrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 					"left join member_attr_values mem on id=mem.attr_id and member_id=:mId " +
-					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name in ( :attrNames )",
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new AttributeRowMapper(sess, this, member));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
@@ -920,12 +922,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSC", AttributesManager.NS_USER_ATTR_CORE);
 		parameters.addValue("nSO", AttributesManager.NS_USER_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_USER_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_USER_ATTR_VIRT);
 		parameters.addValue("attrNames", attrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 					"left join user_attr_values usr on id=usr.attr_id and user_id=:uId " +
-					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name in ( :attrNames )",
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new AttributeRowMapper(sess, this, user));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
