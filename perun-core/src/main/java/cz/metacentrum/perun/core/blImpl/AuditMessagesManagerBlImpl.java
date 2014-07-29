@@ -1,9 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import java.util.List;
 
 /**
  * AuditMessagesManager manages audit messages (logs). Implementation of
@@ -55,7 +51,33 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 		return perunBl.getAuditer().getMessagesByCount(count);
 	}
 
+	public List<String> pollConsumerMessages(String consumerName) throws InternalErrorException {
+
+		return perunBl.getAuditer().pollConsumerMessages(consumerName);
+	}
+
+	public List<String> pollConsumerFullMessages(String consumerName) throws InternalErrorException {
+
+		return perunBl.getAuditer().pollConsumerFullMessages(consumerName);
+	}
+
+	public List<String> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
+
+		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);
+	}
+
+	public List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(String consumerName) throws InternalErrorException {
+
+		return perunBl.getAuditer().pollConsumerMessagesForParserLikePairWithId(consumerName);
+	}
+
+	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
+
+		createAuditerConsumer(consumerName);
+	}
+
 	public void log(PerunSession sess, String message) throws InternalErrorException {
+
 		perunBl.getAuditer().log(sess, message);
 	}
 }

@@ -45,6 +45,15 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		createdAuditMessage.setMsg("Tested Message");
 	}
+/*
+	@Test
+	public void testPollConsumerMessages() throws Exception {
+
+		List<String> messages = perun.getAuditer().pollConsumerMessages("test");
+		for(String m: messages) {
+			System.out.println(m);
+		}
+	}*/
 
 	/**
 	 * Check if method getMessages(sess) return right number of messages
