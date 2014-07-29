@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -66,7 +66,7 @@ public class MailManagerImpl implements MailManager {
 	@Autowired RegistrarManager registrarManager;
 	@Autowired private Properties registrarProperties;
 	private PerunSession registrarSession;
-	private SimpleJdbcTemplate jdbc;
+	private JdbcTemplate jdbc;
 	private MailSender mailSender;
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
@@ -75,7 +75,7 @@ public class MailManagerImpl implements MailManager {
 	// Spring setters
 
 	public void setDataSource(DataSource dataSource) {
-		this.jdbc =  new SimpleJdbcTemplate(dataSource);
+		this.jdbc =  new JdbcTemplate(dataSource);
 	}
 
 	public void setMailSender(MailSender mailSender) {

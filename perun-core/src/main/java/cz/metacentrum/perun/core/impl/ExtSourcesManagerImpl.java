@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,7 +49,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		"ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static SimpleJdbcTemplate jdbc;
+	private static JdbcTemplate jdbc;
 
 	private static final RowMapper<ExtSource> EXTSOURCE_MAPPER = new RowMapper<ExtSource>() {
 		public ExtSource mapRow(ResultSet rs, int i) throws SQLException {
@@ -82,7 +82,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	};
 
 	public ExtSourcesManagerImpl(DataSource perunPool) throws InternalErrorException {
-		jdbc = new SimpleJdbcTemplate(perunPool);
+		jdbc = new JdbcTemplate(perunPool);
 	}
 
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {

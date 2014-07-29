@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -109,7 +109,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Autowired MailManager mailManager;
 	private RegistrarManager registrarManager;
 	private PerunSession registrarSession;
-	private SimpleJdbcTemplate jdbc;
+	private JdbcTemplate jdbc;
 	private boolean useMailManager = false;  // for production compatibility, default is false
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
@@ -124,7 +124,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private String shibLoAVar = "loa";
 
 	public void setDataSource(DataSource dataSource) {
-		this.jdbc = new SimpleJdbcTemplate(dataSource);
+		this.jdbc = new JdbcTemplate(dataSource);
 	}
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {

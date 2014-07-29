@@ -9,11 +9,9 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -27,18 +25,14 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.HashSet;
@@ -53,8 +47,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(FacilitiesManagerImpl.class);
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static SimpleJdbcTemplate jdbc;
-	private static JdbcTemplate temp;
+	private static JdbcTemplate jdbc;
 
 	// Part of the SQL script used for getting the Facility object
 	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, "
@@ -102,8 +95,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	};
 
 	public FacilitiesManagerImpl(DataSource perunPool) {
-		jdbc = new SimpleJdbcTemplate(perunPool);
-		temp = new JdbcTemplate(perunPool);
+		jdbc = new JdbcTemplate(perunPool);
 	}
 
 	public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException {
@@ -301,7 +293,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return temp.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
+			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
 					+ facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on "
 					+ "resources.facility_id=facilities.id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.facility_id=?", ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId());
 		} catch (RuntimeException ex) {

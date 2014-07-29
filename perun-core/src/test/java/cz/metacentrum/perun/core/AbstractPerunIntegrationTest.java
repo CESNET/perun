@@ -47,7 +47,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  *
  *      Keep in your mind that you can use AbstractJUnit4SpringContextTests for
  *      similar purpose. This alternative approach offers reference for
- *      SimpleJdbcTemplate which is useful for quering against database.
+ *      JdbcTemplate which is useful for quering against database.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
