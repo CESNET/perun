@@ -18,12 +18,11 @@ import java.util.Date;
 public class LdapcStarter {
 	private final static Logger log = LoggerFactory.getLogger(LdapcStarter.class);
 
-	@Autowired
 	private LdapcManager ldapcManager;
 	private AbstractApplicationContext springCtx;
 
 	public LdapcStarter() {
-		springCtx = new ClassPathXmlApplicationContext("/perun-ldapc-applicationcontext.xml", "/perun-ldapc-applicationcontext-jdbc.xml");
+		springCtx = new ClassPathXmlApplicationContext("/perun-ldapc-applicationcontext.xml");
 		this.ldapcManager = springCtx.getBean("ldapcManager", LdapcManager.class);
 	}
 

@@ -148,13 +148,6 @@ public class Auditer {
 		}
 	};
 
-	protected static final RowMapper<Pair<String,Integer>> AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID = new RowMapper<Pair<String, Integer>>() {
-		public Pair<String, Integer> mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-			return new Pair(auditMessage.getMsg(), auditMessage.getId());
-		}
-	};
-
 	public Auditer() {
 	}
 
@@ -448,7 +441,7 @@ public class Auditer {
 			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, lastProcessedId, maxId);
-				this.lastProcessedId = maxId;
+				lastProcessedId = maxId;
 				jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
@@ -472,7 +465,7 @@ public class Auditer {
 			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_FULL_LOG_MAPPER, lastProcessedId, maxId);
-				this.lastProcessedId = maxId;
+				lastProcessedId = maxId;
 				jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
@@ -482,7 +475,7 @@ public class Auditer {
 		}
 	}
 
-	public List<String> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
+	public List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException {
 
 		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
 
@@ -496,7 +489,7 @@ public class Auditer {
 			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER_FOR_PARSER, lastProcessedId, maxId);
-				this.lastProcessedId = maxId;
+				lastProcessedId = maxId;
 				jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
@@ -506,7 +499,7 @@ public class Auditer {
 		}
 	}
 
-	public List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(String consumerName) throws InternalErrorException {
+	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
 		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
 
 		try {
@@ -518,12 +511,12 @@ public class Auditer {
 
 			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
 			if(maxId > lastProcessedId) {
-				List<Pair<String, Integer>> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID, lastProcessedId, maxId);
-				this.lastProcessedId = maxId;
+				List<AuditMessage> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITMESSAGE_MAPPER_FOR_PARSER, lastProcessedId, maxId);
+				lastProcessedId = maxId;
 				jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<Pair<String, Integer>>();
+			return new ArrayList<AuditMessage>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}

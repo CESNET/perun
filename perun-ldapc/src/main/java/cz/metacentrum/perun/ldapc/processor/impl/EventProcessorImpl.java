@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.ldapc.beans.LdapOperation;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -48,11 +49,10 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+@org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor, Runnable {
 
 	//Autowired variables
-	@Autowired
-	private DataSource dataSource;
 	@Autowired
 	private LdapConnector ldapConnector;
 	@Autowired
@@ -123,17 +123,11 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		if(ldapProperties.getLdapcProperties() == null) throw new RuntimeException("LdapcProperties is not autowired correctly!");
 
 		//Get instance of auditerConsumer and set runnig to true
-		try {
-			this.auditerConsumer = new AuditerConsumer(ldapProperties.getLdapConsumerName(), dataSource);
-			running = true;
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot initialize AuditerConsumer.", e);
-		}
 
-
+		running = true;
 		Integer lastProcessedIdNumber = 0;
-		Pair<String, Integer> message = new Pair<String, Integer>();
-		List<Pair<String, Integer>> messages;
+		AuditMessage message = new AuditMessage(0, "Empty", null, null, null);
+		List<AuditMessage> messages;
 
 		try {
 			//If running is true, then this proccess will be continously
@@ -145,7 +139,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				do {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
-						messages = auditerConsumer.getMessagesForParserLikePairWithId();
+						messages = Rpc.AuditMessagesManager.pollConsumerMessagesForParser(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.",ex, sleepTime);
 						Thread.sleep(sleepTime);
@@ -153,17 +147,17 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					}
 				} while(messages == null);
 				//If new messages exist, resolve them all
-				Iterator<Pair<String, Integer>> messagesIter = messages.iterator();
+				Iterator<AuditMessage> messagesIter = messages.iterator();
 				while(messagesIter.hasNext()) {
 					message = messagesIter.next();
 					messagesIter.remove();
 					//Warning when two consecutive messages are separated by more than 15 ids
-					if(lastProcessedIdNumber > 0 && lastProcessedIdNumber < message.getRight()) {
-						if((message.getRight() - lastProcessedIdNumber) > 15) log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " + message.getRight() + " = " + (lastProcessedIdNumber - message.getRight()));
+					if(lastProcessedIdNumber > 0 && lastProcessedIdNumber < message.getId()) {
+						if((message.getId() - lastProcessedIdNumber) > 15) log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " + message.getId() + " = " + (lastProcessedIdNumber - message.getId()));
 					}
-					lastProcessedIdNumber = message.getRight();
+					lastProcessedIdNumber = message.getId();
 					//IMPORTANT STEP2: Resolve next message
-					this.resolveMessage(message.getLeft(), message.getRight());
+					this.resolveMessage(message.getMsg(), message.getId());
 				}
 				//After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another bulk of messages
 				if (Thread.interrupted()) {
@@ -175,13 +169,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			//If ldapc is interrupted
 		} catch (InterruptedException e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getRight() + "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
+			log.error("Last message has ID='" + message.getMsg()+ "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
 			running = false;
 			Thread.currentThread().interrupt();
 			//If some other exception is thrown
 		} catch (Exception e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getRight() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
+			log.error("Last message has ID='" + message.getMsg() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
 			throw new RuntimeException(e);
 		}
 	}
@@ -1127,16 +1121,5 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				else throw new InternalErrorException("More than one Resource come to method parseMessages!");
 			}
 		}
-	}
-
-	//-----------------GETTERS AND SETTERS-------------------
-
-	/**
-	 * Setter for dataSource
-	 *
-	 * @param dataSource
-	 */
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
 	}
 }

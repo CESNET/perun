@@ -86,27 +86,27 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * @return list of messages for parser
 	 * @throws InternalErrorException
 	 */
-	pollConsumerMessagesForParser {
+	pollConsumerMessagesForParserSimple {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getAuditMessagesManager().pollConsumerMessagesForParser(ac.getSession(), parms.readString("consumerName"));
+			return ac.getAuditMessagesManager().pollConsumerMessagesForParserSimple(ac.getSession(), parms.readString("consumerName"));
 		}
 	},
 
 	/*#
-	 * Returns list of messages for parser like pair with id from audit's log which id is bigger than last processed id.
+	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
 	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser like pair with id
+	 * @return list of auditMessages for parser
 	 * @throws InternalErrorException
 	 */
-	pollConsumerMessagesForParserLikePairWithId {
+	pollConsumerMessagesForParser {
 		@Override
-		public List<Pair<String, Integer>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getAuditMessagesManager().pollConsumerMessagesForParserLikePairWithId(ac.getSession(), parms.readString("consumerName"));
+			return ac.getAuditMessagesManager().pollConsumerMessagesForParser(ac.getSession(), parms.readString("consumerName"));
 		}
 	},
 
