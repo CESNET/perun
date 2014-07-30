@@ -64,16 +64,16 @@ public interface AuditMessagesManagerBl {
 	 * @return list of messages for parser
 	 * @throws InternalErrorException
 	 */
-	List<String> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException;
+	List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException;
 
 	/**
-	 * Returns list of messages for parser like pair with id from audit's log which id is bigger than last processed id.
+	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser like pair with id
+	 * @return list of auditMessages for Ldap
 	 * @throws InternalErrorException
 	 */
-	List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(String consumerName) throws InternalErrorException;
+	List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.

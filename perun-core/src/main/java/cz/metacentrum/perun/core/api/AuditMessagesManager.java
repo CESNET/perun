@@ -81,18 +81,18 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	 List<String> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	 List<String> pollConsumerMessagesForParserSimple(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
 	/**
-	 * Returns list of messages for parser like pair with id from audit's log which id is bigger than last processed id.
+	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
 	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser like pair with id
+	 * @return list of auditMessages for parser
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	 List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	 List<AuditMessage> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.

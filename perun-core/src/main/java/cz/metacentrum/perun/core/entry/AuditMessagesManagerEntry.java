@@ -65,23 +65,23 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
-	public List<String> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+	public List<String> pollConsumerMessagesForParserSimple(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParserSimple");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerMessagesForParserSimple(consumerName);
+	}
+
+	@Override
+	public List<AuditMessage> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
 			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParser");
 		}
 
 		return getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
-	}
-
-	@Override
-	public List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
-			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParserLikePairWithId");
-		}
-
-		return getAuditMessagesManagerBl().pollConsumerMessagesForParserLikePairWithId(consumerName);
 	}
 
 	@Override

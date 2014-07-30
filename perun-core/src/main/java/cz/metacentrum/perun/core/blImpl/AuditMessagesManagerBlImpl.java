@@ -61,14 +61,14 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 		return perunBl.getAuditer().pollConsumerFullMessages(consumerName);
 	}
 
-	public List<String> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
+	public List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException {
 
-		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);
+		return perunBl.getAuditer().pollConsumerMessagesForParserSimple(consumerName);
 	}
 
-	public List<Pair<String, Integer>> pollConsumerMessagesForParserLikePairWithId(String consumerName) throws InternalErrorException {
+	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
 
-		return perunBl.getAuditer().pollConsumerMessagesForParserLikePairWithId(consumerName);
+		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);
 	}
 
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {

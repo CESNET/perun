@@ -95,6 +95,19 @@ public class Rpc {
 				throw new ConsistencyErrorException(e);
 			}
 		}
+
+		public static List<AuditMessage> pollConsumerMessagesForParser(RpcCaller rpcCaller, String consumerName) throws InternalErrorException {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("consumerName", consumerName);
+
+			try {
+				return rpcCaller.call("auditMessagesManager", "pollConsumerMessagesForParser", params).readList(AuditMessage.class);
+			} catch (InternalErrorException e) {
+				throw e;
+			} catch (PerunException e) {
+				throw new ConsistencyErrorException(e);
+			}
+		}
 	}
 
 	// FacilitiesManager
