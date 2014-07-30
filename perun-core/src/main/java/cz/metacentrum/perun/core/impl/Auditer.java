@@ -195,6 +195,37 @@ public class Auditer {
 	}
 
 	/**
+	 * Log mesage. Substitute first {} with arg1.toString().
+	 *
+	 * IMPORTANT: This method running out of transaction.
+	 *
+	 * @param message
+	 * @param arg1
+	 * @throws InternalErrorException
+	 */
+	public void logWithoutTransaction(PerunSession sess, String message, Object arg1) throws InternalErrorException {
+		logWithoutTransaction(sess, message, arg1, null);
+	}
+
+	/**
+	 * Log mesage. Substitute first two {} with arg1.toString() and arg2.toString().
+	 *
+	 * IMPORTANT: This method running out of transaction.
+	 *
+	 * @param message
+	 * @param arg1
+	 * @throws InternalErrorException
+	 */
+	public void logWithoutTransaction(PerunSession sess, String message, Object arg1, Object arg2) throws InternalErrorException {
+		message = BeansUtils.createEscaping(message);
+		Object[] objects = new Object[2];
+		objects[0] = serializeObject(arg1);
+		objects[1] = serializeObject(arg2);
+		String formatedMessage = MessageFormatter.arrayFormat(message, objects);
+		storeMessageToDb(sess, formatedMessage);
+	}
+
+	/**
 	 * Log mesage. Substitute first two {} with arg1.toString() and arg2.toString().
 	 *
 	 * @param message
