@@ -35,8 +35,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 *						Return messages by Id from max_id to max_id-count (can be less then count messages)
 	 *
 	 * @param perunSession
-	 * @param count Count of returned messages
-	 * @return list of audit's messages
+	 * @param count int Count of returned messages
+	 * @return List<String> list of audit's messages
 	 */
 	getMessagesByCount {
 		@Override
@@ -50,8 +50,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Returns list of messages from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
-	 * @param consumerName consumer to get messages for
-	 * @return list of messages
+	 * @param consumerName String consumer to get messages for
+	 * @return List<String> list of messages
 	 * @throws InternalErrorException
 	 */
 	pollConsumerMessages {
@@ -66,8 +66,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Returns list of full messages from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
-	 * @param consumerName consumer to get messages for
-	 * @return list of full messages
+	 * @param consumerName String consumer to get messages for
+	 * @return List<String> list of full messages
 	 * @throws InternalErrorException
 	 */
 	pollConsumerFullMessages {
@@ -82,8 +82,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
-	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser
+	 * @param consumerName String consumer to get messages for
+	 * @return List<String> list of messages for parser
 	 * @throws InternalErrorException
 	 */
 	pollConsumerMessagesForParserSimple {
@@ -98,8 +98,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param perunSession
-	 * @param consumerName consumer to get messages for
-	 * @return list of auditMessages for parser
+	 * @param consumerName String consumer to get messages for
+	 * @return List<AuditMessage> list of auditMessages for parser
 	 * @throws InternalErrorException
 	 */
 	pollConsumerMessagesForParser {
@@ -114,7 +114,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.
 	 *
 	 * @param perunSession
-	 * @param consumerName new name for consumer
+	 * @param consumerName String new name for consumer
 	 * @throws InternalErrorException
 	 */
 	createAuditerConsumer {

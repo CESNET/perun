@@ -914,7 +914,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* proper set of parameters (sent in validation mail).
 		*
 		* @param user Integer User id
-		* @param email new email address to set
+		* @param email String new email address to set
 		*/
 	requestPreferredEmailChange {
 		@Override

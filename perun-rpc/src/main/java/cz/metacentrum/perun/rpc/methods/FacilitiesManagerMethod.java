@@ -693,10 +693,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all users which can use this facility
 	 *
-	 * @param facility
-	 * @param vo if provided, filter out users who aren't in specific VO
-	 * @param service if provided, filter out users who aren't allowed to use the service on the facility
-	 * @return list of allowed users
+	 * @param facility Facility
+	 * @param vo int VO ID, if provided, filter out users who aren't in specific VO
+	 * @param service int Service ID, if provided, filter out users who aren't allowed to use the service on the facility
+	 * @return List<Facility> list of allowed users
 	 */
 	getAllowedUsers {
 		@Override
@@ -729,10 +729,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy owners from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility Facility JSON object
-	 * @param destFacility Facility JSON object
-	 *
-	 * @return null
+	 * @param srcFacility int facility ID
+	 * @param destFacility int facility ID
 	 */
 	copyOwners {
 
@@ -753,10 +751,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy managers from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility Facility JSON object
-	 * @param destFacility Facility JSON object
-	 *
-	 * @return null
+	 * @param srcFacility int facility ID
+	 * @param destFacility int facility ID
 	 */
 	copyManagers {
 
@@ -777,10 +773,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy attributes (settings) from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility Facility JSON object
-	 * @param destFacility Facility JSON object
-	 *
-	 * @return null
+	 * @param srcFacility int facility ID
+	 * @param destFacility int facility ID
 	 */
 	copyAttributes {
 
