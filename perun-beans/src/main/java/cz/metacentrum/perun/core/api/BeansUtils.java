@@ -256,7 +256,7 @@ public class BeansUtils {
 	 * @throws InternalErrorException
 	 */
 	public static Object stringToAttributeValue(String stringValue, String type) throws InternalErrorException {
-		if(stringValue == null) return null;
+		if(stringValue == null || stringValue.isEmpty()) return null;
 
 		Class<?> attributeClass;
 		try {
@@ -264,7 +264,7 @@ public class BeansUtils {
 		} catch (ClassNotFoundException e) {
 			throw new InternalErrorException("Unknown attribute type", e);
 		} catch (NoClassDefFoundError e) {
-			throw new InternalErrorException("Unknow attribute def type", e);
+			throw new InternalErrorException("Unknown attribute def type", e);
 		}
 
 		if(attributeClass.equals(String.class)) {
@@ -284,7 +284,7 @@ public class BeansUtils {
 						item = item.concat(Character.toString(LIST_DELIMITER)).concat(array[i+1]);
 						i++;
 					} catch(ArrayIndexOutOfBoundsException ex) {
-						throw new ConsistencyErrorException("Bad format in attribte value", ex);
+						throw new ConsistencyErrorException("Bad format in attribute value", ex);
 					}
 				}
 				//unescape
@@ -310,7 +310,7 @@ public class BeansUtils {
 						mapEntry = mapEntry.concat(Character.toString(LIST_DELIMITER)).concat(array[i+1]);
 						i++;
 					} catch(ArrayIndexOutOfBoundsException ex) {
-						throw new ConsistencyErrorException("Bad format in attribte value", ex);
+						throw new ConsistencyErrorException("Bad format in attribute value", ex);
 					}
 				}
 
@@ -321,7 +321,7 @@ public class BeansUtils {
 				while(!delimiterFound) {
 					delimiterIndex++; //start searching at next char then last time
 					delimiterIndex = mapEntry.indexOf(Character.toString(KEY_VALUE_DELIMITER), delimiterIndex);
-					if(delimiterIndex == -1) throw new ConsistencyErrorException("Bad format in attribte value. KEY_VALUE_DELIMITER not found.");
+					if(delimiterIndex == -1) throw new ConsistencyErrorException("Bad format in attribute value. KEY_VALUE_DELIMITER not found.");
 
 					//check if this delimiter is not escaped
 					boolean isEscaped = false;  //is delimiter escaped
