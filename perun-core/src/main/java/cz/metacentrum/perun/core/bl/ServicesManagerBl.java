@@ -447,6 +447,15 @@ public interface ServicesManagerBl {
 	List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Get list of all destinations.
+	 *
+	 * @param perunSession
+	 * @return list of all destinations for session
+	 * @throws InternalErrorException
+	 */
+	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException;
+
+	/**
 	 * Get list of all rich destinations defined for the facility.
 	 *
 	 * @param perunSession

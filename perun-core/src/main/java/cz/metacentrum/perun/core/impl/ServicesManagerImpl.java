@@ -504,6 +504,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + destinationMappingSelectQuery + " from destinations", DESTINATION_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
