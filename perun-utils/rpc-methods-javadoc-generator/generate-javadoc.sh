@@ -39,7 +39,9 @@ done
 
 # Generating JavaDoc
 echo "Genarating JavaDoc ..."
-javadoc -quiet -link $PERUN_API_JAVADOC_URL -d $PERUN_RPC_JAVADOC_DESTINATION -sourcepath $TMP_DIR -package $PACKAGE -noqualifier "java.lang:java.util" -windowtitle "${JAVADOC_TITLE}" -bottom "${JAVADOC_FOOTER}"
+# Use custom instalation of Java7 JDK since Java6 throws errors.
+export JAVA_HOME=/opt/jdk/
+/opt/jdk/bin/javadoc -quiet -link $PERUN_API_JAVADOC_URL -d $PERUN_RPC_JAVADOC_DESTINATION -sourcepath $TMP_DIR -package $PACKAGE -noqualifier "java.lang:java.util" -windowtitle "${JAVADOC_TITLE}" -bottom "${JAVADOC_FOOTER}"
 echo "JavaDoc generated, the \"cannot find symbol\" warnings can be ignored."
 
 # Delete TMP_DIR
