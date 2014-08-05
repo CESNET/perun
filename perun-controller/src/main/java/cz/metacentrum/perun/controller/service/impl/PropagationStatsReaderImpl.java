@@ -38,6 +38,8 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	private GeneralServiceManager generalServiceManager;
 	@Autowired
 	protected PerunBl perun;
+	@Autowired
+	private TaskManager taskManager;
 
 	@Override
 	public Task getTask(PerunSession perunSession, ExecService execService, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
@@ -241,8 +243,6 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	@Override
 	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException {
 
-		TaskManager taskManager = new TaskManagerImpl();
-
 		List<Resource> resources = perun.getResourcesManager().getResources(session, vo);
 		List<ResourceState> resourceStateList = new ArrayList<ResourceState>();
 
@@ -252,7 +252,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			// filter SEND tasks
 			Iterator<Task> iterator = taskList.iterator();
 			while (iterator.hasNext()) {
-				if ( !(iterator.next().getExecService().getExecServiceType().name().equals("SEND")) ) {
+				if ( !(iterator.next().getExecService().getExecServiceType().equals(ExecService.ExecServiceType.SEND)) ) {
 					iterator.remove();
 				}
 			}
