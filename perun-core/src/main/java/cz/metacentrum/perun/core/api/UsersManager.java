@@ -785,6 +785,37 @@ public interface UsersManager {
 		throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
 
 	/**
+	 * Creates alternative password in external system.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param description - description of a password (e.g. 'mobile phone', 'tablet', ...)
+	 * @param loginNamespace
+	 * @param password
+	 * @throws InternalErrorException
+	 * @throws PasswordCreationFailedException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PrivilegeException
+	 */
+	void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
+
+	/**
+	 * Deletes alternative password in external system.
+	 *
+	 * @param sess
+	 * @param userLogin
+	 * @param loginNamespace
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PasswordDeletionFailedException
+	 * @throws LoginNotExistsException
+	 * @throws PrivilegeException
+	 */
+	void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, UserNotExistsException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
+
+
+	/**
 	 * Get All richUsers with or without serviceUsers.
 	 * If includedServiceUsers is true, you got all Users included serviceUsers
 	 * If includedServiceUsers is false, you get all Users without serviceUsers
