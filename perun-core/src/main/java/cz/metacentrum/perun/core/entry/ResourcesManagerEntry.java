@@ -237,6 +237,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "getAssignedServices");
 				}
