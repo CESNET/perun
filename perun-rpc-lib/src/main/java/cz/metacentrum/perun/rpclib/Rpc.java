@@ -104,6 +104,7 @@ public class Rpc {
 
 			try {
 				Deserializer deserializer = rpcCaller.call("auditMessagesManager", "pollConsumerMessagesForParser", params);
+				// FIXME - this is check to prevent NullPointerException caused by communication with RPC.
 				if (deserializer == null) throw new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, "Unable to create deserializer.");
 				return deserializer.readList(AuditMessage.class);
 			} catch (InternalErrorException e) {
