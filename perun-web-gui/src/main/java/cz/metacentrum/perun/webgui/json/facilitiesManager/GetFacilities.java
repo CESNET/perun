@@ -300,6 +300,13 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 		return this.list;
 	}
 
+	public ArrayList<Facility> getFullBackupList() {
+		if (fullBackup.isEmpty() || fullBackup == null) {
+			fullBackup.addAll(list);
+		}
+		return this.fullBackup;
+	}
+
 	public UnaccentMultiWordSuggestOracle getOracle(){
 		return this.oracle;
 	}
