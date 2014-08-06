@@ -38,7 +38,7 @@ function process {
 		catch_error E_PASSWD_DESINATION_CREATE touch "$PASSWD_DST_FILE"
 		catch_error E_PASSWD_DESINATION_CHMOD chmod 644 "$PASSWD_DST_FILE"
 	else
-		catch_error E_PASSWD_DESINATION_WRONG_MOD [ `stat -c %a "$PASSWD_DST_FILE"` = "644" ]
+		catch_error E_PASSWD_DESINATION_WRONG_MOD [ `stat -L -c %a "$PASSWD_DST_FILE"` = "644" ]
 	fi
 
 

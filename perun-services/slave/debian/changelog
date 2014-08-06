@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.74) stable; urgency=low
+
+   * Fix permissions check in service fs_home, k5login and passwd_scp
+   * If target file is symlink, permissions is checked on linked file (not on
+     symlink itself)
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Wed, 06 Aug 2014 14:30:00 +0200
+
 perun-slave (3.0.0-0.0.73) stable; urgency=critical
 
    * Fix security issue with propagation to DNS alias

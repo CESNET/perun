@@ -41,7 +41,7 @@ function process {
 			log_debug "Owner was changed for file ${HOME_DIR}/.k5login. New owner is ${F_USER_REAL}:${F_GROUP_REAL} (expected ${F_USER}:${F_GROUP})"
 
 			catch_error E_PERMISSIONS chmod 0644 "${HOME_DIR}/.k5login"
-			K5LOGIN_PERMISSIONS=`stat -c %a "${HOME_DIR}/.k5login"`
+			K5LOGIN_PERMISSIONS=`stat -L -c %a "${HOME_DIR}/.k5login"`
 			log_debug "Permissions was set to ${K5LOGIN_PERMISSIONS} for file ${HOME_DIR}/.k5login (expected 0644)"
 
 			log_msg I_K5LOGIN_CREATED

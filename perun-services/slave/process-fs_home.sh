@@ -79,7 +79,7 @@ function process {
 
 			log_msg I_DIR_CREATED
 		else
-			catch_error E_BAD_HOME_OWNER [ `stat -c "%u" ${HOME_DIR}` -eq ${U_UID} ]
+			catch_error E_BAD_HOME_OWNER [ `stat -L -c "%u" ${HOME_DIR}` -eq ${U_UID} ]
 		fi
 
 		QUOTA_FS=`df -P  "$HOME_DIR" | tail -n 1 | sed -e 's/^.*\s//'`
