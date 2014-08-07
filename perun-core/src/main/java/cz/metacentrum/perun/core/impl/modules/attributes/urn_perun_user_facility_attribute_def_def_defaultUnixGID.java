@@ -1,21 +1,19 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -49,6 +47,15 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 		if(namespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, namespaceAttribute, "Reference attribute is null");
 		String namespaceName = (String) namespaceAttribute.getValue();
 
+		Attribute unixGroupNameNamespace;
+		try {
+			unixGroupNameNamespace = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
+		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+		if(unixGroupNameNamespace.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, unixGroupNameNamespace, user, facility, facility, null, "Reference attribute is null");
+		String unixGroupNameNamespaceName = (String) unixGroupNameNamespace.getValue();
+
 		Attribute resourceGidAttribute;
 		try {
 			resourceGidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespaceName));
@@ -79,16 +86,30 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 		}
 
 		List<Group> groupWithSameGid = sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute);
-		List<Pair<Group, Resource>> groupResourceWhichIsUnixGroup = sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, groupResourceIsUnixGroupAttrtibute);
 
-		for(Pair<Group, Resource> groupResource : groupResourceWhichIsUnixGroup ) {
-			if(!groupWithSameGid.contains(groupResource.getLeft())) continue; // group from Group-resource pair doesn't have same GID as a checked one
-			if(!allowedResources.contains(groupResource.getRight())) continue;  //user is not allowed on resource, so he's not allowed on group too
-			if(sess.getPerunBl().getGroupsManagerBl().isUserMemberOfGroup(sess, user, groupResource.getLeft())) {
-				//We found group with same id where user is allowed
-				//Ceck if group is assigned on resource
-				List<Group> assignedGroups = sess.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, groupResource.getRight());
-				if(assignedGroups.contains(groupResource.getLeft())) return; //attribute is Ok
+		Service groupService;
+		try {
+			groupService = sess.getPerunBl().getServicesManagerBl().getServiceByName(sess, "group");
+		} catch(ServiceNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+		List<Group> candidateGroups = groupWithSameGid;
+		candidateGroups.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, groupService));
+
+		for(Group group : candidateGroups) {
+			//check if group has unix group name in namespace required by facility
+			try {
+				Attribute unixGroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceName);
+				if(unixGroupName.getValue() == null || ((String) unixGroupName.getValue()).isEmpty()) {
+					continue;
+				}
+			} catch(AttributeNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+
+			//check if the user is member of the group
+			if(sess.getPerunBl().getGroupsManagerBl().isUserMemberOfGroup(sess, user, group)) {
+				return;	//attribute is OK
 			}
 		}
 
@@ -128,9 +149,9 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<String>();
 		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
 		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
-		dependencies.add( AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup");
 		return dependencies;
 	}
 
