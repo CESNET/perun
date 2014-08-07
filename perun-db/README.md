@@ -9,9 +9,7 @@ This module holds all DB related utilities, which are necessary to install and r
 
 ## Instalation ##
 
-```
-Theses instructions doesn't cover creation of initial user (perun admin) and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
-```
+> Theses instructions doesn't cover creation of initial user (perun admin) and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
 
 Empty schema of Perun's database can be created using _oracle.sql_ or _postgres.sql_ for each database type respectively. **Before running sql files please fill or edit username/schema/password in them to match your setting.**
 
