@@ -2,18 +2,18 @@
 
 This module holds all DB related utilities, which are necessary to install and run Perun.
 
-## Supported DB types ##
+### Supported DB types ###
 
 * Oracle (>11)
 * Postgres (>9.1)
 
 ## Instalation ##
 
-Theses instructions doesn't cover creating initial user and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
+```
+Theses instructions doesn't cover creation of initial user (perun admin) and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
+```
 
-Empty schema of Perun's database can be created using _oracle.sql_ or _postgres.sql_ for each database type respectively. 
-
-**Before running sql files edit username/schema/password in them to match yours.**
+Empty schema of Perun's database can be created using _oracle.sql_ or _postgres.sql_ for each database type respectively. **Before running sql files please fill or edit username/schema/password in them to match your setting.**
 
 ### Postgres ###
 
@@ -33,11 +33,12 @@ You can dump all data from one DB and put them to different DB type. **Content o
 
 ### Oracle to Postgres ###
 
-* You can use _export_oracle_to_postgres.pl_ perl script to move all your data. If table name is passed to script, only one table with such name is exported.
+* You can use _export_oracle_to_postgres.pl_ perl script to get all your data. 
+* If table name is passed to the script, only one table with such name is exported. 
 * Before running script, _user_ and _pwd_ properties in it must be manually set to access your Oracle DB.
 * All dumped data are automatically converted to Postgres compliant insert statements and sequence counters are set to match actual DB data.
+* As result you'll get _DB_data.sql_ file containing all your data as inserts for Postgres.
 * Script uses file _table_order_ to ensure, that inserts are in right order.
-* You will get _DB_data.sql_ file containing all data as inserts for Postgres.
 
 ### Postgres to Oracle ###
 
