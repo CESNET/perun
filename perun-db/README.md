@@ -25,19 +25,26 @@ Empty schema of Perun's database can be created using _oracle.sql_ or _postgres.
 * Connect as user with elevated privileges (to create other users etc.) to your Oracle DB.
 * Run _oracle.sql_ which will create user _perunv3_ and perform all necessary setup.
 
-## Migrating between DB types ##
+## Migrating data between DBs ##
 
-You can dump all data from one DB and put them to different DB type. **Content of audit_log table is exported only for entries from last 10 days, since it may contain a lot of entries.** You are free to modify export script, if you need all data.
+You can dump all data from one DB and put them to different DB. **Content of auditer_log table is exported only for entries from last 10 days, since it may contain a lot of entries.** You are free to modify export script, if you really need all data.
+
+Export scripts are using by default _table_order_ file with list of tables to export in correct order (for future import).
+
+### Oracle to Oracle ###
+
+* You can use _export_oracle_to_oracle.pl_ perl script to get all your data.
+* All dumped data are kept in Oracle compliant insert statements and sequence counters are set to match actual DB data.
 
 ### Oracle to Postgres ###
 
 * You can use _export_oracle_to_postgres.pl_ perl script to get all your data. 
-* If table name is passed to the script, only one table with such name is exported. 
-* Before running script, _user_ and _pwd_ properties in it must be manually set to access your Oracle DB.
 * All dumped data are automatically converted to Postgres compliant insert statements and sequence counters are set to match actual DB data.
-* As result you'll get _DB_data.sql_ file containing all your data as inserts for Postgres.
-* Script uses file _table_order_ to ensure, that inserts are in right order.
 
 ### Postgres to Oracle ###
 
 * There is no utility for that yet.
+
+### Postgres to Postgres ###
+
+* There is no utility for that yet. You can use native Postgres export/import features.

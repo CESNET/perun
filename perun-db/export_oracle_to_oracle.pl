@@ -2,7 +2,7 @@
 
 ########################
 #
-#  Script for exporting data from Oracle to PostgreSQL compliant insert syntax.
+#  Script for exporting data from Oracle to Oracle compliant insert syntax.
 #
 ########################
 
@@ -18,19 +18,19 @@ $ENV{NLS_LANG} = "american_america.utf8";
 
 my $user;                            # Oracle DB user
 my $pwd;                             # Oracle DB password
-my $newuser="perun";                 # PostgreSQL user
+my $newuser="perunv3";               # PostgreSQL user
 my $tableOrderFile="table_order";    # Defined list of tables and their order
 my $tab;                             # Single table to export if preferred
 
 sub help {
 	return qq{
-	Export data from Oracle and create Postgres compliant inserts
+	Export data from Oracle and create Oracle compliant inserts
 	--------------------------------------------------------------
 	Available options:
 
 	--user     | -u Username for Oracle DB (required)
 	--password | -w Password for Oracle DB (required)
-	--newUser  | -n Username for Postgres DB (if not set, use "perun")
+	--newUser  | -n Username for new Oracle DB (if not set, use "perunv3")
 	--file     | -f File with list of tables to export (if not set, use "table_order")
 	--table    | -t Name of single table to export (if set, ignore --file|-f option)
 	--help     | -h prints this help
@@ -53,17 +53,19 @@ my $dbh = DBI->connect('dbi:Oracle:',$user,$pwd,{RaiseError=>1,AutoCommit=>0,Lon
 
 my $filename;
 my @tabulky = ();
+my @tabulkys = ();
 if (defined($tab)) {
 	push (@tabulky, $tab);
-	$filename=$tab."_data.sql";
+	$filename=$tab."_data.ora.sql";
 } else {
-	open POR,$tableOrderFile or die "[ERROR] Cannot open $tableOrderFile: $! \n";
+	open POR,$tableOrderFile or die "Cannot open $tableOrderFile: $! \n";
 	while (my $lin=<POR>) {
 		chomp($lin);
 		push (@tabulky,$lin);
+		push (@tabulkys,uc($lin));
 	}
 	close POR;
-	$filename="DB_data.sql";
+	$filename="DB_data.ora.sql";
 
 	# Commented old way of exporting all tables without exact order
 
@@ -74,7 +76,6 @@ if (defined($tab)) {
 	#while ($tbn = $tablename->fetch) {
 	#push (@tabulky, $$tbn[0]);
 	#}
-
 }
 
 open (DBD,">$filename");
@@ -85,7 +86,7 @@ my $tabcolumn = $dbh->prepare(qq{select lower(column_name),data_type from all_ta
 while (@tabulky) {
 	my $tbl=shift(@tabulky);
 	$tabcolumn->execute($tbl,$user);
-	my $textinsert='insert into "'.$newuser.'"."'.$tbl.'" (';
+	my $textinsert='insert into '.$newuser.'.'.$tbl.' (';
 	my $tcol;
 	my %columns;
 	my $textcols="";
@@ -125,6 +126,7 @@ while (@tabulky) {
 	$colval->execute();
 	my $val;
 	while ($val=$colval->fetch) {
+
 		my $tval="";
 		my $ii=0;
 		@cols=@savecols;
@@ -137,7 +139,7 @@ while (@tabulky) {
 				if ($columns{$column} eq "VARCHAR2") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CHAR") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CLOB") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
-				if ($columns{$column} eq "DATE") {$tval=$tval."timestamp '".$$val[$ii]."',";}
+				if ($columns{$column} eq "DATE") {$tval=$tval."to_date('".$$val[$ii]."','YYYY-MM-DD HH24:MI:SS.D'),";}
 			}
 			$ii++;
 		}
@@ -157,17 +159,16 @@ if (defined($tab)) {
 	my $seq=$dbh->selectrow_array($seqname,{},uc($tab));
 	$sequences{$seq}=$tab;
 } else {
-	my $tablename = $dbh->prepare(qq{select table_name from all_tables where lower(owner)=? order by table_name});
-	$tablename->execute($user);
-
-	while (my $tbn = $tablename->fetch) {
-		$seqname->execute($$tbn[0]);
-
+	while (@tabulkys) {
+		my $tbn=shift(@tabulkys);
+		$seqname->execute($tbn);
 		while (my $seqn = $seqname->fetch) {
-			$sequences{$$seqn[0]}=$$tbn[0];
+			$sequences{$$seqn[0]}=$tbn;
 		}
 		# Manually match this sequence, since it's name is not standardized as for others
-		$sequences{"CABINET_PUB_SYS_ID_SEQ"}="CABINET_PUBLICATION_SYSTEMS";
+		if ($tbn eq "CABINET_PUBLICATION_SYSTEMS") {
+			$sequences{"CABINET_PUB_SYS_ID_SEQ"}="CABINET_PUBLICATION_SYSTEMS";
+		}
 	}
 }
 
@@ -176,8 +177,8 @@ while (my ($seq,$tbl) = each(%sequences)) {
 	unless (defined($tbl)) { warn "[WARN] No table found for sequence: $seq \n"; next;}
 	my $max=$dbh->selectrow_array("select nvl(max(id),0)+1 from $tbl",{});
 	unless (defined($max)) { warn "[WARN] No maxvalue found for sequence: $seq and table: $tbl\n"; next;}
-	print DBD "drop sequence \"".$seq."\";\n";
-	print DBD "create sequence \"".$seq."\" start with ".$max." maxvalue 9223372036854775807;\n";
+	print DBD "drop sequence ".$seq.";\n";
+	print DBD "create sequence ".$seq." start with ".$max." maxvalue 9223372036854775807;\n";
 }
 
 close DBD;
