@@ -21,10 +21,9 @@ my $user=""; #DB user
 my $pwd="";   #DB password
 
 my $newuser="perun"; #New user in postgresql
-my $poradiTabulekFile="poradiTabulek";
+my $poradiTabulekFile="table_order";
 
-my $dbh = DBI->connect('dbi:Oracle:',$user,$pwd,{RaiseError=>1,AutoCommit=>0,LongReadLen=>65530, ora_charset => 'AL32UTF8'})
-        or die EPERM," Connect";
+my $dbh = DBI->connect('dbi:Oracle:',$user,$pwd,{RaiseError=>1,AutoCommit=>0,LongReadLen=>65530, ora_charset => 'AL32UTF8'}) or die EPERM," Connect";
 
 my $filename;
 my @tabulky = ();
@@ -162,4 +161,4 @@ while (my ($seq,$tbl) = each(%sequences)) {
 
 
 close DBD;
-commit $dbh; 
+commit $dbh;
