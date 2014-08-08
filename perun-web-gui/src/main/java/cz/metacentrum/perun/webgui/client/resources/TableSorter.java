@@ -287,6 +287,25 @@ public class TableSorter<T> {
 	}
 
 	/**
+	 * Returns sorted list of objects - FOR RESOURCE_STATE ONLY !!
+	 *
+	 * @param list of objects to be sorted
+	 * @return ArrayList<T> sorted list of objects by resource name
+	 */
+	public ArrayList<T> sortByResourceName(ArrayList<T> list){
+		if(list == null) return null;
+		Collections.sort(list, new Comparator<T>(){
+			public int compare(T o1, T o2) {
+				ResourceState o3 = (ResourceState)o1;
+				ResourceState o4 = (ResourceState)o2;
+				return o3.getResource().getName().compareTo(o4.getResource().getName());
+			}
+		});
+		return list;
+
+	}
+
+	/**
 	 * Returns name of object
 	 *
 	 * @param value object

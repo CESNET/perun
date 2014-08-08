@@ -19,17 +19,17 @@ public class FacilityState extends JavaScriptObject {
 		return this.facility;
 	}-*/;
 
-		public final native String getState() /*-{
-			return this.state;
-		}-*/;
+	public final native String getState() /*-{
+		return this.state;
+	}-*/;
 
-		public final native JavaScriptObject getResults() /*-{
-			return this.results;
-		}-*/;
+	public final native JavaScriptObject getResults() /*-{
+		return this.results;
+	}-*/;
 
-		public final Map<String, JSONValue> getDestinations() {
-			return JsonUtils.parseJsonToMap(getResults());
-		};
+	public final Map<String, JSONValue> getDestinations() {
+		return JsonUtils.parseJsonToMap(getResults());
+	};
 
 	/**
 	 * Compares to another object
