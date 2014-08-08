@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
+import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -217,6 +218,18 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 			} else {
 				return ac.getPropagationStatsReader().getAllFacilitiesStates(ac.getSession());
 			}
+		}
+	},
+
+	/*#
+	 * Return propagation status of all resources related to VO.
+	 *
+	 * @param voId int VO ID
+	 * @return List<ResourceState> Propagation status
+	 */
+	getAllResourcesState {
+		public List<ResourceState> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getPropagationStatsReader().getResourcesState(ac.getSession(), ac.getVoById(parms.readInt("voId")));
 		}
 	},
 
