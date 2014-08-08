@@ -105,9 +105,9 @@ public class VosTabs {
 			return true;
 		}
 
-		if (tab.equals(VoFacilitiesPropagationsTabItem.URL))
+		if (tab.equals(VoResourcesPropagationsTabItem.URL))
 		{
-			session.getTabManager().addTab(VoFacilitiesPropagationsTabItem.load(parameters), open);
+			session.getTabManager().addTab(VoResourcesPropagationsTabItem.load(parameters), open);
 			return true;
 		}
 

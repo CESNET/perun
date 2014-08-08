@@ -3,42 +3,39 @@ package cz.metacentrum.perun.webgui.tabs.vostabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.RowStyles;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.ListDataProvider;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetFacilityState;
-import cz.metacentrum.perun.webgui.model.FacilityState;
-import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.VirtualOrganization;
+import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetAllResourcesState;
+import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
-import cz.metacentrum.perun.webgui.tabs.facilitiestabs.DestinationResultsTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.PerunTable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Tab with propagation status of all facilities related to VO.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
+public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -53,7 +50,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 	/**
 	 * Title widget
 	 */
-	private Label titleWidget = new Label("All VO's facilities states");
+	private Label titleWidget = new Label("All VO's resources state");
 
 	private VirtualOrganization vo;
 	private int voId;
@@ -67,7 +64,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 	 * Creates a tab instance
 	 * @param voId
 	 */
-	public VoFacilitiesPropagationsTabItem(int voId){
+	public VoResourcesPropagationsTabItem(int voId){
 		this.voId = voId;
 		JsonCallbackEvents events = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
@@ -81,7 +78,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 	 * Creates a tab instance
 	 * @param vo
 	 */
-	public VoFacilitiesPropagationsTabItem(VirtualOrganization vo){
+	public VoResourcesPropagationsTabItem(VirtualOrganization vo){
 		this.voId = vo.getId();
 		this.vo = vo;
 	}
@@ -99,7 +96,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 		notDeterminedCounter = 0;
 		procesingCounter = 0;
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": facilities states");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": resources state");
 		final TabItem tab = this;
 
 		VerticalPanel mainTab = new VerticalPanel();
@@ -134,7 +131,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 			 help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
 			 */
 
-		final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+		final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(), SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().reloadTab(tab);
 			}
@@ -159,7 +156,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 		content.setWidget(0, 0, im);
 		content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 
-		final GetFacilityState callback = new GetFacilityState(0, voId, new JsonCallbackEvents(){
+		final GetAllResourcesState callback = new GetAllResourcesState(voId, new JsonCallbackEvents(){
 			public void onLoadingStart(){
 				im.loadingStart();
 				cb.setProcessing(true);
@@ -173,145 +170,130 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 				cb.setProcessing(false);
 				content.clear();
 				content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
-				ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);
+				ArrayList<ResourceState> list = JsonUtils.jsoAsList(jso);
 				if (list != null && !list.isEmpty()){
 
-					list = new TableSorter<FacilityState>().sortByNumberOfDestinations(list);
-					ArrayList<FacilityState> clusters = new ArrayList<FacilityState>();
-					ArrayList<FacilityState> hosts = new ArrayList<FacilityState>();
-					for (final FacilityState state : list) {
-						if (state.getDestinations().size() > 1) {
-							clusters.add(state);
-						} else {
-							hosts.add(state);
-						}
-					}
-
-					clusters = new TableSorter<FacilityState>().sortByFacilityName(clusters);
-					hosts = new TableSorter<FacilityState>().sortByFacilityName(hosts);
+					list = new TableSorter<ResourceState>().sortByResourceName(list);
 
 					// PROCESS CLUSTERS (with more than one destinations)
 
-					for (final FacilityState state : clusters) {
+					for (final ResourceState state : list) {
 
-						content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "</strong>");
+						content.setHTML(mainrow, 0, new Image(LargeIcons.INSTANCE.serverGroupIcon())+"<span class=\"now-managing\" style=\"display: inline-block; position: relative; top: -8px;\">" + state.getResource().getName() + "</span>");
 
-						final FlowPanel inner = new FlowPanel();
-						content.setWidget(mainrow+1, 0, inner);
+						ArrayList<Task> tasks = new TableSorter<Task>().sortByService(JsonUtils.<Task>jsoAsList(state.getTasks()));
+
+						if (tasks == null || tasks.isEmpty()) notDeterminedCounter++;
+
+						boolean allOk = true;
+						for (Task tsk :tasks) {
+							if (tsk.getStatus().equalsIgnoreCase("ERROR")) {
+								errorCounter++;
+								allOk = false;
+								break;
+							}
+						}
+						if (allOk && tasks != null && !tasks.isEmpty()) okCounter++;
+
+						ListDataProvider<Task> dataProvider = new ListDataProvider<Task>();
+						PerunTable<Task> table;
+
+						// Table data provider.
+						dataProvider = new ListDataProvider<Task>(tasks);
+
+						// Cell table
+						table = new PerunTable<Task>(tasks);
+						table.removeRowCountChangeHandler();
+
+						// Connect the table to the data provider.
+						dataProvider.addDataDisplay(table);
+
+						// Sorting
+						ColumnSortEvent.ListHandler<Task> columnSortHandler = new ColumnSortEvent.ListHandler<Task>(dataProvider.getList());
+						table.addColumnSortHandler(columnSortHandler);
+
+						// set empty content & loader
+						AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+						loaderImage.setEmptyResultMessage("No service configuration was propagated to this resource.");
+						table.setEmptyTableWidget(loaderImage);
+						loaderImage.loadingFinished();
+
+						table.addIdColumn("Task Id");
+
+						// Service column
+						Column<Task, String> serviceColumn = JsonUtils.addColumn(
+								new JsonUtils.GetValue<Task, String>() {
+									public String getValue(Task task) {
+										return String.valueOf(task.getExecService().getService().getName());
+									}
+								}, null);
+
+						// status column
+						Column<Task, String> statusColumn = JsonUtils.addColumn(
+								new JsonUtils.GetValue<Task, String>() {
+									public String getValue(Task task) {
+										return String.valueOf(task.getStatus());
+									}
+								}, null);
+
+						// start COLUMN
+						TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
+							public String getValue(Task result) {
+								return result.getStartTime();
+							}
+						};
+
+						// end COLUMN
+						TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
+							public String getValue(Task result) {
+								return result.getEndTime();
+							}
+						};
+
+						// schedule COLUMN
+						TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
+							public String getValue(Task result) {
+								return result.getSchedule();
+							}
+						};
+
+						// Add the columns.
+						table.addColumn(serviceColumn, "Service");
+						table.addColumn(statusColumn, "Status");
+						table.addColumn(scheduleColumn, "Scheduled");
+						table.addColumn(startTimeColumn, "Started");
+						table.addColumn(endTimeColumn, "Ended");
+
+						// set row styles based on task state
+						table.setRowStyles(new RowStyles<Task>(){
+							public String getStyleNames(Task row, int rowIndex) {
+
+								if (row.getStatus().equalsIgnoreCase("NONE")) {
+									return "rowdarkgreen";
+								}
+								else if (row.getStatus().equalsIgnoreCase("DONE")){
+									return "rowgreen";
+								}
+								else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
+									return "rowyellow";
+								}
+								else if (row.getStatus().equalsIgnoreCase("ERROR")){
+									return "rowred";
+								}
+								return "";
+
+							}
+						});
+
+						table.setWidth("100%");
+
+						content.setWidget(mainrow+1, 0, table);
 						content.getFlexCellFormatter().setStyleName(mainrow + 1, 0, "propagationTablePadding");
 
-						Set<String> destinations = state.getDestinations().keySet();
-						ArrayList<String> destList = new ArrayList<String>();
-						int width = 0;
-						for (String dest : destinations) {
-							destList.add(dest);
-							if (dest.indexOf(".")*8 > width) {
-								width = dest.indexOf(".")*8;
-							}
-						}
-
-						Collections.sort(destList);
-
-						for (final String dest : destList) {
-
-							String show = dest.substring(0, dest.indexOf("."));
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+show+"</span>");
-							hyp.addClickHandler(new ClickHandler() {
-								public void onClick(ClickEvent clickEvent) {
-									session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), vo, dest, false));
-								}
-							});
-							inner.add(hyp);
-
-							// style
-							if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-								hyp.addStyleName("red");
-								errorCounter++;
-							} else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-								hyp.addStyleName("green");
-								okCounter++;
-							} else {
-								hyp.addStyleName("notdetermined");
-								notDeterminedCounter++;
-							}
-
-						}
-
-						if (destList.isEmpty()) {
-							notDeterminedCounter++;
-						}
-
 						mainrow++;
 						mainrow++;
 
 					}
-
-					// PROCESS HOSTS (with one or less destination)
-
-					// FIX WIDTH
-					int width = 0;
-					for (FacilityState state : hosts) {
-						if (state.getDestinations().size() < 2) {
-							if (state.getFacility().getName().length()*8 > width) {
-								width = state.getFacility().getName().length()*8;
-							}
-						}
-					}
-
-					FlowPanel inner = new FlowPanel();
-
-					for (final FacilityState state : hosts) {
-
-						Set<String> destinations = state.getDestinations().keySet();
-						ArrayList<String> destList = new ArrayList<String>();
-						for (String dest : destinations) {
-							destList.add(dest);
-						}
-
-						Collections.sort(destList);
-
-						for (final String dest : destList) {
-
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+dest+"</span>");
-							inner.add(hyp);
-							hyp.addClickHandler(new ClickHandler() {
-								public void onClick(ClickEvent clickEvent) {
-									session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), vo, dest, false));
-								}
-							});
-
-							// style
-							if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-								hyp.addStyleName("red");
-								errorCounter++;
-							} else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-								hyp.addStyleName("green");
-								okCounter++;
-							} else {
-								hyp.addStyleName("notdetermined");
-								notDeterminedCounter++;
-							}
-						}
-
-						if (destList.isEmpty()) {
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+state.getFacility().getName()+"</span>");
-							inner.add(hyp);
-							hyp.addStyleName("notdetermined");
-							notDeterminedCounter++;
-						}
-
-					}
-
-					if (!hosts.isEmpty()) {
-						content.setHTML(mainrow, 0, "<strong>Single hosts</strong>");
-						mainrow++;
-					}
-					content.setWidget(mainrow, 0, inner);
-					content.getFlexCellFormatter().setStyleName(mainrow, 0, "propagationTablePadding");
-					mainrow++;
 
 				}
 
@@ -361,7 +343,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VoFacilitiesPropagationsTabItem other = (VoFacilitiesPropagationsTabItem) obj;
+		VoResourcesPropagationsTabItem other = (VoResourcesPropagationsTabItem) obj;
 		if (voId != other.voId)
 			return false;
 		return true;
@@ -373,7 +355,7 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(vo, "Facilities states", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources state", getUrlWithParameters());
 		if(vo != null){
 			session.setActiveVo(vo);
 			return;
@@ -401,9 +383,9 @@ public class VoFacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl 
 		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo="+voId;
 	}
 
-	static public VoFacilitiesPropagationsTabItem load(Map<String, String> parameters) {
+	static public VoResourcesPropagationsTabItem load(Map<String, String> parameters) {
 		int voId = Integer.parseInt(parameters.get("vo"));
-		return new VoFacilitiesPropagationsTabItem(voId);
+		return new VoResourcesPropagationsTabItem(voId);
 	}
 
 }

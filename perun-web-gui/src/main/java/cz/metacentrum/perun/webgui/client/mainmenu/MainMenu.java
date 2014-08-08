@@ -304,7 +304,7 @@ public class MainMenu {
 			settings = new VoSettingsTabItem(session.getActiveVo());
 			applications = new VoApplicationsTabItem(session.getActiveVo());
 			applicationForm = new VoApplicationFormSettingsTabItem(session.getActiveVo());
-			propagations = new VoFacilitiesPropagationsTabItem(session.getActiveVo());
+			propagations = new VoResourcesPropagationsTabItem(session.getActiveVo());
 			tags = new VoResourcesTagsTabItem(session.getActiveVo());
 		}
 		menuStackPanel.setStackText(sectionsIds.get(VO_ADMIN), menu.getHeader(), true);
@@ -323,10 +323,10 @@ public class MainMenu {
 		if (menu.isDisplayAdvanced()) {
 			menu.addItem(new MainMenuItem("Application form", applicationForm, SmallIcons.INSTANCE.applicationFormIcon()));
 			menu.addItem(new MainMenuItem("Resource tags", tags, SmallIcons.INSTANCE.tagOrangeIcon()));
+			menu.addItem(new MainMenuItem("Resources state", propagations, SmallIcons.INSTANCE.arrowRightIcon()));
 			menu.addItem(new MainMenuItem("Settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
 			menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
 			menu.addItem(new MainMenuItem("External sources", extsources, SmallIcons.INSTANCE.worldIcon()));
-			menu.addItem(new MainMenuItem("Facilities states", propagations, SmallIcons.INSTANCE.arrowRightIcon()));
 			menu.addAdvancedLink(vo != null);
 		} else {
 			menu.addAdvancedLink(vo != null);
