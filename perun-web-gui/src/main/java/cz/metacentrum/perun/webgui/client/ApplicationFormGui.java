@@ -299,119 +299,138 @@ public class ApplicationFormGui implements EntryPoint {
 						// non authz user - is used URL same as default URL (non on production) ?
 						if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
-							// CHALLENGE WITH CAPTCHA
+							// IF VALIDATION LINK
 
-							FlexTable ft = new FlexTable();
-							ft.setSize("100%", "500px");
+							if (Location.getParameterMap().keySet().contains("m") &&
+									Location.getParameterMap().keySet().contains("i")) {
 
-							// captcha with public key
-							String key = Utils.getReCaptchaPublicKey();
-							if (key == null) {
-
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("0");
-								error.setName("Missing public key");
-								error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
-								error.setRequestURL("");
-								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
-								loadingBox.hide();
-								return;
-							}
-
-							final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
-
-							final CustomButton cb = new CustomButton();
-							cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
-							cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
-							cb.setImageAlign(true);
-
-							final TextBox response = new TextBox();
-							captcha.setOwnTextBox(response);
-
-							Scheduler.get().scheduleDeferred(new Command() {
-								@Override
-								public void execute() {
-									response.setFocus(true);
+								// passed params doesn't matter, different UI is loaded.
+								final GetApplicationsForUser request;
+								if (session.getUser() == null) {
+									// if not yet user in perun, search by actor / extSourceName
+									request = new GetApplicationsForUser(0, externalEvents);
+								} else {
+									// if user in perun
+									request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
 								}
-							});
+								request.retrieveData();
 
-							response.addKeyDownHandler(new KeyDownHandler() {
-								@Override
-								public void onKeyDown(KeyDownEvent event) {
-									if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-										cb.click();
+							} else {
+
+								// CHALLENGE WITH CAPTCHA
+
+								FlexTable ft = new FlexTable();
+								ft.setSize("100%", "500px");
+
+								// captcha with public key
+								String key = Utils.getReCaptchaPublicKey();
+								if (key == null) {
+
+									PerunError error = new JSONObject().getJavaScriptObject().cast();
+									error.setErrorId("0");
+									error.setName("Missing public key");
+									error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
+									error.setRequestURL("");
+									UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
+									loadingBox.hide();
+									return;
+								}
+
+								final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
+
+								final CustomButton cb = new CustomButton();
+								cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
+								cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
+								cb.setImageAlign(true);
+
+								final TextBox response = new TextBox();
+								captcha.setOwnTextBox(response);
+
+								Scheduler.get().scheduleDeferred(new Command() {
+									@Override
+									public void execute() {
+										response.setFocus(true);
+									}
+								});
+
+								response.addKeyDownHandler(new KeyDownHandler() {
+									@Override
+									public void onKeyDown(KeyDownEvent event) {
+										if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+											cb.click();
+										}
+									}
+								});
+
+								cb.addClickHandler(new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent clickEvent) {
+										VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents() {
+											public void onFinished(JavaScriptObject jso) {
+
+												BasicOverlayType bt = jso.cast();
+												if (bt.getBoolean()) {
+
+													// OK captcha answer - load GUI
+
+													// Authorized anonymous user
+													session.getUiElements().setLogText("Auth OK");
+
+													final GetApplicationsForUser request;
+													if (session.getUser() == null) {
+														// if not yet user in perun, search by actor / extSourceName
+														request = new GetApplicationsForUser(0, externalEvents);
+													} else {
+														// if user in perun
+														request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
+													}
+													request.retrieveData();
+
+												} else {
+													// wrong captcha answer
+													UiElements.generateAlert(ApplicationMessages.INSTANCE.captchaErrorHeader(), ApplicationMessages.INSTANCE.captchaErrorMessage());
+												}
+											}
+										}));
+										req.retrieveData();
+									}
+								});
+
+								// set layout
+
+								int row = 0;
+
+								// display VO logo if present in attribute
+								for (int i = 0; i < vo.getAttributes().length(); i++) {
+									if (vo.getAttributes().get(i).getFriendlyName().equalsIgnoreCase("voLogoURL")) {
+										ft.setWidget(row, 0, new Image(vo.getAttributes().get(i).getValue()));
+										ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+										row++;
 									}
 								}
-							});
 
-							cb.addClickHandler(new ClickHandler() {
-								@Override
-								public void onClick(ClickEvent clickEvent) {
-									VerifyCaptcha req = new VerifyCaptcha(captcha.getChallenge(), captcha.getResponse(), JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents(){
-										public void onFinished(JavaScriptObject jso) {
+								ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+								ft.setHTML(row, 0, ApplicationMessages.INSTANCE.captchaDescription());
+								ft.setWidget(row + 1, 0, captcha);
+								ft.getFlexCellFormatter().setHorizontalAlignment(row + 1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+								ft.getFlexCellFormatter().setVerticalAlignment(row + 1, 0, HasVerticalAlignment.ALIGN_BOTTOM);
 
-											BasicOverlayType bt = jso.cast();
-											if (bt.getBoolean()) {
 
-												// OK captcha answer - load GUI
+								FlexTable sendFt = new FlexTable();
+								sendFt.setStyleName("inputFormFlexTable");
 
-												// Authorized anonymous user
-												session.getUiElements().setLogText("Auth OK");
+								sendFt.setWidget(0, 0, response);
+								sendFt.setWidget(0, 1, cb);
 
-												final GetApplicationsForUser request;
-												if (session.getUser() == null) {
-													// if not yet user in perun, search by actor / extSourceName
-													request = new GetApplicationsForUser(0, externalEvents);
-												} else {
-													// if user in perun
-													request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
-												}
-												request.retrieveData();
+								ft.setWidget(row + 2, 0, sendFt);
+								ft.getFlexCellFormatter().setHorizontalAlignment(row + 2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+								ft.getFlexCellFormatter().setVerticalAlignment(row + 2, 0, HasVerticalAlignment.ALIGN_TOP);
 
-											} else {
-												// wrong captcha answer
-												UiElements.generateAlert(ApplicationMessages.INSTANCE.captchaErrorHeader(), ApplicationMessages.INSTANCE.captchaErrorMessage());
-											}
-										}
-									}));
-									req.retrieveData();
-								}
-							});
+								ft.setHeight("100%");
+								ft.getFlexCellFormatter().setHeight(row, 0, "50%");
+								ft.getFlexCellFormatter().setHeight(row + 2, 0, "50%");
 
-							// set layout
-
-							int row = 0;
-
-							// display VO logo if present in attribute
-							for (int i=0; i<vo.getAttributes().length(); i++) {
-								if (vo.getAttributes().get(i).getFriendlyName().equalsIgnoreCase("voLogoURL")) {
-									ft.setWidget(row, 0, new Image(vo.getAttributes().get(i).getValue()));
-									ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-									row++;
-								}
 							}
-
-							ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-							ft.setHTML(row, 0, ApplicationMessages.INSTANCE.captchaDescription());
-							ft.setWidget(row+1, 0, captcha);
-							ft.getFlexCellFormatter().setHorizontalAlignment(row+1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-							ft.getFlexCellFormatter().setVerticalAlignment(row + 1, 0, HasVerticalAlignment.ALIGN_BOTTOM);
-
-
-							FlexTable sendFt = new FlexTable();
-							sendFt.setStyleName("inputFormFlexTable");
-
-							sendFt.setWidget(0, 0, response);
-							sendFt.setWidget(0, 1, cb);
-
-							ft.setWidget(row+2, 0, sendFt);
-							ft.getFlexCellFormatter().setHorizontalAlignment(row + 2, 0, HasHorizontalAlignment.ALIGN_CENTER);
-							ft.getFlexCellFormatter().setVerticalAlignment(row + 2, 0, HasVerticalAlignment.ALIGN_TOP);
-
-							ft.setHeight("100%");
-							ft.getFlexCellFormatter().setHeight(row, 0, "50%");
-							ft.getFlexCellFormatter().setHeight(row+2, 0, "50%");
-
 
 							// finish loading GUI
 							loadingBox.hide();
@@ -562,7 +581,8 @@ public class ApplicationFormGui implements EntryPoint {
 					verifyM != null && !verifyM.isEmpty()) {
 
 				final SimplePanel verifContent = new SimplePanel();
-				leftMenu.addItem(ApplicationMessages.INSTANCE.emailValidationMenuItem(), SmallIcons.INSTANCE.documentSignatureIcon(), verifContent);
+				Anchor a = leftMenu.addItem(ApplicationMessages.INSTANCE.emailValidationMenuItem(), SmallIcons.INSTANCE.emailIcon(), verifContent);
+				a.fireEvent(new ClickEvent(){});
 
 				ValidateEmail request = new ValidateEmail(verifyI, verifyM, new JsonCallbackEvents(){
 					@Override
