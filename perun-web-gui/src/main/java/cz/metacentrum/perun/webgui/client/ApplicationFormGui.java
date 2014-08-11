@@ -315,6 +315,11 @@ public class ApplicationFormGui implements EntryPoint {
 								}
 								request.retrieveData();
 
+								// finish loading GUI
+								loadingBox.hide();
+								bodySplitter.clear();
+								bodySplitter.add(ft);
+
 							} else {
 
 								// CHALLENGE WITH CAPTCHA
@@ -430,12 +435,12 @@ public class ApplicationFormGui implements EntryPoint {
 								ft.getFlexCellFormatter().setHeight(row, 0, "50%");
 								ft.getFlexCellFormatter().setHeight(row + 2, 0, "50%");
 
-							}
+								// finish loading GUI
+								loadingBox.hide();
+								bodySplitter.clear();
+								bodySplitter.add(ft);
 
-							// finish loading GUI
-							loadingBox.hide();
-							bodySplitter.clear();
-							bodySplitter.add(ft);
+							}
 
 						} else {
 
