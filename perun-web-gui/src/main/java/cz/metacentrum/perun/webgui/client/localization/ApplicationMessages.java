@@ -126,7 +126,7 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Your e-mail address has been verified !")
 	String emailValidationSuccess();
 
-	@DefaultMessage("Your e-mail address has NOT been verified !</br>Wrong verification code !")
+	@DefaultMessage("Your e-mail address has NOT been verified !<p>Wrong verification code !")
 	String emailValidationFail();
 
 	@DefaultMessage("Change language to Czech")
