@@ -77,5 +77,6 @@ groups_groups
 res_tags
 tags_resources
 mailchange
+pwdreset
 configurations
 auditer_log

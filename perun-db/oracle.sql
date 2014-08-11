@@ -1,4 +1,5 @@
-# database version 3.1.11.
+-- database version 3.1.11
+
 create user perunv3 identified by password;
 grant create session to perunv3;
 grant create sequence to perunv3;
@@ -6,1016 +7,1015 @@ grant create table to perunv3;
 grant create view to perunv3;
 grant unlimited tablespace to perunv3;
 
-
 connect perunv3
 
 create table vos (
-   id integer not null,
-   name varchar2(128) not null,
-   short_name varchar2(32) not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	short_name varchar2(32) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table users (
-   id integer not null,
-   first_name varchar2(64),
-   last_name varchar2(64) not null,
-   middle_name varchar2(64),
-   title_before varchar2(20),
-   title_after varchar2(20),
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   service_acc char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	first_name varchar2(64),
+	last_name varchar2(64) not null,
+	middle_name varchar2(64),
+	title_before varchar2(20),
+	title_after varchar2(20),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	service_acc char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table owners (
-   id integer not null,
-   name varchar2(128) not null,
-   contact varchar2(100),
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   type varchar2(128) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	contact varchar2(100),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	type varchar2(128) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table cabinet_categories (
-   id integer not null,
-   name varchar2(128) not null,
-   rank number(38,1) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	rank number(38,1) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table cabinet_publication_systems (
-   id integer not null,
-   friendlyName varchar2(128) not null,
-   url varchar2(128) not null,
-   username varchar2(64),
-   password varchar2(64),
-   loginNamespace varchar2(128) not null,
-   type varchar2(128) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	friendlyName varchar2(128) not null,
+	url varchar2(128) not null,
+	username varchar2(64),
+	password varchar2(64),
+	loginNamespace varchar2(128) not null,
+	type varchar2(128) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table cabinet_publications (
-   id integer not null,
-   externalId integer not null,
-   publicationSystemId integer not null,
-   title varchar2(1024) not null,
-   year integer not null,
-   main varchar2(4000),
-   isbn varchar2(32),
-   categoryId integer not null,
-   createdBy varchar2(1024) default user not null,
-   createdDate date not null,
-   rank  number (38,1) default 0 not null,
-   doi varchar2(256),
-   locked varchar2(1) default 0 not null  ,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	externalId integer not null,
+	publicationSystemId integer not null,
+	title varchar2(1024) not null,
+	year integer not null,
+	main varchar2(4000),
+	isbn varchar2(32),
+	categoryId integer not null,
+	createdBy varchar2(1024) default user not null,
+	createdDate date not null,
+	rank  number (38,1) default 0 not null,
+	doi varchar2(256),
+	locked varchar2(1) default 0 not null  ,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table cabinet_authorships (
-   id integer not null,
-   publicationId integer not null,
-   userId integer not null,
-   createdBy varchar2(1024) default user not null,
-   createdDate date not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	publicationId integer not null,
+	userId integer not null,
+	createdBy varchar2(1024) default user not null,
+	createdDate date not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table cabinet_thanks (
-   id integer not null,
-   publicationid integer not null,
-   ownerId integer not null,
-   createdBy varchar2(1024) default user not null,
-   createdDate date not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	publicationid integer not null,
+	ownerId integer not null,
+	createdBy varchar2(1024) default user not null,
+	createdDate date not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table facilities (
-    id integer not null,
-    name varchar2(128) not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table resources (
-    id integer not null,
-    facility_id integer not null,
-    name varchar2(128) not null,
-    dsc varchar2(1024),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    vo_id integer not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	facility_id integer not null,
+	name varchar2(128) not null,
+	dsc varchar2(1024),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	vo_id integer not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table destinations (
-    id integer not null,
-    destination varchar2(1024) not null,
-    type varchar2(20) not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    created_by_uid integer,
-    modified_by_uid integer
+	id integer not null,
+	destination varchar2(1024) not null,
+	type varchar2(20) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table facility_owners (
-    facility_id integer not null,
-    owner_id  integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	facility_id integer not null,
+	owner_id  integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table groups (
-    id integer not null,
-    name varchar2(128) not null,
-    dsc varchar2(1024),
-    vo_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    parent_group_id integer,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	dsc varchar2(1024),
+	vo_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	parent_group_id integer,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table members (
-   id integer not null,
-   user_id integer not null,
-   vo_id integer not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	user_id integer not null,
+	vo_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table routing_rules (
-    id integer not null,
-    routing_rule varchar2(512) not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	routing_rule varchar2(512) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table dispatcher_settings (
-    ip_address varchar2(40) not null,
-    port integer not null,
-    last_check_in date default (sysdate),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	ip_address varchar2(40) not null,
+	port integer not null,
+	last_check_in date default (sysdate),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table engines (
-    id integer not null,
-    ip_address varchar2(40) not null,
-    port integer not null,
-    last_check_in date default (sysdate),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	ip_address varchar2(40) not null,
+	port integer not null,
+	last_check_in date default (sysdate),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table engine_routing_rule (
-    engine_id integer not null,
-    routing_rule_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	engine_id integer not null,
+	routing_rule_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table processing_rules (
-    id integer not null,
-    processing_rule varchar2(1024) not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	processing_rule varchar2(1024) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table roles (
-    id integer not null,
-    name varchar2 (32) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2 (32) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table action_types (
-   id integer not null,
-   action_type varchar2(20) not null,
-   description varchar2(1024)
+	id integer not null,
+	action_type varchar2(20) not null,
+	description varchar2(1024)
 );
 
 create table membership_types (
-    id integer not null,
-    membership_type varchar2(10) not null,
-    description varchar2(1024)
+	id integer not null,
+	membership_type varchar2(10) not null,
+	description varchar2(1024)
 );
 
 create table attr_names (
-    id integer not null,
-    default_attr_id integer,
-    attr_name varchar2(384) not null,
-    friendly_name varchar2(128) not null,
-    namespace varchar2(256) not null,
-    type varchar2(256) not null,
-    dsc varchar2(1024),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    created_by_uid integer,
-    modified_by_uid integer,
-    display_name varchar2(256)
+	id integer not null,
+	default_attr_id integer,
+	attr_name varchar2(384) not null,
+	friendly_name varchar2(128) not null,
+	namespace varchar2(256) not null,
+	type varchar2(256) not null,
+	dsc varchar2(1024),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	display_name varchar2(256)
 );
 
 create table attributes_authz (
-   attr_id integer not null,
-   role_id integer not null,
-   action_type_id integer not null
+	attr_id integer not null,
+	role_id integer not null,
+	action_type_id integer not null
 );
 
 create table authz (
-    user_id integer,
-    role_id integer not null,
-    vo_id integer,
-    facility_id integer,
-    member_id integer,
-    group_id integer,
-    service_id integer,
-    resource_id integer,
-    service_principal_id integer,
-    created_by_uid integer,
-    modified_by_uid integer,
-    authorized_group_id integer
+	user_id integer,
+	role_id integer not null,
+	vo_id integer,
+	facility_id integer,
+	member_id integer,
+	group_id integer,
+	service_id integer,
+	resource_id integer,
+	service_principal_id integer,
+	created_by_uid integer,
+	modified_by_uid integer,
+	authorized_group_id integer
 );
 
 create table hosts (
-   id integer not null,
-   hostname varchar2(128) not null,
-   facility_id integer not null,
-   dsc varchar2(1024),
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	hostname varchar2(128) not null,
+	facility_id integer not null,
+	dsc varchar2(1024),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table host_attr_values (
-    host_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	host_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table auditer_consumers (
-   id integer not null,
-   name varchar2(256) not null,
-   last_processed_id integer,
-   created_at date default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at  date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(256) not null,
+	last_processed_id integer,
+	created_at date default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at  date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table services (
-   id integer not null,
-   name varchar2(128) not null,
-   owner_id integer,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	owner_id integer,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_processing_rule (
-    service_id integer not null,
-    processing_rule_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	service_id integer not null,
+	processing_rule_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_required_attrs (
-    service_id integer not null,
-    attr_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	service_id integer not null,
+	attr_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_user_users (
-   user_id integer not null,
-   service_user_id integer not null,
-   created_by_uid integer,
-   modified_by_uid integer,
-   modified_at date default sysdate not null,
-   status char(1) default '0' not null
+	user_id integer not null,
+	service_user_id integer not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	modified_at date default sysdate not null,
+	status char(1) default '0' not null
 );
 
 create table exec_services (
-   id integer not null,
-   service_id integer not null,
-   default_delay integer not null,
-   enabled char(1) not null,
-   default_recurrence integer not null,
-   script varchar2(256) not null,
-   type varchar2(10) not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	service_id integer not null,
+	default_delay integer not null,
+	enabled char(1) not null,
+	default_recurrence integer not null,
+	script varchar2(256) not null,
+	type varchar2(10) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_denials (
-    id integer not null,
-    exec_service_id integer not null,
-    facility_id integer,
-    destination_id integer,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	exec_service_id integer not null,
+	facility_id integer,
+	destination_id integer,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_dependencies (
-    exec_service_id integer not null,
-    dependency_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    created_by_uid integer,
-    modified_by_uid integer,
-    type varchar2(16) default 'SERVICE' not null
+	exec_service_id integer not null,
+	dependency_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	type varchar2(16) default 'SERVICE' not null
 );
 
 create table resource_services (
-    service_id integer not null,
-    resource_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	service_id integer not null,
+	resource_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application (
-    id integer not null,
-    vo_id integer not null,
-    user_id integer,
-    apptype varchar2(128) not null,
-    extSourceName varchar2(4000),
-    extSourceType varchar2(4000),
-    fed_info varchar2(4000),
-    state varchar2(128),
-    extSourceLoa integer,
-    group_id integer,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	vo_id integer not null,
+	user_id integer,
+	apptype varchar2(128) not null,
+	extSourceName varchar2(4000),
+	extSourceType varchar2(4000),
+	fed_info varchar2(4000),
+	state varchar2(128),
+	extSourceLoa integer,
+	group_id integer,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_form (
-    id integer not null,
-    vo_id integer not null,
-    automatic_approval char(1),
-    automatic_approval_extension char(1),
-    module_name varchar2(128),
-    group_id integer,
-    created_by_uid integer,
-    modified_by_uid integer
+	id integer not null,
+	vo_id integer not null,
+	automatic_approval char(1),
+	automatic_approval_extension char(1),
+	module_name varchar2(128),
+	group_id integer,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_form_items (
-    id integer not null,
-    form_id integer not null,
-    ordnum integer not null,
-    shortname varchar2(128) not null,
-    required char(1),
-    type varchar2(128),
-    fed_attr varchar2(128),
-    dst_attr varchar2(384),
-    regex varchar2(4000),
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	form_id integer not null,
+	ordnum integer not null,
+	shortname varchar2(128) not null,
+	required char(1),
+	type varchar2(128),
+	fed_attr varchar2(128),
+	dst_attr varchar2(384),
+	regex varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_form_item_apptypes (
-    item_id integer not null,
-    apptype varchar2(128) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	item_id integer not null,
+	apptype varchar2(128) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_form_item_texts (
-    item_id integer not null,
-    locale varchar2(128) not null,
-    label varchar2(4000),
-    options varchar2(4000),
-    help varchar2(4000),
-    error_message varchar2(4000),
-   created_by_uid integer,
-   modified_by_uid integer
+	item_id integer not null,
+	locale varchar2(128) not null,
+	label varchar2(4000),
+	options varchar2(4000),
+	help varchar2(4000),
+	error_message varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_data (
-    id integer not null,
-    app_id integer not null,
-    item_id integer,
-    shortname varchar2(128),
-    value varchar2(4000 char),
-    assurance_level varchar2(128),
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	app_id integer not null,
+	item_id integer,
+	shortname varchar2(128),
+	value varchar2(4000 char),
+	assurance_level varchar2(128),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_mails (
-    id integer not null,
-    form_id integer not null,
-    app_type varchar2(30) not null,
-    mail_type varchar2(30) not null,
-    send varchar2(1) not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	form_id integer not null,
+	app_type varchar2(30) not null,
+	mail_type varchar2(30) not null,
+	send varchar2(1) not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_mail_texts (
-    mail_id integer not null,
-    locale varchar2(10) not null,
-    subject varchar2(1024),
-    text varchar2(4000),
-   created_by_uid integer,
-   modified_by_uid integer
+	mail_id integer not null,
+	locale varchar2(10) not null,
+	subject varchar2(1024),
+	text varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table application_reserved_logins (
-   login varchar2(256) not null,
-   namespace varchar2(30) not null,
-   app_id integer not null,
-   created_by varchar2(1024) default user not null,
-   created_at date default sysdate not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	login varchar2(256) not null,
+	namespace varchar2(30) not null,
+	app_id integer not null,
+	created_by varchar2(1024) default user not null,
+	created_at date default sysdate not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table facility_service_destinations (
-    service_id integer not null,
-    facility_id integer not null,
-    destination_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    created_by_uid integer,
-    modified_by_uid integer,
-    propagation_type varchar2(10) default 'PARALLEL'
+	service_id integer not null,
+	facility_id integer not null,
+	destination_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	propagation_type varchar2(10) default 'PARALLEL'
 );
 
 create table entityless_attr_values (
-    subject varchar2(256) not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	subject varchar2(256) not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table facility_attr_values (
-    facility_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	facility_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table group_attr_values (
-    group_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	group_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table resource_attr_values (
-    resource_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	resource_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table group_resource_attr_values (
-    group_id integer not null,
-    resource_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	group_id integer not null,
+	resource_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table groups_members (
-    group_id integer not null,
-    member_id integer not null,
-    created_at  date default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at  date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    created_by_uid integer,
-    modified_by_uid integer,
-    membership_type integer not null,
-    source_group_id integer not null
+	group_id integer not null,
+	member_id integer not null,
+	created_at  date default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at  date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	membership_type integer not null,
+	source_group_id integer not null
 );
 
 create table groups_resources (
-    group_id integer not null,
-    resource_id integer not null,
-    created_at  date default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at  date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	group_id integer not null,
+	resource_id integer not null,
+	created_at  date default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at  date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table member_attr_values (
-    member_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	member_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table member_resource_attr_values (
-    member_id integer not null,
-    resource_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	member_id integer not null,
+	resource_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table user_attr_values (
-    user_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	user_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table user_facility_attr_values (
-    user_id integer not null,
-    facility_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	user_id integer not null,
+	facility_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table vo_attr_values (
-    vo_id integer not null,
-    attr_id integer not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-    attr_value_text clob,
-   created_by_uid integer,
-   modified_by_uid integer
+	vo_id integer not null,
+	attr_id integer not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table ext_sources (
-   id integer not null,
-   name varchar2(256) not null,
-   type varchar2(64),
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(256) not null,
+	type varchar2(64),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table ext_sources_attributes (
-    ext_sources_id integer not null,
-    attr_name varchar2(128) not null,
-    attr_value varchar2(4000 char),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	ext_sources_id integer not null,
+	attr_name varchar2(128) not null,
+	attr_value varchar2(4000 char),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table vo_ext_sources (
-    vo_id integer not null,
-    ext_sources_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	vo_id integer not null,
+	ext_sources_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table user_ext_sources (
-   id integer not null,
-   user_id integer not null,
-   login_ext varchar2(256) not null,
-   ext_sources_id integer not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   status char(1) default '0' not null,
-   loa integer,
-   last_access date default sysdate not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	user_id integer not null,
+	login_ext varchar2(256) not null,
+	ext_sources_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	loa integer,
+	last_access date default sysdate not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_packages (
-    id integer not null,
-    name varchar2(128) not null,
-    description varchar2(512),
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	name varchar2(128) not null,
+	description varchar2(512),
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table service_service_packages (
-    service_id integer not null,
-    package_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	service_id integer not null,
+	package_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table tasks (
-    id integer not null,
-    exec_service_id  integer not null,
-    facility_id  integer not null,
-    schedule date not null,
-    recurrence integer not null,
-    delay integer not null,
-    status varchar2(16) not null,
-    start_time date,
-    end_time date,
-    engine_id integer not null,
-    created_at date  default sysdate not null,
-    err_message varchar2(4000),
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	exec_service_id  integer not null,
+	facility_id  integer not null,
+	schedule date not null,
+	recurrence integer not null,
+	delay integer not null,
+	status varchar2(16) not null,
+	start_time date,
+	end_time date,
+	engine_id integer not null,
+	created_at date  default sysdate not null,
+	err_message varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table tasks_results (
-    id integer not null,
-    task_id integer not null,
-    destination_id integer not null,
-    status varchar2(16) not null,
-    err_message varchar2(4000),
-    std_message varchar2(4000),
-    return_code integer,
-    timestamp date,
-    engine_id integer not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	task_id integer not null,
+	destination_id integer not null,
+	status varchar2(16) not null,
+	err_message varchar2(4000),
+	std_message varchar2(4000),
+	return_code integer,
+	timestamp date,
+	engine_id integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table auditer_log (
-   id integer not null,
-   msg clob not null,
-   actor varchar2(256) not null,
-   created_at date default sysdate not null ,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	msg clob not null,
+	actor varchar2(256) not null,
+	created_at date default sysdate not null ,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 
 create table service_principals (
-    id integer not null,
-    description varchar2(1024),
-    name varchar2(128) not null,
-    created_at date  default sysdate not null,
-    created_by varchar2(1024) default user not null,
-    modified_at date default sysdate not null,
-    modified_by varchar2(1024) default user not null,
-    status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	description varchar2(1024),
+	name varchar2(128) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table reserved_logins (
-    login varchar2(256),
-    namespace varchar2(128),
-    application varchar2(256),
-    id varchar2(1024),
-   created_by_uid integer,
-   modified_by_uid integer
+	login varchar2(256),
+	namespace varchar2(128),
+	application varchar2(256),
+	id varchar2(1024),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_audit_message (
-    message varchar2(4000),
-    id integer NOT NULL,
-   created_by_uid integer,
-   modified_by_uid integer
+	message varchar2(4000),
+	id integer NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_object (
-    id integer NOT NULL,
-    name varchar2(256),
-    properties varchar2(4000),
-    class_name varchar2(512),
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer NOT NULL,
+	name varchar2(256),
+	properties varchar2(4000),
+	class_name varchar2(512),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_pool_message (
-    id integer NOT NULL,
-    regex_id integer NOT NULL,
-    template_id integer NOT NULL,
-    key_attributes varchar2(4000) NOT NULL,
-    created date default sysdate NOT NULL,
-    notif_message varchar2(1000) NOT NULL,
-    created_by_uid integer,
-    modified_by_uid integer
+	id integer NOT NULL,
+	regex_id integer NOT NULL,
+	template_id integer NOT NULL,
+	key_attributes varchar2(4000) NOT NULL,
+	created date default sysdate NOT NULL,
+	notif_message varchar2(1000) NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_receiver (
-    id integer NOT NULL,
-    target varchar2(256) NOT NULL,
-    type_of_receiver varchar2(256) NOT NULL,
-    template_id integer NOT NULL,
-    created_by_uid integer,
-    modified_by_uid integer,
-    locale varchar2(512)
+	id integer NOT NULL,
+	target varchar2(256) NOT NULL,
+	type_of_receiver varchar2(256) NOT NULL,
+	template_id integer NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer,
+	locale varchar2(512)
 );
 
 create table pn_regex (
-    id integer NOT NULL,
-    note varchar2(256),
-    regex varchar2(4000) NOT NULL,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer NOT NULL,
+	note varchar2(256),
+	regex varchar2(4000) NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_template (
-    id integer NOT NULL,
-    primary_properties varchar2(4000) NOT NULL,
-    notify_trigger varchar2(100),
-    youngest_message_time integer,
-    oldest_message_time integer,
-    name varchar2(512),
-    sender varchar2(4000),
-    created_by_uid integer,
-    modified_by_uid integer
+	id integer NOT NULL,
+	primary_properties varchar2(4000) NOT NULL,
+	notify_trigger varchar2(100),
+	youngest_message_time integer,
+	oldest_message_time integer,
+	name varchar2(512),
+	sender varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_template_message (
-    id integer NOT NULL,
-    template_id integer NOT NULL,
-    locale varchar2(5) NOT NULL,
-    message varchar2(4000),
-   created_by_uid integer,
-   modified_by_uid integer,
-   subject varchar2(512)
+	id integer NOT NULL,
+	template_id integer NOT NULL,
+	locale varchar2(5) NOT NULL,
+	message varchar2(4000),
+	created_by_uid integer,
+	modified_by_uid integer,
+	subject varchar2(512)
 );
 
 create table pn_template_regex (
-    regex_id integer NOT NULL,
-    template_id integer NOT NULL,
-    id integer NOT NULL,
-   created_by_uid integer,
-   modified_by_uid integer
+	regex_id integer NOT NULL,
+	template_id integer NOT NULL,
+	id integer NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table pn_regex_object (
-    id integer NOT NULL,
-    regex_id integer NOT NULL,
-    object_id integer NOT NULL,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer NOT NULL,
+	regex_id integer NOT NULL,
+	object_id integer NOT NULL,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table groups_groups (
-   group_id integer not null,
-   parent_group_id integer not null,
-   group_mode integer not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null
+	group_id integer not null,
+	parent_group_id integer not null,
+	group_mode integer not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null
 );
 
 create table res_tags (
-   id integer not null,
-   vo_id integer not null,
-   tag_name varchar2 (1024) not null,
-   created_at date  default sysdate not null,
-   created_by varchar2(1024) default user not null,
-   modified_at date default sysdate not null,
-   modified_by varchar2(1024) default user not null,
-   created_by_uid integer,
-   modified_by_uid integer
+	id integer not null,
+	vo_id integer not null,
+	tag_name varchar2 (1024) not null,
+	created_at date  default sysdate not null,
+	created_by varchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by varchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table tags_resources (
-   tag_id integer not null,
-   resource_id integer not null
+	tag_id integer not null,
+	resource_id integer not null
 );
 
 create table configurations (
-   property varchar2(32) not null,
-   value varchar2(128) not null
+	property varchar2(32) not null,
+	value varchar2(128) not null
 );
 
 create table mailchange (
-id integer not null,
-value clob not null,
-user_id integer not null,
-created_at date default sysdate not null,
-created_by varchar(1024) default user not null,
-created_by_uid integer
+	id integer not null,
+	value clob not null,
+	user_id integer not null,
+	created_at date default sysdate not null,
+	created_by varchar(1024) default user not null,
+	created_by_uid integer
 );
 
 create table pwdreset (
-id integer not null,
-namespace varchar2(512) not null,
-user_id integer not null,
-created_at date default sysdate not null,
-created_by varchar(1024) default user not null,
-created_by_uid integer
+	id integer not null,
+	namespace varchar2(512) not null,
+	user_id integer not null,
+	created_at date default sysdate not null,
+	created_by varchar(1024) default user not null,
+	created_by_uid integer
 );
 
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
@@ -1198,8 +1198,8 @@ alter table vos add (constraint VO_PK primary key (id),
 constraint VO_U unique (name)
 );
 alter table ext_sources add (
-   constraint USRSRC_PK primary key(id),
-   constraint USRSRC_U unique (name)
+constraint USRSRC_PK primary key(id),
+constraint USRSRC_U unique (name)
 );
 alter table facilities add (constraint FAC_PK primary key(id),
 constraint FAC_NAME_U UNIQUE (name)
