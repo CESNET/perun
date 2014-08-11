@@ -169,13 +169,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			//If ldapc is interrupted
 		} catch (InterruptedException e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getMsg()+ "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
+			log.error("Last message has ID='" + message.getId()+ "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
 			running = false;
 			Thread.currentThread().interrupt();
 			//If some other exception is thrown
 		} catch (Exception e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getMsg() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
+			log.error("Last message has ID='" + message.getId() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
 			throw new RuntimeException(e);
 		}
 	}

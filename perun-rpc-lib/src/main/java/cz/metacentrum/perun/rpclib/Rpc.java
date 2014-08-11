@@ -30,7 +30,9 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.rpclib.api.Deserializer;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
+import cz.metacentrum.perun.rpclib.impl.JsonDeserializer;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 public class Rpc {
@@ -101,7 +103,10 @@ public class Rpc {
 			params.put("consumerName", consumerName);
 
 			try {
-				return rpcCaller.call("auditMessagesManager", "pollConsumerMessagesForParser", params).readList(AuditMessage.class);
+				Deserializer deserializer = rpcCaller.call("auditMessagesManager", "pollConsumerMessagesForParser", params);
+				// FIXME - this is check to prevent NullPointerException caused by communication with RPC.
+				if (deserializer == null) throw new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, "Unable to create deserializer.");
+				return deserializer.readList(AuditMessage.class);
 			} catch (InternalErrorException e) {
 				throw e;
 			} catch (PerunException e) {
