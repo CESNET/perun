@@ -65,7 +65,7 @@ public class LogoutWidget extends Composite {
 			CustomButton perunWebButton = new CustomButton("Go to Perun web", SmallIcons.INSTANCE.arrowRightIcon(), new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					Window.Location.replace("http://perun.metacentrum.cz/web/guide.php");
+					Window.Location.replace("http://perun.metacentrum.cz/web/");
 				}
 			});
 			perunWebButton.setImageAlign(true);
