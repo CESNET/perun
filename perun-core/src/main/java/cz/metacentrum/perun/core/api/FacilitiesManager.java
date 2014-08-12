@@ -435,7 +435,8 @@ public interface FacilitiesManager {
 	int getHostsCount(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
-	 * Adds hosts to the Facility
+	 * Adds hosts to the Facility.
+	 * Adds hosts only if host and destination with the same name doesn't exist or if privilege requirements are met.
 	 * Note: If you wish to add more hosts, it is recommended to
 	 * prepare a List<Host> of them so as there can be only one
 	 * database call.
@@ -455,6 +456,7 @@ public interface FacilitiesManager {
 
 	/**
 	 * Create hosts in Perun and add them to the Facility.
+	 * Adds hosts only if host and destination with the same name doesn't exist or if privilege requirements are met.
 	 * Names of the hosts can be generative.
 	 * The pattern is string with square brackets, e.g. "local[1-3]domain". Then the content of the brackets
 	 * is distributed, so the list is [local1domain, local2domain, local3domain].
@@ -490,6 +492,7 @@ public interface FacilitiesManager {
 
 	/**
 	 * Adds host to the Facility.
+	 * Adds host only if host and destination with the same name doesn't exist or if privilege requirements are met.
 	 *
 	 * @param perunSession
 	 * @param host
