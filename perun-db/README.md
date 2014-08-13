@@ -27,9 +27,17 @@ Empty schema of Perun's database can be created using _oracle.sql_ or _postgres.
 
 ## Migrating data between DBs ##
 
-You can dump all data from one DB and put them to different DB. **Content of auditer_log table is exported only for entries from last 10 days, since it may contain a lot of entries.** You are free to modify export script, if you really need all data.
+You can dump all data from one DB and put them to different DB using included export scripts. 
 
-Export scripts are using by default _table_order_ file with list of tables to export in correct order (for future import).
+* Run ```./script_name.pl -h``` to see all required parameters and examples of usage.
+* Export scripts require perl libraries to be installed, especially DBI (default + Oracle).
+* Export scripts are using by default _table_order_ file with list of tables to export in correct order (for future import).
+
+**Content of table: auditer_log is exported only for entries from last 10 days, since it may contain a lot of entries.**
+
+**Content of tables: tasks and tasks_results is not exported.** They contain data about current state of services propagation and you might get stuck with _processing_ tasks, which are not actually running. Manual forced propagation of all services to all facilities is recommended after full migration.
+
+You can manually add missing tables names in _table_order_ file and modify script to get all data from auditer_log table.
 
 ### Oracle to Oracle ###
 
