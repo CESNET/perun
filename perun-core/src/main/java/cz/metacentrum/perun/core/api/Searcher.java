@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import java.util.List;
 
@@ -18,8 +19,6 @@ public interface Searcher {
 	/**
 	 * This method get Map of Attributes with searching values and try to find all users, which have specific attributes in format.
 	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
-	 *
-	 * IMPORTANT: can't get CORE ATTRIBUTES
 	 *
 	 * @param sess perun session
 	 * @param attributesWithSearchingValues map of attributes names
@@ -38,6 +37,33 @@ public interface Searcher {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException;
+
+	/**
+	 * This method get Map of user Attributes with searching values and try to find all members, which have specific attributes in format for specific VO.
+	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
+	 *
+	 * if principal has no rights for operation, throw exception
+	 * if principal has no rights for some attribute on specific user, do not return this user
+	 * if attributesWithSearchingValues is null or empty, return all members from vo if principal has rights for this operation
+	 *
+	 * @param sess perun session
+	 * @param attributesWithSearchingValues map of attributes names
+	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
+	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
+	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
+	 *        when attribute is type Map<String> so value is String in format "key=value" and we are looking total match of both or if is it "key" so we are looking for total match of key
+	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+	 * @return list of users who have attributes with specific values (behaviour above)
+	 *        if no user exist, return empty list of users
+	 *        if attributeWithSearchingValues is empty, return allUsers
+	 *
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws VoNotExistsException
+	 */
+	List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException;
 
 	/**
 	 * This method take map of coreAttributes with search values and return all

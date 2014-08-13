@@ -34,6 +34,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	// these are in DB only when needed and must be setUp"type"() in right order before use !!
 	private User user1;                             // our User
 	private User user2;
+	private Member member1;
+	private Member member2;
 	private Candidate candidate1;
 	private Candidate candidate2;
 	private Vo vo;
@@ -111,9 +113,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
 		List<User> users = new ArrayList<User>();
 		users = searcherBl.getUsers(sess, attributesWithSearchingValues);
-		//System.out.println(attr.getValue().toString());
-		//System.out.println(attr.getType().toString());
-		//System.out.println(users.toString());
+		assertTrue("user2 have not to be found", !users.contains(user2));
+		assertTrue("user1 have to be found", users.contains(user1));
 	}
 
 	@Test
@@ -127,16 +128,74 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("user1 have to be found", users.contains(user1));
 	}
 
+	@Test
+	public void getMembersForIntegerValue() throws Exception {
+		System.out.println("Searcher.getUsersForIntegerValue");
+		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
+		attributesWithSearchingValues.put(integerAttr.getName(), "100");
+		AttributeDefinition attrDef = sess.getPerun().getAttributesManager().getAttributeDefinition(sess, integerAttr.getName());
+		Attribute attr = new Attribute(attrDef);
+		List<Member> members = new ArrayList<>();
+		members = perun.getSearcher().getMembersByUserAttributes(sess, vo, attributesWithSearchingValues);
+		assertTrue("member1 have to be found", members.contains(member1));
+		assertTrue("member2 have not to be found", !members.contains(member2));
+	}
+
+	@Test
+	public void getMembersForStringValue() throws Exception {
+		System.out.println("Searcher.getUsersForStringValue");
+		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
+		attributesWithSearchingValues.put(stringAttr.getName(), "UserStringAttribute test value");
+		List<Member> members = new ArrayList<>();
+		members = perun.getSearcher().getMembersByUserAttributes(sess, vo, attributesWithSearchingValues);
+		assertTrue("member1 have not to be found", !members.contains(member1));
+		assertTrue("member2 have to be found", members.contains(member2));
+	}
+
+	@Test
+	public void getMembersForListValue() throws Exception {
+		System.out.println("Searcher.getUsersForListValue");
+		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
+		attributesWithSearchingValues.put(listAttr.getName(), "ttribute2");
+		List<Member> members = new ArrayList<>();
+		members = perun.getSearcher().getMembersByUserAttributes(sess, vo, attributesWithSearchingValues);
+		assertTrue("member2 have to be found", members.contains(member2));
+		assertTrue("member1 have to be found", members.contains(member1));
+	}
+
+	@Test
+	public void getMembersForCoreAttribute() throws Exception {
+		System.out.println("Searcher.getUsersForCoreAttribute");
+		Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, user1, "urn:perun:user:attribute-def:core:id");
+		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
+		attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
+		List<Member> members = new ArrayList<>();
+		members = perun.getSearcher().getMembersByUserAttributes(sess, vo, attributesWithSearchingValues);
+		assertTrue("member1 have to be found", members.contains(member1));
+		assertTrue("member2 have not to be found", !members.contains(member2));
+	}
+
+	@Test
+	public void getMembersForMapValue() throws Exception {
+		System.out.println("Searcher.getUsersForMapValue");
+		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
+		attributesWithSearchingValues.put(mapAttr.getName(), "UserLargeAttribute=test value");
+		List<Member> members = new ArrayList<>();
+		members = perun.getSearcher().getMembersByUserAttributes(sess, vo, attributesWithSearchingValues);
+		assertTrue("member2 have not to be found", !members.contains(member2));
+		assertTrue("member1 have to be found", members.contains(member1));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
-		Member member = perun.getMembersManagerBl().createMember(sess, vo, candidate1);
-		user1 = perun.getUsersManagerBl().getUserByMember(sess, member);
+		member1 = perun.getMembersManagerBl().createMember(sess, vo, candidate1);
+		user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
 	}
 
 	private void setUpUser2() throws Exception {
-		Member member = perun.getMembersManagerBl().createMember(sess, vo, candidate2);
-		user2 = perun.getUsersManagerBl().getUserByMember(sess, member);
+		member2 = perun.getMembersManagerBl().createMember(sess, vo, candidate2);
+		user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
 	}
 
 	private Vo setUpVo() throws Exception {
