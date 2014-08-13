@@ -31,11 +31,12 @@ use Perun::AuditMessagesAgent;
 use Perun::PropagationStatsReaderAgent;
 use Perun::CabinetAgent;
 use Perun::NotificationsAgent;
+use Perun::SearcherAgent;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -212,6 +213,17 @@ sub getServicesAgent
 	}
 
 	return $self->{_servicesAgent};
+}
+
+sub getSearcherAgent
+{
+	my $self = shift;
+
+	if (!$self->{_searcherAgent}) {
+		$self->{_searcherAgent} = Perun::SearcherAgent->new($self);
+	}
+
+	return $self->{_searcherAgent};
 }
 
 sub getFacilitiesAgent
