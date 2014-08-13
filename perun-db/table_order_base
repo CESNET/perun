@@ -14,3 +14,4 @@ routing_rules
 engine_routing_rule
 dispatcher_settings
 service_dependencies
+configurations
