@@ -28,30 +28,35 @@ public class ApplicationMail {
 		 */
 		APP_CREATED_USER,
 
-			/**
-			 * Notification to VO administrator when application is created
-			 */
-			APP_CREATED_VO_ADMIN,
+		/**
+		 * Notification to VO administrator when application is created
+		 */
+		APP_CREATED_VO_ADMIN,
 
-			/**
-			 * Notification to user for email address validation
-			 */
-			MAIL_VALIDATION,
+		/**
+		 * Notification to user for email address validation
+		 */
+		MAIL_VALIDATION,
 
-			/**
-			 * Notification to user when application is approved
-			 */
-			APP_APPROVED_USER,
+		/**
+		 * Notification to user when application is approved
+		 */
+		APP_APPROVED_USER,
 
-			/**
-			 * Notification to user when application is rejected
-			 */
-			APP_REJECTED_USER,
+		/**
+		 * Notification to user when application is rejected
+		 */
+		APP_REJECTED_USER,
 
-			/**
-			 * Notification to VO administrator if auto approved application ends with error and is not approved.
-			 */
-			APP_ERROR_VO_ADMIN;
+		/**
+		 * Notification to VO administrator if auto approved application ends with error and is not approved.
+		 */
+		APP_ERROR_VO_ADMIN,
+
+		/**
+		 * Notification to User with invitation to VO / group
+		 */
+		USER_INVITE;
 
 	}
 
@@ -218,13 +223,13 @@ public class ApplicationMail {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", appType='" + getAppType().toString() + '\'' +
-			", formId='" + getFormId() + '\'' +
-			", mailType='" + getMailType().toString() + '\'' +
-			", send='" + getSend() + '\'' +
-			", message='" + getMessage().toString() + '\'' +
-			']';
+				"id='" + getId() + '\'' +
+				", appType='" + getAppType().toString() + '\'' +
+				", formId='" + getFormId() + '\'' +
+				", mailType='" + getMailType().toString() + '\'' +
+				", send='" + getSend() + '\'' +
+				", message='" + getMessage().toString() + '\'' +
+				']';
 	}
 
 	/**
@@ -275,10 +280,10 @@ public class ApplicationMail {
 		@Override
 		public String toString() {
 			return this.getClass().getSimpleName()+":[" +
-				"locale='" + getLocale() + '\'' +
-				"subject='" + getSubject() + '\'' +
-				", text='" + getText() + '\'' +
-				']';
+					"locale='" + getLocale() + '\'' +
+					"subject='" + getSubject() + '\'' +
+					", text='" + getText() + '\'' +
+					']';
 		}
 
 	}

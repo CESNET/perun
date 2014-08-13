@@ -4,6 +4,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -123,6 +124,38 @@ public interface MailManager {
 	 */
 	public void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
 
+	/**
+	 * Sends invitation with link to VO / Group application form.
+	 *
+	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+	 * content is used as link to application form. Otherwise link is automatically generated based on
+	 * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param vo VO to link form to
+	 * @param group Group to link form to
+	 * @param name Name of invited User
+	 * @param email Email to send invitation to.
+	 *
+	 * @throws PerunException
+	 */
+	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email) throws PerunException;
+
+	/**
+	 * Sends invitation with link to VO / Group application form.
+	 *
+	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+	 * content is used as link to application form. Otherwise link is automatically generated based on
+	 * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param vo VO to link form to
+	 * @param group Group to link form to
+	 * @param user User to send invitation to
+	 *
+	 * @throws PerunException
+	 */
+	public void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
 
 	/**
 	 * Creates a MAC with a hard-compiled secret key encoded to printable characters.

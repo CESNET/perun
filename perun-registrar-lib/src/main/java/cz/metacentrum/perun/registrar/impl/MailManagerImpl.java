@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
 	private static final String URN_VO_LANGUAGE_EMAIL = "urn:perun:vo:attribute-def:def:notificationsDefLang";
 	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
+	private static final String URN_VO_APPLICATION_URL = "urn:perun:vo:attribute-def:def:applicationURL";
+	private static final String URN_GROUP_APPLICATION_URL = "urn:perun:group:attribute-def:def:applicationURL";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -687,6 +690,45 @@ public class MailManagerImpl implements MailManager {
 			// all exceptions are catched and logged to: perun-registrar.log
 			log.error("[MAIL MANAGER] Exception thrown when sending email: {}", ex);
 		}
+
+	}
+
+	@Override
+	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email) throws PerunException {
+
+		if (group == null) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		} else {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		}
+
+		if (name == null || name.isEmpty()) throw new RegistrarException("You must provide non-empty name of person you are inviting.");
+		if (email == null || email.isEmpty()) throw new RegistrarException("You must provide non-empty email of person you are inviting.");
+
+		// TODO - method implementation
+
+	}
+
+	@Override
+	public void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException {
+
+		if (group == null) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		} else {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		}
+
+		if (user == null) throw new RegistrarException("Missing user to send notification to.");
+
+		// TODO - method implementation
 
 	}
 
