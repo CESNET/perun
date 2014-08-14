@@ -31,10 +31,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> List of VO attributes
 	 */
 	/*#
-	 * Retrieves all necessary data about VO under registrar session.
+	 * Retrieves all necessary data about VO and Group under registrar session.
 	 *
 	 * @param voShortName String VO's shortname to get info about
-	 * @param groupName String Group's name to get info about
+	 * @param groupName String Group's full name (including groups structure) to get info about
 	 * @return List<Attribute> List of VO attributes
 	 */
 	initialize {
@@ -52,17 +52,94 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 	/*#
-		* Create application form for a VO.
-		*
-		* @param vo int VO ID
-		* @return Object Always returned null
-		*/
+	 * Sends invitation email to user which is not member of VO
+	 *
+	 * @param userId int ID of user to send invitation to
+	 * @param voId int ID of VO to send invitation into
+	 */
 	/*#
-		* Create application form for a group.
-		*
-		* @param group int Group ID
-		* @return Object Always returned null
-		*/
+	 * Sends invitation email to user which is not member of Group
+	 *
+	 * If user is not even member of VO, invitation link targets
+	 * VO application form fist, after submission, Group application form is displayed.
+	 *
+	 * @param userId int ID of user to send invitation to
+	 * @param voId int ID of VO to send invitation into
+	 * @param groupId int ID of Group to send invitation into
+	 */
+	/*#
+	 * Sends invitation email to user which is not member of VO
+	 *
+	 * @param voId int ID of VO to send invitation into
+	 * @param name String name of person used in invitation email
+	 * @param email String email address to send invitation to
+	 * @param language String preferred language to use
+	 */
+	/*#
+	 * Sends invitation email to user which is not member of VO and Group
+	 *
+	 * Invitation link targets VO application form fist, after submission,
+	 * Group application form is displayed.
+	 *
+	 * @param voId int ID of VO to send invitation into
+	 * @param groupId int ID of Group to send invitation into
+	 * @param name String name of person used in invitation email
+	 * @param email String email address to send invitation to
+	 * @param language String preferred language to use
+	 */
+	sendInvitation {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if (parms.contains("userId")) {
+				if (parms.contains("groupId")) {
+					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
+							ac.getVoById(parms.readInt("voId")),
+							ac.getGroupById(parms.readInt("groupId")),
+							ac.getUserById(parms.readInt("userId")));
+				} else {
+					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
+							ac.getVoById(parms.readInt("voId")),
+							null,
+							ac.getUserById(parms.readInt("userId")));
+				}
+			} else {
+				if (parms.contains("groupId")) {
+					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
+							ac.getVoById(parms.readInt("voId")),
+							ac.getGroupById(parms.readInt("groupId")),
+							parms.readString("name"),
+							parms.readString("email"),
+							parms.readString("language"));
+				} else {
+					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
+							ac.getVoById(parms.readInt("voId")),
+							null,
+							parms.readString("name"),
+							parms.readString("email"),
+							parms.readString("language"));
+				}
+			}
+
+			return null;
+
+		}
+
+	},
+	/*#
+	 * Create application form for a VO.
+	 *
+	 * @param vo int VO ID
+	 * @return Object Always returned null
+	 */
+	/*#
+	 * Create application form for a group.
+	 *
+	 * @param group int Group ID
+	 * @return Object Always returned null
+	 */
 	createApplicationForm {
 
 		@Override

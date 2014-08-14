@@ -136,10 +136,11 @@ public interface MailManager {
 	 * @param group Group to link form to
 	 * @param name Name of invited User
 	 * @param email Email to send invitation to.
+	 * @param language "cs" or "en" as language used in notification (if not specified, VO settings is used, if not set, "en" is used).
 	 *
 	 * @throws PerunException
 	 */
-	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email) throws PerunException;
+	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException;
 
 	/**
 	 * Sends invitation with link to VO / Group application form.
