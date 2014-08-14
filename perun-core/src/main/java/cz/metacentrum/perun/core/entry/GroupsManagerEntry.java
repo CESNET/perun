@@ -205,6 +205,11 @@ public class GroupsManagerEntry implements GroupsManager {
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		Utils.notNull(name, "name");
+
+		if (!name.matches(GroupsManager.GROUP_FULL_NAME_REGEXP)) {
+			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_FULL_NAME_REGEXP));
+		}
 
 		Group group = getGroupsManagerBl().getGroupByName(sess, vo, name);
 

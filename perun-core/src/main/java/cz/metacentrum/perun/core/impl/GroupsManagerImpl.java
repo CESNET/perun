@@ -388,7 +388,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, InternalErrorException {
 		try {
-			return jdbc.queryForObject("select " + groupMappingSelectQuery_compat + " from groups " + groupQNameJoinQuery + " where groups.name=? and groups.vo_id=?",
+			return jdbc.queryForObject("select " + groupMappingSelectQuery_compat + " from groups " + groupQNameJoinQuery + " where qn_groups.name=? and groups.vo_id=?",
 					GROUP_MAPPER, name, vo.getId());
 		} catch (EmptyResultDataAccessException err) {
 			throw new GroupNotExistsException("Group name=" + name + ", vo id=" + vo.getId());
