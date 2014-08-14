@@ -501,25 +501,44 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	@Test
+	public void getSubGroupByName() throws Exception {
+		System.out.println("GroupsManager.getSubGroupByName");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		Group subGroup = new Group(group.getId(), group.getName(), group.getDescription());
+		subGroup = groupsManager.createGroup(sess, group, subGroup);
+		assertEquals("SubGroup must have name like 'name:name'", group.getName() + ":" + group.getName(), subGroup.getName());
+
+		Group returnedGroup = groupsManager.getGroupByName(sess, vo, group.getName());
+		Group returnedSubGroup = groupsManager.getGroupByName(sess, vo, subGroup.getName());
+		assertNotNull(returnedGroup);
+		assertNotNull(returnedSubGroup);
+
+		assertEquals("Both groups should be the same",returnedGroup,group);
+		assertEquals("Both groups should be the same",returnedSubGroup,subGroup);
+	}
+
 	@Test (expected=VoNotExistsException.class)
-		public void getGroupByNameWhenVoNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupByNameWhenVoNotExists");
+	public void getGroupByNameWhenVoNotExists() throws Exception {
+		System.out.println("GroupsManager.getGroupByNameWhenVoNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.getGroupByName(sess, new Vo(), group.getName());
+		groupsManager.getGroupByName(sess, new Vo(), group.getName());
 
-		}
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getGroupByNameWhenGroupNotExists() throws Exception {
+	public void getGroupByNameWhenGroupNotExists() throws Exception {
 
-			vo = setUpVo();
+		vo = setUpVo();
 
-			groupsManager.getGroupByName(sess, vo, "");
+		groupsManager.getGroupByName(sess, vo, "GroupsManagerEntryIntegrationTest:test:test:test");
 
-		}
+	}
 
 	@Test
 	public void addMember() throws Exception {

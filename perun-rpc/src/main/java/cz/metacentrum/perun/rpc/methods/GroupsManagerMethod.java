@@ -143,6 +143,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns a group by VO and Group name.
 	 *
+	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
+	 *
 	 * @param vo int VO ID
 	 * @param name String Group name
 	 * @return Group Found group

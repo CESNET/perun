@@ -56,6 +56,7 @@ public interface GroupsManager {
 	public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
 
 	public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
+	public static final String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
 	/**
 	 * Creates a new top-level group and associate it with the VO.
 	 *
@@ -199,6 +200,8 @@ public interface GroupsManager {
 
 	/**
 	 * Search for the group with specified name in specified VO.
+	 *
+	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
 	 *
 	 * @param perunSession
 	 * @param vo

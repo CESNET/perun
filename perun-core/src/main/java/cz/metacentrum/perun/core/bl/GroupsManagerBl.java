@@ -184,6 +184,8 @@ public interface GroupsManagerBl {
 	/**
 	 * Search for the group with specified name in specified VO.
 	 *
+	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
+	 * 
 	 * @param perunSession
 	 * @param vo
 	 * @param name
