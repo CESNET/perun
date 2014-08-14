@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.Member;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.User;
@@ -19,8 +20,19 @@ public enum SearcherMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			return ac.getSearcher().getUsers(ac.getSession(),
-					//FIXME this parameter maybe not correct
 					parms.read("attributesWithSearchingValues", LinkedHashMap.class));
+		}
+	},
+
+	getMembersByUserAttributes {
+
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getSearcher().getMembersByUserAttributes(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.read("userAttributesWithSearchingValues", LinkedHashMap.class));
 		}
 	};
 }
