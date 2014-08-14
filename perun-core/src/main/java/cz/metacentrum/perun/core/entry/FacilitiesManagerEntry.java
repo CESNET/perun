@@ -519,7 +519,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(hasRight) continue;
 			}
 
-			throw new PrivilegeException(sess, "You can't add these hosts.");
+			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
 		}
 
 		return getFacilitiesManagerBl().addHosts(sess, hosts, facility);
@@ -567,7 +567,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(hasRight) continue;
 			}
 
-			throw new PrivilegeException(sess, "You can't add these hosts.");
+			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
 		}
 
 		return addedHosts;
@@ -831,7 +831,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(hasRight) return getFacilitiesManagerBl().addHost(sess, host, facility);
 		}
 
-		throw new PrivilegeException(sess, "You can't add this host.");
+		throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
 	}
 
 	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException, PrivilegeException, HostAlreadyRemovedException {
