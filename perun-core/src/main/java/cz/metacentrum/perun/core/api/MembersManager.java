@@ -786,8 +786,23 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws MemberNotExistsException
+	 * @throws ExtendMembershipException
 	 */
-	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ExtendMembershipException;
+
+	/**
+   * Returns the date to which will be extended member's expiration time.
+   *
+   * @param sess
+   * @param vo
+   * @param loa
+   * @return date
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   * @throws ExtendMembershipException
+   */
+  Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtendMembershipException;
 
 	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
