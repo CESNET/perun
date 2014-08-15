@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateMember;
+import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.vosManager.FindCandidates;
 import cz.metacentrum.perun.webgui.model.*;
@@ -195,6 +196,24 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		} else {
 			tabMenu.addWidget(2, addUsersButton);
 		}
+
+		CustomButton invite = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if (searchCandidates) {
+					for (Candidate candid : candidates.getTableSelectedList()) {
+						SendInvitation invite = new SendInvitation(voId, 0);
+						invite.inviteUser(candid);
+					}
+				} else {
+					for (User usrs : users.getTableSelectedList()) {
+						SendInvitation invite = new SendInvitation(voId, 0);
+						invite.inviteUser(usrs);
+					}
+				}
+			}
+		});
+		tabMenu.addWidget(invite);
 
 		final TabItem tab = this;
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {

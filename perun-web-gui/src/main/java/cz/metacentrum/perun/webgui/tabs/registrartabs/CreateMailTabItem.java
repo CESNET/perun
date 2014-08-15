@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -213,10 +215,27 @@ public class CreateMailTabItem implements TabItem {
 			mailTypeListbox.addItem(ApplicationMail.getTranslatedMailType(type.toString()), type.toString());
 		}
 
+		int initialIndex = 0;
 		applicationTypeListbox.clear();
 		for (Application.ApplicationType type : Application.ApplicationType.values()) {
 			applicationTypeListbox.addItem(Application.getTranslatedType(type.toString()), type.toString());
+			if (type.equals(Application.ApplicationType.INITIAL)) {
+				initialIndex = applicationTypeListbox.getItemCount()-1;
+			}
 		}
+
+		final int initIndex = initialIndex;
+		mailTypeListbox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				if (mailTypeListbox.getValue(mailTypeListbox.getSelectedIndex()).equals("USER_INVITE")) {
+					applicationTypeListbox.setEnabled(false);
+					applicationTypeListbox.setSelectedIndex(initIndex);
+				} else {
+					applicationTypeListbox.setEnabled(true);
+				}
+			}
+		});
 
 		// basic info
 		int row = 0;
@@ -260,8 +279,7 @@ public class CreateMailTabItem implements TabItem {
 	 *
 	 * @return
 	 */
-	private Widget availableTagsTab()
-	{
+	private Widget availableTagsTab() {
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("500px", "350px");
@@ -279,7 +297,7 @@ public class CreateMailTabItem implements TabItem {
 		vp.add(sp);
 		vp.add(new HTML("&nbsp;"));
 
-		ft.setHTML(0, 0, "Following tags can be used in mail's subject and text and are replaced by actual data on sending. Just copy/paste tags from here to input form. When no data for tag is found, it's replaced by whitespace.");
+		ft.setHTML(0, 0, "Following tags can be used in mail's subject and text and are replaced by actual data on sending. Just copy/paste tags from here to input form. When no data for tag is found, it's replaced by whitespace.<p><strong>For user invitation email there is only limited set of tags, see end of this help.</strong>");
 		ftf.addStyleName(0, 0, "inputFormInlineComment");
 
 		HTML text = new HTML("<strong><u>Application related:</u></strong><br/>" +
@@ -325,7 +343,23 @@ public class CreateMailTabItem implements TabItem {
 
 				"<br/><strong>{appDetailUrlFed}</strong> - link with federation authz" +
 				"<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz");
+				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz" +
+
+				"<br/></br><strong><u>User invitations:</u></strong><br/>" +
+
+				"<br/><span class=\"inputFormInlineComment\">Following tags can be used on user invitation template</span><br/>" +
+
+				"<br/><strong>{voName}</strong> - name of VO to invite user into" +
+				"<br/><strong>{groupName}</strong> - name of Group to invite user into" +
+				"<br/><strong>{displayName}</strong> - invited user's name" +
+				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
+
+				"<br/></br><strong>{invitationLinkNon}</strong> - link with federation authz" +
+				"<br/><strong>{invitationLinkKrb}</strong> - link with kerberos authz" +
+				"<br/><strong>{invitationLinkFed}</strong> - link with federation authz" +
+				"<br/><strong>{invitationLinkCert}</strong> - link with IGTF certificate authz"
+
+		);
 
 		text.getElement().setAttribute("style", "line-height: 1.5em !important;");
 
