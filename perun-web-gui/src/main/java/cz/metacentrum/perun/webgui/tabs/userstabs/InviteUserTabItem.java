@@ -1,12 +1,15 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
@@ -40,6 +43,23 @@ public class InviteUserTabItem implements TabItem {
 	 */
 	public InviteUserTabItem(VirtualOrganization vo, Group group){
 		this.vo = vo;
+		this.group = group;
+		if (group != null) groupId = group.getId();
+	}
+
+	/**
+	 * Invite user to VO or Group
+	 *
+	 * @param voId invite to VO
+	 * @param group (if not null, invite to Group)
+	 */
+	public InviteUserTabItem(int voId, Group group){
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
 		this.group = group;
 		if (group != null) groupId = group.getId();
 	}

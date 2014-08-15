@@ -780,7 +780,7 @@ public class MailManagerImpl implements MailManager {
 		message.setTo(email);
 
 		mailText = substituteCommonStringsForInvite(vo, group, null, name, mailText);
-		mailSubject = substituteCommonStringsForInvite(vo, group, null, name, mailText);
+		mailSubject = substituteCommonStringsForInvite(vo, group, null, name, mailSubject);
 
 		message.setSubject(mailSubject);
 		message.setText(mailText);
@@ -914,7 +914,7 @@ public class MailManagerImpl implements MailManager {
 		message.setTo(email);
 
 		mailText = substituteCommonStringsForInvite(vo, group, user, null, mailText);
-		mailSubject = substituteCommonStringsForInvite(vo, group, user, null, mailText);
+		mailSubject = substituteCommonStringsForInvite(vo, group, user, null, mailSubject);
 
 		message.setSubject(mailSubject);
 		message.setText(mailText);
@@ -1243,16 +1243,16 @@ public class MailManagerImpl implements MailManager {
 
 		// replace invitation link
 		if (mailText.contains("{invitationLinkFed}")) {
-			mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
+			mailText = mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
 		}
 		if (mailText.contains("{invitationLinkKrb}")) {
-			mailText.replace("{invitationLinkKrb}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiKrb")));
+			mailText = mailText.replace("{invitationLinkKrb}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiKrb")));
 		}
 		if (mailText.contains("{invitationLinkCert}")) {
-			mailText.replace("{invitationLinkCert}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiCert")));
+			mailText = mailText.replace("{invitationLinkCert}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiCert")));
 		}
 		if (mailText.contains("{invitationLinkNon}")) {
-			mailText.replace("{invitationLinkNon}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiNon")));
+			mailText = mailText.replace("{invitationLinkNon}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiNon")));
 		}
 
 		// mail footer
@@ -1293,13 +1293,13 @@ public class MailManagerImpl implements MailManager {
 
 		if (isMember && group != null) {
 			// application for group
-			text += text + "&group="+group.getName();
+			text += "&group="+group.getName();
 		} else if (!isMember && group == null) {
 			// application for VO
 			// ==> no change to URL
 		} else if (!isMember && group != null) {
 			// application for VO+group (redirect)
-			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + group.getName();
+			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + group.getName() + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + group.getName();
 		}
 
 		return text;

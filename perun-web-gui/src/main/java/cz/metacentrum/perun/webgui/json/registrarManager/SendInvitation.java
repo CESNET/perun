@@ -152,4 +152,8 @@ public class SendInvitation {
 
 	}
 
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
+
 }
