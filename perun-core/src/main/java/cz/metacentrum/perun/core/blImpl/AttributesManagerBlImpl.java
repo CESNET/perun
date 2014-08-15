@@ -215,6 +215,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		return getAttributesManagerImpl().getAttributes(sess, member, attrNames);
 	}
+	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException {
+		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
+		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, group, attrNames);
+
+		//get also virtual attributes
+		List<Attribute> allGroupsVirtualAttributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
+		for(Attribute a: allGroupsVirtualAttributes) {
+			if(attrNames.contains(a.getName())) attributes.add(a);
+		}
+
+		return attributes;
+	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = this.getAttributes(sess, member, attrNames);

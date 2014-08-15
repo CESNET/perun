@@ -1,34 +1,8 @@
 package cz.metacentrum.perun.auditparser;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourceTag;
-import cz.metacentrum.perun.core.api.RichDestination;
-import cz.metacentrum.perun.core.api.RichFacility;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,6 +60,7 @@ public class AuditParserTest {
 	private final RichDestination richDestination = new RichDestination(destination, facility, service);
 	private final RichResource richResource = new RichResource(resource);
 	private RichUser richUser;
+	private RichGroup richGroup;
 	private RichFacility richFacility;
 	private ResourceTag resourceTag1 = new ResourceTag(5, "cosi" , 2);
 	private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
@@ -115,6 +90,7 @@ public class AuditParserTest {
 		userExtSources.add(userExtSource2);
 		richMember = new RichMember(user, member, userExtSources, listOfAttributes, listOfAttributes);
 		richUser = new RichUser(user, userExtSources, listOfAttributes);
+		richGroup = new RichGroup(group, listOfAttributes);
 		richResource.setFacility(facility);
 		richResource.setVo(vo);
 		richResource.addResourceTag(resourceTag1);
@@ -436,6 +412,13 @@ public class AuditParserTest {
 		assertEquals(richUser1.toString(), ((RichUser) richUser1InList.get(0)).toString());
 		assertEquals(richUser2.toString(), ((RichUser) richUser2InList.get(0)).toString());
 
+		//FOR RICHGROUP
+		RichGroup richGroup1 = new RichGroup(group, null);
+		List<PerunBean> richGroupInList = AuditParser.parseLog(richGroup.serializeToString());
+		List<PerunBean> richGroup1InList = AuditParser.parseLog(richGroup1.serializeToString());
+		assertEquals(richGroup.toString(), ((RichGroup) richGroupInList.get(0)).toString());
+		assertEquals(richGroup1.toString(), ((RichGroup) richGroup1InList.get(0)).toString());
+
 		//FOR RICHFACILITY
 		RichFacility richFacility1 = new RichFacility(facility, null);
 		List<Owner> owners = new ArrayList<Owner>();
@@ -514,6 +497,7 @@ public class AuditParserTest {
 		assertEquals(richDestination.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richDestination.serializeToString())));
 		assertEquals(richMember.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richMember.serializeToString())));
 		assertEquals(richUser.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richUser.serializeToString())));
+		assertEquals(richGroup.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richGroup.serializeToString())));
 		//assertEquals(richFacility.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richFacility.serializeToString())));
 		assertEquals(richResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richResource.serializeToString())));
 		assertEquals(service.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(service.serializeToString())));
@@ -533,12 +517,12 @@ public class AuditParserTest {
 			candidate.serializeToString() + destination.serializeToString() + host.serializeToString() +
 			owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
 			attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
-			richResource.serializeToString() + richUser.serializeToString() + richFacility.serializeToString() +
-			resourceTag1.serializeToString() + exService1.serializeToString();
+			richResource.serializeToString() + richUser.serializeToString() + richGroup.serializeToString() +
+			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString();
 
 		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
 		perunBeans = AuditParser.parseLog(bigLog);
-		assertEquals(22, perunBeans.size());
+		assertEquals(23, perunBeans.size());
 		assertTrue(perunBeans.contains(user));
 		assertTrue(perunBeans.contains(attribute1));
 		assertTrue(perunBeans.contains(attributeDefinition1));
@@ -558,6 +542,7 @@ public class AuditParserTest {
 		assertTrue(perunBeans.contains(vo));
 		assertTrue(perunBeans.contains(userExtSource1));
 		assertTrue(perunBeans.contains(richUser));
+		assertTrue(perunBeans.contains(richGroup));
 		assertTrue(perunBeans.contains(richFacility));
 		assertTrue(perunBeans.contains(resourceTag1));
 		assertTrue(perunBeans.contains(exService1));

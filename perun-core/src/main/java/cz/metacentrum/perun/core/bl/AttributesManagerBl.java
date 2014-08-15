@@ -193,6 +193,19 @@ public interface AttributesManagerBl {
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
 
+    /**
+	 * Get all attributes associated with the group which have name in list attrNames (empty too).
+	 * Virtual attribute too.
+	 *
+	 * @param sess perun session
+	 * @param group to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
+
 	/**
 	 * Get all attributes associated with the vo which have name in list attrNames (empty and virtual too).
 	 *
