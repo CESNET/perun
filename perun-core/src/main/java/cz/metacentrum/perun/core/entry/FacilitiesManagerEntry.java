@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -489,6 +490,38 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Utils.notNull(hosts, "hosts");
 
+		for(Host host: hosts) {
+
+			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
+			List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+
+			if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
+				continue;
+			}
+			if(!facilitiesByHostname.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(hasRight) continue;
+			}
+			if(!facilitiesByDestination.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(hasRight) continue;
+			}
+
+			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
+		}
+
 		return getFacilitiesManagerBl().addHosts(sess, hosts, facility);
 	}
 
@@ -503,7 +536,41 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Utils.notNull(hosts, "hosts");
 
-		return getFacilitiesManagerBl().addHosts(sess, facility, hosts);
+		List<Host> addedHosts = getFacilitiesManagerBl().addHosts(sess, facility, hosts);
+
+		for(Host host: addedHosts) {
+
+			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
+			List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+
+			if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
+				continue;
+			}
+			if(!facilitiesByHostname.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(hasRight) continue;
+			}
+			if(!facilitiesByDestination.isEmpty()) {
+				boolean hasRight = false;
+				for(Facility f: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+						hasRight = true;
+						break;
+					}
+				}
+				if(hasRight) continue;
+			}
+
+			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
+		}
+
+		return addedHosts;
 	}
 
 	public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostAlreadyRemovedException {
@@ -737,7 +804,34 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Utils.notNull(host, "hosts");
 
-		return getFacilitiesManagerBl().addHost(sess, host, facility);
+		List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
+		List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+
+		if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
+			return getFacilitiesManagerBl().addHost(sess, host, facility);
+		}
+		if(!facilitiesByHostname.isEmpty()) {
+			boolean hasRight = false;
+			for(Facility f: facilitiesByHostname) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+					hasRight = true;
+					break;
+				}
+			}
+			if(hasRight) return getFacilitiesManagerBl().addHost(sess, host, facility);
+		}
+		if(!facilitiesByDestination.isEmpty()) {
+			boolean hasRight = false;
+			for(Facility f: facilitiesByDestination) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+					hasRight = true;
+					break;
+				}
+			}
+			if(hasRight) return getFacilitiesManagerBl().addHost(sess, host, facility);
+		}
+
+		throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
 	}
 
 	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException, PrivilegeException, HostAlreadyRemovedException {
