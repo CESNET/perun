@@ -167,8 +167,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getUserById(parms.readInt("user")));
 				}
 			} else if (parms.contains("group")) {
-				return ac.getAttributesManager().getAttributes(ac.getSession(),
+				if (parms.contains("attrNames[]")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attrNames", String.class));
+				} else {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")));
+				}
 			} else if (parms.contains("host")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")));

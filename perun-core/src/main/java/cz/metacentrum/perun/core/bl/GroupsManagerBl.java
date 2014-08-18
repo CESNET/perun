@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
@@ -838,5 +839,101 @@ public interface GroupsManagerBl {
 	 * @return filteredMembers list of members without duplicit after filtering
 	 */
 	List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException;
+
+	/**
+	 * For richGroup filter all his group attributes and remove all which principal has no access to.
+	 *
+	 * @param sess
+	 * @param richGroup
+	 * @return richGroup with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException;
+
+	/**
+	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
+	 *
+	 * @param sess
+	 * @param richGroups
+	 * @return list of RichGroups with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException;
+
+	/**
+	 * This method takes group and creates RichGroup containing all attributes
+	 * 
+	 * @param sess 
+	 * @param group 
+	 * @return RichGroup
+	 * @throws InternalErrorException 
+	 */
+	RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * This method takes group and creates RichGroup containing selected attributes
+	 * 
+	 * @param sess 
+	 * @param group
+	 * @param attrNames list of selected attributes
+	 * @return RichGroup
+	 * @throws InternalErrorException
+	 */
+	RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
+	
+	/**
+	 * This method takes list of groups and creates list of RichGroups containing all attributes
+	 * 
+	 * @param sess 
+	 * @param groups list of groups
+	 * @return RichGroup
+	 * @throws InternalErrorException 
+	 */
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups) throws InternalErrorException;
+
+	/**
+	 * This method takes list of groups and creates list of RichGroups containing selected attributes
+	 * 
+	 * @param sess 
+	 * @param groups list of groups
+	 * @param attrNames list of selected attributes
+	 * @return RichGroup
+	 * @throws InternalErrorException 
+	 */
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException;
+	
+	/**
+	 * Returns all RichGroups containing selected attributes
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException 
+	 */
+	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
+	
+	/**
+	 * Returns all RichSubGroups from parentGroup containing selected attributes
+	 * 
+	 * @param sess
+	 * @param parentGroup
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException 
+	 */
+	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
+	
+	/**
+	 * Returns RichGroup selected by id containing selected attributes
+	 * 
+	 * @param sess
+	 * @param groupId
+	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
+	 * @return RichGroup 
+	 * @throws InternalErrorException 
+	 * @throws GroupNotExistsException
+	 */
+	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 
 }

@@ -57,6 +57,7 @@ public class AuditParser {
 				else if(p.getLeft().equals("RichDestination")) perunBean = createRichDestination(p.getRight());
 				else if(p.getLeft().equals("RichMember")) perunBean = createRichMember(p.getRight());
 				else if(p.getLeft().equals("RichUser")) perunBean = createRichUser(p.getRight());
+				else if(p.getLeft().equals("RichGroup")) perunBean = createRichGroup(p.getRight());
 				else if(p.getLeft().equals("RichResource")) perunBean = createRichResource(p.getRight());
 				else if(p.getLeft().equals("Service")) perunBean = createService(p.getRight());
 				else if(p.getLeft().equals("User")) perunBean = createUser(p.getRight());
@@ -586,6 +587,24 @@ public class AuditParser {
 		}
 		RichUser richUser = new RichUser(user, userExtSources, userAttributes);
 		return richUser;
+	}
+
+	private static RichGroup createRichGroup(Map<String, String> beanAttr) throws InternalErrorException {
+		if(beanAttr==null) return null;
+		Group group = createGroup(beanAttr);
+
+		//Parse and get list of GroupAttributes
+		List<Attribute> groupAttributes = new ArrayList<Attribute>();
+		if(beanAttr.get("groupAttributes").equals("\\0")) groupAttributes = null;
+		else {
+			List<Pair<String, Map<String, String>>> groupAttributesList = beansToMap(beanAttr.get("groupAttributes"));
+			for(Pair<String, Map<String, String>> p: groupAttributesList) {
+				Attribute attribute = createAttribute(p.getRight());
+				groupAttributes.add(attribute);
+			}
+		}
+		RichGroup richGroup = new RichGroup(group, groupAttributes);
+		return richGroup;
 	}
 
 	private static RichFacility createRichFacility(Map<String, String> beanAttr) throws InternalErrorException {
