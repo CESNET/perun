@@ -62,4 +62,13 @@ sub setUserId
 	return;
 }
 
+sub getCommonArrayRepresentation {
+	my $member = shift;
+	return ($member->getId, $member->getUserId);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('Id', 'UserId');                                                                                                                                                                      
+}
+
 1;
