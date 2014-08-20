@@ -4295,6 +4295,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Facility id");
 		attributes.add(attr);
 
 		//Facility.name
@@ -4302,6 +4303,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("name");
+		attr.setDisplayName("Facility name");
 		attributes.add(attr);
 
 		//Resource.id
@@ -4309,6 +4311,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Resource id");
 		attributes.add(attr);
 
 		//Resource.name
@@ -4316,12 +4319,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("name");
+		attr.setDisplayName("Resource name");
 		attributes.add(attr);
 
 		//Resource.description
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("description");
+		attr.setDisplayName("Resource description");
 		attributes.add(attr);
 
 		//Member.id
@@ -4329,6 +4334,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Memebr id");
 		attributes.add(attr);
 
 		//User.id
@@ -4336,6 +4342,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("User id");
 		attributes.add(attr);
 
 		//User.firstName
@@ -4343,6 +4350,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("firstName");
+		attr.setDisplayName("User first name");
 		attributes.add(attr);
 
 		//User.lastName
@@ -4350,6 +4358,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("lastName");
+		attr.setDisplayName("User last name");
 		attributes.add(attr);
 
 		//User.middleName
@@ -4357,6 +4366,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("middleName");
+		attr.setDisplayName("User middle name");
 		attributes.add(attr);
 
 		//User.titleBefore
@@ -4364,6 +4374,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("titleBefore");
+		attr.setDisplayName("User title before");
 		attributes.add(attr);
 
 		//User.titleAfter
@@ -4371,6 +4382,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("titleAfter");
+		attr.setDisplayName("User title after");
 		attributes.add(attr);
 
 		//Group.id
@@ -4378,6 +4390,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Group id");
 		attributes.add(attr);
 
 		//Group.name
@@ -4385,6 +4398,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("name");
+		attr.setDisplayName("Group full name");
 		attributes.add(attr);
 
 		//Group.description
@@ -4392,6 +4406,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("description");
+		attr.setDisplayName("Group description");
 		attributes.add(attr);
 
 		//Vo.id
@@ -4399,6 +4414,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Vo id");
 		attributes.add(attr);
 
 		//Vo.name
@@ -4406,6 +4422,15 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("name");
+		attr.setDisplayName("Vo full name");
+		attributes.add(attr);
+
+		//Vo.createdAt
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("createdAt");
+		attr.setDisplayName("Vo created date");
 		attributes.add(attr);
 
 		//Vo.shortName
@@ -4413,6 +4438,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("shortName");
+		attr.setDisplayName("Vo short name");
 		attributes.add(attr);
 
 		//Host.id
@@ -4420,6 +4446,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_HOST_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
+		attr.setDisplayName("Host id");
 		attributes.add(attr);
 
 		//Host.hostname
@@ -4427,6 +4454,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_HOST_ATTR_CORE);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("hostname");
+		attr.setDisplayName("Host hostname");
 		attributes.add(attr);
 
 
@@ -4437,6 +4465,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("groupExtSource");
+		attr.setDisplayName("Group extSource");
 		attributes.add(attr);
 
 		//urn:perun:group:attribute-def:def:groupMembersExtSource
@@ -4444,6 +4473,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("groupMembersExtSource");
+		attr.setDisplayName("Group members extSource");
 		attributes.add(attr);
 
 		//urn:perun:group:attribute-def:def:groupMembersQuery
@@ -4451,6 +4481,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("groupMembersQuery");
+		attr.setDisplayName("Group members query");
 		attributes.add(attr);
 
 		//urn:perun:group:attribute-def:def:synchronizatinEnabled
@@ -4458,6 +4489,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("synchronizationEnabled");
+		attr.setDisplayName("Group synchronization enabled");
+		attr.setDescription("Enables group synchronization from external source.");
 		attributes.add(attr);
 
 		//urn:perun:group:attribute-def:def:synchronizationInterval
@@ -4465,6 +4498,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("synchronizationInterval");
+		attr.setDisplayName("Synchronization interval");
+		attr.setDescription("Time between two successful synchronizations.");
+		attributes.add(attr);
+
+		//urn:perun:group:attribute-def:def:lastSynchronzationState
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
+		attr.setFriendlyName("lastSynchronzationState");
+		attr.setDisplayName("Group synchronization interval");
+		attributes.add(attr);
+
+		//urn:perun:group:attribute-def:def:lastSynchronizationTimestamp
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setDescription("If group is synchronized, there will be the last timestamp of group synchronization.");
+		attr.setFriendlyName("lastSynchronizationTimestamp");
+		attr.setDisplayName("Group synchronization interval");
 		attributes.add(attr);
 
 		for(AttributeDefinition attribute : attributes) {
