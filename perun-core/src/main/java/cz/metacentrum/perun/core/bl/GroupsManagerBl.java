@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -37,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import java.util.Date;
 
 /**
  * <p>Groups manager can do all work about groups in VOs.</p>
@@ -936,4 +938,23 @@ public interface GroupsManagerBl {
 	 */
 	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 
+	/**
+	 * This method will set currentTimestamp and exceptionMessage to group attributes for the group.
+	 * 
+	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
+	 * 
+	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 * 
+	 * @param sess perun session
+	 * @param group the group for synchronization
+	 * @param currentTimestamp timestamp of last synchronization
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException 
+	 */
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 }
