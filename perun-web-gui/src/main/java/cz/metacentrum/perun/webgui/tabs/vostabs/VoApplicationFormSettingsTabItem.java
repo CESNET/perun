@@ -17,10 +17,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItems;
 import cz.metacentrum.perun.webgui.json.registrarManager.UpdateFormItems;
-import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
-import cz.metacentrum.perun.webgui.model.GeneralObject;
-import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.VirtualOrganization;
+import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -181,19 +178,23 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		if (!session.isVoAdmin(voId)) copyButton.setEnabled(false);
 		menu.addWidget(copyButton);
 
-		previewButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				GeneralObject go = vo.cast();
-				session.getTabManager().addTab(new PreviewFormTabItem(go, sourceList), true);
-			}
-		});
 		if (!session.isVoAdmin(voId)) previewButton.setEnabled(false);
 		menu.addWidget(previewButton);
 
 		// AUTO APPROVAL + NOTIFICATIONS
 
 		// auto-approval widget already defined
-		GetApplicationForm form = new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId);
+		GetApplicationForm form = new GetApplicationForm(PerunEntity.VIRTUAL_ORGANIZATION, voId, new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso){
+				final ApplicationForm form = jso.cast();
+				previewButton.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						session.getTabManager().addTab(new PreviewFormTabItem(form, sourceList), true);
+					}
+				});
+			}
+		});
 		form.setHidden(true);
 		form.retrieveData();
 		menu.addWidget(form.getApprovalWidget());

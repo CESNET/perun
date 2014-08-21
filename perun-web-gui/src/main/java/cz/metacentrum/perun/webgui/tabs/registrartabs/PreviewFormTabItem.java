@@ -12,9 +12,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
-import cz.metacentrum.perun.webgui.model.GeneralObject;
-import cz.metacentrum.perun.webgui.model.ItemTexts;
+import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -37,8 +35,6 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private ArrayList<ApplicationFormItem> formItems;
-	private int id;
-	private GeneralObject object;
 	private Label titleWidget = new Label("form preview");
 	private SimplePanel contentWidget = new SimplePanel();
 
@@ -47,15 +43,18 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	private ArrayList<RegistrarFormItemGenerator> applFormGenerators = new ArrayList<RegistrarFormItemGenerator>();
 	private Button sendButton;
 
+	private ApplicationForm form;
+	private int formId;
+
 	/**
-	 * Create new instace of this tab
+	 * Create new instance of this tab
 	 *
-	 * @param object vo or group for authz
+	 * @param form Form to get authz from
 	 * @param formItems application form items to display
 	 */
-	public PreviewFormTabItem(GeneralObject object, ArrayList<ApplicationFormItem> formItems) {
-		this.object = object;
-		this.id = object.getId();
+	public PreviewFormTabItem(ApplicationForm form, ArrayList<ApplicationFormItem> formItems) {
+		this.form = form;
+		this.formId = form.getId();
 		this.formItems = formItems;
 	}
 
@@ -65,7 +64,11 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(object.getName())+": form preview");
+		if (form.getGroup() != null) {
+			titleWidget.setText(Utils.getStrippedStringWithEllipsis(form.getGroup().getShortName())+": form preview");
+		} else {
+			titleWidget.setText(Utils.getStrippedStringWithEllipsis(form.getVo().getName())+": form preview");
+		}
 
 		final TabItem tab = this;
 
@@ -274,7 +277,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(id) || session.isGroupAdmin(id)) {
+		if (session.isVoAdmin(form.getVo().getId()) || session.isGroupAdmin(form.getGroup().getId())) {
 			return true;
 		} else {
 			return false;
@@ -289,14 +292,14 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + id;
+		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + formId;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 51;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result + formId;
 		return result;
 	}
 
@@ -309,7 +312,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 		if (getClass() != obj.getClass())
 			return false;
 		PreviewFormTabItem other = (PreviewFormTabItem) obj;
-		if (id != other.id)
+		if (formId != other.formId)
 			return false;
 		return true;
 	}
