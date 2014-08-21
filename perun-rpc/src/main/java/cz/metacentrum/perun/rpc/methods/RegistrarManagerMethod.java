@@ -697,6 +697,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		* @param toGroup int Destination Group ID
 		* @return Object Always null
 		*/
+		/*#
+		* Copy all e-mail notifications from selected VO into Group.
+		*
+		* @param fromVo int Source VO ID
+		* @param toGroup int Destination Group ID
+		* @return Object Always null
+		*/
+		/*#
+		* Copy all e-mail notifications from selected Group into VO.
+		*
+		* @param fromGroup int Source Group ID
+		* @param toVO int Destination VO ID
+		* @return Object Always null
+		*/
 	copyMails {
 
 		@Override
@@ -705,15 +719,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			if (parms.contains("fromVo")) {
 
-				ac.getRegistrarManager().getMailManager().copyMailsFromVoToVo(ac.getSession(),
-						ac.getVoById(parms.readInt("fromVo")),
-						ac.getVoById(parms.readInt("toVo")));
+				if (parms.contains("toVo")) {
+
+					ac.getRegistrarManager().getMailManager().copyMailsFromVoToVo(ac.getSession(),
+							ac.getVoById(parms.readInt("fromVo")),
+							ac.getVoById(parms.readInt("toVo")));
+
+				} else if (parms.contains("toGroup")) {
+
+					ac.getRegistrarManager().getMailManager().copyMailsFromVoToGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("fromVo")),
+							ac.getGroupById(parms.readInt("toGroup")), false);
+
+				}
 
 			} else if (parms.contains("fromGroup")) {
 
-				ac.getRegistrarManager().getMailManager().copyMailsFromGroupToGroup(ac.getSession(),
-						ac.getGroupById(parms.readInt("fromGroup")),
-						ac.getGroupById(parms.readInt("toGroup")));
+				if (parms.contains("toGroup")) {
+
+					ac.getRegistrarManager().getMailManager().copyMailsFromGroupToGroup(ac.getSession(),
+							ac.getGroupById(parms.readInt("fromGroup")),
+							ac.getGroupById(parms.readInt("toGroup")));
+
+				} else if (parms.contains("toVo")) {
+
+					ac.getRegistrarManager().getMailManager().copyMailsFromVoToGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("toVo")),
+							ac.getGroupById(parms.readInt("fromGroup")), true);
+
+				}
 
 			}
 

@@ -89,6 +89,17 @@ public interface MailManager {
 	public void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
 
 	/**
+	 * Copy all mail definitions from one VO to Group or reverse.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param fromVo VO to get application mails from (or opposite if reverse=TRUE)
+	 * @param toGroup Group to set application mails to (or opposite if reverse=TRUE)
+	 * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
+	 * @throws PerunException
+	 */
+	public void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+
+	/**
 	 * Copy all mail definitions from one group into another group.
 	 *
 	 * @param sess PerunSession
