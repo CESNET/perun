@@ -610,19 +610,33 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 
 	/*#
-		* Copy all form items from selected VO into another.
-		*
-		* @param fromVo int Source VO ID
-		* @param toVo int Destination VO ID
-		* @return Object Always null
-		*/
+	* Copy all form items from selected VO into another.
+	*
+	* @param fromVo int Source VO ID
+	* @param toVo int Destination VO ID
+	* @return Object Always null
+	*/
 	/*#
-		* Copy all form items from selected Group into another.
-		*
-		* @param fromGroup int Source Group ID
-		* @param toGroup int Destination Group ID
-		* @return Object Always null
-		*/
+	* Copy all form items from selected Group into another.
+	*
+	* @param fromGroup int Source Group ID
+	* @param toGroup int Destination Group ID
+	* @return Object Always null
+	*/
+	/*#
+	* Copy all form items from selected VO into Group.
+	*
+	* @param fromVO int Source VO ID
+	* @param toGroup int Destination Group ID
+	* @return Object Always null
+	*/
+	/*#
+	* Copy all form items from selected Group into VO.
+	*
+	* @param fromGroup int Source Group ID
+	* @param toVO int Destination VO ID
+	* @return Object Always null
+	*/
 	copyForm {
 
 		@Override
@@ -631,15 +645,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			if (parms.contains("fromVo")) {
 
-				ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(),
-						ac.getVoById(parms.readInt("fromVo")),
-						ac.getVoById(parms.readInt("toVo")));
+				if (parms.contains("toVo")) {
+
+					ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(),
+							ac.getVoById(parms.readInt("fromVo")),
+							ac.getVoById(parms.readInt("toVo")));
+
+				} else if (parms.contains("toGroup")) {
+
+					ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("fromVo")),
+							ac.getGroupById(parms.readInt("toGroupVo")), false);
+
+				}
 
 			} else if (parms.contains("fromGroup")) {
 
-				ac.getRegistrarManager().copyFormFromGroupToGroup(ac.getSession(),
-						ac.getGroupById(parms.readInt("fromGroup")),
-						ac.getGroupById(parms.readInt("toGroup")));
+				if (parms.contains("toGroup")) {
+
+					ac.getRegistrarManager().copyFormFromGroupToGroup(ac.getSession(),
+							ac.getGroupById(parms.readInt("fromGroup")),
+							ac.getGroupById(parms.readInt("toGroup")));
+
+				} else if (parms.contains("toVo")) {
+
+					ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("toVo")),
+							ac.getGroupById(parms.readInt("fromGroup")), true);
+
+				}
 
 			}
 

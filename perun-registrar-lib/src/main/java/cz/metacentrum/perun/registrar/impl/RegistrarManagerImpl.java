@@ -1757,6 +1757,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
+				(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup))) {
+			throw new PrivilegeException(sess, "copyFormFromVoToGroup");
+		}
+
+		if (reverse) {
+
+			// copy from group to VO
+			List<ApplicationFormItem> items = getFormItems(sess, getFormForGroup(toGroup));
+			for (ApplicationFormItem item : items) {
+				item.setOrdnum(null); // reset order, id is always new inside add method
+				addFormItem(sess, getFormForVo(fromVo), item);
+			}
+
+		} else {
+
+			// copy from VO to group
+			List<ApplicationFormItem> items = getFormItems(sess, getFormForVo(fromVo));
+			for (ApplicationFormItem item : items) {
+				item.setOrdnum(null); // reset order, id is always new inside add method
+				addFormItem(sess, getFormForGroup(toGroup), item);
+			}
+
+		}
+
+	}
+
+	@Override
 	public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
 		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)) ||
