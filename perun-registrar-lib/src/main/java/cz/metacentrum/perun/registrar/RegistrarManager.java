@@ -327,7 +327,7 @@ public interface RegistrarManager {
 	/**
 	 * Copy all form items from selected VO into another.
 	 *
-	 * @param sess
+	 * @param sess PerunSession for authz
 	 * @param fromVo VO to get form items from
 	 * @param toVo VO to set new form items
 	 * @throws PerunException
@@ -335,9 +335,20 @@ public interface RegistrarManager {
 	void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
 
 	/**
+	 * Copy all form items from selected VO into Group and also in opposite direction.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param fromVo VO to copy form items from (or opposite if reverse=TRUE)
+	 * @param toGroup Group to copy form items into (or opposite if reverse=TRUE)
+	 * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
+	 * @throws PerunException
+	 */
+	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+
+	/**
 	 * Copy all form items from selected Group into another.
 	 *
-	 * @param sess
+	 * @param sess PerunSession for authz
 	 * @param fromGroup Group to get form items from
 	 * @param toGroup Group to set new form items
 	 * @throws PerunException
