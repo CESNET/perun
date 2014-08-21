@@ -278,6 +278,40 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
+	public void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
+				((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) && (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup))))) {
+			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
+		}
+
+		if (reverse) {
+
+			// copy notifications from Group to VO
+			ApplicationForm voForm = registrarManager.getFormForVo(fromVo);
+			ApplicationForm groupForm = registrarManager.getFormForGroup(toGroup);
+
+			List<ApplicationMail> mails = getApplicationMails(sess, groupForm);
+			for (ApplicationMail mail : mails) {
+				addMail(sess, voForm, mail);
+			}
+
+		} else {
+
+			// copy notifications from VO to Group
+			ApplicationForm voForm = registrarManager.getFormForVo(fromVo);
+			ApplicationForm groupForm = registrarManager.getFormForGroup(toGroup);
+
+			List<ApplicationMail> mails = getApplicationMails(sess, voForm);
+			for (ApplicationMail mail : mails) {
+				addMail(sess, groupForm, mail);
+			}
+
+		}
+
+	}
+
+	@Override
 	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) ||
