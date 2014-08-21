@@ -655,7 +655,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 					ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(),
 							ac.getVoById(parms.readInt("fromVo")),
-							ac.getGroupById(parms.readInt("toGroupVo")), false);
+							ac.getGroupById(parms.readInt("toGroup")), false);
 
 				}
 
