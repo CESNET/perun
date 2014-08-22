@@ -1257,7 +1257,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.id", APP_MAPPER, vo.getId());
+				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1271,7 +1271,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (stateString.length() > 1) {
 					stateString = stateString.substring(0, stateString.length()-1);
 				}
-				return jdbc.query(APP_SELECT + " where a.vo_id=? and state in ("+stateString+") order by a.id", APP_MAPPER, vo.getId());
+				return jdbc.query(APP_SELECT + " where a.vo_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1291,7 +1291,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.group_id=? order by a.id", APP_MAPPER, group.getId());
+				return jdbc.query(APP_SELECT + " where a.group_id=? order by a.id desc", APP_MAPPER, group.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1305,7 +1305,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (stateString.length() > 1) {
 					stateString = stateString.substring(0, stateString.length()-1);
 				}
-				return jdbc.query(APP_SELECT + " where a.group_id=? and state in ("+stateString+") order by a.id", APP_MAPPER, group.getId());
+				return jdbc.query(APP_SELECT + " where a.group_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, group.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1318,7 +1318,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			// sort by ID which respect latest applications
-			return jdbc.query(APP_SELECT + " where user_id=? order by a.id", APP_MAPPER, user.getId());
+			return jdbc.query(APP_SELECT + " where user_id=? order by a.id desc", APP_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
@@ -1331,7 +1331,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		try {
 			PerunPrincipal pp = sess.getPerunPrincipal();
 			// sort by ID which respect latest applications
-			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
@@ -1354,9 +1354,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			if (group == null) {
-				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? order by a.id", APP_MAPPER, member.getUserId(), member.getVoId());
+				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? order by a.id desc", APP_MAPPER, member.getUserId(), member.getVoId());
 			} else {
-				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? and a.group_id=? order by a.id", APP_MAPPER, member.getUserId(), member.getVoId(), group.getId());
+				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? and a.group_id=? order by a.id desc", APP_MAPPER, member.getUserId(), member.getVoId(), group.getId());
 			}
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
