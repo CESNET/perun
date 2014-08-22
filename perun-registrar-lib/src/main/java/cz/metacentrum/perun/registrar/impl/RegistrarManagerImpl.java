@@ -2109,11 +2109,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				if (group != null) {
 
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and type=? and user_id=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
 
 				} else {
 
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and and type=? and user_id=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
 
 				}
 
@@ -2121,11 +2121,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				if (group != null) {
 
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and type=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
 
 				} else {
 
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and and type=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
 
 				}
 
