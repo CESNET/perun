@@ -351,7 +351,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 	 * Sorts table by objects date
 	 */
 	public void sortTable() {
-		list = new TableSorter<Application>().sortByDate(getList());
+		list = new TableSorter<Application>().sortByIdReversed(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1256,7 +1257,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.created_at", APP_MAPPER, vo.getId());
+				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1270,7 +1271,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (stateString.length() > 1) {
 					stateString = stateString.substring(0, stateString.length()-1);
 				}
-				return jdbc.query(APP_SELECT + " where a.vo_id=? and state in ("+stateString+") order by a.created_at", APP_MAPPER, vo.getId());
+				return jdbc.query(APP_SELECT + " where a.vo_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1290,7 +1291,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.group_id=? order by a.created_at", APP_MAPPER, group.getId());
+				return jdbc.query(APP_SELECT + " where a.group_id=? order by a.id desc", APP_MAPPER, group.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1304,7 +1305,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (stateString.length() > 1) {
 					stateString = stateString.substring(0, stateString.length()-1);
 				}
-				return jdbc.query(APP_SELECT + " where a.group_id=? and state in ("+stateString+") order by a.created_at", APP_MAPPER, group.getId());
+				return jdbc.query(APP_SELECT + " where a.group_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, group.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1316,7 +1317,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public List<Application> getApplicationsForUser(User user) {
 
 		try {
-			return jdbc.query(APP_SELECT + " where user_id=? order by a.created_at", APP_MAPPER, user.getId());
+			// sort by ID which respect latest applications
+			return jdbc.query(APP_SELECT + " where user_id=? order by a.id desc", APP_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
@@ -1328,7 +1330,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			PerunPrincipal pp = sess.getPerunPrincipal();
-			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.created_at", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			// sort by ID which respect latest applications
+			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
@@ -1351,15 +1354,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			if (group == null) {
-				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? order by a.created_at", APP_MAPPER, member.getUserId(), member.getVoId());
+				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? order by a.id desc", APP_MAPPER, member.getUserId(), member.getVoId());
 			} else {
-				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? and a.group_id=? order by a.created_at", APP_MAPPER, member.getUserId(), member.getVoId(), group.getId());
+				return jdbc.query(APP_SELECT + " where user_id=? and a.vo_id=? and a.group_id=? order by a.id desc", APP_MAPPER, member.getUserId(), member.getVoId(), group.getId());
 			}
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
 
-	};
+	}
 
 	@Override
 	public List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form, AppType appType) throws PerunException {
@@ -1809,23 +1812,47 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<User> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException {
+	public List<RichUser> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, AppType type) throws PerunException {
+
+		Application app = getLatestApplication(sess, vo, group, type);
+		return checkForSimilarUsers(sess, app.getId());
+
+	}
+
+	@Override
+	public List<RichUser> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException {
 
 		String email = "";
 		String name = "";
-		List<User> result = new ArrayList<User>();
+		List<RichUser> result = new ArrayList<RichUser>();
+
+		List<String> attrNames = new ArrayList<String>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+		attrNames.add("urn:perun:user:attribute-def:def:organization");
 
 		Application app = getApplicationById(appId);
 
 		if (app.getGroup() == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-				throw new PrivilegeException("checkForSimilarUsers");
+				if (sess.getPerunPrincipal().getUser() != null) {
+					// check if application to find similar users by belongs to user
+					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
+				} else {
+					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
+							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
+				}
 			}
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
 					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-				throw new PrivilegeException("checkForSimilarUsers");
-					}
+				if (sess.getPerunPrincipal().getUser() != null) {
+					// check if application to find similar users by belongs to user
+					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
+				} else {
+					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
+							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
+				}
+			}
 		}
 
 		// only for initial VO applications if user==null
@@ -1852,7 +1879,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (email != null && !email.isEmpty()) break;
 			}
 
-			List<User> users = (email != null && !email.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
+			List<RichUser> users = (email != null && !email.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, email, attrNames) : new ArrayList<RichUser>();
 
 			if (users != null && !users.isEmpty()) {
 				// found by preferredMail
@@ -1869,7 +1896,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (email != null && !email.isEmpty()) break;
 			}
 
-			users = (email != null && !email.isEmpty()) ? usersManager.findUsers(registrarSession, email) : new ArrayList<User>();
+			users = (email != null && !email.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, email, attrNames) : new ArrayList<RichUser>();
 			if (users != null && !users.isEmpty()) {
 				// found by member mail
 				return users;
@@ -1904,7 +1931,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 			}
 
-			users = (name != null && !name.isEmpty()) ? usersManager.findUsers(registrarSession, name) : new ArrayList<User>();
+			users = (name != null && !name.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames) : new ArrayList<RichUser>();
 			if (users != null && !users.isEmpty()) {
 				// found by member display name
 				return users;
@@ -1922,7 +1949,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (name != null && !name.isEmpty()) {
 				// what was found by name
-				return usersManager.findUsers(registrarSession, name);
+				return usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames);
 			} else {
 				// not found by name
 				return result;
@@ -2060,6 +2087,50 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private Application getApplicationById(int appId) {
 		try {
 			return jdbc.queryForObject(APP_SELECT + " where a.id=?", APP_MAPPER, appId);
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		}
+	}
+
+	/**
+	 * Retrieves whole application object from DB
+	 * (authz in parent methods)
+	 *
+	 * @param sess PerunSession for Authz and to resolve User
+	 * @param vo VO to get application for
+	 * @param group Group
+	 *
+	 * @return application object / null if not exists
+	 */
+	private Application getLatestApplication(PerunSession sess, Vo vo, Group group, AppType type) {
+		try {
+
+			if (sess.getPerunPrincipal().getUser() != null) {
+
+				if (group != null) {
+
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
+
+				} else {
+
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
+
+				}
+
+			} else {
+
+				if (group != null) {
+
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
+
+				} else {
+
+					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
+
+				}
+
+			}
+
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}

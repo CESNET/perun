@@ -5,6 +5,9 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -16,11 +19,13 @@ import cz.metacentrum.perun.webgui.client.applicationresources.SendsApplicationF
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
 import cz.metacentrum.perun.webgui.json.registrarManager.CreateApplication;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItemsWithPrefilledValues;
+import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsersByName;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
@@ -514,91 +519,71 @@ public class ApplicationFormPage extends ApplicationPage {
 		}
 
 		// try to find
-		FindUsersByName find = new FindUsersByName(new JsonCallbackEvents(){
-
-			protected int usersLoginsLoaded = 0;
-			protected int usersCount = 0;
-			protected Map<User,ArrayList<Attribute>> usersLogins = new HashMap<User,ArrayList<Attribute>>();
-
+		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				ArrayList<User> users = JsonUtils.jsoAsList(jso);
-
-				for (User u : users) {
-					if (!u.isServiceUser()) usersCount++;
-				}
-
-				// users found, found logins for them
-				for(final User user : users) {
-
-					// skip service users
-					if (user.isServiceUser()) continue;
-
-					new GetLogins(user.getId(), new JsonCallbackEvents(){
-
-						public void onFinished(JavaScriptObject jso){
-
-							usersLoginsLoaded++;
-							ArrayList<Attribute> logins = JsonUtils.jsoAsList(jso);
-
-							usersLogins.put(user, logins);
-
-							// if last, show window
-							if(usersLoginsLoaded == usersCount){
-								similarUsersFound(usersLogins);
-							}
-
-						}
-					}).retrieveData();
-
-				}
+				similarUsersFound(JsonUtils.<User>jsoAsList(jso));
 			}
+		});
+		JSONObject query = new JSONObject();
 
+		query.put("voId", new JSONNumber(vo.getId()));
+		if (group != null) {
+			query.put("groupId", new JSONNumber(group.getId()));
+		} else {
+			query.put("groupId", new JSONNumber(0));
+		}
+		query.put("type", new JSONString(type));
 
-		}, displayName);
-
-		find.retrieveData();
+		jspc.sendData("registrarManager/checkForSimilarUsers", query);
 
 	}
 
 	/**
 	 * When similar users found, display a message
 	 *
-	 * @param usersLogins
+	 * @param users
 	 */
-	protected void similarUsersFound(Map<User,ArrayList<Attribute>> usersLogins) {
+	protected void similarUsersFound(ArrayList<User> users) {
 
 		FlexTable ft = new FlexTable();
 
-		ft.setWidth("400px");
+		ft.setWidth("600px");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
 		ft.setHTML(0, 0, ApplicationMessages.INSTANCE.similarUsersFoundIsItYou() + "<br /><br />");
-		ftf.setColSpan(0, 0, 2);
+		ftf.setColSpan(0, 0, 3);
 
 		ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
-		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.logins() +"</strong>");
+		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+		ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
 
 		int i = 2;
 
-		for (Map.Entry<User, ArrayList<Attribute>> entry : usersLogins.entrySet()) {
+		for (User user : users) {
 
-			final User user = entry.getKey();
-			ArrayList<Attribute> logins = entry.getValue();
+			// skip service users
+			if (!user.isServiceUser()) {
 
-			String loginsStr = "";
+				ft.setHTML(i, 0, user.getFullNameWithTitles());
 
-			// join array
-			for (Attribute login : logins) {
-				loginsStr += login.getFriendlyNameParameter()+ ": " + login.getValue() + ", ";
+				if (user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue() == null ||
+						user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue().isEmpty()) {
+					ft.setHTML(i, 1, "N/A");
+				} else {
+					ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+				}
+
+				if (user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue() == null ||
+						user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue().isEmpty()) {
+					ft.setHTML(i, 2, "N/A");
+				} else {
+					ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
+				}
+
+				i++;
+
 			}
-			loginsStr = loginsStr.substring(0, loginsStr.length() - 2);
-
-
-			ft.setHTML(i, 0, user.getFullNameWithTitles());
-			ft.setHTML(i, 1, loginsStr);
-
-			i++;
 
 		}
 

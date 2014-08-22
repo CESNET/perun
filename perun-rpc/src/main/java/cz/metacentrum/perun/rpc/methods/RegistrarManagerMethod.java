@@ -4,6 +4,7 @@ import java.util.*;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -931,9 +932,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	checkForSimilarUsers {
 
 		@Override
-		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
+			if (parms.contains("appId")) {
+				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
+			} else {
+				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(),
+						ac.getVoById(parms.readInt("voId")),
+						(parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
+						AppType.valueOf(parms.readString("type")) );
+			}
 
 		}
 
