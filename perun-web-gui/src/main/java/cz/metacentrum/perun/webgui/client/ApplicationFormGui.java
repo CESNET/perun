@@ -296,8 +296,30 @@ public class ApplicationFormGui implements EntryPoint {
 						// store configuration
 						session.setConfiguration((BasicOverlayType)jso.cast());
 
-						// non authz user - is used URL same as default URL (non on production) ?
-						if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+						for (String s : Utils.getVosToSkipCaptchaFor()) {
+							Window.alert(s);
+						}
+
+						if (Utils.getVosToSkipCaptchaFor().contains(vo.getShortName())) {
+
+							// skip captcha
+							final GetApplicationsForUser request;
+							if (session.getUser() == null) {
+								// if not yet user in perun, search by actor / extSourceName
+								request = new GetApplicationsForUser(0, externalEvents);
+							} else {
+								// if user in perun
+								request = new GetApplicationsForUser(session.getUser().getId(), externalEvents);
+							}
+							request.retrieveData();
+
+							// finish loading GUI
+							loadingBox.hide();
+							bodySplitter.clear();
+							bodySplitter.add(ft);
+
+							// challange captcha only for default URL (non)
+						} else if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
 
 							// IF VALIDATION LINK
 

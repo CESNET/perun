@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.webgui.client.resources;
 
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
@@ -109,6 +111,17 @@ public class Utils {
 
 			return link;
 		}
+
+	}
+
+	public static ArrayList<String> getVosToSkipCaptchaFor() {
+
+		ArrayList<String> result = new ArrayList<String>();
+		String skip = PerunWebSession.getInstance().getConfiguration().getCustomProperty("vosToSkipCaptchaFor");
+		for (int i=0; i<skip.split(",").length; i++) {
+			result.add(skip.split(",")[i]);
+		}
+		return result;
 
 	}
 
