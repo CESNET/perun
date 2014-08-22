@@ -104,6 +104,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_LANGUAGE_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
 	private static final String URN_GROUP_LANGUAGE_EMAIL = NAMESPACE_GROUP_LANGUAGE_EMAIL + ":" +  FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL;
 
+	private static final String DISPLAY_NAME_VO_APPLICATION_URL = "Application form URL";
+	private static final String FRIENDLY_NAME_VO_APPLICATION_URL = "applicationURL";
+	private static final String NAMESPACE_VO_APPLICATION_URL = AttributesManager.NS_VO_ATTR_DEF;
+	private static final String URN_VO_APPLICATION_URL = NAMESPACE_VO_APPLICATION_URL  + ":" + FRIENDLY_NAME_VO_APPLICATION_URL;
+
+	private static final String DISPLAY_NAME_GROUP_APPLICATION_URL = "Application form URL";
+	private static final String FRIENDLY_NAME_GROUP_APPLICATION_URL = "applicationURL";
+	private static final String NAMESPACE_GROUP_APPLICATION_URL = AttributesManager.NS_GROUP_ATTR_DEF;
+	private static final String URN_GROUP_APPLICATION_URL = NAMESPACE_GROUP_APPLICATION_URL + ":" +  FRIENDLY_NAME_GROUP_APPLICATION_URL;
+
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
 	@Autowired PerunBl perun;
@@ -236,6 +246,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL);
 			attrDef.setNamespace(NAMESPACE_GROUP_LANGUAGE_EMAIL);
 			attrDef.setDescription("Default language used for application notifications to Group administrators.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_APPLICATION_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_APPLICATION_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_APPLICATION_URL);
+			attrDef.setNamespace(NAMESPACE_VO_APPLICATION_URL);
+			attrDef.setDescription("Custom link to VO's application form used in e-mail invitations.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_APPLICATION_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_APPLICATION_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_APPLICATION_URL);
+			attrDef.setNamespace(NAMESPACE_GROUP_APPLICATION_URL);
+			attrDef.setDescription("Custom link to group's application form used in e-mail invitations.");
 			attrDef.setType(String.class.getName());
 			attrManager.createAttribute(registrarSession, attrDef);
 		}

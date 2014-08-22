@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateMember;
+import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.json.vosManager.FindCandidates;
 import cz.metacentrum.perun.webgui.model.*;
@@ -64,6 +65,8 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 	private String searchString = "";
 	private CustomButton addCandidatesButton;
 	private CustomButton addUsersButton;
+	private CustomButton inviteButton;
+	private CustomButton inviteCandidatesButton;
 	private ArrayList<GeneralObject> alreadyAddedList = new ArrayList<GeneralObject>();
 	private SimplePanel alreadyAdded = new SimplePanel();
 
@@ -112,6 +115,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 
 		addCandidatesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
 		addUsersButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
+
+
+		inviteButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
+		inviteCandidatesButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
 
 		final CheckBox searchExternal = new CheckBox("Search in external sources");
 		searchExternal.setValue(searchCandidates);
@@ -177,14 +184,14 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 					tabMenu.addWidget(2, addUsersButton);
 				}
 			}
-		@Override
-		public void onLoadingStart() {
-			searchBox.getTextBox().setEnabled(false);
-		}
-		@Override
-		public void onError(PerunError error) {
-			searchBox.getTextBox().setEnabled(true);
-		}
+			@Override
+			public void onLoadingStart() {
+				searchBox.getTextBox().setEnabled(false);
+			}
+			@Override
+			public void onError(PerunError error) {
+				searchBox.getTextBox().setEnabled(true);
+			}
 		});
 		// set event for search
 		candidates.setEvents(selectOneEvent);
@@ -195,6 +202,52 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		} else {
 			tabMenu.addWidget(2, addUsersButton);
 		}
+
+		if (searchCandidates) {
+			tabMenu.addWidget(3, inviteCandidatesButton);
+		} else {
+			tabMenu.addWidget(3, inviteButton);
+		}
+
+		inviteCandidatesButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				SendInvitation invite = new SendInvitation(voId, 0);
+				// we expect, that candidate is always single
+				for (Candidate candid : candidates.getTableSelectedList()) {
+					invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents(){
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+							candidates.clearTableSelectedSet();
+						}
+					}));
+					invite.inviteUser(candid);
+				}
+			}
+		});
+
+		inviteButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				SendInvitation invite = new SendInvitation(voId, 0);
+
+				ArrayList<User> usrs = users.getTableSelectedList();
+				for (int i=0; i<usrs.size(); i++) {
+					if (i == usrs.size()-1) {
+						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton, new JsonCallbackEvents(){
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								users.clearTableSelectedSet();
+							}
+						}));
+					} else {
+						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton));
+					}
+					invite.inviteUser(usrs.get(i));
+				}
+			}
+		});
+
 
 		final TabItem tab = this;
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
@@ -227,10 +280,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 							// clear search
 							searchBox.getTextBox().setText("");
 						}
-					@Override
-					public void onLoadingStart(){
-						saveSelected = candidates.getSelected();
-					}
+						@Override
+						public void onLoadingStart(){
+							saveSelected = candidates.getSelected();
+						}
 					}));
 					request.createMember(voId, candidateToBeAdded);
 				}
@@ -258,10 +311,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 									searchBox.getTextBox().setText("");
 								}
 							}
-						@Override
-						public void onLoadingStart(){
-							saveSelected = selected.get(n);
-						}
+							@Override
+							public void onLoadingStart(){
+								saveSelected = selected.get(n);
+							}
 						}));
 						request.createMember(voId, selected.get(i));
 					}
@@ -271,6 +324,8 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 
 		addUsersButton.setEnabled(false);
 		JsonUtils.addTableManagedButton(users, usersTable, addUsersButton);
+		inviteButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(users, usersTable, inviteButton);
 
 		// tables
 		candidatesTable.addStyleName("perun-table");

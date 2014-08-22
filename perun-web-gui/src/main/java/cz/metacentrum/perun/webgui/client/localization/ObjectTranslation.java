@@ -35,22 +35,25 @@ public interface ObjectTranslation extends Messages {
 	/* ========== APPLICATION MAIL OBJECT ============ */
 
 	@DefaultMessage("Created / user")
-		String applicationMailTypeAppCreatedUser();
+	String applicationMailTypeAppCreatedUser();
 
 	@DefaultMessage("Created / manager")
-		String applicationMailTypeAppCreatedVoAdmin();
+	String applicationMailTypeAppCreatedVoAdmin();
 
 	@DefaultMessage("Mail validation / user")
-		String applicationMailTypeMailValidation();
+	String applicationMailTypeMailValidation();
 
 	@DefaultMessage("Approved / user")
-		String applicationMailTypeAppApprovedUser();
+	String applicationMailTypeAppApprovedUser();
 
 	@DefaultMessage("Rejected / user")
-		String applicationMailTypeAppRejectedUser();
+	String applicationMailTypeAppRejectedUser();
 
 	@DefaultMessage("Error / manager")
-		String applicationMailTypeAppErrorVoAdmin();
+	String applicationMailTypeAppErrorVoAdmin();
+
+	@DefaultMessage("Invitation / user")
+	String applicationMailTypeInvitationUser();
 
 	/* ========== OWNER OBJECT ============ */
 
@@ -59,6 +62,5 @@ public interface ObjectTranslation extends Messages {
 
 	@DefaultMessage("technical")
 	String ownerTypeTechnical();
-
 
 }

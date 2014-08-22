@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.tabs.groupstabs.CreateGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToResourceTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.CreateServiceMemberInVoTabItem;
+import cz.metacentrum.perun.webgui.tabs.userstabs.InviteUserTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 /**
@@ -151,6 +152,12 @@ public class VoOverviewTabItem implements TabItem {
 				session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
 			}
 		});
+		CustomButton inviteUser = new CustomButton("Invite user", "Invite unknown or existing user to your VO.", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(vo, null));
+			}
+		});
 		CustomButton addManager = new CustomButton(ButtonTranslation.INSTANCE.addManagerButton(), ButtonTranslation.INSTANCE.addManagerToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
@@ -172,21 +179,24 @@ public class VoOverviewTabItem implements TabItem {
 
 		toolsLayout.setWidget(0, 0, addMember);
 		toolsLayout.setWidget(1, 0, addServiceMember);
-		toolsLayout.setWidget(2, 0, addManager);
-		toolsLayout.setWidget(3, 0, createGroup);
-		toolsLayout.setWidget(4, 0, addToResource);
+		toolsLayout.setWidget(2, 0, inviteUser);
+		toolsLayout.setWidget(3, 0, addManager);
+		toolsLayout.setWidget(4, 0, createGroup);
+		toolsLayout.setWidget(5, 0, addToResource);
 
 		if (!session.isVoAdmin(voId)) addMember.setEnabled(false);
 		if (!session.isVoAdmin(voId)) addServiceMember.setEnabled(false);
+		if (!session.isVoAdmin(voId)) inviteUser.setEnabled(false);
 		if (!session.isVoAdmin(voId)) addManager.setEnabled(false);
 		if (!session.isVoAdmin(voId)) createGroup.setEnabled(false);
 		if (!session.isVoAdmin(voId)) addToResource.setEnabled(false);
 
 		toolsLayout.setHTML(0, 1, "Add new member into your VO. Candidates can be searched for in VO's external sources or among user already existing in Perun.");
 		toolsLayout.setHTML(1, 1, "Create new member which represent service account (account usually used by more users with separate login and password).");
-		toolsLayout.setHTML(2, 1, "Add new manager which can manage your VO in Perun.");
-		toolsLayout.setHTML(3, 1, "Create new group in your VO.");
-		toolsLayout.setHTML(4, 1, "Add selected member to specific resource (grant some type of access to Facility resources).");
+		toolsLayout.setHTML(2, 1, "Invite unknown or existing user into your VO.");
+		toolsLayout.setHTML(3, 1, "Add new manager which can manage your VO in Perun.");
+		toolsLayout.setHTML(4, 1, "Create new group in your VO.");
+		toolsLayout.setHTML(5, 1, "Add selected member to specific resource (grant some type of access to Facility resources).");
 
 
 		vp2.add(tools);

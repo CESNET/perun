@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.userstabs.InviteUserTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoMembersTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
@@ -197,6 +198,14 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
+
+		CustomButton inviteButton = new CustomButton("Invite user", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(group.getVoId(), group));
+			}
+		});
+		tabMenu.addWidget(inviteButton);
 
 		final ExtendedSuggestBox box = new ExtendedSuggestBox(members.getOracle());
 		box.getSuggestBox().addValueChangeHandler(new ValueChangeHandler<String>() {
