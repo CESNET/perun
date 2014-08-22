@@ -33,6 +33,23 @@ public class TableSorter<T> {
 	}
 
 	/**
+	 * Returns sorted list of objects by ID reversed
+	 *
+	 * @param list of objects to be sorted
+	 * @return ArrayList<T> sorted list of objects by their Ids
+	 */
+	public ArrayList<T> sortByIdReversed(ArrayList<T> list){
+		if(list == null) return null;
+		Collections.sort(list, Collections.reverseOrder(new Comparator<T>(){
+			public int compare(T o1, T o2) {
+				return getId(o1)-(getId(o2));
+			}
+		}));
+		return list;
+
+	}
+
+	/**
 	 * Returns sorted list of objects
 	 *
 	 * @param list of objects to be sorted
