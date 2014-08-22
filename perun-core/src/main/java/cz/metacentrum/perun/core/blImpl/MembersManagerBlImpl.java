@@ -102,26 +102,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			requiredAttributesBeforeMemberRemove.put(facility, getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user));
 		}
 
-		// Check if the member is VO or Group admin
-		if (getPerunBl().getVosManagerBl().getAdmins(sess, vo).contains(user)) {
-			try {
-				getPerunBl().getVosManagerBl().removeAdmin(sess, vo, user);
-			} catch (UserNotAdminException e) {
-				throw new ConsistencyErrorException("User is in an admininistrators group, but he/she is not an admin", e);
-			}
-		}
-
-		List<Group> groups = getPerunBl().getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, user);
-		for (Group group: groups) {
-			if (getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(vo)) {
-				try {
-					getPerunBl().getGroupsManagerBl().removeAdmin(sess, group, user);
-				} catch (UserNotAdminException e) {
-					throw new ConsistencyErrorException("User is an administrator of the group, but he/she doesn't have an admin role", e);
-				}
-			}
-		}
-
 		// Remove member from all groups
 		List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getMemberDirectGroups(sess, member);
 		for (Group group: memberGroups) {
