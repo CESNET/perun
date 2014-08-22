@@ -285,7 +285,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 	public int hashCode() {
 		final int prime = 51;
 		int result = 1;
-		result = prime * result + voId;
+		result = prime * result + voId + groupId;
 		return result;
 	}
 
@@ -299,6 +299,8 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		MailsTabItem other = (MailsTabItem) obj;
 		if (voId != other.voId)
+			return false;
+		if (groupId != other.groupId)
 			return false;
 		return true;
 	}
