@@ -102,14 +102,17 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Similar user(s) found")
 	String similarUsersFound();
 
-	@DefaultMessage("Similar user(s) are already registered in system. Is it you ? If yes, please join your identity used now with the one existing in system.")
+	@DefaultMessage("Similar user(s) are already registered in system. Is it you ? If yes, please join your identity to prevent possible problems with offered services.")
 	String similarUsersFoundIsItYou();
 
 	@DefaultMessage("Name")
 	String name();
 
-	@DefaultMessage("Logins")
-	String logins();
+	@DefaultMessage("Email")
+	String email();
+
+	@DefaultMessage("Organization")
+	String organization();
 
 	@DefaultMessage("Yes")
 	String yes();
