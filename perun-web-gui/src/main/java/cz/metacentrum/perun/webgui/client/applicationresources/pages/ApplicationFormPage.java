@@ -480,21 +480,28 @@ public class ApplicationFormPage extends ApplicationPage {
 		PerunPrincipal pp = session.getPerunPrincipal();
 		String displayName = pp.getAdditionInformations("displayName");
 
-		if (jso == null) {
+		// before app submitted
+		if(displayName.equals("")){
+			displayName = pp.getAdditionInformations("cn");
+		}
 
-			// before app submitted
-			if(displayName.equals("")){
-				displayName = pp.getAdditionInformations("cn");
-			}
-
-		} else {
+		if (jso != null) {
 
 			// after Application is submitted
 			ArrayList<ApplicationFormItemData> data = JsonUtils.jsoAsList(jso);
+
 			for (ApplicationFormItemData item : data) {
 				if ("urn:perun:user:attribute-def:core:lastName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
 					// set name
-					displayName = item.getValue();
+					if (item.getValue() != null && !item.getValue().isEmpty()) displayName = item.getValue();
+					break;
+				}
+			}
+
+			for (ApplicationFormItemData item : data) {
+				if ("urn:perun:user:attribute-def:core:displayName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
+					// set name
+					if (item.getValue() != null && !item.getValue().isEmpty()) displayName = item.getValue();
 					break;
 				}
 			}
