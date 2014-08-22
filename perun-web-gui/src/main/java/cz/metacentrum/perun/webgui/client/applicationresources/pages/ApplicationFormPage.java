@@ -548,24 +548,42 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		FlexTable ft = new FlexTable();
 
-		ft.setWidth("500px");
+		ft.setWidth("600px");
 		FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
 		ft.setHTML(0, 0, ApplicationMessages.INSTANCE.similarUsersFoundIsItYou() + "<br /><br />");
-		ftf.setColSpan(0, 0, 2);
+		ftf.setColSpan(0, 0, 3);
 
 		ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
-		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
-		ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+		ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
 
 		int i = 2;
 
 		for (User user : users) {
 
-			ft.setHTML(i, 0, user.getFullNameWithTitles());
-			ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
-			ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
-			i++;
+			// skip service users
+			if (!user.isServiceUser()) {
+
+				ft.setHTML(i, 0, user.getFullNameWithTitles());
+
+				if (user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue() == null ||
+						user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue().isEmpty()) {
+					ft.setHTML(i, 1, "N/A");
+				} else {
+					ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+				}
+
+				if (user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue() == null ||
+						user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue().isEmpty()) {
+					ft.setHTML(i, 2, "N/A");
+				} else {
+					ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
+				}
+
+				i++;
+
+			}
 
 		}
 

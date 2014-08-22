@@ -9,6 +9,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.FlexTable;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
@@ -193,21 +194,56 @@ public class HandleApplication {
 				if (users != null && !users.isEmpty()) {
 
 					FlexTable ft = new FlexTable();
-					ft.setWidth("400px");
+					ft.setWidth("600px");
 					ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
+					ft.getFlexCellFormatter().setColSpan(0, 0, 3);
 
-					for (int i=0; i<users.size(); i++) {
-						if (!users.get(i).isServiceUser()) {
-							ft.setHTML(i+1, 0, users.get(i).getFullNameWithTitles() + " (User ID: "+users.get(i).getId()+")");
+					ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
+					ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+					ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
+
+					int i = 2;
+
+					for (User user : users) {
+
+						// skip service users
+						if (!user.isServiceUser()) {
+
+							ft.setHTML(i, 0, user.getFullNameWithTitles());
+
+							if (user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue() == null ||
+									user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue().isEmpty()) {
+								ft.setHTML(i, 1, "N/A");
+							} else {
+								ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+							}
+
+							if (user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue() == null ||
+									user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue().isEmpty()) {
+								ft.setHTML(i, 2, "N/A");
+							} else {
+								ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
+							}
+
+							i++;
+
 						}
+
 					}
 
-					ft.setHTML(ft.getRowCount(), 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
+
+
+					ft.setHTML(i, 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
 							"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
 							"</li><li>If NO, you can approve this application anyway. " +
 							"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
 
-					ft.setHTML(ft.getRowCount(), 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+					ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+
+					i++;
+
+					ft.setHTML(i, 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+					ft.getFlexCellFormatter().setColSpan(i, 0, 3);
 
 					Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
 						@Override
