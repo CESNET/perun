@@ -296,10 +296,6 @@ public class ApplicationFormGui implements EntryPoint {
 						// store configuration
 						session.setConfiguration((BasicOverlayType)jso.cast());
 
-						for (String s : Utils.getVosToSkipCaptchaFor()) {
-							Window.alert(s);
-						}
-
 						if (Utils.getVosToSkipCaptchaFor().contains(vo.getShortName())) {
 
 							// skip captcha
