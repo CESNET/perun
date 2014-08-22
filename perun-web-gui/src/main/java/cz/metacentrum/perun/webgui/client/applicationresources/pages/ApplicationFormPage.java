@@ -183,6 +183,8 @@ public class ApplicationFormPage extends ApplicationPage {
 			}
 		}
 
+		/*
+
 		String headerString = "";
 
 		// display application header
@@ -199,7 +201,10 @@ public class ApplicationFormPage extends ApplicationPage {
 				headerString = ApplicationMessages.INSTANCE.membershipExtensionForVo(vo.getName());
 			}
 		}
+
 		header.setHTML(row, 0, "<h1>" + headerString + "</h1>");
+
+		*/
 
 		// language button
 		prepareToggleLanguageButton();
