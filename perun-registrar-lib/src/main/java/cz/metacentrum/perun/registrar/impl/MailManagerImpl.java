@@ -1287,6 +1287,36 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private String buildInviteURL(Vo vo, Group group, boolean isMember, String text) {
 
+		try {
+
+			if (group == null) {
+
+				// use custom VO link if group not set
+				for (Attribute a : attrManager.getAttributes(registrarSession, vo)) {
+					if (a.getName().equals(URN_VO_APPLICATION_URL)) {
+						if (a.getValue() != null) {
+							return BeansUtils.attributeValueToString(a);
+						}
+					}
+				}
+
+			} else {
+
+				// use only group specific URL
+				for (Attribute a : attrManager.getAttributes(registrarSession, group)) {
+					if (a.getName().equals(URN_GROUP_APPLICATION_URL)) {
+						if (a.getValue() != null) {
+							return BeansUtils.attributeValueToString(a);
+						}
+					}
+				}
+
+			}
+
+		} catch (Exception ex) {
+			log.error("[MAIL MANAGER] Unable to get Invitation URL from {} and {} because of "+ex, vo, group);
+		}
+
 		if (text == null || text.isEmpty()) return "";
 
 		text = text + "?vo=" + vo.getShortName();
