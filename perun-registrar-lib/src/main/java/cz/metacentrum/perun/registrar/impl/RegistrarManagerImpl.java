@@ -2093,7 +2093,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		try {
 			if (AppState.VERIFIED.equals(app.getState())) {
 				// with registrar session, since only VO admin can approve application
-				approveApplication(registrarSession, app.getId());
+
+				// initial for VO - let's check similar users
+				if (AppType.INITIAL.equals(type) && app.getGroup() == null) {
+					List<RichUser> list = checkForSimilarUsers(registrarSession, app.getId());
+					if (!list.isEmpty()) {
+						// found similar
+						throw new RegistrarException("Similar users are already registered in system. Automatic approval of application was canceled to prevent creation of duplicate user entry. Please check and approve application manually.");
+					} else {
+						// similar NOT found - continue
+						approveApplication(registrarSession, app.getId());
+					}
+				} else {
+					// other types of application doesn't create new user - continue
+					approveApplication(registrarSession, app.getId());
+				}
 			}
 		} catch (Exception ex) {
 
