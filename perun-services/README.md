@@ -27,3 +27,7 @@ SERVICE_WHITELIST=()
 DNS_ALIAS_WHITELIST=( `hostname -f` )
 FACILITY_WHITELIST=()
 ```
+
+### Custom service behavior ###
+
+You can run your own scripts before and/or after Perun's slave scripts are processed. Simply create folder ``/opt/perun/bin/[service_name.d]/`` (if not exists yet) and put your scripts into it. Scripts are processed in alphabetical order. Name of script is expected to be ``[pre/post]_[number]_filename``. Pre scripts are processed before slave scripts and post scripts are processed after. This way you can e.g. filter received data and perform some cleanup afterwards. You can check examples in ``slave-meta/`` folder, which are used for Perun instance of CESNET.

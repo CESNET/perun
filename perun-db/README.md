@@ -7,6 +7,8 @@ This module holds all DB related utilities, which are necessary to install and r
 * Oracle (>11)
 * Postgres (>9.1)
 
+> Data in Perun is stored using UTF-8 charset. When using Oracle DB, some columns are limited to 4000 of ASCII characters (1000 with full UTF-8 set).
+
 ## Instalation ##
 
 > Theses instructions doesn't cover creation of initial user (perun admin) and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
