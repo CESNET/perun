@@ -1290,8 +1290,19 @@ public interface AttributesManagerBl {
 	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
+	 * Get member-resource attributes which are required by services and if workWithUserAttributes is true also user and user-facility attributes.
+	 * Services are known from the resourceToGetServicesFrom.
+	 *
+	 * @param sess perun session
+	 * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
+	 * @param resource you get attributes for this resource and the member
+	 * @param member you get attributes for this member and the resource
 	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
-	 * //TODO inheritDoc
+	 * @return list of member-resource attributes (if workWithUserAttributes is true also user and user-facility attributes) which are required by services which are assigned to another resource.
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member, boolean workWithUserAttributes) throws WrongAttributeAssignmentException, InternalErrorException;
