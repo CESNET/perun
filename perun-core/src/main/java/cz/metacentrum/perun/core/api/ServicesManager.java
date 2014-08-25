@@ -683,6 +683,7 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @return list of all destinations for session
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
 	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
 
