@@ -1849,8 +1849,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public List<RichUser> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, AppType type) throws PerunException {
 
 		Application app = getLatestApplication(sess, vo, group, type);
-		return checkForSimilarUsers(sess, app.getId());
-
+		if (app != null) {
+			return checkForSimilarUsers(sess, app.getId());
+		} else {
+			return new ArrayList<RichUser>();
+		}
 	}
 
 	@Override
