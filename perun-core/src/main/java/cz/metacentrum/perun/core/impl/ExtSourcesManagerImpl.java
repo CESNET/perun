@@ -17,7 +17,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
@@ -47,6 +49,11 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	protected final static String extSourceMappingSelectQuery = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
 		"ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
 		"ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid";
+
+	protected final static String extSourceMappingSelectQueryWithAttributes = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
+			"ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
+			"ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid, " +
+			"ext_sources_attributes.attr_name as attr_name, ext_sources_attributes.attr_value as attr_value";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcTemplate jdbc;
@@ -78,6 +85,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			} catch (RuntimeException e) {
 				throw new InternalErrorRuntimeException(e);
 			}
+		}
+	};
+
+	private static final RowMapper<Map<String, Object>> EXT_SOURCE_ATTRIBUTES_MAPPER = new RowMapper<Map<String, Object>>() {
+		public Map<String, Object> mapRow(ResultSet rs, int i) throws SQLException {
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put("name", rs.getString("attr_name"));
+			attributes.put("value", rs.getString("attr_value"));
+			return attributes;
 		}
 	};
 
@@ -209,13 +225,54 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	protected static final ExtSourcesExtractor EXT_SOURCES_EXTRACTOR = new ExtSourcesExtractor();
+
+	private static class ExtSourcesExtractor implements ResultSetExtractor<List<ExtSource>> {
+
+		public List<ExtSource> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			Map<Integer, ExtSource> map = new HashMap<>();
+			ExtSource myObject;
+			while (rs.next()) {
+				// fetch from map by ID
+				Integer id = rs.getInt("ext_sources_id");
+				myObject = map.get(id);
+				if(myObject == null){
+					// if not preset, put in map
+					myObject = EXTSOURCE_MAPPER.mapRow(rs, rs.getRow());
+					map.put(id, myObject);
+				}
+				// fetch each attribute for extSource and add it to extSource
+				Map<String, Object> attributes = EXT_SOURCE_ATTRIBUTES_MAPPER.mapRow(rs, rs.getRow());
+
+				if (attributes.get("name") != null) {
+					// add only if exists
+					myObject.setAttribute((String) attributes.get("name"), (String) attributes.get("value"));
+				}
+			}
+			return new ArrayList<ExtSource>(map.values());
+		}
+	}
+
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
-			ExtSource extSource =  jdbc.queryForObject("select " + extSourceMappingSelectQuery + " from ext_sources where id=?", EXTSOURCE_MAPPER, id);
+			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
 
-			extSource.setAttributes(this.getExtSourceAttributes(sess, extSource));
+			if (extSources != null && extSources.size()>1) {
+				throw new ConsistencyErrorException("There are more than one extSources under ID="+id);
+			} else if (extSources != null && extSources.isEmpty()) {
+				throw new ExtSourceNotExistsException("ExtSource with ID="+id+" not exists");
+			}
 
-			return extSource;
+			if (extSources != null && extSources.size() == 1) {
+				if (extSources.get(0) != null) {
+					// return correct data
+					return extSources.get(0);
+				} else {
+					throw new InternalErrorException("extSource with ID="+id+" is null.");
+				}
+			}
+			// not correct data
+			throw new InternalErrorException("Response from SQL RowExtractor is null.");
 		} catch (EmptyResultDataAccessException e) {
 			throw new ExtSourceNotExistsException("ExtSourceId " + id, e);
 		} catch (RuntimeException e) {
@@ -233,32 +290,6 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-	}
-
-	/**
-	 * Get extSource attributes.
-	 *
-	 * @param sess
-	 * @param extSource
-	 * @return Map of pairs AttrName and AttrValue.
-	 * @throws InternalErrorException
-	 */
-	private Map<String, String> getExtSourceAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException {
-		Map<String, String> attributes = new HashMap<String, String>();
-
-		try {
-			List<Map<String, Object>> list = jdbc.queryForList("select attr_name as name, attr_value as value from ext_sources_attributes where ext_sources_id=?",
-					extSource.getId());
-
-			if (list != null) {
-				for (Map<String, Object> element: list) {
-					attributes.put((String) element.get("name"), (String) element.get("value"));
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-		return attributes;
 	}
 
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {

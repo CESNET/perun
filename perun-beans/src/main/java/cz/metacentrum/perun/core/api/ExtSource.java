@@ -1,8 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
+import java.util.HashMap;
 import java.util.Map;
-import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * External Source Bean
@@ -17,6 +16,7 @@ public class ExtSource extends Auditable {
 
 	public ExtSource() {
 		super();
+		attributes = new HashMap<>();
 	}
 
 	public ExtSource(int id, String name, String type) {
@@ -63,6 +63,10 @@ public class ExtSource extends Auditable {
 
 	public void setAttributes(Map<String, String> attributes) {
 		this.attributes = attributes;
+	}
+
+	public void setAttribute(String attrName, String attrValue) {
+		this.attributes.put(attrName, attrValue);
 	}
 
 	@Override
