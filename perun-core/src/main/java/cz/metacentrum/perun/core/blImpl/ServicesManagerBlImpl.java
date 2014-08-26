@@ -500,6 +500,13 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return destinations;
 	}
 
+	@Override
+	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException {
+		List<Destination> destinations = getServicesManagerImpl().getDestinations(perunSession);
+
+		return destinations;
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException{
 		return getServicesManagerImpl().getAllRichDestinations(perunSession, facility);
 	}

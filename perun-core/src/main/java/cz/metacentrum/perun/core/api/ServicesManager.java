@@ -678,6 +678,16 @@ public interface ServicesManager {
 	List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException;
 
 	/**
+	 * Get list of all destinations.
+	 *
+	 * @param perunSession
+	 * @return list of all destinations for session
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+
+	/**
 	 * Get list of all rich destinations defined for the facility.
 	 *
 	 * @param perunSession

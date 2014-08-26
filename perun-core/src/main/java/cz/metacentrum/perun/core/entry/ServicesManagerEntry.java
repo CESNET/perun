@@ -560,6 +560,18 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getDestinations(sess, service, facility);
 	}
 
+	@Override
+	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(perunSession);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "getDestinations");
+		}
+
+		return getServicesManagerBl().getDestinations(perunSession);
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException{
 		Utils.checkPerunSession(perunSession);
 

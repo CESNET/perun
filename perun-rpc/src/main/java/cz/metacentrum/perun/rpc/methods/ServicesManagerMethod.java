@@ -652,13 +652,22 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility ID
 	 * @return List<Destination> Found Destinations
 	 */
+	/*#
+	 * Get list of all destinations.
+	 *
+	 * @return List<Destination> List of all destinations for session
+	 */
 	getDestinations {
 
 		@Override
 		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getDestinations(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
+			if (parms.contains("facility")) {
+				return ac.getServicesManager().getDestinations(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")));
+			} else {
+				return ac.getServicesManager().getDestinations(ac.getSession());
+			}
 		}
 	},
 

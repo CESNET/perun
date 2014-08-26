@@ -1015,6 +1015,20 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
+	@Test
+	public void getDestinationsWithPerunSession() throws Exception {
+		System.out.println("ServicesManager.getDestinations");
+
+		Service service1 = setUpService();
+		Facility facility1 = setUpFacility();
+		Destination destination = setUpDestination();
+		perun.getServicesManager().addDestination(sess, service1, facility1, destination);
+
+		List<Destination> destinations = perun.getServicesManager().getDestinations(sess);
+		assertTrue("there should be at least one destination", destinations.size() >= 1);
+		assertTrue("our destination should be between all destinations", destinations.contains(destination));
+	}
+
 	@Test (expected=ServiceNotExistsException.class)
 		public void getDestinationsWhenServiceNotExists() throws Exception {
 			System.out.println("ServicesManager.getDestinationsWhenServiceNotExists");
