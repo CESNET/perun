@@ -89,7 +89,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		tab = this;
 
 		boolean buttonsEnabled = ((session.isVoAdmin(app.getVo().getId())) ||
-				(app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId()))) ? true : false;
+				(app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId())));
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -140,7 +140,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 			// verify button
 			final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
-			verify.setEnabled(buttonsEnabled);
+			verify.setEnabled(session.isPerunAdmin());
 			menu.addWidget(verify);
 			verify.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
