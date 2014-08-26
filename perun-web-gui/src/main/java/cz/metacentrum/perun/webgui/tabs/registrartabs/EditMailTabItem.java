@@ -280,7 +280,31 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 				"<br/><strong>{appDetailUrlFed}</strong> - link with federation authz" +
 				"<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz");
+				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz" +
+
+				"<br/></br><strong><u>Perun GUI links for administrators:</u></strong><br/>" +
+
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span><br/>" +
+
+				"<br/><strong>{perunGuiUrlFed}</strong> - link with federation authz" +
+				"<br/><strong>{perunGuiUrlKerb}</strong> - link with kerberos authz" +
+				"<br/><strong>{perunGuiUrlCert}</strong> - link with IGTF certificate authz" +
+
+				"<br/></br><strong><u>User invitations:</u></strong><br/>" +
+
+				"<br/><span class=\"inputFormInlineComment\">Following tags can be used on user invitation template</span><br/>" +
+
+				"<br/><strong>{voName}</strong> - name of VO to invite user into" +
+				"<br/><strong>{groupName}</strong> - name of Group to invite user into" +
+				"<br/><strong>{displayName}</strong> - invited user's name" +
+				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
+
+				"<br/></br><strong>{invitationLinkNon}</strong> - link with federation authz" +
+				"<br/><strong>{invitationLinkKrb}</strong> - link with kerberos authz" +
+				"<br/><strong>{invitationLinkFed}</strong> - link with federation authz" +
+				"<br/><strong>{invitationLinkCert}</strong> - link with IGTF certificate authz"
+
+		);
 
 		text.getElement().setAttribute("style", "line-height: 1.5em !important;");
 
@@ -330,18 +354,18 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 				// messages
 				for(Map.Entry<String, TextArea> entry : messagesTextAreas.entrySet())
-		{
-			String locale = entry.getKey();
-			String subject = messagesSubjects.get(entry.getKey()).getValue();
-			String text = entry.getValue().getText();
-			MailText mt = MailText.construct(locale, subject, text);
+				{
+					String locale = entry.getKey();
+					String subject = messagesSubjects.get(entry.getKey()).getValue();
+					String text = entry.getValue().getText();
+					MailText mt = MailText.construct(locale, subject, text);
 
-			appMail.setMessage(locale, mt);
-		}
+					appMail.setMessage(locale, mt);
+				}
 
-		// request
-		UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
-		req.updateMail(appMail);
+				// request
+				UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
+				req.updateMail(appMail);
 			}
 		});
 		tabMenu.addWidget(saveButton);
