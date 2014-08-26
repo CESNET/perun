@@ -85,11 +85,21 @@ public class JsonErrorHandler {
 
 				String text = error.getErrorId() + " - " + error.getName() + "\n";
 				text += error.getErrorInfo() + "\n\n";
-				text += Utils.perunInstanceName()+ "\n";
+				text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
 				text += "Request: " + error.getRequestURL() + "\n";
 				if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
 				text += "Application state: " + status + "\n\n";
 				text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
+
+				if (PerunWebSession.getInstance().getUser() == null) {
+
+					// post original authz if unknown user
+					text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
+							PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
+							PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
+
+				}
+
 				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion() + "\n\n";
 				text += "Message: " + messageTextBox.getText();
 
