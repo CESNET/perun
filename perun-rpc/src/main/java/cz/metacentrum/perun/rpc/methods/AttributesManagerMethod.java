@@ -1448,7 +1448,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						member,
 						attributes);
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resoure, user, member");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resource, user, member");
 			}
 		}
 	},
@@ -1475,12 +1475,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getResourceById(parms.readInt("resource")),
 							parms.read("attribute", Attribute.class));
 				}
+			} else if (parms.contains("host")) {
+				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+						ac.getHostById(parms.readInt("host")),
+						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("user")) {
 				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
 						parms.read("attribute", Attribute.class));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, facility, member or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, facility, host, member or user");
 			}
 
 			return null;
@@ -1524,7 +1528,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						parms.readList("attributes", Attribute.class));
 				return null;
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, host or facility");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, member, user, host or facility");
 			}
 		}
 	},
