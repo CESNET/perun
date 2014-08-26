@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+        return qq{
+        Coppies Form from VO to Group or from Group to VO
+        -------------------------------------------------
+        Available options:
+        --fromVo      | -v from VO id
+        --toGroup     | -G to Group id 
+        --fromGroup   | -g from Group id
+        --toVo        | -V to VO id
+        --notifMails  | -m copy with notification mails
+        --batch       | -b batch
+        --help        | -h prints this help
+        -------------------------------------------------
+        At first empty Form for target group or VO 
+                 must be created !!!
+
+        };
+}
+
+our $batch;
+my ($fromVo,$toGroup,$fromGroup,$toVo,$notifMails);
+
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"fromVo|v=i" => \$fromVo,
+"toGroup|G=i" => \$toGroup,
+"fromGroup|g=i" => \$fromGroup,
+"toVo|V=i" => \$toVo,
+"notifMails|m" => \$notifMails) || die help();
+
+# Check options
+if (not defined($fromVo) and not defined($fromGroup)) { die "ERROR: One FROM item required \n";}
+if (defined($fromVo) and defined($fromGroup)) { die "ERROR: Only one FROM item allowed\n";}
+if (not defined($toGroup) and not defined($toVo)) { die "ERROR: One TO item required \n";}
+if (defined($toGroup) and defined($toVo)) { die "ERROR: Only one TO item allowed\n";}
+
+my $agent = Perun::Agent->new();
+my $registrarAgent = $agent->getRegistrarAgent;
+
+if (defined($fromVo) and defined($toGroup)) {
+    $registrarAgent->copyForm(fromVo => $fromVo, toGroup => $toGroup);
+    if (defined($notifMails)) {
+        $registrarAgent->copyMails(fromVo => $fromVo, toGroup => $toGroup);
+    }    
+}
+
+if (defined($fromGroup) and defined($toVo)) {
+    $registrarAgent->copyForm(fromGroup => $fromGroup, toVo => $toVo);
+    if (defined($notifMails)) {
+        $registrarAgent->copyMails(fromGroup => $fromGroup, toVo => $toVo);
+    }
+}
+
+if (defined($fromGroup) and defined($toGroup)) {
+    $registrarAgent->copyForm(fromGroup => $fromGroup, toGroup => $toGroup);
+    if (defined($notifMails)) {
+        $registrarAgent->copyMails(fromGroup => $fromGroup, toGroup => $toGroup);
+    }
+}
+
+if (defined($fromVo) and defined($toVo)) {
+    $registrarAgent->copyForm(fromVo => $fromVo, toVo => $toVo);
+    if (defined($notifMails)) {
+        $registrarAgent->copyMails(fromVo => $fromVo, toVo => $toVo);
+    }
+}
+
+printMessage("Form successfully coppied",$batch);
