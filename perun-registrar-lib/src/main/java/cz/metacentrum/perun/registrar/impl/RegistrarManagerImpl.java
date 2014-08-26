@@ -2096,6 +2096,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				return;
 			} catch (UserNotExistsException ex) {
 				return;
+			} catch (UserExtSourceNotExistsException ex) {
+				return;
+			} catch (ExtSourceNotExistsException ex) {
+				return;
 			}
 		}
 
