@@ -266,10 +266,12 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		delete.setEnabled(false);
 
 		if (session.isVoAdmin(voId)) {
-			JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
 			JsonUtils.addTableManagedButton(applicationsRequest, table, approve);
 			JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
 			JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
+		}
+		if (session.isPerunAdmin()) {
+			JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
 		}
 
 		session.getUiElements().resizePerunTable(sp, 100);
