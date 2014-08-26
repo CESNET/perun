@@ -345,6 +345,14 @@ public class CreateMailTabItem implements TabItem {
 				"<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
 				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz" +
 
+				"<br/></br><strong><u>Perun GUI links for administrators:</u></strong><br/>" +
+
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span><br/>" +
+
+				"<br/><strong>{perunGuiUrlFed}</strong> - link with federation authz" +
+				"<br/><strong>{perunGuiUrlKerb}</strong> - link with kerberos authz" +
+				"<br/><strong>{perunGuiUrlCert}</strong> - link with IGTF certificate authz" +
+
 				"<br/></br><strong><u>User invitations:</u></strong><br/>" +
 
 				"<br/><span class=\"inputFormInlineComment\">Following tags can be used on user invitation template</span><br/>" +
