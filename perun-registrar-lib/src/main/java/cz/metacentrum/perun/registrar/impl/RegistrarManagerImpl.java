@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2108,7 +2107,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// with registrar session, since only VO admin can approve application
 
 				// initial for VO - let's check similar users
-				if (AppType.INITIAL.equals(type) && app.getGroup() == null) {
+				if (AppType.INITIAL.equals(type) && app.getGroup() == null && !app.getExtSourceName().equalsIgnoreCase("LOCAL")) {
 					List<RichUser> list = checkForSimilarUsers(registrarSession, app.getId());
 					if (!list.isEmpty()) {
 						// found similar
