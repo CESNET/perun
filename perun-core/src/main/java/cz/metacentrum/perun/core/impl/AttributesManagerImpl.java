@@ -4508,7 +4508,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setType(String.class.getName());
 		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
 		attr.setFriendlyName("lastSynchronzationState");
-		attr.setDisplayName("Group synchronization interval");
+		attr.setDisplayName("Last synchronization state");
 		attributes.add(attr);
 
 		//urn:perun:group:attribute-def:def:lastSynchronizationTimestamp
@@ -4517,7 +4517,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setType(String.class.getName());
 		attr.setDescription("If group is synchronized, there will be the last timestamp of group synchronization.");
 		attr.setFriendlyName("lastSynchronizationTimestamp");
-		attr.setDisplayName("Group synchronization interval");
+		attr.setDisplayName("Last Synchronization timestamp");
 		attributes.add(attr);
 
 		for(AttributeDefinition attribute : attributes) {
