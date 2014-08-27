@@ -1,0 +1,117 @@
+#!/usr/bin/perl -w                                                                            
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+  return qq{
+  Remove Role from user or authorizedGroup. User or group is required.
+	Role is required. Some complementaryObject is required if not PERUNADMIN.
+	For now only 1 object is supported to be set at once.
+  ------------------------------------
+  Available options:
+  --userId            | -u user id
+	--authorizedGroupId | -a authorizedGroup id
+	--role              | -R role name
+	--facilityId        | -f facility comp object id
+	--groupId           | -g group comp object id
+	--voId              | -v vo comp object id
+	--resourceId        | -r resource comp object id
+	--serviceId         | -s service comp object id
+  --batch             | -b batch
+  --help              | -h prints this help
+  };
+}
+
+our $batch;
+
+my ($userId, $authorizedGroupId, $role, $facilityId, $groupId, $voId, $resourceId, $serviceId);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+	"userId|u=i" => \$userId,
+	"authorizedGroupId|a=i" => \$authorizedGroupId,
+	"role|R=s" => \$role,
+	"facilityId|f=i" => \$facilityId,
+	"groupId|g=i" => \$groupId,
+	"voId|v=i" => \$voId,
+	"resourceId|r=i" => \$resourceId,
+	"serviceId|s=i" => \$serviceId) || die help();
+
+my $agent = Perun::Agent->new();
+my $authzResolverAgent = $agent->getAuthzResolverAgent;
+#Check options
+
+#one of userId or authorizedGroupId must be set
+if(!defined($userId) && !defined($authorizedGroupId)) { die "ERROR: one of userId and authorizedGroupId is requried\n";}
+if(defined($userId) && defined($authorizedGroupId)) { die "ERROR: only one of userId and authorizedGroupId must be set at one moment\n";}
+
+#role must be set
+unless (defined($role)) { die "ERROR: role name is required"};
+if($role !~ /^[A-Z]+$/) { die "ERROR: role must be one word in uppercase format\n"; }
+
+#if role is perunadmin, no other object need to be set
+if($role eq "PERUNADMIN") {
+	if(defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if(defined($userId)) {
+		$authzResolverAgent->unsetRole(user => $userId, complementaryObject => undef, role => $role);
+	} else {
+		$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => undef, role => $role);
+	}
+#if there is other role, only one complementary object is needed
+} else {
+	#facility
+	if(defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {
+		my $facilitiesAgent = $agent->getFacilitiesAgent;
+    my $facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+		if(defined($userId)) {
+    	$authzResolverAgent->unsetRole(user => $userId, complementaryObject => $facility, role => $role);
+  	} else {
+    	$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => $facility, role => $role);
+ 		}
+  #group
+	} elsif(!defined($facilityId) && defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {
+		my $groupsAgent = $agent->getGroupsAgent;
+		my $group = $groupsAgent->getGroupById(id => $groupId);
+		if(defined($userId)) {
+    	$authzResolverAgent->unsetRole(user => $userId, complementaryObject => $group, role => $role);
+  	} else {
+    	$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => $group, role => $role);
+ 		}
+	#vo
+	} elsif(!defined($facilityId) && !defined($groupId) && defined($voId) && !defined($resourceId) && !defined($serviceId)) {
+		my $vosAgent = $agent->getVosAgent;
+    my $vo = $vosAgent->getVoById(id => $voId);
+		if(defined($userId)) {
+    	$authzResolverAgent->unsetRole(user => $userId, complementaryObject => $vo, role => $role);
+  	} else {
+    	$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role);
+  	}
+	#resource
+	} elsif(!defined($facilityId) && !defined($groupId) && !defined($voId) && defined($resourceId) && !defined($serviceId)) {
+		my $resourcesAgent = $agent->getResourcesAgent;
+    my $resource = $resourcesAgent->getResourceById(id => $resourceId);
+		if(defined($userId)) {
+    	$authzResolverAgent->unsetRole(user => $userId, complementaryObject => $resource, role => $role);
+  	} else {
+    	$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => $resource, role => $role);
+  	}
+	#serviceId
+	} elsif(!defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && defined($serviceId)) {
+		my $servicesAgent = $agent->getServicesAgent;
+    my $service = $servicesAgent->getServiceById(id => $serviceId);
+		if(defined($userId)) {
+    	$authzResolverAgent->unsetRole(user => $userId, complementaryObject => $service, role => $role);
+  	} else {
+    	$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => $service, role => $role);
+  	}
+	#no object or more than one
+	} else {
+		die "ERROR: only one of objects (facility,vo,group,resource,service) id need to be set\n";
+	}
+}
+
+

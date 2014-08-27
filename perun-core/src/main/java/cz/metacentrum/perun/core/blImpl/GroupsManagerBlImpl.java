@@ -475,7 +475,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.addAdmin(sess, group, user);
+		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, group);
 	}
 
@@ -484,12 +484,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Group> listOfAdmins = getAdminGroups(sess, group);
 		if (listOfAdmins.contains(authorizedGroup)) throw new AlreadyAdminException(authorizedGroup);
 
-		AuthzResolverBlImpl.addAdmin(sess, group, authorizedGroup);
+		AuthzResolverBlImpl.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", authorizedGroup, group);
 	}
 
 	public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
-		AuthzResolverBlImpl.removeAdmin(sess, group, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, group);
 	}
 
@@ -498,7 +498,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Group> listOfAdmins = getAdminGroups(sess, group);
 		if (!listOfAdmins.contains(authorizedGroup)) throw new GroupNotAdminException(authorizedGroup);
 
-		AuthzResolverBlImpl.removeAdmin(sess, group, authorizedGroup);
+		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", authorizedGroup, group);
 	}
 

@@ -40,7 +40,7 @@ sub TO_JSON
 		$shortName = undef;
 	}
 
-	return {id => $id, name => $name, shortName => $shortName};
+	return {id => $id, name => $name, shortName => $shortName, beanName => "Vo"};
 }
 
 sub getId

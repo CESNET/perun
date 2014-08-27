@@ -257,6 +257,67 @@ public class JsonDeserializer extends Deserializer {
 		}
 	}
 
+	@Override
+	public PerunBean readPerunBean(String name) throws RpcException {
+		JsonNode node = root.get(name);
+
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isObject()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as PerunBean.");
+		}
+
+		try {
+			String beanName = "cz.metacentrum.perun.core.api." + node.get("beanName").getTextValue();
+
+			if(beanName == null) {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+			}
+			PerunBean obj = (PerunBean) mapper.readValue(node, Class.forName(beanName));
+			return obj;
+		} catch (ClassNotFoundException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
+		} catch (IOException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as PerunBean");
+		}
+	}
+
+	@Override
+	public List<PerunBean> readListPerunBeans(String name) throws RpcException {
+		JsonNode node = root.get(name);
+
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isArray()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - not an array");
+		}
+
+		try {
+			List<PerunBean> list = new ArrayList<PerunBean>(node.size());
+		for (JsonNode e : node) {
+			String beanName = "cz.metacentrum.perun.core.api." + e.get("beanName").getTextValue();
+
+			if(beanName == null) {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+			}
+			list.add((PerunBean) mapper.readValue(e, Class.forName(beanName)));
+		}
+			return list;
+		} catch (ClassNotFoundException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
+		} catch (IOException ex) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean>", ex);
+		}
+	}
+
 	public String readAll() throws RpcException {
 		return root.toString();
 	}
