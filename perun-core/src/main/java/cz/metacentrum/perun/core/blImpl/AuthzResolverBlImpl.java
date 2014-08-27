@@ -34,11 +34,13 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import java.util.Map;
 import java.util.Set;
+import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
 
 
 /**
@@ -52,6 +54,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private final static Logger log = LoggerFactory.getLogger(AuthzResolverBlImpl.class);
 	private static AuthzResolverImplApi authzResolverImpl;
 	private static PerunBlImpl perunBlImpl;
+
+	private static final String UNSET_ROLE = "UNSET";
+	private static final String SET_ROLE = "SET";
 
 	/**
 	 * Retrieves information about the perun principal (in which VOs the principal is admin, ...)
@@ -524,6 +529,318 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return perunPrincipal.getRoles().hasRole(role);
 	}
 
+	/**
+	 * Set role for user and all complementary objects
+	 * If list of complementary objects is empty, set general role instead (for no concrete objects)
+	 *
+	 * @param sess perun session
+	 * @param user user for setting role
+	 * @param role role
+	 * @param complementaryObjects objects for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
+	 */
+	public static void setRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
+		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
+			try {
+				manageRole(sess, SET_ROLE, null, user, role, null);
+				//These exceptions should never happen
+			} catch (GroupNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			} catch (UserNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else {
+			for(PerunBean compObject: complementaryObjects) {
+				try {
+					manageRole(sess, SET_ROLE, null, user, role, compObject);
+					//These exceptions should never happen
+				} catch (GroupNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				} catch (UserNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @see #setRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.User, cz.metacentrum.perun.core.api.Role, java.util.List, boolean)
+	 * Only use 1 complementary object!
+	 */
+	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
+		List<PerunBean> complementaryObjects = new ArrayList<>();
+		complementaryObjects.add(complementaryObject);
+		AuthzResolverBlImpl.setRole(sess, user, role, complementaryObjects);
+	}
+
+	/**
+	 * Set role for group and all complementary objects
+	 * If list of complementary objects is empty, set general role instead (for no concrete objects)
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroup group for setting role
+	 * @param role role
+	 * @param complementaryObjects objects for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
+	 */
+	public static void setRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
+		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
+			try {
+				manageRole(sess, SET_ROLE, authorizedGroup, null, role, null);
+				//These exceptions should never happen
+			} catch (GroupNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			} catch (UserNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else {
+			for(PerunBean compObject: complementaryObjects) {
+				try {
+					manageRole(sess, SET_ROLE, authorizedGroup, null, role, compObject);
+					//These exceptions should never happen
+				} catch (GroupNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				} catch (UserNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @see #setRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Role, java.util.List, boolean)
+	 * Only use 1 complementary object!
+	 */
+	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
+		List<PerunBean> complementaryObjects = new ArrayList<>();
+		complementaryObjects.add(complementaryObject);
+		AuthzResolverBlImpl.setRole(sess, authorizedGroup, role, complementaryObjects);
+	}
+
+	/**
+	 * Unset role for user and all complementary objects
+	 * If list of complementary objects is empty, remove general role instead (role without concrete objects)
+	 *
+	 * @param sess perun session
+	 * @param user user for setting role
+	 * @param role role
+	 * @param complementaryObjects objects for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotAdminException
+	 */
+	public static void unsetRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, UserNotAdminException {
+		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
+			try {
+				manageRole(sess, UNSET_ROLE, null, user, role, null);
+				//These exceptions should never happen
+			} catch (GroupNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AlreadyAdminException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else {
+			for(PerunBean compObject: complementaryObjects) {
+				try {
+					manageRole(sess, UNSET_ROLE, null, user, role, compObject);
+					//These exceptions should never happen
+				} catch (GroupNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				} catch (AlreadyAdminException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @see #unsetRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.User, cz.metacentrum.perun.core.api.Role, java.util.List, boolean) 
+	 * Only use 1 complementary object!
+	 */
+	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, UserNotAdminException {
+		List<PerunBean> complementaryObjects = new ArrayList<>();
+		complementaryObjects.add(complementaryObject);
+		AuthzResolverBlImpl.unsetRole(sess, user, role, complementaryObjects);
+	}
+
+	/**
+	 * Unset role for group and all complementary objects
+	 * If list of complementary objects is empty, remove general role isntead (role without concrete objects)
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroup group for setting role
+	 * @param role role
+	 * @param complementaryObjects objects for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotAdminException
+	 */
+	public static void unsetRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, GroupNotAdminException {
+		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
+			try {
+				manageRole(sess, UNSET_ROLE, authorizedGroup, null, role, null);
+				//These exceptions should never happen
+			} catch (UserNotAdminException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AlreadyAdminException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else {
+			for(PerunBean compObject: complementaryObjects) {
+				try {
+					manageRole(sess, UNSET_ROLE, authorizedGroup, null, role, compObject);
+					//These exceptions should never happen
+				} catch (UserNotAdminException ex) {
+					throw new InternalErrorException(ex);
+				} catch (AlreadyAdminException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @see #unsetRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Role, java.util.List, boolean) 
+	 * Only use 1 complementary object!
+	 */
+	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, GroupNotAdminException {
+		List<PerunBean> complementaryObjects = new ArrayList<>();
+		complementaryObjects.add(complementaryObject);
+		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, role, complementaryObjects);
+	}
+
+	/**
+	 * Unset role for user or group and complementary object
+	 *
+	 * If user and authorizedGroup are null, throw exception. Only one can be filled at once, if both, throw exception.
+	 * If complementaryObject is null, set or unset general role instead (without complementary object)
+	 *
+	 * IMPORTANT: not refreshing authz, afected user or group is not for the perunAdmin who call this method
+	 *
+	 * @param sess
+	 * @param user the user for set role
+	 * @param authorizedGroup the group for set role
+	 * @param operation 'SET' or 'UNSET'
+	 * @param role role to set
+	 * @param complementaryObject object for setting role on it
+	 * @throws InternalErrorException
+	 */
+	public static void manageRole(PerunSession sess, String operation, Group authorizedGroup, User user, Role role, PerunBean complementaryObject) throws InternalErrorException, AlreadyAdminException, UserNotAdminException, GroupNotAdminException {
+		if(authorizedGroup == null && user == null) throw new InternalErrorException("There is no object for setting role (user or authorizedGroup).");
+		if(authorizedGroup != null && user != null) throw new InternalErrorException("There are both authorizedGroup and user for setting role, only one is acceptable.");
+
+		//Check operation
+		if(operation.equals(SET_ROLE)) {
+			//Check role
+			if(role.equals(Role.PERUNADMIN)) {
+				if(user != null) makeUserPerunAdmin(sess, user);
+				else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
+			} else if(role.equals(Role.VOOBSERVER)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set VoObserver rights without Vo.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) addObserver(sess, (Vo) complementaryObject, user);
+					else addObserver(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
+				}
+			} else if(role.equals(Role.VOADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set VoAdmin rights without Vo.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) addAdmin(sess, (Vo) complementaryObject, user);
+					else addAdmin(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.GROUPADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set GroupAdmin rights without Group.");
+				} else if(complementaryObject instanceof Group) {
+					if(user != null) addAdmin(sess, (Group) complementaryObject, user);
+					else addAdmin(sess, (Group) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.FACILITYADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set FacilityAdmin rights without Facility.");
+				} else if(complementaryObject instanceof Facility) {
+					if(user != null) addAdmin(sess, (Facility) complementaryObject, user);
+					else addAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
+				}
+			} else {
+				throw new InternalErrorException("Not supported role: " + role);
+			}
+		// Check operation
+		} else if(operation.equals(UNSET_ROLE)) {
+			//Check role
+			if(role.equals(Role.PERUNADMIN)) {
+				if(user != null) removePerunAdmin(sess, user);
+				else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
+			} else if(role.equals(Role.VOOBSERVER)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset VoObserver rights without Vo this way.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) removeObserver(sess, (Vo) complementaryObject, user);
+					else removeObserver(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
+				}
+			} else if(role.equals(Role.VOADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset VoAdmin rights without Vo this way.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) removeAdmin(sess, (Vo) complementaryObject, user);
+					else removeAdmin(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.GROUPADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset GroupAdmin rights without Group this way.");
+				} else if(complementaryObject instanceof Group) {
+					if(user != null) removeAdmin(sess, (Group) complementaryObject, user);
+					else removeAdmin(sess, (Group) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.FACILITYADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset FacilityAdmin rights without Facility this way.");
+				} else if(complementaryObject instanceof Facility) {
+					if(user != null) removeAdmin(sess, (Facility) complementaryObject, user);
+					else removeAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
+				}
+			} else {
+				throw new InternalErrorException("Not supported role: " + role);
+			}
+		} else {
+			throw new InternalErrorException("Unsupported operation. Only set and unset are correct. Operation: " + operation);
+		}
+
+		//After set or unset role without exception, refresh authz if user in session is the same like user in parameter
+		if(user != null && sess.getPerunPrincipal() != null) {
+			if(user.getId() == sess.getPerunPrincipal().getUserId()) {
+				AuthzResolverBlImpl.refreshAuthz(sess);
+			}
+		//If there is authorized group instead of user, try to find intersection in members and if there is at least one, then refresh authz
+		} else if(authorizedGroup != null && sess.getPerunPrincipal() != null && sess.getPerunPrincipal().getUser() != null) {
+			List<Member> groupMembers = perunBlImpl.getGroupsManagerBl().getGroupMembers(sess, authorizedGroup);
+			List<Member> userMembers = perunBlImpl.getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+			userMembers.retainAll(groupMembers);
+			if(!userMembers.isEmpty()) AuthzResolverBlImpl.refreshAuthz(sess);
+		}
+	}
+
 	public String toString() {
 		return getClass().getSimpleName() + ":[]";
 	}
@@ -703,97 +1020,98 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	public static void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForVo(sess, vo);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException {
 		authzResolverImpl.removeAllUserAuthz(sess, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForGroup(sess, group);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForFacility(sess, facility);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForResource(sess, resource);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForService(sess, service);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, facility, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, facility, group);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
 		authzResolverImpl.removeAdmin(sess, facility, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, facility, group);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, group, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, group, authorizedGroup);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
 		authzResolverImpl.removeAdmin(sess, group, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, group, authorizedGroup);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, vo, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, vo, group);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
 		authzResolverImpl.removeAdmin(sess, vo, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
 	}
 
 	public static void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, vo, group);
-		AuthzResolverBlImpl.refreshAuthz(sess);
+	}
+
+	public static void addObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addObserver(sess, vo, user);
+	}
+
+	public static void addObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addObserver(sess, vo, group);
+	}
+
+	public static void removeObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removeObserver(sess, vo, user);
+	}
+
+	public static void removeObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+		authzResolverImpl.removeObserver(sess, vo, group);
 	}
 
 	public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
 		authzResolverImpl.makeUserPerunAdmin(sess, user);
-		AuthzResolverBlImpl.refreshAuthz(sess);
+	}
+
+	public static void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removePerunAdmin(sess, user);
 	}
 
 	// Filled by Spring

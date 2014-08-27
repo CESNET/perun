@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedExceptio
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
@@ -39,6 +40,76 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		System.out.println(CLASS_NAME + "isAuthorizedInvalidPrincipal()");
 
 		assertTrue(! AuthzResolver.isAuthorized(new PerunSessionImpl(perun, new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL)), Role.PERUNADMIN));
+	}
+
+	@Test
+	public void setRoleVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "setRole()");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession sess1 = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(sess1);
+
+		assertTrue(AuthzResolver.isAuthorized(sess1, Role.VOADMIN,createdVo));
+	}
+
+	@Test
+	public void setRoleVoObserver() throws Exception {
+		System.out.println(CLASS_NAME + "setRole()");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOOBSERVER);
+
+		PerunSession sess1 = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(sess1);
+
+		assertTrue(AuthzResolver.isAuthorized(sess1, Role.VOOBSERVER,createdVo));
+	}
+
+	@Test
+	public void unsetRoleVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "unsetRole()");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession sess1 = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(sess1);
+
+		assertTrue(AuthzResolver.isAuthorized(sess1, Role.VOADMIN,createdVo));
+
+		AuthzResolver.unsetRole(sess, createdUser, createdVo, Role.VOADMIN);
+		AuthzResolver.refreshAuthz(sess1);
+
+		assertTrue(!AuthzResolver.isAuthorized(sess1, Role.VOADMIN,createdVo));
+	}
+
+	@Test (expected = UserNotAdminException.class)
+	public void unsetRoleWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "unsetRole()");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.unsetRole(sess, createdUser, createdVo, Role.VOADMIN);
+	}
+
+	@Test (expected = UserNotAdminException.class)
+	public void setUnsuportedRole() throws Exception {
+		System.out.println(CLASS_NAME + "setRole()");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.unsetRole(sess, createdUser, createdVo, Role.VOADMIN);
 	}
 
 	@Test
