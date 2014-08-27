@@ -1528,7 +1528,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						parms.readList("attributes", Attribute.class));
 				return null;
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, member, user, host or facility");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "resource, vo, user, host or facility");
 			}
 		}
 	},
