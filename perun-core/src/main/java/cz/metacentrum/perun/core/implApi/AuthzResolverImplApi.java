@@ -216,6 +216,50 @@ public interface AuthzResolverImplApi {
 	void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
+	 * Add user role vo observer for the vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
+	 */
+	void addObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Add group of users role vo observer for the vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param group
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
+	 */
+	void addObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Remove user role vo observer for the vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws UserNotAdminException
+	 */
+	void removeObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
+
+	/**
+	 * Remove group of users role vo observer for the vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param group
+	 * @throws InternalErrorException
+	 * @throws GroupNotAdminException
+	 */
+	void removeObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
+
+	/**
 	 * Make user to be perunAdmin
 	 *
 	 * @param sess
