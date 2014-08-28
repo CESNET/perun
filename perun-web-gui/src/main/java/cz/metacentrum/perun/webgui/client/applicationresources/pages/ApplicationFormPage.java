@@ -523,7 +523,8 @@ public class ApplicationFormPage extends ApplicationPage {
 		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				similarUsersFound(JsonUtils.<User>jsoAsList(jso));
+				ArrayList<User> users = JsonUtils.<User>jsoAsList(jso);
+				if (users != null && !users.isEmpty()) similarUsersFound(JsonUtils.<User>jsoAsList(jso));
 			}
 		});
 		JSONObject query = new JSONObject();
