@@ -953,6 +953,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 		* Return list of email addresses of user, which are
 		* awaiting validation and are inside time window
@@ -973,6 +974,35 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			return ac.getUsersManager().getPendingPreferredEmailChanges(ac.getSession(),
 					ac.getUserById(parms.readInt("user")));
+
+		}
+	},
+
+	createAlternativePassword {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getUsersManager().createAlternativePassword(ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					parms.readString("description"),
+					parms.readString("loginNamespace"),
+					parms.readString("password"));
+
+			return null;
+
+		}
+	},
+
+	deleteAlternativePassword {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getUsersManager().deleteAlternativePassword(ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					parms.readString("loginNamespace"),
+					parms.readString("passwordId"));
+
+			return null;
 
 		}
 	};
