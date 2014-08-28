@@ -788,6 +788,34 @@ public interface UsersManagerBl {
 			throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException;
 
 	/**
+	 * Creates alternative password in external system.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param description - description of a password (e.g. 'mobile phone', 'tablet', ...)
+	 * @param loginNamespace
+	 * @param password
+	 * @throws InternalErrorException
+	 * @throws PasswordCreationFailedException
+	 * @throws LoginNotExistsException
+	 */
+	void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+
+	/**
+	 * Deletes alternative password in external system.
+	 *
+	 * @param sess
+	 * @param userLogin
+	 * @param loginNamespace
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PasswordDeletionFailedException
+	 * @throws LoginNotExistsException
+	 */
+	void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException;
+
+
+	/**
 	 * Check if login in specified namespace exists.
 	 *
 	 * @param sess

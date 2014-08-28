@@ -824,6 +824,37 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(description, "description");
+		Utils.notNull(loginNamespace, "loginNamespace");
+		Utils.notNull(password, "password");
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "createAlternativePassword");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		getUsersManagerBl().createAlternativePassword(sess, user, description, loginNamespace, password);
+	}
+
+	public void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, UserNotExistsException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(loginNamespace, "loginNamespace");
+		Utils.notNull(passwordId, "passwordId");
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "deleteAlternativePassword");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		getUsersManagerBl().deleteAlternativePassword(sess, user, loginNamespace, passwordId);
+	}
+
 	/**
 	 * Gets the usersManagerBl for this instance.
 	 *
@@ -992,4 +1023,5 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password);
 
 	}
+
 }

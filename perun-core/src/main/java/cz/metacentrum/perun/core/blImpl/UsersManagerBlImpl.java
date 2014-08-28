@@ -11,6 +11,7 @@ import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private UsersManagerImplApi usersManagerImpl;
 	private PerunBl perunBl;
+
+	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPassword:";
 
 	private static final String PASSWORD_VALIDATE = "validate";
 	private static final String PASSWORD_CREATE = "create";
@@ -1279,6 +1282,170 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException {
+		try {
+			manageAlternativePassword(sess, user, PASSWORD_CREATE, loginNamespace, null, description, password);
+		} catch(PasswordCreationFailedRuntimeException ex) {
+			throw new PasswordCreationFailedException(ex);
+		} catch(LoginNotExistsRuntimeException ex) {
+			throw new LoginNotExistsException(ex);
+		} catch(PasswordDeletionFailedException ex) {
+			//This probably never happend, if yes, its some error in code of manageAlternativePassword method
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException {
+		try {
+			manageAlternativePassword(sess, user, PASSWORD_DELETE, loginNamespace, passwordId, null, null);
+		} catch(PasswordDeletionFailedRuntimeException ex) {
+			throw new PasswordDeletionFailedException(ex);
+		} catch(LoginNotExistsRuntimeException ex) {
+			throw new LoginNotExistsException(ex);
+		}
+	}
+
+	/**
+	 * Calls external program which do the job with the alternative passwords.
+	 *
+	 * Return codes of the external program
+	 * If password check fails then return 1
+	 * If there is no handler for loginNamespace return 2
+	 * If setting of the new password failed return 3
+	 *
+	 * @param sess
+	 * @param operation
+	 * @param loginNamespace
+	 * @param password
+	 * @throws InternalErrorException
+	 */
+	protected void manageAlternativePassword(PerunSession sess, User user, String operation, String loginNamespace, String passwordId, String description, String password) throws InternalErrorException, PasswordDeletionFailedException {
+		//if password id == null
+		if(passwordId == null) passwordId = Long.toString(System.currentTimeMillis());
+
+		//Prepare process builder
+		ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
+
+		//Set password in Perun to attribute
+		if (operation.equals(PASSWORD_CREATE)) {
+			try {
+				Attribute userAlternativePassword = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_ALT_PASSWORD_NAMESPACE + loginNamespace);
+				Map<String,String> altPassValue = new LinkedHashMap<>();
+				//Set not null value from altPassword attribute of this user
+				if (userAlternativePassword.getValue() != null) altPassValue = (LinkedHashMap<String,String>) userAlternativePassword.getValue();
+				//If password already exists, throw an exception
+				if (altPassValue.containsKey(description)) throw new ConsistencyErrorException("Password with this description already exists. Description: " + description);
+				//set new value to attribute
+				altPassValue.put(description, passwordId);
+				userAlternativePassword.setValue(altPassValue);
+				//set new attribute with value to perun
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else if (operation.equals(PASSWORD_DELETE)) {
+			try {
+				Attribute userAlternativePassword = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_ALT_PASSWORD_NAMESPACE + loginNamespace);
+				Map<String,String> altPassValue = new LinkedHashMap<>();
+				//Set not null value from altPassword attribute of this user
+				if (userAlternativePassword.getValue() != null) altPassValue = (LinkedHashMap<String,String>) userAlternativePassword.getValue();
+				//If password already exists, throw an exception
+				if (!altPassValue.containsValue(passwordId)) throw new PasswordDeletionFailedException("Password not found by ID.");
+				//remove key with this value from map
+				Set<String> keys = altPassValue.keySet();
+				description = null;
+				for(String key: keys) {
+					String valueOfKey = altPassValue.get(key);
+					if(valueOfKey.equals(passwordId)) {
+						if(description != null) throw new ConsistencyErrorException("There is more than 1 password with same ID in value for user " + user);
+						description = key;
+					}
+				}
+				if(description == null) throw new InternalErrorException("Password not found by ID.");
+				altPassValue.remove(description);
+				//set new value for altPassword attribute for this user
+				userAlternativePassword.setValue(altPassValue);
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			}
+		} else {
+			throw new InternalErrorException("Not supported operation " + operation);
+		}
+
+		Process process;
+		try {
+			process = pb.start();
+		} catch (IOException e) {
+			throw new InternalErrorException(e);
+		}
+
+		InputStream es = process.getErrorStream();
+
+		//Set pasword in remote system
+		if (operation.equals(PASSWORD_CREATE)) {
+			OutputStream os = process.getOutputStream();
+			if (password == null || password.isEmpty()) {
+				throw new EmptyPasswordRuntimeException("Alternative password for " + loginNamespace + " cannot be empty.");
+			}
+			// Write password to the stdin of the program
+			PrintWriter pw = new PrintWriter(os, true);
+			pw.write(password);
+			pw.close();
+		}
+
+		// If non-zero exit code is returned, then try to read error output
+		try {
+			if (process.waitFor() != 0) {
+				if (process.exitValue() == 1) {
+					//throw new PasswordDoesntMatchRuntimeException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".");
+					throw new InternalErrorException("Alternative password manager returns unexpected return code: " + process.exitValue());
+				} else if (process.exitValue() == 3) {
+					//throw new PasswordChangeFailedRuntimeException("Password change failed for " + loginNamespace + ":" + userLogin + ".");
+					throw new InternalErrorException("Alternative password manager returns unexpected return code: " + process.exitValue());
+				} else if (process.exitValue() == 4) {
+					throw new PasswordCreationFailedRuntimeException("Alternative password creation failed for " + user + ". Namespace: " + loginNamespace + ", description: " + description + ".");
+				} else if (process.exitValue() == 5) {
+					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + user + ". Namespace: " + loginNamespace + ", passwordId: " + passwordId + ".");
+				} else if (process.exitValue() == 6) {
+					throw new LoginNotExistsRuntimeException("User doesn't exists in underlying system for namespace " + loginNamespace + ", user: " + user + ".");
+				} else if (process.exitValue() == 7) {
+					throw new LoginNotExistsRuntimeException("Problem with creating user entry in underlying system " + loginNamespace + ", user: " + user + ".");
+				} else {
+					// Some other error occured
+					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
+					StringBuffer errorMsg = new StringBuffer();
+					String line;
+					try {
+						while ((line = inReader.readLine()) != null) {
+							errorMsg.append(line);
+						}
+					} catch (IOException e) {
+						throw new InternalErrorException(e);
+					}
+
+					throw new InternalErrorException(errorMsg.toString());
+				}
+			}
+		} catch (InterruptedException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
 
 	public List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) throws InternalErrorException {
 
