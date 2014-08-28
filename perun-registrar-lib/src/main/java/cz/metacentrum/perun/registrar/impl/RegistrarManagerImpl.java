@@ -11,14 +11,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALI
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -1842,6 +1835,42 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public MailManager getMailManager() {
 		return this.mailManager;
+	}
+
+	@Override
+	public List<RichUser> checkForSimilarUsers(PerunSession sess) throws PerunException {
+
+		// if user known, doesn't actually search and offer joining.
+		if (sess.getPerunPrincipal().getUser() != null) return new ArrayList<RichUser>();
+
+		String name = "";
+		String mail = "";
+
+		Set<RichUser> res = new HashSet<RichUser>();
+
+		List<String> attrNames = new ArrayList<String>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+		attrNames.add("urn:perun:user:attribute-def:def:organization");
+
+		mail = sess.getPerunPrincipal().getAdditionalInformations().get("mail");
+
+		if (mail != null && !mail.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, mail, attrNames));
+
+		// check by mail is more precise, so check by name only if nothing is found.
+		if (res == null || res.isEmpty()) {
+
+			name = sess.getPerunPrincipal().getAdditionalInformations().get("cn");
+
+			if (name != null && !name.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames));
+
+			name = sess.getPerunPrincipal().getAdditionalInformations().get("displayName");
+
+			if (name != null && !name.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames));
+
+		}
+
+		return new ArrayList<RichUser>(res);
+
 	}
 
 	@Override

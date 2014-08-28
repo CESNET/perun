@@ -1013,11 +1013,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			if (parms.contains("appId")) {
 				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
-			} else {
+			} else if (parms.contains("voId")) {
 				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(),
 						ac.getVoById(parms.readInt("voId")),
 						(parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
 						AppType.valueOf(parms.readString("type")) );
+			} else {
+				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession());
 			}
 
 		}
