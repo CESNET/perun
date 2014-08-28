@@ -4334,7 +4334,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_CORE);
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
-		attr.setDisplayName("Memebr id");
+		attr.setDisplayName("Member id");
 		attributes.add(attr);
 
 		//User.id
@@ -4502,12 +4502,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDescription("Time between two successful synchronizations.");
 		attributes.add(attr);
 
-		//urn:perun:group:attribute-def:def:lastSynchronzationState
+		//urn:perun:group:attribute-def:def:lastSynchronizationState
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
 		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
-		attr.setFriendlyName("lastSynchronzationState");
+		attr.setFriendlyName("lastSynchronizationState");
 		attr.setDisplayName("Last synchronization state");
 		attributes.add(attr);
 
@@ -4539,9 +4539,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			int attributeId = Utils.getNewId(jdbc, "attr_names_id_seq");
 
-			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, default_attr_id) values (?,?,?,?,?,?,NULL)",
-					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName());
-			log.info("Attribute created during inicialization of attributesMamager: {}", attribute);
+			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, default_attr_id) values (?,?,?,?,?,?,?,NULL)",
+					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName());
+			log.info("Attribute created during inicialization of attributesManager: {}", attribute);
 		} catch (DataIntegrityViolationException e) {
 			throw new ConsistencyErrorException("Attribute already exists: " + attribute, e);
 		} catch (RuntimeException e) {
