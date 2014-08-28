@@ -165,7 +165,7 @@ public class ApplicationFormPage extends ApplicationPage {
 		submittedOrError = false;
 
 		// try to get user for VOs initial application (only for authz origin)
-		if (type.equalsIgnoreCase("INITIAL") && group == null && session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
+		if (session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
 			tryToFindUserByName(null);
 		}
 
@@ -334,7 +334,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		submittedOrError = true;
 
-		if (type.equalsIgnoreCase("INITIAL") && group == null && session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
+		if (session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
 			// if not yet user of perun, retry search for similar users after app submit
 			// only for VO initial applications
 			tryToFindUserByName(jso);
