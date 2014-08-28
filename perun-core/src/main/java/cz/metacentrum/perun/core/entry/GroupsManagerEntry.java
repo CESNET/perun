@@ -85,7 +85,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+		    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
 			throw new PrivilegeException(sess, "createGroup");
 		}
 

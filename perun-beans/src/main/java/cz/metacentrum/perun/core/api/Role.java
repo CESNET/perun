@@ -15,6 +15,7 @@ public enum Role {
 							NOTIFICATIONS ("notifications"),
 							SERVICEUSER ("serviceuser"),
 							VOOBSERVER ("voobserver"),
+							TOPGROUPCREATOR ("topgroupcreator"),
 							UNKNOWNROLENAME ("unknown");
 
 	private final String roleName;
