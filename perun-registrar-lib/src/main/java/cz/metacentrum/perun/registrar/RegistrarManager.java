@@ -363,6 +363,16 @@ public interface RegistrarManager {
 	MailManager getMailManager();
 
 	/**
+	 * Check for similar users by name and email.
+	 *
+	 * @param sess PerunSession for authz with data to search by.
+	 * @return List of found similar users
+	 *
+	 * @throws PerunException
+	 */
+	List<RichUser> checkForSimilarUsers(PerunSession sess) throws PerunException;
+
+	/**
 	 * Check if new application may belong to another user in Perun
 	 * (but same person in real life).
 	 *

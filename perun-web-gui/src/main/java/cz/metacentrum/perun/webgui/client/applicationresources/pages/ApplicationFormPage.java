@@ -483,42 +483,6 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	private void tryToFindUserByName(JavaScriptObject jso) {
 
-		PerunPrincipal pp = session.getPerunPrincipal();
-		String displayName = pp.getAdditionInformations("displayName");
-
-		// before app submitted
-		if(displayName.equals("")){
-			displayName = pp.getAdditionInformations("cn");
-		}
-
-		if (jso != null) {
-
-			// after Application is submitted
-			ArrayList<ApplicationFormItemData> data = JsonUtils.jsoAsList(jso);
-
-			for (ApplicationFormItemData item : data) {
-				if ("urn:perun:user:attribute-def:core:lastName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
-					// set name
-					if (item.getValue() != null && !item.getValue().isEmpty()) displayName = item.getValue();
-					break;
-				}
-			}
-
-			for (ApplicationFormItemData item : data) {
-				if ("urn:perun:user:attribute-def:core:displayName".equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
-					// set name
-					if (item.getValue() != null && !item.getValue().isEmpty()) displayName = item.getValue();
-					break;
-				}
-			}
-
-		}
-
-		if(displayName.equals("")){
-			// name empty
-			return;
-		}
-
 		// try to find
 		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
 			@Override
@@ -529,15 +493,27 @@ public class ApplicationFormPage extends ApplicationPage {
 		});
 		JSONObject query = new JSONObject();
 
-		query.put("voId", new JSONNumber(vo.getId()));
-		if (group != null) {
-			query.put("groupId", new JSONNumber(group.getId()));
-		} else {
-			query.put("groupId", new JSONNumber(0));
-		}
-		query.put("type", new JSONString(type));
+		if (jso == null) {
 
-		jspc.sendData("registrarManager/checkForSimilarUsers", query);
+			// before app submission
+			jspc.sendData("registrarManager/checkForSimilarUsers", query);
+
+		} else {
+
+			// after app submission
+
+			query.put("voId", new JSONNumber(vo.getId()));
+			if (group != null) {
+				query.put("groupId", new JSONNumber(group.getId()));
+			} else {
+				query.put("groupId", new JSONNumber(0));
+			}
+			query.put("type", new JSONString(type));
+
+			jspc.sendData("registrarManager/checkForSimilarUsers", query);
+
+		}
+
 
 	}
 
