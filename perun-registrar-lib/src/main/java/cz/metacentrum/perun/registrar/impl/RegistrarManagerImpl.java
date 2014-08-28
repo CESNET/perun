@@ -2106,8 +2106,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (AppState.VERIFIED.equals(app.getState())) {
 				// with registrar session, since only VO admin can approve application
 
-				// initial for VO - let's check similar users
-				if (AppType.INITIAL.equals(type) && app.getGroup() == null && !app.getExtSourceName().equalsIgnoreCase("LOCAL")) {
+				/*
+
+				FIXME - temporarily disabled checking
+
+				if (app.getUser() == null && !app.getExtSourceName().equalsIgnoreCase("LOCAL")) {
 					List<RichUser> list = checkForSimilarUsers(registrarSession, app.getId());
 					if (!list.isEmpty()) {
 						// found similar
@@ -2116,10 +2119,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// similar NOT found - continue
 						approveApplication(registrarSession, app.getId());
 					}
-				} else {
-					// other types of application doesn't create new user - continue
-					approveApplication(registrarSession, app.getId());
-				}
+				} else { }
+
+				*/
+
+				// other types of application doesn't create new user - continue
+				approveApplication(registrarSession, app.getId());
+
 			}
 		} catch (Exception ex) {
 
