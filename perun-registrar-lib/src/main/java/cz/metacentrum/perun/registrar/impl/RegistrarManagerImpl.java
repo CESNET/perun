@@ -1041,6 +1041,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				}
 
+				//FIXME - ugly hotfix for race conditions
+				//Inicial condition
+				//  VO - automatic approval
+				//  Group - automatic approval
+				//State: member isn't created by time group application is approved
+				//This will hopefully fix this
+				try {
+					Thread.sleep(5000);
+				} catch(InterruptedException ex) {
+					log.error(ex.toString());
+				}
+
 				// add new member of VO as member of group (for group applications)
 				// !! MUST BE MEMBER OF VO !!
 				member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
