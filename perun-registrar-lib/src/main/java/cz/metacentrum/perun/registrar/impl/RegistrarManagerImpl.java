@@ -1841,7 +1841,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public List<RichUser> checkForSimilarUsers(PerunSession sess) throws PerunException {
 
 		// if user known, doesn't actually search and offer joining.
-		if (sess.getPerunPrincipal().getUser() != null) return new ArrayList<RichUser>();
+		if (sess.getPerunPrincipal().getUser() != null ||
+		    usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor()) != null) {
+			return new ArrayList<RichUser>();
+		}
 
 		String name = "";
 		String mail = "";
