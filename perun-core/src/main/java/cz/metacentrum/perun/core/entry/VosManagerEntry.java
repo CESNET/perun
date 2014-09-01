@@ -60,6 +60,7 @@ public class VosManagerEntry implements VosManager {
 			return vosManagerBl.getVos(sess);
 		} else {
 			if(sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN) ||
+			   sess.getPerunPrincipal().getRoles().hasRole(Role.VOOBSERVER) ||
 					sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN)) {
 
 				Set<Vo> vos = new HashSet<Vo>();
