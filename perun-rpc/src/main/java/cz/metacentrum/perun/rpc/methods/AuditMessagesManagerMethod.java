@@ -11,12 +11,12 @@ import java.util.List;
 public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns reasonable number of messages from audit's logs.
+	 * Returns messages from audit's logs.
+	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
-	 * Returns messages from audit's logs.
-	 * @param count int Messages limit
+	 * Returns reasonable number of messages from audit's logs.
 	 * @return List<AuditMessage> Audit messages
 	 */
 	getMessages {
@@ -29,14 +29,12 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return less than count or equals to count messages from audit's logs.
+	 * Returns less than count or equals to count messages from audit's logs.
 	 *
-	 * Important: This variant do not guarantee returning just count of messages!
-	 *						Return messages by Id from max_id to max_id-count (can be less then count messages)
+	 * Important: This variant does not guarantee returning just count of messages! It returns messages by Id from max_id to max_id-count (can be less then count messages)
 	 *
-	 * @param perunSession
 	 * @param count int Count of returned messages
-	 * @return List<String> list of audit's messages
+	 * @return List<AuditMessage> list of audit's messages
 	 */
 	getMessagesByCount {
 		@Override
@@ -49,10 +47,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of messages from audit's log which id is bigger than last processed id.
 	 *
-	 * @param perunSession
 	 * @param consumerName String consumer to get messages for
 	 * @return List<String> list of messages
-	 * @throws InternalErrorException
 	 */
 	pollConsumerMessages {
 		@Override
@@ -65,10 +61,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of full messages from audit's log which id is bigger than last processed id.
 	 *
-	 * @param perunSession
 	 * @param consumerName String consumer to get messages for
 	 * @return List<String> list of full messages
-	 * @throws InternalErrorException
 	 */
 	pollConsumerFullMessages {
 		@Override
@@ -81,10 +75,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
 	 *
-	 * @param perunSession
 	 * @param consumerName String consumer to get messages for
 	 * @return List<String> list of messages for parser
-	 * @throws InternalErrorException
 	 */
 	pollConsumerMessagesForParserSimple {
 		@Override
@@ -97,10 +89,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
-	 * @param perunSession
 	 * @param consumerName String consumer to get messages for
 	 * @return List<AuditMessage> list of auditMessages for parser
-	 * @throws InternalErrorException
 	 */
 	pollConsumerMessagesForParser {
 		@Override
@@ -113,9 +103,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.
 	 *
-	 * @param perunSession
 	 * @param consumerName String new name for consumer
-	 * @throws InternalErrorException
 	 */
 	createAuditerConsumer {
 		@Override
@@ -127,7 +115,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Log an auditer message
+	 * Logs an auditer message
 	 *
 	 * @param msg String Message to be logged
 	 */

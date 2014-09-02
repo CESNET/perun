@@ -7,6 +7,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.List;
 
 public enum ExtSourcesManagerMethod implements ManagerMethod {
+
 	/*#
 	 * Creates an external source.
 	 * @param extSource ExtSource JSON object

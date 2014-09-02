@@ -52,12 +52,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns exec services.
 	 *
+	 * @param service int Service ID
 	 * @return List<ExecService> Exec services
 	 */
 	/*#
 	 * Returns exec services.
 	 *
-	 * @param service int Service ID
 	 * @return List<ExecService> Exec services
 	 */
 	listExecServices {
@@ -97,7 +97,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param execService ExecService JSON object
 	 * @param owner int Owner ID
-	 * @return int Int
+	 * @return int new ExecService ID
 	 */
 	insertExecService {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -111,6 +111,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Updates an exec service.
 	 *
 	 * @param execService ExecService JSON object
+	 * @return ExecService updated ExecService
 	 */
 	updateExecService {
 		public ExecService call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -184,6 +185,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Is this execService denied on the facility?
+	 *
+	 * @param execService int ExecService ID
+	 * @param facility int Facility ID
+	 * @return int 1 = true - the execService is denied on the facility, 0 = false - the execService in NOT denied on the facility
+	 */
 	isExecServiceDeniedOnFacility {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (ac.getGeneralServiceManager().isExecServiceDeniedOnFacility(ac.getExecServiceById(parms.readInt("execService")),
@@ -193,6 +201,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Is this service denied on the facility?
+	 *
+	 * @param service int Service ID
+	 * @param facility int Facility ID
+	 * @return int 1 = true - the service is denied on the facility, 0 = false - the service in NOT denied on the facility
+	 */
 	isServiceDeniedOnFacility {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -207,6 +222,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Is this execService denied on the destination?
+	 *
+	 * @param execService int ExecService ID
+	 * @param destination int Destination ID
+	 * @return int 1 = true - the execService is denied on the destination, 0 = false - the execService in NOT denied on the destination
+	 */
 	isExecServiceDeniedOnDestination {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (ac.getGeneralServiceManager().isExecServiceDeniedOnDestination(ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination")))
@@ -215,6 +237,11 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Erase all the possible denials on this facility.
+	 *
+	 * @param facility int Facility ID
+	 */
 	freeAllDenialsOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().freeAllDenialsOnFacility(ac.getFacilityById(parms.readInt("facility")));
@@ -222,6 +249,11 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Erase all the possible denials on this destination.
+	 *
+	 * @param destination int Destination ID
+	 */
 	freeAllDenialsOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().freeAllDenialsOnDestination(parms.readInt("destination"));
@@ -229,6 +261,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Free the denial of the execService on this facility. If the execService was banned
+	 * on this facility, it will be freed. In case the execService was not banned on
+	 * this facility, nothing will happen.
+	 *
+	 * @param execService int ExecService ID
+	 * @param facility int Facility ID
+	 */
 	freeDenialOfExecServiceOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().freeDenialOfExecServiceOnFacility(ac.getExecServiceById(parms.readInt("execService")),
@@ -237,6 +277,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Free the denial of the execService on this destination. If the execService was banned on
+	 * this destination, it will be freed. In case the execService was not banned on this
+	 * destination, nothing will happen.
+	 *
+	 * @param execService int ExecService ID
+	 * @param destination int Destination ID
+	 */
 	freeDenialOfExecServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().freeDenialOfExecServiceOnDestination(ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination"));
@@ -244,6 +292,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Creates a dependency.
+	 * The execService can not be executed if any of the execServices it depends on is in an unstable (not terminal) state.
+	 *
+	 * @param dependantExecService int DependantExecService ID
+	 * @param execService int ExecService ID
+	 */
 	createDependency {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().createDependency(ac.getExecServiceById(parms.readInt("execService")),
@@ -252,6 +307,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Removes a dependency.
+	 *
+	 * @param dependantExecService int DependantExecService ID
+	 * @param execService int ExecService ID
+	 */
 	removeDependency {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().removeDependency(ac.getExecServiceById(parms.readInt("execService")),
@@ -260,6 +321,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Checks whether one execService depends on the other.
+	 *
+	 * @param dependantExecService int DependantExecService ID
+	 * @param execService int ExecService ID
+	 * @return int 1 = true - yes, there is such a dependency, 0 = false - no, there is not such a dependency
+	 */
 	isThereDependency {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(ac.getGeneralServiceManager().isThereDependency(ac.getExecServiceById(parms.readInt("execService")),
@@ -269,6 +337,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * List execServices depending on the given execService
+	 *
+	 * @param execService int ExecService ID
+	 * @return List<ExecService> A list of execServices that are depending on the given execService.
+	 */
 	listExecServicesDependingOn {
 		public List<ExecService> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getGeneralServiceManager().listExecServicesDependingOn(ac.getSession(),
@@ -277,6 +351,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * List execServices this execService depends on
+	 *
+	 * @param dependantExecService int dependantExecService ID
+	 * @return List<ExecService> A list of execServices this execService depends on.
+	 */
 	listExecServicesThisExecServiceDependsOn {
 		public List<ExecService> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGeneralServiceManager().listExecServicesThisExecServiceDependsOn(
@@ -285,6 +365,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Forces service propagation on defined facility.
+	 *
+	 * @param service int Service ID
+	 * @param facility int Facility ID
+	 * @return int 1 = true if it is possible, 0 = false if not
+	 */
 	forceServicePropagation {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility")) {
@@ -302,6 +389,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).
+	 * 1 - allowed / 0 - one of service exec services is denied on this facility (=> service is denied).
+	 *
+	 * @param facility int Facility ID
+	 * @return List<ServiceForGUI> list of assigned services with allowed property
+	 */
 	getFacilityAssignedServicesForGUI {
 		public List<ServiceForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
