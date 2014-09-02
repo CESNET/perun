@@ -2261,7 +2261,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				if (parms.contains("user")) {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 							facility, ac.getUserById(parms.readInt("user")));
-				} else if (parms.contains("removeAlsoUserFacilityAttributes")) {
+				} else if (parms.contains("workWithUserAttributes")) {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 							facility, parms.readInt("workWithUserAttributes") == 1);
 				} else {
