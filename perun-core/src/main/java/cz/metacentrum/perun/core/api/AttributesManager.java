@@ -157,21 +157,33 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException;
 
 	/**
+	 * Gets all <b>non-empty</b> attributes associated with the member on the resource and if workWithUserAttributes is
+	 * true, gets also all <b>non-empty</b> user, user-facility and member attributes.
 	 * PRIVILEGE: Get only those attributes the principal has access to.
 	 *
-	 * TODO @inherit
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param member to get the attributes from
+	 * @param workWithUserAttributes if true returns also user-facility, user and member attributes (user is automatically get from member a facility is get from resource)
+	 * @return list of attributes
+	 *
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws ResourceNotExistsException if the resource doesn't exists in underlying data source
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws MemberNotExistsException if the member doesn't have access to this resource
+	 * @throws WrongAttributeAssignmentException
+	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException;
 
-
 	/**
-	 * Get all entiteless attributes with subject equaled String key
+	 * Get all entityless attributes with subject equaled String key
 	 *
 	 * PRIVILEGE: Only PerunAdmin can get Entityless attributes.
 	 *
 	 * @param sess perun session
-	 * @param key string of subject of entiteless attributes
+	 * @param key string of subject of entityless attributes
 	 * @return
 	 * @throws PrivilegeException if privileges are not given
 	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -232,7 +244,7 @@ public interface AttributesManager {
 	 *
 	 * PRIVILEGE: Get only those attributes the principal has access to.
 	 *
-	 * If workWithUserAttribute is true, return also all group attributes in list of attrNames (with virtual attributes too).
+	 * If workWithGroupAttributes is true, return also all group attributes in list of attrNames (with virtual attributes too).
 	 *
 	 * @param sess perun session
 	 * @param resource to get the attributes from
@@ -329,7 +341,7 @@ public interface AttributesManager {
 	 * @param sess perun session
 	 * @param member to get the attributes from
 	 * @param attrNames  list of attributes' names
-	 * @param workWithUserAttributes if user attributes need to be return too
+	 * @param workWithUserAttributes if user attributes need to be returned too
 	 * @return list of member (and also if needed user) attributes
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
@@ -440,6 +452,7 @@ public interface AttributesManager {
 	 *
 	 * @param sess perun session
 	 * @param member to get the attributes from
+	 * @param workWithUserAttributes if true returns also user attributes
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -478,9 +491,9 @@ public interface AttributesManager {
 	List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param facility facility to set on
@@ -497,9 +510,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the vo. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the vo. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param vo vo to set on
@@ -516,9 +529,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the group. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the group. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param group group to set on
@@ -535,9 +548,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource resource to set on
@@ -555,9 +568,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource resource to set on
@@ -576,10 +589,26 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 * If workWithUserAttributes is true, the method stores also the attributes associated with user, user-facility and member.
 	 *
-	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
-	 * //TODO inheritDoc
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
+	 *
+	 * @param sess perun session
+	 * @param resource resource to set on
+	 * @param member member to set on
+	 * @param attributes attribute to set
+	 * @param workWithUserAttributes method can process also user, user-facility and member attributes (user is automatically get from member a facility is get from resource)
+	 *
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws ResourceNotExistsException if the resource doesn't exists in the underlying data source
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws MemberNotExistsException if the member doesn't exists in the underlying data source
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
+	 * @throws WrongReferenceAttributeValueException
+	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
@@ -588,7 +617,7 @@ public interface AttributesManager {
 	 * Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true.
 	 * If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param member member to set on
@@ -606,9 +635,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param facility
@@ -630,9 +659,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param member member to set on
@@ -649,9 +678,9 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attributes associated with the facility and user combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the attributes associated with the facility and user combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param facility facility to set on
@@ -672,7 +701,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attributes associated with the user. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param user user to set on
@@ -690,7 +719,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attributes associated with the host. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perunsession
 	 * @param host host to set attributes set
@@ -706,7 +735,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attributes associated with the group on resource.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource
@@ -725,7 +754,7 @@ public interface AttributesManager {
 	 * Store the attributes associated with group and resource if workWithUserAttributes is true then also from group itself.
 	 * If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param group group to set on
@@ -1232,7 +1261,7 @@ public interface AttributesManager {
 	/**
 	 * Store the particular attribute associated with the vo. Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param vo vo to set on
@@ -1251,7 +1280,7 @@ public interface AttributesManager {
 	/**
 	 * Store the particular attribute associated with the group. Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param group group to set on
@@ -1270,7 +1299,7 @@ public interface AttributesManager {
 	/**
 	 * Store the particular attribute associated with the resource. Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource resource to set on
@@ -1289,7 +1318,7 @@ public interface AttributesManager {
 	/**
 	 * Store the particular attribute associated with the resource and member combination.  Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource resource to set on
@@ -1310,7 +1339,7 @@ public interface AttributesManager {
 	/**
 	 * Store the particular attribute associated with the member.  Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param member member to set on
@@ -1329,7 +1358,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attribute associated with the facility and user combination.  Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param facility facility to set on
@@ -1350,7 +1379,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attribute associated with the user.  Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param user user to set on
@@ -1369,7 +1398,7 @@ public interface AttributesManager {
 	/**
 	 * Store the attribute associated with the host.  Core attributes can't be set this way.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perunsession
 	 * @param host host to set attributes on
@@ -1388,7 +1417,7 @@ public interface AttributesManager {
 	/**
 	 * Stores attribute associated with group resource combination.
 	 *
-	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
 	 *
 	 * @param sess perun session
 	 * @param resource to set attributes on
@@ -1713,7 +1742,7 @@ public interface AttributesManager {
 	 * @param sess perun session
 	 * @param resource you get attributes for this resource and the member
 	 * @param member you get attributes for this member and the resource
-	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 * @param workWithUserAttributes method can process also user, user-facility and member attributes (user is automatically get from member a facility is get from resource)
 	 * @return list of member-resource attributes or if workWithUserAttributes is true return list of member-resource, user, member and user-facility attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2794,7 +2823,7 @@ public interface AttributesManager {
 	void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Unset the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't unseted (It's skkiped whithout any notification).
+	 * Unset the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't unset (It's skipped without any notification).
 	 *
 	 * PRIVILEGE: Remove attributes only when principal has access to write on them.
 	 *

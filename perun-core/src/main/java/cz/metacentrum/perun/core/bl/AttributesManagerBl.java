@@ -112,7 +112,19 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * TODO @inherit
+	 * Gets all <b>non-empty</b> attributes associated with the member on the resource and if workWithUserAttributes is
+	 * true, gets also all <b>non-empty</b> user, user-facility and member attributes.
+	 *
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param member to get the attributes from
+	 * @param workWithUserAttributes if true returns also user-facility, user and member attributes (user is automatically get from member a facility is get from resource)
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 *
+	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
@@ -352,7 +364,7 @@ public interface AttributesManagerBl {
 	List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
 	/**
-	 * Return entityless attribute by attr_id and key (subject) for update!
+	 * Returns entityless attribute by attr_id and key (subject) for update!
 	 * 
 	 * For update - means lock row with attr_values in DB (entityless_attr_values with specific subject and attr_id) 
 	 *
@@ -363,7 +375,7 @@ public interface AttributesManagerBl {
 	 * If attribute with subject=key not exists, create new one with null value and return it.
 	 * 
 	 * @param sess
-	 * @param attrId
+	 * @param attrName
 	 * @param key
 	 * @return attr_value in string
 	 * 
@@ -546,8 +558,20 @@ public interface AttributesManagerBl {
 	void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
-	 * TODO inheritDoc
+	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 * If workWithUserAttributes is true, the method stores also the attributes associated with user, user-facility and member.
+	 *
+	 * @param sess perun session
+	 * @param resource resource to set on
+	 * @param member member to set on
+	 * @param attributes attribute to set
+	 * @param workWithUserAttributes method can process also user, user-facility and member attributes (user is automatically get from member a facility is get from resource)
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
+	 * @throws WrongReferenceAttributeValueException
+	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
@@ -1440,7 +1464,7 @@ public interface AttributesManagerBl {
 	 * @param sess perun session
 	 * @param resource you get attributes for this resource and the member
 	 * @param member you get attributes for this member and the resource
-	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 * @param workWithUserAttributes method can process also user, user-facility and member attributes (user is automatically get from member a facility is get from resource)
 	 * @return list of member-resource attributes or if workWithUserAttributes is true return list of member-resource, user, member and user-facility attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -2993,7 +3017,7 @@ public interface AttributesManagerBl {
 	* Method returns attribute with null value if attribute has empty string;
 	* 
 	* @param attributeToConverting 
-	* @return 
+	* @return
 	*/
 	Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting);
 }
