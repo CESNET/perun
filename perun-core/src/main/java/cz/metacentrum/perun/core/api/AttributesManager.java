@@ -232,7 +232,7 @@ public interface AttributesManager {
 	 *
 	 * PRIVILEGE: Get only those attributes the principal has access to.
 	 *
-	 * If workWithUserAttribute is true, return also all group attributes in list of attrNames (with virutal attributes too).
+	 * If workWithUserAttribute is true, return also all group attributes in list of attrNames (with virtual attributes too).
 	 *
 	 * @param sess perun session
 	 * @param resource to get the attributes from
@@ -322,7 +322,7 @@ public interface AttributesManager {
 	 * Get all attributes associated with the member which have name in list attrNames (empty too)
 	 * Virtual attributes too.
 	 *
-	 * If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virutal attributes too).
+	 * If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virtual attributes too).
 	 *
 	 * PRIVILEGE: Get only those attributes the principal has access to.
 	 *
@@ -586,7 +586,7 @@ public interface AttributesManager {
 
 	/**
 	 * Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true.
-	 * If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
 	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
 	 *
@@ -723,7 +723,7 @@ public interface AttributesManager {
 
 	/**
 	 * Store the attributes associated with group and resource if workWithUserAttributes is true then also from group itself.
-	 * If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
 	 * PRIVILEGE: Principal need to have access to all attributes which wants to set.
 	 *
@@ -1518,7 +1518,7 @@ public interface AttributesManager {
 	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * Get member-resource attributes which are required by services and if workWithUserAttributes is true also user and user-facility attributes.
+	 * Get member-resource attributes which are required by services and if workWithUserAttributes is true also user, user-facility and member attributes.
 	 * Services are known from the resourceToGetServicesFrom.
 	 *
 	 * PRIVILEGE: Get only those required attributes principal has access to.
@@ -1527,8 +1527,8 @@ public interface AttributesManager {
 	 * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
 	 * @param resource you get attributes for this resource and the member
 	 * @param member you get attributes for this member and the resource
-	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
-	 * @return list of member-resource attributes (if workWithUserAttributes is true also user and user-facility attributes) which are required by services which are assigned to another resource.
+	 * @param workWithUserAttributes method can process also user, user-facility and member attributes (user is automatically get from member a facility is get from resource)
+	 * @return list of member-resource attributes (if workWithUserAttributes is true also user, user-facility and member attributes) which are required by services which are assigned to another resource.
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
@@ -2074,7 +2074,7 @@ public interface AttributesManager {
 	List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * This method try to fill value of the user, member, member-resource and user-facility attributes. This value is automatically generated, but not all attributes can be filled this way.
+	 * This method tries to fill value of the user, member, member-resource and user-facility attributes. This value is automatically generated, but not all attributes can be filled this way.
 	 * This method skips all attributes with not-null value.
 	 *
 	 * PRIVILEGE: Fill attributes only when principal has access to write on them.
@@ -2099,7 +2099,7 @@ public interface AttributesManager {
 	List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * This method try to fill value of the member attribute. This value is automatically generated, but not all attributes can be filled this way.
+	 * This method tries to fill value of the member attribute. This value is automatically generated, but not all attributes can be filled this way.
 	 *
 	 * PRIVILEGE: Fill attribute only when principal has access to write on it.
 	 *
@@ -2126,7 +2126,7 @@ public interface AttributesManager {
 	List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * This method try to fill value of the user-facility attribute. This value is automatically generated, but not all attributes can be filled this way.
+	 * This method tries to fill value of the user-facility attribute. This value is automatically generated, but not all attributes can be filled this way.
 	 *
 	 * PRIVILEGE: Fill attribute only when principal has access to write on it.
 	 *
@@ -2155,7 +2155,7 @@ public interface AttributesManager {
 	List<Attribute> fillAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * This method try to fill value of the user attribute. This value is automatically generated, but not all attributes can be filled this way.
+	 * This method tries to fill value of the user attribute. This value is automatically generated, but not all attributes can be filled this way.
 	 *
 	 * PRIVILEGE: Fill attribute only when principal has access to write on it.
 	 *
@@ -2586,7 +2586,7 @@ public interface AttributesManager {
 	void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Unset the group_resource attributes. If an attribute is core attribute, then the attribute isn't unseted (it's skipped without notification).
+	 * Unset the group-resource attributes. If an attribute is core attribute, then the attribute isn't unset (it's skipped without notification).
 	 * If workWithGroupAttributes is true, unset also group attributes.
 	 *
 	 * Remove only attributes which are in list of attributes.
@@ -2597,7 +2597,7 @@ public interface AttributesManager {
 	 * @param group group to set on
 	 * @param resource resource to set on
 	 * @param attributes attributes which will be used to removing
-	 * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
+	 * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group-resource attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException if privileges are not given
