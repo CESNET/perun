@@ -20,6 +20,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
       <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>
       <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.flush(..))"/>
       <aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessageToDb(..))"/>
+			<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronization(..))"/>
     </aop:config>
 
     <tx:advice id="txAdviceCommon" transaction-manager="perunTransactionManager">
@@ -45,6 +46,11 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <tx:advice id="txAdviceReadOnly" transaction-manager="perunTransactionManager">
       <tx:attributes>
         <tx:method name="*" read-only="true" rollback-for="Exception" />
+      </tx:attributes>
+    </tx:advice>
+		<tx:advice id="txAdviceRequiresNewTransaction" transaction-manager="perunTransactionManager">
+      <tx:attributes>
+        <tx:method name="*" read-only="false" propagation="REQUIRES_NEW"/>
       </tx:attributes>
     </tx:advice>
 

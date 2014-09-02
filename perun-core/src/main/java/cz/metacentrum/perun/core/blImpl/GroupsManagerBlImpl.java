@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
@@ -1343,6 +1344,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		public void run() {
+			//if some exception was thrown during synchronization
+			boolean exceptionThrown = false;
+			//text of exception if was thrown
+			String exceptionMessage = null;
+			
 			try {
 				log.debug("Synchronization thread for group {} has started.", group);
 				// Set the start time, so we can check the timeout of the thread
@@ -1352,16 +1358,41 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException e) {
-				log.error("Cannot synchronize group " + group +" due to exception:", e);
+				exceptionThrown = true;
+				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
+				log.error(exceptionMessage, e);
+				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (WrongReferenceAttributeValueException e) {
-				log.error("Cannot synchronize group " + group +" due to exception:", e);
+				exceptionThrown = true;
+				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
+				log.error(exceptionMessage, e);
+				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (InternalErrorException e) {
-				log.error("Internal Error Exception while synchronizing the group " + group + ":", e);
+				exceptionThrown = true;
+				exceptionMessage = "Internal Error Exception while synchronizing the group " + group + ":";
+				log.error(exceptionMessage, e);
+				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (WrongAttributeAssignmentException e) {
-				log.error("IWrong Attribute Assignment Exception while synchronizing the group " + group + ":", e);
+				exceptionThrown = true;
+				exceptionMessage = "Wrong Attribute Assignment Exception while synchronizing the group " + group + ":";
+				log.error(exceptionMessage, e);
+				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (MemberAlreadyRemovedException e) {
-				log.error("Member Already Removed Exception while synchronizing the group " + group + " due to exception: " + e);
+				exceptionThrown = true;
+				exceptionMessage = "Member Already Removed Exception while synchronizing the group " + group + " due to exception: ";
+				log.error(exceptionMessage, e);
+				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} finally {
+				Date currentTimestamp = new Date();
+				if(!exceptionThrown) {
+					exceptionMessage = "OK";
+				}
+				//Save information about group synchronization, this method run in new transaction
+				try {
+					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, exceptionMessage);
+				} catch (Exception ex) {
+					log.error("When synchronization group " + group + ", exception was thrown.", ex);
+				}
 				log.debug("GroupSynchronizerThread finnished for group: {}", group);
 			}
 		}
@@ -1593,5 +1624,43 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
+	}
+
+	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		//If session is null, throw an exception
+		if (sess == null) {
+			throw new InternalErrorException("Session is null when trying to save information about synchronization. Group: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
+		}
+
+		//If group is null, throw an exception
+		if (group == null) {
+			throw new InternalErrorException("Object group is null when trying to save information about synchronization. Timestamp: " + currentTimestamp + ", message: " + exceptionMessage);
+		}
+
+		//if currentTimestamp is null, create new date and log this
+		if (currentTimestamp == null){
+			currentTimestamp = new Date();
+			log.error("When synchronize group " + group + " timestamp was null. Was create a new one and use it.");
+		}
+
+		//if exceptionMessage is null or empty, use "Empty message"
+		if (exceptionMessage == null || exceptionMessage.isEmpty()) {
+			exceptionMessage = "Empty message.";
+		}
+
+		//Set correct format of currentTimestamp
+		String currectTimestampString = BeansUtils.DATE_FORMATTER.format(currentTimestamp);
+
+		//Get both attribute defintion lastSynchroTimestamp and lastSynchroState
+		//Get definitions and values, set values
+		Attribute lastSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationTimestamp"));
+		Attribute lastSynchronizationState = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationState"));
+		lastSynchronizationTimestamp.setValue(currectTimestampString);
+		lastSynchronizationState.setValue(exceptionMessage);
+		//setAttributes for group
+		List<Attribute> attrsToSet = new ArrayList<>();
+		attrsToSet.add(lastSynchronizationState);
+		attrsToSet.add(lastSynchronizationTimestamp);
+		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
 	}
 }
