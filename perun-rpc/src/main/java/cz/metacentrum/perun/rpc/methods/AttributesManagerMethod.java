@@ -13,86 +13,101 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns User-Facility attributes.
+	 * Returns User-Facility attributes. Returns only non-empty attributes.
+
 	 * @param facility int Facility ID
 	 * @param user int User ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Facility attributes.
+	 * Returns Facility attributes. Returns only non-empty attributes.
+	 *
 	 * @param facility int Facility ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all VO attributes.
+	 * Returns all VO attributes. Returns only non-empty attributes.
+	 *
 	 * @param vo int VO ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns chosen VO attributes.
+	 * Returns chosen VO attributes. Returns only non-empty attributes.
+	 *
 	 * @param vo int VO ID
 	 * @param attrNames List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Member-Resource attributes.
+	 * Returns Member-Resource attributes. Returns only non-empty attributes.
+	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Group-Resource attributes.
+	 * Returns Group-Resource attributes. Returns only non-empty attributes.
+	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all Group-Resource attributes.
+	 * Returns all Group-Resource attributes. Returns only non-empty attributes. Returns also group attributes if workWithGroupAttributes == 1.
+	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Must = 1
+	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Resource attributes.
+	 * Returns Resource attributes. Returns only non-empty attributes.
+	 *
 	 * @param resource int Resource ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all Member attributes.
+	 * Returns all Member attributes. Returns only non-empty attributes.
+	 *
 	 * @param member int Member ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all Member attributes.
+	 * Returns all Member attributes. Returns only non-empty attributes. Returns also user attributes if workWithUserAttributes == 1.
+	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Must = 1
+	 * @param workWithUserAttributes int  Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns chosen Member attributes.
+	 * Returns chosen Member attributes. Returns only non-empty attributes.
+	 *
 	 * @param member int Member ID
 	 * @param attrNames[] List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all User attributes.
+	 * Returns all User attributes. Returns only non-empty attributes.
+	 *
 	 * @param user int User ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns chosen User attributes.
+	 * Returns chosen User attributes. Returns only non-empty attributes.
+	 *
 	 * @param user int User ID
 	 * @param attrNames[] List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Group attributes.
+	 * Returns Group attributes. Returns only non-empty attributes.
+	 *
 	 * @param group int Group ID
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns Host attributes.
+	 * Returns Host attributes. Returns only non-empty attributes.
+	 *
 	 * @param host int Host ID
 	 * @return List<Attribute> Attributes
 	 */
@@ -184,8 +199,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Returns all entityless attributes.
+	 * Returns all entityless attributes with attrName.
 	 *
+	 * @param attrName String Attribute name
 	 * @return List<Attribute> Attributes
 	 */
 	getEntitylessAttributes {
@@ -201,7 +217,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility ID
 	 * @param user int User ID
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -227,7 +243,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets the attributes.
 	 *
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -235,14 +251,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Must = 1
-	 * @param attributes List<Attribute> List of attributes
-	 */
-	/*#
-	 * Sets the attributes.
-	 *
-	 * @param group int Group ID
-	 * @param resoruce int Resource ID
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -250,20 +259,27 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Must = 1
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param group int Group ID
+	 * @param resource int Resource ID
+	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/*#
+	 * Sets the attributes.
+	 *
+	 * @param resource int Resource ID
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Must = 1
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -392,7 +408,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
@@ -400,65 +416,65 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param facility int Facility ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param vo int VO ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param group int Group ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param member int Member ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param user int User ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its ID. Returns only non-empty attributes.
 	 *
 	 * @param host int Host ID
 	 * @param attributeId int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
@@ -466,58 +482,58 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param facility int Facility ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param vo int VO ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param group int Group ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param member int Member ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param user int User ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name.
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param host int Host ID
 	 * @param attributeName String Attribute name
@@ -688,6 +704,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all AttributeDefinitions in a namespace.
 	 *
+	 * @param namespace String Namespace
 	 * @return List<AttributeDefinition> Definitions of Attributes in a namespace
 	 */
 	getAttributesDefinitionByNamespace {
@@ -794,14 +811,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns an Attribute by its ID.
 	 *
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its ID.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param id int Attribute ID
 	 * @return Attribute Found Attribute
 	 */
@@ -868,20 +885,20 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets an Attribute.
 	 *
 	 * @param member int Member ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
 	 * @param group int Group ID
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param resoruce int Resource ID
+	 * @param resource int Resource ID
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
@@ -1027,7 +1044,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member ID
 	 * @param service int Service ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Must = 1
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1078,7 +1095,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Must = 1
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1110,7 +1127,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns required attributes.
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Must = 1
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1237,6 +1254,78 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					ac.getServiceById(parms.readInt("service")));
 		}
 	},
+
+	/*#
+	 * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes == 1.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param resource int Resource ID
+	 * @param member int Member ID
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == 1 also user, user-facility and member attributes)
+	 */
+	/*#
+	 * Gets member-resource attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param resource int Resource ID
+	 * @param member int Member ID
+	 * @return List<Attribute> Member-resource attributes
+	 */
+	/*#
+	 * Gets member attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param member int Member ID
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @return List<Attribute> Member attributes
+	 */
+	/*#
+	 * Gets user-facility attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param facility int Facility ID
+	 * @param user int User ID
+	 * @return List<Attribute> User-facility attributes
+	 */
+	/*#
+	 * Gets user attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param user int User ID
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @return List<Attribute> User's attributes
+	 */
+	/*#
+	 * Gets group-resource and also group attributes, if workWithGroupAttributes == 1.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param group int Group ID
+	 * @param resource int Resource ID
+	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @return List<Attribute> Group-resource and (if workWithGroupAttributes == 1) group required attributes
+	 */
+	/*#
+	 * Gets group-resource attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param resource int Resource ID
+	 * @param group int Group ID
+	 * @return List<Attribute> Group-resource attributes
+	 */
+	/*#
+	 * Gets group attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param group int Group ID
+	 * @return List<Attribute> Group's attributes
+	 */
 	getResourceRequiredAttributes {
 
 		@Override
@@ -1298,6 +1387,66 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
+	/*#
+	 * Tries to fill group attribute.
+	 *
+	 * @param group int Group ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which may have filled value
+	 */
+	/*#
+	 * Tries to fill host attribute.
+	 *
+	 * @param host int Host ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill group-resource attribute.
+	 *
+	 * @param resource int Resource ID
+	 * @param group int Group ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member-resource attribute.
+	 *
+	 * @param resource int Resource ID
+	 * @param member int Member ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill resource attribute.
+	 *
+	 * @param resource int Resource ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill user-facility attribute.
+	 *
+	 * @param user int User ID
+	 * @param facility int Facility ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill user attribute.
+	 *
+	 * @param user int User ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member attribute.
+	 *
+	 * @param member int Member ID
+	 * @param attribute int Attribute ID
+	 * @return Attribute attribute which MAY have filled value
+	 */
 	fillAttribute {
 
 		@Override
@@ -1352,10 +1501,89 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						member,
 						ac.getAttributeById(member, parms.readInt("attribute")));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resoure, user, member");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resource, user, member");
 			}
 		}
 	},
+
+	/*#
+	 * Tries to fill host attributes.
+	 *
+	 * @param host int Host ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill group-resource attributes.
+	 *
+	 * @param resource int Resource ID
+	 * @param group int Group ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill user, member, member-resource and user-facility attributes.
+	 *
+	 * @param facility int Facility ID
+	 * @param resource int Resource ID
+	 * @param user int User ID
+	 * @param member int Member ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes == 1.
+	 *
+	 * @param resource int Resource ID
+	 * @param member int Member ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member-resource attributes.
+	 *
+	 * @param resource int Resource ID
+	 * @param member int Member ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill resource attributes.
+	 *
+	 * @param resource int Resource ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill group attributes.
+	 *
+	 * @param group int Group ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill user-facility attributes.
+	 *
+	 * @param facility int Facility ID
+	 * @param user int User ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill user attributes.
+	 *
+	 * @param user int User ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member attributes.
+	 *
+	 * @param member int Member ID
+	 * @param attributes List<Attribute> List of attributes
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
 	fillAttributes {
 
 		@Override
@@ -1452,6 +1680,44 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
+	/*#
+	 * Checks if this facility attribute is valid.
+	 *
+	 * @param facility int Facility ID
+	 * @param attribute int Attribute ID
+	 */
+	/*#
+	 * Checks if this vo attribute is valid.
+	 *
+	 * @param vo int Vo ID
+	 * @param attribute int Attribute ID
+	 */
+	/*#
+	 * Checks if this member-resource attribute is valid.
+	 *
+	 * @param member int Member ID
+	 * @param resource int Resource ID
+	 * @param attribute int Attribute ID
+	 */
+	/*#
+	 * Checks if this resource attribute is valid.
+	 *
+	 * @param resource int Resource ID
+	 * @param attribute int Attribute ID
+	 */
+	/*#
+	 * Checks if this host attribute is valid.
+	 *
+	 * @param host int Host ID
+	 * @param attribute int Attribute ID
+	 */
+	/*#
+	 * Checks if this user attribute is valid.
+	 *
+	 * @param user int User ID
+	 * @param attribute int Attribute ID
+	 */
 	checkAttributeValue {
 
 		@Override
@@ -1490,6 +1756,43 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
+	/*#
+	 * Checks if these facility attributes are valid.
+	 *
+	 * @param facility int Facility ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these vo attributes are valid.
+	 *
+	 * @param vo int Vo ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member-resource attributes are valid.
+	 *
+	 * @param member int Member ID
+	 * @param resource int Resource ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these resource attributes are valid.
+	 *
+	 * @param resource int Resource ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these host attributes are valid.
+	 *
+	 * @param host int Host ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these user attributes are valid.
+	 *
+	 * @param user int User ID
+	 * @param attributes List<Attribute> Attributes List
+	 */
 	checkAttributesValue {
 
 		@Override
@@ -1580,6 +1883,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove attributes of namespace:
 	 *
+	 * group-resource, group (optional)
+	 *
+	 * @param resource int Resource ID
+	 * @param group int Group ID
+	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param attributes List<Integer> List of attributes IDs to remove
+	 */
+	/*#
+	 * Remove attributes of namespace:
+	 *
 	 * group-resource
 	 *
 	 * @param resource int Resource ID
@@ -1601,7 +1914,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * member, user (optional)
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Set to 1 if you want to remove also user attributes
+	 * @param workWithUserAttributes int Set to 1 if you want to remove also user attributes. 0 is default value.
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1875,7 +2188,72 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 
-
+	/*#
+	 * Unset all attributes for the user on the facility.
+	 *
+	 * @param facility int Facility ID
+	 * @param user int User ID
+	 */
+	/*#
+	 * Unset all attributes for the facility and also user-facility attributes if workWithUserAttributes == 1.
+	 *
+	 * @param facility int Facility ID
+	 * @param workWithUserAttributes int Remove also user facility attributes integer (1 = true, 0 = false). 0 is default value.
+	 */
+	/*#
+	 * Unset all attributes for the facility.
+	 *
+	 * @param facility int Facility ID
+	 */
+	/*#
+	 * Unset all attributes for the vo.
+	 *
+	 * @param vo int Vo ID
+	 */
+	/*#
+	 * Unset all attributes for the member on the resource.
+	 *
+	 * @param member int Member ID
+	 * @param resource int Resource ID
+	 */
+	/*#
+	 * Unset all group-resource attributes and also group attributes if WorkWithGroupAttributes == 1.
+	 *
+	 * @param group int Group ID
+	 * @param resource int Resource ID
+	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 */
+	/*#
+	 * Unset all group-resource attributes.
+	 *
+	 * @param group int Group ID
+	 * @param resource int Resource ID
+	 */
+	/*#
+	 * Unset all resource attributes.
+	 *
+	 * @param resource int Resource ID
+	 */
+	/*#
+	 * Unset all member attributes.
+	 *
+	 * @param member int Member ID
+	 */
+	/*#
+	 * Unset all user attributes.
+	 *
+	 * @param user int User ID
+	 */
+	/*#
+	 * Unset all group attributes.
+	 *
+	 * @param group int Group ID
+	 */
+	/*#
+	 * Unset all host attributes.
+	 *
+	 * @param host int Host ID
+	 */
 	removeAllAttributes {
 
 		@Override
@@ -1887,7 +2265,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				if (parms.contains("user")) {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 							facility, ac.getUserById(parms.readInt("user")));
-				} else if (parms.contains("removeAlsoUserFacilityAttributes")) {
+				} else if (parms.contains("workWithUserAttributes")) {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 							facility, parms.readInt("workWithUserAttributes") == 1);
 				} else {
@@ -1962,10 +2340,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Updates attribute definition in Perun based on
-	 * provided AttributeDefinition object.
+	 * Updates attribute definition in Perun based on provided AttributeDefinition object.
 	 *
-	 * Update is done on attribute definition selected by it's ID.
+	 * Update is done on attribute definition selected by its ID.
 	 *
 	 * @param attributeDefinition AttributeDefinition object with updated properties to store in DB
 	 * @return AttributeDefinition updated attribute definition
@@ -1980,6 +2357,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
+	 *
+	 * @param member int Member ID
+	 */
 	doTheMagic {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1989,11 +2371,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Gets attribute rights of an attribute with id given as a parametr.
-	 * If the attribute has no rights for a role, it returns empty list.
+	 * Gets attribute rights.
 	 *
-	 * @param attributeId id of the attribute
-	 * @return all rights of the attribute
+	 * @param attributeId int Attribute ID
+	 * @return List<AttributeRights> all rights of the attribute
 	 */
 	getAttributeRights {
 		@Override
@@ -2005,7 +2386,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sets all attribute rights in the list given as a parameter.
 	 *
-	 * @param rights AttributeRights list of attribute rights
+	 * @param rights List<AttributeRights> list of attribute rights
 	 */
 	setAttributeRights {
 		@Override
