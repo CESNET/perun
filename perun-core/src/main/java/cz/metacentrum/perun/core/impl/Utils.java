@@ -42,6 +42,7 @@ public class Utils {
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
+	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+]+(\\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	
 	/**
 	 * Replaces dangerous characters.
