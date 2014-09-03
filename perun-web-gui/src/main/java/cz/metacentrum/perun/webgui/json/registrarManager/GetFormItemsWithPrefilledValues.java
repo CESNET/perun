@@ -194,6 +194,12 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.insufficientLoa());
 			} else if ("INSUFFICIENTLOAFOREXTENSION".equalsIgnoreCase(error.getReason())) {
 				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.insufficientLoaForExtension());
+
+				// redirect if possible
+				if (Location.getParameter("targetexisting") != null) {
+					Location.replace(Location.getParameter("targetexisting"));
+				}
+
 			} else if ("OUTSIDEEXTENSIONPERIOD".equalsIgnoreCase(error.getReason())) {
 				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.outsideExtensionPeriod());
 
