@@ -76,7 +76,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 * Creates a new method instance
 	 *
 	 * @param entity entity
-	 * @param id entity ID
+	 * @param id     entity ID
 	 */
 	public GetFormItemsWithPrefilledValues(PerunEntity entity, int id) {
 		this.id = id;
@@ -88,7 +88,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 * Creates a new method instance
 	 *
 	 * @param entity entity
-	 * @param id entity ID
+	 * @param id     entity ID
 	 * @param locale locale
 	 */
 	public GetFormItemsWithPrefilledValues(PerunEntity entity, int id, String locale) {
@@ -100,7 +100,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 * Creates a new method instance
 	 *
 	 * @param entity entity
-	 * @param id entity ID
+	 * @param id     entity ID
 	 * @param events Custom events
 	 */
 	public GetFormItemsWithPrefilledValues(PerunEntity entity, int id, JsonCallbackEvents events) {
@@ -112,7 +112,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 * Creates a new method instance
 	 *
 	 * @param entity entity
-	 * @param id entity ID
+	 * @param id     entity ID
 	 * @param events Custom events
 	 * @param locale Locale
 	 */
@@ -134,7 +134,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			param = "group=" + this.id;
 		}
 
-		if(type.length() != 0){
+		if (type.length() != 0) {
 			param += "&type=" + type;
 		}
 
@@ -149,8 +149,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	/**
 	 * Returns contents
 	 */
-	public Widget getContents()
-	{
+	public Widget getContents() {
 		return this.contents;
 	}
 
@@ -169,7 +168,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 		if (error.getName().equalsIgnoreCase("DuplicateRegistrationAttemptException")) {
 
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.duplicateRegistrationAttemptExceptionText());
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.duplicateRegistrationAttemptExceptionText());
 
 			if (Location.getParameter("targetnew") != null) {
 				Location.replace(Location.getParameter("targetnew"));
@@ -179,24 +178,24 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 			String missingItems = "<p>";
 			if (error.getFormItems() != null) {
-				for (int i=0; i<error.getFormItems().length(); i++) {
+				for (int i = 0; i < error.getFormItems().length(); i++) {
 					missingItems += ApplicationMessages.INSTANCE.missingIDPAttribute();
 					missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
 					missingItems += "<br />";
 				}
 			}
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.missingDataFromIDP()+missingItems);
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.missingDataFromIDP() + missingItems);
 
 		} else if (error.getName().equalsIgnoreCase("ExtendMembershipException")) {
 
 			if ("NOUSERLOA".equalsIgnoreCase(error.getReason())) {
-				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.noUserLoa());
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.noUserLoa());
 			} else if ("INSUFFICIENTLOA".equalsIgnoreCase(error.getReason())) {
-				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.insufficientLoa());
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.insufficientLoa());
 			} else if ("INSUFFICIENTLOAFOREXTENSION".equalsIgnoreCase(error.getReason())) {
-				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.insufficientLoaForExtension());
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.insufficientLoaForExtension());
 			} else if ("OUTSIDEEXTENSIONPERIOD".equalsIgnoreCase(error.getReason())) {
-				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.outsideExtensionPeriod());
+				ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.outsideExtensionPeriod());
 
 				// redirect if possible
 				if (Location.getParameter("targetexisting") != null) {
@@ -206,7 +205,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			}
 
 		} else {
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>"+error.getErrorInfo()+"</h2>");
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + "<h2>" + error.getErrorInfo() + "</h2>");
 		}
 
 		ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -237,7 +236,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			// when there are no application form items
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.noFormDefined());
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.noFormDefined());
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
@@ -253,7 +252,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			// when there are no application form items
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+ApplicationMessages.INSTANCE.alreadyVoMember());
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()) + ApplicationMessages.INSTANCE.alreadyVoMember());
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
@@ -276,7 +275,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	/**
 	 * Prepares the widgets from the items as A DISPLAY FOR THE USER
 	 */
-	public void prepareApplicationForm(){
+	public void prepareApplicationForm() {
 
 		FlexTable ft = new FlexTable();
 		ft.setCellPadding(10);
@@ -291,7 +290,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 		}
 
 		int i = 0;
-		for(final ApplicationFormItemWithPrefilledValue item : applFormItems){
+		for (final ApplicationFormItemWithPrefilledValue item : applFormItems) {
 
 
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, locale);
@@ -305,20 +304,20 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 
 			// if button, add onclick
-			if(item.getFormItem().getType().equals("SUBMIT_BUTTON")){
+			if (item.getFormItem().getType().equals("SUBMIT_BUTTON")) {
 
 				this.sendButton = (CustomButton) gen.getWidget();
 				sendButton.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
 
 						// revalidate again, with force validation
-						if(!validateFormValues(true)){
+						if (!validateFormValues(true)) {
 							Element elem = DOM.getElementById("input-status-error");
 							elem.scrollIntoView();
 							return;
 						}
 
-						if(sendFormHandler != null){
+						if (sendFormHandler != null) {
 							sendFormHandler.sendApplicationForm(sendButton);
 						}
 					}
@@ -328,12 +327,12 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			// get localized texts
 			ItemTexts itemTexts = item.getFormItem().getItemTexts(locale);
 
-			if(!gen.isVisible()){
+			if (!gen.isVisible()) {
 				continue;
 			}
 
 			// WITH LABEL (input box ...)
-			if(gen.isLabelShown()){
+			if (gen.isLabelShown()) {
 
 				// 0 = label
 				if (item.getFormItem().isRequired() == true) {
@@ -353,8 +352,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 				ft.setWidget(i, 2, gen.getStatusWidget());
 
 				// 3 = HELP
-				if(itemTexts.getHelp() != null && itemTexts.getHelp().length() > 0)
-				{
+				if (itemTexts.getHelp() != null && itemTexts.getHelp().length() > 0) {
 					Label help = new Label(itemTexts.getHelp());
 					ft.setWidget(i, 3, help);
 				}
@@ -366,11 +364,9 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 				fcf.setStyleName(i, 3, "applicationFormHelp");
 				ft.setWidth("100%");
 
+				// ELSE HTML COMMENT, SUBMIT BUTTON, HEADING
 
-
-
-				// ELSE HTML COMMENT
-			}else{
+			} else {
 
 				ft.setWidget(i, 0, gen.getWidget());
 
@@ -393,17 +389,17 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 */
 	protected boolean validateFormValues(boolean forcedValidation) {
 
-		if(sendButton == null) return false;
+		if (sendButton == null) return false;
 
 		boolean valid = true;
 
 		sendButton.setEnabled(true);
-		for(RegistrarFormItemGenerator gen : applFormGenerators){
-			if(gen.getInputChecker().isValidating() || !gen.getInputChecker().isValid(forcedValidation)){
+		for (RegistrarFormItemGenerator gen : applFormGenerators) {
+			if (gen.getInputChecker().isValidating() || !gen.getInputChecker().isValid(forcedValidation)) {
 				sendButton.setEnabled(false);
 				valid = false;
 
-				if(!forcedValidation){
+				if (!forcedValidation) {
 					return false;
 				}
 			}
@@ -414,14 +410,14 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 	/**
 	 * Generates the values from the form
+	 *
 	 * @return
 	 */
-	public ArrayList<ApplicationFormItemData> getValues()
-	{
+	public ArrayList<ApplicationFormItemData> getValues() {
 		ArrayList<ApplicationFormItemData> formItemDataList = new ArrayList<ApplicationFormItemData>();
 
 		// goes through all the item generators and retrieves the value
-		for(RegistrarFormItemGenerator gen : applFormGenerators){
+		for (RegistrarFormItemGenerator gen : applFormGenerators) {
 
 			String value = gen.getValue();
 			String prefilled = gen.getPrefilledValue();
@@ -459,6 +455,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 	/**
 	 * Set callback as hidden (no popup on exception)
+	 *
 	 * @param hidden true = hidden
 	 */
 	public void setHidden(boolean hidden) {

@@ -442,6 +442,15 @@ public class RegistrarFormItemGenerator {
 			return generateHtmlComment();
 		}
 
+		if(item.getType().equals("HEADING")){
+			showLabel = false;
+			return generateHtmlComment();
+		}
+
+		if(item.getType().equals("TIMEZONE")){
+			return generateTimezoneListBox();
+		}
+
 		if(item.getType().equals("FROM_FEDERATION_HIDDEN")){
 			this.visibleOnlyToAdmin = true;
 			this.visible = false;
@@ -802,10 +811,45 @@ public class RegistrarFormItemGenerator {
 		// when changed, update value
 		lbox.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-
 				String value = lbox.getValue(lbox.getSelectedIndex());
-				strValueBox.setValue(value);
+				// fire change event to check for correct input
+				strValueBox.setValue(value, true);
+			}
+		});
 
+		if (lbox.getItemCount() != 0) {
+			// set default value
+			strValueBox.setText(lbox.getValue(lbox.getSelectedIndex()));
+		}
+
+		return lbox;
+	}
+
+	/**
+	 * Generates the listbox with Timezone selection.
+	 * @return
+	 */
+	private Widget generateTimezoneListBox() {
+
+		final ListBox lbox = new ListBox();
+		strValueBox = new ExtendedTextBox();
+
+		// add timezone option
+		lbox.addItem("Not selected", "");
+		int i = 1;
+		for(String key : Utils.getTimezones()){
+			boolean selected = strValue.equals(key);
+			lbox.addItem(key, key);
+			lbox.setItemSelected(i, selected);
+			i++;
+		}
+
+		// when changed, update value
+		lbox.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				String value = lbox.getValue(lbox.getSelectedIndex());
+				// fire change event to check for correct input
+				strValueBox.setValue(value, true);
 			}
 		});
 
@@ -968,7 +1012,7 @@ public class RegistrarFormItemGenerator {
 			public void onChange(ChangeEvent event) {
 
 				String value = lbox.getValue(lbox.getSelectedIndex());
-				strValueBox.setValue(value);
+				strValueBox.setValue(value, true);
 
 				// if other value selected, set textbox visible
 				textBox.setVisible(lbox.getSelectedIndex() == otherValueIndex);
