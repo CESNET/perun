@@ -6,6 +6,7 @@ PROTOCOL_VERSION='3.6.0'
 function process {
 	FROM_PERUN="${WORK_DIR}/fs_home"
 	UMASK_FILE="${WORK_DIR}/umask"
+	QUOTA_ENABLED_FILE="${WORK_DIR}/quota_enabled"
 
 	I_DIR_CREATED=(0 'Home directory ${HOME_DIR} ($U_UID.$U_GID) created.')
 
@@ -22,7 +23,16 @@ function process {
 	UMASK=0755   #default pemissions
 	[ -f "$UMASK_FILE" ] && UMASK=`head -n 1 "$UMASK_FILE"`
 
-	[ -z "${QUOTA_ENABLED}" ] && QUOTA_ENABLED=0
+	#if QUOTA_ENABLED is not set in prescript, try to get info from quota_enabled file
+	#if file not exists, set quota_enabled to 0 (false) (for backwards compatibility)
+	if [ -z "${QUOTA_ENABLED}" ]; then
+		if [ -f "$QUOTA_ENABLED_FILE}" ]; then
+			QUOTA_ENABLED=`head -n 1 "$QUOTA_ENABLED_FILE"`
+		else
+			QUOTA_ENABLED=0
+		fi
+	fi
+	
 	if [ "${QUOTA_ENABLED}" -gt 0 ]; then
 		if [ ! -z "${SET_QUOTA_PROGRAM}" ]; then
 			if [ -x "${SET_QUOTA_PROGRAM}" ]; then

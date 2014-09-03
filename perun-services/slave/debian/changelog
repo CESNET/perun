@@ -1,3 +1,10 @@
+perun-slave (3.0.0-0.0.77) stable; urgency=low
+
+   * fs_home can get flag if quotas are enabled from perun attribute. This
+     flag still can be overriden by settings in pre skript.
+
+ -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0200
+
 perun-slave (3.0.0-0.0.76) stable; urgency=low
 
    * afs_group can create new group if it doesn't exists
