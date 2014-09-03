@@ -24,7 +24,7 @@ import java.util.ArrayList;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class CreateFormItemTabItem implements TabItem{
+public class CreateFormItemTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -51,7 +51,7 @@ public class CreateFormItemTabItem implements TabItem{
 	/**
 	 * Input types
 	 */
-	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
+	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "HEADING", "TIMEZONE", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
 
 	/**
 	 * Cropping length in select box after which item to add item
@@ -60,15 +60,13 @@ public class CreateFormItemTabItem implements TabItem{
 
 	/**
 	 * Creates a tab instance
-	 *
-	 *
 	 */
-	public CreateFormItemTabItem(ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events){
+	public CreateFormItemTabItem(ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events) {
 		this.sourceList = sourceList;
 		this.events = events;
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return true;
 	}
 
@@ -76,7 +74,7 @@ public class CreateFormItemTabItem implements TabItem{
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%","100%");
+		vp.setSize("100%", "100%");
 
 		// flex table
 		FlexTable layout = new FlexTable();
@@ -103,7 +101,7 @@ public class CreateFormItemTabItem implements TabItem{
 
 		// select widget type
 		final ListBox typeListBox = new ListBox();
-		for(int i = 0; i < INPUT_TYPES.length; i++){
+		for (int i = 0; i < INPUT_TYPES.length; i++) {
 			String type = INPUT_TYPES[i];
 			typeListBox.addItem(type, type);
 		}
@@ -111,13 +109,13 @@ public class CreateFormItemTabItem implements TabItem{
 		// insert after
 		final ListBox insertAfterListBox = new ListBox();
 		insertAfterListBox.addItem(" - insert to the beginning - ", 0 + "");
-		for(int i = 0; i < sourceList.size(); i++){
+		for (int i = 0; i < sourceList.size(); i++) {
 			ApplicationFormItem item = sourceList.get(i);
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item, ""); // with default en locale
 			String label = gen.getFormItem().getShortname();
 
 			// crop length
-			if(label.length() > CROP_LABEL_LENGTH){
+			if (label.length() > CROP_LABEL_LENGTH) {
 				label = label.substring(0, CROP_LABEL_LENGTH);
 			}
 
@@ -132,7 +130,7 @@ public class CreateFormItemTabItem implements TabItem{
 		layout.setHTML(2, 0, "Insert after:");
 		layout.setWidget(2, 1, insertAfterListBox);
 
-		for (int i=0; i<layout.getRowCount(); i++) {
+		for (int i = 0; i < layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
 		}
 
@@ -214,9 +212,6 @@ public class CreateFormItemTabItem implements TabItem{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -233,8 +228,7 @@ public class CreateFormItemTabItem implements TabItem{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 	}
 
 	public boolean isAuthorized() {

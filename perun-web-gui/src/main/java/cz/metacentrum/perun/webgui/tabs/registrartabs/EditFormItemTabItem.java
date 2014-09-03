@@ -8,7 +8,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -37,7 +36,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class EditFormItemTabItem implements TabItem{
+public class EditFormItemTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -83,7 +82,7 @@ public class EditFormItemTabItem implements TabItem{
 	/**
 	 * KEY = locale, VALUE = Map<TextBox, TextBox> (key,value)
 	 */
-	private Map<String,Map<TextBox,TextBox>> optionsBoxes = new HashMap<String,Map<TextBox,TextBox>>();
+	private Map<String, Map<TextBox, TextBox>> optionsBoxes = new HashMap<String, Map<TextBox, TextBox>>();
 
 	private TabItem tab;
 
@@ -93,12 +92,12 @@ public class EditFormItemTabItem implements TabItem{
 	 * @param item
 	 * @param events
 	 */
-	public EditFormItemTabItem(ApplicationFormItem item, JsonCallbackEvents events){
+	public EditFormItemTabItem(ApplicationFormItem item, JsonCallbackEvents events) {
 		this.item = item;
 		this.events = events;
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return true;
 	}
 
@@ -111,7 +110,7 @@ public class EditFormItemTabItem implements TabItem{
 	private Widget itemTextTab(String locale) {
 
 		ItemTexts itemTexts = item.getItemTexts(locale);
-		if(itemTexts == null){
+		if (itemTexts == null) {
 			// create empty item texts
 			JSONObject itemTextJson = new JSONObject();
 			itemTextJson.put("label", new JSONString(""));
@@ -149,37 +148,52 @@ public class EditFormItemTabItem implements TabItem{
 		// adding to table
 		int row = 0;
 
-		Label label = new Label("Label:");
-		ft.setWidget(row, 0, label);
-		ft.setWidget(row, 1, labelTextBox);
+		if ("HTML_COMMENT".equals(item.getType()) || "HEADING".equals(item.getType())) {
 
-		row++;
-		ft.setHTML(row, 1, "Label displayed to users to identify item on application form. If empty, \"Short name\" from basic settings is used as fallback. For HTML_COMMENT type is used as content to display.");
-		ftf.setStyleName(row, 1, "inputFormInlineComment");
+			Label label = new Label("Content:");
+			ft.setWidget(row, 0, label);
+			ft.setWidget(row, 1, labelTextBox);
 
-		row++;
+			row++;
+			ft.setHTML(row, 1, "HTML formatted content of form item. It spans through all columns to full form width.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
 
-		Label helpLabel = new Label("Help:");
-		ft.setWidget(row, 0, helpLabel);
-		ft.setWidget(row, 1, helpTextBox);
+			row++;
 
-		row++;
-		ft.setHTML(row, 1, "Help text displayed to user along with input widget.");
-		ftf.setStyleName(row, 1, "inputFormInlineComment");
+		} else {
 
-		row++;
+			Label label = new Label("Label:");
+			ft.setWidget(row, 0, label);
+			ft.setWidget(row, 1, labelTextBox);
 
-		Label errorLabel = new Label("Error:");
-		ft.setWidget(row, 0, errorLabel);
-		ft.setWidget(row, 1, errorTextBox);
+			row++;
+			ft.setHTML(row, 1, "Label displayed to users to identify item on application form. If empty, \"Short name\" from basic settings is used as fallback.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
 
-		row++;
-		ft.setHTML(row, 1, "Error message displayed to user when inputs wrong value.");
-		ftf.setStyleName(row, 1, "inputFormInlineComment");
+			row++;
 
+			Label helpLabel = new Label("Help:");
+			ft.setWidget(row, 0, helpLabel);
+			ft.setWidget(row, 1, helpTextBox);
+
+			row++;
+			ft.setHTML(row, 1, "Help text displayed to user along with input widget.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+
+			row++;
+
+			Label errorLabel = new Label("Error:");
+			ft.setWidget(row, 0, errorLabel);
+			ft.setWidget(row, 1, errorTextBox);
+
+			row++;
+			ft.setHTML(row, 1, "Error message displayed to user when inputs wrong value.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+
+		}
 
 		// style
-		for(int i = 0; i<ft.getRowCount(); i++){
+		for (int i = 0; i < ft.getRowCount(); i++) {
 			ftf.setStyleName(i, 0, "itemName");
 		}
 
@@ -187,11 +201,11 @@ public class EditFormItemTabItem implements TabItem{
 		final FlexTable boxItemTable = new FlexTable();
 
 		// final layout
-		VerticalPanel vp  = new VerticalPanel();
+		VerticalPanel vp = new VerticalPanel();
 		vp.add(ft);
 
 		// values for selection and combobox
-		if ("SELECTIONBOX".equalsIgnoreCase(item.getType())|| "COMBOBOX".equalsIgnoreCase(item.getType()) || "CHECKBOX".equalsIgnoreCase(item.getType())) {
+		if ("SELECTIONBOX".equalsIgnoreCase(item.getType()) || "COMBOBOX".equalsIgnoreCase(item.getType()) || "CHECKBOX".equalsIgnoreCase(item.getType())) {
 
 			boxItemTable.setStyleName("inputFormFlexTable");
 			boxItemTable.setWidth("550px");
@@ -221,13 +235,13 @@ public class EditFormItemTabItem implements TabItem{
 
 			// parse values from the item
 			String options = itemTexts.getOptions();
-			if(options != null) {
+			if (options != null) {
 				// for each value, add key-value
 				values.putAll(RegistrarFormItemGenerator.parseSelectionBox(options));
 			}
 
 			// for each add new row
-			for(Map.Entry<String, String> entry : values.entrySet()){
+			for (Map.Entry<String, String> entry : values.entrySet()) {
 
 				final TextBox keyTextBox = new TextBox();
 				final TextBox valueTextBox = new TextBox();
@@ -259,14 +273,14 @@ public class EditFormItemTabItem implements TabItem{
 
 					currentOptions.put(keyTextBox, valueTextBox);
 
-					boxItemTable.insertRow(r-1);
+					boxItemTable.insertRow(r - 1);
 
-					boxItemTable.setHTML(r-1, 0, "Value:");
-					boxItemTable.getFlexCellFormatter().setStyleName(r-1, 0, "itemName");
-					boxItemTable.setWidget(r-1, 1, keyTextBox);
-					boxItemTable.setHTML(r-1, 2, "Label:");
-					boxItemTable.getFlexCellFormatter().setStyleName(r-1, 2, "itemName");
-					boxItemTable.setWidget(r-1, 3, valueTextBox);
+					boxItemTable.setHTML(r - 1, 0, "Value:");
+					boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 0, "itemName");
+					boxItemTable.setWidget(r - 1, 1, keyTextBox);
+					boxItemTable.setHTML(r - 1, 2, "Label:");
+					boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 2, "itemName");
+					boxItemTable.setWidget(r - 1, 3, valueTextBox);
 
 					UiElements.runResizeCommands(tab);
 
@@ -312,7 +326,7 @@ public class EditFormItemTabItem implements TabItem{
 		federationAttributes.addItem("EPPN", "eppn");
 
 		// application types
-		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents(){
+		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
 			@Override
 			public void onError(PerunError error) {
 				perunDestinationAttributeListBox.clear();
@@ -323,42 +337,44 @@ public class EditFormItemTabItem implements TabItem{
 					perunDestinationAttributeListBox.setSelectedIndex(1);
 				}
 			}
-		@Override
-		public void onFinished(JavaScriptObject jso) {
-			// clear
-			perunDestinationAttributeListBox.clear();
-			// set empty possibility
-			perunDestinationAttributeListBox.addItem("No item selected (empty value)", "");
 
-			ArrayList<AttributeDefinition> list = JsonUtils.jsoAsList(jso);
-			if (list != null && !list.isEmpty()) {
-				// sort
-				list = new TableSorter<AttributeDefinition>().sortByFriendlyName(list);
-				for (AttributeDefinition def : list) {
-					// add only member and user attributes
-					if (def.getEntity().equalsIgnoreCase("user") || def.getEntity().equalsIgnoreCase("member")) {
-						perunDestinationAttributeListBox.addItem(def.getFriendlyName()+" ("+def.getEntity()+" / "+def.getDefinition()+")", def.getName());
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				// clear
+				perunDestinationAttributeListBox.clear();
+				// set empty possibility
+				perunDestinationAttributeListBox.addItem("No item selected (empty value)", "");
+
+				ArrayList<AttributeDefinition> list = JsonUtils.jsoAsList(jso);
+				if (list != null && !list.isEmpty()) {
+					// sort
+					list = new TableSorter<AttributeDefinition>().sortByFriendlyName(list);
+					for (AttributeDefinition def : list) {
+						// add only member and user attributes
+						if (def.getEntity().equalsIgnoreCase("user") || def.getEntity().equalsIgnoreCase("member")) {
+							perunDestinationAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
+						}
+					}
+				} else {
+					// no attr def loaded, keep as it is set
+					if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
+						perunDestinationAttributeListBox.addItem(item.getPerunDestinationAttribute(), item.getPerunDestinationAttribute());
 					}
 				}
-			} else {
-				// no attr def loaded, keep as it is set
-				if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
-					perunDestinationAttributeListBox.addItem(item.getPerunDestinationAttribute(), item.getPerunDestinationAttribute());
+				// set selected
+				for (int i = 0; i < perunDestinationAttributeListBox.getItemCount(); i++) {
+					// set proper value as "selected"
+					if (perunDestinationAttributeListBox.getValue(i).equalsIgnoreCase(item.getPerunDestinationAttribute())) {
+						perunDestinationAttributeListBox.setSelectedIndex(i);
+						break;
+					}
 				}
 			}
-			// set selected
-			for (int i=0; i<perunDestinationAttributeListBox.getItemCount(); i++) {
-				// set proper value as "selected"
-				if (perunDestinationAttributeListBox.getValue(i).equalsIgnoreCase(item.getPerunDestinationAttribute())) {
-					perunDestinationAttributeListBox.setSelectedIndex(i);
-					break;
-				}
+
+			@Override
+			public void onLoadingStart() {
+				perunDestinationAttributeListBox.addItem("Loading...");
 			}
-		}
-		@Override
-		public void onLoadingStart() {
-			perunDestinationAttributeListBox.addItem("Loading...");
-		}
 		});
 
 		// layout
@@ -368,7 +384,7 @@ public class EditFormItemTabItem implements TabItem{
 
 		// fill values
 		shortNameTextBox.setText(item.getShortname());
-		for (int i=0; i<federationAttributes.getItemCount(); i++) {
+		for (int i = 0; i < federationAttributes.getItemCount(); i++) {
 			if (federationAttributes.getValue(i).equals(item.getFederationAttribute())) {
 				federationAttributes.setSelectedIndex(i);
 				break;
@@ -377,7 +393,7 @@ public class EditFormItemTabItem implements TabItem{
 		requiredCheckBox.setValue(item.isRequired());
 		regexTextBox.setText(item.getRegex());
 
-		for(Application.ApplicationType type : Application.ApplicationType.values()){
+		for (Application.ApplicationType type : Application.ApplicationType.values()) {
 			CheckBox cb = new CheckBox();
 			boolean checked = itemApplicationTypes.contains(type.toString());
 			cb.setValue(checked);
@@ -412,7 +428,7 @@ public class EditFormItemTabItem implements TabItem{
 		ftf.setStyleName(row, 1, "inputFormInlineComment");
 
 		// set colspan for tops
-		for (int i=0; i<ft.getRowCount(); i++) {
+		for (int i = 0; i < ft.getRowCount(); i++) {
 			ftf.setColSpan(i, 1, 2);
 		}
 
@@ -434,7 +450,7 @@ public class EditFormItemTabItem implements TabItem{
 			} else {
 				cb.setTitle("If checked, display form item on EXTENSION application");
 			}
-			ft.setWidget(row, i+1, cb);
+			ft.setWidget(row, i + 1, cb);
 			i++;
 		}
 
@@ -446,7 +462,7 @@ public class EditFormItemTabItem implements TabItem{
 		row++;
 
 		// IF BUTTON OR COMMENT, don't show these
-		if(!item.getType().equals("SUBMIT_BUTTON") && !item.getType().equals("HTML_COMMENT")) {
+		if (!item.getType().equals("SUBMIT_BUTTON") && !item.getType().equals("HTML_COMMENT") && !item.getType().equals("HEADING")) {
 
 			// load attr defs only when showed
 			attrDef.retrieveData();
@@ -485,7 +501,7 @@ public class EditFormItemTabItem implements TabItem{
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 
-			if (!item.getType().equals("VALIDATED_EMAIL")) {
+			if (!item.getType().equals("VALIDATED_EMAIL") && !item.getType().equals("TIMEZONE")) {
 
 				row++;
 				Label regexLabel = new Label("Regular expression:");
@@ -503,7 +519,7 @@ public class EditFormItemTabItem implements TabItem{
 		}
 
 		// set styles
-		for (int n=0; n<ft.getRowCount(); n++) {
+		for (int n = 0; n < ft.getRowCount(); n++) {
 			ftf.setStyleName(n, 0, "itemName");
 		}
 
@@ -521,7 +537,7 @@ public class EditFormItemTabItem implements TabItem{
 
 		this.tab = this;
 
-		this.titleWidget.setText("Edit form item: "+item.getShortname());
+		this.titleWidget.setText("Edit form item: " + item.getShortname());
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
@@ -542,8 +558,8 @@ public class EditFormItemTabItem implements TabItem{
 		tabPanel.add(basicInformationTab(), "Basic settings");
 
 		// for each locale add tab
-		for(String locale : languages){
-			tabPanel.add(itemTextTab(locale), "Lang: "+locale);
+		for (String locale : languages) {
+			tabPanel.add(itemTextTab(locale), "Lang: " + locale);
 		}
 
 		// add menu
@@ -591,7 +607,7 @@ public class EditFormItemTabItem implements TabItem{
 
 		// shortName is required item !!
 		if (shortNameTextBox.getText() == null || (shortNameTextBox.getText().isEmpty())) {
-			Window.alert("shortName is required parameter and can't be empty !");
+			UiElements.generateAlert("Empty shortName", "'shortName' is required parameter and can't be empty !");
 			return;
 		}
 
@@ -614,7 +630,7 @@ public class EditFormItemTabItem implements TabItem{
 		int i = 0;
 		for (Application.ApplicationType type : Application.ApplicationType.values()) {
 			CheckBox cb = applicationTypesCheckBoxes.get(i);
-			if(cb.getValue()){
+			if (cb.getValue()) {
 				newApplicationTypesJson.set(pointer, new JSONString(type.toString()));
 				pointer++;
 			}
@@ -629,15 +645,15 @@ public class EditFormItemTabItem implements TabItem{
 		Map<String, ItemTexts> itemTextsMap = new HashMap<String, ItemTexts>();
 
 		// help
-		for(Map.Entry<String, TextArea> entry : helpTextBoxes.entrySet()){
+		for (Map.Entry<String, TextArea> entry : helpTextBoxes.entrySet()) {
 			String locale = entry.getKey();
 
 			ItemTexts itemTexts;
 
 			// if already
-			if(itemTextsMap.containsKey(locale)){
+			if (itemTextsMap.containsKey(locale)) {
 				itemTexts = itemTextsMap.get(locale);
-			}else{
+			} else {
 				itemTexts = new JSONObject().getJavaScriptObject().cast();
 			}
 
@@ -649,15 +665,15 @@ public class EditFormItemTabItem implements TabItem{
 		}
 
 		// label
-		for(Map.Entry<String, TextArea> entry : labelTextBoxes.entrySet()){
+		for (Map.Entry<String, TextArea> entry : labelTextBoxes.entrySet()) {
 			String locale = entry.getKey();
 
 			ItemTexts itemTexts;
 
 			// if already
-			if(itemTextsMap.containsKey(locale)){
+			if (itemTextsMap.containsKey(locale)) {
 				itemTexts = itemTextsMap.get(locale);
-			}else{
+			} else {
 				itemTexts = new JSONObject().getJavaScriptObject().cast();
 			}
 
@@ -669,15 +685,15 @@ public class EditFormItemTabItem implements TabItem{
 		}
 
 		// error
-		for(Map.Entry<String, TextArea> entry : errorTextBoxes.entrySet()){
+		for (Map.Entry<String, TextArea> entry : errorTextBoxes.entrySet()) {
 			String locale = entry.getKey();
 
 			ItemTexts itemTexts;
 
 			// if already
-			if(itemTextsMap.containsKey(locale)){
+			if (itemTextsMap.containsKey(locale)) {
 				itemTexts = itemTextsMap.get(locale);
-			}else{
+			} else {
 				itemTexts = new JSONObject().getJavaScriptObject().cast();
 			}
 
@@ -689,18 +705,16 @@ public class EditFormItemTabItem implements TabItem{
 		}
 
 		// OPTIONS
-		for(Map.Entry<String, Map<TextBox, TextBox>> localeTextboxes : optionsBoxes.entrySet())
-		{
+		for (Map.Entry<String, Map<TextBox, TextBox>> localeTextboxes : optionsBoxes.entrySet()) {
 			String locale = localeTextboxes.getKey();
 			Map<String, String> keyValue = new HashMap<String, String>();
 
 			// iterate over textboxes
-			for(Map.Entry<TextBox, TextBox> textBoxes : localeTextboxes.getValue().entrySet())
-			{
+			for (Map.Entry<TextBox, TextBox> textBoxes : localeTextboxes.getValue().entrySet()) {
 				String key = textBoxes.getKey().getText();
 				String value = textBoxes.getValue().getText();
 
-				if(!key.equals("") && !value.equals("")){
+				if (!key.equals("") && !value.equals("")) {
 					keyValue.put(key.trim(), value.trim());
 				}
 			}
@@ -711,9 +725,9 @@ public class EditFormItemTabItem implements TabItem{
 			ItemTexts itemTexts;
 
 			// if already
-			if(itemTextsMap.containsKey(locale)){
+			if (itemTextsMap.containsKey(locale)) {
 				itemTexts = itemTextsMap.get(locale);
-			}else{
+			} else {
 				itemTexts = new JSONObject().getJavaScriptObject().cast();
 			}
 
@@ -725,7 +739,7 @@ public class EditFormItemTabItem implements TabItem{
 		}
 
 		// FOR EACH ITEM TEXT, save it
-		for(Map.Entry<String, ItemTexts> entry : itemTextsMap.entrySet()){
+		for (Map.Entry<String, ItemTexts> entry : itemTextsMap.entrySet()) {
 			String locale = entry.getKey();
 			ItemTexts itemTexts = entry.getValue();
 
@@ -758,9 +772,6 @@ public class EditFormItemTabItem implements TabItem{
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -777,8 +788,7 @@ public class EditFormItemTabItem implements TabItem{
 		return false;
 	}
 
-	public void open()
-	{
+	public void open() {
 	}
 
 	public boolean isAuthorized() {

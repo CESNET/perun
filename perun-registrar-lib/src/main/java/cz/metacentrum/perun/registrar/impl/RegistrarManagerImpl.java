@@ -8,6 +8,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASS
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALIDATED_EMAIL;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HEADING;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -636,7 +637,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			for (ApplicationFormItemData itemData : data) {
 
 				Type itemType = itemData.getFormItem().getType();
-				if (itemType == HTML_COMMENT || itemType == SUBMIT_BUTTON || itemType == PASSWORD) continue;
+				if (itemType == HTML_COMMENT || itemType == SUBMIT_BUTTON || itemType == PASSWORD || itemType == HEADING) continue;
 
 				// Check if mails needs to be validated
 				if (itemType == VALIDATED_EMAIL) {

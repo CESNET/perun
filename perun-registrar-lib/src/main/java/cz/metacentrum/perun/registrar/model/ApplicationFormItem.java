@@ -48,10 +48,10 @@ public class ApplicationFormItem {
 
 
 	public ApplicationFormItem(int id, String shortname, boolean required,
-			Type type, String federationAttribute,
-			String perunDestinationAttribute, String regex,
-			List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
-			Map<Locale, ItemTexts> i18n) {
+	                           Type type, String federationAttribute,
+	                           String perunDestinationAttribute, String regex,
+	                           List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
+	                           Map<Locale, ItemTexts> i18n) {
 		super();
 		this.id = id;
 		this.shortname = shortname;
@@ -107,60 +107,68 @@ public class ApplicationFormItem {
 		 * For inserting arbitrary HTML text into the form.
 		 */
 		HTML_COMMENT,
-			/**
-			 * For specifying a label for the submit button.
-			 */
-			SUBMIT_BUTTON,
-			/**
-			 * For read-only fields with values taken from identity federation.
-			 */
-			FROM_FEDERATION_SHOW,
-			/**
-			 * For hidden fields with values taken from identity federation.
-			 */
-			FROM_FEDERATION_HIDDEN,
-			/**
-			 * For password, which needs to be typed twice.
-			 */
-			PASSWORD,
-			/**
-			 * For an email address that must be validated by sending an email with a URL.
-			 */
-			VALIDATED_EMAIL,
-			/**
-			 * Standard HTML text field.
-			 */
-			TEXTFIELD,
-			/**
-			 * Standard HTML text area.
-			 */
-			TEXTAREA,
-			/**
-			 * Standard HTML checkbox, multiple values are allowed.
-			 */
-			CHECKBOX,
-			/**
-			 * Standard HTML radio button.
-			 */
-			RADIO,
-			/**
-			 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
-			 * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
-			 */
-			SELECTIONBOX,
-			/**
-			 * A widget that is a combination of a drop-down list and a single-line editable textbox,
-			 * allowing the user to either type a value directly into the control or choose from a list of existing options.
-			 * See <a href="http://en.wikipedia.org/wiki/Combobox">Combobox</a> for description.<p>
-			 * The options are defined in the same way as for SELECTIONBOX.
-			 *
-			 */
-			COMBOBOX,
-			/**
-			 * Special type for specifying username. It needs to be treated separately from ordinary TEXTFIELD,
-			 * because initial applications by users who are already members of a VO need to display read-only.
-			 */
-			USERNAME
+		/**
+		 * For specifying a label for the submit button.
+		 */
+		SUBMIT_BUTTON,
+		/**
+		 * For read-only fields with values taken from identity federation.
+		 */
+		FROM_FEDERATION_SHOW,
+		/**
+		 * For hidden fields with values taken from identity federation.
+		 */
+		FROM_FEDERATION_HIDDEN,
+		/**
+		 * For password, which needs to be typed twice.
+		 */
+		PASSWORD,
+		/**
+		 * For an email address that must be validated by sending an email with a URL.
+		 */
+		VALIDATED_EMAIL,
+		/**
+		 * Standard HTML text field.
+		 */
+		TEXTFIELD,
+		/**
+		 * Standard HTML text area.
+		 */
+		TEXTAREA,
+		/**
+		 * Standard HTML checkbox, multiple values are allowed.
+		 */
+		CHECKBOX,
+		/**
+		 * Standard HTML radio button.
+		 */
+		RADIO,
+		/**
+		 * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
+		 * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
+		 */
+		SELECTIONBOX,
+		/**
+		 * A widget that is a combination of a drop-down list and a single-line editable textbox,
+		 * allowing the user to either type a value directly into the control or choose from a list of existing options.
+		 * See <a href="http://en.wikipedia.org/wiki/Combobox">Combobox</a> for description.<p>
+		 * The options are defined in the same way as for SELECTIONBOX.
+		 *
+		 */
+		COMBOBOX,
+		/**
+		 * Special type for specifying username. It needs to be treated separately from ordinary TEXTFIELD,
+		 * because initial applications by users who are already members of a VO need to display read-only.
+		 */
+		USERNAME,
+		/**
+		 * Special item defining Heading of application form.
+		 */
+		HEADING,
+		/**
+		 * Special item with pre-defined Timezone selection. Value is autoselected in GUI using Google's API
+		 */
+		TIMEZONE
 	}
 
 	public static class ItemTexts {
@@ -233,12 +241,12 @@ public class ApplicationFormItem {
 		@Override
 		public String toString() {
 			return "ItemTexts{" +
-				"locale=" + locale +
-				", label='" + label + '\'' +
-				", options='" + options + '\'' +
-				", help='" + help + '\'' +
-				", errorMessage='" + errorMessage + '\'' +
-				'}';
+					"locale=" + locale +
+					", label='" + label + '\'' +
+					", options='" + options + '\'' +
+					", help='" + help + '\'' +
+					", errorMessage='" + errorMessage + '\'' +
+					'}';
 		}
 	}
 
@@ -331,15 +339,15 @@ public class ApplicationFormItem {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", shortname='" + getShortname() + '\'' +
-			", ordnum='" + getOrdnum() + '\'' +
-			", required='" + isRequired() + '\'' +
-			", type='" + getType().toString() + '\'' +
-			", federationAttribute='" + getFederationAttribute() + '\'' +
-			", regex='" + getRegex() + '\'' +
-			", i18n='" + getI18n().toString() + '\'' +
-			"]";
+				"id='" + getId() + '\'' +
+				", shortname='" + getShortname() + '\'' +
+				", ordnum='" + getOrdnum() + '\'' +
+				", required='" + isRequired() + '\'' +
+				", type='" + getType().toString() + '\'' +
+				", federationAttribute='" + getFederationAttribute() + '\'' +
+				", regex='" + getRegex() + '\'' +
+				", i18n='" + getI18n().toString() + '\'' +
+				"]";
 	}
 
 	@Override
