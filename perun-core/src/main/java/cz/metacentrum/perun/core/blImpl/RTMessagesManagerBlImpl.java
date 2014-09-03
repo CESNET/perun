@@ -2,23 +2,8 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.Authenticator;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
 
@@ -46,12 +31,10 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
-import cz.metacentrum.perun.core.impl.PerunAuthenticatorImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 
 /**
@@ -96,10 +79,51 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		//Get Email from User who get from session
 		String email = null;
 		User user = sess.getPerunPrincipal().getUser();
+		
+		//try to get user/member email from user in session
 		if(user != null) email = findUserPreferredEmail(sess, user);
 		else {
-			email = "unknown";
+			email = null;
 			log.error("Can't get user from session.");
+		}
+
+		//try to get email from additionalInformations in session (attribute mail)
+		if(email == null) {
+			Matcher emailMatcher;
+			Map<String,String> additionalInfo = sess.getPerunPrincipal().getAdditionalInformations();
+			//If there are some data in additionalInfo
+			if(additionalInfo != null) {
+				String mailInfo = additionalInfo.get("mail");
+				//If there is notnull attribute "mail" in map
+				if(mailInfo != null) {
+					//If attribute mail has separator ',' or ';'
+					if(mailInfo.contains(";")) {
+						String[] mailsFromInfo = mailInfo.split(";");
+						for(String mail: mailsFromInfo) {
+							emailMatcher = Utils.emailPattern.matcher(mail);
+							if(emailMatcher.matches()) {
+								email = mail;
+								break;
+							}
+						}
+					} else if(mailInfo.contains(",")) {
+						String[] mailsFromInfo = mailInfo.split(",");
+						for(String mail: mailsFromInfo) {
+							emailMatcher = Utils.emailPattern.matcher(mail);
+							if(emailMatcher.matches()) {
+								email = mail;
+								break;
+							}
+						}
+					} else {
+						//If there is no separator, test if this has format of email, if yes, save it to email
+						emailMatcher = Utils.emailPattern.matcher(mailInfo);
+						if(emailMatcher.matches()) {
+							email = mailInfo;
+						}
+					}
+				}
+			}
 		}
 
 		//Prepare sending message

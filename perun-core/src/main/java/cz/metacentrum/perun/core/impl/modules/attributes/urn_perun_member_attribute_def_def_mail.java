@@ -7,29 +7,22 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michal Šťava   <stava.michal@gmail.com>
  */
 public class urn_perun_member_attribute_def_def_mail extends MemberAttributesModuleAbstract implements MemberAttributesModuleImplApi {
 
-	private static Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+]+(\\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	private static final String A_U_preferredMail = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
@@ -40,7 +33,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Member mail can't be null.");
 		else attributeValue = (String) attribute.getValue();
 
-		Matcher emailMatcher = emailPattern.matcher(attributeValue);
+		Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
 		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, "Email is not in correct form.");
 	}
 
