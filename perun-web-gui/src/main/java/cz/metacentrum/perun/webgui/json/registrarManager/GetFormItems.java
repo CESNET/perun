@@ -313,12 +313,23 @@ public class GetFormItems implements JsonCallback {
 
 				public void onClick(ClickEvent event) {
 
-					if(index - 1 < 0) return;
+					if(index - 1 < 0) {
 
-					// move it
-					items.remove(index);
-					items.add(index - 1, item);
-					item.setOrdnum(item.getOrdnum()-1);
+						// move to the bottom
+						items.remove(index);
+						items.add(item);
+						for (int i=0; i<items.size(); i++) {
+							items.get(i).setOrdnum(i);
+						}
+
+					} else {
+
+						// move it up
+						items.remove(index);
+						items.add(index - 1, item);
+						item.setOrdnum(item.getOrdnum()-1);
+
+					}
 
 					item.setEdited(true);
 
@@ -334,12 +345,23 @@ public class GetFormItems implements JsonCallback {
 
 				public void onClick(ClickEvent event) {
 
-					if(index + 1 >= items.size()) return;
+					if(index + 1 >= items.size()) {
 
-					// move it
-					items.remove(index);
-					items.add(index + 1, item);
-					item.setOrdnum(item.getOrdnum()+1);
+						// move to the top
+						items.remove(index);
+						items.add(0, item);
+						for (int i=0; i<items.size(); i++) {
+							items.get(i).setOrdnum(i);
+						}
+
+					} else {
+
+						// move it down
+						items.remove(index);
+						items.add(index + 1, item);
+						item.setOrdnum(item.getOrdnum()+1);
+
+					}
 
 					item.setEdited(true);
 
