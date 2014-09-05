@@ -175,10 +175,9 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = vosManagerBl.getVoByShortName(sess, shortName);
 
 		// Authorization
-		//TODO Any groupAdmin can get anyVo
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
 			throw new PrivilegeException(sess, "getVoByShortName");
 				}
@@ -191,9 +190,8 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = vosManagerBl.getVoById(sess, id);
 
 		// Authorization
-		//TODO Any groupAdmin can get anyVo
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
