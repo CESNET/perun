@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -15,7 +17,9 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.membersManager.GetNewExtendMembership;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.json.registrarManager.HandleApplication;
+import cz.metacentrum.perun.webgui.json.registrarManager.ResendNotification;
 import cz.metacentrum.perun.webgui.model.Application;
+import cz.metacentrum.perun.webgui.model.ApplicationMail;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -23,6 +27,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -130,7 +135,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 				}
 			});
 			ex.retrieveData();
-				}
+		}
 
 		vp.add(ft);
 		vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\"/>"));
@@ -228,6 +233,123 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			});
 
 		}
+
+		// NOTIFICATION SENDER
+
+		final CustomButton send = new CustomButton("Re-send notifications...", SmallIcons.INSTANCE.emailIcon());
+		send.setEnabled(buttonsEnabled);
+		menu.addWidget(send);
+		send.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+
+				final FlexTable ft = new FlexTable();
+				ft.setStyleName("inputFormFlexTable");
+				ft.setWidth("400px");
+
+				final ListBox selection = new ListBox();
+				selection.setWidth("200px");
+
+				if (session.isPerunAdmin()) {
+
+					// add all except user invite
+					for (ApplicationMail.MailType mail : ApplicationMail.MailType.values()) {
+						if (!mail.equals(ApplicationMail.MailType.USER_INVITE)) {
+							selection.addItem(ApplicationMail.getTranslatedMailType(mail.toString()), mail.toString());
+						}
+					}
+
+				} else {
+
+					// add TYPEs based on actual APP-STATE
+					if (app.getState().equals("NEW")) {
+
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
+						selection.addItem(ApplicationMail.getTranslatedMailType("MAIL_VALIDATION"), "MAIL_VALIDATION");
+
+					} else if (app.getState().equals("VERIFIED")) {
+
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
+
+					} else if (app.getState().equals("APPROVED")) {
+
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_APPROVED_USER"), "APP_APPROVED_USER");
+
+					} else if (app.getState().equals("REJECTED")) {
+
+						selection.addItem(ApplicationMail.getTranslatedMailType("APP_REJECTED_USER"), "APP_REJECTED_USER");
+
+					}
+
+				}
+
+				ft.setHTML(0, 0, "Select notification:");
+				ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+				ft.setWidget(0, 1, selection);
+
+				final TextArea reason = new TextArea();
+				reason.setSize("250px", "100px");
+
+				selection.addChangeHandler(new ChangeHandler() {
+					@Override
+					public void onChange(ChangeEvent event) {
+
+						if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+							ft.setHTML(1, 0, "Reason:");
+							ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+							ft.setWidget(1, 1, reason);
+						} else {
+							ft.setHTML(1, 0, "");
+							ft.setHTML(1, 1, "");
+						}
+
+					}
+				});
+
+				// if pre-selected
+				if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+					ft.setHTML(1, 0, "Reason:");
+					ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+					ft.setWidget(1, 1, reason);
+				} else {
+					ft.setHTML(1, 0, "");
+					ft.setHTML(1, 1, "");
+				}
+
+				final Confirm c = new Confirm("Re-send notifications", ft, null, true);
+				c.setOkIcon(SmallIcons.INSTANCE.emailIcon());
+				c.setOkButtonText("Send");
+				c.setNonScrollable(true);
+				c.setOkClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+
+						ResendNotification call = new ResendNotification(appId, JsonCallbackEvents.disableButtonEvents(c.getOkButton(), new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								c.hide();
+							}
+						}));
+
+						if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+							call.resendNotification(selection.getValue(selection.getSelectedIndex()), reason.getValue().trim());
+						} else {
+							call.resendNotification(selection.getValue(selection.getSelectedIndex()), null);
+						}
+
+					}
+				});
+				c.setCancelClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						c.hide();
+					}
+				});
+				c.show();
+
+			}
+		});
 
 		menu.addWidget(new HTML("<strong>TYPE: </strong>"+app.getType()));
 		menu.addWidget(new HTML("<strong>STATE: </strong>"+app.getState()));
