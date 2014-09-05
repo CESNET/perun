@@ -23,7 +23,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 whether user is a VO admin.
+	 * Returns 1 if user is a VO admin.
 	 * @return int 1 = true, 0 = false
 	 */
 	isVoAdmin {
@@ -36,7 +36,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 whether user is a Group admin.
+	 * Returns 1 if user is a Group admin.
 	 * @return int 1 = true, 0 = false
 	 */
 	isGroupAdmin {
@@ -49,7 +49,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 whether user is a Facility admin.
+	 * Returns 1 if user is a Facility admin.
 	 * @return int 1 = true, 0 = false
 	 */
 	isFacilityAdmin {
@@ -62,7 +62,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 whether user is a Perun admin.
+	 * Returns 1 if user is a Perun admin.
 	 * @return int 1 = true, 0 = false
 	 */
 	isPerunAdmin {
@@ -99,6 +99,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns "OK" string.
 	 * Helper method for GUI to keep connection alive
+	 *
+	 * @return String "OK"
 	 */
 	keepAlive {
 		@Override

@@ -40,6 +40,11 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service
 	 * @return new service
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws OwnerNotExistsException
+	 * @throws ServiceExistsException
 	 */
 	Service createService(PerunSession perunSession, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException;
 
@@ -60,6 +65,10 @@ public interface ServicesManager {
 	 *
 	 * @param perunSession
 	 * @param service
+	 *
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws PrivilegeException
 	 */
 	void updateService(PerunSession perunSession, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
 
@@ -118,7 +127,10 @@ public interface ServicesManager {
 	 * @param sess
 	 * @param service
 	 * @return list of resources where the service is defined
+	 *
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ServiceNotExistsException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException;
 

@@ -14,7 +14,7 @@ public interface ExecServiceDenialDao {
 
 	/**
 	 * Ban execService on facility
-	 * It woun't be possible to execute the given execService on the
+	 * It wouldn't be possible to execute the given execService on the
 	 * whole facility nor on any of it's destinations.
 	 * @param execServiceId
 	 * 				The execService to be banned on the facility
@@ -26,7 +26,7 @@ public interface ExecServiceDenialDao {
 
 	/**
 	 * Ban execService on destination
-	 * It woun't be possible to execute the given execService on this destination,
+	 * It wouldn't be possible to execute the given execService on this destination,
 	 * however, it still can be executed on all the other destinations in the facility.
 	 * @param execServiceId
 	 * 			The execService to be banned on this particular destination
@@ -64,14 +64,15 @@ public interface ExecServiceDenialDao {
 	 * @return	true - in case the execService is denied on the facility
 	 * 			false - in case the execService in NOT denied on the facility
 	 */
+
 	public boolean isExecServiceDeniedOnFacility(int execServiceId, int facilityId);
 
 	/**
 	 * Is this execService denied on the destination?
 	 *
-	 * @param execService
+	 * @param execServiceId
 	 * 			The execService, the denial of which we want to examine
-	 * @param destination
+	 * @param destinationId
 	 * 			The destination on which we want to look up the denial of the execService
 	 * @return	true - in case the execService is denied on the destination
 	 * 			false - in case the execService in NOT denied on the destination
@@ -101,9 +102,9 @@ public interface ExecServiceDenialDao {
 	 * If the execService was banned on this facility, it will be freed. In case
 	 * the execService was not banned on this facility, nothing will happen.
 	 *
-	 * @param execService
+	 * @param execServiceId
 	 * 			The execService, the denial of which we want to free on this facility.
-	 * @param facility
+	 * @param facilityId
 	 * 			The facility on which we want to free the denial of the execService.
 	 */
 	public void freeDenialOfExecServiceOnFacility(int execServiceId, int facilityId);
@@ -113,9 +114,9 @@ public interface ExecServiceDenialDao {
 	 * If the execService was banned on this destination, it will be freed. In case
 	 * the execService was not banned on this destination, nothing will happen.
 	 *
-	 * @param execService
+	 * @param execServiceId
 	 * 			The execService, the denial of which we want to free on this destination.
-	 * @param destination
+	 * @param destinationId
 	 * 			The destination on which we want to free the denial of the execService.
 	 */
 	public void freeDenialOfExecServiceOnDestination(int execServiceId, int destinationId);

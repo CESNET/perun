@@ -8,9 +8,9 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum DatabaseManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Get current version DB like string (ex. 1.1.1)
+	 * Gets current version DB like string (ex. 1.1.1)
 	 *
-	 * @return current version DB like String
+	 * @return Object current version DB like String
 	 */
 	getCurrentDatabaseVersion {
 
@@ -22,9 +22,9 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 	},
 	
 	/*#
-	 * Get current database driver name and version
+	 * Gets current database driver name and version
 	 *
-	 * @return current database driver name and version
+	 * @return Object current database driver name and version
 	 */
 	getDatabaseDriverInformation {
 
@@ -36,9 +36,9 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 	},
 	
 	/*#
-	 * Get current database name and version
+	 * Gets current database name and version
 	 *
-	 * @return current database name and version
+	 * @return Object current database name and version
 	 */
 	getDatabaseInformation {
 

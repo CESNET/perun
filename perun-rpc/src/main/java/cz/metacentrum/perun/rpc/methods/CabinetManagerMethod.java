@@ -229,7 +229,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all autorships.
+		* Returns all authorships.
 		* @return List<Authorship> Authorships
 		*/
 	findAllAuthorships {
@@ -239,7 +239,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all autorships according to a filter. Between filled properties is
+		* Returns all authorships according to a filter. Between filled properties is
 		* used conjunction AND.
 		*
 		* @param authorship Authorship JSON object
@@ -263,7 +263,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all autors.
+		* Returns all authors.
 		* @return List<Author> Authors
 		*/
 	findAllAuthors {

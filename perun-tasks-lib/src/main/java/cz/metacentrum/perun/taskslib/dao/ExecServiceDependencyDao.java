@@ -83,9 +83,11 @@ public interface ExecServiceDependencyDao {
 	public List<ExecService> listExecServicesThisExecServiceDependsOn(int dependantServiceId);
 
 	/**
-	 * List execServices this execService depends on
-	 * @param dependantServiceId
-	 * @return
+	 * List execServices this execService depends on which are of specified execServiceType
+	 *
+	 * @param dependantExecServiceId id of execService which dependencies we want to look up
+	 * @param execServiceType type of execServices to list
+	 * @return list of exec services this execService depends on
 	 */
 	public List<ExecService> listExecServicesThisExecServiceDependsOn(int dependantExecServiceId, ExecServiceType execServiceType);
 

@@ -28,10 +28,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Searches the Facility by its name and type.
+	 * Searches the Facility by its name.
 	 *
 	 * @param name String Facility name
-	 * @param type String Facility type
 	 * @return Facility Found facility
 	 */
 	getFacilityByName {
@@ -43,24 +42,32 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * List all users assigned to facility
+	 * Lists all users assigned to facility containing resources where service is assigned.
 	 *
-	 * @return list<User> assigned users
+	 * @param service int Service ID
+	 * @param facility int Facility ID
+	 * @return List<User> assigned users
+	 */
+	/*#
+	 * Lists all users assigned to facility.
+	 *
+	 * @param facility int Facility ID
+	 * @return List<User> assigned users
 	 */
 	getAssignedUsers {
 
-		public List<User> call(ApiCaller ac, Deserializer params) throws PerunException {
-			if(params.contains("service"))
-				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(params.readInt("facility")),ac.getServiceById(params.readInt("service")));
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("service"))
+				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(parms.readInt("facility")),ac.getServiceById(parms.readInt("service")));
 			else
-				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(params.readInt("facility")));
+				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(parms.readInt("facility")));
 		}
 	},
 
 	/*#
-	 * List all facilities with addidtional information.
+	 * Gets all possible rich facilities with all their owners.
 	 *
-	 * @return List<Facility> All facilities
+	 * @return List<RichFacility> rich facilities
 	 */
 	getRichFacilities {
 
@@ -99,7 +106,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get count of all facilities.
+	 * Gets count of all facilities.
 	 * @return int Facilities count
 	 */
 	getFacilitiesCount {
@@ -306,7 +313,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * List of hosts of a Facility.
+	 * Lists hosts of a Facility.
 	 * @param facility int Facility ID
 	 * @return List<Host> Hosts
 	 */
@@ -359,7 +366,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds hosts to the Facility.
 	 *
-	 * @param hostnames List<String> Hostnames
+	 * @param hostnames List<String> Host names
 	 * @param facility int Facility ID
 	 * @return List<Host> Hosts with ID's set.
 	 */
@@ -523,8 +530,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 *  Removes a group administrator of the Facility.
 	 *
-	 *  @param faility int Facility ID
-	 *  @param group int Group ID
+	 *  @param facility int Facility ID
+	 *  @param authorizedGroup int Group ID
 	 */
 	removeAdmin {
 		@Override
@@ -547,7 +554,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get all Facility admins.
 	 *
 	 * @param facility int Facility ID
-	 * @return List<RichMember> RichMember objects
+	 * @return List<User> List of Users who are admins in the facility.
 	 */
 	getAdmins {
 
@@ -678,7 +685,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all facilities where exists host with the specific hostname
 	 *
-	 * @param hostname specific hostname
+	 * @param hostname String specific hostname
 	 * @return List<Facility> Found Facilities
 	 */
 	getFacilitiesByHostName {
@@ -693,10 +700,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all users which can use this facility
 	 *
-	 * @param facility Facility
+	 * @param facility int Facility ID
 	 * @param vo int VO ID, if provided, filter out users who aren't in specific VO
 	 * @param service int Service ID, if provided, filter out users who aren't allowed to use the service on the facility
-	 * @return List<Facility> list of allowed users
+	 * @return List<User> list of allowed users
 	 */
 	getAllowedUsers {
 		@Override
