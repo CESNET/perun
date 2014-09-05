@@ -1261,12 +1261,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// authz ex post
 		if (app.getGroup() == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())) {
+					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
 				throw new PrivilegeException(sess, "getApplicationById");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
+					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
 				throw new PrivilegeException(sess, "getApplicationById");
 			}
 		}
