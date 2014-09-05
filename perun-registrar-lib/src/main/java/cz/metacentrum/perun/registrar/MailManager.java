@@ -125,6 +125,23 @@ public interface MailManager {
 	public void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
 
 	/**
+	 * Re-send mail notification for specific application and MailType.
+	 * This method throw exceptions, if sending is not possible (template not defined,
+	 * sending disabled, notification is not related to current AppState,...).
+	 *
+	 * PerunAdmin can send all notifications not limited by AppState.
+	 *
+	 * Contextual data, like exceptions related to processing Application itself can't be sent
+	 * this way, since this method doesn't perform any action with Application. It only send emails.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param app application to send notification for
+	 * @param mailType MailType action which caused sending
+	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
+	 */
+	public void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
+
+	/**
 	 * Sends invitation with link to VO / Group application form.
 	 *
 	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
