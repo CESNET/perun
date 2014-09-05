@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -261,6 +262,10 @@ public class ApiCaller {
 
 	public Owner getOwnerById(int id) throws PerunException {
 		return getOwnersManager().getOwnerById(rpcSession, id);
+	}
+
+	public Application getApplicationById(int id) throws PerunException {
+		return getRegistrarManager().getApplicationById(rpcSession, id);
 	}
 
 	public AttributeDefinition getAttributeDefinitionById(int id) throws PerunException {

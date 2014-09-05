@@ -707,6 +707,73 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
+	public void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException {
+
+		// authz
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
+				throw new PrivilegeException(sess, "sendMessage");
+			}
+		} else {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+				throw new PrivilegeException(sess, "sendMessage");
+			}
+		}
+
+		if (MailType.USER_INVITE.equals(mailType)) {
+			throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
+		}
+
+		if (!AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+
+			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
+				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application once again to receive this message.");
+			}
+
+			if (MailType.APP_CREATED_USER.equals(mailType) || MailType.APP_CREATED_VO_ADMIN.equals(mailType)) {
+
+				if (app.getState().equals(Application.AppState.NEW) || app.getState().equals(Application.AppState.VERIFIED)) {
+					sendMessage(app, mailType, null, null);
+				} else {
+					throw new RegistrarException("Application must be in state NEW or VERIFIED to allow sending of APP_CREATED_[VO_ADMIN/USER] notification.");
+				}
+
+			} else if (MailType.MAIL_VALIDATION.equals(mailType)) {
+
+				if (app.getState().equals(Application.AppState.NEW)) {
+					sendMessage(app, mailType, null, null);
+				} else {
+					throw new RegistrarException("Application must be in state NEW to allow sending of MAIL_VALIDATION notification.");
+				}
+
+			} else if (MailType.APP_APPROVED_USER.equals(mailType)) {
+
+				if (Application.AppState.APPROVED.equals(app.getState())) {
+					sendMessage(app, mailType, null, null);
+				} else {
+					throw new RegistrarException("Application must be in state APPROVED to allow sending of APP_APPROVED_USER notification.");
+				}
+
+			} else if (MailType.APP_REJECTED_USER.equals(mailType)) {
+
+				if (Application.AppState.REJECTED.equals(app.getState())) {
+					sendMessage(app, mailType, reason, null);
+				} else {
+					throw new RegistrarException("Application must be in state REJECTED to allow sending of APP_REJECTED_USER notification.");
+				}
+
+			}
+
+		} else {
+
+			// perun admin can always sent any message with exception of USER_INVITE
+			sendMessage(app, mailType, reason, null);
+
+		}
+
+	}
+
+	@Override
 	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException {
 
 		if (group == null) {
@@ -714,7 +781,7 @@ public class MailManagerImpl implements MailManager {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		}

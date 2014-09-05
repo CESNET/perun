@@ -128,6 +128,51 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
+	/*#
+	 * Re-send mail notification for existing application. Message of specified type is sent only,
+	 * when application is in expected state related to the notification.
+	 *
+	 * Note, that some data related to processing application are not available (e.g. list of exceptions
+	 * during approval), since this method doesn't perform any action with Application itself.
+	 *
+	 * Perun admin can send any notification except USER_INVITE type.
+	 * @see #sendInvitation() for this.
+	 *
+	 * @param mailType MailType type of mail notification
+	 * @param appId int ID of application to send notification for
+	 * @param reason String you can specify reason for case: mailType == APP_REJECTED_USER
+	 *
+	 * @throw RegistrarException if notification can't be sent
+	 */
+	sendMessage{
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
+
+				ac.getRegistrarManager().getMailManager().sendMessage(ac.getSession(),
+						ac.getApplicationById(parms.readInt("appId")),
+						ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+						parms.readString("reason"));
+
+			} else {
+
+				ac.getRegistrarManager().getMailManager().sendMessage(ac.getSession(),
+						ac.getApplicationById(parms.readInt("appId")),
+						ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+						null);
+
+			}
+
+			return null;
+
+		}
+
+	},
+
 	/*#
 	 * Create application form for a VO.
 	 *

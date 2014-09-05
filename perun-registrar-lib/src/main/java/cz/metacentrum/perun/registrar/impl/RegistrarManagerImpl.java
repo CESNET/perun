@@ -616,6 +616,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			int appId = Utils.getNewId(jdbc, "APPLICATION_ID_SEQ");
 			application.setId(appId);
 
+			application.setState(AppState.NEW);
+
 			// optional group
 			Integer groupId = null;
 			Integer userId = null;
@@ -630,7 +632,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					appId, application.getVo().getId(), groupId, userId,
 					application.getType().toString(), application.getFedInfo(),
 					application.getExtSourceName(), application.getExtSourceType(),
-					application.getExtSourceLoa(), AppState.NEW.toString(),
+					application.getExtSourceLoa(), application.getState().toString(),
 					application.getCreatedBy(),application.getCreatedBy());
 
 			// 2) process & store app data
