@@ -47,7 +47,7 @@ public interface Searcher {
 	 * if attributesWithSearchingValues is null or empty, return all members from vo if principal has rights for this operation
 	 *
 	 * @param sess perun session
-	 * @param attributesWithSearchingValues map of attributes names
+	 * @param userAttributesWithSearchingValues map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
 	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element

@@ -117,6 +117,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 		* Add serviceUser owner (the user).
+		*
 		* @param user int User ID
 		* @param serviceUser int Service user ID
 		*/
@@ -152,6 +153,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* Get User to RichUser without attributes.
+		*
+		* @param user int user ID
+		* @return RichUser found rich user
+		*/
 	getRichUser {
 
 		@Override
@@ -161,6 +168,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* Get User to RichUser with attributes.
+		*
+		* @param user int user ID
+		* @return RichUser found rich user with attributes
+		*/
 	getRichUserWithAttributes {
 
 		@Override
@@ -170,6 +183,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* Get All richUsers with or without serviceUsers.
+		*
+		* @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		* @return List<RichUser> all rich users without attributes
+		*/
 	getAllRichUsers {
 
 		@Override
@@ -179,6 +198,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* Get All richUsers with or without serviceUsers.
+		*
+		* @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		* @return List<RichUser> all rich users with attributes
+		*/
 	getAllRichUsersWithAttributes {
 
 		@Override
@@ -188,6 +213,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* From Users makes RichUsers without attributes.
+		*
+		* @param users List<RichUser> users to convert
+		* @return List<RichUser> list of rich users
+		*/
 	getRichUsersFromListOfUsers {
 
 		@Override
@@ -199,6 +230,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* From Users makes RichUsers with attributes.
+		*
+		* @param users List<RichUser> users to convert
+		* @return List<RichUser> list of richUsers
+		*/
 	getRichUsersFromListOfUsersWithAttributes {
 
 		@Override
@@ -210,6 +247,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		* Returns all RichUsers with attributes who are not member of any VO.
+		*
+		* @return List<RichUser> list of richUsers who are not member of any VO
+		*/
 	getRichUsersWithoutVoAssigned {
 
 		@Override
@@ -218,6 +260,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		 * Get All richUsers with or without serviceUsers with selected attributes.
+		 *
+		 * @param attrsNames List<String> list of attributes name
+		 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		 * @return List<RichUser> list of RichUsers
+		 */
+	/*#
+		 * Get All richUsers with or without serviceUsers with all included attributes.
+		 *
+		 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		 * @return List<RichUser> list of RichUsers
+		 */
 	getRichUsersWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -233,6 +288,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		 * Returns list of RichUsers with attributes who matches the searchString
+		 *
+		 * @param searchString String searched string
+		 * @param attrNames List<String> list of attributes name
+		 * @return List<RichUser> list of RichUsers
+		 */
 	findRichUsersWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -249,6 +311,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		 * Returns list of RichUsers which are not members of any VO and with selected attributes
+		 *
+		 * @param attrNames List<String> list of attributes name
+		 * @return List<RichUser> list of RichUsers
+		 */
 	getRichUsersWithoutVoWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -262,6 +330,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		 * Return list of RichUsers who matches the searchString and are not member in specific VO and with selected attributes.
+		 *
+		 * @param vo VO virtual organization
+		 * @param searchString String searched string
+		 * @param attrsName List<String> list of attributes name
+		 * @return List<RichUser> list of RichUsers
+	 */
 	findRichUsersWithoutSpecificVoWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -476,6 +552,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+		 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+		 *
+		 * @param searchString String searched string
+		 * @return List<RichUser> list of RichUsers
+	 */
 	findRichUsers {
 
 		@Override
@@ -487,7 +569,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 		* Return list of users who matches the searchString, searching name, email and logins
-		* and are not member in specific VO.
+		* and are not member of specific VO.
 		*
 		* @param vo int VO ID
 		* @param searchString String String to search by
@@ -505,6 +587,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 		* Returns list of users who matches the searchString.
+		*
 		* @param searchString String String to search by
 		* @return List<User> Found users
 		*/
@@ -771,7 +854,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* @param i String first encrypted parameter
 		* @param m String second encrypted parameter
 		* @param password String new password
-		* @param checkOldPassword int checkOldPassword must be 1
 		*/
 	changeNonAuthzPassword {
 		@Override
@@ -873,7 +955,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* @param login String Login
 		* @param namespace String Namespace
 		* @param user int User ID
-		* @param password String password
 		*/
 	validatePasswordAndSetExtSources {
 		@Override
@@ -890,7 +971,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* Set new login in namespace if login is available and user doesn't have login in that namespace.
 		* !! Works only for service users !!
 		*
-		* @param user Integer User id
+		* @param user Integer User ID
 		* @param login String Login
 		* @param namespace String Namespace
 		*/
@@ -913,7 +994,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* by calling validatePreferredEmailChange() method with
 		* proper set of parameters (sent in validation mail).
 		*
-		* @param user Integer User id
+		* @param user Integer User ID
 		* @param email String new email address to set
 		*/
 	requestPreferredEmailChange {
@@ -937,8 +1018,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 		* on encrypted parameters sent in email notice
 		* by requestPreferredEmailChange() method.
 		*
-		* @param i encrypted request parameter
-		* @param m encrypted request parameter
+		* @param i String encrypted request parameter
+		* @param m String encrypted request parameter
 		*
 		* @return String new validated email address
 		*/

@@ -51,6 +51,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 	 * Sends invitation email to user which is not member of VO
 	 *
@@ -128,6 +129,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 	 * Create application form for a VO.
 	 *
@@ -157,6 +159,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
+
 	/*#
 		* Gets an application form for a given VO.
 		* There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
@@ -187,6 +190,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 		* Gets all items in VO application form.
 		*
@@ -243,6 +247,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 		* Updates form items sent in list.
 		*
@@ -277,6 +282,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 		* Updates the form attributes, not the form items.
 		* - update automatic approval style
@@ -300,6 +306,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
 	/*#
 		* Gets the content for an application form for a given type of application and user.
 		* The values are prefilled from database for extension applications, and always from federation values
@@ -339,6 +346,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 		* Gets all applications for a given VO.
 		*
@@ -365,6 +373,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Gets all applications for a given Group.
 		*
@@ -391,6 +400,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Gets all applications for the current user.
 		*
@@ -419,14 +429,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	/*#
 		* Gets all applications for member
 		*
-		* @param member ID of member to get applications for
+		* @param member int ID of member to get applications for
 		* @return List<Application> Found applications
 		*/
 	/*#
 		* Gets all applications for member
 		*
-		* @param member ID of member to get applications for
-		* @param group ID of group to filter applications for
+		* @param member int ID of member to get applications for
+		* @param group int ID of group to filter applications for
 		* @return List<Application> Found applications
 		*/
 	getApplicationsForMember {
@@ -456,6 +466,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			return ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
 		}
 	},
+
 	/*#
 		* Returns data submitted by user in given application (by id).
 		*
@@ -472,6 +483,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Creates a new application.
 		* The method triggers approval for VOs with auto-approved applications.
@@ -494,6 +506,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Deletes an application.
 		*
@@ -512,6 +525,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Manually approves an application.
 		* Expected to be called as a result of direct VO administrator action in the web UI.
@@ -608,7 +622,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
-
 	/*#
 		* Adds a new item to a form.
 		*
@@ -644,6 +657,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Removes a form item permanently.
 		* The user data associated with it remains in the database, it just loses the foreign key
@@ -685,7 +699,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
-
 
 	/*#
 	* Copy all form items from selected VO into another.
@@ -834,6 +847,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Returns all mail notifications related to specific app form.
 		*
@@ -864,6 +878,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Add new mail notification.
 		*
@@ -899,10 +914,18 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Deletes an e-mail notification from DB based on ID property.
 		*
 		* @param vo int VO ID
+		* @param id int ApplicationMail ID
+		* @return Object Always null
+		*/
+	/*#
+		* Deletes an e-mail notification from DB based on ID property.
+		*
+		* @param group int Group ID
 		* @param id int ApplicationMail ID
 		* @return Object Always null
 		*/
@@ -928,6 +951,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Updates an e-mail notification.
 		*
@@ -944,6 +968,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Return mail definition including texts by ID.
 		*
@@ -958,6 +983,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 		* Enable or disable sending for list of mail definitions.
 		*
@@ -980,6 +1006,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+		Verify Captcha answer.
+
+		@param challenge String Captcha challenge
+		@param response String User response
+		@return bool True if it is valid, False if failed
+	 */
 	verifyCaptcha {
 
 		@Override
@@ -1006,6 +1039,34 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+	 * Check if new application may belong to another user in Perun
+	 * (but same person in real life).
+	 *
+	 * Return list of similar users (by identity, name or email).
+	 *
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param appId int ID of application to check for
+	 * @return List<RichUser> List of found similar RichUsers
+	 */
+	/*#
+	 * Check if new application may belong to another user in Perun
+	 * (but same person in real life).
+	 *
+	 * IMPORTANT: This check is performed only on latest application of specified vo/group and type which belongs
+	 * to logged in user/identity.
+	 *
+	 * Return list of similar users (by identity, name or email).
+	 *
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param voId int Vo to get application for
+	 * @param groupId int Group to get application for
+	 * @param type String Application type
+	 *
+	 * @return List<RichUser> List of found similar RichUsers
+	 */
 	checkForSimilarUsers {
 
 		@Override
