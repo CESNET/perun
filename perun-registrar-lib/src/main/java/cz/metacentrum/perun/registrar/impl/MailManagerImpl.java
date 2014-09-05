@@ -724,6 +724,17 @@ public class MailManagerImpl implements MailManager {
 			throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
 		}
 
+		ApplicationForm form;
+		if (app.getGroup() == null) {
+			form = registrarManager.getFormForVo(app.getVo());
+		} else {
+			form = registrarManager.getFormForGroup(app.getGroup());
+		}
+
+		ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
+		if (mail == null) throw new RegistrarException("Notification template for "+mailType+" is not defined.");
+		if (!mail.getSend()) throw new RegistrarException("Sending of notification "+mailType+" is disabled.");
+
 		if (!AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
 
 			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
@@ -735,7 +746,7 @@ public class MailManagerImpl implements MailManager {
 				if (app.getState().equals(Application.AppState.NEW) || app.getState().equals(Application.AppState.VERIFIED)) {
 					sendMessage(app, mailType, null, null);
 				} else {
-					throw new RegistrarException("Application must be in state NEW or VERIFIED to allow sending of APP_CREATED_[VO_ADMIN/USER] notification.");
+					throw new RegistrarException("Application must be in state NEW or VERIFIED to allow sending of "+mailType+" notification.");
 				}
 
 			} else if (MailType.MAIL_VALIDATION.equals(mailType)) {
@@ -743,7 +754,7 @@ public class MailManagerImpl implements MailManager {
 				if (app.getState().equals(Application.AppState.NEW)) {
 					sendMessage(app, mailType, null, null);
 				} else {
-					throw new RegistrarException("Application must be in state NEW to allow sending of MAIL_VALIDATION notification.");
+					throw new RegistrarException("Application must be in state NEW to allow sending of "+mailType+" notification.");
 				}
 
 			} else if (MailType.APP_APPROVED_USER.equals(mailType)) {
@@ -751,7 +762,7 @@ public class MailManagerImpl implements MailManager {
 				if (Application.AppState.APPROVED.equals(app.getState())) {
 					sendMessage(app, mailType, null, null);
 				} else {
-					throw new RegistrarException("Application must be in state APPROVED to allow sending of APP_APPROVED_USER notification.");
+					throw new RegistrarException("Application must be in state APPROVED to allow sending of "+mailType+" notification.");
 				}
 
 			} else if (MailType.APP_REJECTED_USER.equals(mailType)) {
@@ -759,7 +770,7 @@ public class MailManagerImpl implements MailManager {
 				if (Application.AppState.REJECTED.equals(app.getState())) {
 					sendMessage(app, mailType, reason, null);
 				} else {
-					throw new RegistrarException("Application must be in state REJECTED to allow sending of APP_REJECTED_USER notification.");
+					throw new RegistrarException("Application must be in state REJECTED to allow sending of "+mailType+" notification.");
 				}
 
 			}
