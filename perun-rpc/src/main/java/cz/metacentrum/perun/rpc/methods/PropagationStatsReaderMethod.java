@@ -81,7 +81,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-		NOT IMPLEMENTED YET
+	 *	NOT IMPLEMENTED YET
 	 */
 	listAllTasksInState {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -90,7 +90,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-		NOT IMPLEMENTED YET
+	 *	NOT IMPLEMENTED YET
 	 */
 	listTasksScheduledBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -99,7 +99,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-		NOT IMPLEMENTED YET
+	 *	NOT IMPLEMENTED YET
 	 */
 	listTasksStartedBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -108,7 +108,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-		NOT IMPLEMENTED YET
+	 *	NOT IMPLEMENTED YET
 	 */
 	listTasksEndedBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {

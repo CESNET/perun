@@ -29,12 +29,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns user by his login in external source and external source.
-		*
-		* @param extSourceName String Ext source name
-		* @param extLogin String Ext source login
-		* @return User User object
-		*/
+	 * Returns user by his login in external source and external source.
+	 *
+	 * @param extSourceName String Ext source name
+	 * @param extLogin String Ext source login
+	 * @return User User object
+	 */
 	getUserByExtSourceNameAndExtLogin {
 
 		@Override
@@ -46,11 +46,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns user by its ID.
-		*
-		* @param id int User ID
-		* @return User User object
-		*/
+	 * Returns user by its ID.
+	 *
+	 * @param id int User ID
+	 * @return User User object
+	 */
 	getUserById {
 
 		@Override
@@ -60,10 +60,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all users in Perun.
-		*
-		* @return List<User> All Perun users
-		*/
+	 * Returns all users in Perun.
+	 *
+	 * @return List<User> All Perun users
+	 */
 	getUsers {
 
 		@Override
@@ -73,10 +73,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all service users in Perun.
-		*
-		* @return List<User> All Perun service users
-		*/
+	 * Returns all service users in Perun.
+	 *
+	 * @return List<User> All Perun service users
+	 */
 	getServiceUsers {
 
 		@Override
@@ -86,11 +86,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Return all serviceUsers who are owned by the user.
-		*
-		* @param user int User ID
-		* @return List<User> Service users for a user
-		*/
+	 * Return all serviceUsers who are owned by the user.
+	 *
+	 * @param user int User ID
+	 * @return List<User> Service users for a user
+	 */
 	getServiceUsersByUser {
 
 		@Override
@@ -101,11 +101,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Return all users who owns the serviceUser.
-		*
-		* @param serviceUser int Service User ID
-		* @return List<User> Users for a service user
-		*/
+	 * Return all users who owns the serviceUser.
+	 *
+	 * @param serviceUser int Service User ID
+	 * @return List<User> Users for a service user
+	 */
 	getUsersByServiceUser {
 
 		@Override
@@ -116,11 +116,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Add serviceUser owner (the user).
-		*
-		* @param user int User ID
-		* @param serviceUser int Service user ID
-		*/
+	 * Add serviceUser owner (the user).
+	 *
+	 * @param user int User ID
+	 * @param serviceUser int Service user ID
+	 */
 	addServiceUserOwner {
 
 		@Override
@@ -135,11 +135,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Remove serviceUser owner (the user).
-		*
-		* @param user int User ID
-		* @param serviceUser int Service user ID
-		*/
+	 * Remove serviceUser owner (the user).
+	 *
+	 * @param user int User ID
+	 * @param serviceUser int Service user ID
+	 */
 	removeServiceUserOwner {
 
 		@Override
@@ -154,11 +154,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get User to RichUser without attributes.
-		*
-		* @param user int user ID
-		* @return RichUser found rich user
-		*/
+	 * Get User to RichUser without attributes.
+	 *
+	 * @param user int user ID
+	 * @return RichUser found rich user
+	 */
 	getRichUser {
 
 		@Override
@@ -169,11 +169,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get User to RichUser with attributes.
-		*
-		* @param user int user ID
-		* @return RichUser found rich user with attributes
-		*/
+	 * Get User to RichUser with attributes.
+	 *
+	 * @param user int user ID
+	 * @return RichUser found rich user with attributes
+	 */
 	getRichUserWithAttributes {
 
 		@Override
@@ -184,11 +184,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get All richUsers with or without serviceUsers.
-		*
-		* @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
-		* @return List<RichUser> all rich users without attributes
-		*/
+	 * Get All richUsers with or without serviceUsers.
+	 *
+	 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+	 * @return List<RichUser> all rich users without attributes
+	 */
 	getAllRichUsers {
 
 		@Override
@@ -199,11 +199,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get All richUsers with or without serviceUsers.
-		*
-		* @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
-		* @return List<RichUser> all rich users with attributes
-		*/
+	 * Get All richUsers with or without serviceUsers.
+	 *
+	 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+	 * @return List<RichUser> all rich users with attributes
+	 */
 	getAllRichUsersWithAttributes {
 
 		@Override
@@ -214,11 +214,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* From Users makes RichUsers without attributes.
-		*
-		* @param users List<RichUser> users to convert
-		* @return List<RichUser> list of rich users
-		*/
+	 * From Users makes RichUsers without attributes.
+	 *
+	 * @param users List<RichUser> users to convert
+	 * @return List<RichUser> list of rich users
+	 */
 	getRichUsersFromListOfUsers {
 
 		@Override
@@ -231,11 +231,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* From Users makes RichUsers with attributes.
-		*
-		* @param users List<RichUser> users to convert
-		* @return List<RichUser> list of richUsers
-		*/
+	 * From Users makes RichUsers with attributes.
+	 *
+	 * @param users List<RichUser> users to convert
+	 * @return List<RichUser> list of richUsers
+	 */
 	getRichUsersFromListOfUsersWithAttributes {
 
 		@Override
@@ -248,10 +248,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all RichUsers with attributes who are not member of any VO.
-		*
-		* @return List<RichUser> list of richUsers who are not member of any VO
-		*/
+	 * Returns all RichUsers with attributes who are not member of any VO.
+	 *
+	 * @return List<RichUser> list of richUsers who are not member of any VO
+	 */
 	getRichUsersWithoutVoAssigned {
 
 		@Override
@@ -356,17 +356,17 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Deletes a user.
-		*
-		* @param user int User ID
-		*/
+	 * Deletes a user.
+	 *
+	 * @param user int User ID
+	 */
 	/*#
-		* Deletes a user (force).
-		* Also removes associeted members.
-		*
-		* @param user int User ID
-		* @param force int Parameter force must == 1
-		*/
+	 * Deletes a user (force).
+	 * Also removes associeted members.
+	 *
+	 * @param user int User ID
+	 * @param force int Parameter force must == 1
+	 */
 	deleteUser {
 
 		@Override
@@ -385,11 +385,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Updates users data in DB.
-		*
-		* @param user User JSON object
-		* @return User Updated user
-		*/
+	 * Updates users data in DB.
+	 *
+	 * @param user User JSON object
+	 * @return User Updated user
+	 */
 	updateUser {
 
 		@Override
@@ -402,15 +402,15 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Updates titles before/after users name
-		*
-		* Titles must be set in User object.
-		* Setting any title to null will remove title from name.
-		* Other user's properties are ignored.
-		*
-		* @param user User JSON object with titles to set
-		* @return User Updated user
-		*/
+	 * Updates titles before/after users name
+	 *
+	 * Titles must be set in User object.
+	 * Setting any title to null will remove title from name.
+	 * Other user's properties are ignored.
+	 *
+	 * @param user User JSON object with titles to set
+	 * @return User Updated user
+	 */
 	updateNameTitles {
 
 		@Override
@@ -423,11 +423,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Updates user's userExtSource in DB.
-		*
-		* @param userExtSource UserExtSource JSON object
-		* @return UserExtSource Updated userExtSource
-		*/
+	 * Updates user's userExtSource in DB.
+	 *
+	 * @param userExtSource UserExtSource JSON object
+	 * @return UserExtSource Updated userExtSource
+	 */
 	updateUserExtSource {
 
 		@Override
@@ -440,11 +440,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Gets list of all user's external sources of the user.
-		*
-		* @param user int User ID
-		* @return List<UserExtSource> list of user's external sources
-		*/
+	 * Gets list of all user's external sources of the user.
+	 *
+	 * @param user int User ID
+	 * @return List<UserExtSource> list of user's external sources
+	 */
 	getUserExtSources {
 
 		@Override
@@ -455,11 +455,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Adds user's external sources.
-		* @param user int User ID
-		* @param userExtSource UserExtSource JSON object
-		* @return UserExtSource Newly added UserExtSource
-		*/
+	 * Adds user's external sources.
+	 * @param user int User ID
+	 * @param userExtSource UserExtSource JSON object
+	 * @return UserExtSource Newly added UserExtSource
+	 */
 	addUserExtSource {
 
 		@Override
@@ -473,10 +473,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Remove user's external sources.
-		* @param user int User ID
-		* @param userExtSource int UserExtSource ID
-		*/
+	 * Remove user's external sources.
+	 * @param user int User ID
+	 * @param userExtSource int UserExtSource ID
+	 */
 	removeUserExtSource {
 
 		@Override
@@ -491,11 +491,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get the user ext source by its id.
-		*
-		* @param userExtSource int UserExtSource ID
-		* @return UserExtSource User external source for the id
-		*/
+	 * Get the user ext source by its id.
+	 *
+	 * @param userExtSource int UserExtSource ID
+	 * @return UserExtSource User external source for the id
+	 */
 	getUserExtSourceById {
 
 		@Override
@@ -506,12 +506,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Gets user's external source by the user's external login and external source.
-		*
-		* @param extSource ExtSource JSON object
-		* @param extSourceLogin String Login
-		* @return UserExtSource UserExtSource found user's external source
-		*/
+	 * Gets user's external source by the user's external login and external source.
+	 *
+	 * @param extSource ExtSource JSON object
+	 * @param extSourceLogin String Login
+	 * @return UserExtSource UserExtSource found user's external source
+	 */
 	getUserExtSourceByExtLogin {
 
 		@Override
@@ -523,11 +523,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns user by VO member.
-		*
-		* @param member int Member ID
-		* @return User User object
-		*/
+	 * Returns user by VO member.
+	 *
+	 * @param member int Member ID
+	 * @return User User object
+	 */
 	getUserByMember {
 
 		@Override
@@ -538,11 +538,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns list of users who matches the searchString, searching name, email, logins.
-		*
-		* @param searchString String String to search by
-		* @return List<User> Found users
-		*/
+	 * Returns list of users who matches the searchString, searching name, email, logins.
+	 *
+	 * @param searchString String String to search by
+	 * @return List<User> Found users
+	 */
 	findUsers {
 
 		@Override
@@ -568,13 +568,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Return list of users who matches the searchString, searching name, email and logins
-		* and are not member of specific VO.
-		*
-		* @param vo int VO ID
-		* @param searchString String String to search by
-		* @return List<User> Found users
-		*/
+	 * Return list of users who matches the searchString, searching name, email and logins
+	 * and are not member of specific VO.
+	 *
+	 * @param vo int VO ID
+	 * @param searchString String String to search by
+	 * @return List<User> Found users
+	 */
 	getUsersWithoutSpecificVo {
 
 		@Override
@@ -586,22 +586,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns list of users who matches the searchString.
-		*
-		* @param searchString String String to search by
-		* @return List<User> Found users
-		*/
+	 * Returns list of users who matches the searchString.
+	 *
+	 * @param searchString String String to search by
+	 * @return List<User> Found users
+	 */
 	/*#
-		* Returns list of users who matches the parameters.
-		* All parameters must be present, even if empty.
-		*
-		* @param titleBefore String Title before name
-		* @param firstName String First name
-		* @param middleName String Middle name
-		* @param lastName String Last name
-		* @param titleAfter String Title after
-		* @return List<User> Found users
-		*/
+	 * Returns list of users who matches the parameters.
+	 * All parameters must be present, even if empty.
+	 *
+	 * @param titleBefore String Title before name
+	 * @param firstName String First name
+	 * @param middleName String Middle name
+	 * @param lastName String Last name
+	 * @param titleAfter String Title after
+	 * @return List<User> Found users
+	 */
 	findUsersByName {
 
 		@Override
@@ -622,11 +622,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all users who have set the attribute with the value. Searching only def and opt attributes.
-		*
-		* @param attribute Attribute JSON object
-		* @return List<User> Found users
-		*/
+	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
+	 *
+	 * @param attribute Attribute JSON object
+	 * @return List<User> Found users
+	 */
 	getUsersByAttribute {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -662,11 +662,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all users who have attribute which have value which contains searchString.
-		*
-		* @param attribute Attribute JSON object
-		* @return List<User> Found users
-		*/
+	 * Returns all users who have attribute which have value which contains searchString.
+	 *
+	 * @param attribute Attribute JSON object
+	 * @return List<User> Found users
+	 */
 	getUsersByAttributeValue {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -683,11 +683,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns list of VOs, where the user is an Administrator.
-		*
-		* @param user int User ID
-		* @return List<VirtualOrganization> Found VOs
-		*/
+	 * Returns list of VOs, where the user is an Administrator.
+	 *
+	 * @param user int User ID
+	 * @return List<VirtualOrganization> Found VOs
+	 */
 	getVosWhereUserIsAdmin {
 
 		@Override
@@ -698,11 +698,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns list of VOs, where the user is a Member.
-		*
-		* @param user int User ID
-		* @return List<VirtualOrganization> Found VOs
-		*/
+	 * Returns list of VOs, where the user is a Member.
+	 *
+	 * @param user int User ID
+	 * @return List<VirtualOrganization> Found VOs
+	 */
 	getVosWhereUserIsMember {
 
 		@Override
@@ -713,11 +713,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns list of Groups, where the user is an Administrator.
-		*
-		* @param user int User ID
-		* @return List<Group> Found Groups
-		*/
+	 * Returns list of Groups, where the user is an Administrator.
+	 *
+	 * @param user int User ID
+	 * @return List<Group> Found Groups
+	 */
 	getGroupsWhereUserIsAdmin {
 
 		@Override
@@ -728,18 +728,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get all resources from the facility which have the user access on.
-		*
-		* @param user int User ID
-		* @param facility int Facility ID
-		* @return List<Resource> Allowed resources
-		*/
+	 * Get all resources from the facility which have the user access on.
+	 *
+	 * @param user int User ID
+	 * @param facility int Facility ID
+	 * @return List<Resource> Allowed resources
+	 */
 	/*#
-		* Get all resources which have the user access on.
-		*
-		* @param user int User ID
-		* @return List<Resource> Allowed resources
-		*/
+	 * Get all resources which have the user access on.
+	 *
+	 * @param user int User ID
+	 * @return List<Resource> Allowed resources
+	 */
 	getAllowedResources {
 
 		@Override
@@ -755,11 +755,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Get all rich resources which have the user assigned.
-		*
-		* @param user int User ID
-		* @return List<RichResource> Assigned rich resources
-		*/
+	 * Get all rich resources which have the user assigned.
+	 *
+	 * @param user int User ID
+	 * @return List<RichResource> Assigned rich resources
+	 */
 	getAssignedRichResources {
 
 		@Override
@@ -770,12 +770,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Checks if the login is available in the namespace.
-		*
-		* @param loginNamespace String Namespace
-		* @param login String Login
-		* @return int 1: login available, 0: login not available
-		*/
+	 * Checks if the login is available in the namespace.
+	 *
+	 * @param loginNamespace String Namespace
+	 * @param login String Login
+	 * @return int 1: login available, 0: login not available
+	 */
 	isLoginAvailable {
 
 		@Override
@@ -790,10 +790,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all users who are not member of any VO.
-		*
-		* @return List<User> Found users
-		*/
+	 * Returns all users who are not member of any VO.
+	 *
+	 * @return List<User> Found users
+	 */
 	getUsersWithoutVoAssigned {
 
 		@Override
@@ -803,10 +803,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Adds PERUNADMIN role to the user.
-		*
-		* @param user int User ID
-		*/
+	 * Adds PERUNADMIN role to the user.
+	 *
+	 * @param user int User ID
+	 */
 	makeUserPerunAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -818,23 +818,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 
 	/*#
-		* Changes user password in defined login-namespace.
-		*
-		* @param user int User ID
-		* @param loginNamespace String Namespace
-		* @param newPassword String New password
-		* @param checkOldPassword int checkOldPassword must be 0
-		*/
+	 * Changes user password in defined login-namespace.
+	 *
+	 * @param user int User ID
+	 * @param loginNamespace String Namespace
+	 * @param newPassword String New password
+	 * @param checkOldPassword int checkOldPassword must be 0
+	 */
 	/*#
-		* Changes user password in defined login-namespace.
-		* You must send the old password, which will be checked
-		*
-		* @param user int User ID
-		* @param loginNamespace String Namespace
-		* @param oldPassword String Old password which will be checked.
-		* @param newPassword String New password
-		* @param checkOldPassword int checkOldPassword must be 1
-		*/
+	 * Changes user password in defined login-namespace.
+	 * You must send the old password, which will be checked
+	 *
+	 * @param user int User ID
+	 * @param loginNamespace String Namespace
+	 * @param oldPassword String Old password which will be checked.
+	 * @param newPassword String New password
+	 * @param checkOldPassword int checkOldPassword must be 1
+	 */
 	changePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -849,12 +849,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Changes user's password in namespace based on encrypted parameters
-		*
-		* @param i String first encrypted parameter
-		* @param m String second encrypted parameter
-		* @param password String new password
-		*/
+	 * Changes user's password in namespace based on encrypted parameters
+	 *
+	 * @param i String first encrypted parameter
+	 * @param m String second encrypted parameter
+	 * @param password String new password
+	 */
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -865,12 +865,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Creates a password.
-		*
-		* @param login String Login
-		* @param namespace String Namespace
-		* @param password String password
-		*/
+	 * Creates a password.
+	 *
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 * @param password String password
+	 */
 	@Deprecated
 	createPassword {
 		@Override
@@ -888,11 +888,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Reserves a random password.
-		*
-		* @param user int User ID
-		* @param namespace String Namespace
-		*/
+	 * Reserves a random password.
+	 *
+	 * @param user int User ID
+	 * @param namespace String Namespace
+	 */
 	reserveRandomPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -905,12 +905,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Reserves a password.
-		*
-		* @param login String Login
-		* @param namespace String Namespace
-		* @param password String password
-		*/
+	 * Reserves a password.
+	 *
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 * @param password String password
+	 */
 	reservePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -927,12 +927,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Validates a password.
-		*
-		* @param login String Login
-		* @param namespace String Namespace
-		* @param password String password
-		*/
+	 * Validates a password.
+	 *
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 * @param password String password
+	 */
 	validatePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -950,12 +950,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Validates a password and set ext sources
-		*
-		* @param login String Login
-		* @param namespace String Namespace
-		* @param user int User ID
-		*/
+	 * Validates a password and set ext sources
+	 *
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 * @param user int User ID
+	 */
 	validatePasswordAndSetExtSources {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -968,13 +968,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Set new login in namespace if login is available and user doesn't have login in that namespace.
-		* !! Works only for service users !!
-		*
-		* @param user Integer User ID
-		* @param login String Login
-		* @param namespace String Namespace
-		*/
+	 * Set new login in namespace if login is available and user doesn't have login in that namespace.
+	 * !! Works only for service users !!
+	 *
+	 * @param user Integer User ID
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 */
 	setLogin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -987,16 +987,16 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Request to change preferred email address of user.
-		* Validation mail is sent on new address.
-		*
-		* Change is not saved until user validate new email address
-		* by calling validatePreferredEmailChange() method with
-		* proper set of parameters (sent in validation mail).
-		*
-		* @param user Integer User ID
-		* @param email String new email address to set
-		*/
+	 * Request to change preferred email address of user.
+	 * Validation mail is sent on new address.
+	 *
+	 * Change is not saved until user validate new email address
+	 * by calling validatePreferredEmailChange() method with
+	 * proper set of parameters (sent in validation mail).
+	 *
+	 * @param user Integer User ID
+	 * @param email String new email address to set
+	 */
 	requestPreferredEmailChange {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1012,17 +1012,17 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Validate new preferred email address.
-		*
-		* Request to validate is determined based
-		* on encrypted parameters sent in email notice
-		* by requestPreferredEmailChange() method.
-		*
-		* @param i String encrypted request parameter
-		* @param m String encrypted request parameter
-		*
-		* @return String new validated email address
-		*/
+	 * Validate new preferred email address.
+	 *
+	 * Request to validate is determined based
+	 * on encrypted parameters sent in email notice
+	 * by requestPreferredEmailChange() method.
+	 *
+	 * @param i String encrypted request parameter
+	 * @param m String encrypted request parameter
+	 *
+	 * @return String new validated email address
+	 */
 	validatePreferredEmailChange {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1035,19 +1035,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-		* Return list of email addresses of user, which are
-		* awaiting validation and are inside time window
-		* for validation.
-		*
-		* If there is no preferred email change request pending
-		* or requests are outside time window for validation,
-		* returns empty list.
-		*
-		* @param sess PerunSession
-		* @param user ID of user to check
-		*
-		* @return List<String> user's email addresses pending validation
-		*/
+	 * Return list of email addresses of user, which are
+	 * awaiting validation and are inside time window
+	 * for validation.
+	 *
+	 * If there is no preferred email change request pending
+	 * or requests are outside time window for validation,
+	 * returns empty list.
+	 *
+	 * @param sess PerunSession
+	 * @param user ID of user to check
+	 *
+	 * @return List<String> user's email addresses pending validation
+	 */
 	getPendingPreferredEmailChanges {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
