@@ -41,6 +41,7 @@ public enum RTMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sends a message to RT.
 	 * Only text information is sent.
+	 *
 	 * @param queue String RT queue
 	 * @param subject String Message subject
 	 * @param text String Message text

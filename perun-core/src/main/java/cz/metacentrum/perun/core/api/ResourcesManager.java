@@ -80,6 +80,8 @@ public interface ResourcesManager {
 	 * Inserts resource into DB.
 	 *
 	 * @param resource resource to create
+	 * @param vo virtual organization
+	 * @param facility facility
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */

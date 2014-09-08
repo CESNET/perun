@@ -80,24 +80,36 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 *	NOT IMPLEMENTED YET
+	 */
 	listAllTasksInState {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			throw new InternalErrorException("Not implemented yet!");
 		}
 	},
 
+	/*#
+	 *	NOT IMPLEMENTED YET
+	 */
 	listTasksScheduledBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			throw new InternalErrorException("Not implemented yet!");
 		}
 	},
 
+	/*#
+	 *	NOT IMPLEMENTED YET
+	 */
 	listTasksStartedBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			throw new InternalErrorException("Not implemented yet!");
 		}
 	},
 
+	/*#
+	 *	NOT IMPLEMENTED YET
+	 */
 	listTasksEndedBetweenDates {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			throw new InternalErrorException("Not implemented yet!");
@@ -121,6 +133,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
 	/*#
 	 * Returns the count of all tasks.
+	 *
 	 * @return int Task count
 	 */
 	countTasks {
@@ -153,7 +166,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return list of TaskResults by a Task.
+	 * Return list of TaskResults by a Task for GUI.
 	 *
 	 * @param task int Task
 	 * @return List<TaskResult> Results
@@ -203,6 +216,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 
 	/*#
 	 * Return propagation status of all facilities in Perun.
+	 *
 	 * @return List<FacilityState> Propagation status
 	 */
 	/*#

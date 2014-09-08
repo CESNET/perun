@@ -51,6 +51,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
 	 * Sends invitation email to user which is not member of VO
 	 *
@@ -128,7 +129,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
-
 	/*#
 	 * Re-send mail notification for existing application. Message of specified type is sent only,
 	 * when application is in expected state related to the notification.
@@ -172,7 +172,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
-
 	/*#
 	 * Create application form for a VO.
 	 *
@@ -202,22 +201,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
+
 	/*#
-		* Gets an application form for a given VO.
-		* There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
-		* just the form items are marked whether the should be present in one, the other, or both types of application.
-		*
-		* @param vo int VO ID
-		* @return ApplicationForm Registration form description
-		*/
+	 * Gets an application form for a given VO.
+	 * There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
+	 * just the form items are marked whether the should be present in one, the other, or both types of application.
+	 *
+	 * @param vo int VO ID
+	 * @return ApplicationForm Registration form description
+	 */
 	/*#
-		* Gets an application form for a given Group.
-		* There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
-		* just the form items are marked whether the should be present in one, the other, or both types of application.
-		*
-		* @param group int Group ID
-		* @return ApplicationForm Registration form description
-		*/
+	 * Gets an application form for a given Group.
+	 * There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
+	 * just the form items are marked whether the should be present in one, the other, or both types of application.
+	 *
+	 * @param group int Group ID
+	 * @return ApplicationForm Registration form description
+	 */
 	getApplicationForm {
 
 		@Override
@@ -232,32 +232,33 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
-		* Gets all items in VO application form.
-		*
-		* @param vo int VO ID
-		* @return List<ApplicationFormItem> All form items regardless of type
-		*/
+	 * Gets all items in VO application form.
+	 *
+	 * @param vo int VO ID
+	 * @return List<ApplicationFormItem> All form items regardless of type
+	 */
 	/*#
-		* Gets items of specified type in VO application form, for initital registration or extension of account.
-		*
-		* @param vo int VO ID
-		* @param type String Application type: INITIAL or EXTENSION
-		* @return List<ApplicationFormItem> Items of specified type
-		*/
+	 * Gets items of specified type in VO application form, for initital registration or extension of account.
+	 *
+	 * @param vo int VO ID
+	 * @param type String Application type: INITIAL or EXTENSION
+	 * @return List<ApplicationFormItem> Items of specified type
+	 */
 	/*#
-		* Gets all items in Group application form.
-		*
-		* @param group int Group ID
-		* @return List<ApplicationFormItem> All form items regardless of type
-		*/
+	 * Gets all items in Group application form.
+	 *
+	 * @param group int Group ID
+	 * @return List<ApplicationFormItem> All form items regardless of type
+	 */
 	/*#
-		* Gets items of specified type in Group application form, for initital registration or extension of account.
-		*
-		* @param group int Group ID
-		* @param type String Application type: INITIAL or EXTENSION
-		* @return List<ApplicationFormItem> Items of specified type
-		*/
+	 * Gets items of specified type in Group application form, for initital registration or extension of account.
+	 *
+	 * @param group int Group ID
+	 * @param type String Application type: INITIAL or EXTENSION
+	 * @return List<ApplicationFormItem> Items of specified type
+	 */
 	getFormItems {
 
 		@Override
@@ -288,20 +289,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
-		* Updates form items sent in list.
-		*
-		* @param vo int VO ID
-		* @param items List<ApplicationFormItem> Application form items
-		* @return int Number of updated items
-		*/
+	 * Updates form items sent in list.
+	 *
+	 * @param vo int VO ID
+	 * @param items List<ApplicationFormItem> Application form items
+	 * @return int Number of updated items
+	 */
 	/*#
-		* Updates form items sent in list.
-		*
-		* @param group int Group ID
-		* @param items List<ApplicationFormItem> Application form items
-		* @return int Number of updated items
-		*/
+	 * Updates form items sent in list.
+	 *
+	 * @param group int Group ID
+	 * @param items List<ApplicationFormItem> Application form items
+	 * @return int Number of updated items
+	 */
 	updateFormItems {
 
 		@Override
@@ -322,14 +324,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
-		* Updates the form attributes, not the form items.
-		* - update automatic approval style
-		* - update module_name
-		*
-		* @param form ApplicationForm Application form JSON object
-		* @return ApplicationForm Updated application form or null when update failed
-		*/
+	 * Updates the form attributes, not the form items.
+	 * - update automatic approval style
+	 * - update module_name
+	 *
+	 * @param form ApplicationForm Application form JSON object
+	 * @return ApplicationForm Updated application form or null when update failed
+	 */
 	updateForm {
 
 		@Override
@@ -345,24 +348,25 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			}
 		}
 	},
+
 	/*#
-		* Gets the content for an application form for a given type of application and user.
-		* The values are prefilled from database for extension applications, and always from federation values
-		* taken from the user argument.
-		*
-		* @param vo int VO ID
-		* @param type String Application type: INITIAL or EXTENSION
-		* @return List<ApplicationFormItemWithPrefilledValue> Form items
-		*/
+	 * Gets the content for an application form for a given type of application and user.
+	 * The values are prefilled from database for extension applications, and always from federation values
+	 * taken from the user argument.
+	 *
+	 * @param vo int VO ID
+	 * @param type String Application type: INITIAL or EXTENSION
+	 * @return List<ApplicationFormItemWithPrefilledValue> Form items
+	 */
 	/*#
-		* Gets the content for an application form for a given type of application and user.
-		* The values are prefilled from database for extension applications, and always from federation values
-		* taken from the user argument.
-		*
-		* @param group int Group ID
-		* @param type String Application type: INITIAL or EXTENSION
-		* @return List<ApplicationFormItemWithPrefilledValue> Form items
-		*/
+	 * Gets the content for an application form for a given type of application and user.
+	 * The values are prefilled from database for extension applications, and always from federation values
+	 * taken from the user argument.
+	 *
+	 * @param group int Group ID
+	 * @param type String Application type: INITIAL or EXTENSION
+	 * @return List<ApplicationFormItemWithPrefilledValue> Form items
+	 */
 	getFormItemsWithPrefilledValues {
 
 		@Override
@@ -384,19 +388,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
-		* Gets all applications for a given VO.
-		*
-		* @param vo int VO ID
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for a given VO.
+	 *
+	 * @param vo int VO ID
+	 * @return List<Application> Found applications
+	 */
 	/*#
-		* Gets all applications in a given state for a given VO.
-		*
-		* @param vo int VO ID
-		* @param state String State: NEW, VERIFIED, APPROVED, REJECTED
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications in a given state for a given VO.
+	 *
+	 * @param vo int VO ID
+	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForVo {
 
 		@Override
@@ -410,19 +415,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Gets all applications for a given Group.
-		*
-		* @param group int Group ID
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for a given Group.
+	 *
+	 * @param group int Group ID
+	 * @return List<Application> Found applications
+	 */
 	/*#
-		* Gets all applications for a given Group.
-		*
-		* @param group int Group ID
-		* @param state String State: NEW, VERIFIED, APPROVED, REJECTED
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for a given Group.
+	 *
+	 * @param group int Group ID
+	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForGroup {
 
 		@Override
@@ -436,17 +442,18 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Gets all applications for the current user.
-		*
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for the current user.
+	 *
+	 * @return List<Application> Found applications
+	 */
 	/*#
-		* Gets all applications for a specific user.
-		*
-		* @param id int User ID
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for a specific user.
+	 *
+	 * @param id int User ID
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForUser {
 
 		@Override
@@ -462,18 +469,18 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Gets all applications for member
-		*
-		* @param member ID of member to get applications for
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for member
+	 *
+	 * @param member int ID of member to get applications for
+	 * @return List<Application> Found applications
+	 */
 	/*#
-		* Gets all applications for member
-		*
-		* @param member ID of member to get applications for
-		* @param group ID of group to filter applications for
-		* @return List<Application> Found applications
-		*/
+	 * Gets all applications for member
+	 *
+	 * @param member int ID of member to get applications for
+	 * @param group int ID of group to filter applications for
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForMember {
 
 		@Override
@@ -489,11 +496,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns application object by its ID.
-		*
-		* @param id int Application ID
-		* @return Application Found application
-		*/
+	 * Returns application object by its ID.
+	 *
+	 * @param id int Application ID
+	 * @return Application Found application
+	 */
 	getApplicationById {
 
 		@Override
@@ -501,12 +508,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			return ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
 		}
 	},
+
 	/*#
-		* Returns data submitted by user in given application (by id).
-		*
-		* @param id int Application ID
-		* @return List<ApplicationFormItemData> Form data
-		*/
+	 * Returns data submitted by user in given application (by id).
+	 *
+	 * @param id int Application ID
+	 * @return List<ApplicationFormItemData> Form data
+	 */
 	getApplicationDataById {
 
 		@Override
@@ -517,14 +525,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Creates a new application.
-		* The method triggers approval for VOs with auto-approved applications.
-		*
-		* @param app Application Application JSON object
-		* @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
-		* @return List<ApplicationFormItemData> Stored app data
-		*/
+	 * Creates a new application.
+	 * The method triggers approval for VOs with auto-approved applications.
+	 *
+	 * @param app Application Application JSON object
+	 * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+	 * @return List<ApplicationFormItemData> Stored app data
+	 */
 	createApplication {
 
 		@Override
@@ -539,11 +548,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Deletes an application.
-		*
-		* @param id int Application ID
-		*/
+	 * Deletes an application.
+	 *
+	 * @param id int Application ID
+	 */
 	deleteApplication {
 
 		@Override
@@ -557,13 +567,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Manually approves an application.
-		* Expected to be called as a result of direct VO administrator action in the web UI.
-		*
-		* @param id int Application ID
-		* @return Application Approved application
-		*/
+	 * Manually approves an application.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param id int Application ID
+	 * @return Application Approved application
+	 */
 	approveApplication {
 
 		@Override
@@ -577,20 +588,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Manually rejects an application.
-		* Expected to be called as a result of direct VO administrator action in the web UI.
-		*
-		* @param id int Application ID
-		* @return Application Rejected application
-		*/
+	 * Manually rejects an application.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param id int Application ID
+	 * @return Application Rejected application
+	 */
 	/*#
-		* Manually rejects an application with a reason.
-		* Expected to be called as a result of direct VO administrator action in the web UI.
-		*
-		* @param id int Application ID
-		* @param reason String Reason description
-		* @return Application Rejected application
-		*/
+	 * Manually rejects an application with a reason.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param id int Application ID
+	 * @param reason String Reason description
+	 * @return Application Rejected application
+	 */
 	rejectApplication {
 
 		@Override
@@ -608,12 +619,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Forcefully marks application as verified
-		* (only when application was in NEW state)
-		*
-		* @param id int Application ID
-		* @return Application Verified application
-		*/
+	 * Forcefully marks application as verified
+	 * (only when application was in NEW state)
+	 *
+	 * @param id int Application ID
+	 * @return Application Verified application
+	 */
 	verifyApplication {
 
 		@Override
@@ -627,16 +638,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Validates an email.
-		*
-		* This method should receive all URL parameters from a URL sent by an email to validate
-		* the email address that was provided by a user. The parameters describe the user, application, email and contain
-		* a message authentication code to prevent spoofing.
-		*
-		* @param m String Parameter m
-		* @param i String Parameter i
-		* @return bool True for validated, false for non-valid
-		*/
+	 * Validates an email.
+	 *
+	 * This method should receive all URL parameters from a URL sent by an email to validate
+	 * the email address that was provided by a user. The parameters describe the user, application, email and contain
+	 * a message authentication code to prevent spoofing.
+	 *
+	 * @param m String Parameter m
+	 * @param i String Parameter i
+	 * @return bool True for validated, false for non-valid
+	 */
 	validateEmail {
 
 		@Override
@@ -653,21 +664,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
-
 	/*#
-		* Adds a new item to a form.
-		*
-		* @param vo int VO ID
-		* @param item ApplicationFormItem ApplicationFormItem JSON object
-		* @return ApplicationFormItem Added ApplicationFormItem object
-		*/
+	 * Adds a new item to a form.
+	 *
+	 * @param vo int VO ID
+	 * @param item ApplicationFormItem ApplicationFormItem JSON object
+	 * @return ApplicationFormItem Added ApplicationFormItem object
+	 */
 	/*#
-		* Adds a new item to a form.
-		*
-		* @param group int Group ID
-		* @param item ApplicationFormItem ApplicationFormItem JSON object
-		* @return ApplicationFormItem Added ApplicationFormItem object
-		*/
+	 * Adds a new item to a form.
+	 *
+	 * @param group int Group ID
+	 * @param item ApplicationFormItem ApplicationFormItem JSON object
+	 * @return ApplicationFormItem Added ApplicationFormItem object
+	 */
 	addFormItem {
 
 		@Override
@@ -689,24 +699,25 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Removes a form item permanently.
-		* The user data associated with it remains in the database, it just loses the foreign key
-		* reference which becomes null.
-		*
-		* @param vo int VO ID
-		* @param ordnum int Item's ordnum
-		* @return Object Always null
-		*/
+	 * Removes a form item permanently.
+	 * The user data associated with it remains in the database, it just loses the foreign key
+	 * reference which becomes null.
+	 *
+	 * @param vo int VO ID
+	 * @param ordnum int Item's ordnum
+	 * @return Object Always null
+	 */
 	/*#
-		* Removes a form item permanently.
-		* The user data associated with it remains in the database, it just loses the foreign key
-		* reference which becomes null.
-		*
-		* @param group int Group ID
-		* @param ordnum int Item's ordnum
-		* @return Object Always null
-		*/
+	 * Removes a form item permanently.
+	 * The user data associated with it remains in the database, it just loses the foreign key
+	 * reference which becomes null.
+	 *
+	 * @param group int Group ID
+	 * @param ordnum int Item's ordnum
+	 * @return Object Always null
+	 */
 	deleteFormItem {
 
 		@Override
@@ -731,35 +742,34 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
-
 	/*#
-	* Copy all form items from selected VO into another.
-	*
-	* @param fromVo int Source VO ID
-	* @param toVo int Destination VO ID
-	* @return Object Always null
-	*/
-	/*#
-	* Copy all form items from selected Group into another.
-	*
-	* @param fromGroup int Source Group ID
-	* @param toGroup int Destination Group ID
-	* @return Object Always null
-	*/
-	/*#
-	* Copy all form items from selected VO into Group.
-	*
-	* @param fromVO int Source VO ID
-	* @param toGroup int Destination Group ID
-	* @return Object Always null
-	*/
-	/*#
-	* Copy all form items from selected Group into VO.
-	*
-	* @param fromGroup int Source Group ID
-	* @param toVO int Destination VO ID
-	* @return Object Always null
-	*/
+	 * Copy all form items from selected VO into another.
+	 *
+	 * @param fromVo int Source VO ID
+	 * @param toVo int Destination VO ID
+	 * @return Object Always null
+	 */
+		/*#
+	 * Copy all form items from selected Group into another.
+	 *
+	 * @param fromGroup int Source Group ID
+	 * @param toGroup int Destination Group ID
+	 * @return Object Always null
+	 */
+		/*#
+	 * Copy all form items from selected VO into Group.
+	 *
+	 * @param fromVO int Source VO ID
+	 * @param toGroup int Destination Group ID
+	 * @return Object Always null
+	 */
+		/*#
+	 * Copy all form items from selected Group into VO.
+	 *
+	 * @param fromGroup int Source Group ID
+	 * @param toVO int Destination VO ID
+	 * @return Object Always null
+	 */
 	copyForm {
 
 		@Override
@@ -807,33 +817,33 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Copy all e-mail notifications from selected VO into another.
-		*
-		* @param fromVo int Source VO ID
-		* @param toVo int Destination VO ID
-		* @return Object Always null
-		*/
+	 * Copy all e-mail notifications from selected VO into another.
+	 *
+	 * @param fromVo int Source VO ID
+	 * @param toVo int Destination VO ID
+	 * @return Object Always null
+	 */
 	/*#
-		* Copy all e-mail notifications from selected Group into another.
-		*
-		* @param fromGroup int Source Group ID
-		* @param toGroup int Destination Group ID
-		* @return Object Always null
-		*/
+	 * Copy all e-mail notifications from selected Group into another.
+	 *
+	 * @param fromGroup int Source Group ID
+	 * @param toGroup int Destination Group ID
+	 * @return Object Always null
+	 */
 		/*#
-		* Copy all e-mail notifications from selected VO into Group.
-		*
-		* @param fromVo int Source VO ID
-		* @param toGroup int Destination Group ID
-		* @return Object Always null
-		*/
+	 * Copy all e-mail notifications from selected VO into Group.
+	 *
+	 * @param fromVo int Source VO ID
+	 * @param toGroup int Destination Group ID
+	 * @return Object Always null
+	 */
 		/*#
-		* Copy all e-mail notifications from selected Group into VO.
-		*
-		* @param fromGroup int Source Group ID
-		* @param toVO int Destination VO ID
-		* @return Object Always null
-		*/
+	 * Copy all e-mail notifications from selected Group into VO.
+	 *
+	 * @param fromGroup int Source Group ID
+	 * @param toVO int Destination VO ID
+	 * @return Object Always null
+	 */
 	copyMails {
 
 		@Override
@@ -879,18 +889,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Returns all mail notifications related to specific app form.
-		*
-		* @param vo int VO ID
-		* @return List<ApplicationMail> Application mails
-		*/
+	 * Returns all mail notifications related to specific app form.
+	 *
+	 * @param vo int VO ID
+	 * @return List<ApplicationMail> Application mails
+	 */
 	/*#
-		* Returns all mail notifications related to specific app form.
-		*
-		* @param group int Group ID
-		* @return List<ApplicationMail> Application mails
-		*/
+	 * Returns all mail notifications related to specific app form.
+	 *
+	 * @param group int Group ID
+	 * @return List<ApplicationMail> Application mails
+	 */
 	getApplicationMails {
 
 		@Override
@@ -909,20 +920,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Add new mail notification.
-		*
-		* @param vo int VO ID
-		* @param mail ApplicationMail ApplicationMail JSON object
-		* @return ApplicationMail Created ApplicationMail
-		*/
+	 * Add new mail notification.
+	 *
+	 * @param vo int VO ID
+	 * @param mail ApplicationMail ApplicationMail JSON object
+	 * @return ApplicationMail Created ApplicationMail
+	 */
 	/*#
-		* Add new mail notification.
-		*
-		* @param group int Group ID
-		* @param mail ApplicationMail ApplicationMail JSON object
-		* @return ApplicationMail Created ApplicationMail
-		*/
+	 * Add new mail notification.
+	 *
+	 * @param group int Group ID
+	 * @param mail ApplicationMail ApplicationMail JSON object
+	 * @return ApplicationMail Created ApplicationMail
+	 */
 	addApplicationMail {
 
 		@Override
@@ -944,13 +956,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Deletes an e-mail notification from DB based on ID property.
-		*
-		* @param vo int VO ID
-		* @param id int ApplicationMail ID
-		* @return Object Always null
-		*/
+	 * Deletes an e-mail notification from DB based on ID property.
+	 *
+	 * @param vo int VO ID
+	 * @param id int ApplicationMail ID
+	 * @return Object Always null
+	 */
+	/*#
+	 * Deletes an e-mail notification from DB based on ID property.
+	 *
+	 * @param group int Group ID
+	 * @param id int ApplicationMail ID
+	 * @return Object Always null
+	 */
 	deleteApplicationMail {
 
 		@Override
@@ -973,12 +993,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Updates an e-mail notification.
-		*
-		* @param mail ApplicationMail ApplicationMail JSON object
-		* @return Object Always null
-		*/
+	 * Updates an e-mail notification.
+	 *
+	 * @param mail ApplicationMail ApplicationMail JSON object
+	 * @return Object Always null
+	 */
 	updateApplicationMail {
 
 		@Override
@@ -989,12 +1010,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Return mail definition including texts by ID.
-		*
-		* @param id int ApplicationMail ID
-		* @return ApplicationMail ApplicationMail object
-		*/
+	 * Return mail definition including texts by ID.
+	 *
+	 * @param id int ApplicationMail ID
+	 * @return ApplicationMail ApplicationMail object
+	 */
 	getApplicationMailById {
 
 		@Override
@@ -1003,13 +1025,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
 	/*#
-		* Enable or disable sending for list of mail definitions.
-		*
-		* @param mails List<ApplicationMail> Mail definitions to update
-		* @param enabled int 1 for enabled, 0 for disabled
-		* @return Object Always null
-		*/
+	 * Enable or disable sending for list of mail definitions.
+	 *
+	 * @param mails List<ApplicationMail> Mail definitions to update
+	 * @param enabled int 1 for enabled, 0 for disabled
+	 * @return Object Always null
+	 */
 	setSendingEnabled {
 
 		@Override
@@ -1025,6 +1048,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+	 *	Verify Captcha answer.
+	 *
+	 *	@param challenge String Captcha challenge
+	 *	@param response String User response
+	 *	@return bool True if it is valid, False if failed
+	 */
 	verifyCaptcha {
 
 		@Override
@@ -1051,6 +1081,34 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+	 * Check if new application may belong to another user in Perun
+	 * (but same person in real life).
+	 *
+	 * Return list of similar users (by identity, name or email).
+	 *
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param appId int ID of application to check for
+	 * @return List<RichUser> List of found similar RichUsers
+	 */
+	/*#
+	 * Check if new application may belong to another user in Perun
+	 * (but same person in real life).
+	 *
+	 * IMPORTANT: This check is performed only on latest application of specified vo/group and type which belongs
+	 * to logged in user/identity.
+	 *
+	 * Return list of similar users (by identity, name or email).
+	 *
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param voId int Vo to get application for
+	 * @param groupId int Group to get application for
+	 * @param type String Application type
+	 *
+	 * @return List<RichUser> List of found similar RichUsers
+	 */
 	checkForSimilarUsers {
 
 		@Override
