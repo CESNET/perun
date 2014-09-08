@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +228,11 @@ public class MailManagerImpl implements MailManager {
 
 		for (ApplicationMail mail : mails) {
 			// update sending (enabled / disabled)
-			jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
+			if (Compatibility.isPostgreSql()) {
+				jdbc.update("update application_mails set send=? where id=?", (enabled) ? '1' : '0', mail.getId());
+			} else {
+				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
+			}
 		}
 
 	}
