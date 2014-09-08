@@ -1,16 +1,24 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.*;
-
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
 public enum MembersManagerMethod implements ManagerMethod {
+
 	/*#
 	 * Deletes only member data appropriated by member id.
 	 *
@@ -27,15 +35,16 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Creates a new member from candidate which is prepared for creating serviceUser.
-		*
-		* In list serviceUserOwners can't be serviceUser, only normal users are allowed.
-		* <strong>This method runs asynchronously</strong>
-		*
-		* @param vo int VO ID
-		* @param candidate Candidate prepared future serviceUser
-		* @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
-		*/
+	 * Creates a new member from candidate which is prepared for creating serviceUser.
+	 *
+	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * <strong>This method runs asynchronously</strong>
+	 *
+	 * @param vo int VO ID
+	 * @param candidate Candidate prepared future serviceUser
+	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
+	 * @return Member newly created member (of service User)
+	 */
 	createServiceMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -49,31 +58,31 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Creates a new member and sets all member's attributes from the candidate.
-		* Also stores the associated user if doesn't exist. This method is used by the registrar.
-		*
-		* @param vo int VO ID
-		* @param extSourceName String Name of the extSource
-		* @param extSourceType String Type of the extSource
-		* @param login User's login within extSource
-		* @param candidate Canidate Canidate JSON object
-		* @return Member Created member
-		*/
+	 * Creates a new member and sets all member's attributes from the candidate.
+	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String Name of the extSource
+	 * @param extSourceType String Type of the extSource
+	 * @param login String User's login within extSource
+	 * @param candidate Candidate Candidate JSON object
+	 * @return Member Created member
+	 */
 	/*#
-		* Creates a new member from user.
-		*
-		* @param vo int VO ID
-		* @param user int User ID
-		* @return Member Created member
-		*/
+	 * Creates a new member from user.
+	 *
+	 * @param vo int VO ID
+	 * @param user int User ID
+	 * @return Member Created member
+	 */
 	/*#
-		* Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
-		* <strong>This method runs asynchronously</strong>
-		*
-		* @param vo int VO ID
-		* @param candidate Canidate Canidate JSON object
-		* @return Member Created member
-		*/
+	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
+	 * <strong>This method runs asynchronously</strong>
+	 *
+	 * @param vo int VO ID
+	 * @param candidate Candidate Candidate JSON object
+	 * @return Member Created member
+	 */
 	createMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -99,12 +108,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Find member of a VO by his login in an external source.
-		*
-		* @param vo int VO ID
-		* @param userExtSource UserExtSource UserExtSource JSON object
-		* @return Member Found member
-		*/
+	 * Find member of a VO by his login in an external source.
+	 *
+	 * @param vo int VO ID
+	 * @param userExtSource UserExtSource UserExtSource JSON object
+	 * @return Member Found member
+	 */
 	getMemberByUserExtSource {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -115,11 +124,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns a member by their ID.
-		*
-		* @param id int Member ID
-		* @return Member Found member
-		*/
+	 * Returns a member by their ID.
+	 *
+	 * @param id int Member ID
+	 * @return Member Found member
+	 */
 	getMemberById {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -128,12 +137,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns a member by VO and User.
-		*
-		* @param vo int VO ID
-		* @param user int User ID
-		* @return Member Found member
-		*/
+	 * Returns a member by VO and User.
+	 *
+	 * @param vo int VO ID
+	 * @param user int User ID
+	 * @return Member Found member
+	 */
 	getMemberByUser {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -143,13 +152,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
-
 	/*#
-		* Returns members for a user.
-		*
-		* @param user int User ID
-		* @return List<Member> Found members
-		*/
+	 * Returns members for a user.
+	 *
+	 * @param user int User ID
+	 * @return List<Member> Found members
+	 */
 	getMembersByUser {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -157,21 +165,21 @@ public enum MembersManagerMethod implements ManagerMethod {
 					ac.getUserById(parms.readInt("user")));
 		}
 	},
-	/*#
-		* Returns all members of a VO.
-		*
-		* @param vo int VO ID
-		* @return List<Member> VO members
-		*/
-	/*#
-		* Returns all members of a VO.
-		*
-		* @param vo int VO ID
-		* @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-		* @return List<Member> VO members
-		*/
-	getMembers {
 
+	/*#
+	 * Returns all members of a VO.
+	 *
+	 * @param vo int VO ID
+	 * @return List<Member> VO members
+	 */
+	/*#
+	 * Returns all members of a VO.
+	 *
+	 * @param vo int VO ID
+	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @return List<Member> VO members
+	 */
+	getMembers {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("status")) {
@@ -181,21 +189,21 @@ public enum MembersManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	/*#
-		* Returns all members of a VO with additional information.
-		*
-		* @param vo int VO ID
-		* @return List<RichMember> VO members
-		*/
-	/*#
-		* Returns all members of a VO with additional information.
-		*
-		* @param vo int VO ID
-		* @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-		* @return List<RichMember> VO members
-		*/
-	getRichMembers {
 
+	/*#
+	 * Returns all members of a VO with additional information.
+	 *
+	 * @param vo int VO ID
+	 * @return List<RichMember> VO members
+	 */
+	/*#
+	 * Returns all members of a VO with additional information.
+	 *
+	 * @param vo int VO ID
+	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @return List<RichMember> VO members
+	 */
+	getRichMembers {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("status")) {
@@ -209,8 +217,53 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+ 	 * Get all RichMembers with attributes specific for list of attrsNames from the vo and have only
+ 	 * status which is contain in list of statuses.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param allowedStatuses List<String> Allowed Statuses
+ 	 * @return List<RichMember> List of richMembers with specific attributes from Vo
+ 	 */
+	/*#
+ 	 * Get all RichMembers with attributes specific for list of attrsNames from the vo.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @return list of richMembers with specific attributes from Vo
+ 	 */
+	/*#
+ 	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
+ 	 * status which is contain in list of statuses.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 *
+ 	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
+ 	 * If this group is top level group, so get richMembers from members group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param allowedStatuses List<String> Allowed Statuses
+ 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @return List<RichMember> List of richMembers with specific attributes from group
+ 	 */
+	/*#
+ 	 * Get all RichMembers with attributes specific for list of attrsNames from the group.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 *
+ 	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
+ 	 * If this group is top level group, so get richMembers from members group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @return List<RichMember> List of richMembers with specific attributes from Group
+ 	 */
 	getCompleteRichMembers {
-
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
@@ -276,8 +329,21 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+ 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsNames List<String> List of attrNames for selected attributes
+ 	 * @return List<RichMember> List of richmembers
+ 	 */
+	/*#
+ 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsNames List<String> List of attrNames for selected attributes
+ 	 * @return List<RichMember> List of richmembers
+ 	 */
 	getRichMembersWithAttributesByNames {
-
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("vo")) {
@@ -292,8 +358,34 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+ 	 * Get all rich members of VO with specified status. Rich member object contains user, member, userExtSources and member/user attributes.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param status String Status
+ 	 * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no members in VO with specified status
+ 	 */
+	/*#
+ 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsDef List<AttributeDefinition> List of attrDefs only for selected attributes
+ 	 * @return List<RichMember> List of richmembers
+ 	 */
+	/*#
+ 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsDef List<AttributeDefinition> List of attrDefs only for selected attributes
+ 	 * @return List<RichMember> List of richmembers
+ 	 */
+	/*#
+ 	 * Get all rich members of VO. Rich member object contains user, member, userExtSources and member/user attributes.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no members in VO
+ 	 */
 	getRichMembersWithAttributes {
-
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("status")) {
@@ -314,72 +406,68 @@ public enum MembersManagerMethod implements ManagerMethod {
 				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")));
 			}
-
 		}
 	},
-	/*#
-		* Returns a rich member by their member ID.
-		*
-		* @param id int Member ID
-		* @return RichMember Found member
-		*/
-	getRichMemberWithAttributes {
 
+	/*#
+	 * Returns a rich member by their member ID.
+	 *
+	 * @param id int Member ID
+	 * @return RichMember Found member
+	 */
+	getRichMemberWithAttributes {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			Member mem = ac.getMemberById(parms.readInt("id"));
 			return ac.getMembersManager().getRichMemberWithAttributes(ac.getSession(), mem);
-
 		}
 	},
 
 	/*#
-		* Returns a rich member without attributes by id of member.
-		*
-		* @param id int id of Member
-		* @return RichMember Found member
-		*/
+	 * Returns a rich member without attributes by id of member.
+	 *
+	 * @param id int Member ID
+	 * @return RichMember Found member
+	 */
 	getRichMember {
-
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getMembersManager().getRichMemberById(ac.getSession(), parms.readInt("id"));
-
 		}
 	},
 
 	/*#
-		* Returns VO members count.
-		*
-		* @param vo int VO ID
-		* @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-		* @return int Members count
-		*/
+	 * Returns VO members count.
+	 *
+	 * @param vo int VO ID
+	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @return int Members count
+	 */
 	/*#
-		* Returns VO members count.
-		*
-		* @param vo int VO ID
-		* @return int Members count
-		*/
+	 * Returns VO members count.
+	 *
+	 * @param vo int VO ID
+	 * @return int Members count
+	 */
 	getMembersCount {
-
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms)
 		throws PerunException {
-		if (parms.contains("status")) {
-			return ac.getMembersManager().getMembersCount(ac.getSession(), ac.getVoById(parms.readInt("vo")), Status.valueOf(parms.readString("status")));
-		} else {
-			return ac.getMembersManager().getMembersCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
-		}
+			if (parms.contains("status")) {
+				return ac.getMembersManager().getMembersCount(ac.getSession(), ac.getVoById(parms.readInt("vo")), Status.valueOf(parms.readString("status")));
+			} else {
+				return ac.getMembersManager().getMembersCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			}
 		}
 	},
+
 	/*#
-		* Deletes all VO members.
-		*
-		* @param vo int VO ID
-		*/
+	 * Deletes all VO members.
+	 *
+	 * @param vo int VO ID
+	 */
 	deleteAllMembers {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -391,11 +479,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members by their name.
-		*
-		* @param searchString String String to search by
-		* @return List<Member> Found members
-		*/
+	 * Searches for members by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @return List<Member> Found members
+	 */
 	findMembersByName {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -404,12 +492,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a VO by their name.
-		*
-		* @param searchString String String to search by
-		* @param vo int VO ID to search in
-		* @return List<Member> Found members
-		*/
+	 * Searches for members in a VO by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @param vo int VO ID to search in
+	 * @return List<Member> Found members
+	 */
 	findMembersByNameInVo {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -418,12 +506,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a Group by their name.
-		*
-		* @param searchString String String to search by
-		* @param group int Group ID to search in
-		* @return List<Member> Found members
-		*/
+	 * Searches for members in a Group by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @param group int Group ID to search in
+	 * @return List<Member> Found members
+	 */
 	findMembersInGroup {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -432,12 +520,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a parent group of supplied group by their name.
-		*
-		* @param searchString String String to search by
-		* @param group int Group ID, in whose parent group to search in
-		* @return List<Member> Found members
-		*/
+	 * Searches for members in a parent group of supplied group by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @param group int Group ID, in whose parent group to search in
+	 * @return List<Member> Found members
+	 */
 	findMembersInParentGroup {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -446,12 +534,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for rich members in a Group by their name.
-		*
-		* @param searchString String String to search by
-		* @param group int Group ID to search in
-		* @return List<RichMember> Found members
-		*/
+	 * Searches for rich members in a Group by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @param group int Group ID to search in
+	 * @return List<RichMember> Found members
+	 */
 	findRichMembersInGroup {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -460,12 +548,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for rich members in a parent group of supplied group by their name.
-		*
-		* @param searchString String String to search by
-		* @param group int Group ID, in whose parent group to search in
-		* @return List<RichMember> Found members
-		*/
+	 * Searches for rich members in a parent group of supplied group by their name.
+	 *
+	 * @param searchString String String to search by
+	 * @param group int Group ID, in whose parent group to search in
+	 * @return List<RichMember> Found members
+	 */
 	findRichMembersInParentGroup {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -474,12 +562,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a VO.
-		*
-		* @param searchString String String to search by
-		* @param vo int VO ID
-		* @return List<Members> Found members
-		*/
+	 * Searches for members in a VO.
+	 *
+	 * @param searchString String String to search by
+	 * @param vo int VO ID
+	 * @return List<Members> Found members
+	 */
 	findMembersInVo {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -488,12 +576,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a VO.
-		*
-		* @param searchString String String to search by
-		* @param vo int VO ID
-		* @return List<RichMembers> Found members
-		*/
+	 * Searches for members in a VO.
+	 *
+	 * @param searchString String String to search by
+	 * @param vo int VO ID
+	 * @return List<RichMembers> Found members
+	 */
 	findRichMembersInVo {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -502,12 +590,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Searches for members in a VO, listing with additional attributes.
-		*
-		* @param searchString String String to search by
-		* @param vo int VO ID
-		* @return List<RichMembers> Found members
-		*/
+	 * Searches for members in a VO, listing with additional attributes.
+	 *
+	 * @param searchString String String to search by
+	 * @param vo int VO ID
+	 * @return List<RichMembers> Found members
+	 */
 	findRichMembersWithAttributesInVo {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -515,6 +603,56 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+ 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames
+ 	 * and who have only status which is contain in list of statuses.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param allowedStatuses List<String> Allowed statuses
+ 	 * @param searchString String String to search by
+ 	 * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString with allowed statuses
+ 	 */
+	/*#
+ 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 *
+ 	 * @param vo int Vo ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param searchString String String to search by
+ 	 * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString
+ 	 */
+	/*#
+ 	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
+ 	 * and who have only status which is contain in list of statuses.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 *
+ 	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
+ 	 * If this group is top level group, so find richMembers from members group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param allowedStatuses List<String> Allowed statuses
+ 	 * @param searchString String String to search by
+ 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
+ 	 */
+	/*#
+ 	 * Return list of richMembers for specific group by the searchString with attrs specific for list of attrsNames.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 *
+ 	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
+ 	 * If this group is top level group, so find richMembers from members group.
+ 	 *
+ 	 * @param group int Group ID
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param searchString String String to search by
+ 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
+ 	 */
 	findCompleteRichMembers {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -551,12 +689,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Sets a status of a member.
-		*
-		* @param member int Member ID
-		* @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-		* @return Member Member object
-		*/
+	 * Sets a status of a member.
+	 *
+	 * @param member int Member ID
+	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @return Member Member object
+	 */
 	setStatus {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -568,16 +706,16 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Validate all atributes for member and set member's status to VALID.
-		* This metod runs asynchronously.
-		*
-		* It immideatelly return member with <b>ORIGINAL</b> status and
-		* after asynchronous validation sucessfuly finishes it swich member's
-		* status to VALID. If validation ends with error, memeber keeps his status.
-		*
-		* @param member int Member ID
-		* @return Member Member object
-		*/
+	 * Validate all attributes for member and set member's status to VALID.
+	 * This method runs asynchronously.
+	 *
+	 * It immediately return member with <b>ORIGINAL</b> status and
+	 * after asynchronous validation successfully finishes it switch member's
+	 * status to VALID. If validation ends with error, member keeps his status.
+	 *
+	 * @param member int Member ID
+	 * @return Member Member object
+	 */
 	validateMemberAsync {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -588,14 +726,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		*  Checks if the user can apply membership to the VO.
-		*  It's based on extendMembershipRules on the doNotAllowLoa key.
-		*
-		*  @param vo int VO ID
-		*  @param loa String LOA
-		*  @param user User User JSON object
-		*  @return int 1 if true | 0 if false
-		*/
+	 *  Checks if the user can apply membership to the VO.
+	 *  It's based on extendMembershipRules on the doNotAllowLoa key.
+	 *
+	 *  @param vo int VO ID
+	 *  @param loa String LOA
+	 *  @param user User User JSON object
+	 *  @return int 1 if true | 0 if false
+	 */
 	canBeMember {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -609,6 +747,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+ 	 * Checks if the user can apply membership to the VO, it decides based on extendMembershipRules on the doNotAllowLoa key.
+ 	 *
+ 	 * @param vo int VO ID
+ 	 * @param user User User JSON object
+ 	 * @param loa String LOA
+ 	 * @return int 1 if true | 0 if false
+ 	 */
 	canBeMemberWithReason {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -622,6 +768,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Return true(1) if the membership can be extended or if no rules were set for the membershipExpiration, otherwise false.
+	 *
+	 * @param member int Member ID
+	 * @return int 1 if true | 0 if false
+	 */
 	canExtendMembership {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -635,6 +787,17 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Returns the date to which will be extended member's expiration time.
+	 *
+	 * @param member int Member ID
+	 */
+	/*#
+	 * Returns the date to which will be extended member's expiration time.
+	 *
+	 * @param vo int Vo ID
+	 * @param user int User ID
+	 */
 	getNewExtendMembership {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -659,6 +822,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Send mail to user's preferred email address with link for non-authz password reset.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param member int Member to get user to send link mail to
+	 * @param namespace String Namespace to change password in (member must have login in)
+	 * @param url String Base URL of Perun instance
+	 */
 	sendPasswordResetLinkEmail {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {

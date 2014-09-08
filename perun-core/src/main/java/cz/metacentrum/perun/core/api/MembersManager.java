@@ -698,7 +698,7 @@ public interface MembersManager {
 
 	/**
 	 * Validate all attributes for member and set member's status to VALID.
-	 * This method runs asynchronously. It immediately return member with <b>ORIGINAL</b> status and after asynchronous validation sucessfuly
+	 * This method runs asynchronously. It immediately return member with <b>ORIGINAL</b> status and after asynchronous validation successfully
 	 * finishes it switch member's status to VALID. If validation ends with error, member keeps his status.
 	 *
 	 * @param sess

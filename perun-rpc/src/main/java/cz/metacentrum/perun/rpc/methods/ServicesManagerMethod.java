@@ -58,7 +58,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Updates a service.
 	 *
 	 * @param service Service JSON object
-	 * @return Service Updated Service
 	 */
 	updateService {
 
@@ -117,6 +116,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all services with given attribute.
 	 *
+	 * @param attributeDefinition AttributeDefinition attributeDefinition
 	 * @return all services with given attribute
 	 */
 	getServicesByAttributeDefinition {
@@ -294,8 +294,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
-	 * 
-	 * @param perunSession
+	 *
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
 	 * @return attributes in special structure. 
@@ -526,7 +525,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Mark the attribute as required for the service. Required attribues are requisite for Service to run.
+	 * Mark the attribute as required for the service. Required attributes are requisite for Service to run.
 	 * If you add attribute which has a default attribute then this default attribute will be automatically add too.
 	 *
 	 * @param service int Service ID
@@ -573,6 +572,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Remove required attribute from service.
+	 *
 	 * @param service int Service ID
 	 * @param attribute int Attribute ID
 	 */
@@ -591,6 +591,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Remove required attributes from service.
+	 *
 	 * @param service int Service ID
 	 * @param attributes int[] Attribute IDs
 	 */
@@ -616,6 +617,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Remove all required attributes from service.
+	 *
 	 * @param service int Service ID
 	 */
 	removeAllRequiredAttributes {
@@ -791,7 +793,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Add services destinations for one service. Destinations names are taken from
 	 * all facility's host hostnames.
 	 *
-	 * @param service int Service ID
 	 * @param facility int Facility ID
 	 * @return List<Destinations> Added destinations
 	 */
@@ -819,6 +820,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Removes an destination from a facility and service.
+	 *
 	 * @param service int Service ID
 	 * @param facility int Facility ID
 	 * @param destination String Destination
@@ -841,6 +843,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Removes all destinations from a facility and service.
+	 *
 	 * @param service int Service ID
 	 * @param facility int Facility ID
 	 */
@@ -860,6 +863,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns owner of a Service.
+	 *
 	 * @param service int Service ID
 	 * @return Owner Owner
 	 */
