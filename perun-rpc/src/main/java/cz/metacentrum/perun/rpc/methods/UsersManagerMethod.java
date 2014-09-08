@@ -1059,6 +1059,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Creates alternative password in external system.
+	 *
+	 * @param user int Users ID
+	 * @param description String Description of a password (e.g. 'mobile phone', 'tablet', ...)
+	 * @param loginNamespace String Login namespace
+	 * @param password String String representation of password
+	 */
 	createAlternativePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1070,10 +1078,16 @@ public enum UsersManagerMethod implements ManagerMethod {
 					parms.readString("password"));
 
 			return null;
-
 		}
 	},
 
+	/*#
+	 * Deletes alternative password in external system.
+	 *
+	 * @param user int Users ID
+	 * @param loginNamespace String Login namespace
+	 * @param passwordId String Password ID
+	 */
 	deleteAlternativePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1084,7 +1098,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 					parms.readString("passwordId"));
 
 			return null;
-
 		}
 	};
 }

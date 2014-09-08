@@ -794,7 +794,7 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @param description - description of a password (e.g. 'mobile phone', 'tablet', ...)
 	 * @param loginNamespace
-	 * @param password
+	 * @param password string representation of password
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException
@@ -805,8 +805,8 @@ public interface UsersManagerBl {
 	 * Deletes alternative password in external system.
 	 *
 	 * @param sess
-	 * @param userLogin
 	 * @param loginNamespace
+	 * @param passwordId passwords ID
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PasswordDeletionFailedException
