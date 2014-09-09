@@ -8,12 +8,10 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -36,7 +34,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 	 */
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		Integer gid = (Integer) attribute.getValue();
-		if(gid == null) throw new WrongAttributeValueException(attribute, user, facility, "Attribute value is null.");
+		if(gid == null) return;
 
 		Attribute namespaceAttribute;
 		try {
@@ -77,24 +75,10 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 			throw new ConsistencyErrorException("Namespace from value of " + namespaceAttribute + " doesn't exists. (Group-resource attribute " + AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespaceName + " doesn't exists", ex);
 		}
 
-		Attribute groupResourceIsUnixGroupAttrtibute;
-		try {
-			groupResourceIsUnixGroupAttrtibute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup"));
-			groupResourceIsUnixGroupAttrtibute.setValue(1);
-		} catch(AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
-
 		List<Group> groupWithSameGid = sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute);
 
-		Service groupService;
-		try {
-			groupService = sess.getPerunBl().getServicesManagerBl().getServiceByName(sess, "group");
-		} catch(ServiceNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		}
 		List<Group> candidateGroups = groupWithSameGid;
-		candidateGroups.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, groupService));
+		candidateGroups.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, null));
 
 		for(Group group : candidateGroups) {
 			//check if group has unix group name in namespace required by facility
@@ -117,51 +101,22 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 
 	}
 
-	@Override
-	/**
-	 * Fills the new GID for the user at the specified facility. Gets the first resource from facility (on which the user have acesss) which have filled attribute unixGID and fill with this value.
-	 */
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
-		Attribute attribute = new Attribute(attributeDefinition);
-
-		List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
-		try {
-			for(Resource resource : allowedResources) {
-				List<AttributeDefinition> resourceRequiredAttributesDefinitions = sess.getPerunBl().getAttributesManagerBl().getResourceRequiredAttributesDefinition(sess, resource);
-
-				//if this attribute is not required by the services on the resource, skip the resource
-				if(!resourceRequiredAttributesDefinitions.contains(new AttributeDefinition(attributeDefinition))) continue;
-
-				Attribute unixGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_VIRT + ":unixGID");
-				if(unixGidAttribute.getValue() != null) {
-					attribute.setValue(unixGidAttribute.getValue());
-					return attribute;
-				}
-			}
-		} catch(AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
+		@Override
+		public List<String> getDependencies() {
+			List<String> dependencies = new ArrayList<String>();
+			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+			dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
+			dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
+			dependencies.add( AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup");
+			return dependencies;
 		}
 
-		return attribute;
-	}
-
-	@Override
-	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
-		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
-		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
-		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
-		return dependencies;
-	}
-
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("defaultUnixGID");
-		attr.setDisplayName("Default unix GID");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Default Unix Group ID.");
-		return attr;
+		public AttributeDefinition getAttributeDefinition() {
+			AttributeDefinition attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+			attr.setFriendlyName("defaultUnixGID");
+			attr.setType(Integer.class.getName());
+			attr.setDescription("Default Unix Group ID.");
+			return attr;
 	}
 }

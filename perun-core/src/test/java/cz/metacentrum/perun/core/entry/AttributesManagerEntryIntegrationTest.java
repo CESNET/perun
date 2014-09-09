@@ -4219,6 +4219,26 @@ public void getRequiredFacilityAttributesForItsServices() throws Exception {
 }
 
 @Test
+public void setRequiredAttributesForMemberResourceFacilityUser() throws Exception {
+	System.out.println("attributesManager.setRequiredAttributesForMemberResourceFacilityUser");
+
+	vo = setUpVo();
+	member = setUpMember();
+	User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+	facility = setUpFacility();
+	resource = setUpResource();
+	service = setUpService();
+	List<Attribute> attributes = new ArrayList<Attribute>();
+	attributes.addAll(setUpMemberAttribute());
+	attributes.addAll(setUpUserAttribute());
+	attributes.addAll(setUpMemberResourceAttribute());
+	attributes.addAll(setUpFacilityUserAttribute());
+	perun.getResourcesManager().assignService(sess, resource, service);
+
+	perun.getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
+}
+
+@Test
 public void getResourceRequiredGroupResourceAndGroupAttributesForItsServices() throws Exception {
 	System.out.println("attributesManager.getRequiredFacilityAttributesForItsServices");
 

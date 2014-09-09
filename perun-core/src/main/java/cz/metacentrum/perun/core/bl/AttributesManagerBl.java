@@ -1009,6 +1009,29 @@ public interface AttributesManagerBl {
 	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
+	 * Get and set required attribute for member, resource, user and facility.
+	 * 
+	 * Procedure:
+	 * 1] Get all member, member-resource, user, user-facility required attributes for member and resource.
+	 * 2] Fill attributes and store those which were really filled. (value changed)
+	 * 3] Set filled attributes.
+	 * 4] Refresh value in all virtual attributes.
+	 * 5] Check all attributes and their dependencies.
+	 * 
+	 * @param sess
+	 * @param member
+	 * @param resource
+	 * @param user
+	 * @param facility
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException 
+	 */
+	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
+	
+	/**
 	 * Store the particular attribute associated with the facility. Core attributes can't be set this way.
 	 *
 	 * @param sess perun session
@@ -1724,6 +1747,26 @@ public interface AttributesManagerBl {
 	 */
 	List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
+	/**
+	 *
+	 * This method try to fill value of the user, member, member-resource and user-facility attributes. This value is automatically generated, but not all attributes can be filled this way.
+	 * This method skips all attributes with not-null value.
+	 * 
+	 * if returnOnlyAttributesWithChangedValue is true - return only attributes which changed value by filling new one
+	 * If false, has the same functionality like fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes)
+	 * 
+	 * @param sess
+	 * @param facility
+	 * @param resource
+	 * @param user
+	 * @param member
+	 * @param attributes
+	 * @param returnOnlyAttributesWithChangedValue
+	 * @return
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException 
+	 */
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method try to fill value of the member attribute. This value is automatically generated, but not all attributes can be filled this way.

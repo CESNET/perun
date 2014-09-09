@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -256,28 +257,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ConsistencyErrorException(ex);
 		}
 
-
-
 		//fill and check required attributes' values for each member
 		//and set defaultResource attribute if necessary
-		Facility facility = this.getFacility(sess, resource);
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		for(Member member : members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-
 			try {
-
-				/* FIXME je tady potreba u vsech metod pracovat i s atributy member, user a user-facility? */
-				/* Melo by to jit zefektivnit */
-
-				List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
-
-				//fill attributes without value
-				attributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, facility, resource, user, member, attributes);
-
-				//store them
-				getPerunBl().getAttributesManagerBl().setAttributes(sess, facility, resource, user, member, attributes);
+				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
 			} catch(WrongAttributeAssignmentException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch(AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}

@@ -43,7 +43,7 @@ my $data = perunServicesInit::getHierarchicalData;
 #Constants
 our $A_USER_LOGIN;                *A_USER_LOGIN =                \'urn:perun:user_facility:attribute-def:virt:login';
 our $A_SCRATCH_MOUNTPOINT;        *A_SCRATCH_MOUNTPOINT =        \'urn:perun:facility:attribute-def:def:fsScratchMountPoint';
-our $A_GID;                       *A_GID =                       \'urn:perun:user_facility:attribute-def:def:defaultUnixGID';
+our $A_GID;                       *A_GID =                       \'urn:perun:user_facility:attribute-def:virt:defaultUnixGID';
 our $A_UID;                       *A_UID =                       \'urn:perun:user_facility:attribute-def:virt:UID';
 our $A_R_SOFT_QUOTA_DATA;         *A_R_SOFT_QUOTA_DATA =         \'urn:perun:resource:attribute-def:def:defaultDataQuota';
 our $A_R_SOFT_QUOTA_FILE;         *A_R_SOFT_QUOTA_FILE =         \'urn:perun:resource:attribute-def:def:defaultFilesQuota';
