@@ -19,7 +19,7 @@ our $A_FACILITY_MIN_UID;                *A_FACILITY_MIN_UID =                   
 our $A_FACILITY_MAX_UID;                *A_FACILITY_MAX_UID =                      \'urn:perun:facility:attribute-def:virt:maxUID';
 our $A_MEMBER_KERBEROS_LOGINS;          *A_MEMBER_KERBEROS_LOGINS =                \'urn:perun:user:attribute-def:def:kerberosLogins';
 our $A_MEMBER_UID;                      *A_MEMBER_UID =                            \'urn:perun:user_facility:attribute-def:virt:UID';
-our $A_MEMBER_GID;                      *A_MEMBER_GID =                            \'urn:perun:user_facility:attribute-def:def:defaultUnixGID';
+our $A_MEMBER_GID;                      *A_MEMBER_GID =                            \'urn:perun:user_facility:attribute-def:virt:defaultUnixGID';
 
 my $passwd_file_name = "$DIRECTORY/$::SERVICE_NAME";
 my $min_uid_file_name = "$DIRECTORY/min_uid";
