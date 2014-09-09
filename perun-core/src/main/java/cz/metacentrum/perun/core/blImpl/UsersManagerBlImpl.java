@@ -41,7 +41,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	private UsersManagerImplApi usersManagerImpl;
 	private PerunBl perunBl;
 
-	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPassword:";
+	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
 	private static final String PASSWORD_VALIDATE = "validate";
 	private static final String PASSWORD_CREATE = "create";
