@@ -802,7 +802,6 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
-		if (name == null || name.isEmpty()) throw new RegistrarException("You must provide non-empty name of person you are inviting.");
 		if (email == null || email.isEmpty()) throw new RegistrarException("You must provide non-empty email of person you are inviting.");
 		if (language != null && !language.equals("en") && !language.equals("cs")) throw new RegistrarException("You must specify language like: \"en\" or \"cs\".");
 
@@ -1281,7 +1280,38 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Substitute common strings in mail text based on passed params
+	 * Substitute common strings in mail text for INVITATIONS based on passed params
+	 *
+	 * Substituted strings are:
+	 *
+	 * {voName} - full vo name
+	 * {groupName} - group short name
+	 * {displayName} - users display name returned from federation
+	 *
+	 * {invitationLinkFed} - link to VO's/group's application form
+	 * {invitationLinkKrb} - link to VO's/group's application form
+	 * {invitationLinkCert} - link to VO's/group's application form
+	 * {invitationLinkNon} - link to VO's/group's application form
+	 * {invitationLinkGoogle} - link to VO's/group's application form
+	 *
+	 * {appGuiUrl} - url to application GUI for user to see applications state
+	 * {appGuiUrlKrb} - url to application GUI for user to see applications state
+	 * {appGuiUrlCert} - url to application GUI for user to see applications state
+	 * {appGuiUrlNon} - url to application GUI for user to see applications state
+	 * {appGuiUrlGoogle} - url to application GUI for user to see applications state
+	 *
+	 * {perunGuiUrlFed} - url to perun GUI (user detail)
+	 * {perunGuiUrlKerb} - url to perun GUI (user detail)
+	 * {perunGuiUrlCert} - url to perun GUI (user detail)
+	 * {perunGuiUrlGoogle} - url to perun GUI (user detail)
+	 *
+	 * {mailFooter} - common VO's footer
+	 *
+	 * @param vo vo this template belong to
+	 * @param group group this template belong to
+	 * @param user User to get name from, if null, param 'name' is used instead.
+	 * @param name Optional name of user (for anonymous, used when user==null).
+	 * @param mailText Original mail text template
 	 */
 	private String substituteCommonStringsForInvite(Vo vo, Group group, User user, String name, String mailText) {
 
@@ -1303,8 +1333,10 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains("{displayName}")) {
 			if (user != null) {
 				mailText = mailText.replace("{displayName}", user.getDisplayName());
-			} else {
+			} else if (name != null && !name.isEmpty()) {
 				mailText = mailText.replace("{displayName}", name);
+			} else {
+				mailText = mailText.replace("{displayName}", "");
 			}
 		}
 
@@ -1353,6 +1385,73 @@ public class MailManagerImpl implements MailManager {
 		}
 		if (mailText.contains("{invitationLinkGoogle}")) {
 			mailText = mailText.replace("{invitationLinkGoogle}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiGoogle")));
+		}
+
+		// replace perun application GUI link with list of applications
+		if (mailText.contains("{appGuiUrl}")) {
+			String text = getPropertyFromConfiguration("registrarGuiFed");
+			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			if (group != null) {
+				text = text + "&group="+group.getName();
+			}
+			mailText = mailText.replace("{appGuiUrl}", text);
+		}
+
+		if (mailText.contains("{appGuiUrlKrb}")) {
+			String text = getPropertyFromConfiguration("registrarGuiKrb");
+			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			if (group != null) {
+				text = text + "&group="+group.getName();
+			}
+			mailText = mailText.replace("{appGuiUrlKrb}", text);
+		}
+
+		if (mailText.contains("{appGuiUrlCert}")) {
+			String text = getPropertyFromConfiguration("registrarGuiCert");
+			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			if (group != null) {
+				text = text + "&group="+group.getName();
+			}
+			mailText = mailText.replace("{appGuiUrlCert}", text);
+		}
+
+		if (mailText.contains("{appGuiUrlNon}")) {
+			String text = getPropertyFromConfiguration("registrarGuiNon");
+			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			if (group != null) {
+				text = text + "&group="+group.getName();
+			}
+			mailText = mailText.replace("{appGuiUrlNon}", text);
+		}
+
+		if (mailText.contains("{appGuiUrlGoogle}")) {
+			String text = getPropertyFromConfiguration("registrarGuiGoogle");
+			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			if (group != null) {
+				text = text + "&group="+group.getName();
+			}
+			mailText = mailText.replace("{appGuiUrlGoogle}", text);
+		}
+
+		// replace perun gui link
+		if (mailText.contains("{perunGuiUrlFed}")) {
+			String text = getPropertyFromConfiguration("perunGuiFederation");
+			mailText = mailText.replace("{perunGuiUrlFed}", text);
+		}
+		// replace perun gui link
+		if (mailText.contains("{perunGuiUrlKerb}")) {
+			String text = getPropertyFromConfiguration("perunGuiKerberos");
+			mailText = mailText.replace("{perunGuiUrlKerb}", text);
+		}
+		// replace perun gui link
+		if (mailText.contains("{perunGuiUrlCert}")) {
+			String text = getPropertyFromConfiguration("perunGuiCert");
+			mailText = mailText.replace("{perunGuiUrlCert}", text);
+		}
+		// replace perun gui link
+		if (mailText.contains("{perunGuiUrlGoogle}")) {
+			String text = getPropertyFromConfiguration("perunGuiGoogle");
+			mailText = mailText.replace("{perunGuiUrlGoogle}", text);
 		}
 
 		// mail footer
@@ -1441,11 +1540,15 @@ public class MailManagerImpl implements MailManager {
 	 * application, application data and perun itself.
 	 *
 	 * Substituted strings are:
+	 *
 	 * {voName} - full vo name
-	 * {displayName} - users display name returned from federation
-	 * {firstName}
-	 * {lastName}
+	 * {groupName} - group short name
+	 * {displayName} - user's display name returned from federation if present on form
+	 * {firstName} - first name of user if present on form as separate form item
+	 * {lastName} - last name of user if present on form as separate form item
 	 * {appId} - application id
+	 * {actor} - login in external system used when submitting application
+	 * {extSource} - external system used for authentication when submitting application
 	 * {appGuiUrl} - url to application GUI for user to see applications state
 	 * {appGuiUrlKrb} - url to application GUI for user to see applications state
 	 * {appGuiUrlCert} - url to application GUI for user to see applications state

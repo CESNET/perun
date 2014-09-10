@@ -126,7 +126,8 @@ public class InviteUserTabItem implements TabItem {
 			}
 		};
 
-		name.setValidator(nameValidator);
+		// Name is now optional
+		// name.setValidator(nameValidator);
 		email.setValidator(emailValidator);
 
 		ft.setWidget(1, 1, name);
@@ -141,7 +142,9 @@ public class InviteUserTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent event) {
 
-				if (!nameValidator.validateTextBox() || !emailValidator.validateTextBox()) return;
+				// Name is now optional
+				//if (!nameValidator.validateTextBox() || !emailValidator.validateTextBox()) return;
+				if (!emailValidator.validateTextBox()) return;
 
 				SendInvitation invite = new SendInvitation(vo.getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(sendInvitationButton, tab));
 				invite.inviteUser(email.getTextBox().getText().trim(), name.getTextBox().getText().trim(), languages.getValue(languages.getSelectedIndex()));
