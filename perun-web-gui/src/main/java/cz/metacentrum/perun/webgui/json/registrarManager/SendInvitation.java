@@ -113,10 +113,12 @@ public class SendInvitation {
 			UiElements.generateAlert("Input error", "Email address format is not valid.");
 			return;
 		}
+		/*
 		if (name == null || name.isEmpty()) {
 			UiElements.generateAlert("Input error", "Name of user to invite can't be empty.");
 			return;
 		}
+		*/
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
@@ -142,7 +144,7 @@ public class SendInvitation {
 		if (groupId != 0) {
 			query.put("groupId", new JSONNumber(groupId));
 		}
-		query.put("name", new JSONString(name));
+		if (name != null && !name.isEmpty()) query.put("name", new JSONString(name));
 		query.put("email", new JSONString(email));
 		query.put("language", new JSONString(language));
 
