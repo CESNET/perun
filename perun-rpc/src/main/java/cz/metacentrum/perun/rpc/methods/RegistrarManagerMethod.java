@@ -72,7 +72,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Sends invitation email to user which is not member of VO
 	 *
 	 * @param voId int ID of VO to send invitation into
-	 * @param name String name of person used in invitation email
+	 * @param name String name of person used in invitation email (optional)
 	 * @param email String email address to send invitation to
 	 * @param language String preferred language to use
 	 */
@@ -84,7 +84,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param voId int ID of VO to send invitation into
 	 * @param groupId int ID of Group to send invitation into
-	 * @param name String name of person used in invitation email
+	 * @param name String name of person used in invitation email (optional)
 	 * @param email String email address to send invitation to
 	 * @param language String preferred language to use
 	 */
@@ -111,14 +111,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
 							ac.getVoById(parms.readInt("voId")),
 							ac.getGroupById(parms.readInt("groupId")),
-							parms.readString("name"),
+							(parms.contains("name")) ? parms.readString("name") : null,
 							parms.readString("email"),
 							parms.readString("language"));
 				} else {
 					ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
 							ac.getVoById(parms.readInt("voId")),
 							null,
-							parms.readString("name"),
+							(parms.contains("name")) ? parms.readString("name") : null,
 							parms.readString("email"),
 							parms.readString("language"));
 				}
