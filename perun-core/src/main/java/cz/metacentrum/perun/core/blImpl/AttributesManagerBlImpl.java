@@ -3469,9 +3469,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			int safetyCounter = 0;
 			do {
 				try {
-					requiredAttributes = fillAttributes(sess, facility, resource, user, member, requiredAttributes);
-					setAttributes(sess, facility, resource, user, member, requiredAttributes);
+					setRequiredAttributes(sess, facility, resource, user, member, requiredAttributes);
 					allOk = true;
+				} catch(AttributeNotExistsException ex) {
+					throw new ConsistencyErrorException(ex);
 				} catch(WrongAttributeAssignmentException ex) {
 					throw new ConsistencyErrorException(ex);
 				} catch(WrongAttributeValueException ex) {
