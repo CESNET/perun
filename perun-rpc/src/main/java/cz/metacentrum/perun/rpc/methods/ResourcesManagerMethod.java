@@ -34,6 +34,16 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	getResourceByName {
+		@Override
+		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getResourceByName(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getFacilityById(parms.readInt("facility")),
+							parms.readString("name"));
+		}
+	},
+
 	/*#
 	 * Returns RichResource by its ID (also containing facility and VO inside)
 	 *

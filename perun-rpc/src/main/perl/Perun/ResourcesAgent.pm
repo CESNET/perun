@@ -23,6 +23,11 @@ sub getResourceById
 	return Perun::Common::callManagerMethod('getResourceById', 'Resource', @_);
 }
 
+sub getResourceByName
+{
+	return Perun::Common::callManagerMethod('getResourceByName', 'Resource', @_);
+}
+
 sub createResource
 {
 	return Perun::Common::callManagerMethod('createResource', 'Resource', @_);
