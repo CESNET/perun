@@ -790,12 +790,20 @@ public class MembersManagerEntry implements MembersManager {
 					 return getMembersManagerBl().canBeMemberWithReason(sess, vo, user, loa);
 	}
 
-	public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ExtendMembershipException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		return getMembersManagerBl().getNewExtendMembership(sess, member);
 	}
+	
+	public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtendMembershipException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    Utils.notNull(loa, "loa");
+
+    return getMembersManagerBl().getNewExtendMembership(sess, vo, loa);
+  }
 
 	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 
