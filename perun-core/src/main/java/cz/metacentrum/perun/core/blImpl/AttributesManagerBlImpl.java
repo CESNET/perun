@@ -1135,11 +1135,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		return attribute;
 	}
-	
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
-		//get all attributes (for member, resource, facility and user) with values
-		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
-		
+
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
 
@@ -1172,10 +1169,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 		}
-		
+
 		//Join all attributes and filled attributes together
 		attributes.addAll(filledAttributes);
-		
+
 		//refresh all virtual attributes with new value
 		for(Attribute attr: attributes) {
 			if(this.isVirtAttribute(sess, attr)) {
@@ -1192,12 +1189,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 		}
-		
+
 		//Check all attributes
 		checkAttributesValue(sess, facility, resource, user, member, attributes);
-		
+
 		//Check all attributes dependencies
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
+	}
+	
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
+		//get all attributes (for member, resource, facility and user) with values
+		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
+		
+		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
