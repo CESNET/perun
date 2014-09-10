@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.membersManager.GetNewExtendMembership;
+import cz.metacentrum.perun.webgui.json.membersManager.GetNewExtendMembershipLoa;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.json.registrarManager.HandleApplication;
 import cz.metacentrum.perun.webgui.json.registrarManager.ResendNotification;
@@ -126,6 +127,23 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 				!app.getState().equalsIgnoreCase("APPROVED") && !app.getState().equalsIgnoreCase("REJECTED")) {
 
 			GetNewExtendMembership ex = new GetNewExtendMembership(app.getVo().getId(), app.getUser().getId(), new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					if (jso != null) {
+						BasicOverlayType basic = jso.cast();
+						ft.setHTML(2, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+					}
+				}
+			});
+			ex.retrieveData();
+		}
+
+		// for initial in VO, if not approved or rejected
+		if (app.getType().equalsIgnoreCase("INITIAL") &&
+				!app.getState().equalsIgnoreCase("APPROVED") &&
+				!app.getState().equalsIgnoreCase("REJECTED")) {
+
+			GetNewExtendMembershipLoa ex = new GetNewExtendMembershipLoa(app.getVo().getId(), app.getExtSourceLoa(), new JsonCallbackEvents(){
 				@Override
 				public void onFinished(JavaScriptObject jso) {
 					if (jso != null) {
