@@ -1032,6 +1032,32 @@ public interface AttributesManagerBl {
 	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
 	
 	/**
+	 * Get and set required attributes from arrayList for member, resource, user and facility.
+	 *
+	 * IMPORTANT: set all attrs from arrayList, set not required attrs too if they are in arrayList
+	 *
+	 * Procedure:
+	 * 1] Get all attrs from arrayList
+	 * 2] Fill attributes and store those which were really filled. (value changed)
+	 * 3] Set filled attributes.
+	 * 4] Refresh value in all virtual attributes.
+	 * 5] Check all attributes and their dependencies.
+	 * 
+	 * @param sess
+	 * @param facility
+	 * @param resource
+	 * @param user
+	 * @param member
+	 * @param attributes
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException 
+	 */
+	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
+
+	/**
 	 * Store the particular attribute associated with the facility. Core attributes can't be set this way.
 	 *
 	 * @param sess perun session
