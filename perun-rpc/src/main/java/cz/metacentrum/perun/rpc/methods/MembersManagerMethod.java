@@ -798,6 +798,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int Vo ID
 	 * @param user int User ID
 	 */
+	/*#
+	 * Returns the date to which will be extended member's expiration time.
+	 * Calculation is done just based on provided LoA and VO's membership expiration rules.
+	 *
+	 * @param vo int Vo ID
+	 * @param loa String LoA of user
+	 */
 	getNewExtendMembership {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -816,8 +823,16 @@ public enum MembersManagerMethod implements ManagerMethod {
 					return BeansUtils.DATE_FORMATTER.format(d);
 				}
 				return null;
+			} else if (parms.contains("vo") && parms.contains("loa")) {
+				Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.readString("loa"));
+				if (d != null) {
+					return BeansUtils.DATE_FORMATTER.format(d);
+				}
+				return null;
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "member, user, vo");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "member or (user, vo) or (vo, loa)");
 			}
 		}
 	},
