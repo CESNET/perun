@@ -106,7 +106,6 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		ft.setWidget(3, 1, reason);
 
 		final CustomButton requestQuotaButton = new CustomButton("Send request", "Send quota change request", SmallIcons.INSTANCE.emailIcon());
-		requestQuotaButton.setEnabled(false);
 
 		if (this.quotaType.equals(QuotaType.DATA)) {
 			ft.setWidget(2, 2, units);
