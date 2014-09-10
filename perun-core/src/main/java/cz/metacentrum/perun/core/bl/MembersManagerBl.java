@@ -864,8 +864,21 @@ public interface MembersManagerBl {
 	 * @param member
 	 * @return date
 	 * @throws InternalErrorException
+	 * @throws ExtendMembershipException
 	 */
-	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException;
+	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException;
+	
+	/**
+   * Returns the date to which will be extended potential member of the VO.
+   *
+   * @param sess
+   * @param vo
+   * @param loa
+   * @return date
+   * @throws InternalErrorException
+   * @throws ExtendMembershipException
+   */
+  Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, ExtendMembershipException;
 
 	/**
 	 * For richMember filter all his user and member attributes and remove all which principal has no access to.
