@@ -1199,7 +1199,8 @@ public class MailManagerImpl implements MailManager {
 	/**
 	 * Sets proper value "FROM" to mail message based on VO or GROUP attribute "fromEmail"
 	 *
-	 * If attribute not set, BACKUP_FROM address is used
+	 * If group attribute not set and is group application, get vo attribute as backup.
+	 * If any attribute not set, BACKUP_FROM address is used.
 	 *
 	 * @param message message to set param FROM
 	 * @param app application to decide if it's VO or Group application
@@ -1217,6 +1218,10 @@ public class MailManagerImpl implements MailManager {
 				attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_FROM_EMAIL);
 			} else {
 				attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_FROM_EMAIL);
+				// use VO as backup
+				if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
+					attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_FROM_EMAIL);
+				}
 			}
 
 			String senderEmail = "";
@@ -1237,7 +1242,8 @@ public class MailManagerImpl implements MailManager {
 	/**
 	 * Get proper values "TO" for mail message based on VO or GROUP attribute "toEmail"
 	 *
-	 * If attribute not set, BACKUP_TO address is used
+	 * If group attribute not set and is group application, get vo attribute as backup.
+	 * If any attribute not set, BACKUP_FROM address is used.
 	 *
 	 * @param app application to decide if it's VO or Group application
 	 *
@@ -1254,6 +1260,10 @@ public class MailManagerImpl implements MailManager {
 				attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_TO_EMAIL);
 			} else {
 				attrToEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_TO_EMAIL);
+				// use VO as backup
+				if (attrToEmail == null || attrToEmail.getValue() == null) {
+					attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_TO_EMAIL);
+				}
 			}
 			if (attrToEmail != null && attrToEmail.getValue() != null) {
 				ArrayList<String> value = ((ArrayList<String>)attrToEmail.getValue());
