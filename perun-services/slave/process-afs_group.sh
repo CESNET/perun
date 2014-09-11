@@ -22,6 +22,20 @@ function process {
 		USERS_FROM_PERUN_FILE="$FROM_PERUN_DIR/$GROUP_NAME"
 		USERS_FROM_PERUN_FILE_FILTERED="$FILTERED_GROUPS/$GROUP_NAME"
 
+		#Create group if not exists
+		pts examine -nameorid "$GROUP_NAME" >/dev/null
+		#if not null return code, it means not exists and need to be created
+		if [ $? -ne 0 ]; then
+			pts creategroup -name "$GROUP_NAME" >/dev/null 2>"$TMP_ERROR_FILE"
+			if [ $? -ne 0 ]; then
+				MSG="Command failed: pts creategroup $GROUP_NAME Reason: `cat $TMP_ERROR_FILE`"
+				echo "$MSG" >&2
+				logger -t "${NAME}" -p daemon.error "${SERVICE}: ${MSG}" &>/dev/null
+				ERROR=1
+				continue	
+			fi
+		fi
+
 		MEMBERSHIP=`pts membership -nameorid "$GROUP_NAME" | tail -n "+2" | sed -e 's/^\s*//' 2> "$TMP_ERROR_FILE"`
 		if [ -s "$TMP_ERROR_FILE" ]; then
 			MSG="Command failed: pts membership -nameorid $GROUP_NAME | tail -n +2 | sed -e 's/^\s*//' Reason: `cat $TMP_ERROR_FILE`"

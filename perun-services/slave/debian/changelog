@@ -1,3 +1,9 @@
+perun-slave (3.0.0-0.0.76) stable; urgency=low
+
+   * afs_group can create new group if it doesn't exists
+
+ -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0200
+
 perun-slave (3.0.0-0.0.75) stable; urgency=low
 
    * New service k5login_generic. It's used for managing ~/.k5login files on
