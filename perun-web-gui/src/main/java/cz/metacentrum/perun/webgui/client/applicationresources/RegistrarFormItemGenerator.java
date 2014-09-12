@@ -296,16 +296,16 @@ public class RegistrarFormItemGenerator {
 					if(inputChecker.isValid(true)){
 						// is valid AND value not empty
 						if(!strValueBox.getText().equals(""))
-			{
-				// default OK?
-				if(inputChecker.useDefaultOkMessage())
-			{
-				statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-			}
-			}else{
-				// input empty - clear;
-				statusCellWrapper.clear();
-			}
+						{
+							// default OK?
+							if(inputChecker.useDefaultOkMessage())
+							{
+								statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+							}
+						}else{
+							// input empty - clear;
+							statusCellWrapper.clear();
+						}
 					}
 
 					// update
@@ -432,7 +432,7 @@ public class RegistrarFormItemGenerator {
 			return generateEmailTextBox();
 		}
 
-		if(item.getType().equals("SUBMIT_BUTTON")){
+		if(item.getType().equals("SUBMIT_BUTTON") || item.getType().equals("AUTO_SUBMIT_BUTTON")){
 			showLabel = false;
 			return generateButton();
 		}
@@ -1018,26 +1018,26 @@ public class RegistrarFormItemGenerator {
 				textBox.setVisible(lbox.getSelectedIndex() == otherValueIndex);
 
 				if(lbox.getSelectedIndex() == otherValueIndex)
-		{
-			textBox.setFocus(true);
-			textBox.selectAll();
-		}
+				{
+					textBox.setFocus(true);
+					textBox.selectAll();
+				}
 
-		// validation
-		if(inputChecker.isValid(true)){
-			// is valid AND value not empty
-			if(!strValueBox.getText().equals("") || !item.isRequired())
-		{
-			// default OK?
-			if(inputChecker.useDefaultOkMessage())
-			{
-				statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
-			}
-		}else{
-			// input empty - clear;
-			statusCellWrapper.clear();
-		}
-		}
+				// validation
+				if(inputChecker.isValid(true)){
+					// is valid AND value not empty
+					if(!strValueBox.getText().equals("") || !item.isRequired())
+					{
+						// default OK?
+						if(inputChecker.useDefaultOkMessage())
+						{
+							statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						}
+					}else{
+						// input empty - clear;
+						statusCellWrapper.clear();
+					}
+				}
 			}
 		});
 		// set default value
@@ -1543,18 +1543,18 @@ public class RegistrarFormItemGenerator {
 	 * @param id class of textbox to assign handlers to
 	 */
 	private final native void setCutCopyPasteHandler(String id) /*-{
-				$wnd.jQuery.ready(function() {
-		$wnd.jQuery('#'+id).bind('cut', function(e) {
-		$wnd.jQuery('#'+id).onkeyup()
+		$wnd.jQuery.ready(function() {
+			$wnd.jQuery('#'+id).bind('cut', function(e) {
+				$wnd.jQuery('#'+id).onkeyup()
+			});
+			$wnd.jQuery('#'+id).bind('copy', function(e) {
+				$wnd.jQuery('#'+id).onkeyup()
+			});
+			$wnd.jQuery('#'+id).bind('paste', function(e) {
+				$wnd.jQuery('#'+id).onkeyup()
+			});
 		});
-		$wnd.jQuery('#'+id).bind('copy', function(e) {
-		$wnd.jQuery('#'+id).onkeyup()
-		});
-		$wnd.jQuery('#'+id).bind('paste', function(e) {
-		$wnd.jQuery('#'+id).onkeyup()
-		});
-		});
-			}-*/;
+	}-*/;
 
 
 }

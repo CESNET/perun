@@ -310,7 +310,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 
 
 			// if button, add onclick
-			if (item.getFormItem().getType().equals("SUBMIT_BUTTON")) {
+			if (item.getFormItem().getType().equals("SUBMIT_BUTTON") || item.getFormItem().getType().equals("AUTO_SUBMIT_BUTTON")) {
 
 				this.sendButton = (CustomButton) gen.getWidget();
 				sendButton.addClickHandler(new ClickHandler() {
@@ -466,6 +466,14 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 	 */
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
+
+	public CustomButton getSendButton() {
+		return this.sendButton;
 	}
 
 }

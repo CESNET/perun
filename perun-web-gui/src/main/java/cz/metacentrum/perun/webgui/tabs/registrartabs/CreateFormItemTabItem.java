@@ -1,11 +1,14 @@
 package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItemGenerator;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -51,7 +54,7 @@ public class CreateFormItemTabItem implements TabItem {
 	/**
 	 * Input types
 	 */
-	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "HTML_COMMENT", "HEADING", "TIMEZONE", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
+	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "AUTO_SUBMIT_BUTTON", "HTML_COMMENT", "HEADING", "TIMEZONE", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
 
 	/**
 	 * Cropping length in select box after which item to add item
@@ -74,10 +77,10 @@ public class CreateFormItemTabItem implements TabItem {
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+		vp.setSize("400px", "100%");
 
 		// flex table
-		FlexTable layout = new FlexTable();
+		final FlexTable layout = new FlexTable();
 		layout.setStyleName("inputFormFlexTable");
 		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
@@ -133,6 +136,54 @@ public class CreateFormItemTabItem implements TabItem {
 		for (int i = 0; i < layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
 		}
+
+		layout.setHTML(3,0,"");
+		cellFormatter.setColSpan(3,0,2);
+		cellFormatter.setStyleName(3,0, "inputFormInlineComment");
+
+		typeListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+
+				String type = typeListBox.getValue(typeListBox.getSelectedIndex());
+
+				if (type.equals("TEXTFIELD")) {
+					layout.setHTML(3,0, "Editable text field useful to gather short text input, e.g. name, phone.");
+				} else if (type.equals("TEXTAREA")) {
+					layout.setHTML(3,0, "Editable text area useful to gather longer text input with linebreaks, e.g. comments, SSH key");
+				} else if (type.equals("SELECTIONBOX")) {
+					layout.setHTML(3,0, "Simple selection box with defined custom values that user can choose.");
+				} else if (type.equals("COMBOBOX")) {
+					layout.setHTML(3,0, "Selection box with defined custom values and one special option: \"--custom value--\", which allows users to input own text (as simple text field).");
+				} else if (type.equals("CHECKBOX")) {
+					layout.setHTML(3,0,"List of defined custom options with checkboxes. Selected values are gathered as comma separated string.");
+				} else if (type.equals("USERNAME")) {
+					layout.setHTML(3,0,"Special text field to gather user`s login. It checks login availability on user input.");
+				} else if (type.equals("PASSWORD")) {
+					layout.setHTML(3,0,"Two password fields to gather user`s new password. Input is never displayed. User must type same password in both fields.");
+				} else if (type.equals("VALIDATED_EMAIL")) {
+					layout.setHTML(3,0,"Special text field to gather and verify user`s email address. Input is checked on email address format. If user enters new value, then validation email is sent. Application then can't be approved unless provided email address is validated.");
+				} else if (type.equals("SUBMIT_BUTTON")) {
+					layout.setHTML(3,0,"Button used to submit the form with custom label. All other form items are checked on valid input before submission. If it fails, form is not sent.");
+				} else if (type.equals("AUTO_SUBMIT_BUTTON")) {
+					layout.setHTML(3,0,"Button used to auto-submit the form with custom label. All other form items are checked on valid input before submission. If validation fail (at least once) user must submit form manually. If it's OK, then form is automatically submitted.");
+				} else if (type.equals("HTML_COMMENT")) {
+					layout.setHTML(3,0,"Item is used to display custom HTML content anywhere on form. Useful for explanation descriptions, dividing parts of form etc.");
+				} else if (type.equals("HEADING")) {
+					layout.setHTML(3,0,"Item is used to display customizable heading of form. Can have any HTML content.");
+				} else if (type.equals("TIMEZONE")) {
+					layout.setHTML(3,0,"Selection box with pre-defined values of UTC timezones.");
+				} else if (type.equals("FROM_FEDERATION_HIDDEN")) {
+					layout.setHTML(3,0,"Non-editable and hidden form item. Form is submitted even on invalid input ! Useful to automatically gather information provided by AUTH mechanism (IdP federation, certificate).");
+				} else if (type.equals("FROM_FEDERATION_SHOW")) {
+					layout.setHTML(3,0,"Non-editable and visible form item. Form is submitted even on invalid input ! Useful to automatically gather information provided by AUTH mechanism (IdP federation, certificate).");
+				} else {
+					layout.setHTML(3,0,"");
+				}
+
+			}
+		});
+		layout.setHTML(3,0, "Editable text field useful to gather short text input, e.g. name, phone.");
 
 		TabMenu menu = new TabMenu();
 
