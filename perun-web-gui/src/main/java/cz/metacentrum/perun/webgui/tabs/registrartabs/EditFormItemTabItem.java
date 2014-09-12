@@ -160,6 +160,18 @@ public class EditFormItemTabItem implements TabItem {
 
 			row++;
 
+		} else if ("SUBMIT_BUTTON".equals(item.getType()) || "AUTO_SUBMIT_BUTTON".equals(item.getType())) {
+
+			Label label = new Label("Label:");
+			ft.setWidget(row, 0, label);
+			ft.setWidget(row, 1, labelTextBox);
+
+			row++;
+			ft.setHTML(row, 1, "Label displayed on submit button.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+
+			row++;
+
 		} else {
 
 			Label label = new Label("Label:");
@@ -187,7 +199,7 @@ public class EditFormItemTabItem implements TabItem {
 			ft.setWidget(row, 1, errorTextBox);
 
 			row++;
-			ft.setHTML(row, 1, "Error message displayed to user when inputs wrong value.");
+			ft.setHTML(row, 1, "Error message displayed to user when enters wrong value.");
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 
 		}
@@ -218,7 +230,7 @@ public class EditFormItemTabItem implements TabItem {
 
 			boxRow++;
 
-			Label boxContentLabel = new Label("Selectionbox / Combobox / Checkbox options:");
+			Label boxContentLabel = new Label(item.getType().substring(0, 0)+item.getType().toLowerCase().substring(1)+" options:");
 			boxItemTable.setWidget(boxRow, 0, boxContentLabel);
 			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
 			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
@@ -462,7 +474,7 @@ public class EditFormItemTabItem implements TabItem {
 		row++;
 
 		// IF BUTTON OR COMMENT, don't show these
-		if (!item.getType().equals("SUBMIT_BUTTON") && !item.getType().equals("HTML_COMMENT") && !item.getType().equals("HEADING")) {
+		if (!item.getType().equals("SUBMIT_BUTTON") && !item.getType().equals("AUTO_SUBMIT_BUTTON") && !item.getType().equals("HTML_COMMENT") && !item.getType().equals("HEADING")) {
 
 			// load attr defs only when showed
 			attrDef.retrieveData();
@@ -473,7 +485,7 @@ public class EditFormItemTabItem implements TabItem {
 			ftf.setColSpan(row, 1, 2);
 
 			row++;
-			ft.setHTML(row, 1, "If checked, user can`t submit empty value.");
+			ft.setHTML(row, 1, "If checked, user can`t submit empty value (doesn't apply to non-editable fields).");
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 

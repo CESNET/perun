@@ -217,24 +217,37 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		formContent.add(header);
 
-		JsonCallbackEvents jqueryEvent = new JsonCallbackEvents(){
+		final GetFormItemsWithPrefilledValues fitems;
+		if (group != null) {
+			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.GROUP, group.getId());
+		} else {
+			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId());
+		}
+
+		fitems.setEvents(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
+
+				// when form is auto-submitting
+				ArrayList<ApplicationFormItemWithPrefilledValue> items = JsonUtils.<ApplicationFormItemWithPrefilledValue>jsoAsList(jso);
+				for (ApplicationFormItemWithPrefilledValue item : items) {
+					if (item.getFormItem().getType().equals("AUTO_SUBMIT_BUTTON")) {
+						if (fitems.getSendButton() != null) {
+							// enforce first click to validate and submit the form
+							fitems.getSendButton().click();
+						}
+					}
+				}
+
 				Scheduler.get().scheduleDeferred(new Command() {
 					@Override
 					public void execute() {
 						positionLinker();
 					}
 				});
-			}
-		};
 
-		final GetFormItemsWithPrefilledValues fitems;
-		if (group != null) {
-			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.GROUP, group.getId(), jqueryEvent);
-		} else {
-			fitems = new GetFormItemsWithPrefilledValues(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), jqueryEvent);
-		}
+			}
+		});
 
 		// pass valid app type in URL or use default
 

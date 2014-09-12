@@ -112,6 +112,11 @@ public class ApplicationFormItem {
 		 */
 		SUBMIT_BUTTON,
 		/**
+		 * For specifying a label for the submit button. When validation of form is OK, then it's
+		 * automatically submitted. When validation fails, user have to fix it and submit form manually.
+		 */
+		AUTO_SUBMIT_BUTTON,
+		/**
 		 * For read-only fields with values taken from identity federation.
 		 */
 		FROM_FEDERATION_SHOW,

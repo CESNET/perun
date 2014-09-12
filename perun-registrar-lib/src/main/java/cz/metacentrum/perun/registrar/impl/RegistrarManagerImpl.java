@@ -3,13 +3,6 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASSWORD;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALIDATED_EMAIL;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HEADING;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -42,6 +35,8 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
+
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 
 /**
  * Implementation of RegistrarManager. Provides methods for:
@@ -639,7 +634,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			for (ApplicationFormItemData itemData : data) {
 
 				Type itemType = itemData.getFormItem().getType();
-				if (itemType == HTML_COMMENT || itemType == SUBMIT_BUTTON || itemType == PASSWORD || itemType == HEADING) continue;
+				if (itemType == HTML_COMMENT || itemType == SUBMIT_BUTTON || itemType == AUTO_SUBMIT_BUTTON || itemType == PASSWORD || itemType == HEADING) continue;
 
 				// Check if mails needs to be validated
 				if (itemType == VALIDATED_EMAIL) {
