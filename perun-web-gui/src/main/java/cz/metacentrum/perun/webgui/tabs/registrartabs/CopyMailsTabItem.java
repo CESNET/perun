@@ -209,7 +209,6 @@ public class CopyMailsTabItem implements TabItem {
 		return SmallIcons.INSTANCE.addIcon();
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -218,9 +217,6 @@ public class CopyMailsTabItem implements TabItem {
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -231,6 +227,9 @@ public class CopyMailsTabItem implements TabItem {
 			return false;
 		CopyMailsTabItem create = (CopyMailsTabItem) obj;
 		if (voId != create.voId){
+			return false;
+		}
+		if (groupId != create.groupId){
 			return false;
 		}
 
@@ -251,6 +250,9 @@ public class CopyMailsTabItem implements TabItem {
 		if (session.isVoAdmin(voId)) {
 			return true;
 		} else {
+			if (groupId != 0) {
+				return session.isGroupAdmin(groupId);
+			}
 			return false;
 		}
 	}
