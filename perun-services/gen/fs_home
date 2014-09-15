@@ -57,6 +57,7 @@ our $A_MR_DATALIMIT;               *A_MR_DATALIMIT =                 \'urn:perun
 our $A_MR_DATAQUOTA;               *A_MR_DATAQUOTA =                 \'urn:perun:member_resource:attribute-def:def:dataQuota';
 our $A_MR_FILESLIMIT;              *A_MR_FILESLIMIT =                \'urn:perun:member_resource:attribute-def:def:filesLimit';
 our $A_MR_FILESQUOTA;              *A_MR_FILESQUOTA =                \'urn:perun:member_resource:attribute-def:def:filesQuota';
+our $A_F_QUOTAENABLED;             *A_F_QUOTAENABLED =               \'urn:perun:facility:attribute-def:def:quotaEnabled';
 
 #our $A_RESOURCE_UNIX_GROUP_NAME;  *A_RESOURCE_UNIX_GROUP_NAME =     \'urn:perun:resource:attribute-def:virt:unixGroupName';
 #our $A_RESOURCE_UNIX_GID;         *A_RESOURCE_UNIX_GID =            \'urn:perun:resource:attribute-def:virt:unixGID';
@@ -69,6 +70,7 @@ our $STRUC_GROUPS;   *STRUC_GROUPS =  \"groups";
 
 my $service_file_name = "$DIRECTORY/$::SERVICE_NAME";
 my $umask_file_name = "$DIRECTORY/umask";
+my $quota_enabled_file_name = "$DIRECTORY/quota_enabled";
 
 my $memberAttributesByLoginAndMount = {};
 
@@ -150,6 +152,12 @@ if(defined $facilityAttributes{$A_F_UMASK}) {
 	open UMASK_FH, ">$umask_file_name" or die "Cannot open $umask_file_name: $!\n";
 	print UMASK_FH $facilityAttributes{$A_F_UMASK}, "\n";
 	close UMASK_FH;
+}
+
+if(defined $facilityAttributes{$A_F_QUOTAENABLED}) {
+	open QUOTA_FH, ">$quota_enabled_file_name" or die "Cannot open $quota_enabled_file_name: $!\n";
+	print QUOTA_FH $facilityAttributes{$A_F_QUOTAENABLED}, "\n";
+	close QUOTA_FH;
 }
 #####################################################
 perunServicesInit::finalize;
