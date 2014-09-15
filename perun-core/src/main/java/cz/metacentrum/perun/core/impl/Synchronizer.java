@@ -87,6 +87,7 @@ public class Synchronizer {
 								try {
 									perunBl.getMembersManagerBl().expireMember(sess, member);
 									log.info("Switching {} to EXPIRE state, due to expiration {}.", member, (String) membersExpiration.getValue());
+									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 								} catch (MemberNotValidYetException e) {
 									log.warn("Trying to switch invalid member {} into the expire state.", member);
 								}
@@ -96,6 +97,7 @@ public class Synchronizer {
 							try {
 								perunBl.getMembersManagerBl().validateMember(sess, member);
 								log.info("Switching {} to VALID state, due to changed expiration {}.", member, (String) membersExpiration.getValue());
+								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 							} catch (WrongAttributeValueException e) {
 								log.error("Error during validating member {}, exception {}", member, e);
 							} catch (WrongReferenceAttributeValueException e) {
