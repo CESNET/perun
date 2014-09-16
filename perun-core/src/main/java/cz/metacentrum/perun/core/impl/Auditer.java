@@ -369,7 +369,7 @@ public class Auditer {
 
 	public List<AuditMessage> getMessagesByCount(int count) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?)", AUDITMESSAGE_MAPPER, count);
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<AuditMessage>();
 		} catch (RuntimeException err) {
