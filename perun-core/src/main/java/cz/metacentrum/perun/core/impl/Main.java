@@ -20,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -306,9 +307,11 @@ public class Main {
 			String userPassword = "userPassword: ";
 			List<String> membersOf = new ArrayList<String>();
 			List<Member> members = new ArrayList<Member>();
+			Set<String> membersOfPerunVo = new HashSet<>();
 			members = perun.getMembersManagerBl().getMembersByUser(perunSession, u);
 			for(Member m: members) {
 				if(m.getStatus().equals(Status.VALID)) {
+					membersOfPerunVo.add("memberOfPerunVo: " + m.getVoId());
 					List<Group> groups = new ArrayList<Group>();
 					groups = perun.getGroupsManagerBl().getAllMemberGroups(perunSession, m);
 					for(Group g: groups) {
@@ -403,6 +406,10 @@ public class Main {
 			}
 			//ADD MEMBEROF ATTRIBUTE TO WRITER
 			for(String s: membersOf) {
+				writer.write(s + '\n');
+			}
+			//ADD MEMBEROFPERUNVO ATTRIBUTE TO WRITER
+			for(String s: membersOfPerunVo) {
 				writer.write(s + '\n');
 			}
 			writer.write('\n');

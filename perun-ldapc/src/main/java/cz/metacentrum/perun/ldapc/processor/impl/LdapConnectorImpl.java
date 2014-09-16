@@ -1,45 +1,30 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
 import cz.metacentrum.perun.core.api.*;
-import java.util.Hashtable;
 import java.util.List;
 
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.ldap.LdapName;
 import javax.naming.directory.ModificationItem;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.springframework.ldap.InvalidAttributeValueException;
 import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.LdapAttribute;
 import org.springframework.ldap.core.LdapTemplate;
 
 @org.springframework.stereotype.Service(value = "ldapConnector")
@@ -165,20 +150,40 @@ public class LdapConnectorImpl implements LdapConnector {
 	//-----------------------------MEMBER MODIFICATION METHODS--------------------
 
 	public void addMemberToGroup(Member member, Group group) throws InternalErrorException {
+		//Add member to group
 		Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
 		ModificationItem uniqueMemberItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, uniqueMember);
 		this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
-		if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
+		//Add member to vo if this group is memebrsGroup
+		if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) {
+			//Add info to vo
+			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
+			//Add info also to user
+			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getId()));
+			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOfPerunVo);
+			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
+		}
+		//Add group info to member
 		Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
 		ModificationItem memberOfItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOf);
 		this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
 	}
 
 	public void removeMemberFromGroup(Member member, Group group) throws InternalErrorException {
+		//Remove member from group
 		Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
 		ModificationItem uniqueMemberItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, uniqueMember);
 		this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
-		if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
+		//Remove member from vo if this group is membersGroup
+		if(group.getName().equals(VosManager.MEMBERS_GROUP) && group.getParentGroupId() == null) {
+			//Remove info from vo
+			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
+			//Remove also information from user
+			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getId()));
+			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOfPerunVo);
+			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
+		}
+		//Remove group info from member
 		Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
 		ModificationItem memberOfItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOf);
 		this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
