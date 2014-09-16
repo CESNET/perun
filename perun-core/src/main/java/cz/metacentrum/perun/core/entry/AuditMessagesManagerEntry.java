@@ -41,7 +41,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
-		return getAuditMessagesManagerBl().getMessages(perunSession, count);
+		return getAuditMessagesManagerBl().getMessagesByCount(perunSession, count);
 	}
 
 	@Override
