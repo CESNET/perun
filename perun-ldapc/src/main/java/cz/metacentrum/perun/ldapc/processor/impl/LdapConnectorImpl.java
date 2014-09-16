@@ -159,7 +159,7 @@ public class LdapConnectorImpl implements LdapConnector {
 			//Add info to vo
 			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
 			//Add info also to user
-			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getId()));
+			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getVoId()));
 			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOfPerunVo);
 			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
 		}
@@ -179,7 +179,7 @@ public class LdapConnectorImpl implements LdapConnector {
 			//Remove info from vo
 			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
 			//Remove also information from user
-			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getId()));
+			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getVoId()));
 			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOfPerunVo);
 			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
 		}
