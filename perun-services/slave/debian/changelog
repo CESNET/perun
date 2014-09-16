@@ -1,3 +1,9 @@
+perun-slave (3.0.0-0.0.78) stable; urgency=low
+
+   * fs_scratch_global service deleted
+
+ -- Zora Sebestianova <zora.ics.muni.cz> Tue, 16 Sep 2014 08:45:00 +0200
+
 perun-slave (3.0.0-0.0.77) stable; urgency=low
 
    * fs_home can get flag if quotas are enabled from perun attribute. This
