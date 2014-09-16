@@ -6,8 +6,8 @@ PROTOCOL_VERSION='3.1.0'
 function process {
 	### Status codes
 
-	I_CHANGED=(0 "${SSH_AUTHORIZED_KEYS} updated")
-	I_NOT_CHANGED=(0 "${SSH_AUTHORIZED_KEYS} has not changed")
+	I_CHANGED=(0 '${SSH_AUTHORIZED_KEYS} updated')
+	I_NOT_CHANGED=(0 '${SSH_AUTHORIZED_KEYS} has not changed')
 
 
 	E_NO_HOME=(50 'Cannot found home for user ${USER}.')
@@ -32,7 +32,7 @@ function process {
 		SSH_DIR="$HOME_DIR/.ssh/"
 		SSH_AUTHORIZED_KEYS="$SSH_DIR/authorized_keys"
 
-		catch_error E_CREATE_SSH_DIR [ -d "$SSH_DIR" ] || mkdir "$SSH_DIR"
+		[ -d "$SSH_DIR" ] || mkdir "$SSH_DIR" || log_msg E_CREATE_SSH_DIR
 
 		if [ -f "$SSH_AUTHORIZED_KEYS" ]; then
 			catch_error E_MERGE_SSH_KEYS sort -u "$SSH_AUTHORIZED_KEYS" "$FROM_PERUN_AUTHORIZED_KEYS" > "$TMP_FILE"

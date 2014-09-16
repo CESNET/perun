@@ -13,7 +13,7 @@ perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
 my $data = perunServicesInit::getHierarchicalData;
 
-my $sshkeysDirectory = "$DIRECTORY/ssh";
+my $sshkeysDirectory = "$DIRECTORY/sshkeys";
 mkdir $sshkeysDirectory or die "Can't mkdir $sshkeysDirectory: $!";
 
 #Constants

@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.79) stable; urgency=low
+
+   * fix error and info messages in service ssh_keys
+   * fix processing of errors when .ssh directory do not exists in service
+     ssh_keys
+
+ -- Slavek Licehammer <slavek@ics.muni.cz> Tue, 16 Sep 2014 17:55:00 +0200
+
 perun-slave (3.0.0-0.0.78) stable; urgency=low
 
    * fs_scratch_global service deleted
