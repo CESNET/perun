@@ -629,14 +629,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" from users, members, member_attr_values, attr_names " +
 					"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
 					"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-					"member_attr_values.attr_value=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+					"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
 
 		// Search preferred email (user)
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
 					" from users, user_attr_values, attr_names " +
 					"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
 					"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-					"user_attr_values.attr_value=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+					"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
 
 		// Search logins in userExtSources
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
