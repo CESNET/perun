@@ -307,6 +307,20 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources left outer join facilities on resources.facility_id=facilities.id" +
+					" left outer join groups_resources on groups_resources.resource_id=resources.id" +
+					" left outer join groups_members on groups_members.group_id=groups_resources.group_id" +
+					" left outer join members on members.id=groups_members.member_id" +
+					" where facilities.id=? and members.user_id=? and members.status!=?",RESOURCE_MAPPER, facility.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Resource>();
+		}	catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +

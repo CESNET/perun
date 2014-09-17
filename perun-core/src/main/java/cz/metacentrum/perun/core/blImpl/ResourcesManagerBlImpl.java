@@ -491,6 +491,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 	}
 
+	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllowedResources(sess, facility, user);
+	}
+
 	public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException {
 		return getResourcesManagerImpl().getAssignedResources(sess, user, vo);
 	}

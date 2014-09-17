@@ -491,15 +491,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
-		List<Resource> allowedResources = new ArrayList<Resource>();
-
-		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		for(Resource resource : resources) {
-			if (getPerunBl().getResourcesManagerBl().isUserAllowed(sess, user, resource)) {
-				allowedResources.add(resource);
-			}
-		}
-		return allowedResources;
+		return getPerunBl().getResourcesManagerBl().getAllowedResources(sess, facility, user);
 	}
 
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
