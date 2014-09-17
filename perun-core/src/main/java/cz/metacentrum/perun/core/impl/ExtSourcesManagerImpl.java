@@ -282,9 +282,26 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
-			int extSourceId = jdbc.queryForInt("select id from ext_sources where name=?", name);
+			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
+					"where name=?", EXT_SOURCES_EXTRACTOR, name);
 
-			return getExtSourceById(sess, extSourceId);
+			if (extSources != null && extSources.size()>1) {
+				throw new ConsistencyErrorException("There are more than one extSources with name="+name);
+			} else if (extSources != null && extSources.isEmpty()) {
+				throw new ExtSourceNotExistsException("ExtSource with name="+name+" not exists");
+			}
+
+			if (extSources != null && extSources.size() == 1) {
+				if (extSources.get(0) != null) {
+					// return correct data
+					return extSources.get(0);
+				} else {
+					throw new InternalErrorException("extSource with name="+name+" is null.");
+				}
+			}
+			// not correct data
+			throw new InternalErrorException("Response from SQL RowExtractor is null.");
 		} catch (EmptyResultDataAccessException e) {
 			throw new ExtSourceNotExistsException("ExtSourceName " + name, e);
 		} catch (RuntimeException e) {
@@ -294,20 +311,18 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			List<Integer> ess = jdbc.query("select s.id as id from vo_ext_sources v, ext_sources s where v.vo_id=?" +
-					" and v.ext_sources_id=s.id", Utils.ID_MAPPER, vo.getId());
+			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+					" from vo_ext_sources as v inner join ext_sources on v.ext_sources_id=ext_sources.id " +
+					"   left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
+					" where v.vo_id=?", EXT_SOURCES_EXTRACTOR, vo.getId());
 
-			List<ExtSource> extSources = new ArrayList<ExtSource>();
-
-			for (Integer id: ess) {
-				try {
-					extSources.add(this.getExtSourceById(sess, id));
-				} catch (ExtSourceNotExistsException e) {
-					throw new ConsistencyErrorException("Database inconsistecy,! ExtSource id=" + id + " not exists");
-				}
+			if (extSources != null) {
+				return extSources;
 			}
-
-			return extSources;
+			throw new InternalErrorException("Response from SQL RowExtractor is null.");
+		} catch (EmptyResultDataAccessException e) {
+			// empty list
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -315,18 +330,16 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		try {
-			List<Integer> extSourcesIds = jdbc.query("select id from ext_sources", Utils.ID_MAPPER);
+			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id ", EXT_SOURCES_EXTRACTOR);
 
-			List<ExtSource> extSources = new ArrayList<ExtSource>();
-			for (Integer id: extSourcesIds) {
-				try {
-					extSources.add(this.getExtSourceById(sess, id));
-				} catch (ExtSourceNotExistsException e) {
-					throw new ConsistencyErrorException(e);
-				}
+			if (extSources != null) {
+				return extSources;
 			}
-
-			return extSources;
+			throw new InternalErrorException("Response from SQL RowExtractor is null.");
+		} catch (EmptyResultDataAccessException e) {
+			// empty list
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
