@@ -468,6 +468,18 @@ public interface ResourcesManagerBl {
 	List<Resource> getAllowedResources(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
+	 * Return all resources which are under the facility and has member of the user with status other than INVALID.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 *
+	 * @return list of resources allowed for user (user has there member with status other than INVALID)
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+
+	/**
 	 * Get all resources where the member is assigned.
 	 *
 	 * @param sess
