@@ -87,6 +87,17 @@ public class ListBoxWithObjects<T> extends ListBox {
 	}
 
 	/**
+	 * Adds an item to the ListBox (at the end of the list)
+	 *
+	 * @param value object to be stored
+	 * @param label label to be displayed
+	 */
+	public void addItem(T value, String label){
+		this.objects.add(value);
+		this.addItem(label);
+	}
+
+	/**
 	 * Clears the ListBox
 	 */
 	public void clear()

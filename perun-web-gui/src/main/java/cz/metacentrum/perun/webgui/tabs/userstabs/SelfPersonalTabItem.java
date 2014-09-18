@@ -130,6 +130,7 @@ public class SelfPersonalTabItem implements TabItem {
 		}
 
 		final PreferredShellsWidget preferredShellsWidget = new PreferredShellsWidget();
+		final PreferredUnixGroupNameWidget preferredUnixGroupNameWidget = new PreferredUnixGroupNameWidget();
 
 		// content
 		final FlexTable settingsTable = new FlexTable();
@@ -150,6 +151,7 @@ public class SelfPersonalTabItem implements TabItem {
 		settingsTable.setHTML(6, 0, "List of preferred shells ordered from the most preferred to least is used to determine your shell on provided resources. If none of preferred shells is available on resource (or no preferred shell is set), resource's default is used.");
 		settingsTable.getFlexCellFormatter().setStyleName(6, 0, "inputFormInlineComment");
 
+		settingsTable.setHTML(7, 0, "Preferred unix groups names:");
 
 		for (int i=1; i<settingsTable.getRowCount(); i++) {
 			if (i == 2 || i == 6) continue;
@@ -158,7 +160,7 @@ public class SelfPersonalTabItem implements TabItem {
 
 		// SET SAVE CLICK HANDLER
 
-		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in contact info");
+		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes in preferences");
 		//TabMenu menu = new TabMenu();
 		//menu.addWidget(save);
 
@@ -171,6 +173,11 @@ public class SelfPersonalTabItem implements TabItem {
 		list.add("urn:perun:user:attribute-def:def:preferredMail");
 		list.add("urn:perun:user:attribute-def:def:timezone");
 		list.add("urn:perun:user:attribute-def:def:preferredShells");
+
+		for (String s : Utils.getNamespacesForPreferredGroupNames()) {
+			list.add("urn:perun:user:attribute-def:def:preferredUnixGroupName-namespace:"+s);
+		}
+
 
 		final Map<String,Integer> ids = new HashMap<String,Integer>();
 		ids.put("user", userId);
@@ -193,6 +200,9 @@ public class SelfPersonalTabItem implements TabItem {
 						newValue = preferredEmail.getTextBox().getValue().trim();
 					} else if (a.getFriendlyName().equalsIgnoreCase("preferredShells")) {
 						String s = preferredShellsWidget.getAttribute().getValue();
+						newValue = (!s.equalsIgnoreCase("null")) ? s : "";
+					} else if (a.getBaseFriendlyName().equals("preferredUnixGroupName-namespace")) {
+						String s = preferredUnixGroupNameWidget.getAttribute(a.getName()).getValue();
 						newValue = (!s.equalsIgnoreCase("null")) ? s : "";
 					} else {
 						continue; // other than contact attributes must be skipped
@@ -249,6 +259,10 @@ public class SelfPersonalTabItem implements TabItem {
 				settingsTable.setWidget(3, 1, preferredLanguage);
 				settingsTable.setWidget(4, 1, timezone);
 				settingsTable.setWidget(5, 1, preferredShellsWidget);
+				settingsTable.setWidget(7, 1, preferredUnixGroupNameWidget);
+
+				// clear on re-init
+				preferredUnixGroupNameWidget.clear();
 
 				for (final Attribute a : userAttrs) {
 
@@ -257,11 +271,18 @@ public class SelfPersonalTabItem implements TabItem {
 							// don't skip this null attribute
 							preferredShellsWidget.setAttribute(a);
 						}
+						if (a.getBaseFriendlyName().equalsIgnoreCase("preferredUnixGroupName-namespace")) {
+							// don't skip this null attribute
+							preferredUnixGroupNameWidget.setAttribute((Attribute)JsonUtils.clone(a).cast());
+						}
 						// skip null attributes
 						continue;
 					}
 
-					if (a.getFriendlyName().equalsIgnoreCase("preferredLanguage")) {
+					if (a.getBaseFriendlyName().equalsIgnoreCase("preferredUnixGroupName-namespace")) {
+						// don't skip this null attribute
+						preferredUnixGroupNameWidget.setAttribute((Attribute)JsonUtils.clone(a).cast());
+					} else if (a.getFriendlyName().equalsIgnoreCase("preferredLanguage")) {
 						if (a.getValue().equals("cs")) {
 							preferredLanguage.setSelectedIndex(1);
 						} else if (a.getValue().equals("en")) {
@@ -309,7 +330,7 @@ public class SelfPersonalTabItem implements TabItem {
 										// update notice under textbox on any cut/past/type action
 										if (!preferredEmail.getTextBox().getText().trim().equals(a.getValue())) {
 											settingsTable.setHTML(2, 0, "No changes are saved, until new address is validated. After change please check your inbox for validation mail." +
-												((!resultText.isEmpty()) ? "<p><span class=\"serverResponseLabelError\">You have pending change request. Please check inbox of: "+resultText+" for validation email.</span>" : ""));
+													((!resultText.isEmpty()) ? "<p><span class=\"serverResponseLabelError\">You have pending change request. Please check inbox of: "+resultText+" for validation email.</span>" : ""));
 											settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment");
 										} else {
 											settingsTable.setHTML(2, 0, (!resultText.isEmpty()) ? "You have pending change request. Please check inbox of: "+resultText+" for validation email." : "");
@@ -321,30 +342,30 @@ public class SelfPersonalTabItem implements TabItem {
 								});
 
 							}
-						@Override
-						public void onError(PerunError error) {
-							//save.setEnabled(true);
-							// add basic validator even if there is any error
-							preferredEmail.setValidator(new ExtendedTextBox.TextBoxValidator() {
-								@Override
-								public boolean validateTextBox() {
-									if (preferredEmail.getTextBox().getText().trim().isEmpty()) {
-										preferredEmail.setError("Preferred email address can't be empty.");
-										return false;
-									} else if (!JsonUtils.isValidEmail(preferredEmail.getTextBox().getText().trim())) {
-										preferredEmail.setError("Not valid email address format.");
-										return false;
-									} else {
-										preferredEmail.setOk();
-										return true;
+							@Override
+							public void onError(PerunError error) {
+								//save.setEnabled(true);
+								// add basic validator even if there is any error
+								preferredEmail.setValidator(new ExtendedTextBox.TextBoxValidator() {
+									@Override
+									public boolean validateTextBox() {
+										if (preferredEmail.getTextBox().getText().trim().isEmpty()) {
+											preferredEmail.setError("Preferred email address can't be empty.");
+											return false;
+										} else if (!JsonUtils.isValidEmail(preferredEmail.getTextBox().getText().trim())) {
+											preferredEmail.setError("Not valid email address format.");
+											return false;
+										} else {
+											preferredEmail.setOk();
+											return true;
+										}
 									}
-								}
-							});
-						}
-						@Override
-						public void onLoadingStart() {
-							//save.setEnabled(false);
-						}
+								});
+							}
+							@Override
+							public void onLoadingStart() {
+								//save.setEnabled(false);
+							}
 						});
 						get.retrieveData();
 
@@ -360,20 +381,22 @@ public class SelfPersonalTabItem implements TabItem {
 					}
 				}
 			}
-		@Override
-		public void onLoadingStart() {
-			settingsTable.setWidget(1, 1, new AjaxLoaderImage(true));
-			settingsTable.setWidget(3, 1, new AjaxLoaderImage(true));
-			settingsTable.setWidget(4, 1, new AjaxLoaderImage(true));
-			settingsTable.setWidget(5, 1, new AjaxLoaderImage(true));
-		}
-		@Override
-		public void onError(PerunError error) {
-			settingsTable.setWidget(1, 1, new AjaxLoaderImage(true).loadingError(error));
-			settingsTable.setWidget(3, 1, new AjaxLoaderImage(true).loadingError(error));
-			settingsTable.setWidget(4, 1, new AjaxLoaderImage(true).loadingError(error));
-			settingsTable.setWidget(5, 1, new AjaxLoaderImage(true).loadingError(error));
-		}
+			@Override
+			public void onLoadingStart() {
+				settingsTable.setWidget(1, 1, new AjaxLoaderImage(true));
+				settingsTable.setWidget(3, 1, new AjaxLoaderImage(true));
+				settingsTable.setWidget(4, 1, new AjaxLoaderImage(true));
+				settingsTable.setWidget(5, 1, new AjaxLoaderImage(true));
+				settingsTable.setWidget(7, 1, new AjaxLoaderImage(true));
+			}
+			@Override
+			public void onError(PerunError error) {
+				settingsTable.setWidget(1, 1, new AjaxLoaderImage(true).loadingError(error));
+				settingsTable.setWidget(3, 1, new AjaxLoaderImage(true).loadingError(error));
+				settingsTable.setWidget(4, 1, new AjaxLoaderImage(true).loadingError(error));
+				settingsTable.setWidget(5, 1, new AjaxLoaderImage(true).loadingError(error));
+				settingsTable.setWidget(7, 1, new AjaxLoaderImage(true).loadingError(error));
+			}
 		});
 
 		attrsCall.getListOfAttributes(ids, list);

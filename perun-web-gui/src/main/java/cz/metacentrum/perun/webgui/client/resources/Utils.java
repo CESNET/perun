@@ -125,6 +125,17 @@ public class Utils {
 
 	}
 
+	public static ArrayList<String> getNamespacesForPreferredGroupNames() {
+
+		ArrayList<String> result = new ArrayList<String>();
+		String skip = PerunWebSession.getInstance().getConfiguration().getCustomProperty("namespacesForPreferredGroupNames");
+		for (int i=0; i<skip.split(",").length; i++) {
+			result.add(skip.split(",")[i]);
+		}
+		return result;
+
+	}
+
 	/**
 	 * Return URL to Password change GUI for selected namespace
 	 *
