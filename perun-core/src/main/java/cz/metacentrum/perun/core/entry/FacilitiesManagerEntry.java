@@ -493,7 +493,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		for(Host host: hosts) {
 
 			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
-			List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+			List<Facility> facilitiesByDestination = getFacilitiesManagerBl().getFacilitiesByDestination(sess, host.getHostname());
 
 			if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
 				continue;
@@ -541,7 +541,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		for(Host host: addedHosts) {
 
 			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
-			List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+			List<Facility> facilitiesByDestination = getFacilitiesManagerBl().getFacilitiesByDestination(sess, host.getHostname());
 
 			if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
 				continue;
@@ -805,7 +805,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.notNull(host, "hosts");
 
 		List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
-		List<Facility> facilitiesByDestination = getFacilitiesByDestination(sess, host.getHostname());
+		List<Facility> facilitiesByDestination = getFacilitiesManagerBl().getFacilitiesByDestination(sess, host.getHostname());
 
 		if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
 			return getFacilitiesManagerBl().addHost(sess, host, facility);
