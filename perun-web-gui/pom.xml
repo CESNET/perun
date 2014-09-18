@@ -120,6 +120,11 @@
                 <!-- Plugin configuration. There are many available options, see
                   gwt-maven-plugin documentation at codehaus.org -->
                 <configuration>
+	                <modules>
+		                <module>cz.metacentrum.perun.webgui.application-form</module>
+		                <module>cz.metacentrum.perun.webgui.password-reset</module>
+		                <module>cz.metacentrum.perun.webgui.perun-web</module>
+	                </modules>
                     <runTarget>PerunWeb.html</runTarget>
                     <hostedWebapp>${webappDirectory}</hostedWebapp>
                     <!-- skip code optimization for devel not necessary -->
@@ -235,7 +240,11 @@
                         <!-- Plugin configuration. There are many available options, see
                           gwt-maven-plugin documentation at codehaus.org -->
                         <configuration>
-                            <userAgents>gecko1_8,safari,opera,ie8,ie9</userAgents>
+	                        <modules>
+		                        <module>cz.metacentrum.perun.webgui.application-form-prod</module>
+		                        <module>cz.metacentrum.perun.webgui.password-reset-prod</module>
+		                        <module>cz.metacentrum.perun.webgui.perun-web-prod</module>
+	                        </modules>
                             <runTarget>PerunWeb.html</runTarget>
                             <hostedWebapp>${webappDirectory}</hostedWebapp>
                         </configuration>

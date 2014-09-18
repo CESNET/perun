@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='PasswordReset'>
+
+	<inherits name='cz.metacentrum.perun.webgui.password-reset' />
+
+	<set-property name="user.agent" value="gecko1_8" />
+	<extend-property name="user.agent" values="safari" />
+
+	<!-- enable source maps -->
+    <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+    <set-property name="compiler.useSourceMaps" value="true" />
+
+</module>
