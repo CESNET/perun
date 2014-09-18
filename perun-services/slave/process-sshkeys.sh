@@ -14,6 +14,10 @@ function process {
 	E_CREATE_SSH_DIR=(51 'Cannot create $SSH_DIR')
 	E_MERGE_SSH_KEYS=(52 'Cannot merge ssh keys')
 	E_IO=(53 'IO error')
+	E_PRIMARY_GROUP_ID_NOT_FOUND=(54 'Cannot found primary group id for user ${USER}.')
+	E_CHANGE_OWNER_ON_SSH_DIR=(55 'Cannot change owner on dir $SSH_DIR')
+	E_CHANGE_PERMISSIONS_ON_SSH_DIR=(56 'Cannot change permissions to $PERM_ON_SSH_DIR on dir $SSH_DIR')
+	E_CHANGE_PERMISSIONS_ON_SSH_FILE=(57 'Cannot change permissions to $PERM_ON_SSH_FILE on file $SSH_AUTHORIZED_KEYS');
 
 	E_DIR_NOT_EXISTS=(50 'Home directory ${HOME_DIR} does not exits.')
 
@@ -32,11 +36,23 @@ function process {
 		SSH_DIR="$HOME_DIR/.ssh/"
 		SSH_AUTHORIZED_KEYS="$SSH_DIR/authorized_keys"
 
-		[ -d "$SSH_DIR" ] || mkdir "$SSH_DIR" || log_msg E_CREATE_SSH_DIR
+		if [ ! -d "$SSH_DIR" ]; then
+			mkdir "$SSH_DIR" || log_msg E_CREATE_SSH_DIR
+			USER_PRIMARY_GROUP_ID=`id -g $USER` || log_msg E_PRIMARY_GROUP_ID_NOT_FOUND
+			PERM_ON_SSH_DIR=755
+			chown "$USER":"$USER_PRIMARY_GROUP_ID" "$SSH_DIR" || log_msg E_CHANGE_OWNER_ON_SSH_DIR
+			chmod "$PERM_ON_SSH_DIR" "$SSH_DIR" || log_msg E_CHANGE_PERMISSIONS_ON_SSH_DIR
+		fi
 
 		if [ -f "$SSH_AUTHORIZED_KEYS" ]; then
 			catch_error E_MERGE_SSH_KEYS sort -u "$SSH_AUTHORIZED_KEYS" "$FROM_PERUN_AUTHORIZED_KEYS" > "$TMP_FILE"
 			catch_error E_IO mv "$TMP_FILE" "$FROM_PERUN_AUTHORIZED_KEYS"
+		else
+			touch "$SSH_AUTHORIZED_KEYS" || log_msg E_IO
+			USER_PRIMARY_GROUP_ID=`id -g $USER` || log_msg E_PRIMARY_GROUP_ID_NOT_FOUND
+			PERM_ON_SSH_FILE=644
+			chown "$USER":"$USER_PRIMARY_GROUP_ID" "$SSH_AUTHORIZED_KEYS" || log_msg E_CHANGE_OWNER_ON_SSH_DIR
+			chmod "$PERM_ON_SSH_FILE" "$SSH_AUTHORIZED_KEYS" || log_msg E_CHANGE_PERMISSIONS_ON_SSH_FILE
 		fi
 
 		diff_mv "$FROM_PERUN_AUTHORIZED_KEYS" "$SSH_AUTHORIZED_KEYS" && log_msg I_CHANGED || log_msg I_NOT_CHANGED

@@ -1,3 +1,10 @@
+perun-slave (3.0.0-0.0.80) stable; urgency=low
+
+   * fix ownership and permissions on newly created files and dirs in slave
+     skript ssh_keys
+
+ -- Michal Stava <stavamichal@gmail.com> Thu, 18 Sep 2014 11:30:00 +0200
+
 perun-slave (3.0.0-0.0.79) stable; urgency=low
 
    * fix error and info messages in service ssh_keys
