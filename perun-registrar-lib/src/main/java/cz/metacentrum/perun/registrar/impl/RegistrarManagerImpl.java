@@ -1789,8 +1789,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
-				(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup))) {
+				((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) &&
+						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup)))) {
 			throw new PrivilegeException(sess, "copyFormFromVoToGroup");
 		}
 
