@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='PerunWeb'>
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='cz.metacentrum.perun.webgui.perun-web' />
+
+	<!--  Support only these browsers for devel -->
+	<set-property name="user.agent" value="gecko1_8" />
+    <extend-property name="user.agent" values="safari" />
+
+	<!-- enable source maps -->
+    <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+    <set-property name="compiler.useSourceMaps" value="true" />
+
+</module>
