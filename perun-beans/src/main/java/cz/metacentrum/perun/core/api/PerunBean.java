@@ -35,9 +35,11 @@ public abstract class PerunBean {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + id + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id='").append(id).append('\'').append(
+			']').toString();
 	}
 
 
@@ -50,9 +52,11 @@ public abstract class PerunBean {
 	}
 
 	public String serializeToString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id=<" + id + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(id).append(">").append(
+			']').toString();
 	}
 
 	@Override

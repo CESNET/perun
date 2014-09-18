@@ -101,6 +101,7 @@ public class RichResource extends Resource {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
 
 		String tags = "\\0";
 		if (getResourceTags() != null && !getResourceTags().isEmpty()) {
@@ -111,30 +112,32 @@ public class RichResource extends Resource {
 			tags = list.toString();
 		}
 
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", voId=<" + getVoId() + ">" +
-			", facilityId=<" + getFacilityId() + ">" +
-			", name=<" + (super.getName() == null ? "\\0" : BeansUtils.createEscaping(super.getName())) + ">" +
-			", description=<" + (super.getDescription() == null ? "\\0" : BeansUtils.createEscaping(super.getDescription())) + ">" +
-			", facility=<" + (getFacility() == null ? "\\0" : getFacility().serializeToString()) + ">" +
-			", vo=<" + (getVo() == null ? "\\0" : getVo().serializeToString()) + ">" +
-			", resourceTags=<" + tags + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			", facilityId=<").append(getFacilityId()).append(">").append(
+			", name=<").append(super.getName() == null ? "\\0" : BeansUtils.createEscaping(super.getName())).append(">").append(
+			", description=<").append(super.getDescription() == null ? "\\0" : BeansUtils.createEscaping(super.getDescription())).append(">").append(
+			", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">").append(
+			", vo=<").append(getVo() == null ? "\\0" : getVo().serializeToString()).append(">").append(
+			", resourceTags=<").append(tags).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":["
-			+ "id='" + getId()
-			+ "', voId='" + super.getVoId()
-			+ "', facilityId='" + super.getFacilityId()
-			+ "', name='" + super.getName()
-			+ "', description='" + super.getDescription()
-			+ "', facility='" + getFacility()
-			+ "', vo='" + getVo()
-			+ "', resourceTags='" + getResourceTags()
-			+ "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":["
+			).append("id='").append(getId()
+			).append("', voId='").append(super.getVoId()
+			).append("', facilityId='").append(super.getFacilityId()
+			).append("', name='").append(super.getName()
+			).append("', description='").append(super.getDescription()
+			).append("', facility='").append(getFacility()
+			).append("', vo='").append(getVo()
+			).append("', resourceTags='").append(getResourceTags()
+			).append("']").toString();
 	}
 
 }

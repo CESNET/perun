@@ -173,15 +173,17 @@ public class User extends Auditable implements Comparable<User> {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", titleBefore=<" + (getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())) + ">" +
-			", firstName=<" + (getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName()))+ ">" +
-			", lastName=<" + (getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())) + ">" +
-			", middleName=<" + (getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())) + ">" +
-			", titleAfter=<" + (getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())) + ">" +
-			", serviceAccount=<" + isServiceUser() + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", titleBefore=<").append(getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())).append(">").append(
+			", firstName=<").append(getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())).append(">").append(
+			", lastName=<").append(getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())).append(">").append(
+			", middleName=<").append(getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())).append(">").append(
+			", titleAfter=<").append(getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())).append(">").append(
+			", serviceAccount=<").append(isServiceUser()).append(">").append(
+			']').toString();
 	}
 
 	@Override

@@ -86,23 +86,27 @@ public class RichDestination extends Destination implements Comparable<Destinati
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", destination=<" + (super.getDestination() == null ? "\\0" : BeansUtils.createEscaping(super.getDestination())) + ">" +
-			", type=<" + (super.getType() == null ? "\\0" : BeansUtils.createEscaping(super.getType())) + ">" +
-			", facility=<" + (getFacility() == null ? "\\0" : getFacility().serializeToString()) + ">" +
-			", service=<" + (getService() == null ? "\\0" : getService().serializeToString()) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", destination=<").append(super.getDestination() == null ? "\\0" : BeansUtils.createEscaping(super.getDestination())).append(">").append(
+			", type=<").append(super.getType() == null ? "\\0" : BeansUtils.createEscaping(super.getType())).append(">").append(
+			", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">").append(
+			", service=<").append(getService() == null ? "\\0" : getService().serializeToString()).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":["
-			+ "id='" + getId()
-			+ "', destination='" + super.getDestination()
-			+ "', type='" + super.getType()
-			+ "', facility='" + getFacility()
-			+ "', service='" + getService()
-			+ "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":["
+			).append("id='").append(getId()
+			).append("', destination='").append(super.getDestination()
+			).append("', type='").append(super.getType()
+			).append("', facility='").append(getFacility()
+			).append("', service='").append(getService()
+			).append("']").toString();
 	}
 }

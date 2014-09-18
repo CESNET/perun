@@ -90,7 +90,9 @@ public class AttributeRights {
 
 	@Override
 	public String toString() {
-		return "AttributeRights{" + "attributeId=" + attributeId + ", role=" + role + ", rights=" + rights + '}';
+		StringBuilder str = new StringBuilder();
+
+		return str.append("AttributeRights{").append("attributeId=").append(attributeId).append(", role=").append(role).append(", rights=").append(rights).append('}').toString();
 	}
 
 }

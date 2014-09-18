@@ -26,7 +26,6 @@ public class Group extends Auditable implements Comparable<Group> {
 	/**
 	 * Constructor.
 	 *
-	 * @param vo          VO of the group
 	 * @param name        name of the Group
 	 * @param description description the the group
 	 */
@@ -133,14 +132,16 @@ public class Group extends Auditable implements Comparable<Group> {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", parentGroupId=<" + (getParentGroupId() == null ? "\\0" : getParentGroupId()) + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", shortName=<" + (getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())) + ">" +
-			", description=<" + (getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())) + ">" +
-			", voId=<" + getVoId() + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", parentGroupId=<").append(getParentGroupId() == null ? "\\0" : getParentGroupId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(
+			", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			']').toString();
 	}
 
 	@Override

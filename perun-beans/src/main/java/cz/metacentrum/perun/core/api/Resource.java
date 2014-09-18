@@ -104,22 +104,26 @@ public class Resource extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", voId=<" + getVoId() + ">" +
-			", facilityId=<" + getFacilityId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", description=<" + (getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			", facilityId=<").append(getFacilityId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":[id='" + getId()
-			+ "', voId='" + voId
-			+ "', facilityId='" + facilityId
-			+ "', name='" + name
-			+ "', description='" + description + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id='").append(getId()
+			).append("', voId='").append(voId
+			).append("', facilityId='").append(facilityId
+			).append("', name='").append(name
+			).append("', description='").append(description).append("']").toString();
 	}
 
 	@Override

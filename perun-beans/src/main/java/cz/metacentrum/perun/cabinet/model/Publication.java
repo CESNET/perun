@@ -473,27 +473,31 @@ public class Publication implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id=" + id + ", externalId=" + externalId + ", pubSysId=" + publicationSystemId + ", title=" + title + ", categoryId=" + categoryId + ", year=" + year + ", isbn=" + isbn + ", doi=" + doi + ", locked=" + locked + ", main=" + main + ", createdBy=" + createdBy + ", createdByUid=" + createdByUid +", createdDate=" + createdDate + ", rank=" + rank + ", authors=" + authors + "]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(id).append(", externalId=").append(externalId).append(", pubSysId=").append(publicationSystemId).append(", title=").append(title).append(", categoryId=").append(categoryId).append(", year=").append(year).append(", isbn=").append(isbn).append(", doi=").append(doi).append(", locked=").append(locked).append(", main=").append(main).append(", createdBy=").append(createdBy).append(", createdByUid=").append(createdByUid).append(", createdDate=").append(createdDate).append(", rank=").append(rank).append(", authors=").append(authors).append("]").toString();
 	}
 
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", externalIdId=<" + getExternalId() + ">" +
-			", pubSysId=<" + getPublicationSystemId() + ">" +
-			", title=<" + getTitle() + ">" +
-			", categoryId=<" + getCategoryId() + ">" +
-			", year=<" + getYear() + ">" +
-			", isbn=<" + getIsbn() + ">" +
-			", doi=<" + getDoi() + ">" +
-			", locked=<" + getLocked() + ">" +
-			", main=<" + getMain() + ">" +
-			", rank=<" + getRank() + ">" +
-			", authors=<" + getAuthors() + ">" +
-			", createdBy=<" + getCreatedBy() + ">" +
-			", createdByUid=<" + getCreatedByUid() + ">" +
-			", createdDate=<" + getCreatedDate() + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[" ).append(
+			"id=<").append(getId()).append(">" ).append(
+			", externalIdId=<").append(getExternalId()).append(">" ).append(
+			", pubSysId=<").append(getPublicationSystemId()).append(">" ).append(
+			", title=<").append(getTitle()).append(">" ).append(
+			", categoryId=<").append(getCategoryId()).append(">" ).append(
+			", year=<").append(getYear()).append(">" ).append(
+			", isbn=<").append(getIsbn()).append(">" ).append(
+			", doi=<").append(getDoi()).append(">" ).append(
+			", locked=<").append(getLocked()).append(">" ).append(
+			", main=<").append(getMain()).append(">" ).append(
+			", rank=<").append(getRank()).append(">" ).append(
+			", authors=<").append(getAuthors()).append(">" ).append(
+			", createdBy=<").append(getCreatedBy()).append(">" ).append(
+			", createdByUid=<").append(getCreatedByUid()).append(">" ).append(
+			", createdDate=<").append(getCreatedDate()).append(">" ).append(
+			']').toString();
 	}
 
 }

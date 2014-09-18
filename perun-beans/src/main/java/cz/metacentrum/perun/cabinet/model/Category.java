@@ -162,7 +162,9 @@ public class Category implements Serializable{
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id=" + id + ", name=" + name + ", rank=" + rank + "]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(id).append(", name=").append(name).append(", rank=").append(rank).append( "]").toString();
 	}
 
 

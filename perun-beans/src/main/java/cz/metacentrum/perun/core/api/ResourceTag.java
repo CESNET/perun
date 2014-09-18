@@ -45,20 +45,24 @@ public class ResourceTag extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", tagName=<" + (getTagName() == null ? "\\0" : BeansUtils.createEscaping(getTagName())) + ">" +
-			", voId=<" + getVoId() + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", tagName=<").append(getTagName() == null ? "\\0" : BeansUtils.createEscaping(getTagName())).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", tagName='" + tagName + '\'' +
-			", voId='" + voId + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id='").append(getId()).append('\'').append(
+			", tagName='").append(tagName).append('\'').append(
+			", voId='").append(voId).append('\'').append(
+			']').toString();
 	}
 
 	@Override

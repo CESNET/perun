@@ -90,23 +90,26 @@ public class UserExtSource extends Auditable {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
 
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", login=<" + (getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())) + ">" +
-			", source=<" + (extSource == null ? "\\0" : getExtSource().serializeToString()) + ">" +
-			", loa=<" + getLoa() + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", login=<").append(getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())).append(">").append(
+			", source=<").append(extSource == null ? "\\0" : getExtSource().serializeToString()).append(">").append(
+			", loa=<").append(getLoa()).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":[" +
-			"id='" + getId() +
-			"', login='" + login + '\'' +
-			", source='" + extSource + '\'' +
-			", loa='" + loa + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[").append(
+			"id='").append(getId()).append(
+			"', login='").append(login).append('\'').append(
+			", source='").append(extSource).append('\'').append(
+			", loa='").append(loa).append('\'').append(
+			']').toString();
 	}
 
 	@Override

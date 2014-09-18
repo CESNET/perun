@@ -37,15 +37,19 @@ public class Facility extends Auditable implements Comparable<Facility> {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + name + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', name='").append(name).append("']").toString();
 	}
 
 	@Override

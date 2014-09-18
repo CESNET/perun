@@ -73,10 +73,12 @@ public class ServicesPackage extends Auditable {
 	}
 
 	public String toString() {
-		return getClass().getSimpleName() + ":[" +
-			"id='" + id + "'" +
-			"description='" + description + "'" +
-			"name='" + name + "'" +
-			"]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[").append(
+			"id='").append(id).append("'").append(
+			"description='").append(description).append("'").append(
+			"name='").append(name).append("'").append(
+			"]").toString();
 	}
 }

@@ -64,7 +64,9 @@ public class Pair<L,R>  implements Serializable{
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + "[Left:" + this.getLeft() + ", Right:" + this.getRight() + "]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append("[Left:").append(this.getLeft()).append(", Right:").append(this.getRight()).append("]").toString();
 	}
 
 }

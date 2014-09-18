@@ -275,7 +275,9 @@ public class PublicationSystem implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id=" + this.getId() + ", friendlyName=" + this.getFriendlyName() + ", loginNamespace=" + this.getLoginNamespace() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", type=" + this.getType() + ", url=" + this.getUrl() + "]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(this.getId()).append(", friendlyName=").append(this.getFriendlyName()).append(", loginNamespace=").append(this.getLoginNamespace()).append(", username=").append(this.getUsername()).append(", password=").append(this.getPassword()).append(", type=").append(this.getType()).append(", url=").append(this.getUrl()).append("]").toString();
 	}
 
 }
