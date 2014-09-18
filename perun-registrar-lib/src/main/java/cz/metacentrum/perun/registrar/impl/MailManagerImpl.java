@@ -287,8 +287,10 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
-				((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) && (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup))))) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo)) {
+			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
+		}
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
 		}
 
@@ -321,12 +323,12 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
-		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) ||
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, perun.getVosManager().getVoById(sess, fromGroup.getVoId()))) {
+		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
-		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) ||
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, perun.getVosManager().getVoById(sess, toGroup.getVoId()))) {
+		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 
