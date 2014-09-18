@@ -41,7 +41,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
 		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
 		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
-		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat"};
+		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat6", "tomcat7", "tomcat8"};
 
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be nugll");
