@@ -97,7 +97,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 			}
 		}
 
-		throw new WrongAttributeValueException(attribute, "User isn't allowed to have the default unix group which have this gid (" + gid + ") or such group doesn't exist.  " + user);
+		throw new WrongAttributeValueException(attribute, user, facility, "User isn't allowed to have the default unix group which have this gid (" + gid + ") or such group doesn't exist.  " + user);
 
 	}
 
