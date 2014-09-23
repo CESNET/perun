@@ -7,6 +7,7 @@ PROTOCOL_VERSION='3.3.0'
 function process {
 	FROM_PERUN="${WORK_DIR}/fs_scratch_local"
 	SCRATCH_MOUNTPOINT=`cat ${WORK_DIR}/scratch_mountpoint`
+	UMASK_FILE="${WORK_DIR}/umask"
 
 	I_DIR_CREATED=(0 'Scratch directory ${SCRATCH_MOUNTPOINT}/${LOGIN} ($U_UID.$U_GID) for ${LOGIN} created.')
 
@@ -19,6 +20,7 @@ function process {
 
 	if [ -z "${UMASK}" ]; then
 		UMASK=0755   #default pemissions
+		[ -f "$UMASK_FILE" ] && UMASK=`head -n 1 "$UMASK_FILE"`
 	fi
 
 	# Check if the top-level scratch dir exists

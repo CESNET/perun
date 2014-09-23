@@ -1,3 +1,12 @@
+perun-slave (3.0.0-0.0.81) stable; urgency=low
+
+   * add possibility to edit umask on newly created directories by script
+     fs_scratch_local
+   * now there is attribute scratchLocalDirPermissions for this purpose
+   * prescript umask has biger priority
+
+ -- Michal Stava <stavamichal@gmail.com> Tue, 23 Sep 2014 14:30:00 +0200
+
 perun-slave (3.0.0-0.0.80) stable; urgency=low
 
    * fix ownership and permissions on newly created files and dirs in slave
