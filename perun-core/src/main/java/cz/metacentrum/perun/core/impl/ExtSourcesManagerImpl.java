@@ -312,7 +312,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
-					" from vo_ext_sources as v inner join ext_sources on v.ext_sources_id=ext_sources.id " +
+					" from vo_ext_sources v inner join ext_sources on v.ext_sources_id=ext_sources.id " +
 					"   left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
 					" where v.vo_id=?", EXT_SOURCES_EXTRACTOR, vo.getId());
 
