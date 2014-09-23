@@ -921,7 +921,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getRichSubGroupsWithAttributesByNames");
 		}
-		List<RichGroup> richGroups = getGroupsManagerBl().getAllRichGroupsWithAttributesByNames(sess, vo, attrNames);
+		List<RichGroup> richGroups = getGroupsManagerBl().getRichSubGroupsWithAttributesByNames(sess, parentGroup, attrNames);
 
 		// Check access rights for each richGroup for GROUPADMIN
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
