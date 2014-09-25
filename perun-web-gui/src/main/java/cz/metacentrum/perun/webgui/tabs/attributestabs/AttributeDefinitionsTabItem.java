@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs.attributestabs;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -73,8 +74,16 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		// create new instance for jsonCall
 		final GetAttributesDefinition attrDef = new GetAttributesDefinition();
 
+		final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDef.getOracle());
+
 		// custom events for reloading when created or deleted
-		final JsonCallbackEvents refreshTabEvents = JsonCallbackEvents.refreshTableEvents(attrDef);
+		final JsonCallbackEvents refreshTabEvents = JsonCallbackEvents.mergeEvents(JsonCallbackEvents.refreshTableEvents(attrDef), new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				if (box.getSuggestBox().getValue() != null)
+				attrDef.filterTable(box.getSuggestBox().getValue());
+			}
+		});
 
 		// TAB MENU
 		TabMenu tabMenu = new TabMenu();
@@ -98,13 +107,14 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 					public void onClick(ClickEvent clickEvent) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 						for (int i = 0; i < attrDefToBeDeleted.size(); i++) {
-							DeleteAttribute request;
-							// if last, refresh
-							if (i == attrDefToBeDeleted.size() - 1) {
-								request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, refreshTabEvents));
-							} else {
-								request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton));
-							}
+							final int x = i;
+							DeleteAttribute request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, new JsonCallbackEvents(){
+								@Override
+								public void onFinished(JavaScriptObject jso) {
+									// remove deleted attrs from table
+									attrDef.removeFromBackupTable(attrDefToBeDeleted.get(x));
+								}
+							}));
 							request.deleteAttributeDefinition(attrDefToBeDeleted.get(i).getId());
 						}
 					}
@@ -114,7 +124,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		tabMenu.addWidget(deleteButton);
 
 		// filter box
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(attrDef.getOracle()), new PerunSearchEvent() {
+		tabMenu.addFilterWidget(box, new PerunSearchEvent() {
 			public void searchFor(String text) {
 				attrDef.filterTable(text);
 			}
@@ -128,13 +138,13 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 					for (int i = 0; i < list.size(); i++) {
-						UpdateAttribute request;
-						// if last, refresh
-						if (i == list.size() - 1) {
-							request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, refreshTabEvents));
-						} else {
-							request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton));
-						}
+						final int x = i;
+						UpdateAttribute request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents(){
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								attrDef.getSelectionModel().setSelected(list.get(x), false);
+							}
+						}));
 						request.updateAttribute(list.get(i));
 					}
 				}

@@ -292,6 +292,23 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	}
 
 	/**
+	 * Removes object as row from table
+	 *
+	 * @param object AttributeDefinition to be removed as row
+	 */
+	public void removeFromBackupTable(AttributeDefinition object) {
+		fullBackup.remove(object);
+		list.remove(object);
+		selectionModel.getSelectedSet().remove(object);
+		oracle.clear();
+		for (AttributeDefinition def : fullBackup) {
+			oracle.add(def.getFriendlyName());
+		}
+		dataProvider.flush();
+		dataProvider.refresh();
+	}
+
+	/**
 	 * Clear all table content
 	 */
 	public void clearTable(){
