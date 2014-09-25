@@ -384,23 +384,43 @@ public class GetFormItems implements JsonCallback {
 			// remove
 			CustomButton removeButton = new CustomButton(ButtonTranslation.INSTANCE.deleteButton(), ButtonTranslation.INSTANCE.deleteFormItem(), SmallIcons.INSTANCE.deleteIcon());
 			removeButton.addClickHandler(new ClickHandler() {
-
 				public void onClick(ClickEvent event) {
-					HTML text = new HTML("<p>Deleting of form items is <strong>NOT RECOMMENDED!</strong><p>You will loose access to data users submitted in older applications within this form item!<p>Do you want to continue?");
-					Confirm c = new Confirm("Delete confirm", text, new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							// mark for deletion when save changes
-							items.get(index).setForDelete(true);
-							// remove if newly created
-							if (items.get(index).getId()==0) {
-								items.remove(index);
-							}
-							// refresh
-							prepareSettings(items);
+
+					boolean forDelete = false;
+					for (ApplicationFormItem it : items) {
+						if (it.isForDelete()) forDelete = true;
+					}
+
+					if (forDelete) {
+
+						// mark for deletion when save changes
+						items.get(index).setForDelete(true);
+						// remove if newly created
+						if (items.get(index).getId()==0) {
+							items.remove(index);
 						}
-					}, true);
-					c.setNonScrollable(true);
-					c.show();
+						// refresh
+						prepareSettings(items);
+
+					} else {
+
+						HTML text = new HTML("<p>Deleting of form items is <strong>NOT RECOMMENDED!</strong><p>You will loose access to data users submitted in older applications within this form item!<p>Do you want to continue?");
+						Confirm c = new Confirm("Delete confirm", text, new ClickHandler(){
+							public void onClick(ClickEvent event) {
+								// mark for deletion when save changes
+								items.get(index).setForDelete(true);
+								// remove if newly created
+								if (items.get(index).getId()==0) {
+									items.remove(index);
+								}
+								// refresh
+								prepareSettings(items);
+							}
+						}, true);
+						c.setNonScrollable(true);
+						c.show();
+
+					}
 				}
 			});
 			editTable.setWidget(0, 3, removeButton);
@@ -411,7 +431,7 @@ public class GetFormItems implements JsonCallback {
 				upButton.setEnabled(false);
 				downButton.setEnabled(false);
 				removeButton.setEnabled(false);
-					}
+			}
 
 			// format
 			fcf.setHeight(i, 0, "28px");
@@ -468,10 +488,10 @@ public class GetFormItems implements JsonCallback {
 								item.draw();
 							}
 						}
-					@Override
-					public void onLoadingStart(){
-						item = session.getTabManager().getActiveTab();
-					}
+						@Override
+						public void onLoadingStart(){
+							item = session.getTabManager().getActiveTab();
+						}
 					}));
 					request.createApplicationForm();
 				}
