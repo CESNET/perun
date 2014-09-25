@@ -830,8 +830,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/minus.png")
 	//ImageResource minusIcon();
 
-	//@Source("icons/16x16/bullet_white.png")
-	//ImageResource bulletWhiteIcon();
+	@Source("icons/16x16/bullet_white.png")
+	ImageResource bulletWhiteIcon();
 
 	//@Source("icons/16x16/bullet_wrench.png")
 	//ImageResource bulletWrenchIcon();

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
@@ -71,7 +72,7 @@ public class RichGroup extends JavaScriptObject {
                         }
                         return false;
                 }-*/;
-                public final native Integer getSynchronizationInterval() /*-{
+                public final native String getSynchronizationInterval() /*-{
                         for (var id in this.attributes) {
                             if (this.attributes[id].friendlyName === "synchronizationInterval") {
                                 return this.attributes[id].value;
@@ -87,7 +88,7 @@ public class RichGroup extends JavaScriptObject {
                         }
                         return null;
                 }-*/;
-                public final native Integer getLastSynchronizationTimestamp() /*-{
+                public final native String getLastSynchronizationTimestamp() /*-{
                         for (var id in this.attributes) {
                             if (this.attributes[id].friendlyName === "lastSynchronizationTimestamp") {
                                 return this.attributes[id].value;

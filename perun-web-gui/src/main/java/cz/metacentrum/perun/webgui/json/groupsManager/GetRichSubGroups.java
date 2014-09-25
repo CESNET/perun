@@ -147,9 +147,13 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
                     @Override
                     public ImageResource getValue(RichGroup object) {
                         if (object.isSyncEnabled()) {
-                            return SmallIcons.INSTANCE.bulletGreenIcon();
+                            if (object.getLastSynchronizationState().equals("OK")) {
+                                return SmallIcons.INSTANCE.bulletGreenIcon();
+                            } else {
+                                return SmallIcons.INSTANCE.bulletRedIcon();
+                            }
                         } else {
-                            return SmallIcons.INSTANCE.bulletRedIcon();
+                            return SmallIcons.INSTANCE.bulletWhiteIcon();
                         }
                     }
                     @Override
@@ -164,15 +168,47 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
                 syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, ImageResource>() {
                     @Override
                     public void update(int index, RichGroup object, ImageResource value) {
-                        String html = "VO name: <b>"+object.getName()+"</b><br>";
-                        html += "Sync. enabled: <b>"+object.isSyncEnabled()+"</b><br>";
+                        String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
+                        name = object.getName();
                         if (object.isSyncEnabled()) {
-                            html += "Sync. Interval: <b>"+object.getSynchronizationInterval()+"</b><br>";
-                            html += "Last sync. state: <b>"+object.getLastSynchronizationState()+"</b><br>";
-                            html += "Last sync. timestamp: <b>"+object.getLastSynchronizationTimestamp()+"</b><br>";
-                            html += "Authoritative group: <b>"+object.getAuthoritativeGroup()+"</b><br>";
+                            syncEnabled = "enabled";
+                        } else {
+                            syncEnabled = "disabled";
                         }
-                        UiElements.generateInfo("VO synchronization info", html);
+                        if (object.getSynchronizationInterval() == null) {
+                            syncInterval = "N/A";
+                        } else { 
+                            syncInterval = object.getSynchronizationInterval();
+                        }
+                        if (object.getLastSynchronizationState().equals("OK")) {
+                            syncState = "OK";
+                        } else {
+                            if (session.isPerunAdmin()) {
+                                syncState = object.getLastSynchronizationState();
+                            } else {
+                                syncState = "Internal Error";
+                            }
+                        }
+                        if (object.getLastSynchronizationTimestamp() == null) {
+                            syncTimestamp = "N/A";
+                        } else {
+                            syncTimestamp = object.getLastSynchronizationTimestamp();
+                        }
+                        if (object.getAuthoritativeGroup() == null) {
+                            authGroup = "N/A";
+                        } else {
+                            authGroup = object.getAuthoritativeGroup();
+                        }
+                              
+                        String html = "Group name: <b>"+name+"</b><br>";
+                        html += "Synchronization: <b>"+syncEnabled+"</b><br>";
+                        if (object.isSyncEnabled()) {
+                            html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
+                            html += "Last sync. state: <b>"+syncState+"</b><br>";
+                            html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
+                            html += "Authoritative group: <b>"+authGroup+"</b><br>";
+                        }
+                        UiElements.generateInfo("Group synchronization info", html);
                     };
                 });
                 table.addColumn(syncColumn, "Synced");
