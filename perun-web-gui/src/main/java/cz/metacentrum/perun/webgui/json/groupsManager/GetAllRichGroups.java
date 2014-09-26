@@ -237,7 +237,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				if (object.getLastSynchronizationTimestamp() == null) {
 					syncTimestamp = "N/A";
 				} else {
-					syncTimestamp = object.getLastSynchronizationTimestamp().split(".")[0];
+					syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
 				}
 				if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
 					authGroup = "Yes";
