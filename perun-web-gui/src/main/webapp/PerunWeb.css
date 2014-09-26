@@ -1029,6 +1029,10 @@ td div.customTextCell {
 .pointer, tr.pointer, td.pointer, .pointer tr, .pointer td {
     cursor: pointer !important;
 }
+.image-hover:hover img {
+    background-color: #bbb !important;
+    border-radius: 16px !important;
+}
 
 .border {
     border: 1px solid #CCCCCC;

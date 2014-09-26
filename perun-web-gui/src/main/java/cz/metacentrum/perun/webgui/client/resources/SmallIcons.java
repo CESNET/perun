@@ -794,8 +794,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/bullet_go.png")
 	//ImageResource bulletGoIcon();
 
-	//@Source("icons/16x16/bullet_green.png")
-	//ImageResource bulletGreenIcon();
+	@Source("icons/16x16/bullet_green.png")
+	ImageResource bulletGreenIcon();
 
 	//@Source("icons/16x16/bullet_key.png")
 	//ImageResource bulletKeyIcon();
@@ -812,8 +812,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/bullet_purple.png")
 	//ImageResource bulletPurpleIcon();
 
-	//@Source("icons/16x16/bullet_red.png")
-	//ImageResource bulletRedIcon();
+	@Source("icons/16x16/bullet_red.png")
+	ImageResource bulletRedIcon();
 
 	//@Source("icons/16x16/bullet_star.png")
 	//ImageResource bulletStarIcon();
@@ -830,8 +830,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/minus.png")
 	//ImageResource minusIcon();
 
-	//@Source("icons/16x16/bullet_white.png")
-	//ImageResource bulletWhiteIcon();
+	@Source("icons/16x16/bullet_white.png")
+	ImageResource bulletWhiteIcon();
 
 	//@Source("icons/16x16/bullet_wrench.png")
 	//ImageResource bulletWrenchIcon();

@@ -16,8 +16,9 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetSubGroups;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetRichSubGroups;
 import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -33,6 +34,7 @@ import java.util.Map;
  * Group admins page for Group Admin
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
@@ -103,7 +105,14 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		}
 
 		// GROUP TABLE with onclick
-		final GetSubGroups subgroups = new GetSubGroups(groupId);
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+
+		final GetRichSubGroups subgroups = new GetRichSubGroups(groupId, attrNames);
 
 		// Events for reloading when group is created
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(subgroups);
@@ -128,7 +137,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		removeButton.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent event) {
-				final ArrayList<Group> itemsToRemove = subgroups.getTableSelectedList();
+				final ArrayList<RichGroup> itemsToRemove = subgroups.getTableSelectedList();
 				String text = "Following groups (including all sub-groups) will be deleted.";
 				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
 					@Override
@@ -152,9 +161,9 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-		CellTable<Group> table = subgroups.getTable(new FieldUpdater<Group, String>() {
+		CellTable<RichGroup> table = subgroups.getTable(new FieldUpdater<RichGroup, String>() {
 			@Override
-			public void update(int arg0, Group group, String arg2) {
+			public void update(int arg0, RichGroup group, String arg2) {
 				session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
 			}
 		});

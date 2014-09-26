@@ -47,7 +47,7 @@ public class DeleteGroups {
 	 *
 	 * @param groups groups to be deleted
 	 */
-	public void deleteGroups(final ArrayList<Group> groups) {
+	public void deleteGroups(final ArrayList<? extends Group> groups) {
 		deleteGroups(groups, true);
 	}
 
@@ -57,7 +57,7 @@ public class DeleteGroups {
 	 * @param groups groups to be deleted
 	 * @param force TRUE = forced delete (remove all members, remove from resources) / FALSE = not delete if group has members
 	 */
-	public void deleteGroups(final ArrayList<Group> groups, boolean force) {
+	public void deleteGroups(final ArrayList<? extends Group> groups, boolean force) {
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();

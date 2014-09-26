@@ -888,7 +888,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
 			throw new PrivilegeException(sess, "getAllRichGroupsWithAttributesByNames");
 		}
 
@@ -897,7 +897,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Check access rights for each richGroup for GROUPADMIN
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 			    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-			    && AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) ) {
+			    && AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
 			Iterator<RichGroup> i = richGroups.iterator();
 			while (i.hasNext()) {
 				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
@@ -913,20 +913,18 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 		this.getGroupsManagerBl().checkGroupExists(sess, parentGroup);
 
-		Vo vo = perunBl.getVosManagerBl().getVoById(sess, parentGroup.getVoId());
-
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
+		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "getRichSubGroupsWithAttributesByNames");
 		}
 		List<RichGroup> richGroups = getGroupsManagerBl().getRichSubGroupsWithAttributesByNames(sess, parentGroup, attrNames);
 
 		// Check access rights for each richGroup for GROUPADMIN
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) ) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+				&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			Iterator<RichGroup> i = richGroups.iterator();
 			while (i.hasNext()) {
 				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {

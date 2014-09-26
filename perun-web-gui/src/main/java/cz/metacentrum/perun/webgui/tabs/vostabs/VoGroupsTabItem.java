@@ -16,8 +16,8 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
-import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetAllRichGroups;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -100,9 +100,17 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu menu = new TabMenu();
 
 		// VO Groups request
-		final GetAllGroups groups = new GetAllGroups(voId);
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 		if (!session.isVoAdmin(voId)) groups.setCheckable(false);
+
+
 
 		// add new group button
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
@@ -117,7 +125,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteGroup());
 		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				final ArrayList<Group> groupsToDelete = groups.getTableSelectedList();
+				final ArrayList<RichGroup> groupsToDelete = groups.getTableSelectedList();
 				String text = "Following groups (including all sub-groups) will be deleted.";
 				UiElements.showDeleteConfirm(groupsToDelete, text, new ClickHandler() {
 					@Override
@@ -138,9 +146,9 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		}, ButtonTranslation.INSTANCE.filterGroup());
 
 		// add a table with a onclick
-		CellTable<Group> table = groups.getTable(new FieldUpdater<Group, String>() {
-			public void update(int index, Group group, String value) {
-				session.getTabManager().addTab(new GroupDetailTabItem(group));
+		CellTable<RichGroup> table = groups.getTable(new FieldUpdater<RichGroup, String>() {
+			public void update(int index, RichGroup group, String value) {
+				session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
 			}
 		});
 
