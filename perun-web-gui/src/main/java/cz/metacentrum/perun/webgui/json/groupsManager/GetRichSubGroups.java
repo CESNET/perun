@@ -35,8 +35,8 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
-        // Attributes which we want to get 
-        private ArrayList<String> attrNames;
+	// Attributes which we want to get
+	private ArrayList<String> attrNames;
 	// Parent group id
 	private int parentId;
 	// Selection model
@@ -66,7 +66,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	 */
 	public GetRichSubGroups(int id, ArrayList<String> attrNames) {
 		this.parentId = id;
-                this.attrNames = attrNames;
+		this.attrNames = attrNames;
 	}
 
 	/**
@@ -84,14 +84,14 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	 */
 	public void retrieveData() {
 		String param = "group=" + this.parentId;
-                
-                if (!this.attrNames.isEmpty()) {
+
+		if (!this.attrNames.isEmpty()) {
 			// parse list
 			for (String attrName : this.attrNames) {
 				param += "&attrNames[]="+attrName;
 			}
 		}
-                
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -138,80 +138,82 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 		// checkbox column column
 		table.addCheckBoxColumn();
 		table.addIdColumn("Group ID", tableFieldUpdater);
+
+		// Add a synchronization clicable icon column.
+		Column<RichGroup, ImageResource> syncColumn = new Column<RichGroup, ImageResource>(
+				new CustomClickableInfoCellWithImageResource("click")) {
+			@Override
+			public ImageResource getValue(RichGroup object) {
+				if (object.isSyncEnabled()) {
+					if (object.getLastSynchronizationState().equals("OK")) {
+						return SmallIcons.INSTANCE.bulletGreenIcon();
+					} else {
+						return SmallIcons.INSTANCE.bulletRedIcon();
+					}
+				} else {
+					return SmallIcons.INSTANCE.bulletWhiteIcon();
+				}
+			}
+			@Override
+			public String getCellStyleNames(Cell.Context context, RichGroup object) {
+				if (tableFieldUpdater != null) {
+					return super.getCellStyleNames(context, object) + " pointer image-hover";
+				} else {
+					return super.getCellStyleNames(context, object);
+				}
+			}
+		};
+		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, ImageResource>() {
+			@Override
+			public void update(int index, RichGroup object, ImageResource value) {
+				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
+				name = object.getName();
+				if (object.isSyncEnabled()) {
+					syncEnabled = "enabled";
+				} else {
+					syncEnabled = "disabled";
+				}
+				if (object.getSynchronizationInterval() == null) {
+					syncInterval = "N/A";
+				} else {
+					syncInterval = object.getSynchronizationInterval() + " hour(s)";
+				}
+				if (object.getLastSynchronizationState().equals("OK")) {
+					syncState = "OK";
+				} else {
+					if (session.isPerunAdmin()) {
+						syncState = object.getLastSynchronizationState();
+					} else {
+						syncState = "Internal Error";
+					}
+				}
+				if (object.getLastSynchronizationTimestamp() == null) {
+					syncTimestamp = "N/A";
+				} else {
+					syncTimestamp = object.getLastSynchronizationTimestamp().split(".")[0];
+				}
+				if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
+					authGroup = "Yes";
+				} else {
+					authGroup = "No";
+				}
+
+				String html = "Group name: <b>"+name+"</b><br>";
+				html += "Synchronization: <b>"+syncEnabled+"</b><br>";
+				if (object.isSyncEnabled()) {
+					html += "Last sync. state: <b>"+syncState+"</b><br>";
+					html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
+					html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
+					html += "Authoritative group: <b>"+authGroup+"</b><br>";
+				}
+				UiElements.generateInfo("Group synchronization info", html);
+			};
+		});
+		table.addColumn(syncColumn, "Sync");
+		table.setColumnWidth(syncColumn, "30px");
+
 		table.addNameColumn(tableFieldUpdater);
 		table.addDescriptionColumn(tableFieldUpdater);
-                
-                // Add a synchronization clicable icon column.
-                Column<RichGroup, ImageResource> syncColumn = new Column<RichGroup, ImageResource>(
-                    new CustomClickableInfoCellWithImageResource("click")) {
-                    @Override
-                    public ImageResource getValue(RichGroup object) {
-                        if (object.isSyncEnabled()) {
-                            if (object.getLastSynchronizationState().equals("OK")) {
-                                return SmallIcons.INSTANCE.bulletGreenIcon();
-                            } else {
-                                return SmallIcons.INSTANCE.bulletRedIcon();
-                            }
-                        } else {
-                            return SmallIcons.INSTANCE.bulletWhiteIcon();
-                        }
-                    }
-                    @Override
-                    public String getCellStyleNames(Cell.Context context, RichGroup object) {
-                            if (tableFieldUpdater != null) {
-                                    return super.getCellStyleNames(context, object) + " pointer image-hover";
-                            } else {
-                                    return super.getCellStyleNames(context, object);
-                            }
-                    }
-                };
-                syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, ImageResource>() {
-                    @Override
-                    public void update(int index, RichGroup object, ImageResource value) {
-                        String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
-                        name = object.getName();
-                        if (object.isSyncEnabled()) {
-                            syncEnabled = "enabled";
-                        } else {
-                            syncEnabled = "disabled";
-                        }
-                        if (object.getSynchronizationInterval() == null) {
-                            syncInterval = "N/A";
-                        } else { 
-                            syncInterval = object.getSynchronizationInterval();
-                        }
-                        if (object.getLastSynchronizationState().equals("OK")) {
-                            syncState = "OK";
-                        } else {
-                            if (session.isPerunAdmin()) {
-                                syncState = object.getLastSynchronizationState();
-                            } else {
-                                syncState = "Internal Error";
-                            }
-                        }
-                        if (object.getLastSynchronizationTimestamp() == null) {
-                            syncTimestamp = "N/A";
-                        } else {
-                            syncTimestamp = object.getLastSynchronizationTimestamp();
-                        }
-                        if (object.getAuthoritativeGroup() == null) {
-                            authGroup = "N/A";
-                        } else {
-                            authGroup = object.getAuthoritativeGroup();
-                        }
-                              
-                        String html = "Group name: <b>"+name+"</b><br>";
-                        html += "Synchronization: <b>"+syncEnabled+"</b><br>";
-                        if (object.isSyncEnabled()) {
-                            html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
-                            html += "Last sync. state: <b>"+syncState+"</b><br>";
-                            html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
-                            html += "Authoritative group: <b>"+authGroup+"</b><br>";
-                        }
-                        UiElements.generateInfo("Group synchronization info", html);
-                    };
-                });
-                table.addColumn(syncColumn, "Synced");
 
 		return table;
 
@@ -360,7 +362,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 				if (grp.getName().toLowerCase().startsWith(text.toLowerCase()) ||
 						grp.getName().toLowerCase().contains(":"+text.toLowerCase())) {
 					list.add(grp);
-						}
+				}
 			}
 		}
 

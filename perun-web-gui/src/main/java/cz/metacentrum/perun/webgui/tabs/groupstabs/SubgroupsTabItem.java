@@ -16,9 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.DeleteRichGroups;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetRichSubGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetSubGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
@@ -107,12 +105,13 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		}
 
 		// GROUP TABLE with onclick
-                ArrayList<String> attrNames = new ArrayList<>();
-                attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
-                attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
-                attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
-                attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
-                attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+
 		final GetRichSubGroups subgroups = new GetRichSubGroups(groupId, attrNames);
 
 		// Events for reloading when group is created
@@ -143,8 +142,8 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						DeleteRichGroups request = new DeleteRichGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-						request.deleteRichGroups(itemsToRemove);
+						DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+						request.deleteGroups(itemsToRemove);
 					}
 				});
 			}

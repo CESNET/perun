@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -17,10 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.DeleteRichGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllRichGroups;
-import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -104,18 +100,18 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu menu = new TabMenu();
 
 		// VO Groups request
-                ArrayList<String> attrNames = new ArrayList<>();
-                attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
-                attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
-                attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
-                attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
-                attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
 		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 		if (!session.isVoAdmin(voId)) groups.setCheckable(false);
-                
-                
-                
+
+
+
 		// add new group button
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -134,8 +130,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 				UiElements.showDeleteConfirm(groupsToDelete, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						DeleteRichGroups request = new DeleteRichGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-						request.deleteRichGroups(groupsToDelete);
+						DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+						request.deleteGroups(groupsToDelete);
 					}
 				});
 			}
