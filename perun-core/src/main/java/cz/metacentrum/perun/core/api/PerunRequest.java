@@ -7,11 +7,13 @@ package cz.metacentrum.perun.core.api;
  */
 public class PerunRequest {
 	private long startTime;
+	private long endTime = -1;
 	private String sessionId;
 	private PerunPrincipal perunPrincipal;
 	private String manager;
 	private String method;
 	private String params;
+	private Object resutl;
 
 	public long getStartTime() {
 		return startTime;
@@ -44,6 +46,22 @@ public class PerunRequest {
 
 	public String getParams() {
 		return params;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public Object getResutl() {
+		return resutl;
+	}
+
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
+
+	public void setResutl(Object resutl) {
+		this.resutl = resutl;
 	}
 
 	@Override

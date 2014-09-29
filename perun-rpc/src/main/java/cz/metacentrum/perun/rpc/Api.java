@@ -44,6 +44,7 @@ import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
 import java.util.Date;
 import java.sql.Timestamp;
+import java.util.Iterator;
 
 @SuppressWarnings("serial")
 /**
@@ -63,6 +64,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
+	private final static int timeToLiveWhenDone = 120 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
 	public void init() {
@@ -297,7 +299,10 @@ public class Api extends HttpServlet {
 			}
 			out.close();
 			return;
-		} 
+		}
+
+		//prepare result object
+		Object result = null;
 
 		try {
 			String[] fcm; //[0] format, [1] class, [2] method
@@ -392,7 +397,6 @@ public class Api extends HttpServlet {
 
 			} else if("utils".equals(manager) && PERUNSTATUS.equals(method)) {
 				perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
-				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 				
@@ -403,7 +407,6 @@ public class Api extends HttpServlet {
 				perunStatus.add("Version of DB: " + caller.call("databaseManager", "getDatabaseInformation", des));
 				perunStatus.add("Version of Java platform: " + System.getProperty("java.version"));
 				perunStatus.add("Timestamp: " + timestamp);
-
 				ser.write(perunStatus);
 								
 				out.close();
@@ -417,14 +420,26 @@ public class Api extends HttpServlet {
 			perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(),
 					manager, method, des.readAll());
 			// Add perunRequest into the queue of the requests
-			((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+			if(!isGet) {
+				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+			}
 
 			// Process request and sent the response back
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
-				ser.write(caller.getVOOTManager().process(caller.getSession(), method, des.readAll()));
+				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
+				perunRequest.setResutl(result);
+				ser.write(result);
 			} else {
-				ser.write(caller.call(manager, method, des));
+				//Save only exceptions from caller to result
+				try {
+					result = caller.call(manager, method, des);
+					perunRequest.setResutl(result);
+				} catch (Exception ex) {
+					result = ex;
+					throw ex;
+				}
+				ser.write(result);
 			}
 		} catch (PerunException pex) {
 			// If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
@@ -448,10 +463,24 @@ public class Api extends HttpServlet {
 			}
 			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
-			if (perunRequest != null) {
-				// Remove PerunRequest from the queue
-				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).remove(perunRequest);
+			if(!isGet) {
+				//save result of this perunRequest
+				perunRequest.setEndTime(System.currentTimeMillis());
+				if(result instanceof Exception) perunRequest.setResutl(result);
+				perunRequest.setEndTime(System.currentTimeMillis());
+
+				//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
+				Iterator<PerunRequest> iteratorPr = ((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).iterator();
+				while(iteratorPr.hasNext()) {
+					PerunRequest pr = iteratorPr.next();
+					//if still in progress (-1) skip it
+					if(pr.getEndTime()<0) continue;
+					if(System.currentTimeMillis() - pr.getEndTime() > timeToLiveWhenDone) {
+						iteratorPr.remove();
+					}
+				}
 			}
+			
 		}
 
 		out.close();
