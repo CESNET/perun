@@ -87,21 +87,25 @@ public class Owner extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", contact=<" + (getContact() == null ? "\\0" : BeansUtils.createEscaping(getContact())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType().toString())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", contact=<").append(getContact() == null ? "\\0" : BeansUtils.createEscaping(getContact())).append(">").append(
+			", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType().toString())).append(">").append(
+			']').toString();
 	}
 
 	public String toString() {
-		return getClass().getSimpleName() + ":[" +
-			"id='" + getId() + '\'' +
-			", name='" + name + '\'' +
-			", contact='" + contact + '\'' +
-			", type='" + type +
-			"']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[").append(
+			"id='").append(getId()).append('\'').append(
+			", name='").append(name).append('\'').append(
+			", contact='").append(contact).append('\'').append(
+			", type='").append(type).append(
+			"']").toString();
 	}
 
 	@Override

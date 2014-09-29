@@ -149,7 +149,9 @@ public class Author implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id=" + id +", firstName=" + firstName +", lastName=" + lastName +", displayName=" + this.getDisplayName() +", logins=" + logins +", authorships=" + authorships +"]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(id).append(", firstName=").append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName()).append(", logins=").append(logins).append(", authorships=").append(authorships).append("]").toString();
 	}
 
 	@Override

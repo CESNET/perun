@@ -90,6 +90,8 @@ public class RichUser extends User {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		List<UserExtSource> userESOld = getUserExtSources();
 		List<Attribute> userAttrOld = getUserAttributes();
 		List<String> userESNew = new ArrayList<String>();
@@ -111,21 +113,23 @@ public class RichUser extends User {
 			}
 			sUserAttrNew = userAttrNew.toString();
 		}
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", titleBefore=<" + (getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())) + ">" +
-			", firstName=<" + (getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName()))+ ">" +
-			", lastName=<" + (getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())) + ">" +
-			", middleName=<" + (getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())) + ">" +
-			", titleAfter=<" + (getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())) + ">" +
-			", userExtSources=<" + sUserESNew + ">" +
-			", userAttributes=<" + sUserAttrNew + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", titleBefore=<").append(getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())).append(">").append(
+			", firstName=<").append(getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())).append(">").append(
+			", lastName=<").append(getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())).append(">").append(
+			", middleName=<").append(getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())).append(">").append(
+			", titleAfter=<").append(getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())).append(">").append(
+			", userExtSources=<").append(sUserESNew).append(">").append(
+			", userAttributes=<").append(sUserAttrNew).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return "RichUser:[id='" + getId() + "', titleBefore='" + getTitleBefore() + "', firstName='" + getFirstName() + "', lastName='" + getLastName() +
-			"', middleName='" + getMiddleName() + "', titleAfter='" + getTitleAfter() + "', userExtSources='" + userExtSources + "', userAttributes='" + userAttributes + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append("RichUser:[id='").append(getId()).append("', titleBefore='").append(getTitleBefore()).append("', firstName='").append(getFirstName()).append("', lastName='").append(getLastName()).append(
+			"', middleName='").append(getMiddleName()).append("', titleAfter='").append(getTitleAfter()).append("', userExtSources='").append(userExtSources).append("', userAttributes='").append(userAttributes).append("']").toString();
 	}
 }

@@ -183,21 +183,25 @@ public class AttributeDefinition extends Auditable implements Comparable<Attribu
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
-			", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+				"id=<").append(getId()).append(">").append(
+				", friendlyName=<").append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())).append(">").append(
+				", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())).append(">").append(
+				", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
+				']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", friendlyName='" + friendlyName + '\'' +
-			", namespace='" + namespace + '\'' +
-			", type='" + type + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+				"id='").append(getId()).append('\'').append(
+				", friendlyName='").append(friendlyName).append('\'').append(
+				", namespace='").append(namespace).append('\'').append(
+				", type='").append(type).append('\'').append(
+				']').toString();
 	}
 }

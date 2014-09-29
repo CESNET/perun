@@ -76,10 +76,12 @@ public class RichAttribute<P,S>  {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			(attribute == null ? "Attribute: NULL." : attribute.toString()) +
-			" Primary holder: " +  (primaryHolder == null ? "NULL. " : primaryHolder.toString()) +
-			" Secondary holder: " +  (secondaryHolder == null ? "NULL. " : secondaryHolder.toString()) +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			(attribute == null ? "Attribute: NULL." : attribute.toString())).append(
+			" Primary holder: ").append(primaryHolder == null ? "NULL. " : primaryHolder.toString()).append(
+			" Secondary holder: ").append(secondaryHolder == null ? "NULL. " : secondaryHolder.toString()).append(
+			']').toString();
 	}
 }

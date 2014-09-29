@@ -60,20 +60,24 @@ public class Vo extends Auditable implements Comparable<Vo> {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", shortName=<" + (getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + this.getId() + '\'' +
-			", name='" + name + '\'' +
-			", shortName='" + shortName + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id='").append(this.getId()).append('\'').append(
+			", name='").append(name).append('\'').append(
+			", shortName='").append(shortName).append('\'').append(
+			']').toString();
 	}
 
 	public int compareTo(Vo vo) {

@@ -119,6 +119,8 @@ public class Candidate extends User {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		String attrNew = BeansUtils.serializeMapToString(attributes);
 		List<String> userESNew = new ArrayList<String>();
 		List<UserExtSource> userESOld = getAdditionalUserExtSources();
@@ -132,15 +134,17 @@ public class Candidate extends User {
 			sUserESNew = userESNew.toString();
 		}
 
-		return this.getClass().getSimpleName() + ":[" +
-			"userExtSource=<" + (getUserExtSource() == null ? "\\0" : getUserExtSource().serializeToString()) + ">" +
-			", attributes=<" + attrNew + ">" +
-			", additionalUserExtSources=<" + sUserESNew + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[" +
+			"userExtSource=<").append(getUserExtSource() == null ? "\\0" : getUserExtSource().serializeToString()).append(">" +
+			", attributes=<").append(attrNew).append(">" +
+			", additionalUserExtSources=<").append(sUserESNew).append(">" +
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
+		StringBuilder str = new StringBuilder();
+
 		Map<String, String> attrNew = null;
 		if(attributes != null) attrNew = new HashMap<String, String>(attributes);
 		if(attrNew != null) {
@@ -150,8 +154,8 @@ public class Candidate extends User {
 				attrNew.remove(s);
 			}
 		}
-		return getClass().getSimpleName()+":[userExtSource='" + userExtSource + "', attributes='"
-			+ attrNew + "', additionalUserExtSources='" + additionalUserExtSources + "']";
+		return str.append(getClass().getSimpleName()+":[userExtSource='").append(userExtSource).append("', attributes='"
+			+ attrNew).append("', additionalUserExtSources='").append(additionalUserExtSources).append("']").toString();
 	}
 
 }

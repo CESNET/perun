@@ -66,6 +66,8 @@ public class RichFacility extends Facility {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		List<Owner> facilityOwnersOld = getFacilityOwners();
 		List<String> facilityOwnersNew = new ArrayList<String>();
 		String sFacilityOwnersNew;
@@ -78,15 +80,17 @@ public class RichFacility extends Facility {
 			sFacilityOwnersNew = facilityOwnersNew.toString();
 		}
 
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", facilityOwners=<" + sFacilityOwnersNew + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", facilityOwners=<").append(sFacilityOwnersNew).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +  ":[id='" + getId() + "', name='" + this.getName() + "', facilityOwners='" + facilityOwners + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', name='").append(this.getName()).append("', facilityOwners='").append(facilityOwners).append("']").toString();
 	}
 }

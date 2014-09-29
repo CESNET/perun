@@ -220,22 +220,27 @@ public class Authorship extends PerunBean implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id='" + id + "', userId='" + userId + "', publicationId='" + publicationId + "', createdBy='" + createdBy + "', createdDate='" + createdDate + "', createdByUid='" + createdByUid + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id='").append(id).append("', userId='").append(userId).append("', publicationId='").append(publicationId).append("', createdBy='").append(createdBy).append("', createdDate='").append(createdDate).append("', createdByUid='").append(createdByUid).append("']").toString();
 	}
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		String dateString;
 		if(getCreatedDate() != null) dateString = BeansUtils.DATE_FORMATTER.format(getCreatedDate());
 		else dateString = "\\0";
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", userId=<" + getUserId() + ">" +
-			", publicationId=<" + getPublicationId() + ">" +
-			", createdBy=<" + (getCreatedBy() == null ? "\\0" : BeansUtils.createEscaping(getCreatedBy())) + ">" +
-			", createdDate=<" + dateString + ">" +
-			", createdByUid=<" + ((getCreatedByUid() == null) ? "\\0" : getCreatedByUid()) + ">" +
-			"]";
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", userId=<").append(getUserId()).append(">").append(
+			", publicationId=<").append(getPublicationId()).append(">").append(
+			", createdBy=<").append(getCreatedBy() == null ? "\\0" : BeansUtils.createEscaping(getCreatedBy())).append(">").append(
+			", createdDate=<").append(dateString).append( ">").append(
+			", createdByUid=<").append((getCreatedByUid() == null) ? "\\0" : getCreatedByUid()).append(">").append(
+			"]").toString();
 	}
 
 }

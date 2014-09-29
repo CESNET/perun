@@ -42,15 +42,19 @@ public class Host extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", hostname=<" + (getHostname() == null ? "\\0" : BeansUtils.createEscaping(getHostname())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", hostname=<").append(getHostname() == null ? "\\0" : BeansUtils.createEscaping(getHostname())).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":[id='" + getId() + "', hostname='" + hostname + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', hostname='").append(hostname).append("']").toString();
 	}
 
 	@Override

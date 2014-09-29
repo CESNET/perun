@@ -110,25 +110,29 @@ public class ExecService extends PerunBean implements Serializable {
 		 */
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (service == null ? "\\0" : BeansUtils.createEscaping(service.getName())) + ">" +
-			", type=<" + (execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString()))+ ">" +
-			", service=<" + (getService()== null ? "\\0" : getService().serializeToString()) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(service == null ? "\\0" : BeansUtils.createEscaping(service.getName())).append(">").append(
+			", type=<").append(execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString())).append(">").append(
+			", service=<").append(getService()== null ? "\\0" : getService().serializeToString()).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
+		StringBuilder str = new StringBuilder();
+
 		String serviceName = null;
 		if(service != null && service.getName() != null) serviceName = service.getName();
 		String exSrvType = null;
 		if(execServiceType != null) exSrvType = execServiceType.toString();
-		return getClass().getSimpleName() + ":["
-			+ "id='" + getId()
-			+ "', name='" + serviceName
-			+ "', type='" + exSrvType
-			+ "', service='" + getService()
-			+ "']";
+		return str.append(getClass().getSimpleName()).append(":["
+			).append("id='").append(getId()
+			).append("', name='").append(serviceName
+			).append("', type='").append(exSrvType
+			).append("', service='").append(getService()
+			).append("']").toString();
 	}
 }

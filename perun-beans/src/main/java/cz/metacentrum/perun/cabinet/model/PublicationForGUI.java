@@ -81,7 +81,9 @@ public class PublicationForGUI extends Publication{
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id=" + this.getId() + ", externalId=" + this.getExternalId() + ", pubSysId=" + this.getPublicationSystemId() + ", pubSysName=" + this.getPubSystemName() + ", title=" + this.getTitle() + ", categoryId=" + this.getCategoryId() + ", categoryName=" + this.getCategoryName() + ", year=" + this.getYear() + ", isbn=" + this.getIsbn() + ", doi=" + this.getDoi() + ", locked=" + this.getLocked() + ", main=" + this.getMain() + ", createdBy=" + this.getCreatedBy() + ", createdDate=" + this.getCreatedDate() + ", rank=" + this.getRank() + ", createdByUid=" + this.getCreatedByUid() + ", authors=" + this.getAuthors() + ", thanks=" + this.getThanks() + "]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(this.getId()).append(", externalId=").append(this.getExternalId()).append(", pubSysId=").append(this.getPublicationSystemId()).append(", pubSysName=").append(this.getPubSystemName()).append(", title=").append(this.getTitle()).append(", categoryId=").append(this.getCategoryId()).append(", categoryName=").append(this.getCategoryName()).append(", year=").append(this.getYear()).append(", isbn=").append(this.getIsbn()).append(", doi=").append(this.getDoi()).append(", locked=").append(this.getLocked()).append(", main=").append(this.getMain()).append(", createdBy=").append(this.getCreatedBy()).append(", createdDate=").append(this.getCreatedDate()).append(", rank=").append(this.getRank()).append(", createdByUid=").append(this.getCreatedByUid()).append(", authors=").append(this.getAuthors()).append(", thanks=").append(this.getThanks()).append("]").toString();
 	}
 
 }

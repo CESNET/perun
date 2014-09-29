@@ -143,6 +143,8 @@ public class Attribute extends AttributeDefinition {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		String stringValue;
 		if(getValue() == null) stringValue = null;
 		else
@@ -155,23 +157,25 @@ public class Attribute extends AttributeDefinition {
 				log.error("Attribute value can't be serialize! {}",ex);
 				stringValue = null;
 			}
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
-			", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
-			", type=<" + (getType() == null ? "\\0" :BeansUtils.createEscaping(getType())) + ">" +
-			", value=<" + BeansUtils.createEscaping(stringValue) + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+				"id=<").append(getId()).append(">").append(
+				", friendlyName=<").append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())).append(">").append(
+				", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())).append(">").append(
+				", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
+				", value=<").append(BeansUtils.createEscaping(stringValue)).append(">").append(
+				']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", friendlyName='" + getFriendlyName() + '\'' +
-			", namespace='" + getNamespace() + '\'' +
-			", type='" + getType() + '\'' +
-			", value='" + getValue() + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+				"id='").append(getId()).append('\'').append(
+				", friendlyName='").append(getFriendlyName()).append('\'').append(
+				", namespace='").append(getNamespace()).append('\'').append(
+				", type='").append(getType()).append('\'').append(
+				", value='").append(getValue()).append('\'').append(
+				']').toString();
 	}
 }

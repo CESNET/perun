@@ -117,7 +117,7 @@ public abstract class Auditable extends PerunBean {
 	/**
 	 * Sets modified time for this instance.
 	 *
-	 * @param createdAt, the time.
+	 * @param modifiedAt, the time.
 	 */
 	public void setModifiedAt(String modifiedAt) {
 		this.modifiedAt = modifiedAt;
@@ -153,7 +153,7 @@ public abstract class Auditable extends PerunBean {
 	/**
 	 * Sets information about who user modified it.
 	 *
-	 * @param modifiedBy, the user.
+	 * @param modifiedByUid, the user.
 	 */
 	public void setModifiedByUid(Integer modifiedByUid) {
 		this.modifiedByUid = modifiedByUid;
@@ -234,15 +234,19 @@ public abstract class Auditable extends PerunBean {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + this.getId() + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id='").append(this.getId()).append('\'').append(
+			']').toString();
 	}
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id=<" + this.getId() + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(this.getId()).append(">").append(
+			']').toString();
 	}
 }

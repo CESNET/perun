@@ -241,7 +241,9 @@ public class Thanks implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id="+ id + ", pubId="+ publicationId +", ownerId="+ ownerId +", createdBy="+ createdBy +", createdDate="+ createdDate +", createdByUid="+ createdByUid +"]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(id).append(", pubId=").append(publicationId).append(", ownerId=").append(ownerId).append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate).append(", createdByUid=").append(createdByUid).append("]").toString();
 	}
 
 }

@@ -47,7 +47,9 @@ public class ThanksForGUI extends Thanks {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+":[id="+ this.getId() + ", pubId="+ this.getPublicationId() +", ownerId="+ this.getOwnerId() +", ownerName="+ ownerName +", createdBy="+ this.getCreatedBy() +", createdByUid="+ this.getCreatedByUid() +", createdDate="+ this.getCreatedDate() +"]";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":[id=").append(this.getId()).append(", pubId=").append(this.getPublicationId()).append(", ownerId=").append(this.getOwnerId()).append(", ownerName=").append(ownerName).append(", createdBy=").append(this.getCreatedBy()).append(", createdByUid=").append(this.getCreatedByUid()).append(", createdDate=").append(this.getCreatedDate()).append("]").toString();
 	}
 
 }

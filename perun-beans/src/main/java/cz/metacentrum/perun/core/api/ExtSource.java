@@ -71,19 +71,23 @@ public class ExtSource extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", name=<" + (getName() == null ? "\\0" : BeansUtils.createEscaping(getName())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
+			']').toString();
 	}
 
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", name='" + name + '\'' +
-			", type='" + type + '\'' +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id='").append(getId()).append('\'').append(
+			", name='").append(name).append('\'').append(
+			", type='").append(type).append('\'').append(
+			']').toString();
 	}
 
 	@Override

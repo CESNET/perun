@@ -62,7 +62,7 @@ public class Destination extends Auditable implements Comparable<Destination> {
 	/**
 	 * Sets the destination for this instance.
 	 *
-	 * @param name The name.
+	 * @param destination The destination.
 	 */
 	public void setDestination(String destination) {
 		this.destination = destination;
@@ -133,21 +133,25 @@ public class Destination extends Auditable implements Comparable<Destination> {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", destination=<" + (getDestination() == null ? "\\0" : BeansUtils.createEscaping(getDestination())) + ">" +
-			", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
-			", propagationtype=<" + (getPropagationType() == null ? "\\0" : BeansUtils.createEscaping(getPropagationType())) + ">" + 
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", destination=<").append(getDestination() == null ? "\\0" : BeansUtils.createEscaping(getDestination())).append(">").append(
+			", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
+			", propagationtype=<").append(getPropagationType() == null ? "\\0" : BeansUtils.createEscaping(getPropagationType())).append(">").append(
+			']').toString();
 	}
 
 	public String toString() {
-		return getClass().getSimpleName() + ":["
-			+ "id='" + getId()
-			+ "', destination='" + destination
-			+ "', type='" + type
-			+ "', propagationtype='" + propagationType
-			+ "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append(getClass().getSimpleName()).append(":["
+			).append("id='").append(getId()
+			).append("', destination='").append(destination
+			).append("', type='").append(type
+			).append("', propagationtype='").append(propagationType
+			).append("']").toString();
 	}
 
 	@Override

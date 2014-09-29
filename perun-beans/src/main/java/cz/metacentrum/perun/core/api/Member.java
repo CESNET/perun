@@ -119,18 +119,22 @@ public class Member extends Auditable {
 
 	@Override
 	public String serializeToString() {
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", userId=<" + getUserId() + ">" +
-			", voId=<" + getVoId() + ">" +
-			", status=<" + (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" +
-			", type=<" + (getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
-			']';
+		StringBuilder str = new StringBuilder();
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", userId=<").append(getUserId()).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
+			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append("Member:[id='").append(getId()).append("', userId='").append(userId).append("', voId='").append(voId).append("', status='").append(status).append("', type='").append(membershipType).append("']").toString();
 	}
 
 

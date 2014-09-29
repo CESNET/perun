@@ -130,6 +130,8 @@ public class RichMember extends Member implements Comparable<RichMember> {
 
 	@Override
 	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
 		List<UserExtSource> userESOld = getUserExtSources();
 		List<Attribute> memberAttrOld = getMemberAttributes();
 		List<Attribute> userAttrOld = getUserAttributes();
@@ -161,23 +163,25 @@ public class RichMember extends Member implements Comparable<RichMember> {
 			}
 			sUserAttrNew = userAttrNew.toString();
 		}
-		return this.getClass().getSimpleName() +":[" +
-			"id=<" + getId() + ">" +
-			", userId=<" + getUserId() + ">" +
-			", voId=<" + getVoId() + ">" +
-			", status=<" + (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" +
-			", type=<" + (getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
-			", user=<" + (getUser() == null ? "\\0" : getUser().serializeToString()) + ">" +
-			", userExtSources=<" + sUserESNew + ">" +
-			", userAttributes=<" + sUserAttrNew + ">" +
-			", memberAttributes=<" + sMemberAttrNew + ">" +
-			']';
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", userId=<").append(getUserId()).append(">").append(
+			", voId=<").append(getVoId()).append(">").append(
+			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
+			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
+			", user=<").append(getUser() == null ? "\\0" : getUser().serializeToString()).append(">").append(
+			", userExtSources=<").append(sUserESNew).append(">").append(
+			", userAttributes=<").append(sUserAttrNew).append(">").append(
+			", memberAttributes=<").append(sMemberAttrNew).append(">").append(
+			']').toString();
 	}
 
 	@Override
 	public String toString() {
-		return "RichMember:[id='" + getId() + "', userId='" + getUserId() + "', voId='" + getVoId() + "', status='" + getStatus() + "', type='" + getMembershipType() +  "', user='" + user + "', userExtSources='" + userExtSources +
-			"', userAttributes='" + userAttributes + "', memberAttributes='" + memberAttributes + "']";
+		StringBuilder str = new StringBuilder();
+
+		return str.append("RichMember:[id='").append(getId()).append("', userId='").append(getUserId()).append("', voId='").append(getVoId()).append("', status='").append(getStatus()).append("', type='").append(getMembershipType()).append( "', user='").append(user).append("', userExtSources='").append(userExtSources).append(
+			"', userAttributes='").append(userAttributes).append("', memberAttributes='").append(memberAttributes).append("']").toString();
 	}
 
 	@Override
