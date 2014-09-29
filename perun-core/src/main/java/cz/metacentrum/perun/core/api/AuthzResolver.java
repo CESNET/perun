@@ -95,6 +95,26 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Returns true if the perun principal inside the perun session is vo observer.
+	 *
+	 * @param sess
+	 * @return true if the perun principal is vo observer
+	 */
+	public static boolean isVoObserver(PerunSession sess) {
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.isVoObserver(sess);
+	}
+
+	/**
+	 * Returns true if the perun principal inside the perun session is top group creator.
+	 *
+	 * @param sess
+	 * @return true if the perun principal is top group creator.
+	 */
+	public static boolean isTopGroupCreator(PerunSession sess) {
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.isTopGroupCreator(sess);
+	}
+
+	/**
 	 * Returns true if the perun principal inside the perun session is perun admin.
 	 *
 	 * @param sess

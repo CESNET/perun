@@ -145,7 +145,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (complementaryObject.getBeanName().equals(Resource.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Facility.class.getSimpleName(), ((Resource) complementaryObject).getFacilityId());
 				}
-			} else if (role.equals(Role.GROUPADMIN)) {
+			} else if (role.equals(Role.GROUPADMIN) || role.equals(Role.TOPGROUPCREATOR)) {
 				// Group admin can see some of the date of the VO
 				if (complementaryObject.getBeanName().equals(Vo.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Vo) complementaryObject).getId());
@@ -538,6 +538,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	public static boolean isFacilityAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.FACILITYADMIN);
+	}
+
+	public static boolean isVoObserver(PerunSession sess) {
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.VOOBSERVER);
+	}
+
+	public static boolean isTopGroupCreator(PerunSession sess) {
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.TOPGROUPCREATOR);
 	}
 
 	public static boolean isPerunAdmin(PerunSession sess) {
