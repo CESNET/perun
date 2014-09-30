@@ -437,6 +437,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(Status.INVALID), true);
 	}
 
+	public List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession sess, Group group) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(Status.INVALID, Status.DISABLED), true);
+	}
+
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return this.getGroupRichMembers(sess, group, null);
 	}

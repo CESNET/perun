@@ -200,7 +200,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		ServiceAttributes groupsMembersElement = new ServiceAttributes();
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalid(sess, group);
+		//Invalid and disabled are not allowed here
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		for(Member member : members) {
 			groupsMembersElement.addChildElement(memberAttributes.get(member));
 		}

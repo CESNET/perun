@@ -286,16 +286,28 @@ public interface GroupsManagerBl {
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Return only valid, suspended, expired and disabled group members.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @return list members or empty list if there are no such members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getGroupMembersExceptInvalid(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
 	 * Return only valid, suspended and expired group members.
 	 *
 	 * @param perunSession
 	 * @param group
 	 *
-	 * @return list users or empty list if there are no users on specified page
+	 * @return list members or empty list if there are no such members
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersExceptInvalid(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Return group members.
