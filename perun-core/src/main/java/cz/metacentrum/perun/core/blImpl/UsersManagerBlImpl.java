@@ -704,7 +704,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
-		AuthzResolverBlImpl.makeUserPerunAdmin(sess, user);
+		try {
+			AuthzResolverBlImpl.setRole(sess, user, null, Role.PERUNADMIN);
+		} catch (AlreadyAdminException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {

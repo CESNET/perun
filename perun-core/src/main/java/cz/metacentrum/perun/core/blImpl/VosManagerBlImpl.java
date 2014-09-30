@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -309,7 +310,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if(adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);
-		AuthzResolverBlImpl.addAdmin(sess, vo, user);
+		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
 		log.debug("User [{}] added like administrator to VO [{}]", user, vo);
 	}
 
@@ -317,14 +318,14 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if(adminsOfVo.contains(group)) throw new AlreadyAdminException(group, vo);
-		AuthzResolverBlImpl.addAdmin(sess, vo, group);
+		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
 		log.debug("Group [{}] added like administrator to VO [{}]", group, vo);
 	}
 
 	public void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if(!adminsOfVo.contains(user)) throw new UserNotAdminException(user);
-		AuthzResolverBlImpl.removeAdmin(sess, vo, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
 		log.debug("User [{}] deleted like administrator from VO [{}]", user, vo);
 	}
 
@@ -332,7 +333,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if(!adminsOfVo.contains(group)) throw new GroupNotAdminException(group);
-		AuthzResolverBlImpl.removeAdmin(sess, vo, group);
+		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
 		log.debug("Group [{}] deleted like administrator from VO [{}]", group, vo);
 	}
 
