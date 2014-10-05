@@ -100,6 +100,11 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
+	public void updateTask(Task task) {
+		taskDao.updateTask(task);
+	}
+
+	@Override
 	public boolean isThereSuchTask(ExecService execService, Facility facility, int engineID) {
 		return taskDao.isThereSuchTask(execService, facility, engineID);
 	}
