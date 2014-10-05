@@ -1,0 +1,20 @@
+<configuration xmlns="urn:hornetq"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+	<!--the connection factory used by the Perun-Dispatcher HornetQ system -->
+	<connection-factory name="ConnectionFactory">
+		<connectors>
+			<connector-ref connector-name="netty-connector" />
+		</connectors>
+		<entries>
+			<entry name="ConnectionFactory" />
+		</entries>
+	</connection-factory>
+
+	<!-- Yes, the only JMS Queue that is pre-configured. All other queues are
+		being initiated ad-hoc. -->
+	<queue name="systemQueue">
+		<entry name="systemQueue" />
+	</queue>
+
+</configuration>
