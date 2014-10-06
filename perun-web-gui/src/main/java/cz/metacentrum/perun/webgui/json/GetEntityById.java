@@ -5,6 +5,8 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
+import java.util.ArrayList;
+
 /**
  * Unified callback class to get any PerunEntity by it's ID with optional cache support
  *
@@ -30,6 +32,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_FACILITY = "facilitiesManager/getFacilityById";
 	static private final String URL_GROUP = "groupsManager/getGroupById";
 	static private final String URL_GROUP_PARENT = "groupsManager/getParentGroup";
+	static private final String URL_RICH_GROUP = "groupsManager/getRichGroupByIdWithAttributesByNames";
+
 	static private final String URL_RESOURCE = "resourcesManager/getResourceById";
 	static private final String URL_RICH_RESOURCE = "resourcesManager/getRichResourceById";
 	static private final String URL_PUBLICATION = "cabinetManager/findPublicationById";
@@ -90,7 +94,19 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 		}   else if (PerunEntity.GROUP_PARENT.equals(entity)) {
 			param = "group="+entityId;
 			js.retrieveData(URL_GROUP_PARENT, param, this);
-		}else if (PerunEntity.PUBLICATION.equals(entity)) {
+		} else if (PerunEntity.RICH_GROUP.equals(entity)) {
+			param = "groupId="+entityId;
+			ArrayList<String> attrNames = new ArrayList<>();
+			attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+			attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+			attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+			attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+			attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+			for (String value : attrNames) {
+				param += "&attrNames[]="+value;
+			}
+			js.retrieveData(URL_RICH_GROUP, param, this);
+		} else if (PerunEntity.PUBLICATION.equals(entity)) {
 			js.retrieveData(URL_PUBLICATION, param, this);
 		} else if (PerunEntity.RESOURCE.equals(entity)) {
 			js.retrieveData(URL_RESOURCE, param, this);

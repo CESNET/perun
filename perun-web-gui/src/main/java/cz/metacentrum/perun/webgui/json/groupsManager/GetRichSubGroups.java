@@ -3,7 +3,6 @@ package cz.metacentrum.perun.webgui.json.groupsManager;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -12,7 +11,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
@@ -24,6 +22,7 @@ import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableInfoCellWithImageResource;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * GroupsManager/getRichSubGroupsWithAttributesByNames Method
@@ -140,19 +139,11 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 		table.addIdColumn("Group ID", tableFieldUpdater);
 
 		// Add a synchronization clicable icon column.
-		Column<RichGroup, ImageResource> syncColumn = new Column<RichGroup, ImageResource>(
+		Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
 				new CustomClickableInfoCellWithImageResource("click")) {
 			@Override
-			public ImageResource getValue(RichGroup object) {
-				if (object.isSyncEnabled()) {
-					if (object.getLastSynchronizationState().equals("OK")) {
-						return SmallIcons.INSTANCE.bulletGreenIcon();
-					} else {
-						return SmallIcons.INSTANCE.bulletRedIcon();
-					}
-				} else {
-					return SmallIcons.INSTANCE.bulletWhiteIcon();
-				}
+			public RichGroup getValue(RichGroup object) {
+				return object;
 			}
 			@Override
 			public String getCellStyleNames(Cell.Context context, RichGroup object) {
@@ -163,9 +154,9 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 				}
 			}
 		};
-		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, ImageResource>() {
+		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, RichGroup>() {
 			@Override
-			public void update(int index, RichGroup object, ImageResource value) {
+			public void update(int index, RichGroup object, RichGroup value) {
 				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
 				name = object.getName();
 				if (object.isSyncEnabled()) {
@@ -209,8 +200,30 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 				UiElements.generateInfo("Group synchronization info", html);
 			};
 		});
+
+		syncColumn.setSortable(true);
+		columnSortHandler.setComparator(syncColumn, new Comparator<RichGroup>() {
+			@Override
+			public int compare(RichGroup o1, RichGroup o2) {
+				if (o1 != null && o2 != null) {
+
+					int o1val = 0;
+					int o2val = 0;
+
+					if (o1.isSyncEnabled()) o1val = 5;
+					if (o2.isSyncEnabled()) o2val = 5;
+
+					if (o1.getAuthoritativeGroup() != null && o1.getAuthoritativeGroup().equalsIgnoreCase("1")) o1val = o1val + 3;
+					if (o2.getAuthoritativeGroup() != null && o2.getAuthoritativeGroup().equalsIgnoreCase("1")) o2val = o2val + 3;
+
+					return o1val - o2val;
+				}
+				return 0;
+			}
+		});
+
 		table.addColumn(syncColumn, "Sync");
-		table.setColumnWidth(syncColumn, "30px");
+		table.setColumnWidth(syncColumn, "70px");
 
 		table.addNameColumn(tableFieldUpdater);
 		table.addDescriptionColumn(tableFieldUpdater);

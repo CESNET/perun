@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -49,9 +50,9 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 	 */
 	private Label titleWidget = new Label("Loading group");
 
-	private Group group;
-	private int groupId;
-	private VirtualOrganization vo;
+	private Group group = null;
+	private int groupId = 0;
+	private VirtualOrganization vo = null;
 	// sub panels
 	TabPanelForTabItems tabPanel;
 
@@ -78,12 +79,12 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 				group = jso.cast();
 			}
 		};
-		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+		new GetEntityById(PerunEntity.RICH_GROUP, groupId, events).retrieveData();
 		tabPanel = new TabPanelForTabItems(this);
 	}
 
 	public boolean isPrepared(){
-		return !(group == null);
+		return (group != null);
 	}
 
 	public Widget draw() {
@@ -110,7 +111,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 
 		final JsonCallbackEvents events = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
-				new GetEntityById(PerunEntity.GROUP, groupId, new JsonCallbackEvents(){
+				new GetEntityById(PerunEntity.RICH_GROUP, groupId, new JsonCallbackEvents(){
 					public void onFinished(JavaScriptObject jso){
 						group = jso.cast();
 						open();
@@ -131,6 +132,19 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 		}
+
+		String text = (((RichGroup)group).isSyncEnabled()) ? "Enabled" : "Disabled";
+
+		text += (((RichGroup)group).getAuthoritativeGroup().equals("1")) ? " / Authoritative" : "";
+
+		menu.setHTML(0, column, "<strong>Sync:</strong><br/><span class=\"inputFormInlineComment\">"+text+"</span>");
+
+		column++;
+
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+
+		column++;
 
 		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"</span>");
 
@@ -243,16 +257,17 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
 
 		if (vo == null) {
-			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), new JsonCallbackEvents(){
+			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), new JsonCallbackEvents() {
 				@Override
 				public void onFinished(JavaScriptObject jso) {
 					vo = jso.cast();
-					session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "VO: "+vo.getName(), VosTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"detail?id="+vo.getId(), "Group: "+group.getName(), getUrlWithParameters());
+					session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "VO: " + vo.getName(), VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail?id=" + vo.getId(), "Group: " + group.getName(), getUrlWithParameters());
 				}
-			@Override
-			public void onError(PerunError error) {
-				session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Group: "+group.getName(), getUrlWithParameters());
-			}
+
+				@Override
+				public void onError(PerunError error) {
+					session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Group: " + group.getName(), getUrlWithParameters());
+				}
 			}
 			).retrieveData();
 		} else {

@@ -29,6 +29,7 @@ public class RichGroup extends Group {
 	public final native boolean isSyncEnabled() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "synchronizationEnabled") {
+				if (this.attributes[id].value === null) return false;
 				return this.attributes[id].value;
 			}
 		}
@@ -61,6 +62,7 @@ public class RichGroup extends Group {
 	public final native String getAuthoritativeGroup() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "authoritativeGroup") {
+				if (this.attributes[id].value === null) return "0"; // not authoritative
 				return this.attributes[id].value;
 			}
 		}
