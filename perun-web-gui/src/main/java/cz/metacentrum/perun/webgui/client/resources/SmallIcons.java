@@ -815,8 +815,8 @@ public interface SmallIcons extends ClientBundle{
 	@Source("icons/16x16/bullet_red.png")
 	ImageResource bulletRedIcon();
 
-	//@Source("icons/16x16/bullet_star.png")
-	//ImageResource bulletStarIcon();
+	@Source("icons/16x16/bullet_star.png")
+	ImageResource bulletStarIcon();
 
 	//@Source("icons/16x16/bullet_toggle_minus.png")
 	//ImageResource bulletToggleMinusIcon();
