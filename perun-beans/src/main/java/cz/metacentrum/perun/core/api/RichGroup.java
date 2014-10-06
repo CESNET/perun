@@ -21,6 +21,7 @@ public class RichGroup extends Group {
 				group.getModifiedAt(), group.getModifiedBy(),
 				group.getParentGroupId(), group.getCreatedByUid(),
 				group.getModifiedByUid());
+		this.setVoId(group.getVoId());
 		this.groupAttributes = attrs;
 	}
 

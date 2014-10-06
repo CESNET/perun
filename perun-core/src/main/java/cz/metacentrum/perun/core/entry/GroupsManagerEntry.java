@@ -939,18 +939,17 @@ public class GroupsManagerEntry implements GroupsManager {
 
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		this.getGroupsManagerBl().checkGroupExists(sess, this.getGroupsManagerBl().getGroupById(sess, groupId));
 
 		Group group = groupsManagerBl.getGroupById(sess, groupId);
-		Vo vo = perunBl.getVosManagerBl().getVoById(sess, group.getVoId());
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
 		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getRichGroupByIdWithAttributesByNames");
 		}
 
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getRichGroupByIdWithAttributesByNames(sess, groupId, attrNames));
+
 	}
 }
