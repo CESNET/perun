@@ -47,7 +47,7 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 	/**
 	 * Whether automatically show hyperlinks for base entities
 	 */
-	private boolean hyperlinksAllowed = true;
+	private boolean hyperlinksAllowed = false;
 
 	/**
 	 * RowCountChangeHandler registration
