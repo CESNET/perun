@@ -319,6 +319,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 							safeMail += "@"+((String) a.getValue()).split("@")[1];
 
+							identity.setEmail(safeMail);
+
 						}
 					} else if ("urn:perun:user:attribute-def:def:organization".equals(a.getName())) {
 						if (a.getValue() != null) {
