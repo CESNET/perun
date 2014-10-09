@@ -160,11 +160,6 @@ public class ApplicationFormPage extends ApplicationPage {
 		formContent.setStyleName("formContentTable");
 		submittedOrError = false;
 
-		// try to get user for VOs initial application (only for authz origin)
-		if (session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
-			tryToFindUserByName(null);
-		}
-
 		FlexTable header = new FlexTable();
 		header.setWidth("100%");
 		header.setCellPadding(5);
@@ -232,6 +227,13 @@ public class ApplicationFormPage extends ApplicationPage {
 							// enforce first click to validate and submit the form
 							fitems.getSendButton().click();
 						}
+					}
+				}
+
+				// try to get user for VOs initial application (only for authz origin when form is defined)
+				if (items != null && !items.isEmpty()) {
+					if (session.getUser() == null && !session.getPerunPrincipal().getExtSource().equalsIgnoreCase("LOCAL")) {
+						tryToFindUserByName(null);
 					}
 				}
 
