@@ -21,19 +21,14 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
 import cz.metacentrum.perun.webgui.json.registrarManager.CreateApplication;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItemsWithPrefilledValues;
-import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
-import cz.metacentrum.perun.webgui.json.usersManager.FindUsersByName;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Page with VO application form
@@ -47,6 +42,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	private SimplePanel bodyContents = new SimplePanel();
 	private VerticalPanel formContent = new VerticalPanel();
+	private ArrayList<User> foundUsers = new ArrayList<User>();
 
 	/**
 	 * Data
@@ -541,6 +537,27 @@ public class ApplicationFormPage extends ApplicationPage {
 	 * @param users
 	 */
 	protected void similarUsersFound(ArrayList<User> users) {
+
+		boolean foundNew = false;
+		for (User u : users) {
+			boolean foundOld = false;
+			for (User user : foundUsers) {
+				if (user.getId() == u.getId()) {
+					// was already found
+					foundOld = true;
+					break;
+				}
+			}
+			// user was not found in old ones
+			if (!foundOld) {
+				foundNew = true;
+				break;
+			}
+		}
+
+		if (!foundNew) return;
+
+		foundUsers = users;
 
 		FlexTable ft = new FlexTable();
 
