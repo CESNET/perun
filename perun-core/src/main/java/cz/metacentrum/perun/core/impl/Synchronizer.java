@@ -121,7 +121,7 @@ public class Synchronizer {
 
 	public void initialize() throws InternalErrorException {
 		String synchronizerPrincipal = "Synchronizer";
-		this.sess = perunBl.getPerunSession(new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.sess = perunBl.getPerunSession(new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
 
 	public PerunBl getPerun() {

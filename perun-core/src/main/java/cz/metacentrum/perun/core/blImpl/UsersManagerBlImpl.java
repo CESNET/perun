@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
@@ -262,7 +261,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// Add default userExtSource
 		ExtSource es;
 		try {
-			es = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_PERUN);
+			es = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
 		} catch (ExtSourceNotExistsException e1) {
 			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init fucntion.",e1);
 		}

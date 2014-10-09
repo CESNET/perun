@@ -8,12 +8,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationForm;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
-import cz.metacentrum.perun.registrar.model.ApplicationMail;
+import cz.metacentrum.perun.registrar.model.*;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -1085,12 +1080,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Check if new application may belong to another user in Perun
 	 * (but same person in real life).
 	 *
-	 * Return list of similar users (by identity, name or email).
+	 * Return list of similar identities (by external identity, name or email).
 	 *
-	 * Returned users contain also organization and preferredMail attribute.
+	 * Returned identities contain also organization, email and external identities.
 	 *
 	 * @param appId int ID of application to check for
-	 * @return List<RichUser> List of found similar RichUsers
+	 * @return List<Identity> List of found similar identities.
 	 */
 	/*#
 	 * Check if new application may belong to another user in Perun
@@ -1099,30 +1094,30 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * IMPORTANT: This check is performed only on latest application of specified vo/group and type which belongs
 	 * to logged in user/identity.
 	 *
-	 * Return list of similar users (by identity, name or email).
+	 * Return list of similar identities (by external identity, name or email).
 	 *
-	 * Returned users contain also organization and preferredMail attribute.
+	 * Returned identities contain also organization, email and external identities.
 	 *
 	 * @param voId int Vo to get application for
 	 * @param groupId int Group to get application for
 	 * @param type String Application type
 	 *
-	 * @return List<RichUser> List of found similar RichUsers
+	 * @return List<Identity> List of found similar identities.
 	 */
 	checkForSimilarUsers {
 
 		@Override
-		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Identity> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			if (parms.contains("appId")) {
-				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
+				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
 			} else if (parms.contains("voId")) {
-				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession(),
+				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession(),
 						ac.getVoById(parms.readInt("voId")),
 						(parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
 						AppType.valueOf(parms.readString("type")) );
 			} else {
-				return ac.getRegistrarManager().checkForSimilarUsers(ac.getSession());
+				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
 			}
 
 		}

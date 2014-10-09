@@ -59,7 +59,7 @@ public class VOOTMainAndFilterIntegrationTest{
 
 	@Before
 	public void setUpSession() throws Exception{
-		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 		user1 = setUpUser1();
 		setMail(user1,"james.bond@mi6.co.uk");
 		setUpBackground();

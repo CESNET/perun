@@ -58,7 +58,7 @@ public class RegistrarBaseIntegrationTest {
 
 		if (vo == null || session == null) {
 
-			session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+			session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 
 			// create test VO
 			vo = new Vo(0,"registrarTestVO","regTestVO");

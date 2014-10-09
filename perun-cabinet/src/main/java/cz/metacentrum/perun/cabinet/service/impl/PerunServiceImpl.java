@@ -186,7 +186,7 @@ public class PerunServiceImpl implements IPerunService {
 	protected void initialize() throws PerunException {
 
 		// createCabinet
-		final PerunPrincipal pp = new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		final PerunPrincipal pp = new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		cabinetSession = perun.getPerunSession(pp);
 
 		AttributeDefinition attrDef;

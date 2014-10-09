@@ -71,7 +71,7 @@ public class ExecServiceDependencyDaoTest {
 	@Before
 	public void beforeClass() {
 		try {
-			perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+			perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 		} catch (InternalErrorException e) {
 			log.error(e.toString());
 		}

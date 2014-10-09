@@ -39,7 +39,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	public void isAuthorizedInvalidPrincipal() throws Exception {
 		System.out.println(CLASS_NAME + "isAuthorizedInvalidPrincipal()");
 
-		assertTrue(! AuthzResolver.isAuthorized(new PerunSessionImpl(perun, new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL)), Role.PERUNADMIN));
+		assertTrue(! AuthzResolver.isAuthorized(new PerunSessionImpl(perun, new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL)), Role.PERUNADMIN));
 	}
 
 	@Test
@@ -263,7 +263,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		System.out.println(CLASS_NAME + "getPrincipalRoleNames()");
 
 		// Principal perunTests is PERUNADMIN
-		PerunPrincipal pp =  new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunPrincipal pp =  new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunSession ps = new PerunSessionImpl(perun, pp);
 
 		List<String> roleNames = cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ps);

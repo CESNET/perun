@@ -392,9 +392,9 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 		// Check if default extSource PERUN exists
 		try {
-			this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_PERUN);
+			this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
 		} catch (ExtSourceNotExistsException e) {
-			ExtSource es = new ExtSource(ExtSourcesManager.EXTSOURCE_PERUN, ExtSourcesManager.EXTSOURCE_INTERNAL);
+			ExtSource es = new ExtSource(ExtSourcesManager.EXTSOURCE_NAME_PERUN, ExtSourcesManager.EXTSOURCE_INTERNAL);
 			try {
 				this.createExtSource(sess, es);
 			} catch (ExtSourceExistsException e1) {
