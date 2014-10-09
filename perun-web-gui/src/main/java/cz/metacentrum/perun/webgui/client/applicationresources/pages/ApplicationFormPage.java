@@ -156,6 +156,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	protected void prepareVoForm() {
 
+		if (submittedOrError) formContent.clear();
 		bodyContents.setWidget(formContent);
 		formContent.setStyleName("formContentTable");
 		submittedOrError = false;
