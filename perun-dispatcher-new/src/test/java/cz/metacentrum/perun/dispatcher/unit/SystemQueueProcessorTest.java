@@ -10,7 +10,7 @@ public class SystemQueueProcessorTest extends TestBase {
 
 	@Autowired
 	private SystemQueueProcessor systemQueueProcessor;
-	
+
 	@Test
 	public void processDispatcherQueueAndMatchingRuleTest() {
 		String testMessage_task = "";

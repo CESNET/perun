@@ -3,10 +3,9 @@ package cz.metacentrum.perun.engine.processing;
 import cz.metacentrum.perun.engine.exceptions.UnknownCommandException;
 
 /**
- *
- * @author Michal Karm Babacek
- *         JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public interface CommandProcessor {
 

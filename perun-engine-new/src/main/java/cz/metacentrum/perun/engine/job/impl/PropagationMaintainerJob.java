@@ -8,15 +8,16 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
-//TODO: Service, no need to be concurrent...?
+// TODO: Service, no need to be concurrent...?
 @org.springframework.stereotype.Service(value = "propagationMaintainerJob")
 public class PropagationMaintainerJob implements PerunEngineJob {
 
-	private final static Logger log = LoggerFactory.getLogger(PropagationMaintainerJob.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(PropagationMaintainerJob.class);
 
 	@Autowired
 	private PropagationMaintainer propagationMaintainer;
@@ -32,7 +33,8 @@ public class PropagationMaintainerJob implements PerunEngineJob {
 		return propagationMaintainer;
 	}
 
-	public void setPropagationMaintainer(PropagationMaintainer propagationMaintainer) {
+	public void setPropagationMaintainer(
+			PropagationMaintainer propagationMaintainer) {
 		this.propagationMaintainer = propagationMaintainer;
 	}
 }

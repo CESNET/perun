@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.dispatcher.dao;
+ackage cz.metacentrum.perun.dispatcher.dao;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,8 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 public interface ProcessingRuleDao {
 
-    public Map<ProcessingRule, List<ExecService>> getRules(PerunSession perunSession) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	public Map<ProcessingRule, List<ExecService>> getRules(
+			PerunSession perunSession) throws ServiceNotExistsException,
+			InternalErrorException, PrivilegeException;
 
 }

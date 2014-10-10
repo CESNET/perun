@@ -24,16 +24,16 @@ public class DependenciesResolverImplTest extends TestBase {
 	private SchedulingPool schedulingPool;
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
-	
+
 	// it is not possible to test addDependency alone
-	
+
 	@Before
 	public void setup() {
 		schedulingPool.addToPool(task1);
 		dependenciesResolver.addDependency(task2, task1.getId());
 	}
-	
-    @IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void getDependencyTest() {
 		List<Task> dependencies = dependenciesResolver.getDependencies(task2);
@@ -42,8 +42,8 @@ public class DependenciesResolverImplTest extends TestBase {
 		dependencies = dependenciesResolver.getDependencies(task1);
 		Assert.isTrue(dependencies.size() == 0, "no dependencies");
 	}
-	
-    @IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void getDependantsTest() {
 		List<Task> dependants = dependenciesResolver.getDependants(task1);
@@ -52,7 +52,7 @@ public class DependenciesResolverImplTest extends TestBase {
 		dependants = dependenciesResolver.getDependants(task2);
 		Assert.isTrue(dependants.size() == 0, "size is 0");
 	}
-	
+
 	@After
 	public void cleanup() {
 		schedulingPool.removeTask(task1);

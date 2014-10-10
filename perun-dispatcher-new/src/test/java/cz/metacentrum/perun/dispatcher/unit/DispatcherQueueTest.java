@@ -8,7 +8,7 @@ public final class DispatcherQueueTest extends TestBase {
 
 	@Test
 	public void sendEventTest() {
-		
+
 	}
-	
+
 }

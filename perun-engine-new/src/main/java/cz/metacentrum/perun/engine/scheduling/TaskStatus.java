@@ -10,19 +10,18 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 public interface TaskStatus {
 
 	public enum TaskDestinationStatus {
-		WAITING,
-		PROCESSING,
-		DONE,
-		ERROR
+		WAITING, PROCESSING, DONE, ERROR
 	}
 
 	List<Destination> getWaitingDestinations();
 
 	List<Destination> getSuccessfulDestinations();
 
-	TaskDestinationStatus getDestinationStatus(Destination destination) throws InternalErrorException;
-	
-	void setDestinationStatus(Destination destination, TaskDestinationStatus status) throws InternalErrorException;
+	TaskDestinationStatus getDestinationStatus(Destination destination)
+			throws InternalErrorException;
+
+	void setDestinationStatus(Destination destination,
+			TaskDestinationStatus status) throws InternalErrorException;
 
 	void setDestinationResult(Destination destination, TaskResult result);
 

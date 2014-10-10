@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 /**
  * The base of Perun-Dispatcher checked exceptions.
- *
+ * 
  * @author Michal Karm Babacek
  */
 public abstract class DispatcherException extends Exception {
@@ -29,13 +29,13 @@ public abstract class DispatcherException extends Exception {
 	}
 
 	public DispatcherException(Throwable cause) {
-		super(cause!=null?cause.getMessage():null,cause);
+		super(cause != null ? cause.getMessage() : null, cause);
 		logger.error("Error ID: " + errorId, this);
 	}
 
 	@Override
 	public String getMessage() {
-		return "Error "+errorId+": "+super.getMessage();
+		return "Error " + errorId + ": " + super.getMessage();
 	}
 
 	public String getErrorId() {

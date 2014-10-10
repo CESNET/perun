@@ -9,15 +9,16 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
-//TODO: Service, however, it can be Prototype so as to run concurrently...
+// TODO: Service, however, it can be Prototype so as to run concurrently...
 @org.springframework.stereotype.Service(value = "processPoolJob")
 public class ProcessPoolJob implements PerunEngineJob {
 
-	private final static Logger log = LoggerFactory.getLogger(ProcessPoolJob.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(ProcessPoolJob.class);
 
 	@Autowired
 	private TaskScheduler taskScheduler;

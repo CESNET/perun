@@ -18,6 +18,6 @@ public class InvalidEventMessageException extends DispatcherException {
     }
 
     public InvalidEventMessageException(Throwable cause) {
-        super(cause);
+		super(cause);
     }
 }

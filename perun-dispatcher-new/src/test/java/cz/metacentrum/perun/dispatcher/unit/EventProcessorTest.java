@@ -24,52 +24,55 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 public class EventProcessorTest extends TestBase {
-	private final static Logger log = LoggerFactory.getLogger(EventProcessorTest.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(EventProcessorTest.class);
 
 	@Autowired
-	private TestDataSourcePopulator testDataPopulator;	
+	private TestDataSourcePopulator testDataPopulator;
 	@Autowired
 	private ExecService execservice1;
 	@Autowired
 	private ExecService execservice2;
 	@Autowired
 	private Facility facility1;
-	
+
 	@Autowired
 	private EventProcessorImpl eventProcessor;
 
 	private EventProcessorImpl.EvProcessor evProcessor;
 	private Task createdTask;
-	
+
 	private class EventQueueMock implements EventQueue {
 		private boolean eventConsumed = false;
-		
+
 		@Override
 		public void add(Event event) {
 		}
 
 		@Override
 		public Event poll() {
-			if(eventConsumed) {
+			if (eventConsumed) {
 				return null;
 			}
 			Event event = new Event();
 			event.setTimeStamp(System.currentTimeMillis());
 			event.setHeader("portishead");
-			event.setData(testDataPopulator.getMember1().serializeToString() + " added to " + testDataPopulator.getGroup1().serializeToString() + ".");
+			event.setData(testDataPopulator.getMember1().serializeToString()
+					+ " added to "
+					+ testDataPopulator.getGroup1().serializeToString() + ".");
 			eventConsumed = true;
 			return event;
 		}
 
 		@Override
 		public int size() {
-			if(eventConsumed) {
-				return 0; 
+			if (eventConsumed) {
+				return 0;
 			} else {
 				return 1;
 			}
 		}
-		
+
 	}
 
 	private class DispatcherQueueMock extends DispatcherQueue {
@@ -88,13 +91,15 @@ public class EventProcessorTest extends TestBase {
 			evProcessor.stop();
 			return 1;
 		}
-		
+
 	}
-	
-	@Test(timeout=1000)
+
+	@Test(timeout = 1000)
 	public void eventProcessorTest() {
-		DispatcherQueue dispatcherQueue = new DispatcherQueueMock(1, "testQueue");
-		eventProcessor.getDispatcherQueuePool().addDispatcherQueue(dispatcherQueue);
+		DispatcherQueue dispatcherQueue = new DispatcherQueueMock(1,
+				"testQueue");
+		eventProcessor.getDispatcherQueuePool().addDispatcherQueue(
+				dispatcherQueue);
 		eventProcessor.setEventQueue(new EventQueueMock());
 		eventProcessor.getSmartMatcher().loadAllRulesFromDB();
 		eventProcessor.setSchedulingPool(new SchedulingPoolMock());
@@ -103,9 +108,11 @@ public class EventProcessorTest extends TestBase {
 		// this necessitates the use of test timeout
 		evProcessor.run();
 		log.debug("createdTask: " + createdTask);
-		Assert.isTrue(execservice2.equals(createdTask.getExecService()), "task execService is different");
-		Assert.isTrue(facility1.equals(createdTask.getFacility()), "task Facility is different");
+		Assert.isTrue(execservice2.equals(createdTask.getExecService()),
+				"task execService is different");
+		Assert.isTrue(facility1.equals(createdTask.getFacility()),
+				"task Facility is different");
 		Assert.isTrue(createdTask.getStatus().equals(TaskStatus.NONE));
-		
+
 	}
 }

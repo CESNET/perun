@@ -18,23 +18,25 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 @org.springframework.stereotype.Service(value = "taskStatusManager")
-public class TaskStatusManagerImpl implements TaskStatusManager, TaskResultListener {
-    private final static Logger log = LoggerFactory.getLogger(TaskStatusManagerImpl.class);
-	
-    @Autowired
-    private SchedulingPool schedulingPool;
-    
-    private Map<Integer, TaskStatus> taskToStatusMap;  
+public class TaskStatusManagerImpl implements TaskStatusManager,
+		TaskResultListener {
+	private final static Logger log = LoggerFactory
+			.getLogger(TaskStatusManagerImpl.class);
+
+	@Autowired
+	private SchedulingPool schedulingPool;
+
+	private Map<Integer, TaskStatus> taskToStatusMap;
 
 	public TaskStatusManagerImpl() {
 		taskToStatusMap = new HashMap<Integer, TaskStatus>();
 	}
-	
+
 	@Override
 	public TaskStatus getTaskStatus(Task task) {
 		TaskStatus taskStatus;
-		synchronized(taskToStatusMap) {
-			if(taskToStatusMap.containsKey(task.getId())) {
+		synchronized (taskToStatusMap) {
+			if (taskToStatusMap.containsKey(task.getId())) {
 				taskStatus = taskToStatusMap.get(task.getId());
 			} else {
 				taskStatus = new TaskStatusImpl(task);
@@ -47,40 +49,43 @@ public class TaskStatusManagerImpl implements TaskStatusManager, TaskResultListe
 
 	@Override
 	public void clearTaskStatus(Task task) {
-		synchronized(taskToStatusMap) {
+		synchronized (taskToStatusMap) {
 			taskToStatusMap.remove(task.getId());
 		}
 	}
-	
+
 	@Override
-	public void onTaskDestinationDone(Task task, Destination destination, TaskResult result) {
+	public void onTaskDestinationDone(Task task, Destination destination,
+			TaskResult result) {
 		TaskStatus taskStatus = this.getTaskStatus(task);
 		try {
-			taskStatus.setDestinationStatus(destination, TaskDestinationStatus.DONE);
+			taskStatus.setDestinationStatus(destination,
+					TaskDestinationStatus.DONE);
 			taskStatus.setDestinationResult(destination, result);
 		} catch (InternalErrorException e) {
-			log.error("Error setting DONE status for task " + task.toString() + ": " + e.getMessage());
+			log.error("Error setting DONE status for task " + task.toString()
+					+ ": " + e.getMessage());
 		}
-		if(taskStatus.isTaskFinished()) {
+		if (taskStatus.isTaskFinished()) {
 			schedulingPool.setTaskStatus(task, taskStatus.getTaskStatus());
 		}
 	}
 
-
 	@Override
-	public void onTaskDestinationError(Task task, Destination destination, TaskResult result) {
+	public void onTaskDestinationError(Task task, Destination destination,
+			TaskResult result) {
 		TaskStatus taskStatus = this.getTaskStatus(task);
 		try {
-			taskStatus.setDestinationStatus(destination, TaskDestinationStatus.ERROR);
+			taskStatus.setDestinationStatus(destination,
+					TaskDestinationStatus.ERROR);
 			taskStatus.setDestinationResult(destination, result);
 		} catch (InternalErrorException e) {
-			log.error("Error setting ERROR status for task " + task.toString() + ": " +  e.getMessage());
+			log.error("Error setting ERROR status for task " + task.toString()
+					+ ": " + e.getMessage());
 		}
-		if(taskStatus.isTaskFinished()) {
+		if (taskStatus.isTaskFinished()) {
 			schedulingPool.setTaskStatus(task, taskStatus.getTaskStatus());
 		}
 	}
-    
-	
 
 }

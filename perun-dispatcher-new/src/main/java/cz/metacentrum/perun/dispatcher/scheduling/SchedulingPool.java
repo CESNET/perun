@@ -14,29 +14,29 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
  * 
  * @author Michal Voců
  * 
- * Contains:
- *   - database of Tasks and their states
- *   - mapping of Tasks to engines (dispatcherQueue)
- *   
+ *         Contains: - database of Tasks and their states - mapping of Tasks to
+ *         engines (dispatcherQueue)
+ * 
  */
 public interface SchedulingPool {
 
-    /**
-     * Size
-     * 
-     * @return current pool size
-     */
-    int getSize();
+	/**
+	 * Size
+	 * 
+	 * @return current pool size
+	 */
+	int getSize();
 
-    /**
-     * Add Task to the waiting list.
-     * 
-     * @param task
-     * @param dispatcherQueue 
-     * @return
-     * @throws InternalErrorException 
-     */
-    int addToPool(Task task, DispatcherQueue dispatcherQueue) throws InternalErrorException;
+	/**
+	 * Add Task to the waiting list.
+	 * 
+	 * @param task
+	 * @param dispatcherQueue
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	int addToPool(Task task, DispatcherQueue dispatcherQueue)
+			throws InternalErrorException;
 
 	Task getTaskById(int id);
 

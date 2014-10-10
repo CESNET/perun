@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.dispatcher;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
@@ -24,11 +23,11 @@ public class TestDataSourcePopulator {
 	@Autowired
 	private Perun perun;
 	private PerunSession testSession;
-    @Autowired
-    private GeneralServiceManager generalServiceManager;
-	
-	// the test database is populated with these data (configured as beans) 
-	@Autowired 
+	@Autowired
+	private GeneralServiceManager generalServiceManager;
+
+	// the test database is populated with these data (configured as beans)
+	@Autowired
 	private Group group1;
 	@Autowired
 	private Vo vo1;
@@ -47,53 +46,67 @@ public class TestDataSourcePopulator {
 	private ExecService execservice1;
 	@Autowired
 	private ExecService execservice2;
-	
-	
+
 	public TestDataSourcePopulator() {
 	}
-	
+
 	/**
-	 * Populate database with enough data to run simple test. Basic data objects are created by Spring 
-	 * as beans and then inserted into DB using the Perun core API.
+	 * Populate database with enough data to run simple test. Basic data objects
+	 * are created by Spring as beans and then inserted into DB using the Perun
+	 * core API.
 	 * 
 	 * @throws InternalErrorException
 	 */
 	public final void initDb() throws InternalErrorException {
-		PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		PerunBlImpl perunBl = (PerunBlImpl)perun;
+		PerunPrincipal pp = new PerunPrincipal("perunTests",
+				ExtSourcesManager.EXTSOURCE_INTERNAL,
+				ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunBlImpl perunBl = (PerunBlImpl) perun;
 		testSession = perun.getPerunSession(pp);
 		try {
 			// create VO for tests
 			vo1 = perun.getVosManager().createVo(testSession, vo1);
 			// create some group in there
-			group1 = perun.getGroupsManager().createGroup(testSession, vo1, group1);
+			group1 = perun.getGroupsManager().createGroup(testSession, vo1,
+					group1);
 			// create user in the VO
-			// skip the xEntry (authorization check), 
-			// could skip the xBl a go directly to xImpl to avoid writing audit log
+			// skip the xEntry (authorization check),
+			// could skip the xBl a go directly to xImpl to avoid writing audit
+			// log
 			user1 = perunBl.getUsersManagerBl().createUser(testSession, user1);
 			// make the user the member of the group
-			member1 = perun.getMembersManager().createMember(testSession, vo1, user1);
+			member1 = perun.getMembersManager().createMember(testSession, vo1,
+					user1);
 			member1.setStatus("VALID");
 			perun.getGroupsManager().addMember(testSession, group1, member1);
 			// now create some facility
-			facility1 = perun.getFacilitiesManager().createFacility(testSession, facility1);
+			facility1 = perun.getFacilitiesManager().createFacility(
+					testSession, facility1);
 			// create a resource
-			resource1 = perun.getResourcesManager().createResource(testSession, resource1, vo1, facility1);
+			resource1 = perun.getResourcesManager().createResource(testSession,
+					resource1, vo1, facility1);
 			// assign the group to this resource
-			perun.getResourcesManager().assignGroupToResource(testSession, group1, resource1);
+			perun.getResourcesManager().assignGroupToResource(testSession,
+					group1, resource1);
 			// create owner
 			perun.getOwnersManager().createOwner(testSession, owner1);
 			// create service
-			service1 = perun.getServicesManager().createService(testSession, service1, owner1);
+			service1 = perun.getServicesManager().createService(testSession,
+					service1, owner1);
 			// assign service to the resource
-			perun.getResourcesManager().assignService(testSession, resource1, service1);
+			perun.getResourcesManager().assignService(testSession, resource1,
+					service1);
 			// create execService
-			int id = generalServiceManager.insertExecService(testSession, execservice1, owner1);
-			// stash back the created id (this should be really done somewhere else)
+			int id = generalServiceManager.insertExecService(testSession,
+					execservice1, owner1);
+			// stash back the created id (this should be really done somewhere
+			// else)
 			execservice1.setId(id);
 			// create execService
-			id = generalServiceManager.insertExecService(testSession, execservice2, owner1);
-			// stash back the created id (this should be really done somewhere else)
+			id = generalServiceManager.insertExecService(testSession,
+					execservice2, owner1);
+			// stash back the created id (this should be really done somewhere
+			// else)
 			execservice2.setId(id);
 		} catch (Exception e) {
 			throw new InternalErrorException("error populating database", e);
@@ -120,7 +133,8 @@ public class TestDataSourcePopulator {
 		return generalServiceManager;
 	}
 
-	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
+	public void setGeneralServiceManager(
+			GeneralServiceManager generalServiceManager) {
 		this.generalServiceManager = generalServiceManager;
 	}
 

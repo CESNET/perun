@@ -37,14 +37,15 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor {
 
-	private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(EventProcessorImpl.class);
 
 	@Autowired
 	private EventQueue eventQueue;
@@ -65,7 +66,7 @@ public class EventProcessorImpl implements EventProcessor {
 	private SchedulingPool schedulingPool;
 	@Autowired
 	private TaskScheduler taskScheduler;
-	
+
 	public class EvProcessor implements Runnable {
 		private boolean running = true;
 
@@ -80,27 +81,41 @@ public class EventProcessorImpl implements EventProcessor {
 					Event event = eventQueue.poll();
 					if (event != null) {
 						if (log.isDebugEnabled()) {
-							log.debug("Events in Queue(" + eventQueue.size() + ").Dispatchers("+dispatcherQueuePool.poolSize()+").Processing event...");
+							log.debug("Events in Queue(" + eventQueue.size()
+									+ ").Dispatchers("
+									+ dispatcherQueuePool.poolSize()
+									+ ").Processing event...");
 						}
 						boolean orphan = true;
-						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool.getPool()) {
+						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool
+								.getPool()) {
 							long timeStamp = 0;
 							if (log.isDebugEnabled()) {
 								timeStamp = System.currentTimeMillis();
 							}
-							if (smartMatcher.doesItMatch(event, dispatcherQueue)) {
+							if (smartMatcher
+									.doesItMatch(event, dispatcherQueue)) {
 								orphan = false;
 								createTask(dispatcherQueue, event);
-								eventLogger.logEvent(event, dispatcherQueue.getClientID());
+								eventLogger.logEvent(event,
+										dispatcherQueue.getClientID());
 								if (log.isDebugEnabled()) {
-									long timeStamp2 = System.currentTimeMillis();
-									log.debug("MATCH OK (took " + (timeStamp2 - timeStamp) + "ms) for " + dispatcherQueue.getClientID() + " AND " + event.toString());
+									long timeStamp2 = System
+											.currentTimeMillis();
+									log.debug("MATCH OK (took "
+											+ (timeStamp2 - timeStamp)
+											+ "ms) for "
+											+ dispatcherQueue.getClientID()
+											+ " AND " + event.toString());
 								}
 								break;
 							}
 							if (log.isDebugEnabled()) {
 								long timeStamp2 = System.currentTimeMillis();
-								log.debug("NO MATCH (took " + (timeStamp2 - timeStamp) + "ms) for " + dispatcherQueue.getClientID() + " AND " + event.toString());
+								log.debug("NO MATCH (took "
+										+ (timeStamp2 - timeStamp) + "ms) for "
+										+ dispatcherQueue.getClientID()
+										+ " AND " + event.toString());
 							}
 						}
 						if (orphan) {
@@ -111,51 +126,67 @@ public class EventProcessorImpl implements EventProcessor {
 					log.error(e.getMessage(), e);
 				}
 				try {
-					//TODO: Remove?
+					// TODO: Remove?
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage(), e);
 				}
 			}
 		}
-		
-		private void createTask(DispatcherQueue dispatcherQueue, Event event) throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
+
+		private void createTask(DispatcherQueue dispatcherQueue, Event event)
+				throws ServiceNotExistsException, InvalidEventMessageException,
+				InternalErrorException, PrivilegeException {
 			// MV: this was the original behaviour
-			//dispatcherQueue.sendMessage(event.toString());
+			// dispatcherQueue.sendMessage(event.toString());
 
-			// Resolve the services in event, send the resulting <ExecService, Facility> pairs to engine
-			List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver.parseEvent(event.toString());
-			for(Pair<List<ExecService>, Facility> service : resolvedServices) {
-				//String facility = service.getRight().serializeToString();
+			// Resolve the services in event, send the resulting <ExecService,
+			// Facility> pairs to engine
+			List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver
+					.parseEvent(event.toString());
+			for (Pair<List<ExecService>, Facility> service : resolvedServices) {
+				// String facility = service.getRight().serializeToString();
 				Facility facility = service.getRight();
-				for(ExecService execService: service.getLeft()) {
-					//dispatcherQueue.sendMessage("[" + facility + "][" + execService.getId() + "]");
+				for (ExecService execService : service.getLeft()) {
+					// dispatcherQueue.sendMessage("[" + facility + "][" +
+					// execService.getId() + "]");
 
-					log.debug("Is the execService ID:" + execService.getId() + " enabled globally?");
+					log.debug("Is the execService ID:" + execService.getId()
+							+ " enabled globally?");
 					if (execService.isEnabled()) {
 						log.debug("   Yes, it is globally enabled.");
 					} else {
-						log.debug("   No, execService ID:" + execService.getId() + " is not enabled globally.");
+						log.debug("   No, execService ID:"
+								+ execService.getId()
+								+ " is not enabled globally.");
 						continue;
 					}
-			        
-					log.debug("   Is the execService ID:" + execService.getId() + " denied on facility ID:" + facility.getId() + "?");
-					if (!denialsResolver.isExecServiceDeniedOnFacility(execService, facility)) {
+
+					log.debug("   Is the execService ID:" + execService.getId()
+							+ " denied on facility ID:" + facility.getId()
+							+ "?");
+					if (!denialsResolver.isExecServiceDeniedOnFacility(
+							execService, facility)) {
 						log.debug("   No, it is not.");
 					} else {
-						log.debug("   Yes, the execService ID:" + execService.getId() + " is denied on facility ID:" + facility.getId() + "?");
+						log.debug("   Yes, the execService ID:"
+								+ execService.getId()
+								+ " is denied on facility ID:"
+								+ facility.getId() + "?");
 						continue;
 					}
 
-
-					// check for presence of task for this <execService, facility> pair
-					// NOTE: this must be atomic enough to not create duplicate tasks in schedulingPool (are we running in parallel here?)
+					// check for presence of task for this <execService,
+					// facility> pair
+					// NOTE: this must be atomic enough to not create duplicate
+					// tasks in schedulingPool (are we running in parallel
+					// here?)
 					Task task = schedulingPool.getTask(execService, facility);
-					if(task != null) {
+					if (task != null) {
 						// there already is a task in schedulingPool
 						log.debug("  Task is in the pool already.");
-						if(!(task.getStatus().equals(Task.TaskStatus.PLANNED) ||
-								task.getStatus().equals(Task.TaskStatus.PROCESSING))) {
+						if (!(task.getStatus().equals(Task.TaskStatus.PLANNED) || task
+								.getStatus().equals(Task.TaskStatus.PROCESSING))) {
 							log.debug("  Task is not PLANNED or PROCESSING, removing destinations to refetch them later on.");
 							task.setDestinations(null);
 						}
@@ -171,7 +202,7 @@ public class EventProcessorImpl implements EventProcessor {
 						log.debug("  Created new task and added to the pool.");
 					}
 					final Task task_final = task;
-					if(event.getHeader().contains("forceit")) {
+					if (event.getHeader().contains("forceit")) {
 						// expedite task processing
 						taskExecutor.execute(new Runnable() {
 							@Override

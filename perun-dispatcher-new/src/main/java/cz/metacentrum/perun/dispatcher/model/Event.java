@@ -3,10 +3,9 @@ package cz.metacentrum.perun.dispatcher.model;
 import java.util.Date;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public class Event {
 	private String header;
@@ -67,7 +66,8 @@ public class Event {
 
 	@Override
 	public String toString() {
-		return "["+(new Date(timeStamp)).toString()+"]["+header+"]["+data+"]";
+		return "[" + (new Date(timeStamp)).toString() + "][" + header + "]["
+				+ data + "]";
 	}
 
 }

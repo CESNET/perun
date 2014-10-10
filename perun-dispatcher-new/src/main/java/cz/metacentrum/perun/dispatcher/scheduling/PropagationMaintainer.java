@@ -12,11 +12,13 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  */
 public interface PropagationMaintainer {
 
-    void checkResults();
+	void checkResults();
 
-    void setAllGenerateDependenciesToNone(List<ExecService> dependencies, Facility facility);
+	void setAllGenerateDependenciesToNone(List<ExecService> dependencies,
+			Facility facility);
 
-    void setAllGenerateDependenciesToNone(List<ExecService> dependencies, int facilityId);
+	void setAllGenerateDependenciesToNone(List<ExecService> dependencies,
+			int facilityId);
 
 	void closeTasksForEngine(int clientID);
 

@@ -8,6 +8,8 @@ import cz.metacentrum.perun.taskslib.model.Task;
 
 public interface EventParser {
 
-    public Task parseEvent(String event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	public Task parseEvent(String event) throws InvalidEventMessageException,
+			ServiceNotExistsException, InternalErrorException,
+			PrivilegeException;
 
 }

@@ -19,7 +19,8 @@ import cz.metacentrum.perun.engine.processing.EventParser;
 import cz.metacentrum.perun.taskslib.model.Task;
 
 public class EventParserImplTest extends TestBase {
-	private final static Logger log = LoggerFactory.getLogger(EventParserImplTest.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(EventParserImplTest.class);
 
 	@Autowired
 	private EventParser eventParser;
@@ -27,21 +28,24 @@ public class EventParserImplTest extends TestBase {
 	private Task task1;
 	@Autowired
 	private Properties propertiesBean;
-	
-    @IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
-	public void testParseEvent() throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
-    	// NO!!!
-    	//propertiesBean.setProperty("engine.unique.id", "1");
-		String testEvent = "task|0|[" + task1.getId() + "][" + task1.getExecServiceId() 
-							+ "][" + task1.getFacility().serializeToString()
-							+ "]|[Destinations [";
-		for(Destination destination: task1.getDestinations()) {
-			testEvent = testEvent.concat(destination.serializeToString() + ", ");
+	public void testParseEvent() throws ServiceNotExistsException,
+			InvalidEventMessageException, InternalErrorException,
+			PrivilegeException {
+		// NO!!!
+		// propertiesBean.setProperty("engine.unique.id", "1");
+		String testEvent = "task|0|[" + task1.getId() + "]["
+				+ task1.getExecServiceId() + "]["
+				+ task1.getFacility().serializeToString() + "]|[Destinations [";
+		for (Destination destination : task1.getDestinations()) {
+			testEvent = testEvent
+					.concat(destination.serializeToString() + ", ");
 		}
 		testEvent = testEvent.concat("]]|[]");
 		Task task2 = eventParser.parseEvent(testEvent);
 		Assert.isTrue(task1.equals(task2), "task1 equals task2");
 	}
-	
+
 }

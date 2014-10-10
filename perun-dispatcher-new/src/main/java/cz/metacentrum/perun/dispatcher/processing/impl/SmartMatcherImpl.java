@@ -19,14 +19,15 @@ import cz.metacentrum.perun.dispatcher.model.MatchingRule;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
 @org.springframework.stereotype.Service(value = "smartMatcher")
 public class SmartMatcherImpl implements SmartMatcher {
 
-	private final static Logger log = LoggerFactory.getLogger(SmartMatcherImpl.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(SmartMatcherImpl.class);
 
 	@Autowired
 	private RulesDao rulesDao;
@@ -34,22 +35,28 @@ public class SmartMatcherImpl implements SmartMatcher {
 
 	@Override
 	public boolean doesItMatch(Event event, DispatcherQueue dispatcherQueue) {
-		MatchingRule matchingRule = matchingRules.get(dispatcherQueue.getClientID());
+		MatchingRule matchingRule = matchingRules.get(dispatcherQueue
+				.getClientID());
 		if (matchingRule == null) {
-			if(log.isDebugEnabled()) {
-				log.debug("MATCHER rules("+matchingRules.size()+"): Doesn't match. No such rule.");
+			if (log.isDebugEnabled()) {
+				log.debug("MATCHER rules(" + matchingRules.size()
+						+ "): Doesn't match. No such rule.");
 			}
 			return true;
 		}
 		for (String rule : matchingRule.getRules()) {
 			if (event.getHeader().contains(rule)) {
-				if(log.isDebugEnabled()) {
-					log.debug("MATCHER rules("+matchingRules.size()+"): Yes. Header ["+event.getHeader()+"] contains ["+rule+"]");
+				if (log.isDebugEnabled()) {
+					log.debug("MATCHER rules(" + matchingRules.size()
+							+ "): Yes. Header [" + event.getHeader()
+							+ "] contains [" + rule + "]");
 				}
 				return true;
 			}
-			if(log.isDebugEnabled()) {
-				log.debug("MATCHER rules("+matchingRules.size()+"): Doesn't match: ["+event.getHeader()+"] doesn't contain ["+rule+"]");
+			if (log.isDebugEnabled()) {
+				log.debug("MATCHER rules(" + matchingRules.size()
+						+ "): Doesn't match: [" + event.getHeader()
+						+ "] doesn't contain [" + rule + "]");
 			}
 		}
 		return true;
@@ -60,9 +67,11 @@ public class SmartMatcherImpl implements SmartMatcher {
 	@Transactional
 	public void loadAllRulesFromDB() {
 		synchronized (this) {
-			Map<Integer, List<String>> clientIDandRules = rulesDao.loadRoutingRules();
+			Map<Integer, List<String>> clientIDandRules = rulesDao
+					.loadRoutingRules();
 			for (Integer clientID : clientIDandRules.keySet()) {
-				MatchingRule matchingRule = new MatchingRule(clientIDandRules.get(clientID));
+				MatchingRule matchingRule = new MatchingRule(
+						clientIDandRules.get(clientID));
 				matchingRules.put(clientID, matchingRule);
 			}
 		}
@@ -74,7 +83,8 @@ public class SmartMatcherImpl implements SmartMatcher {
 	public void reloadRulesFromDBForEngine(Integer clientID) {
 		synchronized (this) {
 			matchingRules.remove(clientID);
-			MatchingRule matchingRule = new MatchingRule(rulesDao.loadRoutingRulesForEngine(clientID));
+			MatchingRule matchingRule = new MatchingRule(
+					rulesDao.loadRoutingRulesForEngine(clientID));
 			matchingRules.put(clientID, matchingRule);
 		}
 	}

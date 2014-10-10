@@ -5,9 +5,9 @@ import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
 
 /**
  * EngineDao
- *
+ * 
  * @author Michal Karm Babacek
- *
+ * 
  */
 public interface EngineDao {
 

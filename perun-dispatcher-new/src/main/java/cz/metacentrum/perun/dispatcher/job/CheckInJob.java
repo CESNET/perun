@@ -9,10 +9,9 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public class CheckInJob extends QuartzJobBean {
 
@@ -20,7 +19,8 @@ public class CheckInJob extends QuartzJobBean {
 
 	private DispatcherManager dispatcherManager;
 
-	protected void executeInternal(JobExecutionContext arg0) throws JobExecutionException {
+	protected void executeInternal(JobExecutionContext arg0)
+			throws JobExecutionException {
 		log.debug("Entering CheckInJob...");
 		dispatcherManager.checkIn();
 	}

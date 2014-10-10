@@ -18,42 +18,43 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
-public class TaskExecutorEngineImplTest extends TestBase implements TaskExecutor {
+public class TaskExecutorEngineImplTest extends TestBase implements
+		TaskExecutor {
 
 	@Autowired
 	private Task task1;
-    @Autowired
-    private SchedulingPool schedulingPool;
-    @Autowired
-    private TaskExecutorEngine taskExecutorEngine;
-    @Autowired
-    private TaskStatusManager taskStatusManager; 
-    @Autowired
-    TaskResultDao taskResultDao;
-    
-    @Before
-    public void setup() {
-    	task1.setStatus(TaskStatus.NONE);
-    	schedulingPool.addToPool(task1);
-    	schedulingPool.setTaskStatus(task1, TaskStatus.PLANNED);
-    }
-    
-    @After
-    public void cleanup() {
-    	taskResultDao.clearAll();
-    	schedulingPool.removeTask(task1);
-    }
+	@Autowired
+	private SchedulingPool schedulingPool;
+	@Autowired
+	private TaskExecutorEngine taskExecutorEngine;
+	@Autowired
+	private TaskStatusManager taskStatusManager;
+	@Autowired
+	TaskResultDao taskResultDao;
 
-    @IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+	@Before
+	public void setup() {
+		task1.setStatus(TaskStatus.NONE);
+		schedulingPool.addToPool(task1);
+		schedulingPool.setTaskStatus(task1, TaskStatus.PLANNED);
+	}
+
+	@After
+	public void cleanup() {
+		taskResultDao.clearAll();
+		schedulingPool.removeTask(task1);
+	}
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void beginExecutingTest() {
-    	taskExecutorEngine.setTaskExecutorSendWorkers(this);
-    	taskExecutorEngine.beginExecuting();
-    }
+		taskExecutorEngine.setTaskExecutorSendWorkers(this);
+		taskExecutorEngine.beginExecuting();
+	}
 
 	@Override
 	public void execute(Runnable arg0) {
 		arg0.run();
 	}
-    
+
 }

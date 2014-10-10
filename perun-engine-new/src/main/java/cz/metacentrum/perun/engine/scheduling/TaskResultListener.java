@@ -7,18 +7,20 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 /**
  * 
  * @author michal
- *
+ * 
  */
 public interface TaskResultListener {
 
 	/**
      * 
      */
-    void onTaskDestinationDone(Task task, Destination destination, TaskResult result);
-    
-    /**
+	void onTaskDestinationDone(Task task, Destination destination,
+			TaskResult result);
+
+	/**
      * 
      */
-    void onTaskDestinationError(Task task, Destination destination, TaskResult result);
+	void onTaskDestinationError(Task task, Destination destination,
+			TaskResult result);
 
 }

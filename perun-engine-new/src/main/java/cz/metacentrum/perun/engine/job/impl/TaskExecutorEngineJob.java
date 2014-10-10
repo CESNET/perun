@@ -8,15 +8,16 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
-//TODO: Service, should not be concurrent...???
+// TODO: Service, should not be concurrent...???
 @org.springframework.stereotype.Service(value = "taskExecutorEngineJob")
 public class TaskExecutorEngineJob implements PerunEngineJob {
 
-	private final static Logger log = LoggerFactory.getLogger(TaskExecutorEngineJob.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(TaskExecutorEngineJob.class);
 
 	@Autowired
 	private TaskExecutorEngine taskExecutorEngine;

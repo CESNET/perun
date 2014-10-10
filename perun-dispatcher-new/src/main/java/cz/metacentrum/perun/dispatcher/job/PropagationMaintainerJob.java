@@ -16,23 +16,25 @@ import cz.metacentrum.perun.dispatcher.scheduling.PropagationMaintainer;
  */
 public class PropagationMaintainerJob extends QuartzJobBean {
 
-    private final static Logger log = LoggerFactory.getLogger(PropagationMaintainerJob.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(PropagationMaintainerJob.class);
 
-    private PropagationMaintainer propagationMaintainer;
+	private PropagationMaintainer propagationMaintainer;
 
-    public PropagationMaintainer getPropagationMaintainer() {
-        return propagationMaintainer;
-    }
+	public PropagationMaintainer getPropagationMaintainer() {
+		return propagationMaintainer;
+	}
 
-    public void setPropagationMaintainer(PropagationMaintainer propagationMaintainer) {
-        this.propagationMaintainer = propagationMaintainer;
-    }
+	public void setPropagationMaintainer(
+			PropagationMaintainer propagationMaintainer) {
+		this.propagationMaintainer = propagationMaintainer;
+	}
 
 	@Override
 	protected void executeInternal(JobExecutionContext arg0)
 			throws JobExecutionException {
-        log.info("Entering PropagationMaintainerJob: propagationMaintainer.checkResults().");
-        propagationMaintainer.checkResults();
-        log.info("PropagationMaintainerJob: propagationMaintainer.checkResults() has completed.");
+		log.info("Entering PropagationMaintainerJob: propagationMaintainer.checkResults().");
+		propagationMaintainer.checkResults();
+		log.info("PropagationMaintainerJob: propagationMaintainer.checkResults() has completed.");
 	}
 }

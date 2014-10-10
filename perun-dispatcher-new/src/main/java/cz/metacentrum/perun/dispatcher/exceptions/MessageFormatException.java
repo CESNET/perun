@@ -2,7 +2,7 @@ package cz.metacentrum.perun.dispatcher.exceptions;
 
 /**
  * Checked version of MessageFormatException.
- *
+ * 
  * @author Michal Karm Babacek
  */
 public class MessageFormatException extends DispatcherException {

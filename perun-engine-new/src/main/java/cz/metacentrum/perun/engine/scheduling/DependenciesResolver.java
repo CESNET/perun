@@ -5,10 +5,9 @@ import java.util.List;
 import cz.metacentrum.perun.taskslib.model.Task;
 
 /**
- *
- * @author Michal Karm Babacek
- *         JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public interface DependenciesResolver {
 

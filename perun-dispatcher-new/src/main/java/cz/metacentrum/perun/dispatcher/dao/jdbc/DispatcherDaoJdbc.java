@@ -15,29 +15,36 @@ public class DispatcherDaoJdbc extends JdbcDaoSupport implements DispatcherDao {
 
 	@Autowired
 	private Properties propertiesBean;
-	private SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+	private SimpleDateFormat formater = new SimpleDateFormat(
+			"yyyyMMdd HH:mm:ss");
 
 	private void cleanUpOldRecords() {
-		this.getJdbcTemplate().update("delete from dispatcher_settings where ip_address = ? and port = ?",
-				propertiesBean.getProperty("dispatcher.ip.address"),
-				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")));
+		this.getJdbcTemplate()
+				.update("delete from dispatcher_settings where ip_address = ? and port = ?",
+						propertiesBean.getProperty("dispatcher.ip.address"),
+						Integer.parseInt(propertiesBean
+								.getProperty("dispatcher.port")));
 	}
 
 	@Override
 	public void registerDispatcher() {
 		cleanUpOldRecords();
-		this.getJdbcTemplate().update("insert into dispatcher_settings(ip_address, port, last_check_in) values (?,?,to_date(?,'YYYYMMDD HH24:MI:SS'))",
-				propertiesBean.getProperty("dispatcher.ip.address"),
-				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")),
-				formater.format(new Date(System.currentTimeMillis())));
+		this.getJdbcTemplate()
+				.update("insert into dispatcher_settings(ip_address, port, last_check_in) values (?,?,to_date(?,'YYYYMMDD HH24:MI:SS'))",
+						propertiesBean.getProperty("dispatcher.ip.address"),
+						Integer.parseInt(propertiesBean
+								.getProperty("dispatcher.port")),
+						formater.format(new Date(System.currentTimeMillis())));
 	}
 
 	@Override
 	public void checkIn() {
-		this.getJdbcTemplate().update("update dispatcher_settings set last_check_in = to_date(?,'YYYYMMDD HH24:MI:SS') where ip_address = ? and port = ?",
-				formater.format(new Date(System.currentTimeMillis())),
-				propertiesBean.getProperty("dispatcher.ip.address"),
-				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")));
+		this.getJdbcTemplate()
+				.update("update dispatcher_settings set last_check_in = to_date(?,'YYYYMMDD HH24:MI:SS') where ip_address = ? and port = ?",
+						formater.format(new Date(System.currentTimeMillis())),
+						propertiesBean.getProperty("dispatcher.ip.address"),
+						Integer.parseInt(propertiesBean
+								.getProperty("dispatcher.port")));
 	}
 
 	public void setPropertiesBean(Properties propertiesBean) {

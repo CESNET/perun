@@ -16,48 +16,58 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 public class TaskStatusImpl implements TaskStatus {
-    private final static Logger log = LoggerFactory.getLogger(TaskStatusImpl.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(TaskStatusImpl.class);
 
-    private final static Destination fakeGenDestination = new Destination(0, "gen", "ONE");
+	private final static Destination fakeGenDestination = new Destination(0,
+			"gen", "ONE");
 
-    private Map<Destination, TaskDestinationStatus> allDestinations;
-    private Map<Destination, TaskDestinationStatus> oneOfAllDestinations;
-    private Map<Integer, TaskResult> destinationResults;
-    private boolean allProcessing;
-    private boolean oneOfAllSuccess;
-    private int countAllDone;
-    private int countAllError;
-    private Task task;
-    
+	private Map<Destination, TaskDestinationStatus> allDestinations;
+	private Map<Destination, TaskDestinationStatus> oneOfAllDestinations;
+	private Map<Integer, TaskResult> destinationResults;
+	private boolean allProcessing;
+	private boolean oneOfAllSuccess;
+	private int countAllDone;
+	private int countAllError;
+	private Task task;
+
 	public TaskStatusImpl(Task task) {
 		this.task = task;
-		if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+		if (task.getExecService().getExecServiceType()
+				.equals(ExecServiceType.GENERATE)) {
 			// one fake destination for the GEN task
 			// if this one succeeds, the task succeeds
 			allDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>();
-			oneOfAllDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(1);
+			oneOfAllDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(
+					1);
 			destinationResults = new ConcurrentHashMap<Integer, TaskResult>(1);
 			oneOfAllSuccess = false;
 			allProcessing = false;
 			countAllDone = 0;
 			countAllError = 0;
-			oneOfAllDestinations.put(fakeGenDestination, TaskDestinationStatus.WAITING);
+			oneOfAllDestinations.put(fakeGenDestination,
+					TaskDestinationStatus.WAITING);
 		} else {
-			allDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(task.getDestinations().size());
-			oneOfAllDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(task.getDestinations().size());
-			destinationResults = new ConcurrentHashMap<Integer, TaskResult>(task.getDestinations().size());
+			allDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(
+					task.getDestinations().size());
+			oneOfAllDestinations = new ConcurrentHashMap<Destination, TaskDestinationStatus>(
+					task.getDestinations().size());
+			destinationResults = new ConcurrentHashMap<Integer, TaskResult>(
+					task.getDestinations().size());
 			oneOfAllSuccess = false;
 			allProcessing = false;
 			countAllDone = 0;
 			countAllError = 0;
-			for(Destination destination : task.getDestinations()) {
-				if(destination.getPropagationType().equals("PARALLEL")) {
-					allDestinations.put(destination, TaskDestinationStatus.WAITING);
+			for (Destination destination : task.getDestinations()) {
+				if (destination.getPropagationType().equals("PARALLEL")) {
+					allDestinations.put(destination,
+							TaskDestinationStatus.WAITING);
 				} else {
-					oneOfAllDestinations.put(destination, TaskDestinationStatus.WAITING);
+					oneOfAllDestinations.put(destination,
+							TaskDestinationStatus.WAITING);
 				}
 			}
-			if(oneOfAllDestinations.isEmpty()) {
+			if (oneOfAllDestinations.isEmpty()) {
 				oneOfAllSuccess = true;
 			}
 		}
@@ -66,16 +76,18 @@ public class TaskStatusImpl implements TaskStatus {
 	@Override
 	public List<Destination> getWaitingDestinations() {
 		List<Destination> result = new ArrayList<Destination>();
-		if(!allProcessing) {
+		if (!allProcessing) {
 			result.addAll(allDestinations.keySet());
 			allProcessing = true;
 		}
-		// add next waiting destination from the oneOfAllDestinations list, unless there is one DONE already
-		if(!oneOfAllSuccess) {
-			for(Map.Entry<Destination, TaskDestinationStatus> entry : oneOfAllDestinations.entrySet()) {
-				if(entry.getValue().equals(TaskDestinationStatus.WAITING)) {
-						result.add(entry.getKey());
-						break;
+		// add next waiting destination from the oneOfAllDestinations list,
+		// unless there is one DONE already
+		if (!oneOfAllSuccess) {
+			for (Map.Entry<Destination, TaskDestinationStatus> entry : oneOfAllDestinations
+					.entrySet()) {
+				if (entry.getValue().equals(TaskDestinationStatus.WAITING)) {
+					result.add(entry.getKey());
+					break;
 				}
 			}
 		}
@@ -85,11 +97,12 @@ public class TaskStatusImpl implements TaskStatus {
 	@Override
 	public List<Destination> getSuccessfulDestinations() {
 		List<Destination> result = new ArrayList<Destination>();
-		if(oneOfAllSuccess) {
+		if (oneOfAllSuccess) {
 			result.addAll(oneOfAllDestinations.keySet());
 		}
-		for(Map.Entry<Destination, TaskDestinationStatus> entry : allDestinations.entrySet()) {
-			if(entry.getValue().equals(TaskDestinationStatus.DONE)) {
+		for (Map.Entry<Destination, TaskDestinationStatus> entry : allDestinations
+				.entrySet()) {
+			if (entry.getValue().equals(TaskDestinationStatus.DONE)) {
 				result.add(entry.getKey());
 			}
 		}
@@ -97,46 +110,49 @@ public class TaskStatusImpl implements TaskStatus {
 	}
 
 	@Override
-	public TaskDestinationStatus getDestinationStatus(Destination destination) throws InternalErrorException {
+	public TaskDestinationStatus getDestinationStatus(Destination destination)
+			throws InternalErrorException {
 		Map<Destination, TaskDestinationStatus> map = findMapForDestination(destination);
 		return map.get(destination);
 	}
 
 	@Override
-	public void setDestinationStatus(Destination destination, TaskDestinationStatus status) throws InternalErrorException {
+	public void setDestinationStatus(Destination destination,
+			TaskDestinationStatus status) throws InternalErrorException {
 		Map<Destination, TaskDestinationStatus> map = findMapForDestination(destination);
 		// we have to synchronize when accessing the counters
-		synchronized(this) {
-			switch(status) {
-				case DONE:
-					if(destination.getPropagationType().equals("PARALLEL")) {
-						countAllDone += 1;
-					} else {
-						oneOfAllSuccess = true;
-					}
-					break;
-				
-				case ERROR:
-					if(destination.getPropagationType().equals("PARALLEL")) {
-						countAllError += 1;
-					}
-					break;
-				
-				default:
-					break;
+		synchronized (this) {
+			switch (status) {
+			case DONE:
+				if (destination.getPropagationType().equals("PARALLEL")) {
+					countAllDone += 1;
+				} else {
+					oneOfAllSuccess = true;
+				}
+				break;
+
+			case ERROR:
+				if (destination.getPropagationType().equals("PARALLEL")) {
+					countAllError += 1;
+				}
+				break;
+
+			default:
+				break;
 			}
 		}
 		map.put(destination, status);
 	}
 
-	private Map<Destination, TaskDestinationStatus> findMapForDestination(Destination destination) throws InternalErrorException {
+	private Map<Destination, TaskDestinationStatus> findMapForDestination(
+			Destination destination) throws InternalErrorException {
 		Map<Destination, TaskDestinationStatus> map;
-		if(destination.getPropagationType().equals("PARALLEL")) {
+		if (destination.getPropagationType().equals("PARALLEL")) {
 			map = allDestinations;
 		} else {
 			map = oneOfAllDestinations;
 		}
-		if(!map.containsKey(destination)) {
+		if (!map.containsKey(destination)) {
 			throw new InternalErrorException("no status for destination");
 		}
 		return map;
@@ -144,7 +160,7 @@ public class TaskStatusImpl implements TaskStatus {
 
 	@Override
 	public void setDestinationResult(Destination destination, TaskResult result) {
-		if(result != null) {
+		if (result != null) {
 			destinationResults.put(destination.getId(), result);
 		}
 		// TODO: cross check destination status
@@ -154,18 +170,20 @@ public class TaskStatusImpl implements TaskStatus {
 
 	@Override
 	public boolean isTaskFinished() {
-		return oneOfAllSuccess && (countAllDone + countAllError >= allDestinations.size());
+		return oneOfAllSuccess
+				&& (countAllDone + countAllError >= allDestinations.size());
 	}
 
 	@Override
 	public cz.metacentrum.perun.taskslib.model.Task.TaskStatus getTaskStatus() {
-		if(!isTaskFinished()) {
+		if (!isTaskFinished()) {
 			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.PROCESSING;
 		}
-		if(oneOfAllSuccess && countAllDone == allDestinations.size()) {
+		if (oneOfAllSuccess && countAllDone == allDestinations.size()) {
 			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.DONE;
-		} 
-		// this involves the weird case of countAllDone + countAllError > allDestinations.size()
+		}
+		// this involves the weird case of countAllDone + countAllError >
+		// allDestinations.size()
 		return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.ERROR;
 	}
 

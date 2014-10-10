@@ -6,22 +6,22 @@ import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
 
 /**
- *
- * @author Michal Karm Babacek
- *         JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public interface EngineManager {
 
-	void registerEngine() throws EngineNotConfiguredException, DispatcherNotConfiguredException;
+	void registerEngine() throws EngineNotConfiguredException,
+			DispatcherNotConfiguredException;
 
 	void checkIn();
 
 	void startMessaging();
 
-    void loadSchedulingPool();
+	void loadSchedulingPool();
 
-    void switchUnfinishedTasksToERROR();
+	void switchUnfinishedTasksToERROR();
 
-    RpcCaller getRpcCaller();
+	RpcCaller getRpcCaller();
 }

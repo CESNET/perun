@@ -23,22 +23,23 @@ public class TaskSchedulerImplTest extends TestBase {
 	private SchedulingPool schedulingPool;
 	@Autowired
 	private TaskScheduler taskScheduler;
-	
-    @IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void processPoolTest() throws InternalErrorException {
-    	task1.setStatus(TaskStatus.NONE);
-    	schedulingPool.addToPool(task1);
+		task1.setStatus(TaskStatus.NONE);
+		schedulingPool.addToPool(task1);
 		taskScheduler.processPool();
 		List<Task> tasks = schedulingPool.getPlannedTasks();
 		Assert.isTrue(tasks.size() == 1, "size is 1");
 		Assert.isTrue(tasks.get(0) == task1, "task1 is planned");
-		Assert.isTrue(task1.getStatus().equals(TaskStatus.PLANNED), "task1 status is planned");
+		Assert.isTrue(task1.getStatus().equals(TaskStatus.PLANNED),
+				"task1 status is planned");
 	}
-	
-    @After
-    public void cleanup() {
-    	schedulingPool.removeTask(task1);
-    }
-    
+
+	@After
+	public void cleanup() {
+		schedulingPool.removeTask(task1);
+	}
+
 }

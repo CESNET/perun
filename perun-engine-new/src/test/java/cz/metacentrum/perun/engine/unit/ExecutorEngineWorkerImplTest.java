@@ -22,13 +22,15 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
 
-public class ExecutorEngineWorkerImplTest extends TestBase implements TaskResultListener {
-    private final static Logger log = LoggerFactory.getLogger(ExecutorEngineWorkerImplTest.class);
+public class ExecutorEngineWorkerImplTest extends TestBase implements
+		TaskResultListener {
+	private final static Logger log = LoggerFactory
+			.getLogger(ExecutorEngineWorkerImplTest.class);
 
 	@Autowired
 	private Destination destination1;
 	@Autowired
-    private BeanFactory beanFactory;
+	private BeanFactory beanFactory;
 	@Autowired
 	private Task task1;
 	@Autowired
@@ -37,19 +39,21 @@ public class ExecutorEngineWorkerImplTest extends TestBase implements TaskResult
 	SchedulingPool schedulingPool;
 	@Autowired
 	TaskManager taskManager;
-	@Autowired 
+	@Autowired
 	TaskResultDao taskResultDao;
-	
+
 	private int count = 0;
-	
-	@IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void runSendTest() throws InternalErrorException {
-		ExecutorEngineWorker worker = (ExecutorEngineWorker) beanFactory.getBean("executorEngineWorker");
+		ExecutorEngineWorker worker = (ExecutorEngineWorker) beanFactory
+				.getBean("executorEngineWorker");
 		log.debug("task " + task1.toString());
 		schedulingPool.addToPool(task1);
-		for(Task task : taskManager.listAllTasks(0)) {
-				log.debug("task in db " + ((task == null) ? "null" : task.toString()));
+		for (Task task : taskManager.listAllTasks(0)) {
+			log.debug("task in db "
+					+ ((task == null) ? "null" : task.toString()));
 		}
 		count = 0;
 		worker.setTask(task1);
@@ -62,14 +66,16 @@ public class ExecutorEngineWorkerImplTest extends TestBase implements TaskResult
 		Assert.isTrue(count == 1, "count 1");
 	}
 
-	@IfProfileValue(name="perun.test.groups", values=("unit-tests"))
+	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
 	public void runGenTest() throws InternalErrorException {
-		ExecutorEngineWorker worker = (ExecutorEngineWorker) beanFactory.getBean("executorEngineWorker");
+		ExecutorEngineWorker worker = (ExecutorEngineWorker) beanFactory
+				.getBean("executorEngineWorker");
 		log.debug("task " + task_gen.toString());
 		schedulingPool.addToPool(task_gen);
-		for(Task task : taskManager.listAllTasks(0)) {
-				log.debug("task in db " + ((task == null) ? "null" : task.toString()));
+		for (Task task : taskManager.listAllTasks(0)) {
+			log.debug("task in db "
+					+ ((task == null) ? "null" : task.toString()));
 		}
 		count = 0;
 		worker.setTask(task_gen);
@@ -90,9 +96,10 @@ public class ExecutorEngineWorkerImplTest extends TestBase implements TaskResult
 	@Override
 	public void onTaskDestinationError(Task task, Destination destination,
 			TaskResult result) {
-		Assert.isTrue(false);;
+		Assert.isTrue(false);
+		;
 	}
-	
+
 	@After
 	public void cleanup() {
 		taskResultDao.clearAll();
