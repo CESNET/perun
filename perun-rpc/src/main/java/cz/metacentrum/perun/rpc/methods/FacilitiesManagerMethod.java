@@ -338,6 +338,18 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns hosts by hostname. (from all facilities)
+	 * @param hostname String hostname of hosts
+	 * @return List<Host> all hosts with this hostname, empty arrayList if none exists
+	 */
+	getHostsByHostname {
+		@Override
+		public List<Host> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getHostsByHostname(ac.getSession(), parms.readString("hostname"));
+		}
+	},
+
+	/*#
 	 * Return facility which has the host.
 	 * @param host int Host ID
 	 * @return Facility Facility object

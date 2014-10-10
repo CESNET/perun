@@ -532,6 +532,19 @@ public interface FacilitiesManager {
 	Host getHostById(PerunSession sess, int id) throws HostNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
+	 * Get all hosts with this hostname (from all facilities).
+	 *
+	 * Facility Admin get only those which are from his facilities.
+	 * 
+	 * @param sess
+	 * @param hostname 
+	 * @return list of hosts by hostname
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException 
+	 */
+	List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException;
+
+	/**
 	 * Return facility which has the host.
 	 *
 	 * @param sess

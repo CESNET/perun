@@ -428,6 +428,16 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
+	public List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.hostname=? order by id", HOST_MAPPER, hostname);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Host>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
