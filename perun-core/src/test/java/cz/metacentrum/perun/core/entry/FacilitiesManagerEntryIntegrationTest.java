@@ -609,6 +609,31 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+
+	@Test
+	public void getHostsByHostname()throws Exception{
+		System.out.println(FACILITIES_MANAGER + ".getHostsByHostname()");
+
+		Facility secondFacility = new Facility(0, "testFacilityGetHostsByHostnname");
+		secondFacility = perun.getFacilitiesManagerBl().createFacility(sess, secondFacility);
+
+		String hostname = "sameHostNameForAllHosts";
+		Host host1 = new Host(0, hostname);
+		Host host2 = new Host(0, hostname);
+		Host host3 = new Host(0, hostname);
+		host1 = perun.getFacilitiesManagerBl().addHost(sess, host1, facility);
+		host2 = perun.getFacilitiesManagerBl().addHost(sess, host2, facility);
+		host3 = perun.getFacilitiesManagerBl().addHost(sess, host3, secondFacility);
+
+		List<Host> expectedHosts = facilitiesManagerEntry.getHostsByHostname(sess, hostname);
+		assertEquals("There should be 3 hosts",3, expectedHosts.size());
+		assertTrue(expectedHosts.contains(host1));
+		assertTrue(expectedHosts.contains(host2));
+		assertTrue(expectedHosts.contains(host3));
+
+	}
+
+
 	@Test (expected=FacilityNotExistsException.class)
 		public void getHostsWhenFacilityNotExists()throws Exception{
 			System.out.println(FACILITIES_MANAGER + ".getHostsFacilityNotExists()");

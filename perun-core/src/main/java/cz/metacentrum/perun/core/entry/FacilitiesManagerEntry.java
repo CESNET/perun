@@ -871,7 +871,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		List<Host> hostsByHostname = getFacilitiesManagerBl().getHostsByHostname(sess, hostname);
 
 		//need to remove those hosts, which are not from facilities of this facility admin
-		if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+		if(!AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) && AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
 			//get all complementary facilities for this perunPrincipal
 			List<Facility> authorizedFacilities = new ArrayList<>();
 			List<PerunBean> complementaryObjects =  AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN);
