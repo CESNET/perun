@@ -567,6 +567,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		return facilitiesManagerImpl.getHostById(sess, id);
 	}
 
+	public List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException {
+		return facilitiesManagerImpl.getHostsByHostname(sess, hostname);
+	}
+
 	public Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException {
 		return facilitiesManagerImpl.getFacilityForHost(sess, host);
 	}

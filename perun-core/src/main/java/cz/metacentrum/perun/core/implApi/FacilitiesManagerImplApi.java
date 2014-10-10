@@ -328,6 +328,17 @@ public interface FacilitiesManagerImplApi {
 	Host getHostById(PerunSession sess, int id) throws HostNotExistsException, InternalErrorException;
 
 	/**
+	 * Get all hosts with this hostname (from all facilities).
+	 *
+	 *
+	 * @param sess
+	 * @param hostname
+	 * @return list of hosts by hostname
+	 * @throws InternalErrorException
+	 */
+	List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException;
+
+	/**
 	 * Return facility which has the host.
 	 *
 	 * @param sess

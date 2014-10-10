@@ -860,6 +860,37 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getHostById(sess, hostId);
 	}
 
+	public List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(hostname, "hostname");
+
+		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "getHostsByHostname");
+		}
+
+		List<Host> hostsByHostname = getFacilitiesManagerBl().getHostsByHostname(sess, hostname);
+
+		//need to remove those hosts, which are not from facilities of this facility admin
+		if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			//get all complementary facilities for this perunPrincipal
+			List<Facility> authorizedFacilities = new ArrayList<>();
+			List<PerunBean> complementaryObjects =  AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN);
+			for(PerunBean pb: complementaryObjects) {
+				if(pb instanceof Facility) authorizedFacilities.add((Facility) pb);
+			}
+
+			//remove hosts which has not facility from authorized facilities
+			Iterator<Host> hostIterator = hostsByHostname.iterator();
+			while(hostIterator.hasNext()) {
+				Host host = hostIterator.next();
+				Facility fac = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+				if(!authorizedFacilities.contains(fac)) hostIterator.remove();
+			}
+		}
+
+		return hostsByHostname;
+	}
+
 	@Override
 	public Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException, PrivilegeException, HostNotExistsException {
 		Utils.checkPerunSession(sess);
