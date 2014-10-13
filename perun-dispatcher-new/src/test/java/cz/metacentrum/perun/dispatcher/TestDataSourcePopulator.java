@@ -59,7 +59,7 @@ public class TestDataSourcePopulator {
 	 */
 	public final void initDb() throws InternalErrorException {
 		PerunPrincipal pp = new PerunPrincipal("perunTests",
-				ExtSourcesManager.EXTSOURCE_INTERNAL,
+				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunBlImpl perunBl = (PerunBlImpl) perun;
 		testSession = perun.getPerunSession(pp);
