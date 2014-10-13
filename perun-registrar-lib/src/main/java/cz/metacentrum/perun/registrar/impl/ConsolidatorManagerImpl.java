@@ -3,7 +3,9 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
@@ -20,7 +22,7 @@ import javax.sql.DataSource;
 import java.util.*;
 
 /**
- *
+ * Manager for Identity consolidation in Registrar.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -78,7 +80,17 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		mail = sess.getPerunPrincipal().getAdditionalInformations().get("mail");
 
-		if (mail != null && !mail.isEmpty()) res.addAll(perun.getUsersManager().findRichUsersWithAttributes(registrarSession, mail, attrNames));
+		if (mail != null) {
+			if (mail.contains(";")) {
+				String mailSearch[] = mail.split(";");
+				for (String m : mailSearch) {
+					if (m != null && !m.isEmpty())
+						res.addAll(perun.getUsersManager().findRichUsersWithAttributes(registrarSession, m, attrNames));
+				}
+			} else {
+				res.addAll(perun.getUsersManager().findRichUsersWithAttributes(registrarSession, mail, attrNames));
+			}
+		}
 
 		// check by mail is more precise, so check by name only if nothing is found.
 		if (res == null || res.isEmpty()) {
@@ -295,6 +307,14 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		}
 	}
 
+	/**
+	 * Convert RichUsers to Identity objects with obfuscated email address and limited set of ext sources.
+	 * Service users are removed from the list.
+	 *
+	 * @param list RichUsers to convert
+	 * @return list of Identities without service ones
+	 * @throws PerunException
+	 */
 	private List<Identity> convertToIdentities(List<RichUser> list) throws PerunException {
 
 		List<Identity> result = new ArrayList<Identity>();
@@ -303,8 +323,12 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 			for (RichUser u : list) {
 
+				// skip service users
+				if (u.isServiceUser()) continue;
+
 				Identity identity = new Identity();
 				identity.setName(u.getDisplayName());
+				identity.setId(u.getId());
 
 				for (Attribute a : u.getUserAttributes()) {
 
@@ -314,7 +338,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 							String safeMail = ((String) a.getValue()).split("@")[0];
 
 							if (safeMail.length() > 2) {
-								safeMail = safeMail.substring(0, 1) + "***" + safeMail.substring(safeMail.length()-2, safeMail.length()-1);
+								safeMail = safeMail.substring(0, 1) + "****" + safeMail.substring(safeMail.length()-1, safeMail.length());
 							}
 
 							safeMail += "@"+((String) a.getValue()).split("@")[1];
@@ -332,8 +356,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 				List<ExtSource> es = new ArrayList<ExtSource>();
 				for (UserExtSource ues : u.getUserExtSources()) {
-					// TODO config offered
-					es.add(ues.getExtSource());
+					if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_X509) ||
+							ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_IDP)) {
+						es.add(ues.getExtSource());
+					}
 				}
 				identity.setIdentities(es);
 

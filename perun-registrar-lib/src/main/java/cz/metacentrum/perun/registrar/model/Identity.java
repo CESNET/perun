@@ -11,10 +11,19 @@ import java.util.List;
  */
 public class Identity {
 
+	private int id;
 	private String name;
 	private String organization;
 	private String email;
 	private List<ExtSource> identities;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;
@@ -46,6 +55,10 @@ public class Identity {
 
 	public void setIdentities(List<ExtSource> identities) {
 		this.identities = identities;
+	}
+
+	public String getBeanName() {
+		return this.getClass().getSimpleName();
 	}
 
 }

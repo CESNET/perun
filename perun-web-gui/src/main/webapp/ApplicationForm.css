@@ -436,3 +436,8 @@ div.logo-cesnet img {
     /* do not hide items below scrollbar */
     padding-right: 10px;
 }
+
+.identsTable button {
+	margin-right: 5px;
+	margin-bottom: 3px;
+}

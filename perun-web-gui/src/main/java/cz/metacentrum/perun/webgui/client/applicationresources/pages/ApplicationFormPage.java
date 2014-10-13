@@ -29,6 +29,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Page with VO application form
@@ -42,7 +43,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	 */
 	private SimplePanel bodyContents = new SimplePanel();
 	private VerticalPanel formContent = new VerticalPanel();
-	private ArrayList<User> foundUsers = new ArrayList<User>();
+	private ArrayList<Identity> foundUsers = new ArrayList<Identity>();
 
 	/**
 	 * Data
@@ -504,8 +505,8 @@ public class ApplicationFormPage extends ApplicationPage {
 		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				ArrayList<User> users = JsonUtils.<User>jsoAsList(jso);
-				if (users != null && !users.isEmpty()) similarUsersFound(JsonUtils.<User>jsoAsList(jso));
+				ArrayList<Identity> users = JsonUtils.<Identity>jsoAsList(jso);
+				if (users != null && !users.isEmpty()) similarUsersFound(users);
 			}
 		});
 		JSONObject query = new JSONObject();
@@ -539,12 +540,12 @@ public class ApplicationFormPage extends ApplicationPage {
 	 *
 	 * @param users
 	 */
-	protected void similarUsersFound(ArrayList<User> users) {
+	protected void similarUsersFound(ArrayList<Identity> users) {
 
 		boolean foundNew = false;
-		for (User u : users) {
+		for (Identity u : users) {
 			boolean foundOld = false;
-			for (User user : foundUsers) {
+			for (Identity user : foundUsers) {
 				if (user.getId() == u.getId()) {
 					// was already found
 					foundOld = true;
@@ -574,39 +575,76 @@ public class ApplicationFormPage extends ApplicationPage {
 		ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
 		ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
 
+		//ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.identities() +"</strong>");
+
 		int i = 2;
 
-		for (User user : users) {
+		for (Identity user : users) {
 
-			// skip service users
-			if (!user.isServiceUser()) {
+			ft.setHTML(i, 0, user.getName());
+			ft.setHTML(i, 1, (user.getEmail() != null && !user.getEmail().isEmpty()) ? user.getEmail() : "N/A");
+			ft.setHTML(i, 2, (user.getOrganization() != null && !user.getOrganization().isEmpty()) ? user.getOrganization() : "N/A");
 
-				ft.setHTML(i, 0, user.getFullNameWithTitles());
+			/*
 
-				if (user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue() == null ||
-						user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue().isEmpty()) {
-					ft.setHTML(i, 1, "N/A");
-				} else {
-					ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+			ft.setHTML(i, 0, "<strong>"+user.getName()+"</strong><br/>"+user.getOrganization()+"<br/><i>"+user.getEmail()+"</i>");
+
+			//ft.setHTML(i, 1, user.getEmail());
+			//ft.setHTML(i, 2, user.getOrganization());
+
+			FlowPanel idents = new FlowPanel();
+			ft.setWidget(i, 1, idents);
+			idents.setStyleName("identsTable");
+
+			boolean certFound = false;
+			for (int n=0; n<user.getExternalIdentities().length(); n++) {
+
+				ExtSource source = user.getExternalIdentities().get(n);
+
+				if (source.getType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509") && !certFound) {
+					certFound = true;
+
+					String name[] = source.getName().split("\\/");
+					for (String cn : name) {
+						if (cn.startsWith("CN=")) {
+							idents.insert(new CustomButton(cn.substring(3), SmallIcons.INSTANCE.documentSignatureIcon(), new ClickHandler(){
+								@Override
+								public void onClick(ClickEvent event) {
+									// TODO - get safe hash of own for non-authz
+									Window.Location.replace(Utils.getIdentityConsolidatorLink("cert", true));
+								}
+							}), 0);
+							break;
+						}
+					}
+				} else if (source.getType().equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+
+					idents.add(new CustomButton(translateIdp(source.getName()), SmallIcons.INSTANCE.userGreenIcon(), new ClickHandler(){
+						@Override
+						public void onClick(ClickEvent event) {
+							// TODO - get safe hash of own for non-authz
+							Window.Location.replace(Utils.getIdentityConsolidatorLink("fed", true));
+						}
+					}));
+
 				}
-
-				if (user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue() == null ||
-						user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue().isEmpty()) {
-					ft.setHTML(i, 2, "N/A");
-				} else {
-					ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
-				}
-
-				i++;
 
 			}
+
+			if (idents.getWidgetCount() == 0) {
+				idents.add(new HTML(ApplicationMessages.INSTANCE.noIdentsFound()));
+			}
+
+			*/
+
+			i++;
 
 		}
 
 		// confirm element
 		final Confirm confirm = new Confirm(ApplicationMessages.INSTANCE.similarUsersFound(), ft, new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent clickEvent) {
+			public void onClick(ClickEvent event) {
 				Window.Location.replace(Utils.getIdentityConsolidatorLink(true));
 			}
 		}, true);
@@ -614,24 +652,70 @@ public class ApplicationFormPage extends ApplicationPage {
 		confirm.setOkButtonText(ApplicationMessages.INSTANCE.joinIdentity());
 		confirm.setOkIcon(SmallIcons.INSTANCE.userGreenIcon());
 		confirm.setCancelButtonText(ApplicationMessages.INSTANCE.notJoinIdentity());
+		//confirm.setOkIcon(SmallIcons.INSTANCE.stopIcon());
 		confirm.show();
+
+	}
+
+	private String translateIdp(String name) {
+
+		HashMap<String, String> orgs = new HashMap<String, String>();
+		orgs.put("https://idp.upce.cz/idp/shibboleth", "University in Pardubice");
+		orgs.put("https://idp.slu.cz/idp/shibboleth", "University in Opava");
+		orgs.put("https://login.feld.cvut.cz/idp/shibboleth", "Faculty of Electrical Engineering, Czech Technical University In Prague");
+		orgs.put("https://www.vutbr.cz/SSO/saml2/idp", "Brno University of Technology");
+		orgs.put("https://shibboleth.nkp.cz/idp/shibboleth", "The National Library of the Czech Republic");
+		orgs.put("https://idp2.civ.cvut.cz/idp/shibboleth", "Czech Technical University In Prague");
+		orgs.put("https://shibbo.tul.cz/idp/shibboleth", "Technical University of Liberec");
+		orgs.put("https://idp.mendelu.cz/idp/shibboleth", "Mendel University in Brno");
+		orgs.put("https://cas.cuni.cz/idp/shibboleth", "Charles University in Prague");
+		orgs.put("https://wsso.vscht.cz/idp/shibboleth", "Institute of Chemical Technology Prague");
+		orgs.put("https://idp.vsb.cz/idp/shibboleth", "VSB – Technical University of Ostrava");
+		orgs.put("https://whoami.cesnet.cz/idp/shibboleth", "CESNET");
+		orgs.put("https://helium.jcu.cz/idp/shibboleth", "University of South Bohemia");
+		orgs.put("https://idp.ujep.cz/idp/shibboleth", "Jan Evangelista Purkyne University in Usti nad Labem");
+		orgs.put("https://idp.amu.cz/idp/shibboleth", "Academy of Performing Arts in Prague");
+		orgs.put("https://idp.lib.cas.cz/idp/shibboleth", "Academy of Sciences Library");
+		orgs.put("https://shibboleth.mzk.cz/simplesaml/metadata.xml", "Moravian  Library");
+		orgs.put("https://idp2.ics.muni.cz/idp/shibboleth", "Masaryk University");
+		orgs.put("https://idp.upol.cz/idp/shibboleth", "Palacky University, Olomouc");
+		orgs.put("https://idp.fnplzen.cz/idp/shibboleth", "FN Plzen");
+		orgs.put("https://id.vse.cz/idp/shibboleth", "University of Economics, Prague");
+		orgs.put("https://shib.zcu.cz/idp/shibboleth", "University of West Bohemia");
+		orgs.put("https://idptoo.osu.cz/simplesaml/saml2/idp/metadata.php", "University of Ostrava");
+		orgs.put("https://login.ics.muni.cz/idp/shibboleth", "MetaCentrum");
+		orgs.put("https://idp.hostel.eduid.cz/idp/shibboleth", "eduID.cz Hostel");
+		orgs.put("https://shibboleth.techlib.cz/idp/shibboleth", "National Library of Technology");
+
+		orgs.put("@google.extidp.cesnet.cz", "Google");
+		orgs.put("@facebook.extidp.cesnet.cz", "Facebook");
+		orgs.put("@mojeid.extidp.cesnet.cz", "mojeID");
+		orgs.put("@linkedin.extidp.cesnet.cz", "LinkedIn");
+		orgs.put("@twitter.extidp.cesnet.cz", "Twitter");
+		orgs.put("@seznam.extidp.cesnet.cz", "Seznam");
+
+		if (orgs.get(name) != null) {
+			return orgs.get(name);
+		} else {
+			return name;
+		}
 
 	}
 
 	private final native void positionLinker() /*-{
 
-        var linker = $wnd.jQuery("#cesnet_linker_placeholder");
+		var linker = $wnd.jQuery("#cesnet_linker_placeholder");
 
-        if (!$('#cesnet_linker_placeholder').is(':empty')){
+		if (!$('#cesnet_linker_placeholder').is(':empty')){
 
-            $wnd.jQuery("#cesnet_linker_placeholder").remove();
-            $wnd.jQuery("body").append(linker);
-            $wnd.jQuery("#appFormGUI").parent().parent().css({"position":"absolute" , "left":"0px" , "top":"40px" , "right":"0px" , "bottom":"0px"});
+			$wnd.jQuery("#cesnet_linker_placeholder").remove();
+			$wnd.jQuery("body").append(linker);
+			$wnd.jQuery("#appFormGUI").parent().parent().css({"position":"absolute" , "left":"0px" , "top":"40px" , "right":"0px" , "bottom":"0px"});
 			//$wnd.jQuery("#appFormGUI").css({"position":"absolute" , "left":"0px" , "top":"40px" , "right":"0px" , "bottom":"0px"});
-            $wnd.jQuery("body").append("<script src=\"https://linker.cesnet.cz/linker.js\" async type=\"text/javascript\">");
+			$wnd.jQuery("body").append("<script src=\"https://linker.cesnet.cz/linker.js\" async type=\"text/javascript\">");
 
-        }
+		}
 
-    }-*/;
+	}-*/;
 
 }
