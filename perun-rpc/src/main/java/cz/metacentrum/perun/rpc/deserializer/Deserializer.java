@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.deserializer;
 
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.rpc.RpcException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +74,32 @@ public abstract class Deserializer {
 	 */
 	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
 		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
+	}
+
+	/**
+	 * Reads value with the specified name as {@code PerunBean}.
+	 *
+	 * @param name name of the value to read
+	 * @return the value as {@code PerunBean}
+	 *
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 * @throws RpcException if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
+	 */
+	public PerunBean readPerunBean(String name) throws RpcException {
+		throw new UnsupportedOperationException("readListPerunBeans(String name)");
+	}
+
+	/**
+	 * Reads array with the specified name as {@code List<PerunBean>}.
+	 *
+	 * @param name name of the array to read
+	 *
+	 * @return the value as {@code List<PerunBean>}
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 * @throws RpcException if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
+	 */
+	public List<PerunBean> readListPerunBeans(String name) throws RpcException {
+		throw new UnsupportedOperationException("readListPerunBeans(String name)");
 	}
 
 	/**

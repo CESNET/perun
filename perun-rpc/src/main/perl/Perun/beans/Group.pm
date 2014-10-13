@@ -46,7 +46,7 @@ sub TO_JSON
 		$voId = 0;
 	}
 
-	return {id => $id, name => $name, description => $description, voId => $voId};
+	return {id => $id, name => $name, description => $description, voId => $voId, beanName => "Group"};
 }
 
 sub getId

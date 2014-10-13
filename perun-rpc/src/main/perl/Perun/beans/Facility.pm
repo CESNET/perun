@@ -50,7 +50,7 @@ sub TO_JSON
 		$name = undef;
 	}
 
-	return {id => $id, name => $name};
+	return {id => $id, name => $name, beanName => "Facility"};
 }
 
 sub getId

@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -480,7 +481,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.addAdmin(sess, facility, user);
+		AuthzResolverBlImpl.setRole(sess, user, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, facility);
 	}
 
@@ -489,12 +490,12 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
 		
-		AuthzResolverBlImpl.addAdmin(sess, facility, group);
+		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, facility);
 	}
 
 	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
-		AuthzResolverBlImpl.removeAdmin(sess, facility, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, facility);
 	}
 
@@ -503,7 +504,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
 		
-		AuthzResolverBlImpl.removeAdmin(sess, facility, group);
+		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, facility);
 	}
 

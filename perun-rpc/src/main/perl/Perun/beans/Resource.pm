@@ -59,7 +59,7 @@ sub TO_JSON
 		$description = undef;
 	}
 
-	return {id => $id, name => $name, description => $description};
+	return {id => $id, name => $name, description => $description, beanName => "Resource"};
 }
 
 sub getId
