@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-engine</artifactId>
+    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+    <packaging>jar</packaging>
+
+    <name>perun-engine</name>
+    <description>Execution module for Perun propagation sub-system</description>
+
+    <properties>
+        <!-- module properties used by all profiles -->
+        <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
+       	<perun.test.groups>unit-tests</perun.test.groups>
+    </properties>
+
+    <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Manual*.java</exclude>
+                        <exclude>**/*ManualTest.java</exclude>
+                        <exclude>**/*ManualTestCase.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Package JAR with Main class -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <mainClass>cz.metacentrum.perun.engine.main.EngineStarter</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <SplashScreen-Image>perun-engine-splash.png</SplashScreen-Image>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>
+                        target/lib
+                    </outputDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>cz.metacentrum.perun.engine.main.EngineStarter</mainClass>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <!-- get common resources -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <!-- put build specific resources with others -->
+                <directory>src/main/resources/devel</directory>
+                <filtering>true</filtering>
+                <targetPath>./</targetPath>
+            </resource>
+        </resources>
+
+        <!-- filter test resources too -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
+    </build>
+
+
+    <dependencies>
+
+        <!-- PERUN -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-beans</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+                <groupId>cz.metacentrum.perun</groupId>
+                <artifactId>perun-beans</artifactId>
+                <version>${project.version}</version>
+        </dependency>
+ 
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-controller</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+         <!-- not needed anymore -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-rpc-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--   -->
+
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-tasks-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-auditparser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- DB -->
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-dbcp</artifactId>
+        </dependency>
+
+        <!-- commented oracle in favor of postgres -->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+   		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.2.8</version>
+		</dependency>
+
+
+        <!-- SPRING -->
+
+        <!--
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${org.springframework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+
+        <!-- TESTS -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+        <!-- LOGGING -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
+        <!-- OTHERS - Hornet Q -->
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-core-client</artifactId>
+            <version>2.2.16.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-jms-client</artifactId>
+            <version>2.2.16.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.2.1.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.javaee</groupId>
+            <artifactId>jboss-jms-api</artifactId>
+            <version>1.1.0.GA</version>
+        </dependency>
+
+    </dependencies>
+
+    <!--
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>interval:10080</updatePolicy>
+            </releases>
+            <id>jboss.release</id>
+            <name>JBoss releases</name>
+            <url>http://repository.jboss.org/maven2</url>
+        </repository>
+        <repository>
+            <id>jboss.nexus.release</id>
+            <name>JBoss Nexus releases</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+        </repository>
+    </repositories>
+    -->
+
+    <profiles>
+
+        <profile>
+
+            <id>production</id>
+            <properties>
+                <perun.build.type>production</perun.build.type>
+                <!-- <maven.test.skip>true</maven.test.skip> -->
+       	        <perun.test.groups>unit-tests</perun.test.groups>
+            </properties>
+
+            <build>
+
+                <resources>
+                    <resource>
+                        <!-- get common resources -->
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                    <resource>
+                        <!-- put build specific resources with others -->
+                        <directory>src/main/resources/production</directory>
+                        <filtering>true</filtering>
+                        <targetPath>./</targetPath>
+                    </resource>
+                </resources>
+
+            </build>
+
+        </profile>
+
+    </profiles>
+
+</project>
