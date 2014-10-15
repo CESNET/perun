@@ -27,7 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * GroupsManager buisness logic
+ * GroupsManager business logic
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -55,6 +55,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
 		getPerunBl().getAuditer().log(sess, "{} created in {}.", group, vo);
 		group.setVoId(vo.getId());
+
+
+		//set creator as group admin unless he already have authz right on the group (he is VO admin)
+		User user = sess.getPerunPrincipal().getUser();
+		if(user != null) {   //user can be null in tests
+			if(!AuthzResolverBlImpl.isAuthorized(sess, Role.VOADMIN, vo)) {
+				try {
+					AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
+				} catch (AlreadyAdminException e) {
+					throw new ConsistencyErrorException("Newly created group already have an admin.", e);
+				}
+			}
+		}
 
 		return group;
 	}
