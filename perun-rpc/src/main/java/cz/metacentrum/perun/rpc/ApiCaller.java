@@ -366,7 +366,7 @@ public class ApiCaller {
 	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal) throws InternalErrorException {
 		Perun perun = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perun", Perun.class);
 
-		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		this.rpcSession = perun.getPerunSession(rpcPrincipal);
 
 		// Initialize serviceManager

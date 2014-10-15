@@ -52,7 +52,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_VO_FROM_EMAIL = "urn:perun:vo:attribute-def:def:fromEmail";
 	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
-	private static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
+	protected static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
 	private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
@@ -93,7 +93,7 @@ public class MailManagerImpl implements MailManager {
 
 		// gets session for a system principal "perunRegistrar"
 		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
-				ExtSourcesManager.EXTSOURCE_INTERNAL,
+				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp);
 

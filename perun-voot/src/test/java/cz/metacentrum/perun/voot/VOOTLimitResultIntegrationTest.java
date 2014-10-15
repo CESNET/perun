@@ -42,7 +42,7 @@ public class VOOTLimitResultIntegrationTest {
 
 	@Before
 	public void setUpSession() throws Exception{
-		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 		user1 = setUpUser1();
 		setUpBackground();
 		session.getPerunPrincipal().setUser(user1);

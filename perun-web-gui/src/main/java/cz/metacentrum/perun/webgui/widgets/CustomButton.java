@@ -100,6 +100,27 @@ public class CustomButton extends Button {
 	/**
 	 * Creates a new button
 	 * @param text
+	 * @param clickHandler
+	 */
+	public CustomButton(String text, ClickHandler clickHandler){
+		super();
+		setText(text);
+		addClickHandler(clickHandler);
+	}
+
+	/**
+	 * Creates a new button
+	 * @param text
+	 * @param title
+	 * @param clickHandler
+	 */
+	public CustomButton(String text, String title, ClickHandler clickHandler){
+		this(text, title, null, clickHandler);
+	}
+
+	/**
+	 * Creates a new button
+	 * @param text
 	 * @param title
 	 * @param imgres
 	 * @param clickHandler
@@ -114,18 +135,21 @@ public class CustomButton extends Button {
 	 */
 	private void updateImage() {
 
-		if (this.isEnabled()) {
-			image.getElement().removeClassName("customButtonImageDisabled");
-			image.getElement().addClassName("customButtonImage");
-		} else {
-			image.getElement().removeClassName("customButtonImage");
-			image.getElement().addClassName("customButtonImageDisabled");
-		}
+		if (image != null) {
 
-		if (imageRight) {
-			DOM.appendChild(getElement(), image.getElement());
-		} else {
-			DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
+			if (this.isEnabled()) {
+				image.getElement().removeClassName("customButtonImageDisabled");
+				image.getElement().addClassName("customButtonImage");
+			} else {
+				image.getElement().removeClassName("customButtonImage");
+				image.getElement().addClassName("customButtonImageDisabled");
+			}
+
+			if (imageRight) {
+				DOM.appendChild(getElement(), image.getElement());
+			} else {
+				DOM.insertBefore(getElement(), image.getElement(), DOM.getFirstChild(getElement()));
+			}
 		}
 
 	}

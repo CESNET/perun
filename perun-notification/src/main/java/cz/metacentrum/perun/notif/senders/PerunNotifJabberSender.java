@@ -45,7 +45,7 @@ public class PerunNotifJabberSender implements PerunNotifSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 		this.jabberServer = (String) propertiesBean.get("notif.jabber.jabberServer");
 		this.port = Integer.valueOf((String) propertiesBean.get("notif.jabber.port"));
 		this.serviceName = (String) propertiesBean.get("notif.jabber.serviceName");

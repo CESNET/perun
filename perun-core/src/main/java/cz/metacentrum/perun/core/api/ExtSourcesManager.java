@@ -32,12 +32,17 @@ public interface ExtSourcesManager {
 	 * Name of the LOCAL extSource, which is used for users without any external authentication.
 	 * extLogin is generated on the fly, usually it is time of the first access.
 	 */
-	public static final String EXTSOURCE_LOCAL = "LOCAL";
+	public static final String EXTSOURCE_NAME_LOCAL = "LOCAL";
+
+	/**
+	 * Name of the INTERNAL extSource, which is used for internal Perun components like Registrar etc.
+	 */
+	public static final String EXTSOURCE_NAME_INTERNAL = "INTERNAL";
 
 	/**
 	 * Name of the default extSource which have every user in Perun.
 	 */
-	public static final String EXTSOURCE_PERUN = "PERUN";
+	public static final String EXTSOURCE_NAME_PERUN = "PERUN";
 
 	public final static String CONFIGURATIONFILE = Utils.configurationsLocations + "perun-extSources.xml";
 

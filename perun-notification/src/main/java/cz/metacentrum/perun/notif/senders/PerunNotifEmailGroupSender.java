@@ -40,7 +40,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
 
 	@Override

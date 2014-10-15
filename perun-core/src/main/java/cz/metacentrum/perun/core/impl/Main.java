@@ -42,7 +42,7 @@ public class Main {
 	private AbstractApplicationContext springCtx;
 	private PerunSession perunSession;
 	private final static Logger log = LoggerFactory.getLogger(Main.class);
-	private final PerunPrincipal pp = new PerunPrincipal("main", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+	private final PerunPrincipal pp = new PerunPrincipal("main", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 
 	private static BufferedWriter writer;
 

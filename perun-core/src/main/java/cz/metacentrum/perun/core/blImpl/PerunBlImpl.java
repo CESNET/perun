@@ -133,7 +133,7 @@ public class PerunBlImpl implements PerunBl {
 	 * @throws InternalErrorException
 	 */
 	public PerunSession getPerunSession() throws InternalErrorException {
-		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		return new PerunSessionImpl(this, principal);
 	}
 

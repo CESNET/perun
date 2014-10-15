@@ -102,10 +102,10 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Similar user(s) found")
 	String similarUsersFound();
 
-	@DefaultMessage("Similar user(s) are already registered in system. Is it you ? If yes, please join your identity to prevent possible problems with offered services.")
+	@DefaultMessage("Similar user(s) are already registered in system. If it`s you, prove your identity by logging-in using one of the registered identities.")
 	String similarUsersFoundIsItYou();
 
-	@DefaultMessage("Name")
+	@DefaultMessage("Person")
 	String name();
 
 	@DefaultMessage("Email")
@@ -113,6 +113,12 @@ public interface ApplicationMessages extends Messages {
 
 	@DefaultMessage("Organization")
 	String organization();
+
+	@DefaultMessage("Prove identity by")
+	String identities();
+
+	@DefaultMessage("No suitable identity found.")
+	String noIdentsFound();
 
 	@DefaultMessage("Yes")
 	String yes();

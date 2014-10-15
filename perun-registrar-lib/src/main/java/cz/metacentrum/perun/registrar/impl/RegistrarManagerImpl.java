@@ -9,6 +9,7 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +59,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String URN_USER_TITLE_BEFORE = "urn:perun:user:attribute-def:core:titleBefore";
 	private static final String URN_USER_TITLE_AFTER = "urn:perun:user:attribute-def:core:titleAfter";
 	private static final String URN_USER_FIRST_NAME = "urn:perun:user:attribute-def:core:firstName";
-	private static final String URN_USER_LAST_NAME = "urn:perun:user:attribute-def:core:lastName";
+	protected static final String URN_USER_LAST_NAME = "urn:perun:user:attribute-def:core:lastName";
 	private static final String URN_USER_MIDDLE_NAME = "urn:perun:user:attribute-def:core:middleName";
-	private static final String URN_USER_DISPLAY_NAME = "urn:perun:user:attribute-def:core:displayName";
+	protected static final String URN_USER_DISPLAY_NAME = "urn:perun:user:attribute-def:core:displayName";
 
 	private static final String DISPLAY_NAME_VO_FROM_EMAIL = "\"From\" email address";
 	private static final String FRIENDLY_NAME_VO_FROM_EMAIL = "fromEmail";
@@ -106,10 +107,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Autowired PerunBl perun;
 	@Autowired MailManager mailManager;
+	@Autowired ConsolidatorManager consolidatorManager;
 	private RegistrarManager registrarManager;
 	private PerunSession registrarSession;
 	private JdbcTemplate jdbc;
-	private boolean useMailManager = false;  // for production compatibility, default is false
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
 	private UsersManager usersManager;
@@ -128,6 +129,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {
 		this.registrarManager = registrarManager;
+	}
+
+	public void setConsolidatorManager(ConsolidatorManager consolidatorManager) {
+		this.consolidatorManager = consolidatorManager;
 	}
 
 	public void setShibDisplayNameVar(String shibDisplayNameVar) {
@@ -154,7 +159,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// gets session for a system principal "perunRegistrar"
 		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
-				ExtSourcesManager.EXTSOURCE_INTERNAL,
+				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp);
 
@@ -261,9 +266,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrManager.createAttribute(registrarSession, attrDef);
 		}
-
-		// set mailing type
-		useMailManager = Boolean.parseBoolean(mailManager.getPropertyFromConfiguration("useMailManager"));
 
 	}
 
@@ -758,11 +760,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// process rest only if it was not exception related to PASSWORDS creation
 			if (!applicationNotCreated) {
 
-				// use or don't use new mail manager
-				if (useMailManager == true) {
-					getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
-					getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, exceptions);
-				}
+				getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
+				getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, exceptions);
 				// if there were exceptions, throw some to let know GUI about it
 				if (!exceptions.isEmpty()) {
 					RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
@@ -918,11 +917,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// send mail
-		if (useMailManager==true) {
-			getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
-		} else {
-			log.error("[REGISTRAR] Unable to send APP_REJECTED_USER mail, because new way of sending is disabled");
-		}
+		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
 
 		// return updated application
 		return app;
@@ -1234,12 +1229,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			module.approveApplication(sess, app);
 		}
 
-		// switch between new and old mail manager
-		if (useMailManager==true) {
-			getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
-		} else {
-			log.error("[REGISTRAR] Unable to send APP_APPROVED_USER mail, because new way of sending is disabled");
-		}
+		getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
 
 		// return updated application
 		return app;
@@ -1838,203 +1828,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<RichUser> checkForSimilarUsers(PerunSession sess) throws PerunException {
-
-		// if user known, doesn't actually search and offer joining.
-		if (sess.getPerunPrincipal().getUser() != null) {
-			return new ArrayList<RichUser>();
-		}
-
-		// if user known, doesn't actually search and offer joining.
-		try {
-			usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
-			return new ArrayList<RichUser>();
-		} catch (Exception ex) {
-			// we don't care, that search failed. That is actually OK case.
-		}
-
-		String name = "";
-		String mail = "";
-
-		Set<RichUser> res = new HashSet<RichUser>();
-
-		List<String> attrNames = new ArrayList<String>();
-		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
-		attrNames.add("urn:perun:user:attribute-def:def:organization");
-
-		mail = sess.getPerunPrincipal().getAdditionalInformations().get("mail");
-
-		if (mail != null && !mail.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, mail, attrNames));
-
-		// check by mail is more precise, so check by name only if nothing is found.
-		if (res == null || res.isEmpty()) {
-
-			name = sess.getPerunPrincipal().getAdditionalInformations().get("cn");
-
-			if (name != null && !name.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames));
-
-			name = sess.getPerunPrincipal().getAdditionalInformations().get("displayName");
-
-			if (name != null && !name.isEmpty()) res.addAll(usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames));
-
-		}
-
-		return new ArrayList<RichUser>(res);
-
-	}
-
-	@Override
-	public List<RichUser> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, AppType type) throws PerunException {
-
-		Application app = getLatestApplication(sess, vo, group, type);
-		if (app != null) {
-			return checkForSimilarUsers(sess, app.getId());
-		} else {
-			return new ArrayList<RichUser>();
-		}
-	}
-
-	@Override
-	public List<RichUser> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException {
-
-		String email = "";
-		String name = "";
-		List<RichUser> result = new ArrayList<RichUser>();
-
-		List<String> attrNames = new ArrayList<String>();
-		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
-		attrNames.add("urn:perun:user:attribute-def:def:organization");
-
-		Application app = getApplicationById(appId);
-
-		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-				if (sess.getPerunPrincipal().getUser() != null) {
-					// check if application to find similar users by belongs to user
-					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
-				} else {
-					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
-							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
-				}
-			}
-		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-				if (sess.getPerunPrincipal().getUser() != null) {
-					// check if application to find similar users by belongs to user
-					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
-				} else {
-					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
-							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
-				}
-			}
-		}
-
-		// only for initial VO applications if user==null
-		if (app.getType().equals(AppType.INITIAL) && app.getGroup() == null && app.getUser() == null) {
-
-			try {
-				User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
-				if (u != null) {
-					// user connected his identity after app creation and before it's approval.
-					// do not show error message in GUI by returning an empty array.
-					return result;
-				}
-			} catch (Exception ex){
-				// we don't care, let's try to search by name
-			}
-
-			List<ApplicationFormItemData> data = getApplicationDataById(sess, appId);
-
-			// search by email, which should be unique (check is more precise)
-			for (ApplicationFormItemData item : data) {
-				if ("urn:perun:user:attribute-def:def:preferredMail".equals(item.getFormItem().getPerunDestinationAttribute())) {
-					email = item.getValue();
-				}
-				if (email != null && !email.isEmpty()) break;
-			}
-
-			List<RichUser> users = (email != null && !email.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, email, attrNames) : new ArrayList<RichUser>();
-
-			if (users != null && !users.isEmpty()) {
-				// found by preferredMail
-				return users;
-			}
-
-			// search by different mail
-
-			email = ""; // clear previous value
-			for (ApplicationFormItemData item : data) {
-				if ("urn:perun:member:attribute-def:def:mail".equals(item.getFormItem().getPerunDestinationAttribute())) {
-					email = item.getValue();
-				}
-				if (email != null && !email.isEmpty()) break;
-			}
-
-			users = (email != null && !email.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, email, attrNames) : new ArrayList<RichUser>();
-			if (users != null && !users.isEmpty()) {
-				// found by member mail
-				return users;
-			}
-
-			// continue to search by display name
-
-			for (ApplicationFormItemData item : data) {
-				if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
-					name = item.getValue();
-					// use parsed name to drop mistakes on IDP side
-					try {
-						Map<String, String> nameMap = Utils.parseCommonName(name);
-						// drop name titles to spread search
-						String newName = "";
-						if (nameMap.get("firstName") != null
-								&& !nameMap.get("firstName").isEmpty()) {
-							newName += nameMap.get("firstName") + " ";
-						}
-						if (nameMap.get("lastName") != null
-								&& !nameMap.get("lastName").isEmpty()) {
-							newName += nameMap.get("lastName");
-						}
-						// fill parsed name instead of input
-						if (newName != null && !newName.isEmpty()) {
-							name = newName;
-						}
-					} catch (Exception ex) {
-						log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users. Exception: {}", ex);
-					}
-					if (name != null && !name.isEmpty()) break;
-				}
-			}
-
-			users = (name != null && !name.isEmpty()) ? usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames) : new ArrayList<RichUser>();
-			if (users != null && !users.isEmpty()) {
-				// found by member display name
-				return users;
-			}
-
-			// continue to search by last name
-
-			name = ""; // clear previous value
-			for (ApplicationFormItemData item : data) {
-				if (URN_USER_LAST_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
-					name = item.getValue();
-					if (name != null && !name.isEmpty()) break;
-				}
-			}
-
-			if (name != null && !name.isEmpty()) {
-				// what was found by name
-				return usersManager.findRichUsersWithAttributes(registrarSession, name, attrNames);
-			} else {
-				// not found by name
-				return result;
-			}
-
-		} else {
-			// not found, since not proper type of application to check users for
-			return result;
-		}
-
+	public ConsolidatorManager getConsolidatorManager() {
+		return this.consolidatorManager;
 	}
 
 	/**
@@ -2066,11 +1861,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			tryToAutoApproveApplication(sess, app);
 		} else {
 			// send request validation notification
-			if (useMailManager == true) {
-				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
-			} else {
-				log.error("[REGISTRAR] Unable to send MAIL_VALIDATION mail, because new way of sending is disabled.");
-			}
+			getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
 		}
 
 		return allValidated;
@@ -2168,14 +1959,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		} catch (Exception ex) {
 
-			// switch between new and old mail manager
-			if (useMailManager==true) {
-				ArrayList<Exception> list = new ArrayList<Exception>();
-				list.add(ex);
-				getMailManager().sendMessage(app, MailType.APP_ERROR_VO_ADMIN, null, list);
-			} else {
-				log.error("[REGISTRAR] Unable to send APP_APPROVED_USER mail, because new way of sending is disabled");
-			}
+			ArrayList<Exception> list = new ArrayList<Exception>();
+			list.add(ex);
+			getMailManager().sendMessage(app, MailType.APP_ERROR_VO_ADMIN, null, list);
 
 			throw ex;
 		}
@@ -2192,50 +1978,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private Application getApplicationById(int appId) {
 		try {
 			return jdbc.queryForObject(APP_SELECT + " where a.id=?", APP_MAPPER, appId);
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
-
-	/**
-	 * Retrieves whole application object from DB
-	 * (authz in parent methods)
-	 *
-	 * @param sess PerunSession for Authz and to resolve User
-	 * @param vo VO to get application for
-	 * @param group Group
-	 *
-	 * @return application object / null if not exists
-	 */
-	private Application getLatestApplication(PerunSession sess, Vo vo, Group group, AppType type) {
-		try {
-
-			if (sess.getPerunPrincipal().getUser() != null) {
-
-				if (group != null) {
-
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
-
-				} else {
-
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and user_id=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
-
-				}
-
-			} else {
-
-				if (group != null) {
-
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
-
-				} else {
-
-					return jdbc.queryForObject(APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and created_by=? and extsourcename=? )", APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
-
-				}
-
-			}
-
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
@@ -2596,7 +2338,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
-	private static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
+	protected static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
 			"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
 			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.modified_by as vo_modified_by, " +
 			"v.modified_at as vo_modified_at, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, " +
@@ -2605,7 +2347,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
 
-	private static RowMapper<Application> APP_MAPPER = new RowMapper<Application>() {
+	protected static RowMapper<Application> APP_MAPPER = new RowMapper<Application>() {
 
 		@Override
 		public Application mapRow(ResultSet rs, int i) throws SQLException {

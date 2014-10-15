@@ -98,7 +98,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		configuration = createFreemarkerConfiguration(stringTemplateLoader);
 
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
 
 	private Configuration createFreemarkerConfiguration(StringTemplateLoader stringTemplateLoader) {

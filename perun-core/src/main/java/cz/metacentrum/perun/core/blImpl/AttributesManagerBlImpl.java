@@ -5008,7 +5008,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//Get PerunSession
 		String attributesManagerInitializator = "attributesManagerBlImplInitializator";
-		PerunPrincipal pp = new PerunPrincipal(attributesManagerInitializator, ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunPrincipal pp = new PerunPrincipal(attributesManagerInitializator, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunSession sess = perunBl.getPerunSession(pp);
 
 		//Prepare all attribute definition from system perun

@@ -73,7 +73,7 @@ public class ExecServiceDenialDaoTest {
 
 	@Before
 	public void setUp() throws InternalErrorException, OwnerNotExistsException, ServiceExistsException, PrivilegeException {
-		perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 
 		jdbcTemplate = new JdbcTemplate(dataSource);
 

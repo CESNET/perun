@@ -54,7 +54,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	private void init() throws Exception {
 
 		perunNotifPoolMessageDao.setAllCreatedToNow();
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
 
 	public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) throws InternalErrorException {

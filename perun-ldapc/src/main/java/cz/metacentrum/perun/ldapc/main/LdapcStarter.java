@@ -34,7 +34,7 @@ public class LdapcStarter {
 	public static void main(String[] args) {
 		System.out.println("Starting Perun-Ldapc...");
 
-		PerunPrincipal pp = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunPrincipal pp = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 
 		try {
 			RpcCaller rpcCaller = new RpcCallerImpl(pp);

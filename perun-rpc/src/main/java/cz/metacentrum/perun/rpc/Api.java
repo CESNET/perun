@@ -183,7 +183,7 @@ public class Api extends HttpServlet {
 				extLogin = req.getRemoteUser();
 			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
 				extLogin = (String) req.getAttribute("ENV_REMOTE_USER");
-			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_LOCAL)) {
+			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				/** LOCAL EXTSOURCE **/
 				// If ExtSource is LOCAL then generate REMOTE_USER name on the fly
 				extLogin = Long.toString(System.currentTimeMillis());

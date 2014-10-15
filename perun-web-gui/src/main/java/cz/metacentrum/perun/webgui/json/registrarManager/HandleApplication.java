@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Application;
+import cz.metacentrum.perun.webgui.model.Identity;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
@@ -141,7 +142,7 @@ public class HandleApplication {
 	 *
 	 * @param app
 	 */
-	public void approveApplication(Application app) {
+	public void approveApplication(final Application app) {
 
 		this.appId = app.getId();
 
@@ -156,16 +157,16 @@ public class HandleApplication {
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Approving application failed.");
 				events.onError(error);
-			};
+			}
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Application approved.");
 				events.onFinished(jso);
-			};
+			}
 			@Override
 			public void onLoadingStart() {
 				events.onLoadingStart();
-			};
+			}
 		};
 
 		// check for similar users before approving
@@ -186,96 +187,97 @@ public class HandleApplication {
 				public void onError(PerunError error) {
 					session.getUiElements().setLogErrorText("Approving application failed.");
 					events.onError(error);
-				};
-			@Override
-			public void onFinished(JavaScriptObject jso) {
+				}
+				@Override
+				public void onFinished(JavaScriptObject jso) {
 
-				ArrayList<User> users = JsonUtils.jsoAsList(jso);
-				if (users != null && !users.isEmpty()) {
+					ArrayList<Identity> users = JsonUtils.jsoAsList(jso);
+					if (users != null && !users.isEmpty()) {
 
-					FlexTable ft = new FlexTable();
-					ft.setWidth("600px");
-					ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
-					ft.getFlexCellFormatter().setColSpan(0, 0, 3);
+						FlexTable ft = new FlexTable();
+						ft.setWidth("600px");
+						ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
+						ft.getFlexCellFormatter().setColSpan(0, 0, 3);
 
-					ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
-					ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
-					ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
+						ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
+						ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+						ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
 
-					int i = 2;
+						int i = 2;
 
-					for (User user : users) {
+						for (Identity user : users) {
 
-						// skip service users
-						if (!user.isServiceUser()) {
+							ft.setHTML(i, 0, user.getName());
 
-							ft.setHTML(i, 0, user.getFullNameWithTitles());
-
-							if (user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue() == null ||
-									user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue().isEmpty()) {
-								ft.setHTML(i, 1, "N/A");
+							if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+								ft.setHTML(i, 1, user.getEmail());
 							} else {
-								ft.setHTML(i, 1, user.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+								ft.setHTML(i, 1, "N/A");
 							}
 
-							if (user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue() == null ||
-									user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue().isEmpty()) {
-								ft.setHTML(i, 2, "N/A");
+							if (user.getOrganization() != null && !user.getOrganization().isEmpty()) {
+								ft.setHTML(i, 2, user.getOrganization());
 							} else {
-								ft.setHTML(i, 2, user.getAttribute("urn:perun:user:attribute-def:def:organization").getValue());
+								ft.setHTML(i, 2, "N/A");
 							}
 
 							i++;
 
 						}
 
+						String type = "";
+						if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
+							type = "cert";
+						} else if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+							type = "fed";
+						}
+
+						ft.setHTML(i, 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
+								"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(type, false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
+								"</li><li>If NO, you can approve this application anyway. " +
+								"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+
+						ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+
+						i++;
+
+						ft.setHTML(i, 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+						ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+
+						Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+
+								// ok approve sending data
+								JsonPostClient jspc = new JsonPostClient(newEvents);
+								jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
+							}
+						}, new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+								events.onFinished(null);
+							}
+						}, true);
+
+						c.setOkButtonText("Approve");
+
+						c.setNonScrollable(true);
+						c.show();
+
+					} else {
+
+						// ok approve sending data
+						JsonPostClient jspc = new JsonPostClient(newEvents);
+						jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
 					}
 
-
-
-					ft.setHTML(i, 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
-							"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
-							"</li><li>If NO, you can approve this application anyway. " +
-							"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
-
-					ft.getFlexCellFormatter().setColSpan(i, 0, 3);
-
-					i++;
-
-					ft.setHTML(i, 0, "<strong>Do you wish to approve this application anyway ?</strong>");
-					ft.getFlexCellFormatter().setColSpan(i, 0, 3);
-
-					Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-
-							// ok approve sending data
-							JsonPostClient jspc = new JsonPostClient(newEvents);
-							jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
-
-						}
-					}, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							events.onFinished(null);
-						}
-					}, true);
-					c.setNonScrollable(true);
-					c.show();
-
-				} else {
-
-					// ok approve sending data
-					JsonPostClient jspc = new JsonPostClient(newEvents);
-					jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
-
 				}
-
-			};
-			@Override
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+				@Override
+				public void onLoadingStart() {
+					events.onLoadingStart();
+				}
 			});
 			checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
 
