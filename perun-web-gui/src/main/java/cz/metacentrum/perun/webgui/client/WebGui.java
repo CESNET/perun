@@ -196,7 +196,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						VerticalPanel vp = new VerticalPanel();
 						vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-						vp.add(new HTML("<h2>Connection to Perun was lost.</h2><strong>Please check your internet connection.</strong>"));
+						vp.add(new HTML("<h2>Connection to Perun has been lost.</h2><strong>Please check your internet connection.</strong>"));
 
 						final FlexTable layout = new FlexTable();
 						layout.setVisible(false);
