@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
 		getPerunBl().getAuditer().log(sess, "{} created in {}.", group, vo);
 		group.setVoId(vo.getId());
+
+		try {
+			User user = perunBl.getUsersManagerBl().getUserById(sess, group.getCreatedByUid());
+
+			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+				AuthzResolver.setRole(sess, user, group, Role.GROUPADMIN);
+			}
+		//this should not happen
+		} catch (UserNotExistsException e) {
+			throw new InternalErrorException("Inconsistency error: User (group creator) does not exist.");
+		} catch (AlreadyAdminException e) {
+			throw new InternalErrorException("Inconsistency error: User is already group admin.");
+		} catch (PrivilegeException e) {
+			throw new InternalErrorException("Insufficient privilege.");
+		}
 
 		return group;
 	}
