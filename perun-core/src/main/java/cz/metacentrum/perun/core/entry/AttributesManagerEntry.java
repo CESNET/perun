@@ -1569,6 +1569,157 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+			}
+		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, workWithUserAttributes);
+		for (Member member : result.keySet()) {
+			Iterator<Attribute> attrIter = result.get(member).iterator();
+			//Choose to which attributes has the principal access
+					User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			while (attrIter.hasNext()) {
+				Attribute attrNext = attrIter.next();
+				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, member))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, member));
+					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
+					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
+					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, facility))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, facility));
+					} else {
+					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
+					}
+				}
+			}
+		return result;
+		}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+			}
+		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, resource, members);
+		for (Member member : result.keySet()) {
+			Iterator<Attribute> attrIter = result.get(member).iterator();
+			//Choose to which attributes has the principal access
+					while (attrIter.hasNext()) {
+				Attribute attrNext = attrIter.next();
+				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, member))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, member));
+					} else {
+					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
+					}
+				}
+			}
+		return result;
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+			}
+		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, resource, service, members);
+		for (Member member : result.keySet()) {
+			Iterator<Attribute> attrIter = result.get(member).iterator();
+			//Choose to which attributes has the principal access
+					while (attrIter.hasNext()) {
+				Attribute attrNext = attrIter.next();
+				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
+					} else {
+					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
+					}
+				}
+			}
+		return result;
+	}
+
+	@Override
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		for (User user : users) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+			}
+		HashMap<User, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, facility, users);
+		for (User user : result.keySet()) {
+			Iterator<Attribute> attrIter = result.get(user).iterator();
+			//Choose to which attributes has the principal access
+					while (attrIter.hasNext()) {
+				Attribute attrNext = attrIter.next();
+				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, facility))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, facility));
+					} else {
+					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
+					}
+				}
+			}
+		return result;
+	}
+
+	@Override
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException, ServiceNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		for (User user : users) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+			}
+		HashMap<User, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, users);
+		for (User user : result.keySet()) {
+			Iterator<Attribute> attrIter = result.get(user).iterator();
+			//Choose to which attributes has the principal access
+					while (attrIter.hasNext()) {
+				Attribute attrNext = attrIter.next();
+				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null))
+						attrIter.remove();
+					else
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
+					} else {
+					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
+					}
+				}
+			}
+		return result;
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);

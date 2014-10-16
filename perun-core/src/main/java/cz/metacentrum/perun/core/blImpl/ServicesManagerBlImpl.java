@@ -21,9 +21,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
@@ -123,12 +121,21 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		List<Member> members;
 		members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		for (Member member: members) {
-			resourceServiceAttributes.addChildElement(getData(sess, service, resource, member));
+		HashMap<Member, List<Attribute>> attributes;
+
+		try {
+			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, null, resource, members, true);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		ServiceAttributes serviceAttributes = new ServiceAttributes();
+		for (Member mem : attributes.keySet()) {
+			serviceAttributes.addAttributes(attributes.get(mem));
+			resourceServiceAttributes.addChildElement(serviceAttributes);
 		}
 
 		return resourceServiceAttributes;
-
 	}
 
 	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
@@ -137,8 +144,18 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		List<Member> members;
 		members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		for (Member member: members) {
-			resourceServiceAttributes.addChildElement(getData(sess, service, facility, resource, member));
+		HashMap<Member, List<Attribute>> attributes;
+
+		try {
+			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		ServiceAttributes serviceAttributes = new ServiceAttributes();
+		for (Member mem : attributes.keySet()) {
+			serviceAttributes.addAttributes(attributes.get(mem));
+			resourceServiceAttributes.addChildElement(serviceAttributes);
 		}
 
 		return resourceServiceAttributes;
@@ -152,9 +169,18 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
 		Map<Member, ServiceAttributes> memberAttributes = new HashMap<Member, ServiceAttributes>();
 		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		for(Member member : members) {
-			ServiceAttributes tmpAttributes = getData(sess, service, facility, resource, member);
-			memberAttributes.put(member, tmpAttributes);
+		HashMap<Member, List<Attribute>> attributes;
+
+		try {
+			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		for (Member mem : attributes.keySet()) {
+			ServiceAttributes tmpAttributes = new ServiceAttributes();
+			tmpAttributes.addAttributes(attributes.get(mem));
+			memberAttributes.put(mem, tmpAttributes);
 			membersAbstractSA.addChildElement(tmpAttributes);
 		}
 
