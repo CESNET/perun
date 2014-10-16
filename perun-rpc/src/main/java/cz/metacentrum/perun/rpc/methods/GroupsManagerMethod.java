@@ -672,8 +672,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all RichGroups containing selected attributes
 	 *
-	 * @param vo
-	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @param vo int ID of vo
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	getAllRichGroupsWithAttributesByNames {
@@ -690,8 +690,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all RichSubGroups from parent group containing selected attributes
 	 *
-	 * @param group
-	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @param group int ID of group
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	getRichSubGroupsWithAttributesByNames {
@@ -708,8 +708,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns RichGroup selected by id containing selected attributes
 	 *
-	 * @param groupId
-	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
+	 * @param groupId int ID of group
+	 * @param attrNames List<String> if attrNames is null method will return RichGroup containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	getRichGroupByIdWithAttributesByNames {
@@ -722,7 +722,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					parms.readList("attrNames", String.class));
 		}
 	},
-	
+
+	/*#
+	 * Returns all groups of specific member including group "members".
+	 *
+	 * @param member int ID of member
+	 * @return List<Group> Groups of member
+	 */
 	getAllMemberGroups {
 
 		@Override
