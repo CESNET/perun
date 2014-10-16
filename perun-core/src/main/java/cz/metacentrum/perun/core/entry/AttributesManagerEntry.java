@@ -1569,6 +1569,67 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		if (facility != null) {
+			getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		}
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		}
+
+
+		return null;
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		}
+
+		return getAttributesManagerBl().getRequiredAttributes(sess, service, resource, members);
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		}
+
+		return getAttributesManagerBl().getRequiredAttributes(sess, resource, service, members);
+	}
+
+	@Override
+	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		for (User user : users) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		}
+		return getAttributesManagerBl().getRequiredAttributes(sess, service, facility, users);
+	}
+
+	@Override
+	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException, ServiceNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		for (User user : users) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		}
+		return getAttributesManagerBl().getRequiredAttributes(sess, service, users);
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
