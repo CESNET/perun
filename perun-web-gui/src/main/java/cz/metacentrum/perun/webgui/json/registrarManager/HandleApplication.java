@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.Identity;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 import java.util.ArrayList;
