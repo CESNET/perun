@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 use Switch;
-use Net::LDAP;
+use Net::LDAPS;
 use Net::LDAP::Entry;
 use Net::LDAP::Message;
 use Net::LDAP::LDIF;
@@ -297,7 +297,7 @@ sub ldap_connect{
 	$base_dn = $lines[3];
 
 	# LDAP connect
-	$ldap = Net::LDAP->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0);
+	$ldap = Net::LDAPS->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0, verify => 'none', port => 636);
 
 	# LDAP log-in
 	if ($ldap) {
