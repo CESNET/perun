@@ -528,6 +528,45 @@ public interface GroupsManagerBl {
 	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
 
 	/**
+	 * Get list of all user administrators for supported role and specific group.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given group for supported role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException;
+
+	/**
+	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the group and supported role with attributes
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Gets list of all user administrators of this group.
 	 * If some group is administrator of the given group, all members are included in the list.
 	 *
@@ -538,6 +577,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of administrators
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
@@ -551,6 +591,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of direct administrators
 	 */
+	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
@@ -574,6 +615,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws  UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -585,6 +627,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws  UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -596,6 +639,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -609,6 +653,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -622,8 +667,8 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
-
 
 	/**
 	 * Get all groups of users under the VO.

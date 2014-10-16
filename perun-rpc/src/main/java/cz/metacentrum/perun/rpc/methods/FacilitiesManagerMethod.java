@@ -563,7 +563,22 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get list of all user administrators for supported role and given facility.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given facility for supported role
+	 */
+	/*#
 	 * Get all Facility admins.
+	 *
+	 * !!! DEPRECATED version !!!
 	 *
 	 * @param facility int Facility ID
 	 * @return List<User> List of Users who are admins in the facility.
@@ -573,17 +588,26 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getFacilitiesManager().getAdmins(ac.getSession(),
+			if(parms.contains("onlyDirectAdmins")) {
+				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readInt("onlyDirectAdmins") ==1);
+			} else {
+				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
+			}
 		}
 	},
 
 	/*#
 	 * Get all Facility direct admins.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param facility int Facility ID
 	 * @return List<User> list of admins of the facility
 	 */
+	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -611,8 +635,26 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the facility and supported role with attributes
+	 */
+	/*#
     * Get all Facility admins as RichUsers
     *
+		* !!! DEPRECATED version !!!
+		*
     * @param facility int Facility ID
     * @return List<RichUser> admins
     */
@@ -621,17 +663,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
+			if(parms.contains("onlyDirectAdmins")) {
+				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readList("specificAttributes", String.class),
+					parms.readInt("allUserAttributes") ==1,
+					parms.readInt("onlyDirectAdmins") ==1);
+			} else {
+				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
+			}
 		}
 	},
 
 	/*#
 	* Get all Facility admins as RichUsers with all their non-null user attributes
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param facility int Facility ID
 	* @return List<RichUser> admins with attributes
 	*/
+	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -645,10 +698,13 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
+	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -664,10 +720,13 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* Get all Facility admins, which are assigned directly,
 	* as RichUsers with specific attributes (from user namespace)
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
+	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override

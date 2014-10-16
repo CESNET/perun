@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -159,6 +160,53 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
+		try {
+			Set<User> setOfAdmins = new HashSet<User>();
+			// direct admins
+			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
+						"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName()));
+
+			// admins through a group
+			List<Group> listOfGroupAdmins = getAdminGroups(sess, vo, role);
+			for(Group group : listOfGroupAdmins) {
+				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
+							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, group.getId()));
+			}
+
+			return new ArrayList(setOfAdmins);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<User>();
+		}   catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
+					"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName());
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<User>();
+		}   catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery_compat + " from authz join groups on "
+					+ "authz.authorized_group_id=groups.id " + GroupsManagerImpl.groupQNameJoinQuery + " where authz.vo_id=? and authz.role_id=(select id from roles where name=?)",
+					GroupsManagerImpl.GROUP_MAPPER, vo.getId(), role.getRoleName());
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Group>();
+		}   catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Deprecated
 	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
@@ -183,6 +231,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
@@ -195,6 +244,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Deprecated
 	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
