@@ -11,8 +11,6 @@ import com.google.gwt.core.client.JsArray;
 
 public class Identity extends JavaScriptObject {
 
-	public static int counter = 0;
-
 	protected Identity() {}
 
 	/**
@@ -81,5 +79,15 @@ public class Identity extends JavaScriptObject {
 	public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
+
+	/**
+	 * Compares to another object
+	 * @param o Object to compare
+	 * @return true, if they are the same
+	 */
+	public final boolean equals(Identity o)
+	{
+		return o.getId() == this.getId();
+	}
 
 }
