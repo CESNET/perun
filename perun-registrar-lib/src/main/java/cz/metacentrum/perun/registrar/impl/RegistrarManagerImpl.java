@@ -814,6 +814,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				perun.getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
 			}
 
+			// free any login from reservation when application is rejected
+			jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
+
 			// delete application and data on cascade
 			jdbc.update("delete from application where id=?", app.getId());
 
