@@ -11,7 +11,6 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * GroupsManager buisness logic
+ * GroupsManager business logic
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -58,14 +57,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		group.setVoId(vo.getId());
 
 		try {
-			User user = perunBl.getUsersManagerBl().getUserById(sess, group.getCreatedByUid());
+			Integer groupUid = group.getCreatedByUid();
 
-			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-				AuthzResolver.setRole(sess, user, group, Role.GROUPADMIN);
+			if(groupUid != null) {
+				User user = perunBl.getUsersManagerBl().getUserById(sess, groupUid);
+
+				if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+					AuthzResolver.setRole(sess, user, group, Role.GROUPADMIN);
+				}
 			}
-		//this should not happen
 		} catch (UserNotExistsException e) {
-			throw new InternalErrorException("Inconsistency error: User (group creator) does not exist.");
+			//role not set
 		} catch (AlreadyAdminException e) {
 			throw new InternalErrorException("Inconsistency error: User is already group admin.");
 		} catch (PrivilegeException e) {
