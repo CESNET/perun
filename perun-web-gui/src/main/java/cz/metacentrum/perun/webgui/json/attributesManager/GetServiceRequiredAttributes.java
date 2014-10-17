@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json.attributesManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeFriendlyNameCell;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -104,11 +106,12 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 		table.addIdColumn("Attribute ID");
 
 		// FRIENDLY NAME COLUMN
-		TextColumn<AttributeDefinition> friendlyNameColumn = new TextColumn<AttributeDefinition>() {
-			public String getValue(AttributeDefinition attrDef) {
-				return String.valueOf(attrDef.getFriendlyName());
-			}
-		};
+		final Column<AttributeDefinition, AttributeDefinition> friendlyNameColumn = JsonUtils.addColumn(new PerunAttributeFriendlyNameCell(),
+				new JsonUtils.GetValue<AttributeDefinition, AttributeDefinition>() {
+					public AttributeDefinition getValue(AttributeDefinition object) {
+						return object;
+					}
+				},null);
 
 		/*
 		// NAMESPACE COLUMN
