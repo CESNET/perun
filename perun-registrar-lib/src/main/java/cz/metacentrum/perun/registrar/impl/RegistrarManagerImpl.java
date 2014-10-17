@@ -103,6 +103,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_APPLICATION_URL = AttributesManager.NS_GROUP_ATTR_DEF;
 	private static final String URN_GROUP_APPLICATION_URL = NAMESPACE_GROUP_APPLICATION_URL + ":" +  FRIENDLY_NAME_GROUP_APPLICATION_URL;
 
+	private static final String DISPLAY_NAME_VO_VALIDATION_URL = "Email validation link URL";
+	private static final String FRIENDLY_NAME_VO_VALIDATION_URL = "validationURL";
+	private static final String NAMESPACE_VO_VALIDATION_URL = AttributesManager.NS_VO_ATTR_DEF;
+	private static final String URN_VO_VALIDATION_URL = NAMESPACE_VO_VALIDATION_URL  + ":" + FRIENDLY_NAME_VO_VALIDATION_URL;
+
+	private static final String DISPLAY_NAME_GROUP_VALIDATION_URL = "Email validation link URL";
+	private static final String FRIENDLY_NAME_GROUP_VALIDATION_URL = "validationURL";
+	private static final String NAMESPACE_GROUP_VALIDATION_URL = AttributesManager.NS_GROUP_ATTR_DEF;
+	private static final String URN_GROUP_VALIDATION_URL = NAMESPACE_GROUP_VALIDATION_URL + ":" +  FRIENDLY_NAME_GROUP_VALIDATION_URL;
+
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
 	@Autowired PerunBl perun;
@@ -266,6 +276,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrManager.createAttribute(registrarSession, attrDef);
 		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_VALIDATION_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_VALIDATION_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_VALIDATION_URL);
+			attrDef.setNamespace(NAMESPACE_VO_VALIDATION_URL);
+			attrDef.setDescription("Custom link for new email address validations. Validation parameters are appended at the end.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_VALIDATION_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_VALIDATION_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_VALIDATION_URL);
+			attrDef.setNamespace(NAMESPACE_GROUP_VALIDATION_URL);
+			attrDef.setDescription("Custom link for new email address validations. Validation parameters are appended at the end. This value override same VO setting.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
+
 
 	}
 
