@@ -264,6 +264,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{validationLinkKrb}</strong> - link with kerberos authz" +
 				"<br/><strong>{validationLinkCert}</strong> - link with IGTF certificate authz" +
 				"<br/><strong>{validationLinkNon}</strong> - link without any authz" +
+				"<br/><strong>{validationLinkCustom}</strong> - custom link which you must set on vo/group settings page" +
 
 				"<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
 
