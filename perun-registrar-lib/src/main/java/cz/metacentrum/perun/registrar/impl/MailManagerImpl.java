@@ -62,6 +62,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 	private static final String URN_VO_APPLICATION_URL = "urn:perun:vo:attribute-def:def:applicationURL";
 	private static final String URN_GROUP_APPLICATION_URL = "urn:perun:group:attribute-def:def:applicationURL";
+	private static final String URN_VO_VALIDATION_URL = "urn:perun:vo:attribute-def:def:validationURL";
+	private static final String URN_GROUP_VALIDATION_URL = "urn:perun:group:attribute-def:def:validationURL";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -497,82 +499,101 @@ public class MailManagerImpl implements MailManager {
 							// get base url for validation
 							String url = getPropertyFromConfiguration("registrarGuiFed");
 							String urlNon = getPropertyFromConfiguration("registrarGuiNon");
-							String urlCert = getPropertyFromConfiguration("registrarGuiCert");
 							String urlKrb = getPropertyFromConfiguration("registrarGuiKrb");
+							String urlCert = getPropertyFromConfiguration("registrarGuiCert");
 							String urlGoogle = getPropertyFromConfiguration("registrarGuiGoogle");
+							String urlCustom = "";
+
+							if (message.getText().contains("{validationLinkCustom}")) {
+								urlCustom = getCustomValidationLink(app);
+							}
 
 							if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
 							if (urlNon != null && !urlNon.isEmpty()) urlNon = urlNon + "?vo=" + app.getVo().getShortName();
-							if (urlCert != null && !urlCert.isEmpty()) urlCert = urlCert + "?vo=" + app.getVo().getShortName();
 							if (urlKrb != null && !urlKrb.isEmpty()) urlKrb = urlKrb + "?vo=" + app.getVo().getShortName();
+							if (urlCert != null && !urlCert.isEmpty()) urlCert = urlCert + "?vo=" + app.getVo().getShortName();
 							if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle = urlGoogle + "?vo=" + app.getVo().getShortName();
+							if (urlCustom != null && !urlCustom.isEmpty()) urlCustom = urlCustom + "?vo=" + app.getVo().getShortName();
 
 							if (app.getGroup() != null) {
 								// append group name for
-								url += "&group="+app.getGroup().getName();
-								urlNon += "&group="+app.getGroup().getName();
-								urlKrb += "&group="+app.getGroup().getName();
-								urlCert += "&group="+app.getGroup().getName();
-								urlGoogle += "&group="+app.getGroup().getName();
+								if (url != null && !url.isEmpty()) url += "&group="+app.getGroup().getName();
+								if (urlNon != null && !urlNon.isEmpty()) urlNon += "&group="+app.getGroup().getName();
+								if (urlKrb != null && !urlKrb.isEmpty()) urlKrb += "&group="+app.getGroup().getName();
+								if (urlCert != null && !urlCert.isEmpty()) urlCert += "&group="+app.getGroup().getName();
+								if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle += "&group="+app.getGroup().getName();
+								if (urlCustom != null && !urlCustom.isEmpty()) urlCustom += "&group="+app.getGroup().getName();
 							}
 
 							// construct whole url
 							StringBuilder url2 = new StringBuilder(url);
 							StringBuilder urlNon2 = new StringBuilder(urlNon);
-							StringBuilder urlCert2 = new StringBuilder(urlCert);
 							StringBuilder urlKrb2 = new StringBuilder(urlKrb);
+							StringBuilder urlCert2 = new StringBuilder(urlCert);
 							StringBuilder urlGoogle2 = new StringBuilder(urlGoogle);
+							StringBuilder urlCustom2 = new StringBuilder(urlCustom);
 
 							if (url.contains("?")) {
 								if (!url.endsWith("?")) {
 									url2.append("&");
 								}
 							} else {
-								url2.append("?");
+								if (!url2.toString().isEmpty()) url2.append("?");
 							}
 							if (urlNon.contains("?")) {
 								if (!urlNon.endsWith("?")) {
 									urlNon2.append("&");
 								}
 							} else {
-								urlNon2.append("&");
+								if (!urlNon2.toString().isEmpty()) urlNon2.append("?");
 							}
 							if (urlKrb.contains("?")) {
 								if (!urlKrb.endsWith("?")) {
 									urlKrb2.append("&");
 								}
 							} else {
-								urlKrb2.append("&");
+								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("?");
 							}
 							if (urlCert.contains("?")) {
 								if (!urlCert.endsWith("?")) {
 									urlCert2.append("&");
 								}
 							} else {
-								urlCert2.append("&");
+								if (!urlCert2.toString().isEmpty()) urlCert2.append("?");
 							}
 							if (urlGoogle.contains("?")) {
 								if (!urlGoogle.endsWith("?")) {
 									urlGoogle2.append("&");
 								}
 							} else {
-								urlGoogle2.append("&");
+								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("?");
+							}
+							if (urlCustom.contains("?")) {
+								if (!urlCustom.endsWith("?")) {
+									urlCustom2.append("&");
+								}
+							} else {
+								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("?");
 							}
 
 							try {
-								url2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								urlNon2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								urlKrb2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								urlCert2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								urlGoogle2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								log.info("[MAIL MANAGER] Whole encoded url: {}", url2.toString());
+
+								if (!url2.toString().isEmpty()) url2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								if (!urlNon2.toString().isEmpty()) urlNon2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+
 							} catch (UnsupportedEncodingException ex) {
-								url2.append("i=").append(i).append("&m=").append(m);
-								urlNon2.append("i=").append(i).append("&m=").append(m);
-								urlCert2.append("i=").append(i).append("&m=").append(m);
-								urlKrb2.append("i=").append(i).append("&m=").append(m);
-								urlGoogle2.append("i=").append(i).append("&m=").append(m);
-								log.info("[MAIL MANAGER] Unable to encode as UTF-8, send unencoded: {}",url2.toString());
+
+								if (!url2.toString().isEmpty()) url2.append("i=").append(i).append("&m=").append(m);
+								if (!urlNon2.toString().isEmpty()) urlNon2.append("i=").append(i).append("&m=").append(m);
+								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(i).append("&m=").append(m);
+								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(i).append("&m=").append(m);
+								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(i).append("&m=").append(m);
+								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("i=").append(i).append("&m=").append(m);
+
 							}
 
 							// replace validation link
@@ -581,6 +602,13 @@ public class MailManagerImpl implements MailManager {
 							message.setText(message.getText().replace("{validationLinkCert}", urlCert2.toString()));
 							message.setText(message.getText().replace("{validationLinkKrb}", urlKrb2.toString()));
 							message.setText(message.getText().replace("{validationLinkGoogle}", urlGoogle2.toString()));
+
+							// if not valid custom link, use non as backup
+							if (!urlCustom2.toString().isEmpty()) {
+								message.setText(message.getText().replace("{validationLinkCustom}", urlNon2.toString()));
+							} else {
+								message.setText(message.getText().replace("{validationLinkCustom}", urlCustom2.toString()));
+							}
 
 							try {
 								mailSender.send(message);
@@ -1929,6 +1957,52 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return "";
+
+	}
+
+	private String getCustomValidationLink(Application app) {
+
+		String result = "";
+		try {
+
+			if (app.getGroup() != null) {
+
+				Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_VALIDATION_URL);
+				if (a != null && a.getValue() != null && !((String)a.getValue()).isEmpty()) {
+
+					result = (String)a.getValue();
+
+				} else {
+					// take it from the VO if not on group settings
+					Attribute a2 = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_VALIDATION_URL);
+					if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
+						result = (String)a2.getValue();
+					}
+				}
+
+			} else {
+
+				// take it from the VO
+				Attribute a2 = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_VALIDATION_URL);
+				if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
+					result = (String)a2.getValue();
+				}
+
+			}
+
+		} catch (Exception ex) {
+
+			if (app.getGroup() != null) {
+				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}",app.getGroup(), ex);
+			} else {
+				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}", app.getVo(), ex);
+			}
+
+		} finally {
+
+			return result;
+
+		}
 
 	}
 
