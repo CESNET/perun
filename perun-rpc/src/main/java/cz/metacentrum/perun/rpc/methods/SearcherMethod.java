@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public enum SearcherMethod implements ManagerMethod {
@@ -17,7 +16,7 @@ public enum SearcherMethod implements ManagerMethod {
 	 * This method get Map of Attributes with searching values and try to find all users, which have specific attributes in format.
 	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
 	 *
-	 * @param attributesWithSearchingValues Map<String, String> map of attributes names
+	 * @param attributesWithSearchingValues Map<String,String> map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
 	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
@@ -46,7 +45,7 @@ public enum SearcherMethod implements ManagerMethod {
 	 * if principal has no rights for some attribute on specific user, do not return this user
 	 * if attributesWithSearchingValues is null or empty, return all members from vo if principal has rights for this operation
 	 *
-	 * @param userAttributesWithSearchingValues Map<String, String> map of attributes names
+	 * @param userAttributesWithSearchingValues Map<String,String> map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
 	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
