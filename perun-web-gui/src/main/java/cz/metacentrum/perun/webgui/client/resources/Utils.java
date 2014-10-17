@@ -1085,4 +1085,31 @@ public class Utils {
 
 	}
 
+	/**
+	 * If passed string is DN of certificate(recognized by "/CN=") then returns only CN part with unescaped chars.
+	 * If passed string is not DN of certificate, original string is returned.
+	 *
+	 * @param toConvert
+	 * @return
+	 */
+	static public String convertCertCN(String toConvert) {
+
+		if (toConvert.contains("/CN=")) {
+			String[] splitted = toConvert.split("/");
+			for (String s : splitted) {
+				if (s.startsWith("CN=")) {
+					return unescapeDN(s.substring(3));
+				}
+			}
+		}
+		return toConvert;
+
+	}
+
+	static public final native String unescapeDN(String string) /*-{
+
+		return decodeURIComponent(string.replace(/\\x/g, '%'))
+
+	}-*/;
+
 }

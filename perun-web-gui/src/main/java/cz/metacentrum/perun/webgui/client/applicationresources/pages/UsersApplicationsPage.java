@@ -13,6 +13,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
@@ -67,7 +68,11 @@ public class UsersApplicationsPage extends ApplicationPage {
 			} else if (!pp.getAdditionInformations("cn").equals("")) {
 				user = pp.getAdditionInformations("cn");
 			} else {
-				user = pp.getActor();
+				if (pp.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
+					user = Utils.convertCertCN(pp.getActor());
+				} else {
+					user = pp.getActor();
+				}
 			}
 		}
 
@@ -107,13 +112,13 @@ public class UsersApplicationsPage extends ApplicationPage {
 					}
 				}
 			}
-		@Override
-		public void onError(PerunError error) {
-		}
-		@Override
-		public void onLoadingStart() {
-			listBox.clear();
-		}
+			@Override
+			public void onError(PerunError error) {
+			}
+			@Override
+			public void onLoadingStart() {
+				listBox.clear();
+			}
 
 		});
 		req.setCheckable(false);
