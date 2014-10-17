@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -905,7 +906,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// perun group members, remove entry from the list, if the member is in the external source
 			List<RichMember> membersToRemove = new ArrayList<RichMember>(currentMembers);
 
-			// List of canidates which will be finally added to the perun group. Firstly fill the list and then remove those who are already in the Group
+			// List of candidates which will be finally added to the perun group. Firstly fill the list and then remove those who are already in the Group
 			List<Candidate> candidatesToAdd = new ArrayList<Candidate>(candidates);
 
 			// Iterate through members from the external group and find the differences with the perun group
@@ -1008,7 +1009,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 												// Try to set user's attributes
 												getPerunBl().getAttributesManagerBl().setAttribute(sess, richMember.getUser(), newAttribute);
 											} catch (AttributeValueException e) {
-												// There is a problem with attribute value, so set INVALID status of the memeber
+												// There is a problem with attribute value, so set INVALID status of the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
 												try {
 													// The member is invalid, so try to set the value again, and check if the change has influence also on other members
@@ -1038,7 +1039,53 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							}
 						}
 
-						// If the member has INVALID status, try to validete the member
+						// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
+						try {
+							if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
+								Date now = new Date();
+
+								Attribute memberExpiration = null;
+
+								for(Attribute att: richMember.getMemberAttributes()) {
+									if((AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration").equals(att.getName())){
+										memberExpiration = att;
+										break;
+									}
+								}
+
+								if (memberExpiration != null && memberExpiration.getValue() != null) {
+									Date currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) memberExpiration.getValue());
+
+									if (currentMembershipExpirationDate.before(now)) {
+										//disabled members which are after expiration date will be expired
+										if (richMember.getStatus().equals(Status.DISABLED)) {
+											try {
+												perunBl.getMembersManagerBl().expireMember(sess, member);
+												log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) memberExpiration.getValue());
+												log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+											} catch (MemberNotValidYetException e) {
+												log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
+											}
+										}
+									} else {
+										//disabled and expired members which are before expiration date will be validated
+										try {
+											perunBl.getMembersManagerBl().validateMember(sess, member);
+											log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) memberExpiration.getValue());
+											log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+										} catch (WrongAttributeValueException e) {
+											log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+										} catch (WrongReferenceAttributeValueException e) {
+											log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+										}
+									}
+								}
+							}
+						} catch (ParseException e) {
+							log.error("Group synchronization: member expiration String cannot be parsed, exception {}", e);
+						}
+
+						// If the member has INVALID status, try to validate the member
 						try {
 							if (richMember.getStatus().equals(Status.INVALID)) {
 								getPerunBl().getMembersManagerBl().validateMember(sess, member);
@@ -1150,7 +1197,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							try {
 								memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, member);
 							} catch (AttributeNotExistsException ex) {
-								//This means that no authoriative group can exists without this attribute
+								//This means that no authoritative group can exists without this attribute
 								log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
 							}
 
@@ -1193,14 +1240,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			log.info("Group synchronization {}: ended.", group);
-			// FIXME temporarly disabled
+			// FIXME temporarily disabled
 			//getPerunBl().getAuditer().log(sess, "{} successfully synchronized.", group);
 		} finally {
 			if(membersSource != null) {
 				try {
 					((ExtSourceApi) membersSource).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
-					// ExtSource doesn't support that functionality, so silentely skip it.
+					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
 					log.error("Can't close membersSource connection. Cause: {}", e);
 				}
@@ -1209,7 +1256,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				try {
 					((ExtSourceApi) source).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
-					// ExtSource doesn't support that functionality, so silentely skip it.
+					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
 					log.error("Can't close extSource connection. Cause: {}", e);
 				}
