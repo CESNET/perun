@@ -98,6 +98,12 @@ sub getHosts
 	return Perun::Common::callManagerMethod('getHosts', '[]Host', @_);
 }
 
+#(hostname => "prvni.cz")
+sub getHostsByHostname
+{
+       return Perun::Common::callManagerMethod('getHostsByHostname', '[]Host', @_);
+}
+
 #(facility => $facilityId)
 sub getHostsCount
 {
