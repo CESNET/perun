@@ -10,7 +10,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Use in initialize script -->
-    <!-- -Dperun.conf.custom=/etc/perunv3/filename -->
+    <!-- -Dperun.conf.custom=/etc/perun/filename -->
     <context:property-placeholder
             ignore-resource-not-found="true" ignore-unresolvable="true"
             location="${perun.jdbc}"/>
