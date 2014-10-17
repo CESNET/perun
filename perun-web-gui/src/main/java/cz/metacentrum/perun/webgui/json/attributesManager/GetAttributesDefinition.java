@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeFriendlyNameCell;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -123,12 +124,18 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 		table.addIdColumn("Attr ID", tableFieldUpdater, 100);
 
 		// FRIENDLY NAME COLUMN
-		final Column<AttributeDefinition, String> friendlyNameColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<AttributeDefinition, String>() {
-					public String getValue(AttributeDefinition object) {
-						return object.getFriendlyName();
+		final Column<AttributeDefinition, AttributeDefinition> friendlyNameColumn = JsonUtils.addColumn(new PerunAttributeFriendlyNameCell((tableFieldUpdater != null) ? "customClickableTextCell" : ""),
+				new JsonUtils.GetValue<AttributeDefinition, AttributeDefinition>() {
+					public AttributeDefinition getValue(AttributeDefinition object) {
+						return object;
 					}
-				}, tableFieldUpdater);
+				}, (tableFieldUpdater != null) ? new FieldUpdater<AttributeDefinition, AttributeDefinition>() {
+					@Override
+					public void update(int index, AttributeDefinition object, AttributeDefinition value) {
+						// pass field updater to original one
+						if (tableFieldUpdater != null) tableFieldUpdater.update(index, object, value.getFriendlyName());
+					}
+				} : null);
 
 		// ENTITY COLUMN
 		final Column<AttributeDefinition, String> entityColumn = JsonUtils.addColumn(
