@@ -1683,6 +1683,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// else set value
 						itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(dstAtt)));
 					}
+				} else {
+					// attr doesn't exists or value is empty
+					if (dstAtt.equals("urn:perun:member:attribute-def:def:mail")) {
+						// for member mails if empty, fill user preferred mail
+						if (map.get("urn:perun:user:attribute-def:def:preferredMail") != null && map.get("urn:perun:user:attribute-def:def:preferredMail").getValue() != null) {
+							itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get("urn:perun:user:attribute-def:def:preferredMail")));
+						}
+					}
 				}
 			}
 		}
