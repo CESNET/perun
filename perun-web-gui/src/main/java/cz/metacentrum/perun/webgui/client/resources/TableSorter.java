@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.client.resources;
 import cz.metacentrum.perun.webgui.json.comparators.AttributeComparator;
 import cz.metacentrum.perun.webgui.model.*;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -217,7 +218,7 @@ public class TableSorter<T> {
 				TaskResult o3 = (TaskResult)o1;
 				TaskResult o4 = (TaskResult)o2;
 				Collator customCollator = Collator.getInstance();
-				return customCollator.compare(o3.getDestination().getDestination(), o4.getDestination().getDestination());
+				return customCollator.compare(o3.getDestination().getDestination(), o4.getDestination().getDestination())+new Date((long)o4.getTimestampNative()).compareTo(new Date((long)o3.getTimestampNative()));
 			}
 		});
 		return list;
@@ -237,7 +238,7 @@ public class TableSorter<T> {
 				TaskResult o3 = (TaskResult)o1;
 				TaskResult o4 = (TaskResult)o2;
 				Collator customCollator = Collator.getInstance();
-				return customCollator.compare(o3.getService().getName(), o4.getService().getName());
+				return customCollator.compare(o3.getService().getName(), o4.getService().getName())+new Date((long)o4.getTimestampNative()).compareTo(new Date((long)o3.getTimestampNative()));
 			}
 		});
 		return list;
