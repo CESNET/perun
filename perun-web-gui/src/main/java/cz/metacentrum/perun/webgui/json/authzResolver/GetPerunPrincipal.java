@@ -42,7 +42,7 @@ public class GetPerunPrincipal implements JsonCallback {
 	 */
 	public void retrieveData(){
 		// retrieve data
-		JsonClient js = new JsonClient(true, 60000);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, this);
 	}
 

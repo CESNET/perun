@@ -833,7 +833,14 @@ public class JsonErrorHandler {
 
 			return result;
 
+		} else if ("RequestTimeout".equalsIgnoreCase(errorName)) {
+
+			String result = "Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.";
+
+			return result;
+
 		}
+
 
 		//default text
 		return error.getErrorInfo();

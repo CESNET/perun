@@ -84,7 +84,7 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 	 */
 	public void retrieveData(){
 		// retrieve data
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		if (count > 0) {
 			js.retrieveData(JSON_URL, "count="+count, this);
 		} else {

@@ -83,7 +83,7 @@ public class GetAdminGroups implements JsonCallback, JsonCallbackTable<Group> {
 	 */
 	public void retrieveData() {
 
-		JsonClient js = new JsonClient(60000);
+		JsonClient js = new JsonClient();
 		String param;
 
 		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {

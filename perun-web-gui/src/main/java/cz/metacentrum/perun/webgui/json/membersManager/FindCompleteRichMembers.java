@@ -134,7 +134,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 			}
 		}
 
-		JsonClient js = new JsonClient(120000);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 
 	}

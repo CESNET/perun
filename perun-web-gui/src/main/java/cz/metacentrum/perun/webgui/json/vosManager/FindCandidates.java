@@ -85,7 +85,7 @@ public class FindCandidates implements JsonCallback, JsonCallbackTable<Candidate
 	public void retrieveData() {
 
 		// the request itself
-		JsonClient js = new JsonClient(60000); // set 1 minute timeout for searching external sources
+		JsonClient js = new JsonClient(); // set 1 minute timeout for searching external sources
 		if (searchString != null && !searchString.isEmpty()) {
 			js.retrieveData(JSON_URL, "vo="+voId+"&searchString="+searchString, this);
 		}

@@ -49,7 +49,7 @@ public class KeepAlive implements JsonCallback {
 
 	@Override
 	public void retrieveData() {
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		js.setHidden(true);
 		js.retrieveData(JSON_URL, this);
 	}

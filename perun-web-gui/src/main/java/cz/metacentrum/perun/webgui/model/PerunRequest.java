@@ -16,28 +16,40 @@ public class PerunRequest extends JavaScriptObject {
 		return this.method;
 	}-*/;
 
-		public final native String getManager() /*-{
-			return this.manager;
-		}-*/;
+	public final native String getManager() /*-{
+		return this.manager;
+	}-*/;
 
-		public final native double getStartTime() /*-{
-			return this.startTime;
-		}-*/;
+	public final native double getStartTime() /*-{
+		return this.startTime;
+	}-*/;
 
-		public final native String getSessionId() /*-{
-			return this.method;
-		}-*/;
+	public final native String getParamsString() /*-{
+		return this.params;
+	}-*/;
 
-		public final native String getParamsString() /*-{
-			return this.params;
-		}-*/;
+	public final native PerunPrincipal getPerunPrincipal() /*-{
+		return this.perunPrincipal;
+	}-*/;
 
-		public final native PerunPrincipal getPerunPrincipal() /*-{
-			return this.perunPrincipal;
-		}-*/;
+	public final native void setMethod(String method) /*-{
+		this.method = method;
+	}-*/;
 
+	public final native void setManager(String manager) /*-{
+		this.manager = manager;
+	}-*/;
 
+	public final native void setStartTime() /*-{
+		this.startTime = new Date().getTime();
+	}-*/;
 
+	public final native double getDuration() /*-{
+		return new Date().getTime() - this.startTime;
+	}-*/;
 
+	public final native String setParamString(String params) /*-{
+		this.params = params;
+	}-*/;
 
 }
