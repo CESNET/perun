@@ -48,7 +48,7 @@ if (!defined($voId)) {
 
 my @candidates = $vosAgent->findCandidates('vo' => $voId, 'searchString' => $searchString);
 
-if (scalar(@candidates) <= 0) { print STDERR "No new candidates matching the searchString found or the candidate is already Vo member\n"; exit 1; }
+if (scalar(@candidates) <= 0) { print STDERR "No new candidates matching the searchString '$searchString' found or the candidate is already Vo member\n"; exit 1; }
 
 if ((scalar(@candidates) > 1) && $batch) {
 	die "ERROR: More than one candidate for the searchString '$searchString' in the batch mode\n";
@@ -98,6 +98,6 @@ if (!$batch) {
 }
 
 my $member = $membersAgent->createMember(vo => $voId, candidate => $candidate);
-$member = $membersAgent->validateMember(member => $member->getId);
+$member = $membersAgent->validateMemberAsync(member => $member->getId);
 
-printMessage("New member with Id:" . $member->getId . " successfully created", $batch);
+print "Member created ID:" . $member->getId;
