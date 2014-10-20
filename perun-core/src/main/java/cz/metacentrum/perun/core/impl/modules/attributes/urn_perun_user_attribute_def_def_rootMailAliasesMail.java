@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 public class urn_perun_user_attribute_def_def_rootMailAliasesMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
     public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-        String attributeValue = null;
+        String attributeValue = (String) attribute.getValue();
 
         Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
         if (!emailMatcher.find()) {
@@ -33,9 +33,9 @@ public class urn_perun_user_attribute_def_def_rootMailAliasesMail extends UserAt
         AttributeDefinition attr = new AttributeDefinition();
         attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
         attr.setFriendlyName("rootMailAliasesMail");
-        attr.setDisplayName("Email for root mail aliases.");
+        attr.setDisplayName("Email for root mail aliases. If it's not set, preferred mail will be used instead.");
         attr.setType(String.class.getName());
-        attr.setDescription("Email for root mail aliases.");
+        attr.setDescription("Email for root mail aliases. If it's not set, preferred mail will be used instead.");
         return attr;
     }
 }

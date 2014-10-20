@@ -15,9 +15,9 @@ public class urn_perun_resource_attribute_def_def_rootMailAliases extends Resour
         AttributeDefinition attr = new AttributeDefinition();
         attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
         attr.setFriendlyName("rootMailAliases");
-        attr.setDisplayName("Set root aliases instead of users.");
+        attr.setDisplayName("The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
         attr.setType(String.class.getName());
-        attr.setDescription("Set root aliases instead of users.");
+        attr.setDescription("The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
         return attr;
     }
 }
