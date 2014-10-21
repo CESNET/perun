@@ -8,12 +8,12 @@ use Perun::Common qw(printMessage);
 
 sub help {
   return qq{
-  Remove Role from user or authorizedGroup. User or group is required.
+	Remove Role from user or authorizedGroup. User or group is required.
 	Role is required. Some complementaryObject is required if not PERUNADMIN.
 	For now only 1 object is supported to be set at once.
-  ------------------------------------
-  Available options:
-  --userId            | -u user id
+	------------------------------------
+	Available options:
+	--userId            | -u user id
 	--authorizedGroupId | -a authorizedGroup id
 	--role              | -R role name
 	--facilityId        | -f facility comp object id
@@ -21,8 +21,8 @@ sub help {
 	--voId              | -v vo comp object id
 	--resourceId        | -r resource comp object id
 	--serviceId         | -s service comp object id
-  --batch             | -b batch
-  --help              | -h prints this help
+	--batch             | -b batch
+	--help              | -h prints this help
   };
 }
 
