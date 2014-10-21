@@ -96,6 +96,20 @@
 
             </plugin>
 
+            <!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
+				 Server is started at ajp://localhost:8009/perun-rpc-devel/
+				 You need to setup Apache web server to provide (or fake) authentication in AJP headers
+				 and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>/perun-rpc-devel</path>
+                    <ajpPort>8009</ajpPort>
+                </configuration>
+            </plugin>
+
         </plugins>
 
     </build>
@@ -258,6 +272,20 @@
                                 <version>8.1.15.v20140411</version>
                             </dependency></dependencies>
 
+                    </plugin>
+
+                    <!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
+						 Server is started at ajp://localhost:8009/perun-rpc-devel/
+						 You need to setup Apache web server to provide (or fake) authentication in AJP headers
+						 and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
+                    <plugin>
+                        <groupId>org.apache.tomcat.maven</groupId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.2</version>
+                        <configuration>
+                            <path>/perun-rpc-devel</path>
+                            <ajpPort>8009</ajpPort>
+                        </configuration>
                     </plugin>
 
                 </plugins>
