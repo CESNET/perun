@@ -1,299 +1,300 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>perun</artifactId>
-        <groupId>cz.metacentrum</groupId>
-        <version>3.0.1-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.0.1-SNAPSHOT</version>
+	</parent>
 
-    <groupId>cz.metacentrum.perun</groupId>
-    <artifactId>perun-rpc</artifactId>
-    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
-    <packaging>war</packaging>
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-rpc</artifactId>
+	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<packaging>war</packaging>
 
-    <name>perun-rpc</name>
-    <description>RPC interface provided by Perun to communicate with GUI,CLI and any other external system (maven webapp 8081)</description>
+	<name>perun-rpc</name>
+	<description>RPC interface provided by Perun to communicate with GUI,CLI and any other external system (maven webapp 8081)</description>
 
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+	</properties>
 
-    <!-- common module build settings used by all profiles -->
-    <build>
-        <plugins>
+	<!-- common module build settings used by all profiles -->
+	<build>
+		<plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warName>perun-rpc-devel</warName>
-                    <webResources>
-                        <resource>
-                            <!-- Enable custom location of log4j.xml per webapp -->
-                            <filtering>true</filtering>
-                            <directory>src/main/webapp/WEB-INF/</directory>
-                            <targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warName>perun-rpc-devel</warName>
+					<webResources>
+						<resource>
+							<!-- Enable custom location of log4j.xml per webapp -->
+							<filtering>true</filtering>
+							<directory>src/main/webapp/WEB-INF/</directory>
+							<targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
 
-            <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>8.1.15.v20140411</version>
+			<!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc-devel/ -->
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.1.15.v20140411</version>
 
-                <configuration>
-                    <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
-                    <stopPort>9999</stopPort>
-                    <stopKey>stop</stopKey>
-                    <webAppConfig>
-                        <contextPath>/perun-rpc-devel</contextPath>
-                    </webAppConfig>
-                </configuration>
+				<configuration>
+					<jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
+					<stopPort>9999</stopPort>
+					<stopKey>stop</stopKey>
+					<webAppConfig>
+						<contextPath>/perun-rpc-devel</contextPath>
+					</webAppConfig>
+				</configuration>
 
-                <!-- We must specify dependency to get AJP working -->
-                <dependencies>
-                    <dependency>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-ajp</artifactId>
-                        <version>8.1.15.v20140411</version>
-                    </dependency>
-                </dependencies>
+				<!-- We must specify dependency to get AJP working -->
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.jetty</groupId>
+						<artifactId>jetty-ajp</artifactId>
+						<version>8.1.15.v20140411</version>
+					</dependency>
+				</dependencies>
 
-            </plugin>
+			</plugin>
 
-            <!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
+			<!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
 				 Server is started at ajp://localhost:8009/perun-rpc-devel/
 				 You need to setup Apache web server to provide (or fake) authentication in AJP headers
 				 and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <path>/perun-rpc-devel</path>
-                    <ajpPort>8009</ajpPort>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<path>/perun-rpc-devel</path>
+					<ajpPort>8009</ajpPort>
+				</configuration>
+			</plugin>
 
-        </plugins>
+		</plugins>
 
-    </build>
+	</build>
 
-    <dependencies>
+	<dependencies>
 
-        <!-- PERUN -->
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-beans</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<!-- PERUN -->
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-beans</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-controller</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-controller</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-tasks-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-tasks-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-cabinet</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-cabinet</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-registrar-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-registrar-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-notification</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-notification</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-voot</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-voot</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <!-- SPRING -->
+		<!-- SPRING -->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
 
-        <!-- OTHERS -->
+		<!-- OTHERS -->
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>net.tanesha.recaptcha4j</groupId>
-            <artifactId>recaptcha4j</artifactId>
-            <version>0.0.7</version>
-        </dependency>
+		<dependency>
+			<groupId>net.tanesha.recaptcha4j</groupId>
+			<artifactId>recaptcha4j</artifactId>
+			<version>0.0.7</version>
+		</dependency>
 
-        <!--
+		<!--
 
-        remove comment for local running of RPC with mvn jetty:run-exploded
+		remove comment for local running of RPC with mvn jetty:run-exploded
 
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-dbcp</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc7</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
 
-         -->
+		 -->
 
-    </dependencies>
+	</dependencies>
 
-    <profiles>
+	<profiles>
 
-        <profile>
+		<profile>
 
-            <id>production</id>
+			<id>production</id>
 
-            <properties>
-                <perun.build.type>production</perun.build.type>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
+			<properties>
+				<perun.build.type>production</perun.build.type>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
 
-            <build>
+			<build>
 
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <configuration>
-                            <warName>perun-rpc</warName>
-                            <webResources>
-                                <!-- Enable custom location of log4j.xml per webapp -->
-                                <resource>
-                                    <filtering>true</filtering>
-                                    <directory>src/main/webapp/WEB-INF/</directory>
-                                    <targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
-                                </resource>
-                            </webResources>
-                        </configuration>
-                    </plugin>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<warName>perun-rpc</warName>
+							<webResources>
+								<!-- Enable custom location of log4j.xml per webapp -->
+								<resource>
+									<filtering>true</filtering>
+									<directory>src/main/webapp/WEB-INF/</directory>
+									<targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
 
-                    <!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc/ -->
-                    <plugin>
-                        <groupId>org.mortbay.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.15.v20140411</version>
+					<!-- use "mvn jetty:run-exploded" to start server and visit http://localhost:8081/perun-rpc/ -->
+					<plugin>
+						<groupId>org.mortbay.jetty</groupId>
+						<artifactId>jetty-maven-plugin</artifactId>
+						<version>8.1.15.v20140411</version>
 
-                        <configuration>
-                            <jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
-                            <stopPort>9999</stopPort>
-                            <stopKey>stop</stopKey>
-                            <webAppConfig>
-                                <contextPath>/perun-rpc</contextPath>
-                            </webAppConfig>
-                        </configuration>
+						<configuration>
+							<jettyXml>src/main/webapp/WEB-INF/jetty.xml</jettyXml>
+							<stopPort>9999</stopPort>
+							<stopKey>stop</stopKey>
+							<webAppConfig>
+								<contextPath>/perun-rpc</contextPath>
+							</webAppConfig>
+						</configuration>
 
-                        <!-- We must specify dependency to get AJP working -->
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-ajp</artifactId>
-                                <version>8.1.15.v20140411</version>
-                            </dependency></dependencies>
+						<!-- We must specify dependency to get AJP working -->
+						<dependencies>
+							<dependency>
+								<groupId>org.eclipse.jetty</groupId>
+								<artifactId>jetty-ajp</artifactId>
+								<version>8.1.15.v20140411</version>
+							</dependency>
+                        </dependencies>
 
-                    </plugin>
+					</plugin>
 
-                    <!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
+					<!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
 						 Server is started at ajp://localhost:8009/perun-rpc-devel/
 						 You need to setup Apache web server to provide (or fake) authentication in AJP headers
 						 and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
-                    <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.2</version>
-                        <configuration>
-                            <path>/perun-rpc-devel</path>
-                            <ajpPort>8009</ajpPort>
-                        </configuration>
-                    </plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.2</version>
+						<configuration>
+							<path>/perun-rpc-devel</path>
+							<ajpPort>8009</ajpPort>
+						</configuration>
+					</plugin>
 
-                </plugins>
+				</plugins>
 
-            </build>
+			</build>
 
-        </profile>
+		</profile>
 
-    </profiles>
+	</profiles>
 
 </project>
