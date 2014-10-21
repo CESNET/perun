@@ -978,6 +978,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
+	/**
+	 * Refresh authorization data inside session.
+	 *
+	 * Fill in proper roles and their relative entities (vos, groups, ....).
+	 * User itself or ext source data is NOT updated.
+	 *
+	 * @param sess PerunSession to refresh authz for
+	 * @throws InternalErrorException
+	 */
 	public static synchronized void refreshAuthz(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 		log.debug("Refreshing authz roles for session {}.", sess);
@@ -996,6 +1005,30 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		sess.getPerunPrincipal().setAuthzInitialized(true);
+	}
+
+	/**
+	 * Refresh all session data excluding ext source and additionalInformations.
+	 *
+	 * This method update user in session (try to find user by ext. source data).
+	 * Then it updates authorization data in session.
+	 *
+	 * @param sess PerunSession to refresh data for
+	 * @throws InternalErrorException
+	 */
+	public static synchronized void refreshSession(PerunSession sess) throws InternalErrorException {
+		Utils.checkPerunSession(sess);
+		log.debug("Refreshing session data for session {}.", sess);
+
+		try {
+			User user = perunBlImpl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
+			sess.getPerunPrincipal().setUser(user);
+		} catch (Exception ex) {
+			// we don't care that user was not found
+		}
+
+		AuthzResolverBlImpl.refreshAuthz(sess);
+
 	}
 
 	/**
