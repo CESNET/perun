@@ -252,6 +252,19 @@ public class JsonPostClient {
 
 						}
 
+					} else if (resp.getStatusCode() == 503) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("503");
+						error.setName("Server Temporarily Unavailable");
+						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
 
 					// triggers onError

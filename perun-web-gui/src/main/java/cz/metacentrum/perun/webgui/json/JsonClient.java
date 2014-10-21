@@ -199,7 +199,7 @@ public class JsonClient {
 
 								PerunError error = new JSONObject().getJavaScriptObject().cast();
 								error.setErrorId("408");
-								error.setName("RequestTimeout");
+								error.setName("Request Timeout");
 								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
 								error.setObjectType("PerunError");
 								error.setRequestURL(requestUrl);
@@ -212,7 +212,7 @@ public class JsonClient {
 
 								PerunError error = new JSONObject().getJavaScriptObject().cast();
 								error.setErrorId("500");
-								error.setName("ServerInternalError");
+								error.setName("Server Internal Error");
 								error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
 								error.setObjectType("PerunError");
 								error.setRequestURL(requestUrl);
@@ -225,7 +225,21 @@ public class JsonClient {
 
 						}
 
+					} else if (resp.getStatusCode() == 503) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("503");
+						error.setName("Server Temporarily Unavailable");
+						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
+
 					runningRequests.remove(requestUrl);
 					// triggers onError
 					onRequestError(parseResponse(resp.getText()));
