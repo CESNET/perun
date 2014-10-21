@@ -9,6 +9,7 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
@@ -616,6 +617,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+
+		// If user is known in Perun but unknown in GUI (user joined identity by consolidator)
+		if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
+			application.setUser(session.getPerunPrincipal().getUser());
+		}
 
 		// using this to init inner transaction
 		// all minor exceptions inside are catched, if not, it's ok to throw them
@@ -1510,11 +1516,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public List<ApplicationFormItemWithPrefilledValue> getFormItemsWithPrefilledValues(PerunSession sess, AppType appType, ApplicationForm form) throws PerunException {
 
-		// refresh session
-		AuthzResolver.refreshAuthz(sess);
-
 		Vo vo = form.getVo();
 		Group group = form.getGroup();
+
+		// refresh session (user) to get correct data
+		AuthzResolverBlImpl.refreshSession(sess);
 
 		// get necessary params from session
 		User user = sess.getPerunPrincipal().getUser();
