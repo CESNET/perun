@@ -191,7 +191,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		// Engine and Service can read attributes
-		if ((sess.getPerunPrincipal().getRoles().hasRole(Role.ENGINE) || sess.getPerunPrincipal().getRoles().hasRole(Role.SERVICE)) && actionType.equals(ActionType.READ)) {
+		if (sess.getPerunPrincipal().getRoles().hasRole(Role.ENGINE) && actionType.equals(ActionType.READ)) {
 			return true;
 		}
 
@@ -224,7 +224,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder.");
 			}
 		} else {
-			throw new InternalErrorException("Aiding attribtue must have perunBean which is not null.");
+			throw new InternalErrorException("Adding attribute must have perunBean which is not null.");
 		}
 
 		//Get object for secondaryHolder
@@ -1236,12 +1236,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
-		}
-
-		List<String> perunServiceAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.service.principals").split("[ \t]*,[ \t]*")));
-		if (perunServiceAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICE);
-			log.trace("AuthzResolver.init: Perun Service {} loaded", perunServiceAdmins);
 		}
 
 		List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
