@@ -57,16 +57,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		group.setVoId(vo.getId());
 
 		try {
-			Integer groupUid = group.getCreatedByUid();
+			User user = sess.getPerunPrincipal().getUser();
 
-			if(groupUid != null) {
-				User user = perunBl.getUsersManagerBl().getUserById(sess, groupUid);
-				if(!AuthzResolverBlImpl.isAuthorized(sess, Role.VOADMIN, vo)) {
-					AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
-				}
+			if(!AuthzResolverBlImpl.isAuthorized(sess, Role.VOADMIN, vo)) {
+				AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
 			}
-		} catch (UserNotExistsException e) {
-			//role not set
 		} catch (AlreadyAdminException e) {
 			throw new InternalErrorException("Inconsistency error: User is already group admin.");
 		}
