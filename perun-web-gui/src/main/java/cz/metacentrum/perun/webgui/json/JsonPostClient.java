@@ -265,6 +265,19 @@ public class JsonPostClient {
 						onRequestError(error);
 						return;
 
+					} else if (resp.getStatusCode() == 404) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("404");
+						error.setName("Not found");
+						error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
 
 					// triggers onError
