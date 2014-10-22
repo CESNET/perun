@@ -47,6 +47,21 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	initializeRegistrar {
+
+		@Override
+		public Map<String, Object> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			if (parms.contains("group")) {
+				return ac.getRegistrarManager().initRegistrar(ac.getSession(), parms.readString("vo"), parms.readString("group"));
+			} else {
+				return ac.getRegistrarManager().initRegistrar(ac.getSession(), parms.readString("vo"), null);
+			}
+
+		}
+
+	},
+
 	/*#
 	 * Sends invitation email to user which is not member of VO
 	 *

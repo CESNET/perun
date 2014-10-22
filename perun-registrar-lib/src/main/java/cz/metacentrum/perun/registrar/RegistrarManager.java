@@ -24,14 +24,26 @@ import static cz.metacentrum.perun.registrar.model.Application.AppType;
 public interface RegistrarManager {
 
 	/**
-	 * Retrieves all necessary data about VO under registrar session
+	 * Retrieves all necessary data about VO/group under registrar session
 	 *
-	 * @param voShortName VO's shortname to get info about
+	 * @param voShortName VOs shortname to get info about
 	 * @param groupName Groups name to get info about
 	 * @return List of VO attributes
 	 * @throws PerunException
 	 */
 	public List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
+
+	/**
+	 * Retrieves all necessary data for new registrar webapp in one big call.
+	 * Everything is resolved internally instead of making multiple calls from GUI.
+	 *
+	 * @param sess PerunSession of user to resolve app form for.
+	 * @param voShortName VOs shortname to get info about
+	 * @param groupName Groups name to get info about
+	 * @return Map of expected data
+	 * @throws PerunException
+	 */
+	public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
 
 	/**
 	 * Create application form for vo
