@@ -178,6 +178,7 @@ public class VosManagerEntry implements VosManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
 			throw new PrivilegeException(sess, "getVoByShortName");
 				}
