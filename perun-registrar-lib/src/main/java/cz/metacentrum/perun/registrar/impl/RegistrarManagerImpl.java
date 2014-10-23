@@ -373,6 +373,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (ExtendMembershipException ex) {
 					// can't extend membership in VO
 					result.put("voFormExtensionException", ex);
+				} catch (MemberNotExistsException ex) {
+					// is not member -> can't extend
+					result.put("voFormExtensionException", ex);
 				}
 
 			}
