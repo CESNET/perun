@@ -764,6 +764,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				} else {
 					throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
 				}
+			} else if(role.equals(Role.TOPGROUPCREATOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set TopGroupCreator rights without Vo.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) addTopGroupCreator(sess, (Vo) complementaryObject, user);
+					else addTopGroupCreator(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
+				}
 			} else if(role.equals(Role.GROUPADMIN)) {
 				if(complementaryObject == null) {
 					throw new InternalErrorException("Not supported operation, can't set GroupAdmin rights without Group.");
@@ -808,6 +817,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					else removeAdmin(sess, (Vo) complementaryObject, authorizedGroup);
 				} else {
 					throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.TOPGROUPCREATOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set TopGroupCreator rights without Vo.");
+				} else if(complementaryObject instanceof Vo) {
+					if(user != null) removeTopGroupCreator(sess, (Vo) complementaryObject, user);
+					else removeTopGroupCreator(sess, (Vo) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
 				}
 			} else if(role.equals(Role.GROUPADMIN)) {
 				if(complementaryObject == null) {
@@ -1146,12 +1164,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.addObserver(sess, vo, group);
 	}
 
+	public static void addTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addTopGroupCreator(sess, vo, user);
+	}
+
+	public static void addTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addTopGroupCreator(sess, vo, group);
+	}
+
 	public static void removeObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
 		authzResolverImpl.removeObserver(sess, vo, user);
 	}
 
 	public static void removeObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeObserver(sess, vo, group);
+	}
+
+	public static void removeTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removeTopGroupCreator(sess, vo, user);
+	}
+
+	public static void removeTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+		authzResolverImpl.removeTopGroupCreator(sess, vo, group);
 	}
 
 	public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
