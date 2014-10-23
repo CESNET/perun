@@ -352,6 +352,28 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	public void addTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(),
+					Role.TOPGROUPCREATOR.getRoleName(), vo.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already observer in vo " + vo, e, user, vo);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void addTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (role_id, vo_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
+					Role.TOPGROUPCREATOR.getRoleName(), vo.getId(), group.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already observer in vo " + vo, e, group, vo);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public void removeObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), Role.VOOBSERVER.getRoleName())) {
@@ -365,6 +387,26 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), Role.VOOBSERVER.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not observer of the vo " + vo);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), Role.TOPGROUPCREATOR.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not observer of the vo " + vo);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), Role.TOPGROUPCREATOR.getRoleName())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not observer of the vo " + vo);
 			}
 		} catch (RuntimeException e) {
