@@ -320,6 +320,112 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException {
+
+		Map<String, Object> result = new HashMap<String, Object>();
+		Vo vo = null;
+		Group group = null;
+
+		try {
+
+			// GET VO
+			vo = vosManager.getVoByShortName(registrarSession, voShortName);
+			List<Attribute> list = attrManager.getAttributes(registrarSession, vo);
+			Iterator<Attribute> iter = list.iterator();
+			while(iter.hasNext()) {
+				Attribute a = iter.next();
+				if (!"contactEmail".equals(a.getFriendlyName()) || !"voLogoURL".equals(a.getFriendlyName())) {
+					iter.remove();
+				}
+			}
+
+			result.put("vo", vo);
+			result.put("voAttributes", list);
+			result.put("voForm", getFormForVo(vo));
+
+			// GET INITIAL APPLICATION IF POSSIBLE
+			try {
+
+				result.put("voFormInitial", getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm")));
+
+			} catch (DuplicateRegistrationAttemptException ex) {
+				// has submitted application
+				result.put("voFormInitialException", ex);
+			} catch (AlreadyRegisteredException ex) {
+				// is already member of VO
+				result.put("voFormInitialException", ex);
+			} catch (ExtendMembershipException ex) {
+				// can't become member of VO
+				result.put("voFormInitialException", ex);
+			}
+
+			// ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
+			if (sess.getPerunPrincipal().getUser() != null) {
+
+				try {
+					result.put("voFormExtension", getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm")));
+				} catch (DuplicateRegistrationAttemptException ex) {
+					// has submitted application
+					result.put("voFormExtensionException", ex);
+				} catch (RegistrarException ex) {
+					// more severe exception like bad input/inconsistency
+					result.put("voFormExtensionException", ex);
+				} catch (ExtendMembershipException ex) {
+					// can't extend membership in VO
+					result.put("voFormExtensionException", ex);
+				} catch (MemberNotExistsException ex) {
+					// is not member -> can't extend
+					result.put("voFormExtensionException", ex);
+				}
+
+			}
+
+			// GET GROUP IF RELEVANT
+			if (groupName != null && !groupName.isEmpty()) {
+
+				group = perun.getGroupsManager().getGroupByName(registrarSession, vo, groupName);
+				result.put("group", group);
+				result.put("groupForm", getFormForGroup(group));
+
+				try {
+					result.put("groupFormInitial", getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("groupForm")));
+				} catch (DuplicateRegistrationAttemptException ex) {
+					// has submitted application
+					result.put("groupFormInitialException", ex);
+				} catch (AlreadyRegisteredException ex) {
+					// is already member of group
+					result.put("groupFormInitialException", ex);
+				} catch (RegistrarException ex) {
+					// more severe exception like bad input/inconsistency
+					result.put("groupFormInitialException", ex);
+				} catch (ExtendMembershipException ex) {
+					// can't become member of VO -> then can't be member of group either
+					result.put("groupFormInitialException", ex);
+				}
+
+			}
+
+			// FIND SIMILAR USERS
+			try {
+				result.put("similarUsers", getConsolidatorManager().checkForSimilarUsers(sess));
+			} catch (Exception ex) {
+				// not relevant exception in this use-case
+				log.error("[REGISTRAR] Exception when searching for similar users: {}", ex);
+			}
+
+		} catch (Exception ex) {
+
+			// we don't have to try any more, return exception
+			result.put("exception", ex);
+			return result;
+
+		}
+
+		return result;
+
+	}
+
+	@Override
 	public void createApplicationFormInVo(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
@@ -1543,7 +1649,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
 						if (g.contains(group)) {
 							// user is member of group - can't post more initial applications
-							throw new RegistrarException("You are already member of group: "+group.getName());
+							throw new AlreadyRegisteredException("You are already member of group: "+group.getName());
 						} else {
 							// user isn't member of group
 							regs.clear();
@@ -1561,7 +1667,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						}
 					} else {
 						// user is member of vo, can't post more initial applications
-						throw new RegistrarException("You are already member of VO: "+vo.getName());
+						throw new AlreadyRegisteredException("You are already member of VO: "+vo.getName());
 					}
 				} catch (MemberNotExistsException ex) {
 					// user is not member of vo
