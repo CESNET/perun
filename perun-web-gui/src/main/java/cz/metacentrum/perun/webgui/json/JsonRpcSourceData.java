@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.Request;
 import com.google.gwt.view.client.HasRows;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
@@ -42,7 +43,7 @@ public class JsonRpcSourceData implements HasRows {
 	 */
 	private JsonCallbackWithPages jsonCallback;
 
-	private int previousCallbackId = -1;
+	private Request request = null;
 
 
 	private boolean rowCountIsExact = true;
@@ -150,7 +151,7 @@ public class JsonRpcSourceData implements HasRows {
 		}
 
 		// clears the callback
-		JsonClient.removeRunningRequest(this.previousCallbackId);
+		if (request != null) this.request.cancel();
 
 		// sets the new range
 		this.visibleRange = range;
@@ -160,7 +161,7 @@ public class JsonRpcSourceData implements HasRows {
 
 		//  reloads new data
 		jsonCallback.clearTable();
-		this.previousCallbackId = jsonCallback.retrieveData(range.getLength(), page);
+		this.request = jsonCallback.retrieveData(range.getLength(), page);
 
 		// triggers the change
 		RangeChangeEvent.fire(this, getVisibleRange());

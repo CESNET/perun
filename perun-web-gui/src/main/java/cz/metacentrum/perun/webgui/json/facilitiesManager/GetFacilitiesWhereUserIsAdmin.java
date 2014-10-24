@@ -120,7 +120,7 @@ public class GetFacilitiesWhereUserIsAdmin implements JsonCallback, JsonCallback
 	public void retrieveData()
 	{
 		final String param = "user=" + this.userId;
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
 

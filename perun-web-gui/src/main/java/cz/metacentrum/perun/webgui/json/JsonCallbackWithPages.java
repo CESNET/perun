@@ -1,11 +1,12 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.http.client.Request;
+
 /**
  * A request - table - which can be pageable, must inherit this.
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-
 public interface JsonCallbackWithPages {
 
 	/**
@@ -15,9 +16,9 @@ public interface JsonCallbackWithPages {
 	 *
 	 * @param pageSize
 	 * @param pageNum Starts with 0.
-	 * @return callback id
+	 * @return callback
 	 */
-	int retrieveData(int pageSize, int pageNum);
+	Request retrieveData(int pageSize, int pageNum);
 
 	/**
 	 * Clears the table
